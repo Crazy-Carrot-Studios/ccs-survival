@@ -1,4 +1,5 @@
 using CCS.Core;
+using CCS.Survival.Character;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalDiagnostics
@@ -63,11 +64,18 @@ namespace CCS.Survival
                     "Core diagnostics report expected initialized runtime host.");
             }
 
-            if (report.RegisteredModuleCount != 0)
+            if (report.RegisteredModuleCount != 1)
             {
                 CCS_Logger.LogWarning(
                     LogCategory,
-                    $"Expected zero gameplay modules at 0.2.0, got {report.RegisteredModuleCount}.");
+                    $"Expected one survival module at 0.3.0, got {report.RegisteredModuleCount}.");
+            }
+
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalCharacterDiagnostics.ModuleId))
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    $"Expected installed module: {CCS_SurvivalCharacterDiagnostics.ModuleId}");
             }
 
             CCS_Logger.Log(

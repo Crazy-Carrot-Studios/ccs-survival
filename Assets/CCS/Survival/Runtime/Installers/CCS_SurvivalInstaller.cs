@@ -1,13 +1,14 @@
 using CCS.Core;
+using CCS.Survival.Character;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalInstaller
 // CATEGORY: Survival / Installers
-// PURPOSE: Empty survival-layer bootstrap installer shell for future gameplay module sequencing.
+// PURPOSE: Survival-layer composition root for explicit gameplay module install sequencing.
 // PLACEMENT: Registered on CCS_BootstrapRunner by CCS_SurvivalBootstrap.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: No gameplay modules. No inventory/crafting/save. Downward dependency: Survival → Core only.
+// NOTES: 0.3.0 registers character module skeleton only. No inventory/crafting/save/net.
 // =============================================================================
 
 namespace CCS.Survival
@@ -46,8 +47,34 @@ namespace CCS.Survival
                 return;
             }
 
-            // Milestone 0.2.0: empty composition root. Future module installers register here in explicit order.
-            CCS_Logger.Log(LogCategory, "Survival installer completed (empty install pipeline).", enableDebugLogs);
+            InstallCharacterModuleSkeleton(runtimeHost);
+
+            CCS_Logger.Log(LogCategory, "Survival installer completed.", enableDebugLogs);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void InstallCharacterModuleSkeleton(CCS_RuntimeHost runtimeHost)
+        {
+            CCS_SurvivalCharacterModuleInstaller characterModuleInstaller =
+                new CCS_SurvivalCharacterModuleInstaller(enableDebugLogs);
+            characterModuleInstaller.Install(runtimeHost);
+
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalCharacterDiagnostics.ModuleId))
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    "Character module skeleton was not registered after install.");
+            }
+            else
+            {
+                CCS_Logger.Log(
+                    LogCategory,
+                    $"Character module skeleton registered: {CCS_SurvivalCharacterDiagnostics.ModuleId}",
+                    enableDebugLogs);
+            }
         }
 
         #endregion

@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.2.0 — Survival Bootstrap Scene + Empty Install Pipeline  
+**Milestone:** 0.3.0 — Survival Character Module Skeleton  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -24,11 +24,15 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 | Type | Path |
 |------|------|
-| Assembly | `Assets/CCS/Survival/Scripts/CCS.Survival.Runtime.asmdef` |
-| Bootstrap | `Scripts/Bootstrap/CCS_SurvivalBootstrap.cs` |
-| Installer | `Scripts/Installers/CCS_SurvivalInstaller.cs` |
-| Diagnostics | `Scripts/Diagnostics/CCS_SurvivalDiagnostics.cs` |
-| Context | `Scripts/Runtime/CCS_SurvivalRuntimeContext.cs` |
+| Assembly | `Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` |
+| Bootstrap | `Runtime/Bootstrap/CCS_SurvivalBootstrap.cs` |
+| Installer | `Runtime/Installers/CCS_SurvivalInstaller.cs` |
+| Diagnostics | `Runtime/Diagnostics/CCS_SurvivalDiagnostics.cs` |
+| Context | `Runtime/Context/CCS_SurvivalRuntimeContext.cs` |
+| Character module | `Runtime/Character/Modules/CCS_SurvivalCharacterModule.cs` |
+| Character installer | `Runtime/Character/Modules/CCS_SurvivalCharacterModuleInstaller.cs` |
+| Character diagnostics | `Runtime/Character/Diagnostics/CCS_SurvivalCharacterDiagnostics.cs` |
+| Survival README | `Assets/CCS/Survival/README.md` |
 
 **Dependency rule:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only. Modules reference Core (and optionally Survival later); Core never references Survival.
 
@@ -65,12 +69,12 @@ Do not add survival gameplay logic under `Assets/CCS/Framework/Core/`.
 |--------|---------|
 | `Assets/CCS/Survival/Scenes/` | Game entry bootstrap scenes |
 | `Assets/CCS/Survival/Prefabs/` | Survival bootstrap prefabs |
-| `Assets/CCS/Survival/Scripts/` | `CCS.Survival.Runtime` shell |
+| `Assets/CCS/Survival/Runtime/` | `CCS.Survival.Runtime` shell + character skeleton |
 | `Assets/CCS/Modules/` | Gameplay feature modules (`ccs.survival.*`) — not wired at 0.2.0 |
 | `Assets/CCS/Framework/` | Vendored CCS Core Platform |
 
 ---
 
-## Milestone 0.2.0 rule
+## Milestone 0.3.0 rule
 
-**Bootstrap shell only.** No inventory, crafting, networking packages, or save implementation.
+**Character module skeleton only.** No movement, attributes, inventory, combat, save, or networking packages.

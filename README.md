@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.2.0 — Survival Bootstrap Scene + Empty Install Pipeline (shell startup; no gameplay systems yet)
+0.3.0 — Survival Character Module Skeleton (module identity only; no character gameplay mechanics)
 
 ## Repository Purpose
 
@@ -97,7 +97,7 @@ ccs-survival/
 │       ├── Scenes/            # SCN_CCS_Survival_Bootstrap
 │       ├── Prefabs/           # PF_CCS_Survival_BootstrapRoot
 │       ├── Documentation/
-│       └── Scripts/           # CCS.Survival.Runtime (bootstrap shell at 0.2.0)
+│       └── Runtime/             # CCS.Survival.Runtime (bootstrap + character skeleton)
 └── README.md
 ```
 
@@ -116,13 +116,13 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.2.0 Scope (current)
+## Milestone 0.3.0 Scope (current)
 
-**In scope:** survival bootstrap scene, empty install pipeline shell, `CCS.Survival.Runtime` assembly, survival-owned diagnostics.
+**In scope:** `ccs.survival.character` module skeleton, installer, diagnostics constants, survival install sequencing.
 
-**Out of scope:** inventory, crafting, hunger/thirst, networking packages, persistence, gameplay module implementations.
+**Out of scope:** movement, attributes, inventory, crafting, hunger/thirst, combat, AI, save, networking packages.
 
-See [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md).
+See [Survival README](Assets/CCS/Survival/README.md).
 
 ## Unity Version
 

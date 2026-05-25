@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: Attach to PF_CCS_Survival_BootstrapRoot with CCS_RuntimeHost (same GameObject).
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Runs after host Awake. Core diagnostics off; survival diagnostics owned here. No gameplay modules.
+// NOTES: Runs after host Awake. Core diagnostics off; survival diagnostics owned here. Character skeleton at 0.3.0.
 // =============================================================================
 
 namespace CCS.Survival
