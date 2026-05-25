@@ -1,384 +1,126 @@
-# CCS Framework
+# CCS Survival
 
-Reusable AAA-ready modular game platform for Crazy Carrot Studios.
+Survival-focused gameplay repository for Crazy Carrot Studios.
 
-**Repository:** https://github.com/Crazy-Carrot-Studios/ccs-framework
+**Repository:** https://github.com/Crazy-Carrot-Studios/ccs-survival  
+**Upstream Core:** [ccs-framework](https://github.com/Crazy-Carrot-Studios/ccs-framework) (vendored under `Assets/CCS/Framework/`)
 
-## Current Framework Version
+## Current Project Version
 
-0.4.4
+0.1.0 — Survival Project Identity Setup (documentation milestone; no gameplay systems yet)
 
 ## Repository Purpose
 
-This repository is the **permanent reusable CCS Core Platform upstream**. It is the engine/platform layer for all future Crazy Carrot Studios games — not a game project.
+**ccs-survival** is a **gameplay and content** repository. It owns survival mechanics, genre modules, scenes, narrative product themes (including western MMO / *Reckoning* lore), and game-specific UI — while keeping the reusable **CCS Core Platform** protected under `Assets/CCS/Framework/Core/`.
+
+| Layer | Location | Policy |
+|-------|----------|--------|
+| **Core Platform** | `Assets/CCS/Framework/Core/` | Upstream-aligned; no gameplay logic; changes upstream when reusable |
+| **Gameplay modules** | `Assets/CCS/Modules/` | Feature assemblies (`ccs.survival.*` module IDs) |
+| **Survival identity & plans** | `Assets/CCS/Survival/`, `Documentation/` | Game repo direction, milestones, architecture notes |
 
 ## What Belongs Here
 
-- Runtime systems
-- Bootstrap systems
-- Module architecture
-- Service registry
-- Diagnostics
-- Validation
-- Save foundations (shared contracts only, when added)
-- Networking-safe architecture
-- Reusable engine/platform systems
-- Core documentation, smoke tests, and bootstrap validation scene
+- Survival loops, crafting, inventory, equipment, character control (as modules)
+- Factions, quests, weapons, biomes, and narrative content
+- Game scenes, prefabs, ScriptableObjects, and game-specific UI
+- Module installers and manual bootstrap install plans for this game
+- Survival architecture and milestone documentation
 
-## What Does NOT Belong Here
+## What Does NOT Belong Here (use upstream)
 
-- Game-specific gameplay
-- Survival mechanics
-- Western systems
-- MMO content
-- Quests
-- Factions
-- Weapons
-- Crafting content
-- UI specific to a game
-- Scenes/assets for a game
+Changes that benefit **every** CCS game belong in **ccs-framework**, not duplicated as one-off forks:
 
-Gameplay belongs in **forked or templated game repositories** under `Assets/CCS/Modules/`.
+- Runtime host, bootstrap runner, service registry, event dispatcher
+- Module registry contracts, lifecycle, diagnostics, validation
+- Core smoke tests and `SCN_CCS_Bootstrap` validation scene
 
-## Recommended Workflow
+See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md).
 
-1. Keep **ccs-framework** as the reusable upstream
-2. Fork, branch, or **Use this template** into game repos
-3. Build gameplay systems in game repos
-4. Upstream reusable improvements back into **ccs-framework** when appropriate
-
-See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md) and [CCS GitHub Template Setup](Assets/CCS/Framework/Core/Documentation/CCS_GitHub_Template_Setup.md).
-
-## Studio repository structure
+## Studio Repository Structure
 
 | Repository | Role |
 |------------|------|
-| **ccs-framework** | Reusable upstream Core Platform (this repo) |
-| **ccs-survival** | Survival-focused gameplay and game content |
+| **ccs-framework** | Permanent reusable Core Platform upstream |
+| **ccs-survival** | Survival-focused gameplay and game content (this repo) |
 
-Genre-specific titles (western, post-apocalyptic, extraction, co-op, MMO survival, and similar) belong **inside** a game project such as **ccs-survival** — not in framework or repository names.
+Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO survival) live **inside** this project — not in framework naming or upstream module ID examples.
 
-## Suggested future repositories
+## Documentation (start here)
 
-- **ccs-survival** — survival gameplay (western, post-apocalyptic, extraction, co-op, MMO survival, crafting, and related genres)
-- **ccs-kids-learning**
-- **ccs-topdown-prototype**
+| Document | Purpose |
+|----------|---------|
+| [Survival Gameplay Architecture](Documentation/Architecture/Survival_Gameplay_Architecture.md) | High-level gameplay structure and module layering |
+| [Survival Module Boundaries](Documentation/Architecture/Survival_Module_Boundaries.md) | Core vs Modules vs Survival folder rules |
+| [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |
+| [Survival Persistence Direction](Documentation/Architecture/Survival_Persistence_Direction.md) | Save/load direction (no implementation in 0.1.0) |
+| [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md) | Identity setup scope and checklist |
+| [Survival (Unity) docs](Assets/CCS/Survival/Documentation/README.md) | In-project survival documentation index |
 
-## Current Baseline
-
-| Item | Value |
-|------|--------|
-| **Version** | 0.4.4 |
-| **Phase One baseline tag** | `v0.4.0-core-platform-baseline` |
-| **Core Platform** | Complete and validated (0.4.0+) |
-
-**Key documents:**
+**Core reference (read-only for gameplay authors):**
 
 - [CCS Core Platform Architecture](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)
-- [CCS Core Platform 0.4.0 Release Notes](Assets/CCS/Framework/Core/Documentation/Releases/CCS_Core_Platform_0.4.0_Release_Notes.md)
-- [CCS Phase One Completion Checklist](Assets/CCS/Framework/Core/Documentation/CCS_Phase_One_Core_Platform_Completion_Checklist.md)
-- [CCS Core Template Readiness Checklist](Assets/CCS/Framework/Core/Documentation/CCS_Core_Template_Readiness_Checklist.md)
+- [CCS Script Standards](Assets/CCS/Framework/Documentation/CCS_Script_Standards.md)
 
-**Platform rules:** no singleton managers, no auto-discovery, no gameplay code in Core, manual registration only, diagnostics-gated smoke tests under `Core/Runtime/SmokeTests/`.
+## Module ID Convention
 
-## Cursor workspace rules
+Use reverse-DNS style IDs scoped to survival gameplay:
 
-Repository-level Cursor rules enforce CCS architectural policies during AI-assisted development:
+- `ccs.survival.inventory`
+- `ccs.survival.crafting`
+- `ccs.survival.character`
 
-- **Auto-apply (Cursor):** [.cursor/rules/ccs-core-platform-rules.mdc](.cursor/rules/ccs-core-platform-rules.mdc) — `alwaysApply: true` in every session
-- **Reference copy:** [.cursor/rules/ccs-core-platform-rules.md](.cursor/rules/ccs-core-platform-rules.md)
-- **Covers:** `ccs-framework` vs `ccs-survival` separation, Core constraints, script standards, naming, module policy, multiplayer-safe direction
-- **Governance only** — no runtime behavior change; policies align with Core Platform documentation
+Do **not** use `ccs.reckoning.*` in shared upstream docs; *Reckoning* is product/lore inside this game repo.
 
-**Do not commit** local Unity churn (`Library/`, `UserSettings/`, incidental scene/RPM edits) — see `.gitignore` and the template checklist.
+## Architecture Policies (inherited from Core)
 
-## Architecture
-- Framework
-- Modules
-- Shared
-- Database
-- Documentation
-- Tests
+- No singleton managers or static global service locators
+- No auto-discovery or scene scanning for installers/modules
+- Manual bootstrap install plans and explicit module registration
+- Instance-owned subsystems via `CCS_RuntimeHost` per runtime context
+- Diagnostics-gated smoke tests remain under `Framework/Core/Runtime/SmokeTests/`
 
-## Versioning
-Framework version uses semantic-style **Major.Minor.Patch** (e.g. `0.0.1`, `0.1.0`, `1.0.0`).
+Gameplay code uses Core **contracts** (`CCS_IModule`, `CCS_ModuleInstallerBase`, `CCS_Result`, `CCS_EventDispatcher`) — it does not modify Core behavior for one-off game needs.
 
-| Bump | When to use |
-|------|-------------|
-| **Patch** | Small fixes, cleanup, non-breaking adjustments |
-| **Minor** | New framework systems or modules |
-| **Major** | Large architectural milestones |
+## Folder Layout (authoritative)
 
-**Sync rule:** On every major framework milestone commit, update **both**:
-1. `Current Framework Version` in this README
-2. **Unity Player → Version** (`ProjectSettings/ProjectSettings.asset` → `bundleVersion`)
+```text
+ccs-survival/
+├── Documentation/
+│   ├── Architecture/          # Survival architecture direction
+│   └── Milestones/            # Game repo milestones
+├── Assets/CCS/
+│   ├── Framework/             # Vendored Core Platform (protect from gameplay)
+│   ├── Modules/               # Gameplay feature modules (future implementation)
+│   └── Survival/              # Survival identity, docs, future game-specific assets
+│       ├── Documentation/
+│       └── Scripts/           # Reserved; empty at 0.1.0
+└── README.md
+```
 
-Keep Git commits, framework milestones, Unity project version, and internal documentation aligned.
+## Cursor Workspace Rules
 
-## Current Status
-Foundation setup and architecture established.
+- [.cursor/rules/ccs-core-platform-rules.mdc](.cursor/rules/ccs-core-platform-rules.mdc) — `alwaysApply: true`
+- Enforces Core vs survival separation, script standards, naming, and multiplayer-safe direction
 
-## Framework Bootstrap Structure Established
+## Milestone 0.1.0 Scope (current)
 
-Authoritative folder layout under `Assets/CCS/Framework/`:
+**In scope:** documentation, folder identity, architectural direction.
 
-- **Core** — Runtime and Editor foundation (systems, services, utilities, data, assembly definitions)
-- **Modules** — Pluggable feature assemblies (future)
-- **Shared** — Framework-level shared assets
-- **Tests** — Runtime and Editor test roots
-- **Documentation** — Framework documentation
+**Out of scope:** inventory edits, character controller, networking packages, persistence code, gameplay scripts, new systems.
 
-## Git Hygiene Established
-
-Repository ignore rules keep generated and local-only content out of Git:
-
-- Unity cache and build folders are ignored (`Library/`, `Temp/`, `Obj/`, `Logs/`, `UserSettings/`, `MemoryCaptures/`, `Build/`, `Builds/`)
-- Local IDE files are ignored (`.vs/`, `.vscode/`, `*.csproj`, `*.sln`, and related generated project files)
-
-**Still tracked:** `Assets/**/*.meta`, `ProjectSettings/`, `Packages/`, `README.md`, and all `.asmdef` / `.asmdef.meta` files.
-
-## CCS Scripting Standards Established
-
-Authoritative scripting standards are defined before runtime implementation:
-
-- Document: `Assets/CCS/Framework/Documentation/CCS_Script_Standards.md`
-- Covers CCS headers, region order, naming, logging, runtime/editor separation, and event-driven architecture
-
-## CCS Core Interfaces Foundation Established
-
-Foundational runtime contracts in `CCS.Core.Runtime`:
-
-- `CCS_IService` — Base service contract (`IsInitialized`, `Initialize`)
-- `CCS_ISystem` — Base system contract (`IsInitialized`, `Initialize`, `Shutdown`)
-- `CCS_IUpdatable`, `CCS_IFixedUpdatable`, `CCS_ILateUpdatable` — Update loop contracts
-
-Interfaces only; no implementations, singletons, or service locators in this milestone.
-
-## CCS Core Result and Message Types Established
-
-Foundational runtime utility types in `CCS.Core.Runtime`:
-
-- `CCS_Result` — Immutable non-generic operation result
-- `CCS_Result<T>` — Immutable generic result wrapper
-- `CCS_Message` / `CCS_MessageType` — Classified message data for future UI and logging layers
-
-Structs only; no managers, service locators, or `Debug.Log` integration in this milestone.
-
-## CCS Core Logging Foundation Established
-
-Centralized runtime logging in `CCS.Core.Runtime`:
-
-- `CCS_Logger` — Static helper with `Log`, `LogWarning`, `LogError`, and `FormatMessage`
-- Format: `[CCS {category}] {message}`
-- Normal logs respect `isEnabled`; warnings and errors always output
-
-No managers, file logging, or editor tooling in this milestone.
-
-## CCS Core Validation Foundation Established
-
-Centralized runtime validation in `CCS.Core.Runtime`:
-
-- `CCS_Validation` — Static helpers for objects, strings, and collections
-- `ValidateObject` / `ValidateString` — Return `CCS_Result` for consistent failure handling
-
-No exceptions, logging, managers, or editor tooling in this milestone.
-
-## CCS Core Service Registry Foundation Established
-
-First minor-version architecture milestone — interface-driven service registration in `CCS.Core.Runtime`:
-
-- `CCS_IServiceRegistry` — Register, unregister, resolve, and query services by interface type
-- `CCS_ServiceRegistry` — Lightweight sealed implementation using `Dictionary<Type, CCS_IService>`
-
-No static global singleton, MonoBehaviours, bootstrap scenes, or automatic service lifecycle in this milestone.
-
-## CCS Core Event Foundation Established
-
-Lightweight decoupled event architecture in `CCS.Core.Runtime`:
-
-- `CCS_IEvent` — Base event contract with `Timestamp`
-- `CCS_IEventDispatcher` / `CCS_EventDispatcher` — Subscribe, unsubscribe, dispatch, and clear
-
-No static global dispatcher, MonoBehaviours, async/threading, or gameplay logic in this milestone.
-
-## CCS Core Runtime Update Loop Foundation Established
-
-Interface-driven update scheduling in `CCS.Core.Runtime`:
-
-- `CCS_RuntimeUpdateLoop` — Registers and drives `CCS_IUpdatable`, `CCS_IFixedUpdatable`, and `CCS_ILateUpdatable` systems
-- `Tick` / `FixedTick` / `LateTick` — Called in registration order without per-frame list allocation
-
-No MonoBehaviour bridge, static singleton, or gameplay systems in this milestone.
-
-## CCS Core Runtime Host Foundation Established
-
-First controlled Unity bridge in `CCS.Core.Runtime`:
-
-- `CCS_RuntimeHost` — Thin `MonoBehaviour` connecting Unity lifecycle to CCS architecture
-- Owns `CCS_RuntimeUpdateLoop`, `CCS_ServiceRegistry`, and `CCS_EventDispatcher` instances
-- `Update` / `FixedUpdate` / `LateUpdate` drive registered systems; `OnDestroy` clears registries
-
-No singleton, `DontDestroyOnLoad`, gameplay logic, or automatic module loading in this milestone.
-
-## CCS Bootstrap Installer Foundation Established
-
-Modular runtime composition in `CCS.Core.Runtime`:
-
-- `CCS_IBootstrapInstaller` — Contract for installing into `CCS_RuntimeHost`
-- `CCS_BootstrapRunner` — Registers and runs installers in order
-- `CCS_RuntimeHost.BootstrapRunner` — Host-owned runner (not auto-run yet)
-
-No gameplay modules, scene auto-loading, or ScriptableObject installers in this milestone.
-
-## CCS Runtime Host Prefab Foundation Established
-
-Official runtime entry prefab in `Assets/CCS/Framework/Core/Runtime/Prefabs/`:
-
-- **`PF_CCS_RuntimeHost`** — Root GameObject with `CCS_RuntimeHost` (`enableDebugLogs: false` by default)
-- Drop into any scene as the standard CCS runtime entry point
-
-Prefab only; no sample scenes or gameplay wiring in this milestone.
-
-## CCS Bootstrap Scene Foundation Established
-
-Minimal framework startup scene:
-
-- **`SCN_CCS_Bootstrap`** — `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity`
-- Contains single `PF_CCS_RuntimeHost` prefab instance
-- Registered as **Build Settings index 0**
-
-No camera, lights, gameplay objects, or scene loading in this milestone.
-
-## CCS Runtime Smoke Test Foundation Established
-
-Play Mode architecture validation in `CCS.Core.Runtime`:
-
-- `CCS_RuntimeSmokeTestSystem` — `CCS_ISystem` + `CCS_IUpdatable` smoke validation
-- `CCS_RuntimeSmokeTestInstaller` — Registers smoke test via bootstrap runner
-- `CCS_RuntimeSmokeTestBridge` — Isolated validation MonoBehaviour (on `PF_CCS_RuntimeHost` for bootstrap validation)
-
-Expected logs when bridge `enableDebugLogs` is enabled: smoke test initialized, installer completed, update tick confirmed.
-
-## CCS Runtime Smoke Test Isolation Established
-
-Production/runtime boundary cleanup:
-
-- Removed smoke test coupling from `CCS_RuntimeHost`
-- Added `CCS_RuntimeSmokeTestBridge` for validation-only bootstrap orchestration
-- `CCS_RuntimeHost` is validation-agnostic; smoke testing is an optional bridge layer
-
-## CCS Runtime Diagnostics Toggle Foundation Established
-
-Explicit diagnostics gating on `CCS_RuntimeHost`:
-
-- `enableRuntimeDiagnostics` — Allows diagnostic bridges to run validation (default **true** on `PF_CCS_RuntimeHost` during foundation development)
-- `CCS_RuntimeSmokeTestBridge` — Runs smoke tests only when `EnableRuntimeDiagnostics` is true
-
-With diagnostics **disabled**: no smoke test logs, no errors. With diagnostics **enabled**: standard three smoke test log lines.
-
-## CCS Core Framework Stability Checkpoint Established
-
-First stable architecture checkpoint for CCS Core runtime foundation (**0.2.0**):
-
-- Documented in `Assets/CCS/Framework/Documentation/CCS_Core_Stability_Checkpoint_0_2_0.md`
-- Verified pipeline: RuntimeHost → BootstrapRunner → SmokeTestInstaller → RuntimeUpdateLoop → Tick → Clean Shutdown
-- Production boundaries: diagnostics-gated validation, production-safe host, bootstrap/service/event/update contracts for future systems
-
-## CCS Module Contract Foundation Established
-
-Module architecture contracts in `CCS.Core.Runtime` (`Core/Runtime/Modules/`):
-
-- `CCS_ModuleState` — Module lifecycle enum
-- `CCS_ModuleMetadata` — Immutable module identity struct
-- `CCS_IModule` — Module contract extending `CCS_ISystem`
-- `CCS_IModuleDependencyProvider` — Declared module dependency IDs
-- `CCS_IModuleInstaller` — Bootstrap installer contract for modules
-
-No gameplay modules, managers, discovery, or editor tooling in this milestone. Core **0.2.0** runtime checkpoint remains stable.
-
-## CCS Module Base Class Foundation Established
-
-`CCS_ModuleBase` abstract lifecycle class in `Core/Runtime/Modules/Base/`:
-
-- Implements `CCS_IModule` with shared `Initialize`, `Install`, `Uninstall`, and `Shutdown` behavior
-- Protected virtual hooks: `OnInitialize`, `OnInstall`, `OnUninstall`, `OnShutdown`
-- Non-MonoBehaviour; no automatic service/update registration or singleton behavior
-- Corrected invalid Unity `.meta` GUIDs for module contract assets (32-character hex)
-
-## CCS Module Installer Base Foundation Established
-
-`CCS_ModuleInstallerBase` bootstrap adapter in `Core/Runtime/Modules/Base/`:
-
-- Implements `CCS_IModuleInstaller` with shared host/module validation
-- Delegates install to `CCS_IModule.Install`
-- Protected hooks: `OnBeforeInstall`, `OnAfterInstall`, `GetLogCategory`
-- Non-MonoBehaviour; no discovery, singletons, or gameplay managers
-
-## CCS Module Registry Foundation Established
-
-`CCS_IModuleRegistry` and `CCS_ModuleRegistry` in `Core/Runtime/Modules/Registry/`:
-
-- Manual registration by `CCS_ModuleMetadata.ModuleId`
-- `CCS_Result` for register/unregister; TryGet by ID or type; duplicate ID prevention
-- Non-singleton instance registry; no auto-discovery
-
-## CCS Module Host Registry Integration Established
-
-`CCS_ModuleHost` on `CCS_RuntimeHost`:
-
-- Owns private `CCS_ModuleRegistry` (no static/singleton registry)
-- Registers modules after successful install via `CCS_ModuleInstallerBase`
-- Safe queries: `TryGetModule`, `IsModuleRegistered`, `GetRegisteredModules`
-- Service registry behavior on runtime host unchanged
-
-## CCS Installer Smoke Test Alignment Established
-
-Diagnostics smoke tests now validate the module installer pipeline:
-
-- `CCS_SmokeTestModule` / `CCS_SmokeTestModuleInstaller` via `CCS_ModuleInstallerBase`
-- Confirms before/after install hooks, module install, `ModuleHost` registration, and duplicate ID blocking
-
-## CCS Module Lifecycle State Tracking Established
-
-`CCS_ModuleLifecycleState` (Uninstalled → Installing → Installed / Failed):
-
-- Tracked on `CCS_ModuleBase`; orchestrated by `CCS_ModuleInstallerBase`
-- Duplicate install blocked before pipeline runs; registered module stays `Installed`
-- `CCS_ModuleHost` exposes `IsModuleInstalled` and `TryGetModuleLifecycleState`
-- `CCS_ModuleState` remains system lifecycle; `CCS_Result` remains operation outcome
-
-## CCS Module Uninstall Foundation Established
-
-Manual module uninstall via `CCS_ModuleHost`:
-
-- `CCS_IModule.Uninstall` / `CCS_ModuleBase.OnUninstall` — lifecycle `Uninstalling` → `Uninstalled` or `Failed`
-- `UnregisterInstalledModule` / `UninstallModule` — orchestrated uninstall and registry removal
-- Smoke test validates uninstall, registry cleanup, and graceful missing/duplicate uninstall failures
-
-## CCS Core Platform Baseline Documentation Established
-
-Authoritative architecture reference at **0.3.8**:
-
-- [Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)
-- Covers RuntimeHost, bootstrap, update loop, events, services, module contracts, install/uninstall flows, smoke test expectations, and platform policies (no singleton, no auto-discovery, manual registration)
-
-**0.3.7 Play Mode validation confirmed:** install, duplicate preflight (no hook re-run), uninstall, registry clear, graceful missing/duplicate uninstall failures.
-
-## CCS Core Template Readiness Pass Established
-
-Template-readiness review for GitHub template / game project branching:
-
-- Folder structure and Core-only `.cs` scope verified
-- Smoke tests isolated under `Core/Runtime/SmokeTests/`
-- Documentation points to Core Platform baseline + template checklist
-- Local-only Unity files excluded via `.gitignore` (do not commit incidental scene/settings churn)
-
-## CCS Core Platform Final Validation Pass Established
-
-Milestone **0.3.10** confirms the foundation is clean and consistent: no new architecture; validation note + meta fix only. Ready for **0.4.x** core baseline / GitHub template phase after Play Mode reconfirmation.
+See [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md).
 
 ## Unity Version
+
 Unity 6
 
-## Notes
-This framework is designed to support multiple future game genres including survival, simulation, learning games, and large-scale multiplayer projects.
+## Git Hygiene
+
+Do not commit local Unity churn (`Library/`, `UserSettings/`, incidental `ProjectSettings` edits unless intentional). See `.gitignore` and Core template checklist.
+
+## Versioning
+
+Game repo milestones use **0.x.y** during foundation (e.g. `0.1.0` identity setup). Align `ProjectSettings` → Player → **Version** with milestone releases when you tag gameplay milestones.
+
+**Author:** James Schilz
