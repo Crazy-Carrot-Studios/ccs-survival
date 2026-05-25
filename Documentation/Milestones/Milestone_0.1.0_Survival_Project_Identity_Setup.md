@@ -90,13 +90,15 @@ git status
 
 ---
 
-## Suggested next milestone (0.2.0 — not started)
+## Completed successor
 
-1. Game bootstrap scene + documented manual install plan (empty modules OK)
-2. First module skeleton with installer only (`ccs.survival.character` or agreed priority)
+[Milestone 0.2.0 — Survival Bootstrap Scene + Empty Install Pipeline](Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md) (`v0.2.0-survival-bootstrap` when tagged).
+
+## Suggested next milestone (0.3.0 — not started)
+
+1. First module skeleton with installer registered from `CCS_SurvivalInstaller` (`ccs.survival.character` or agreed priority)
+2. Documented manual module install order in survival installer
 3. Align `ProjectSettings` bundle version with game milestone tagging policy
-
-Do not begin 0.2.0 work until 0.1.0 is reviewed and accepted.
 
 ---
 

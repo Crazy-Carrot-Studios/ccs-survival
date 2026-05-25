@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.1.0 — Survival Project Identity Setup (documentation milestone; no gameplay systems yet)
+0.2.0 — Survival Bootstrap Scene + Empty Install Pipeline (shell startup; no gameplay systems yet)
 
 ## Repository Purpose
 
@@ -55,6 +55,7 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 | [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |
 | [Survival Persistence Direction](Documentation/Architecture/Survival_Persistence_Direction.md) | Save/load direction (no implementation in 0.1.0) |
 | [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md) | Identity setup scope and checklist |
+| [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md) | Bootstrap scene + empty install pipeline |
 | [Survival (Unity) docs](Assets/CCS/Survival/Documentation/README.md) | In-project survival documentation index |
 
 **Core reference (read-only for gameplay authors):**
@@ -92,9 +93,11 @@ ccs-survival/
 ├── Assets/CCS/
 │   ├── Framework/             # Vendored Core Platform (protect from gameplay)
 │   ├── Modules/               # Gameplay feature modules (future implementation)
-│   └── Survival/              # Survival identity, docs, future game-specific assets
+│   └── Survival/              # Survival bootstrap, docs, game-specific shell
+│       ├── Scenes/            # SCN_CCS_Survival_Bootstrap
+│       ├── Prefabs/           # PF_CCS_Survival_BootstrapRoot
 │       ├── Documentation/
-│       └── Scripts/           # Reserved; empty at 0.1.0
+│       └── Scripts/           # CCS.Survival.Runtime (bootstrap shell at 0.2.0)
 └── README.md
 ```
 
@@ -103,13 +106,23 @@ ccs-survival/
 - [.cursor/rules/ccs-core-platform-rules.mdc](.cursor/rules/ccs-core-platform-rules.mdc) — `alwaysApply: true`
 - Enforces Core vs survival separation, script standards, naming, and multiplayer-safe direction
 
-## Milestone 0.1.0 Scope (current)
+## Dependency rule (studio-critical)
 
-**In scope:** documentation, folder identity, architectural direction.
+Gameplay code depends **downward only:**
 
-**Out of scope:** inventory edits, character controller, networking packages, persistence code, gameplay scripts, new systems.
+```text
+Survival → Modules → Core
+```
 
-See [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md).
+Core must never reference survival or gameplay modules.
+
+## Milestone 0.2.0 Scope (current)
+
+**In scope:** survival bootstrap scene, empty install pipeline shell, `CCS.Survival.Runtime` assembly, survival-owned diagnostics.
+
+**Out of scope:** inventory, crafting, hunger/thirst, networking packages, persistence, gameplay module implementations.
+
+See [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md).
 
 ## Unity Version
 

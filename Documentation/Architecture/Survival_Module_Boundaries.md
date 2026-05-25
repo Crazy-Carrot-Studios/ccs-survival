@@ -1,6 +1,6 @@
 # Survival Module Boundaries
 
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Status:** Boundary rules (enforcement via review and Cursor rules)  
 **Author:** James Schilz  
 **Date:** 2026-05-24
@@ -85,11 +85,22 @@ Implementation resumes in later milestones with explicit scope.
 
 `Assets/CCS/Survival/` holds material that applies to the **whole game** but is not a pluggable Core module:
 
+- Bootstrap scene (`SCN_CCS_Survival_Bootstrap`) and prefab (`PF_CCS_Survival_BootstrapRoot`)
+- `CCS.Survival.Runtime` startup shell (`CCS_SurvivalBootstrap`, installer, diagnostics, runtime context)
 - Documentation index
 - Future: bootstrap install plan asset, game version constants, shared enums used by multiple modules
-- Future: studio-facing debug toggles that are not feature-specific
 
 Do **not** turn Survival into a “god module” that absorbs inventory, crafting, or networking. Those remain separate modules.
+
+### Assembly dependency rule (0.2.0+)
+
+| Assembly | May reference |
+|----------|----------------|
+| `CCS.Core.Runtime` | Nothing game-specific |
+| `CCS.Survival.Runtime` | `CCS.Core.Runtime` only |
+| `CCS.Survival.<Feature>.Runtime` (future) | `CCS.Core.Runtime`, optionally `CCS.Survival.Runtime` |
+
+**Never** reference Survival or Modules from Core.
 
 ---
 

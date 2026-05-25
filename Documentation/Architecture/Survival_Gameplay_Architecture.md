@@ -1,7 +1,7 @@
 # Survival Gameplay Architecture
 
-**Version:** 0.1.0  
-**Status:** Direction document (no gameplay systems implemented)  
+**Version:** 0.2.0  
+**Status:** Direction document + bootstrap shell (no gameplay modules implemented)  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -14,11 +14,11 @@ This document defines how **ccs-survival** structures gameplay on top of the CCS
 **ccs-survival** delivers survival-focused gameplay (western MMO, extraction, co-op, and related genres) as **explicit modules** composed at bootstrap time. The Core Platform provides lifecycle, services, events, and module install — not survival rules, items, or world simulation.
 
 ```text
-SCN_Game_Bootstrap (future)
-  └── PF_CCS_RuntimeHost
-        ├── CCS_RuntimeHost (Core — unchanged by gameplay)
-        ├── Game bootstrap installer(s) (manual registration)
-        └── Gameplay modules (ccs.survival.*)
+SCN_CCS_Survival_Bootstrap (implemented 0.2.0)
+  └── PF_CCS_Survival_BootstrapRoot
+        ├── CCS_RuntimeHost (Core — unchanged by gameplay; Core diagnostics OFF)
+        ├── CCS_SurvivalBootstrap (survival-owned startup pipeline)
+        └── Gameplay modules (ccs.survival.*) — future, via survival install sequencing
               ├── Character / movement
               ├── Inventory & equipment
               ├── Crafting & recipes
@@ -97,15 +97,15 @@ All handlers must tolerate missing modules during bootstrap ordering tests.
 
 ---
 
-## Milestone 0.1.0 boundary
+## Milestone 0.2.0 boundary
 
-This document is **direction only**. Do not implement systems, installers, or scenes until the next gameplay milestone unless explicitly scoped.
+Bootstrap scene and empty installer shell exist. **No gameplay modules** are registered yet.
 
 **Next implementation milestones (suggested, not committed):**
 
-1. Game bootstrap scene + empty install plan
-2. First module skeleton (`ccs.survival.character`) with smoke-less installer
-3. Inventory module wired to services/events
+1. First module skeleton (`ccs.survival.character`) registered from `CCS_SurvivalInstaller`
+2. Documented manual module install order in survival installer
+3. Inventory module wired to services/events (later milestone)
 
 ---
 

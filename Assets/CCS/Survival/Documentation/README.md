@@ -1,11 +1,36 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.1.0 — Survival Project Identity Setup  
+**Milestone:** 0.2.0 — Survival Bootstrap Scene + Empty Install Pipeline  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-This folder is the Unity-visible index for survival-specific documentation. Authoritative copies of architecture and milestones live at the **repository root** so they are easy to find outside the Editor.
+Unity-visible index for survival-specific documentation and bootstrap assets.
+
+---
+
+## Bootstrap assets (0.2.0)
+
+| Asset | Path |
+|-------|------|
+| Survival bootstrap scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
+| Survival bootstrap prefab | `Assets/CCS/Survival/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
+
+**Core validation scene (do not modify for survival features):** `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity`
+
+---
+
+## Runtime shell (0.2.0)
+
+| Type | Path |
+|------|------|
+| Assembly | `Assets/CCS/Survival/Scripts/CCS.Survival.Runtime.asmdef` |
+| Bootstrap | `Scripts/Bootstrap/CCS_SurvivalBootstrap.cs` |
+| Installer | `Scripts/Installers/CCS_SurvivalInstaller.cs` |
+| Diagnostics | `Scripts/Diagnostics/CCS_SurvivalDiagnostics.cs` |
+| Context | `Scripts/Runtime/CCS_SurvivalRuntimeContext.cs` |
+
+**Dependency rule:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only. Modules reference Core (and optionally Survival later); Core never references Survival.
 
 ---
 
@@ -18,7 +43,7 @@ This folder is the Unity-visible index for survival-specific documentation. Auth
 | Module boundaries | `Documentation/Architecture/Survival_Module_Boundaries.md` |
 | Networking authority | `Documentation/Architecture/Survival_Networking_Authority.md` |
 | Persistence direction | `Documentation/Architecture/Survival_Persistence_Direction.md` |
-| Milestone 0.1.0 | `Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md` |
+| Milestone 0.2.0 | `Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md` |
 
 ---
 
@@ -38,12 +63,14 @@ Do not add survival gameplay logic under `Assets/CCS/Framework/Core/`.
 
 | Folder | Purpose |
 |--------|---------|
-| `Assets/CCS/Survival/Scripts/` | Reserved for future cross-cutting game code (empty at 0.1.0) |
-| `Assets/CCS/Modules/` | Gameplay feature modules (`ccs.survival.*`) |
+| `Assets/CCS/Survival/Scenes/` | Game entry bootstrap scenes |
+| `Assets/CCS/Survival/Prefabs/` | Survival bootstrap prefabs |
+| `Assets/CCS/Survival/Scripts/` | `CCS.Survival.Runtime` shell |
+| `Assets/CCS/Modules/` | Gameplay feature modules (`ccs.survival.*`) — not wired at 0.2.0 |
 | `Assets/CCS/Framework/` | Vendored CCS Core Platform |
 
 ---
 
-## Milestone 0.1.0 rule
+## Milestone 0.2.0 rule
 
-**Documentation only.** No systems, installers, networking packages, or persistence code in this milestone.
+**Bootstrap shell only.** No inventory, crafting, networking packages, or save implementation.
