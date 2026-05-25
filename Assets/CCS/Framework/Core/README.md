@@ -12,7 +12,7 @@ Editor-only tooling: windows, custom inspectors, and editor utilities. Compiled 
 
 ## Assembly
 
-- `Runtime/Assembly/CCS.Core.Runtime.asmdef`
-- `Editor/Assembly/CCS.Core.Editor.asmdef`
+- `Runtime/CCS.Core.Runtime.asmdef` — must live at Runtime root so all runtime scripts compile into Core
+- `Editor/CCS.Core.Editor.asmdef`
 
 Do not place gameplay logic here. Feature code belongs in `../Modules/`.
