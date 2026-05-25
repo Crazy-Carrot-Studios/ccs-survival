@@ -1,0 +1,137 @@
+---
+description: CCS Core Platform architecture — ccs-framework upstream vs ccs-survival gameplay, no singletons, manual registration
+alwaysApply: true
+---
+
+# CCS Core Platform — Cursor Workspace Rules
+
+Permanent development rules for AI-assisted work on Crazy Carrot Studios repositories.
+
+**Applies to:** `ccs-framework` (this upstream repo) and future game repos such as `ccs-survival`.
+
+---
+
+## Repository roles
+
+### ccs-framework (reusable upstream core)
+
+- Reusable upstream Core Platform — reusable forever
+- Runtime systems, bootstrap, modules, services, diagnostics, validation
+- **No** gameplay systems
+- **No** survival mechanics
+- **No** western-specific logic
+- **No** MMO content
+- **No** game-specific UI
+- **No** faction or story systems
+
+All gameplay code belongs in a **game repository**, not here.
+
+### ccs-survival (gameplay repository)
+
+- Actual survival-focused gameplay and game content
+- Survival mechanics, crafting, factions, quests, weapons, lore
+- Western MMO and other survival genres **inside this repo** (product/theme), not in framework naming
+- Modules under `Assets/CCS/Modules/` in the game project
+
+---
+
+## Core architecture policies
+
+### Never introduce
+
+- Singleton managers or static global service locators
+- Auto-discovery systems (reflection scanning, scene-wide discovery)
+- Scene scanning for installers or modules
+- `FindObjectOfType` / `FindObjectsOfType` architecture for composition
+- Hardcoded gameplay assumptions in Core
+- Direct scene dependencies in platform code
+- Gameplay logic inside `Assets/CCS/Framework/Core/`
+
+### Prefer
+
+- Module architecture (`CCS_IModule`, `CCS_ModuleInstallerBase`, manual install plans)
+- Explicit registration (bootstrap installers, services, updatables)
+- Service-driven systems (`CCS_ServiceRegistry`)
+- Lifecycle-managed systems (`CCS_ModuleLifecycleState`, `CCS_Result`)
+- Instance ownership via `CCS_RuntimeHost` (no singleton)
+- Multiplayer-safe patterns: deterministic ownership, no hidden global state
+- Reusable systems that any future CCS game can adopt
+
+---
+
+## CCS script standards
+
+When creating or editing C# in this ecosystem:
+
+- Use the **CCS file header** format (script name, category, purpose, placement, author, date, notes)
+- Follow **region order** conventions (see `Assets/CCS/Framework/Documentation/CCS_Script_Standards.md`)
+- Use **descriptive naming** (`CCS_` prefix for framework types; PascalCase/camelCase per standards)
+- **No XML doc summaries** on types — use header comments for behavior documentation
+- **Tooltips** on `[SerializeField]` private fields exposed in the Inspector
+- **Runtime vs Editor** separation — no `UnityEditor` in runtime assemblies
+- **Event-driven** communication via `CCS_EventDispatcher` where decoupling is appropriate
+- Use `CCS_Logger` for categorized logging; use `CCS_Result` / `CCS_CoreErrorCode` for operation outcomes
+
+---
+
+## Repository naming rules
+
+### Use
+
+| Name | Role |
+|------|------|
+| `ccs-framework` | Reusable upstream core platform |
+| `ccs-survival` | Survival-focused gameplay repo |
+
+### Do not use
+
+- `ccs-reckoning-survival` or other **game-title** names for reusable architecture docs or repo slugs
+- Game-specific repo naming for framework/upstream guidance
+
+### Reckoning and product lore
+
+- **Reckoning**, western MMO, factions, and narrative are **lore/product/game title** — valid inside `ccs-survival` (scenes, content, marketing)
+- **Not** framework branding, upstream repo names, or Core module IDs in `ccs-framework`
+
+Example module IDs in game repos: `ccs.survival.inventory` — not `ccs.reckoning.*` in shared upstream docs.
+
+---
+
+## Module policies
+
+| Location | Policy |
+|----------|--------|
+| **Core modules** (`ccs-framework` / `Framework/Core/`) | Reusable only; no gameplay assumptions; smoke tests isolated under `SmokeTests/` |
+| **Gameplay modules** | Belong in **ccs-survival** (or other `ccs-<genre>` game repos) under `Assets/CCS/Modules/` |
+
+- Manual registration only — no auto-install from dependency metadata
+- Dependency metadata is preflight validation only
+
+---
+
+## Future multiplayer direction
+
+Design for long-term MMO/survival scale **without** implementing networking everywhere prematurely:
+
+- **Multiplayer-safe:** avoid static global state; prefer instance-owned subsystems
+- **Authority-safe:** clear ownership of registries and hosts per runtime context
+- **Modular:** features as modules with explicit install order
+- **Deterministic** where practical for simulation and validation
+- **Scalable** for future co-op / MMO survival — contracts first, netcode in game repos later
+
+---
+
+## Documentation references
+
+- [CCS Core Platform Architecture](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)
+- [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md)
+- [CCS Script Standards](Assets/CCS/Framework/Documentation/CCS_Script_Standards.md)
+
+---
+
+## When unsure
+
+1. If it is **genre-specific gameplay** → **ccs-survival**, not `ccs-framework`
+2. If it benefits **all games** → upstream PR to **ccs-framework**
+3. If it needs **global singleton or scene scan** → redesign to explicit registration
+4. Run **`SCN_CCS_Bootstrap`** smoke tests with diagnostics enabled after Core changes
