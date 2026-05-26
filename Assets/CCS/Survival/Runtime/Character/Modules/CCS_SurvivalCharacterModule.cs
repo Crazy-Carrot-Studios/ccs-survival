@@ -3,7 +3,7 @@ using CCS.Core;
 // =============================================================================
 // SCRIPT: CCS_SurvivalCharacterModule
 // CATEGORY: Survival / Runtime / Character / Modules
-// PURPOSE: Survival-owned character-layer module identity using Core module lifecycle contracts.
+// PURPOSE: Survival-owned character-layer module identity using survival foundation module base.
 // PLACEMENT: Installed by CCS_SurvivalCharacterModuleInstaller via survival bootstrap sequencing.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
@@ -12,26 +12,20 @@ using CCS.Core;
 
 namespace CCS.Survival
 {
-    public sealed class CCS_SurvivalCharacterModule : CCS_ModuleBase
+    public sealed class CCS_SurvivalCharacterModule : CCS_SurvivalModuleBase
     {
-        #region Variables
-
-        private readonly bool characterDebugLogs;
-
-        #endregion
-
         #region Public Methods
 
         public CCS_SurvivalCharacterModule(bool enableDebugLogs)
             : base(
                 new CCS_ModuleMetadata(
-                    CCS_SurvivalCharacterDiagnostics.ModuleId,
+                    CCS_SurvivalRuntimeConstants.CharacterModuleId,
                     "CCS Survival Character Module",
                     "0.3.0",
                     "Survival character-layer module identity skeleton."),
+                CCS_SurvivalRuntimeConstants.CharacterLogCategory,
                 enableDebugLogs)
         {
-            characterDebugLogs = enableDebugLogs;
         }
 
         #endregion
@@ -40,28 +34,19 @@ namespace CCS.Survival
 
         protected override CCS_Result OnInitialize()
         {
-            CCS_Logger.Log(
-                CCS_SurvivalCharacterDiagnostics.LogCategory,
-                "Character module initialize hook (skeleton).",
-                characterDebugLogs);
+            LogSurvival("Character module initialize hook (skeleton).");
             return CCS_Result.Success();
         }
 
         protected override CCS_Result OnInstall(CCS_RuntimeHost runtimeHost)
         {
-            CCS_Logger.Log(
-                CCS_SurvivalCharacterDiagnostics.LogCategory,
-                "Character module install hook (skeleton). No gameplay systems registered.",
-                characterDebugLogs);
+            LogSurvival("Character module install hook (skeleton). No gameplay systems registered.");
             return CCS_Result.Success();
         }
 
         protected override CCS_Result OnUninstall(CCS_RuntimeHost runtimeHost)
         {
-            CCS_Logger.Log(
-                CCS_SurvivalCharacterDiagnostics.LogCategory,
-                "Character module uninstall hook (skeleton).",
-                characterDebugLogs);
+            LogSurvival("Character module uninstall hook (skeleton).");
             return CCS_Result.Success();
         }
 

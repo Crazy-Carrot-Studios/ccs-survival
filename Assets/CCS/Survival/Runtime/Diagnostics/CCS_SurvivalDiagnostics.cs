@@ -14,7 +14,7 @@ namespace CCS.Survival
 {
     public static class CCS_SurvivalDiagnostics
     {
-        private const string LogCategory = "Survival Diagnostics";
+        private const string LogCategory = CCS_SurvivalRuntimeConstants.SurvivalDiagnosticsLogCategory;
 
         #region Public Methods
 
@@ -63,18 +63,18 @@ namespace CCS.Survival
                     "Core diagnostics report expected initialized runtime host.");
             }
 
-            if (report.RegisteredModuleCount != 1)
+            if (report.RegisteredModuleCount != CCS_SurvivalRuntimeConstants.ExpectedSkeletonModuleCount)
             {
                 CCS_Logger.LogWarning(
                     LogCategory,
-                    $"Expected one survival module at 0.3.0, got {report.RegisteredModuleCount}.");
+                    $"Expected {CCS_SurvivalRuntimeConstants.ExpectedSkeletonModuleCount} survival module(s), got {report.RegisteredModuleCount}.");
             }
 
-            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalCharacterDiagnostics.ModuleId))
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalRuntimeConstants.CharacterModuleId))
             {
                 CCS_Logger.LogWarning(
                     LogCategory,
-                    $"Expected installed module: {CCS_SurvivalCharacterDiagnostics.ModuleId}");
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.CharacterModuleId}");
             }
 
             CCS_Logger.Log(

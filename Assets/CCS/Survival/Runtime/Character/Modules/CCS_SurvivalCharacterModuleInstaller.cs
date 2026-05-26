@@ -3,7 +3,7 @@ using CCS.Core;
 // =============================================================================
 // SCRIPT: CCS_SurvivalCharacterModuleInstaller
 // CATEGORY: Survival / Runtime / Character / Modules
-// PURPOSE: Survival-owned installer for the character module using Core module installer pattern.
+// PURPOSE: Survival-owned installer for the character module using survival foundation installer base.
 // PLACEMENT: Invoked from CCS_SurvivalInstaller during survival bootstrap sequencing.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
@@ -12,20 +12,16 @@ using CCS.Core;
 
 namespace CCS.Survival
 {
-    public sealed class CCS_SurvivalCharacterModuleInstaller : CCS_ModuleInstallerBase
+    public sealed class CCS_SurvivalCharacterModuleInstaller : CCS_SurvivalModuleInstallerBase
     {
-        #region Variables
-
-        private readonly bool enableDebugLogs;
-
-        #endregion
-
         #region Public Methods
 
         public CCS_SurvivalCharacterModuleInstaller(bool enableDebugLogs)
-            : base(new CCS_SurvivalCharacterModule(enableDebugLogs), enableDebugLogs)
+            : base(
+                new CCS_SurvivalCharacterModule(enableDebugLogs),
+                CCS_SurvivalRuntimeConstants.CharacterInstallerLogCategory,
+                enableDebugLogs)
         {
-            this.enableDebugLogs = enableDebugLogs;
         }
 
         #endregion
@@ -34,25 +30,14 @@ namespace CCS.Survival
 
         protected override CCS_Result OnBeforeInstall(CCS_RuntimeHost runtimeHost)
         {
-            CCS_Logger.Log(
-                CCS_SurvivalCharacterDiagnostics.InstallerLogCategory,
-                "Character module installer before install (skeleton).",
-                enableDebugLogs);
+            LogSurvivalInstaller("Character module installer before install (skeleton).");
             return CCS_Result.Success();
         }
 
         protected override CCS_Result OnAfterInstall(CCS_RuntimeHost runtimeHost)
         {
-            CCS_Logger.Log(
-                CCS_SurvivalCharacterDiagnostics.InstallerLogCategory,
-                "Character module installer after install (skeleton).",
-                enableDebugLogs);
+            LogSurvivalInstaller("Character module installer after install (skeleton).");
             return CCS_Result.Success();
-        }
-
-        protected override string GetLogCategory()
-        {
-            return CCS_SurvivalCharacterDiagnostics.InstallerLogCategory;
         }
 
         #endregion

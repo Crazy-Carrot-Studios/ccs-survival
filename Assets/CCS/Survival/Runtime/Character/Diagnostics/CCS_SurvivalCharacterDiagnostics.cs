@@ -1,21 +1,21 @@
 // =============================================================================
 // SCRIPT: CCS_SurvivalCharacterDiagnostics
 // CATEGORY: Survival / Runtime / Character / Diagnostics
-// PURPOSE: Central diagnostic labels and module identity constants for the survival character layer.
+// PURPOSE: Character-layer diagnostic aliases for survival foundation constants.
 // PLACEMENT: Static utility. Not attached to GameObjects. No runtime mechanics.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: No player controller, movement, or authority implementation at milestone 0.3.0.
+// NOTES: Canonical values live in CCS_SurvivalRuntimeConstants. No gameplay behavior.
 // =============================================================================
 
 namespace CCS.Survival
 {
     public static class CCS_SurvivalCharacterDiagnostics
     {
-        public const string LogCategory = "Survival Character";
+        public const string LogCategory = CCS_SurvivalRuntimeConstants.CharacterLogCategory;
 
-        public const string InstallerLogCategory = "Survival Character Installer";
+        public const string InstallerLogCategory = CCS_SurvivalRuntimeConstants.CharacterInstallerLogCategory;
 
-        public const string ModuleId = "ccs.survival.character";
+        public const string ModuleId = CCS_SurvivalRuntimeConstants.CharacterModuleId;
     }
 }

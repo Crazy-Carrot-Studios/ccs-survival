@@ -14,7 +14,7 @@ namespace CCS.Survival
 {
     public sealed class CCS_SurvivalInstaller : CCS_IBootstrapInstaller
     {
-        private const string LogCategory = "Survival Installer";
+        private const string LogCategory = CCS_SurvivalRuntimeConstants.SurvivalInstallerLogCategory;
 
         #region Variables
 

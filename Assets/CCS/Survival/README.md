@@ -1,19 +1,27 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.0 — Survival Character Module Skeleton  
+**Milestone:** 0.3.1 — Survival Runtime Foundation Base Layer  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-## 0.3.0 purpose
+## 0.3.1 purpose
 
-Establish the first **survival-owned gameplay module boundary** (`ccs.survival.character`) without implementing character gameplay mechanics.
+Add survival-owned **foundation wrappers and markers** so future gameplay modules share consistent module, installer, service, and diagnostic conventions — without adding gameplay mechanics.
 
-## What the character layer owns (now)
+## Foundation layer (new)
 
-- Module identity and metadata (`CCS_SurvivalCharacterModule`)
-- Install/uninstall lifecycle via Core contracts (`CCS_SurvivalCharacterModuleInstaller`)
-- Diagnostic labels and module ID constants (`CCS_SurvivalCharacterDiagnostics`)
-- Registration sequencing from `CCS_SurvivalInstaller` (survival composition root)
+| Type | Path |
+|------|------|
+| Module base | `Runtime/Foundation/Modules/CCS_SurvivalModuleBase.cs` |
+| Installer base | `Runtime/Foundation/Modules/CCS_SurvivalModuleInstallerBase.cs` |
+| Service marker | `Runtime/Foundation/Services/CCS_ISurvivalService.cs` |
+| Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
+
+## Character skeleton (refactored onto foundation)
+
+- `CCS_SurvivalCharacterModule` → inherits `CCS_SurvivalModuleBase`
+- `CCS_SurvivalCharacterModuleInstaller` → inherits `CCS_SurvivalModuleInstallerBase`
+- Module ID unchanged: `ccs.survival.character`
 
 **Location:** `Assets/CCS/Survival/Runtime/Character/`
 
@@ -25,26 +33,25 @@ Establish the first **survival-owned gameplay module boundary** (`ccs.survival.c
 - Combat, AI, animation gameplay
 - Save/load character state
 - Multiplayer replication or network packages
-- Avatar/presentation separation (planned later)
+- Registered survival services or updatables
 
 ## Architecture direction
 
 ```text
 Framework/Core          → reusable platform (protected)
-Framework/Modules       → shared genre modules (future)
-Survival/Runtime        → survival bootstrap + character layer (this repo)
+Survival/Foundation     → survival module/service wrappers + constants
+Survival/Character      → first feature skeleton (0.3.0)
+Survival/<Feature>/     → future gameplay modules
 ```
 
-**Dependency rule:** Survival → Modules → Core (never upward).
-
-Player **authority** and **avatar** separation will be introduced in a later milestone after the character module boundary is stable.
+**Dependency rule:** Survival → Core (never upward).
 
 ## Runtime assembly
 
-`Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` references **`CCS.Core.Runtime` only**. All scripts under `Runtime/` compile into one assembly; character skeleton types use `namespace CCS.Survival`.
+`Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` references **`CCS.Core.Runtime` only**.
 
 ## Related documentation
 
 - [In-Unity doc index](Documentation/README.md)
-- [Milestone 0.2.0](../../Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md)
+- [Milestone 0.3.1](Documentation/Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md)
 - [Survival gameplay architecture](../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
