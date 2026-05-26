@@ -20,6 +20,7 @@ Pre-gameplay foundation audit completed at **v0.3.5**:
 - [Gameplay Constitution](../Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) — foundational design direction (what the game is)
 - [Gameplay Systems Breakdown](../Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) — modules, dependencies, save boundaries (how systems split)
 - [Gameplay Loop Specification](../Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) — player flow, pacing, onboarding, vertical slice
+- [Reputation & Law Design Spec](../Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) — reputation scale, crime, bounties, war, raids
 - [Framework Architecture Guide](Documentation/Framework_Architecture_Guide.md)
 - [Future Gameplay Module Guidelines](Documentation/Future_Gameplay_Module_Guidelines.md)
 - [Scene Bootstrap Standards](Documentation/Scene_Bootstrap_Standards.md)

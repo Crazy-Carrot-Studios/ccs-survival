@@ -14,6 +14,7 @@ Pre-gameplay audits and contributor documentation are complete at **v0.3.5**. Ga
 | Gameplay constitution | [../../Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md](../../Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) |
 | Gameplay systems breakdown | [../../Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md](../../Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) |
 | Gameplay loop specification | [../../Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md](../../Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) |
+| Reputation & law spec | [../../Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md](../../Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) |
 | Architecture (authoritative) | [Framework_Architecture_Guide.md](Framework_Architecture_Guide.md) |
 | Gameplay module guidelines | [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md) |
 | Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |
