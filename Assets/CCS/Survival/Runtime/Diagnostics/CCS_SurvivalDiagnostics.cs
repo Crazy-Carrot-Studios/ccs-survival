@@ -3,7 +3,7 @@ using CCS.Core;
 // =============================================================================
 // SCRIPT: CCS_SurvivalDiagnostics
 // CATEGORY: Survival / Diagnostics
-// PURPOSE: Survival-owned diagnostics that verify Core health without running Core smoke tests.
+// PURPOSE: Survival-owned diagnostics that verify Core health and survival validation rules.
 // PLACEMENT: Invoked by CCS_SurvivalBootstrap when survival diagnostics are enabled.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
@@ -63,18 +63,10 @@ namespace CCS.Survival
                     "Core diagnostics report expected initialized runtime host.");
             }
 
-            if (report.RegisteredModuleCount != CCS_SurvivalRuntimeConstants.ExpectedSkeletonModuleCount)
+            CCS_Result survivalRulesResult = RunSurvivalValidationRules(runtimeHost, enableDebugLogs);
+            if (!survivalRulesResult.IsSuccess)
             {
-                CCS_Logger.LogWarning(
-                    LogCategory,
-                    $"Expected {CCS_SurvivalRuntimeConstants.ExpectedSkeletonModuleCount} survival module(s), got {report.RegisteredModuleCount}.");
-            }
-
-            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalRuntimeConstants.CharacterModuleId))
-            {
-                CCS_Logger.LogWarning(
-                    LogCategory,
-                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.CharacterModuleId}");
+                return survivalRulesResult;
             }
 
             CCS_Logger.Log(
@@ -83,6 +75,91 @@ namespace CCS.Survival
                 enableDebugLogs);
 
             return CCS_Result.Success();
+        }
+
+        public static CCS_Result RunSurvivalValidationRules(CCS_RuntimeHost runtimeHost, bool enableDebugLogs)
+        {
+            CCS_Result hostValidation = CCS_CoreValidation.ValidateRuntimeHost(runtimeHost);
+            if (!hostValidation.IsSuccess)
+            {
+                CCS_Logger.LogWarning(LogCategory, hostValidation.Message);
+                return hostValidation;
+            }
+
+            LogValidationResult(
+                CCS_SurvivalModuleValidationUtility.ValidateExpectedSkeletonModuleCount(runtimeHost),
+                enableDebugLogs);
+
+            LogValidationResult(
+                CCS_SurvivalModuleValidationUtility.ValidateNoDuplicateModuleIds(runtimeHost),
+                enableDebugLogs);
+
+            LogValidationResult(
+                CCS_SurvivalModuleValidationUtility.ValidateSkeletonServiceCount(runtimeHost),
+                enableDebugLogs);
+
+            LogValidationResult(
+                CCS_SurvivalModuleValidationUtility.ValidateSkeletonUpdateSystemCount(runtimeHost),
+                enableDebugLogs);
+
+            CCS_SurvivalValidationResult characterModuleValidation =
+                CCS_SurvivalModuleValidationUtility.ValidateModuleIdPrefix(CCS_SurvivalRuntimeConstants.CharacterModuleId);
+            LogValidationResult(characterModuleValidation, enableDebugLogs);
+
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalRuntimeConstants.CharacterModuleId))
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.CharacterModuleId}");
+                return CCS_Result.Failure(
+                    CCS_CoreErrorCode.ValidationFailed,
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.CharacterModuleId}");
+            }
+
+            if (!characterModuleValidation.IsSuccess)
+            {
+                return characterModuleValidation.ToCoreResult();
+            }
+
+            CCS_CoreDiagnosticsReport report = runtimeHost.BuildDiagnosticsReport();
+            if (report != null
+                && report.BootstrapInstallerCount != 1)
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    $"Expected 1 bootstrap installer on runner during skeleton phase, got {report.BootstrapInstallerCount}.");
+            }
+
+            CCS_Logger.Log(LogCategory, "Survival validation rules passed.", enableDebugLogs);
+            return CCS_Result.Success();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void LogValidationResult(CCS_SurvivalValidationResult validationResult, bool enableDebugLogs)
+        {
+            if (!validationResult.IsSuccess)
+            {
+                CCS_Logger.LogWarning(
+                    CCS_SurvivalRuntimeConstants.ValidationLogCategory,
+                    validationResult.Message);
+                return;
+            }
+
+            if (validationResult.IsWarning)
+            {
+                CCS_Logger.LogWarning(
+                    CCS_SurvivalRuntimeConstants.ValidationLogCategory,
+                    validationResult.Message);
+                return;
+            }
+
+            CCS_Logger.Log(
+                CCS_SurvivalRuntimeConstants.ValidationLogCategory,
+                validationResult.Message,
+                enableDebugLogs);
         }
 
         #endregion

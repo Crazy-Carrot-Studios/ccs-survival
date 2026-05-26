@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.1 — Survival Runtime Foundation Base Layer (module/service wrappers; no gameplay mechanics)
+0.3.2 — Survival Module Validation + Diagnostics Rules (validation + profile foundation; no gameplay)
 
 ## Repository Purpose
 

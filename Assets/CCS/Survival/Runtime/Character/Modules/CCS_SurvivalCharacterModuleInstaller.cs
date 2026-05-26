@@ -36,6 +36,13 @@ namespace CCS.Survival
 
         protected override CCS_Result OnAfterInstall(CCS_RuntimeHost runtimeHost)
         {
+            CCS_SurvivalValidationResult moduleValidation = CCS_SurvivalModuleValidationUtility.ValidateModule(Module);
+            if (!moduleValidation.IsSuccess)
+            {
+                LogSurvivalInstaller($"Character module validation failed: {moduleValidation.Message}");
+                return moduleValidation.ToCoreResult();
+            }
+
             LogSurvivalInstaller("Character module installer after install (skeleton).");
             return CCS_Result.Success();
         }

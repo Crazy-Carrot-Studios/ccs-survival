@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.1 — Survival Runtime Foundation Base Layer  
+**Milestone:** 0.3.2 — Survival Module Validation + Diagnostics Rules  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -20,7 +20,7 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 ---
 
-## Runtime foundation (0.3.1)
+## Runtime foundation
 
 | Type | Path |
 |------|------|
@@ -28,6 +28,14 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 | Installer base | `Runtime/Foundation/Modules/CCS_SurvivalModuleInstallerBase.cs` |
 | Service marker | `Runtime/Foundation/Services/CCS_ISurvivalService.cs` |
 | Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
+| Validation | `Runtime/Foundation/Validation/` |
+| Profile base | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
+
+## Profile-driven setup direction
+
+- Future modules may use ScriptableObject profiles for setup/configuration.
+- Profiles are assets; runtime state and save data remain separate.
+- `profileId` must be save-stable (`ccs.survival.profile.*`) — not asset paths.
 
 ---
 
@@ -53,6 +61,7 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.2 Validation | [Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md](Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md) |
 | 0.3.1 Foundation | [Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md](Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md) |
 
 ---
@@ -78,6 +87,6 @@ Do not add survival gameplay logic under `Assets/CCS/Framework/Core/`.
 
 ---
 
-## Milestone 0.3.1 rule
+## Milestone 0.3.2 rule
 
-**Foundation wrappers only.** No gameplay mechanics, services, updatables, or Core modifications.
+**Validation and profile foundation only.** No gameplay mechanics, services, updatables, or Core modifications.

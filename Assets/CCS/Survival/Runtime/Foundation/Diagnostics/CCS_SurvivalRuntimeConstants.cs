@@ -27,5 +27,20 @@ namespace CCS.Survival
         public const string CharacterInstallerLogCategory = "Survival Character Installer";
 
         public const int ExpectedSkeletonModuleCount = 1;
+
+        public const int SkeletonExpectedServicesCount = 0;
+
+        public const int SkeletonExpectedUpdateSystemsCount = 0;
+
+        public const string DefaultProfileVersion = "0.0.1";
+
+        public const string ProfileIdPrefix = "ccs.survival.profile.";
+
+        public const string ValidationLogCategory = "Survival Validation";
+
+        public const string InvalidProfileIdMessage = "Survival profile ID is null or empty.";
+
+        public const string SaveStableIdGuidanceMessage =
+            "Survival profile ID must use save-stable lowercase reverse-DNS characters (a-z, 0-9, '.', '-'). Do not use Unity asset paths or scene references.";
     }
 }

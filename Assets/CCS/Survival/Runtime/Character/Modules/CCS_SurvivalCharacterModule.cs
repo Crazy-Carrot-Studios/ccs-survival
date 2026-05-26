@@ -40,6 +40,13 @@ namespace CCS.Survival
 
         protected override CCS_Result OnInstall(CCS_RuntimeHost runtimeHost)
         {
+            CCS_SurvivalValidationResult moduleValidation = CCS_SurvivalModuleValidationUtility.ValidateModule(this);
+            if (!moduleValidation.IsSuccess)
+            {
+                CCS_Logger.LogWarning(SurvivalLogCategory, moduleValidation.Message);
+                return moduleValidation.ToCoreResult();
+            }
+
             LogSurvival("Character module install hook (skeleton). No gameplay systems registered.");
             return CCS_Result.Success();
         }
