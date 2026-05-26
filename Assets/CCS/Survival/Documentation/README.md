@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.2 — Survival Module Validation + Diagnostics Rules  
+**Milestone:** 0.3.3 — Survival Authority Avatar Boundary Skeleton  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -30,6 +30,20 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 | Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
 | Validation | `Runtime/Foundation/Validation/` |
 | Profile base | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
+
+## Authority vs Avatar (0.3.3)
+
+| Type | Path |
+|------|------|
+| Authority contract | `Runtime/Character/Authority/CCS_ISurvivalAuthority.cs` |
+| Avatar contract | `Runtime/Character/Avatar/CCS_ISurvivalAvatar.cs` |
+| Binding | `Runtime/Character/Avatar/CCS_SurvivalAuthorityAvatarBinding.cs` |
+| Identity validation | `Runtime/Character/Identity/CCS_SurvivalIdentityUtility.cs` |
+| Authority/avatar validation | `Runtime/Character/Avatar/CCS_SurvivalAuthorityAvatarValidationUtility.cs` |
+
+- **Authority** — ownership, save/network identity signals (no netcode dependency today).
+- **Avatar** — scene representation only (`Transform` root); not persistent ownership identity.
+- Save keys use stable `AuthorityId` / `profileId`, not scene objects or asset paths.
 
 ## Profile-driven setup direction
 
@@ -61,6 +75,7 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.3 Authority/Avatar | [Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md](Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md) |
 | 0.3.2 Validation | [Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md](Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md) |
 | 0.3.1 Foundation | [Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md](Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md) |
 
@@ -87,6 +102,6 @@ Do not add survival gameplay logic under `Assets/CCS/Framework/Core/`.
 
 ---
 
-## Milestone 0.3.2 rule
+## Milestone 0.3.3 rule
 
-**Validation and profile foundation only.** No gameplay mechanics, services, updatables, or Core modifications.
+**Authority/avatar contracts and identity validation only.** No gameplay mechanics, services, updatables, or Core modifications.

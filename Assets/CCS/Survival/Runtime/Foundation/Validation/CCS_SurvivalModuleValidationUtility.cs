@@ -76,9 +76,8 @@ namespace CCS.Survival
             IReadOnlyCollection<CCS_IModule> registeredModules = runtimeHost.ModuleHost.GetRegisteredModules();
             HashSet<string> seenModuleIds = new HashSet<string>();
 
-            for (int index = 0; index < registeredModules.Count; index++)
+            foreach (CCS_IModule module in registeredModules)
             {
-                CCS_IModule module = registeredModules[index];
                 if (module == null)
                 {
                     continue;

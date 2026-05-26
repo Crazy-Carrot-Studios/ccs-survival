@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.2 — Survival Module Validation + Diagnostics Rules (validation + profile foundation; no gameplay)
+0.3.3 — Survival Authority Avatar Boundary Skeleton (authority/avatar contracts; no gameplay)
 
 ## Repository Purpose
 

@@ -42,5 +42,23 @@ namespace CCS.Survival
 
         public const string SaveStableIdGuidanceMessage =
             "Survival profile ID must use save-stable lowercase reverse-DNS characters (a-z, 0-9, '.', '-'). Do not use Unity asset paths or scene references.";
+
+        public const string AuthorityIdPrefix = "ccs.survival.authority.";
+
+        public const string AvatarIdPrefix = "ccs.survival.avatar.";
+
+        public const string BindingIdPrefix = "ccs.survival.binding.";
+
+        public const string AuthorityLogCategory = "Survival Authority";
+
+        public const string AvatarLogCategory = "Survival Avatar";
+
+        public const string IdentityValidationLogCategory = "Survival Identity Validation";
+
+        public const string StableRuntimeIdentityGuidanceMessage =
+            "Survival runtime identity must use save-stable lowercase reverse-DNS characters (a-z, 0-9, '.', '-'). Do not use Unity instance IDs, GameObject names, scene paths, or asset paths.";
+
+        public const string ForbiddenUnityIdentitySourceMessage =
+            "Survival runtime identity must not use Unity asset paths, scene paths, slashes, spaces, or other scene-object-derived values.";
     }
 }

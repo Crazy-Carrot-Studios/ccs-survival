@@ -130,6 +130,8 @@ namespace CCS.Survival
                     $"Expected 1 bootstrap installer on runner during skeleton phase, got {report.BootstrapInstallerCount}.");
             }
 
+            LogAuthorityAvatarBoundaryNotes(enableDebugLogs);
+
             CCS_Logger.Log(LogCategory, "Survival validation rules passed.", enableDebugLogs);
             return CCS_Result.Success();
         }
@@ -137,6 +139,19 @@ namespace CCS.Survival
         #endregion
 
         #region Private Methods
+
+        private static void LogAuthorityAvatarBoundaryNotes(bool enableDebugLogs)
+        {
+            CCS_Logger.Log(
+                LogCategory,
+                "Authority/avatar boundary contracts are defined (CCS_ISurvivalAuthority, CCS_ISurvivalAvatar). Skeleton bootstrap does not require runtime authority or avatar instances.",
+                enableDebugLogs);
+
+            CCS_Logger.Log(
+                CCS_SurvivalRuntimeConstants.IdentityValidationLogCategory,
+                CCS_SurvivalRuntimeConstants.StableRuntimeIdentityGuidanceMessage,
+                enableDebugLogs);
+        }
 
         private static void LogValidationResult(CCS_SurvivalValidationResult validationResult, bool enableDebugLogs)
         {
