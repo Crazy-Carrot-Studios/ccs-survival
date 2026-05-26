@@ -7,7 +7,7 @@ using CCS.Core;
 // PLACEMENT: Static validation utilities. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Wraps CCS_Result semantics without duplicating Core error infrastructure.
+// NOTES: All factory helpers normalize empty messages. Wraps CCS_Result without duplicating Core errors.
 // =============================================================================
 
 namespace CCS.Survival
@@ -20,12 +20,12 @@ namespace CCS.Survival
         {
             IsSuccess = isSuccess;
             IsWarning = isWarning;
-            Message = message ?? string.Empty;
+            Message = NormalizeMessage(isSuccess, isWarning, message);
         }
 
         public static CCS_SurvivalValidationResult Pass()
         {
-            return new CCS_SurvivalValidationResult(true, false, string.Empty);
+            return Pass(CCS_SurvivalRuntimeConstants.ValidationPassedDefaultMessage);
         }
 
         public static CCS_SurvivalValidationResult Pass(string message)
@@ -62,6 +62,30 @@ namespace CCS.Survival
         public bool IsWarning { get; }
 
         public string Message { get; }
+
+        #endregion
+
+        #region Private Methods
+
+        private static string NormalizeMessage(bool isSuccess, bool isWarning, string message)
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                return message;
+            }
+
+            if (!isSuccess)
+            {
+                return CCS_SurvivalRuntimeConstants.ValidationFailedDefaultMessage;
+            }
+
+            if (isWarning)
+            {
+                return CCS_SurvivalRuntimeConstants.ValidationWarningDefaultMessage;
+            }
+
+            return CCS_SurvivalRuntimeConstants.ValidationPassedNoDetailMessage;
+        }
 
         #endregion
     }

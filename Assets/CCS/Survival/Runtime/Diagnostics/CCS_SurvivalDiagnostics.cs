@@ -179,11 +179,13 @@ namespace CCS.Survival
 
         private static void LogValidationResult(CCS_SurvivalValidationResult validationResult, bool enableDebugLogs)
         {
+            string logMessage = ResolveValidationLogMessage(validationResult);
+
             if (!validationResult.IsSuccess)
             {
                 CCS_Logger.LogWarning(
                     CCS_SurvivalRuntimeConstants.ValidationLogCategory,
-                    validationResult.Message);
+                    logMessage);
                 return;
             }
 
@@ -191,14 +193,24 @@ namespace CCS.Survival
             {
                 CCS_Logger.LogWarning(
                     CCS_SurvivalRuntimeConstants.ValidationLogCategory,
-                    validationResult.Message);
+                    logMessage);
                 return;
             }
 
             CCS_Logger.Log(
                 CCS_SurvivalRuntimeConstants.ValidationLogCategory,
-                validationResult.Message,
+                logMessage,
                 enableDebugLogs);
+        }
+
+        private static string ResolveValidationLogMessage(CCS_SurvivalValidationResult validationResult)
+        {
+            if (!string.IsNullOrWhiteSpace(validationResult.Message))
+            {
+                return validationResult.Message;
+            }
+
+            return CCS_SurvivalRuntimeConstants.ValidationPassedNoDetailMessage;
         }
 
         #endregion

@@ -42,7 +42,8 @@ namespace CCS.Survival
                 return profileIdValidation;
             }
 
-            return CCS_SurvivalValidationResult.Pass();
+            return CCS_SurvivalValidationResult.Pass(
+                $"Survival profile validated: {profile.ProfileId}.");
         }
 
         #endregion

@@ -40,6 +40,14 @@ namespace CCS.Survival
 
         public const string ValidationLogCategory = "Survival Validation";
 
+        public const string ValidationPassedDefaultMessage = "Validation passed.";
+
+        public const string ValidationPassedNoDetailMessage = "Validation passed with no detail message.";
+
+        public const string ValidationWarningDefaultMessage = "Validation completed with a warning.";
+
+        public const string ValidationFailedDefaultMessage = "Validation failed.";
+
         public const string InvalidProfileIdMessage = "Survival profile ID is null or empty.";
 
         public const string SaveStableIdGuidanceMessage =
