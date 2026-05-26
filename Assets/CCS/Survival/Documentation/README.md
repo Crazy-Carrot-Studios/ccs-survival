@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.3 — Survival Authority Avatar Boundary Skeleton  
+**Milestone:** 0.3.4 — Survival Scene Bootstrap Standards  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -20,13 +20,27 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 ---
 
+## Scene bootstrap standards (0.3.4)
+
+| Topic | Path |
+|-------|------|
+| Authoring guide | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |
+| Scene rules | `Runtime/Foundation/Scene/CCS_SurvivalSceneBootstrapRules.cs` |
+| Scene validation | `Runtime/Foundation/Scene/CCS_SurvivalSceneBootstrapValidationUtility.cs` |
+| Profile slot | `Runtime/Foundation/Bootstrap/CCS_SurvivalBootstrapProfileSlot.cs` |
+
+- One `CCS_RuntimeHost` + one `CCS_SurvivalBootstrap` per scene (same composition root).
+- Survival diagnostics owned by survival bootstrap; Core diagnostics off in survival scenes.
+- Optional profile slots — empty during skeleton phase.
+- Scene identity is not save identity.
+
+---
+
 ## Runtime foundation
 
 | Type | Path |
 |------|------|
 | Module base | `Runtime/Foundation/Modules/CCS_SurvivalModuleBase.cs` |
-| Installer base | `Runtime/Foundation/Modules/CCS_SurvivalModuleInstallerBase.cs` |
-| Service marker | `Runtime/Foundation/Services/CCS_ISurvivalService.cs` |
 | Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
 | Validation | `Runtime/Foundation/Validation/` |
 | Profile base | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
@@ -37,19 +51,7 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 |------|------|
 | Authority contract | `Runtime/Character/Authority/CCS_ISurvivalAuthority.cs` |
 | Avatar contract | `Runtime/Character/Avatar/CCS_ISurvivalAvatar.cs` |
-| Binding | `Runtime/Character/Avatar/CCS_SurvivalAuthorityAvatarBinding.cs` |
 | Identity validation | `Runtime/Character/Identity/CCS_SurvivalIdentityUtility.cs` |
-| Authority/avatar validation | `Runtime/Character/Avatar/CCS_SurvivalAuthorityAvatarValidationUtility.cs` |
-
-- **Authority** — ownership, save/network identity signals (no netcode dependency today).
-- **Avatar** — scene representation only (`Transform` root); not persistent ownership identity.
-- Save keys use stable `AuthorityId` / `profileId`, not scene objects or asset paths.
-
-## Profile-driven setup direction
-
-- Future modules may use ScriptableObject profiles for setup/configuration.
-- Profiles are assets; runtime state and save data remain separate.
-- `profileId` must be save-stable (`ccs.survival.profile.*`) — not asset paths.
 
 ---
 
@@ -63,8 +65,6 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 | Diagnostics | `Runtime/Diagnostics/CCS_SurvivalDiagnostics.cs` |
 | Context | `Runtime/Context/CCS_SurvivalRuntimeContext.cs` |
 | Character module | `Runtime/Character/Modules/CCS_SurvivalCharacterModule.cs` |
-| Character installer | `Runtime/Character/Modules/CCS_SurvivalCharacterModuleInstaller.cs` |
-| Character diagnostics | `Runtime/Character/Diagnostics/CCS_SurvivalCharacterDiagnostics.cs` |
 | Survival README | `Assets/CCS/Survival/README.md` |
 
 **Dependency rule:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only. Core never references Survival.
@@ -75,9 +75,9 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.4 Scene bootstrap | [Milestones/Milestone_0.3.4_Survival_Scene_Bootstrap_Standards.md](Milestones/Milestone_0.3.4_Survival_Scene_Bootstrap_Standards.md) |
 | 0.3.3 Authority/Avatar | [Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md](Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md) |
 | 0.3.2 Validation | [Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md](Milestones/Milestone_0.3.2_Survival_Module_Validation_Diagnostics_Rules.md) |
-| 0.3.1 Foundation | [Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md](Milestones/Milestone_0.3.1_Survival_Runtime_Foundation_Base_Layer.md) |
 
 ---
 
@@ -87,21 +87,9 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 |-------|------------------------|
 | Project overview | `README.md` |
 | Gameplay architecture | `Documentation/Architecture/Survival_Gameplay_Architecture.md` |
-| Module boundaries | `Documentation/Architecture/Survival_Module_Boundaries.md` |
 
 ---
 
-## Core Platform (protected — read before editing)
+## Milestone 0.3.4 rule
 
-| Topic | Path |
-|-------|------|
-| Core architecture | `Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md` |
-| Script standards | `Assets/CCS/Framework/Documentation/CCS_Script_Standards.md` |
-
-Do not add survival gameplay logic under `Assets/CCS/Framework/Core/`.
-
----
-
-## Milestone 0.3.3 rule
-
-**Authority/avatar contracts and identity validation only.** No gameplay mechanics, services, updatables, or Core modifications.
+**Scene bootstrap standards and validation only.** No gameplay mechanics, services, updatables, or Core modifications.

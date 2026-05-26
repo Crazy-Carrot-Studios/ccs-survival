@@ -69,6 +69,15 @@ namespace CCS.Survival
                 return survivalRulesResult;
             }
 
+            CCS_SurvivalBootstrap survivalBootstrap = runtimeHost.GetComponent<CCS_SurvivalBootstrap>();
+            CCS_SurvivalValidationResult sceneBootstrapValidation =
+                CCS_SurvivalSceneBootstrapValidationUtility.ValidateSceneBootstrap(survivalContext, survivalBootstrap);
+            LogValidationResult(sceneBootstrapValidation, enableDebugLogs);
+            if (!sceneBootstrapValidation.IsSuccess)
+            {
+                return sceneBootstrapValidation.ToCoreResult();
+            }
+
             CCS_Logger.Log(
                 LogCategory,
                 $"Core health OK. Modules={report.RegisteredModuleCount}, Services={report.Services.RegisteredServiceCount}, BootstrapInstallers={report.BootstrapInstallerCount}",
@@ -130,6 +139,8 @@ namespace CCS.Survival
                     $"Expected 1 bootstrap installer on runner during skeleton phase, got {report.BootstrapInstallerCount}.");
             }
 
+            LogSceneBootstrapStandardsNotes(enableDebugLogs);
+
             LogAuthorityAvatarBoundaryNotes(enableDebugLogs);
 
             CCS_Logger.Log(LogCategory, "Survival validation rules passed.", enableDebugLogs);
@@ -139,6 +150,19 @@ namespace CCS.Survival
         #endregion
 
         #region Private Methods
+
+        private static void LogSceneBootstrapStandardsNotes(bool enableDebugLogs)
+        {
+            CCS_Logger.Log(
+                CCS_SurvivalRuntimeConstants.BootstrapRulesLogCategory,
+                CCS_SurvivalSceneBootstrapRules.CompositionRootRule,
+                enableDebugLogs);
+
+            CCS_Logger.Log(
+                CCS_SurvivalRuntimeConstants.SceneValidationLogCategory,
+                CCS_SurvivalRuntimeConstants.SceneIdentityGuidanceMessage,
+                enableDebugLogs);
+        }
 
         private static void LogAuthorityAvatarBoundaryNotes(bool enableDebugLogs)
         {

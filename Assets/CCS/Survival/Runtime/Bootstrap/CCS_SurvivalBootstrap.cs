@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CCS.Core;
 using UnityEngine;
 
@@ -25,6 +27,10 @@ namespace CCS.Survival
         [SerializeField] private bool enableSurvivalDiagnostics = true;
 
         [SerializeField] private bool enableDebugLogs = true;
+
+        [Header("Profile Slots (Optional)")]
+        [Tooltip("Future profile-driven setup slots. Leave empty during skeleton phase; validated only when assigned.")]
+        [SerializeField] private CCS_SurvivalBootstrapProfileSlot[] bootstrapProfileSlots = Array.Empty<CCS_SurvivalBootstrapProfileSlot>();
 
         private CCS_RuntimeHost runtimeHost;
         private CCS_SurvivalRuntimeContext survivalContext;
@@ -79,6 +85,8 @@ namespace CCS.Survival
         public CCS_SurvivalRuntimeContext SurvivalContext => survivalContext;
 
         public bool EnableSurvivalDiagnostics => enableSurvivalDiagnostics;
+
+        public IReadOnlyList<CCS_SurvivalBootstrapProfileSlot> BootstrapProfileSlots => bootstrapProfileSlots;
 
         #endregion
 

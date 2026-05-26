@@ -60,5 +60,18 @@ namespace CCS.Survival
 
         public const string ForbiddenUnityIdentitySourceMessage =
             "Survival runtime identity must not use Unity asset paths, scene paths, slashes, spaces, or other scene-object-derived values.";
+
+        public const string SceneValidationLogCategory = "Survival Scene Validation";
+
+        public const string BootstrapRulesLogCategory = "Survival Bootstrap Rules";
+
+        public const int ExpectedRuntimeHostCount = 1;
+
+        public const int ExpectedSurvivalBootstrapCount = 1;
+
+        public const string BootstrapProfileSlotPrefix = "ccs.survival.bootstrap.slot.";
+
+        public const string SceneIdentityGuidanceMessage =
+            "Scene names, hierarchy paths, and GameObject names are not save identity. Use authority, profile, and module IDs instead.";
     }
 }

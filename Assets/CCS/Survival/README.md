@@ -1,48 +1,48 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.3 — Survival Authority Avatar Boundary Skeleton  
+**Milestone:** 0.3.4 — Survival Scene Bootstrap Standards  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-## 0.3.3 purpose
+## 0.3.4 purpose
 
-Establish the survival-owned **authority vs avatar** boundary so future systems keep ownership identity, save keys, input intent, and scene representation separate — without movement, input, networking, or save implementation.
+Define survival-owned **scene bootstrap standards** and validation helpers so every survival scene uses one predictable composition root — without gameplay mechanics.
 
-## Authority vs Avatar
+## Scene bootstrap standards
+
+| Rule | Detail |
+|------|--------|
+| Composition root | One `CCS_RuntimeHost` + one `CCS_SurvivalBootstrap` on the same GameObject |
+| Context | `CCS_SurvivalRuntimeContext` bound to the host |
+| Diagnostics | Survival-owned; Core diagnostics disabled in survival scenes |
+| Profile slots | Optional `CCS_SurvivalBootstrapProfileSlot` list (default empty) |
+| Scene identity | Not save identity — use stable module/profile/authority IDs |
+
+**Guide:** [Documentation/Scene_Bootstrap_Standards.md](Documentation/Scene_Bootstrap_Standards.md)
+
+## Authority vs Avatar (0.3.3)
 
 | Layer | Contract | Role |
 |-------|----------|------|
 | **Authority** | `CCS_ISurvivalAuthority` | Ownership, stable `AuthorityId`, future player/network/save signals |
-| **Avatar** | `CCS_ISurvivalAvatar` | Scene body (`AvatarRoot`), spawn/possession flags — not persistent ownership |
-| **Binding** | `CCS_SurvivalAuthorityAvatarBinding` | Links `AuthorityId` ↔ `AvatarId` (no spawn/save IO) |
-| **Identity** | `CCS_SurvivalIdentityUtility` | Save-stable ID validation (no Unity paths or instance IDs) |
-
-**Location:** `Assets/CCS/Survival/Runtime/Character/Authority/`, `Avatar/`, `Identity/`
+| **Avatar** | `CCS_ISurvivalAvatar` | Scene body (`AvatarRoot`), spawn/possession flags |
+| **Identity** | `CCS_SurvivalIdentityUtility` | Save-stable ID validation |
 
 ## Foundation layer
 
 | Type | Path |
 |------|------|
 | Module base | `Runtime/Foundation/Modules/CCS_SurvivalModuleBase.cs` |
-| Installer base | `Runtime/Foundation/Modules/CCS_SurvivalModuleInstallerBase.cs` |
-| Service marker | `Runtime/Foundation/Services/CCS_ISurvivalService.cs` |
-| Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
-| Validation | `Runtime/Foundation/Validation/` |
+| Scene rules | `Runtime/Foundation/Scene/CCS_SurvivalSceneBootstrapRules.cs` |
+| Scene validation | `Runtime/Foundation/Scene/CCS_SurvivalSceneBootstrapValidationUtility.cs` |
+| Profile slot | `Runtime/Foundation/Bootstrap/CCS_SurvivalBootstrapProfileSlot.cs` |
 | Profiles | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
-
-## Profile-driven setup direction
-
-Future survival systems may use **ScriptableObject profiles** for editor/setup configuration:
-
-- Profiles are **configuration assets**, not runtime simulation state.
-- Runtime state and future save data stay **separate** from profile assets.
-- `profileId` uses stable reverse-DNS IDs (`ccs.survival.profile.*`) — never Unity asset paths or scene references.
+| Validation | `Runtime/Foundation/Validation/` |
 
 ## Character skeleton
 
 - Module ID: `ccs.survival.character`
-- Validated on install via `CCS_SurvivalModuleValidationUtility`
-- Bootstrap does **not** require runtime authority or avatar instances yet
+- Bootstrap scene: `Scenes/SCN_CCS_Survival_Bootstrap.unity`
 
 ## Skeleton diagnostics expectations
 
@@ -55,16 +55,15 @@ Future survival systems may use **ScriptableObject profiles** for editor/setup c
 
 ## What it does not own yet
 
-- Movement, input, player controller, networking package, save implementation
-- Inventory, attributes, combat, AI, animator, equipment
-- Runtime authority/avatar implementations
-- Registered survival services or updatables
+- Gameplay, movement, input, controller, networking, save implementation
+- Inventory, attributes, combat, AI
+- Required profile slots or gameplay profile assets
 
 ## Architecture direction
 
 ```text
 Framework/Core          → reusable platform (protected)
-Survival/Foundation     → wrappers, validation, profiles, constants
+Survival/Foundation     → validation, profiles, scene bootstrap standards
 Survival/Character      → authority/avatar contracts + module skeleton
 Survival/<Feature>/     → future gameplay modules
 ```
@@ -78,5 +77,5 @@ Survival/<Feature>/     → future gameplay modules
 ## Related documentation
 
 - [In-Unity doc index](Documentation/README.md)
-- [Milestone 0.3.3](Documentation/Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md)
-- [Survival gameplay architecture](../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
+- [Milestone 0.3.4](Documentation/Milestones/Milestone_0.3.4_Survival_Scene_Bootstrap_Standards.md)
+- [Scene bootstrap standards](Documentation/Scene_Bootstrap_Standards.md)
