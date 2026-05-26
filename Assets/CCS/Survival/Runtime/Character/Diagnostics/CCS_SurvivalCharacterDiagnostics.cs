@@ -8,7 +8,7 @@
 // NOTES: No player controller, movement, or authority implementation at milestone 0.3.0.
 // =============================================================================
 
-namespace CCS.Survival.Character
+namespace CCS.Survival
 {
     public static class CCS_SurvivalCharacterDiagnostics
     {

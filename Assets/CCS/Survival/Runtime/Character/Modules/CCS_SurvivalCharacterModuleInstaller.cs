@@ -10,7 +10,7 @@ using CCS.Core;
 // NOTES: Does not create gameplay systems. Downward dependency: Survival → Core only.
 // =============================================================================
 
-namespace CCS.Survival.Character
+namespace CCS.Survival
 {
     public sealed class CCS_SurvivalCharacterModuleInstaller : CCS_ModuleInstallerBase
     {

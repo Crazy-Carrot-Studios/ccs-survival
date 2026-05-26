@@ -1,5 +1,4 @@
 using CCS.Core;
-using CCS.Survival.Character;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalDiagnostics

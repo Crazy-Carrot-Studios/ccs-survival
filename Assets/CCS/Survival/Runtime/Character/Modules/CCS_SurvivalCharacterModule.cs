@@ -10,7 +10,7 @@ using CCS.Core;
 // NOTES: Skeleton only. No movement, attributes, inventory, combat, AI, save, or multiplayer behavior.
 // =============================================================================
 
-namespace CCS.Survival.Character
+namespace CCS.Survival
 {
     public sealed class CCS_SurvivalCharacterModule : CCS_ModuleBase
     {

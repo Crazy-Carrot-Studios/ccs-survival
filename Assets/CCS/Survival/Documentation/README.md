@@ -34,7 +34,7 @@ Unity-visible index for survival-specific documentation and bootstrap assets.
 | Character diagnostics | `Runtime/Character/Diagnostics/CCS_SurvivalCharacterDiagnostics.cs` |
 | Survival README | `Assets/CCS/Survival/README.md` |
 
-**Dependency rule:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only. Modules reference Core (and optionally Survival later); Core never references Survival.
+**Dependency rule:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only. Character skeleton types use `namespace CCS.Survival` in the same assembly. Core never references Survival.
 
 ---
 

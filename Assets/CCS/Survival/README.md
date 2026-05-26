@@ -41,7 +41,7 @@ Player **authority** and **avatar** separation will be introduced in a later mil
 
 ## Runtime assembly
 
-`Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` references **`CCS.Core.Runtime` only**.
+`Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` references **`CCS.Core.Runtime` only**. All scripts under `Runtime/` compile into one assembly; character skeleton types use `namespace CCS.Survival`.
 
 ## Related documentation
 
