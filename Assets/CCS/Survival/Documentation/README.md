@@ -11,6 +11,8 @@ Pre-gameplay audits and contributor documentation are complete at **v0.3.5**. Ga
 
 | Guide | Path |
 |-------|------|
+| Gameplay constitution | [../../Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md](../../Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) |
+| Gameplay systems breakdown | [../../Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md](../../Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) |
 | Architecture (authoritative) | [Framework_Architecture_Guide.md](Framework_Architecture_Guide.md) |
 | Gameplay module guidelines | [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md) |
 | Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |

@@ -50,6 +50,8 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 
 | Document | Purpose |
 |----------|---------|
+| [Gameplay Constitution](Assets/CCS/Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) | Foundational design direction — pillars, prototype scope, identity |
+| [Gameplay Systems Breakdown](Assets/CCS/Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) | Module candidates, dependencies, save boundaries, phasing |
 | [Survival Gameplay Architecture](Documentation/Architecture/Survival_Gameplay_Architecture.md) | High-level gameplay structure and module layering |
 | [Survival Module Boundaries](Documentation/Architecture/Survival_Module_Boundaries.md) | Core vs Modules vs Survival folder rules |
 | [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |
