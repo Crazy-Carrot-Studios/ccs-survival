@@ -24,10 +24,10 @@ It defines:
 
 **Related technical docs:**
 
-- [Survival Gameplay Architecture](../../../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
-- [Survival Persistence Direction](../../../../Documentation/Architecture/Survival_Persistence_Direction.md)
-- [Survival Networking Authority](../../../../Documentation/Architecture/Survival_Networking_Authority.md)
-- [Future Gameplay Module Guidelines](../Future_Gameplay_Module_Guidelines.md)
+- [Survival Gameplay Architecture](../../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
+- [Survival Persistence Direction](../../../Documentation/Architecture/Survival_Persistence_Direction.md)
+- [Survival Networking Authority](../../../Documentation/Architecture/Survival_Networking_Authority.md)
+- [Future Gameplay Module Guidelines](../../Survival/Documentation/Future_Gameplay_Module_Guidelines.md)
 
 ---
 
@@ -184,7 +184,7 @@ Recommended **first gameplay system implementation order**. Each layer assumes t
 | **Purpose** | Save orchestration, schema versioning, atomic commit, elapsed-time catch-up |
 | **Primary owned data** | Save metadata, module schema versions, last world tick |
 | **Likely dependencies** | All gameplay modules (read/write snapshots) |
-| **Save / persistence** | `meta.json` + orchestrated module files (see [Persistence Direction](../../../../Documentation/Architecture/Survival_Persistence_Direction.md)) |
+| **Save / persistence** | `meta.json` + orchestrated module files (see [Persistence Direction](../../../Documentation/Architecture/Survival_Persistence_Direction.md)) |
 | **Prototype scope** | Single-player + co-op host save/load, module snapshot ordering |
 | **Delayed scope** | Cloud saves, MMO shard persistence, migration tooling at scale |
 
@@ -205,7 +205,7 @@ Recommended **first gameplay system implementation order**. Each layer assumes t
 
 ### Core stays gameplay-agnostic
 
-`Assets/CCS/Framework/Core/` provides host, modules, services, events, and validation — **never** survival rules, items, or reputation formulas. Gameplay lives in `Assets/CCS/Modules/` or `Assets/CCS/Survival/Runtime/<Feature>/` per [Module Boundaries](../../../../Documentation/Architecture/Survival_Module_Boundaries.md).
+`Assets/CCS/Framework/Core/` provides host, modules, services, events, and validation — **never** survival rules, items, or reputation formulas. Gameplay lives in `Assets/CCS/Modules/` or `Assets/CCS/Survival/Runtime/<Feature>/` per [Module Boundaries](../../../Documentation/Architecture/Survival_Module_Boundaries.md).
 
 ### Prefer services and events over hard coupling
 

@@ -3,31 +3,28 @@
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-This folder holds **shared CCS project documentation** placeholders. Subfolders `Architecture`, `Setup`, and `Standards` are reserved for future in-asset copies of repo-level docs.
+Shared documentation under `Assets/CCS/Documentation/`.
 
 ---
 
-## Gameplay design documents (canonical location)
+## Gameplay design documents
 
-Gameplay constitution and design specs live with survival documentation:
-
-**`Assets/CCS/Survival/Documentation/Gameplay/`**
+**`Assets/CCS/Documentation/Gameplay/`**
 
 | Document |
 |----------|
-| [CCS_Survival_Gameplay_Constitution.md](../Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) |
-| [CCS_Survival_Gameplay_Systems_Breakdown.md](../Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) |
-| [CCS_Survival_Gameplay_Loop_Specification.md](../Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) |
-| [CCS_Survival_Reputation_And_Law_Design_Spec.md](../Survival/Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) |
-| [README.md](../Survival/Documentation/Gameplay/README.md) |
+| [Gameplay Constitution](Gameplay/CCS_Survival_Gameplay_Constitution.md) |
+| [Gameplay Systems Breakdown](Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) |
+| [Gameplay Loop Specification](Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) |
+| [Reputation & Law Design Spec](Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) |
+| [Gameplay README](Gameplay/README.md) |
 
-In Unity: **Assets → CCS → Survival → Documentation → Gameplay**
+In Unity: **Assets → CCS → Documentation → Gameplay**
 
 ---
 
 ## Repo-level documentation
 
-Architecture milestones and module boundaries (primary copies):
+Primary architecture copies: `Documentation/Architecture/` (repository root).
 
-- `Documentation/Architecture/` (repository root)
-- `Documentation/Milestones/` (repository root)
+Survival milestones and framework guides: `Assets/CCS/Survival/Documentation/`.
