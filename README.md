@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.4 — Survival Scene Bootstrap Standards (scene bootstrap validation + profile slots; no gameplay)
+0.3.5 — Survival Framework Quality Gate (documentation + consistency pass; no gameplay)
 
 ## Repository Purpose
 

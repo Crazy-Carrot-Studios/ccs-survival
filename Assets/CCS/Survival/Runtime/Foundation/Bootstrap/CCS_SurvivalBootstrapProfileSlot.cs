@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: Serialized on CCS_SurvivalBootstrap. No dynamic asset loading or save IO.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: slotId is setup identity only. Save systems must not depend on this slot directly.
+// NOTES: Setup only. See CCS_SurvivalFrameworkFutureMarkers.ProfileLoadingAbstraction.
 // =============================================================================
 
 namespace CCS.Survival

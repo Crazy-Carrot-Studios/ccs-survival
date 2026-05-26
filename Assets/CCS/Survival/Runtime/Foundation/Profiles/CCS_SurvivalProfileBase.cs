@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Create asset under Assets/CCS/Survival/... No runtime mechanics at foundation layer.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: profileId is stable save identity. Runtime state must not use Unity asset paths.
+// NOTES: Configuration only. FUTURE: derived gameplay profiles inherit from this base; see Framework_Architecture_Guide.md.
 // =============================================================================
 
 namespace CCS.Survival

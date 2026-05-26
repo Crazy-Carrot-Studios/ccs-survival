@@ -36,40 +36,13 @@ namespace CCS.Survival
                 return CCS_SurvivalValidationResult.Fail("Survival profile version is null or empty.");
             }
 
-            if (!profile.ProfileId.StartsWith(CCS_SurvivalRuntimeConstants.ProfileIdPrefix))
+            CCS_SurvivalValidationResult profileIdValidation = CCS_SurvivalIdentityUtility.ValidateProfileId(profile.ProfileId);
+            if (!profileIdValidation.IsSuccess)
             {
-                return CCS_SurvivalValidationResult.Fail(
-                    $"Survival profile ID must start with '{CCS_SurvivalRuntimeConstants.ProfileIdPrefix}'.");
-            }
-
-            if (!IsSaveStableProfileId(profile.ProfileId))
-            {
-                return CCS_SurvivalValidationResult.Fail(CCS_SurvivalRuntimeConstants.SaveStableIdGuidanceMessage);
+                return profileIdValidation;
             }
 
             return CCS_SurvivalValidationResult.Pass();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static bool IsSaveStableProfileId(string profileId)
-        {
-            for (int index = 0; index < profileId.Length; index++)
-            {
-                char character = profileId[index];
-                bool isLowerLetter = character >= 'a' && character <= 'z';
-                bool isDigit = character >= '0' && character <= '9';
-                bool isSeparator = character == '.' || character == '-';
-
-                if (!isLowerLetter && !isDigit && !isSeparator)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         #endregion

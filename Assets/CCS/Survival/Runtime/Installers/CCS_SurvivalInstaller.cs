@@ -3,11 +3,11 @@ using CCS.Core;
 // =============================================================================
 // SCRIPT: CCS_SurvivalInstaller
 // CATEGORY: Survival / Installers
-// PURPOSE: Survival-layer composition root for explicit gameplay module install sequencing.
+// PURPOSE: Survival-layer composition root for explicit survival module install sequencing.
 // PLACEMENT: Registered on CCS_BootstrapRunner by CCS_SurvivalBootstrap.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: 0.3.0 registers character module skeleton only. No inventory/crafting/save/net.
+// NOTES: Registers character module skeleton. See CCS_SurvivalFrameworkFutureMarkers.GameplayModuleRegistrationExpansion.
 // =============================================================================
 
 namespace CCS.Survival

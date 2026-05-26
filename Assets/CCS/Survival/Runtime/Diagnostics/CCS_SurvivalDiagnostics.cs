@@ -7,7 +7,7 @@ using CCS.Core;
 // PLACEMENT: Invoked by CCS_SurvivalBootstrap when survival diagnostics are enabled.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Read-only Core report usage. Does not modify SCN_CCS_Bootstrap or Core smoke installers.
+// NOTES: Bootstrap-time only. See CCS_SurvivalFrameworkFutureMarkers.FeatureDiagnosticsExtension.
 // =============================================================================
 
 namespace CCS.Survival

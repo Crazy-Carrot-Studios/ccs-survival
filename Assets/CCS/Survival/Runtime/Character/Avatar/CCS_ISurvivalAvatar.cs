@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Implemented by future avatar/pawn scene objects. No movement, input, or controller dependencies.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Avatar is scene-facing representation only. Persistent ownership identity belongs to authority/profile IDs.
+// NOTES: Avatar is scene-facing only. See CCS_SurvivalFrameworkFutureMarkers.AvatarPossessionSystems.
 // =============================================================================
 
 namespace CCS.Survival

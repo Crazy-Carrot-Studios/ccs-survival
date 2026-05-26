@@ -6,11 +6,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_SurvivalBootstrap
 // CATEGORY: Survival / Bootstrap
-// PURPOSE: Gameplay startup pipeline for survival layer install sequencing on CCS_RuntimeHost.
+// PURPOSE: Survival layer startup pipeline for install sequencing and diagnostics on CCS_RuntimeHost.
 // PLACEMENT: Attach to PF_CCS_Survival_BootstrapRoot with CCS_RuntimeHost (same GameObject).
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Runs after host Awake. Core diagnostics off; survival diagnostics owned here. Character skeleton at 0.3.0.
+// NOTES: Composition root. Core diagnostics off; survival diagnostics owned here. FUTURE: profile slot loading abstraction.
 // =============================================================================
 
 namespace CCS.Survival
@@ -18,7 +18,7 @@ namespace CCS.Survival
     [DefaultExecutionOrder(100)]
     public sealed class CCS_SurvivalBootstrap : MonoBehaviour
     {
-        private const string LogCategory = "Survival Bootstrap";
+        private const string LogCategory = CCS_SurvivalRuntimeConstants.SurvivalBootstrapLogCategory;
 
         #region Variables
 

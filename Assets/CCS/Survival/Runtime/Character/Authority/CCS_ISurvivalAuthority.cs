@@ -5,7 +5,7 @@
 // PLACEMENT: Implemented by future authority components/services. No implementation in this milestone.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Future-facing ownership signals only. No networking, input, or save IO dependencies.
+// NOTES: Future-facing ownership signals only. See CCS_SurvivalFrameworkFutureMarkers.MultiplayerAuthorityIntegration.
 // =============================================================================
 
 namespace CCS.Survival

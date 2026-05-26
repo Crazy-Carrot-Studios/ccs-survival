@@ -7,7 +7,7 @@ using CCS.Core;
 // PLACEMENT: Created by CCS_SurvivalBootstrap on the survival bootstrap root.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: No static singleton. Core must never reference this type. Authority role stub only.
+// NOTES: No static singleton. Core must never reference this type. FUTURE: multiplayer role mapping extends SimulationRole.
 // =============================================================================
 
 namespace CCS.Survival
@@ -20,7 +20,7 @@ namespace CCS.Survival
 
     public sealed class CCS_SurvivalRuntimeContext
     {
-        private const string LogCategory = "Survival Context";
+        private const string LogCategory = CCS_SurvivalRuntimeConstants.SurvivalContextLogCategory;
 
         #region Variables
 

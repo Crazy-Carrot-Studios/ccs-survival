@@ -5,7 +5,7 @@
 // PLACEMENT: Static constants. Not attached to GameObjects. No runtime mechanics.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Feature-specific diagnostics may alias these values. No gameplay behavior.
+// NOTES: Feature-specific diagnostics may alias these values. Identity prefixes are authoritative; see Framework_Architecture_Guide.md.
 // =============================================================================
 
 namespace CCS.Survival
@@ -21,6 +21,8 @@ namespace CCS.Survival
         public const string SurvivalInstallerLogCategory = "Survival Installer";
 
         public const string SurvivalBootstrapLogCategory = "Survival Bootstrap";
+
+        public const string SurvivalContextLogCategory = "Survival Context";
 
         public const string CharacterLogCategory = "Survival Character";
 
@@ -41,7 +43,7 @@ namespace CCS.Survival
         public const string InvalidProfileIdMessage = "Survival profile ID is null or empty.";
 
         public const string SaveStableIdGuidanceMessage =
-            "Survival profile ID must use save-stable lowercase reverse-DNS characters (a-z, 0-9, '.', '-'). Do not use Unity asset paths or scene references.";
+            "Survival profile IDs follow the same save-stable rules as runtime identity. See StableRuntimeIdentityGuidanceMessage.";
 
         public const string AuthorityIdPrefix = "ccs.survival.authority.";
 
