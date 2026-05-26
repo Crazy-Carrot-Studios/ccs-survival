@@ -278,7 +278,7 @@ When a feature does not serve **Survive → … → Expand Civilization**, defer
 |----------|------|
 | [Gameplay Constitution](CCS_Survival_Gameplay_Constitution.md) | What the game is |
 | [Systems Breakdown](CCS_Survival_Gameplay_Systems_Breakdown.md) | How systems split for engineering |
-| [Future Gameplay Module Guidelines](../../Survival/Documentation/Future_Gameplay_Module_Guidelines.md) | Module implementation rules |
+| [Future Gameplay Module Guidelines](../Future_Gameplay_Module_Guidelines.md) | Module implementation rules |
 
 **Planned follow-ups:** Reputation & Law Design Spec · Settlement & Territory Spec · Economy & Logistics Spec
 

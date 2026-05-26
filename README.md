@@ -50,10 +50,10 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 
 | Document | Purpose |
 |----------|---------|
-| [Gameplay Constitution](Assets/CCS/Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) | Foundational design direction — pillars, prototype scope, identity |
-| [Gameplay Systems Breakdown](Assets/CCS/Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) | Module candidates, dependencies, save boundaries, phasing |
-| [Gameplay Loop Specification](Assets/CCS/Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) | Player flow, pacing, onboarding, vertical slice goal |
-| [Reputation & Law Design Spec](Assets/CCS/Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) | Reputation, crime, bounties, war, death persistence |
+| [Gameplay Constitution](Assets/CCS/Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Constitution.md) | Foundational design direction — pillars, prototype scope, identity |
+| [Gameplay Systems Breakdown](Assets/CCS/Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Systems_Breakdown.md) | Module candidates, dependencies, save boundaries, phasing |
+| [Gameplay Loop Specification](Assets/CCS/Survival/Documentation/Gameplay/CCS_Survival_Gameplay_Loop_Specification.md) | Player flow, pacing, onboarding, vertical slice goal |
+| [Reputation & Law Design Spec](Assets/CCS/Survival/Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) | Reputation, crime, bounties, war, death persistence |
 | [Survival Gameplay Architecture](Documentation/Architecture/Survival_Gameplay_Architecture.md) | High-level gameplay structure and module layering |
 | [Survival Module Boundaries](Documentation/Architecture/Survival_Module_Boundaries.md) | Core vs Modules vs Survival folder rules |
 | [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |

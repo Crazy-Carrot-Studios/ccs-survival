@@ -6,7 +6,7 @@
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-This document defines the **agreed gameplay philosophy and systems direction** for CCS Survival. It guides prototype scope, feature prioritization, and long-term architecture alignment. Technical module boundaries live in [Survival Gameplay Architecture](../../../Documentation/Architecture/Survival_Gameplay_Architecture.md) and [Framework Architecture Guide](../../Survival/Documentation/Framework_Architecture_Guide.md).
+This document defines the **agreed gameplay philosophy and systems direction** for CCS Survival. It guides prototype scope, feature prioritization, and long-term architecture alignment. Technical module boundaries live in [Survival Gameplay Architecture](../../../../Documentation/Architecture/Survival_Gameplay_Architecture.md) and [Framework Architecture Guide](../Framework_Architecture_Guide.md).
 
 ---
 
@@ -236,10 +236,10 @@ Implementation follows **explicit module registration**, **save-stable identity*
 
 **Related documents:**
 
-- [Survival Gameplay Architecture](../../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
-- [Survival Persistence Direction](../../../Documentation/Architecture/Survival_Persistence_Direction.md)
-- [Survival Networking Authority](../../../Documentation/Architecture/Survival_Networking_Authority.md)
-- [Future Gameplay Module Guidelines](../../Survival/Documentation/Future_Gameplay_Module_Guidelines.md)
+- [Survival Gameplay Architecture](../../../../Documentation/Architecture/Survival_Gameplay_Architecture.md)
+- [Survival Persistence Direction](../../../../Documentation/Architecture/Survival_Persistence_Direction.md)
+- [Survival Networking Authority](../../../../Documentation/Architecture/Survival_Networking_Authority.md)
+- [Future Gameplay Module Guidelines](../Future_Gameplay_Module_Guidelines.md)
 
 ---
 
