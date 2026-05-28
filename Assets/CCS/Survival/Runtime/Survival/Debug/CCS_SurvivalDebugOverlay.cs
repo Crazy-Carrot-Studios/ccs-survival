@@ -29,7 +29,10 @@ namespace CCS.Survival
         [SerializeField] private float screenPadding = 12f;
 
         [Tooltip("Panel width in pixels.")]
-        [SerializeField] private float panelWidth = 220f;
+        [SerializeField] private float panelWidth = 190f;
+
+        [Tooltip("Font size for overlay labels. Keep small to avoid blocking scene view.")]
+        [SerializeField] private int overlayFontSize = 12;
 
         #endregion
 
@@ -88,16 +91,18 @@ namespace CCS.Survival
         private void DrawSurvivalPanel()
         {
             CCS_SurvivalState state = survivalModule.CurrentState;
-            Rect panelRect = BuildTopRightRect(130f);
+            Rect panelRect = BuildTopRightRect(118f);
             GUI.Box(panelRect, string.Empty);
 
+            GUIStyle labelStyle = new GUIStyle(GUI.skin.label) { fontSize = overlayFontSize };
+
             GUILayout.BeginArea(panelRect);
-            GUILayout.Label("Survival Debug");
-            GUILayout.Label($"Health: {state.Health:F1}");
-            GUILayout.Label($"Hunger: {state.Hunger:F1}");
-            GUILayout.Label($"Thirst: {state.Thirst:F1}");
-            GUILayout.Label($"Stamina: {state.Stamina:F1}");
-            GUILayout.Label(state.IsAlive ? "Status: Alive" : "Status: Dead");
+            GUILayout.Label("Survival", labelStyle);
+            GUILayout.Label($"HP {state.Health:F0}", labelStyle);
+            GUILayout.Label($"Food {state.Hunger:F0}", labelStyle);
+            GUILayout.Label($"Water {state.Thirst:F0}", labelStyle);
+            GUILayout.Label($"STM {state.Stamina:F0}", labelStyle);
+            GUILayout.Label(state.IsAlive ? "Alive" : "Dead", labelStyle);
             GUILayout.EndArea();
         }
 

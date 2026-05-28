@@ -237,6 +237,62 @@ namespace CCS.Survival
             }
         }
 
+        [ContextMenu("Debug/Apply Test Damage")]
+        public void DebugApplyTestDamage()
+        {
+            EnsureInitializedForDebug();
+            ApplyDamage(15f);
+        }
+
+        [ContextMenu("Debug/Restore Health")]
+        public void DebugRestoreHealth()
+        {
+            EnsureInitializedForDebug();
+            RestoreHealth(25f);
+        }
+
+        [ContextMenu("Debug/Consume Test Food")]
+        public void DebugConsumeTestFood()
+        {
+            EnsureInitializedForDebug();
+            ConsumeFood(40f);
+        }
+
+        [ContextMenu("Debug/Consume Test Water")]
+        public void DebugConsumeTestWater()
+        {
+            EnsureInitializedForDebug();
+            ConsumeWater(40f);
+        }
+
+        [ContextMenu("Debug/Kill Player")]
+        public void DebugKillPlayer()
+        {
+            EnsureInitializedForDebug();
+            Kill();
+        }
+
+        [ContextMenu("Debug/Respawn Player")]
+        public void DebugRespawnPlayer()
+        {
+            EnsureInitializedForDebug();
+            Respawn();
+        }
+
+        [ContextMenu("Debug/Apply Test Exposure")]
+        public void DebugApplyTestExposure()
+        {
+            EnsureInitializedForDebug();
+            SetExposure(1f);
+        }
+
+        [ContextMenu("Debug/Clear Exposure")]
+        public void DebugClearExposure()
+        {
+            EnsureInitializedForDebug();
+            SetExposure(0f);
+        }
+
         #endregion
 
         #region Properties
@@ -250,6 +306,14 @@ namespace CCS.Survival
         #endregion
 
         #region Private Methods
+
+        private void EnsureInitializedForDebug()
+        {
+            if (!isInitialized)
+            {
+                Initialize();
+            }
+        }
 
         private void TryRegisterSurvivalService()
         {

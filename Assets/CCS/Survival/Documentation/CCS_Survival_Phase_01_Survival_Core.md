@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1A — Runtime Skeleton (In Progress)
+**Status:** Phase 1B — Manual Validation Setup (In Progress)
 
 ---
 
@@ -16,6 +16,24 @@
 - Temporary debug overlay added (`CCS_SurvivalDebugOverlay`)
 - Final UI still deferred
 - AI test harness still deferred
+
+---
+
+## Implementation Status (Phase 1B)
+
+- Manual Play Mode validation setup added (`CCS_Survival_TestHarness` in `SCN_CCS_Survival_Bootstrap`)
+- Debug overlay used only for temporary testing (top-right compact panel)
+- Context menu debug helpers on `CCS_SurvivalModule` for damage, recovery, food/water, kill, respawn, exposure
+- Fast drain/damage tuning on test harness for short Play Mode validation cycles
+- Final UI still deferred
+- Standalone build testing not required yet
+
+### Manual validation steps
+
+1. Open `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+2. Enter Play Mode
+3. Observe top-right overlay: hunger/thirst drain, health loss when depleted, death, then use **Debug/Respawn Player** context menu on `CCS_SurvivalModule`
+4. Optional: use other **Debug/** context menu actions on the module while playing
 
 ---
 
