@@ -11,7 +11,7 @@
 
 ## Implementation Status (Phase 1C)
 
-- Survival tuning moved to `CCS_SurvivalVitalsProfile` ScriptableObject (defined in `CCS_SurvivalState.cs`)
+- Survival tuning moved to `CCS_SurvivalVitalsProfile` ScriptableObject (`CCS_SurvivalVitalsProfile.cs`)
 - Default profile asset: `Assets/CCS/Survival/Settings/Survival/CCS_DefaultSurvivalVitalsProfile.asset`
 - `CCS_SurvivalModule` references profile instead of per-component tuning fields
 - Safe fallback tuning values used only when profile is missing (warning logged, no exceptions)
