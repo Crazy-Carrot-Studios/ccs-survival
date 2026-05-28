@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.5 — Automated Traversal Test Agent (Planning)
+**Status:** Phase 1F.6 — Automated Traversal Test Agent (Implemented)
 
 ---
 
@@ -251,15 +251,15 @@ CCS_PrototypeTraversalRoute
 
 Waypoints are **empty Transform markers** (or lightweight gizmo components) placed at course landmarks aligned with the Phase 1F.4 connected path along **+Z**.
 
-### 5. Done criteria (future implementation)
+### 5. Done criteria
 
-- [ ] Agent can **follow** the serialized route in order
-- [ ] Agent can **loop** the full out-and-back course without manual input
-- [ ] Route/agent can be **enabled/disabled** in the Inspector (default off)
-- [ ] **Manual player control** remains possible when the agent is disabled
-- [ ] No final AI behavior implied (no combat, no navmesh chasing, no perception)
-- [ ] Logs are **concise pass/fail** style per waypoint/segment (not per-frame spam)
-- [ ] Design supports **future test report integration** (structured pass/fail events, optional batch/CI hook later)
+- [x] Agent can **follow** the serialized route in order (Phase 1F.6).
+- [x] Agent can **loop** the course when `loopRoute` is enabled (Phase 1F.6).
+- [x] Route/agent can be **enabled/disabled** in the Inspector (`enableTraversalTest` default off).
+- [x] **Manual player control** remains on `CCS_PlayerRoot` (separate test agent object).
+- [x] No final AI behavior implied.
+- [x] Logs are **concise** (start, reach, advance, loop complete) when debug enabled.
+- [ ] Design supports **future test report integration** (deferred).
 
 ### 6. Deferred
 
@@ -270,6 +270,22 @@ Waypoints are **empty Transform markers** (or lightweight gizmo components) plac
 - Fall damage implementation and validation
 - Behavior trees / GOAP
 - Automated test result file export (JSON/XML) — plan for later integration only
+
+---
+
+## Implementation Status (Phase 1F.6)
+
+- **`CCS_TraversalTestWaypoint`**, **`CCS_TraversalTestRoute`**, **`CCS_TraversalTestAgent`** under `Assets/CCS/Survival/Runtime/Testing/Traversal/`.
+- Scene objects in **`SCN_CCS_Survival_Bootstrap`**: `CCS_PrototypeTraversalRoute` (7 waypoints) + `CCS_TraversalTestAgent` (blue capsule visual, disabled by default).
+- Agent uses **CharacterController** + simple gravity; follows serialized route; optional loop; no Input System.
+- Manual **`CCS_PlayerRoot`** movement unchanged when test agent is disabled.
+
+### Phase 1F.6 manual validation
+
+1. Play Mode with **`enableTraversalTest`** off — WASD player works as before
+2. Enable **`enableTraversalTest`** on `CCS_TraversalTestAgent` — agent follows spawn → stairs → platform → ramp → return
+3. Confirm loop restarts when `loopRoute` is enabled
+4. Console: concise `[CCS Traversal Test]` logs only when `enableDebugLogs` is on
 
 ---
 
