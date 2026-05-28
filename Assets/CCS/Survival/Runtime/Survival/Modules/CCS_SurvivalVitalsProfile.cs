@@ -2,7 +2,7 @@ using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalVitalsProfile
-// CATEGORY: Survival / Runtime / Survival / Data
+// CATEGORY: Survival / Runtime / Survival / Modules
 // PURPOSE: ScriptableObject tuning profile for Phase 1 survival vitals (health, hunger, thirst, stamina, damage rates).
 // PLACEMENT: Create asset via Assets → Create → CCS → Survival → Survival Vitals Profile under Assets/CCS/Survival/Settings/Survival/.
 // AUTHOR: James Schilz
