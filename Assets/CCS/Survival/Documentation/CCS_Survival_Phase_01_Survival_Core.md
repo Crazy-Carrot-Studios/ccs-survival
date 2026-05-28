@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1G — Traversal Telemetry & Runtime Validation (Implemented)
+**Status:** Phase 1G.1 — Standalone Telemetry Validation Build (Validated)
 
 ---
 
@@ -432,6 +432,61 @@ Public properties on **`CCS_TraversalTestAgent`**: `CompletedRouteCount`, `Faile
 
 - **`CCS_TraversalTestAgent`** — telemetry, stuck detection, duration validation, pass/fail summaries
 - Scene **`SCN_CCS_Survival_Bootstrap`** — validation defaults wired; `enableTraversalTest` off; `enableDebugLogs` off (telemetry on)
+
+---
+
+## Phase 1G.1 — Standalone Telemetry Validation Build
+
+### Purpose
+
+Validate Phase **1G** traversal telemetry and **`b02492b`** Cinemachine camera target switching in a **Windows standalone Development** build outside the Editor.
+
+### Build
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.4.0-E/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_4_0_E.log` (prefix `[CCS 0.4.0-E]`) |
+| **Unity log** | `Logs/Build_0_4_0_E_Unity.log` (not committed) |
+| **Bootstrap scene** | `SCN_CCS_Survival_Bootstrap.unity` (build index **0**) |
+| **Validation mode** | Temporary Editor build step enabled **`enableTraversalTest`** for the packaged player only; committed scene restored to **`enableTraversalTest` off** after build |
+
+### Runtime validation (automated)
+
+| Item | Value |
+|------|--------|
+| **Duration** | ~60 seconds |
+| **Exception** | 0 |
+| **LogError** | 0 |
+| **NullReferenceException** | 0 |
+| **MissingReferenceException** | 0 |
+| **Cannot set the parent** | 0 |
+| **Traversal FAILED** (`[CCS Traversal Test] FAILED`) | 0 |
+| **PASSED: Route completed** | 10 (≥ 2 required) |
+| **Core health OK** | 1 |
+| **Survival validation rules passed** | 1 |
+
+Last sample pass: `PASSED: Route completed in 5.24s. Waypoints=7. Loops=10.`
+
+### Manual visual checklist
+
+| Check | Status |
+|-------|--------|
+| Camera follows traversal agent in standalone | **Pending** human confirmation |
+| Player hidden during traversal test | **Log/behavior expected**; visual **Pending** |
+| Blue agent completes route | **Log-confirmed** (10 PASSED summaries in 60s run) |
+| No blocking at route start | **Pending** |
+| No obvious camera freeze | **Pending** |
+| Debug overlay readable | **Pending** |
+
+### Camera / teardown
+
+- Standalone run produced **no** `Cannot set the parent` errors (camera target switching validated in logs).
+- Play Mode exit teardown with camera switching remains validated separately in Editor.
+
+### Result status
+
+**Passed** automated Player.log criteria for standalone telemetry validation. Manual visual checklist **pending**.
 
 ---
 
