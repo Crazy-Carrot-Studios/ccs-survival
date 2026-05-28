@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.2 — Organized Movement Test Course (Implemented)
+**Status:** Phase 1F.3 — Ground Grid Material (Implemented)
 
 ---
 
@@ -98,7 +98,7 @@ After Phase 1F.1, create a follow-up standalone smoke build (**0.4.0-C** recomme
 ## Implementation Status (Phase 1F.2)
 
 - **`CCS_PrototypeEnvironmentRoot`** added to organize static prototype geometry under one parent.
-- **`CCS_PrototypeGridRoot`** groups all `CCS_PrototypeGridLine_*` objects.
+- **`CCS_PrototypeGridRoot`** grouped grid-line cubes (removed in Phase 1F.3; see ground grid material).
 - Traversal test course added with simple primitives:
   - **`CCS_PrototypeStep`** — step-offset validation (`stepOffset` 0.3)
   - **`CCS_PrototypeRamp`** — slope validation (~22°, within `slopeLimit` 45)
@@ -131,6 +131,24 @@ SCN_CCS_Survival_Bootstrap
 2. **WASD** + sprint stamina still work; overlay readable
 3. Walk to **step** (east of spawn), **ramp** (west), **stairs** (east/south area)
 4. Camera follows; console **`Services=1`**; no errors
+
+---
+
+## Implementation Status (Phase 1F.3)
+
+- Replaced **`CCS_PrototypeGridRoot`** / **`CCS_PrototypeGridLine_*`** cube objects with a tiled ground grid material on **`CCS_PrototypeGround`**.
+- **`MAT_CCS_Prototype_Ground_Grid`** uses in-project **`TEX_CCS_Prototype_Ground_Grid.png`** (URP Lit, 10×10 tiling on the 40×40m plane).
+- Prototype hierarchy simplified under **`CCS_PrototypeEnvironmentRoot`** (ground, step, ramp, stairs, boundary markers only).
+- Removed unused materials: **`MAT_CCS_Prototype_GridLine_Dark`**, **`MAT_CCS_Prototype_Ground_Neutral`**.
+- Kept: **`MAT_CCS_Prototype_Player_Yellow`**, **`MAT_CCS_Prototype_Step_Grey`**, **`MAT_CCS_Prototype_Ramp_Blue`**, **`MAT_CCS_Prototype_Stairs_Orange`**, **`MAT_CCS_Prototype_Ground_Grid`**.
+- Final environment art, terrain, and Gaia remain **deferred**.
+
+### Phase 1F.3 manual validation
+
+1. Reload scene if Unity was open during update
+2. Ground shows subtle grid in Scene/Game view; **`MeshCollider`** still on ground
+3. No missing materials; traversal objects still visible
+4. Movement, sprint stamina, overlay, **`Services=1`**, no console errors
 
 ---
 
