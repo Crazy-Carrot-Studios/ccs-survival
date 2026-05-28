@@ -5,7 +5,84 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1C — Vitals ScriptableObject Profile (In Progress)
+**Status:** Phase 1D — Character + Camera Integration (Planning)
+
+---
+
+## Phase 1D — Character + Camera Integration Plan
+
+### 1. Purpose
+
+Connect the survival vitals prototype to an actual playable scene with a player character and camera. Phase 1A–1C proved service registration, profile-driven tuning, and debug visibility on a composition root; Phase 1D adds the minimum scene presence needed to validate survival pressure in a real Game View context.
+
+### 2. Goals
+
+- Add a simple player character/root object
+- Add a gameplay camera
+- Keep survival module on the bootstrap/composition root
+- Avoid coupling vitals directly to camera or input
+- Prepare for New Input System integration soon
+- Keep systems multiplayer-conscious but not networked yet
+
+### 3. Preferred Architecture
+
+```text
+PF_CCS_Survival_BootstrapRoot (composition root)
+├── CCS_RuntimeHost
+├── CCS_SurvivalBootstrap
+├── CCS_SurvivalModule          ← vitals service; no camera/input coupling
+└── CCS_SurvivalDebugOverlay    ← temporary OnGUI readout
+
+Player Root (scene instance)
+├── Placeholder mesh/capsule/visual
+└── (future) character module, movement, avatar binding
+
+Camera Root (scene instance)
+└── Gameplay camera aimed at / following player
+```
+
+- **Bootstrap root** owns runtime host, survival bootstrap, survival module, and debug overlay.
+- **Player root** owns character/movement/avatar components later.
+- **Camera root** follows or observes the player.
+- **Survival vitals** remain service-driven via `CCS_ISurvivalVitalsService`; no direct hardwiring to scene object references in vitals internals.
+
+### 4. Initial Implementation Scope
+
+**In scope**
+
+- Basic camera rendering so Game View is no longer “No cameras rendering”
+- Simple placeholder player object (primitive or minimal prefab)
+- Camera view aimed at the player (static follow offset acceptable for prototype)
+- Survival overlay and diagnostics unchanged on bootstrap root
+
+**Out of scope**
+
+- Final character controller (unless an existing safe foundation component is already available and trivial to wire)
+- Final animation
+- Combat
+- Inventory
+- Final HUD
+- Networking / replication
+
+### 5. Input Direction
+
+Player movement and control will use the **Unity New Input System** when Phase 1D+ implementation adds actual locomotion. Do **not** create an Input Actions asset in the planning pass; defer asset creation until movement implementation is scheduled and required.
+
+Until then, the placeholder player may remain static or use minimal test-only motion that does not establish long-term input coupling on the survival module.
+
+### 6. Done Criteria
+
+- [ ] Game View renders a basic scene (no “No cameras rendering”)
+- [ ] Player placeholder is visible in the world
+- [ ] Camera is stable and frames the player acceptably
+- [ ] Survival debug overlay remains readable and top-right, out of center gameplay sightlines
+- [ ] `CCS_ISurvivalVitalsService` still registers (`Services=1` in diagnostics)
+- [ ] Diagnostics remain clean (no new error spam)
+- [ ] Scene remains simple and prototype-focused
+
+### 7. Standalone Build Checkpoint
+
+After Phase 1D **implementation** proves camera + player + survival overlay together in Play Mode, create a **standalone build** smoke test. This validates rendering, bootstrap prefab wiring, and vitals overlay outside the Editor before Phase 2 scope expands.
 
 ---
 
