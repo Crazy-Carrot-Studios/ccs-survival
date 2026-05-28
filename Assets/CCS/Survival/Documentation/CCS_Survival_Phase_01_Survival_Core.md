@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.1 — Sprint Stamina Integration (Implemented)
+**Status:** Phase 1F.2 — Organized Movement Test Course (Implemented)
 
 ---
 
@@ -92,6 +92,45 @@ After Phase 1F.1, create a follow-up standalone smoke build (**0.4.0-C** recomme
 3. Sprint falls back to walk when stamina is depleted or below minimum
 4. Stamina recovers when sprint is released
 5. Console **`Services=1`**; no errors; missing-service fallback allows sprint with a one-time warning only when vitals are absent
+
+---
+
+## Implementation Status (Phase 1F.2)
+
+- **`CCS_PrototypeEnvironmentRoot`** added to organize static prototype geometry under one parent.
+- **`CCS_PrototypeGridRoot`** groups all `CCS_PrototypeGridLine_*` objects.
+- Traversal test course added with simple primitives:
+  - **`CCS_PrototypeStep`** — step-offset validation (`stepOffset` 0.3)
+  - **`CCS_PrototypeRamp`** — slope validation (~22°, within `slopeLimit` 45)
+  - **`CCS_PrototypeStairsRoot`** — six 0.25m stair blocks for repeated elevation changes
+  - **`CCS_PrototypeBoundaryMarkers`** — subtle corner reference posts
+- Materials: `MAT_CCS_Prototype_Ramp_Blue`, `MAT_CCS_Prototype_Stairs_Orange` (existing ground/step/grid/player materials unchanged).
+- Scene hierarchy target:
+
+```text
+SCN_CCS_Survival_Bootstrap
+├── PF_CCS_Survival_BootstrapRoot
+├── Directional Light
+├── CCS_PlayerRoot
+├── Main Camera
+├── CM_PrototypeFollow
+└── CCS_PrototypeEnvironmentRoot
+    ├── CCS_PrototypeGround
+    ├── CCS_PrototypeGridRoot
+    ├── CCS_PrototypeStep
+    ├── CCS_PrototypeRamp
+    ├── CCS_PrototypeStairsRoot
+    └── CCS_PrototypeBoundaryMarkers
+```
+
+- Final environment art, terrain, and Gaia remain **deferred**.
+
+### Phase 1F.2 manual validation
+
+1. Reload `SCN_CCS_Survival_Bootstrap.unity` if Unity was open during scene update
+2. **WASD** + sprint stamina still work; overlay readable
+3. Walk to **step** (east of spawn), **ramp** (west), **stairs** (east/south area)
+4. Camera follows; console **`Services=1`**; no errors
 
 ---
 
