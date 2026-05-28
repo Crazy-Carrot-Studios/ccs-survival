@@ -5,7 +5,17 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Planning (No Implementation)
+**Status:** Phase 1A — Runtime Skeleton (In Progress)
+
+---
+
+## Implementation Status (Phase 1A)
+
+- Phase 1A runtime skeleton created
+- Survival module/service/state added (`CCS_SurvivalModule`, `CCS_ISurvivalVitalsService`, `CCS_SurvivalState`)
+- Temporary debug overlay added (`CCS_SurvivalDebugOverlay`)
+- Final UI still deferred
+- AI test harness still deferred
 
 ---
 
@@ -62,7 +72,7 @@ The following are **proposed** script/class names. Final naming may be adjusted 
 | Proposed Type | Role |
 |---------------|------|
 | `CCS_SurvivalModule` | Module installer/registration entry for survival vitals services |
-| `CCS_ISurvivalService` | Service contract for reading/updating survival state |
+| `CCS_ISurvivalVitalsService` | Service contract for reading/updating survival state (extends foundation `CCS_ISurvivalService`) |
 | `CCS_SurvivalState` | Aggregate runtime state container for a survival authority |
 | `CCS_SurvivalStat` | Generic stat model (current, min, max, drain/recovery modifiers) |
 | `CCS_SurvivalVitals` | Hunger/thirst/health/stamina update orchestration |

@@ -16,6 +16,10 @@ namespace CCS.Survival
 
         public const string CharacterModuleId = ModuleIdPrefix + "character";
 
+        public const string SurvivalVitalsModuleId = ModuleIdPrefix + "vitals";
+
+        public const string SurvivalVitalsLogCategory = "Survival Vitals";
+
         public const string SurvivalDiagnosticsLogCategory = "Survival Diagnostics";
 
         public const string SurvivalInstallerLogCategory = "Survival Installer";
