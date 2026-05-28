@@ -26,13 +26,28 @@ namespace CCS.Survival
 
         [Header("Layout")]
         [Tooltip("Screen padding from top and right edges in pixels.")]
-        [SerializeField] private float screenPadding = 12f;
+        [SerializeField] private float screenPadding = 14f;
+
+        [Tooltip("Inner padding around overlay text in pixels.")]
+        [SerializeField] private float panelPadding = 8f;
 
         [Tooltip("Panel width in pixels.")]
-        [SerializeField] private float panelWidth = 190f;
+        [SerializeField] private float panelWidth = 200f;
 
-        [Tooltip("Font size for overlay labels. Keep small to avoid blocking scene view.")]
-        [SerializeField] private int overlayFontSize = 12;
+        [Tooltip("Font size for overlay labels.")]
+        [SerializeField] private int fontSize = 16;
+
+        [Tooltip("Extra vertical space between stat lines in pixels.")]
+        [SerializeField] private float lineSpacing = 4f;
+
+        [Tooltip("Alpha for the semi-transparent dark background (0 = invisible, 1 = opaque).")]
+        [Range(0.35f, 0.95f)]
+        [SerializeField] private float backgroundAlpha = 0.72f;
+
+        private GUIStyle labelStyle;
+        private Texture2D backgroundTexture;
+        private int cachedFontSize = -1;
+        private float cachedBackgroundAlpha = -1f;
 
         #endregion
 
@@ -41,6 +56,15 @@ namespace CCS.Survival
         private void Awake()
         {
             ResolveSurvivalModuleReference();
+        }
+
+        private void OnDestroy()
+        {
+            if (backgroundTexture != null)
+            {
+                Destroy(backgroundTexture);
+                backgroundTexture = null;
+            }
         }
 
         private void OnGUI()
@@ -54,6 +78,8 @@ namespace CCS.Survival
             {
                 ResolveSurvivalModuleReference();
             }
+
+            EnsureGuiResources();
 
             if (!CCS_Validation.IsObjectValid(survivalModule))
             {
@@ -78,32 +104,98 @@ namespace CCS.Survival
             survivalModule = FindFirstObjectByType<CCS_SurvivalModule>();
         }
 
+        private void EnsureGuiResources()
+        {
+            if (cachedFontSize == fontSize && labelStyle != null)
+            {
+                if (Mathf.Approximately(cachedBackgroundAlpha, backgroundAlpha))
+                {
+                    return;
+                }
+            }
+
+            cachedFontSize = fontSize;
+            cachedBackgroundAlpha = backgroundAlpha;
+
+            labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = fontSize,
+                richText = false,
+                wordWrap = false,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0)
+            };
+
+            if (backgroundTexture != null)
+            {
+                Destroy(backgroundTexture);
+            }
+
+            backgroundTexture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            backgroundTexture.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.08f, backgroundAlpha));
+            backgroundTexture.Apply();
+        }
+
+        private void DrawPanelBackground(Rect panelRect)
+        {
+            if (backgroundTexture == null)
+            {
+                return;
+            }
+
+            GUI.DrawTexture(panelRect, backgroundTexture, ScaleMode.StretchToFill);
+        }
+
         private void DrawMissingModulePanel()
         {
-            Rect panelRect = BuildTopRightRect(80f);
-            GUI.Box(panelRect, string.Empty);
-            GUILayout.BeginArea(panelRect);
-            GUILayout.Label("Survival Debug");
-            GUILayout.Label("No CCS_SurvivalModule found.");
-            GUILayout.EndArea();
+            float panelHeight = GetPanelHeight(2);
+            Rect panelRect = BuildTopRightRect(panelHeight);
+            DrawPanelBackground(panelRect);
+
+            float y = panelRect.y + panelPadding;
+            float x = panelRect.x + panelPadding;
+            float lineHeight = GetLineHeight();
+
+            GUI.Label(new Rect(x, y, panelRect.width - panelPadding * 2f, lineHeight), "Survival Debug", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, panelRect.width - panelPadding * 2f, lineHeight), "No CCS_SurvivalModule found.", labelStyle);
         }
 
         private void DrawSurvivalPanel()
         {
             CCS_SurvivalState state = survivalModule.CurrentState;
-            Rect panelRect = BuildTopRightRect(118f);
-            GUI.Box(panelRect, string.Empty);
+            float panelHeight = GetPanelHeight(6);
+            Rect panelRect = BuildTopRightRect(panelHeight);
+            DrawPanelBackground(panelRect);
 
-            GUIStyle labelStyle = new GUIStyle(GUI.skin.label) { fontSize = overlayFontSize };
+            float y = panelRect.y + panelPadding;
+            float x = panelRect.x + panelPadding;
+            float lineHeight = GetLineHeight();
+            float contentWidth = panelRect.width - panelPadding * 2f;
 
-            GUILayout.BeginArea(panelRect);
-            GUILayout.Label("Survival", labelStyle);
-            GUILayout.Label($"HP {state.Health:F0}", labelStyle);
-            GUILayout.Label($"Food {state.Hunger:F0}", labelStyle);
-            GUILayout.Label($"Water {state.Thirst:F0}", labelStyle);
-            GUILayout.Label($"STM {state.Stamina:F0}", labelStyle);
-            GUILayout.Label(state.IsAlive ? "Alive" : "Dead", labelStyle);
-            GUILayout.EndArea();
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), "Survival", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"HP {state.Health:F0}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Food {state.Hunger:F0}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Water {state.Thirst:F0}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"STM {state.Stamina:F0}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), state.IsAlive ? "Alive" : "Dead", labelStyle);
+        }
+
+        private float GetLineHeight()
+        {
+            return fontSize + 4f;
+        }
+
+        private float GetPanelHeight(int lineCount)
+        {
+            float lineHeight = GetLineHeight();
+            float linesHeight = lineCount * lineHeight + Mathf.Max(0, lineCount - 1) * lineSpacing;
+            return panelPadding * 2f + linesHeight;
         }
 
         private Rect BuildTopRightRect(float height)
