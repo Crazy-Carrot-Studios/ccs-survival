@@ -1,3 +1,4 @@
+using System;
 using CCS.Core;
 
 // =============================================================================
@@ -17,8 +18,11 @@ namespace CCS.Survival
         public CCS_SurvivalTraversalValidationLifecycleEvent(bool isActive)
         {
             IsActive = isActive;
+            Timestamp = DateTime.UtcNow;
         }
 
         public bool IsActive { get; }
+
+        public DateTime Timestamp { get; }
     }
 }
