@@ -335,7 +335,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 973492003, guid: f1a2b3c4d5e6478990abcdef12345606, type: 3}
       propertyPath: enableRuntimeDiagnostics
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 973492005, guid: f1a2b3c4d5e6478990abcdef12345606, type: 3}
       propertyPath: healthDebugLogStep
