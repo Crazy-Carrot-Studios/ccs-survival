@@ -16,6 +16,8 @@ namespace CCS.Survival
     {
         bool IsTraversalValidationActive { get; }
 
+        bool IsTraversalVitalsIsolationActive { get; }
+
         void NotifyTraversalValidationActive(bool isActive);
     }
 }

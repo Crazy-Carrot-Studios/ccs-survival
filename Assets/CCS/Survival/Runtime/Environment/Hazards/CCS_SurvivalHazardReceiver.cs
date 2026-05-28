@@ -45,7 +45,11 @@ namespace CCS.Survival.Environment.Hazards
 
         public bool IsInSafeZone => activeSafeZones.Count > 0;
 
+        public bool IsSafeZoneActive => IsInSafeZone;
+
         public int ActiveHazardZoneCount => activeHazardZones.Count;
+
+        public bool AppliesToSurvivalVitals => applyToSurvivalVitals;
 
         #endregion
 
@@ -136,9 +140,68 @@ namespace CCS.Survival.Environment.Hazards
             }
         }
 
+        public string GetActiveHazardSummary()
+        {
+            int enabledZoneCount = 0;
+            CCS_SurvivalHazardType? firstType = null;
+            bool hasMultipleTypes = false;
+
+            foreach (CCS_SurvivalHazardZone hazardZone in activeHazardZones)
+            {
+                if (hazardZone == null || !hazardZone.IsZoneEnabled)
+                {
+                    continue;
+                }
+
+                enabledZoneCount++;
+                CCS_SurvivalHazardType zoneType = hazardZone.HazardType;
+                if (!firstType.HasValue)
+                {
+                    firstType = zoneType;
+                    continue;
+                }
+
+                if (firstType.Value != zoneType)
+                {
+                    hasMultipleTypes = true;
+                }
+            }
+
+            if (enabledZoneCount == 0)
+            {
+                return "None";
+            }
+
+            if (enabledZoneCount > 1 || hasMultipleTypes)
+            {
+                return "Multiple";
+            }
+
+            return FormatHazardTypeLabel(firstType.GetValueOrDefault());
+        }
+
         #endregion
 
         #region Private Methods
+
+        private static string FormatHazardTypeLabel(CCS_SurvivalHazardType hazardType)
+        {
+            switch (hazardType)
+            {
+                case CCS_SurvivalHazardType.Cold:
+                    return "Cold";
+                case CCS_SurvivalHazardType.Heat:
+                    return "Heat";
+                case CCS_SurvivalHazardType.Toxic:
+                    return "Toxic";
+                case CCS_SurvivalHazardType.Radiation:
+                    return "Radiation";
+                case CCS_SurvivalHazardType.GenericDamage:
+                    return "Damage";
+                default:
+                    return hazardType.ToString();
+            }
+        }
 
         private bool TryResolveVitalsService()
         {

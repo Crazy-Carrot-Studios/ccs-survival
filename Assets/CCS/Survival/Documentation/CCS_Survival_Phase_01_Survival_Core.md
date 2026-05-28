@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.3 — Vitals Debug Isolation + Test Mode Controls (Implemented)
+**Status:** Phase 1H.4 — Survival Debug UI Vitals Expansion (Implemented)
 
 ---
 
@@ -893,6 +893,72 @@ Committed gameplay: **`enableTraversalTest` off**, isolation master off on prefa
 ### Result status
 
 **Implemented** in repo. Play Mode validation recommended with scene isolation override enabled.
+
+---
+
+## Phase 1H.4 — Survival Debug UI Vitals Expansion
+
+### Purpose
+
+Expand the temporary **`CCS_SurvivalDebugOverlay`** (upper-right OnGUI panel) so hazard and vitals validation can be measured **visually** during Play Mode and standalone tests — without final HUD art or a UI framework.
+
+Complements Phase 1H.3 isolation: console vitals logs may be suppressed during traversal, but the overlay remains the single at-a-glance readout.
+
+### Added UI fields
+
+| Line | Source |
+|------|--------|
+| `Temp` | `CCS_SurvivalState.BodyTemperature` |
+| `Exposure` | `CCS_SurvivalState.Exposure` |
+| `Hazard` | `CCS_SurvivalHazardReceiver.GetActiveHazardSummary()` — `None` / `Cold` / `Toxic` / `Multiple` |
+| `Safe` | `CCS_SurvivalHazardReceiver.IsSafeZoneActive` — `Yes` / `No` |
+| `Test Iso` | `CCS_ISurvivalVitalsTestModeService.IsTraversalVitalsIsolationActive` — `On` / `Off` |
+
+Existing lines unchanged: **HP**, **Food**, **Water**, **STM**, **Alive**.
+
+Example:
+
+```text
+Survival
+HP 100
+Food 81
+Water 76
+STM 100
+Temp 37.0C
+Exposure 0.0
+Hazard None
+Safe No
+Test Iso Off
+Alive
+```
+
+### Data access (no duplicate vitals model)
+
+- **Vitals:** `CCS_SurvivalModule` / `CCS_ISurvivalVitalsService.CurrentState`
+- **Hazards:** active `CCS_SurvivalHazardReceiver` — prefers traversal agent receiver when player root is inactive; otherwise player receiver
+- **Isolation:** `CCS_ISurvivalVitalsTestModeService` on the same module or service registry
+
+Read-only additions on hazard receiver: `IsSafeZoneActive`, `AppliesToSurvivalVitals`, `GetActiveHazardSummary()`.
+
+### Debug-only status
+
+- **Not** production HUD
+- Top-right anchor, semi-transparent panel, no console spam from overlay
+- No changes to hazard pressure, traversal telemetry, or vitals isolation behavior
+
+### Validation checklist
+
+| Check | Expected |
+|-------|----------|
+| Player mode | Core vitals drain/change; hazard/safe lines update on zone enter/exit |
+| Cold / toxic zones | `Hazard` shows type; `Exposure` rises when player receiver applies vitals |
+| Safe zone | `Safe Yes`; hazard summary clears while inside |
+| Traversal test | `Test Iso On` when scene isolation enabled; agent hazard telemetry unchanged |
+| Console | No new errors from overlay |
+
+### Result status
+
+**Implemented** in repo (`CCS_SurvivalDebugOverlay` + hazard receiver summary API).
 
 ---
 

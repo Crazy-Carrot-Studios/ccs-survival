@@ -330,6 +330,8 @@ namespace CCS.Survival
 
         public bool IsTraversalValidationActive => isTraversalValidationActive;
 
+        public bool IsTraversalVitalsIsolationActive => IsTraversalIsolationActive();
+
         public bool IsInitialized => isInitialized;
 
         public CCS_SurvivalState CurrentState => survivalState;

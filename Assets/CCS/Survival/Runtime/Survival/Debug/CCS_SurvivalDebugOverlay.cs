@@ -1,28 +1,37 @@
 using CCS.Core;
+using CCS.Survival.Environment.Hazards;
 using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalDebugOverlay
 // CATEGORY: Survival / Runtime / Survival / Debug
-// PURPOSE: Temporary OnGUI debug overlay for Phase 1A survival vitals validation.
-// PLACEMENT: Attach to any GameObject in play mode test scenes. Not final UI.
+// PURPOSE: Temporary OnGUI debug overlay for survival vitals, hazards, and traversal test isolation.
+// PLACEMENT: Attach to PF_CCS_Survival_BootstrapRoot or play mode test scenes. Not final UI.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-27
-// NOTES: Anchored top-right, compact panel. Future production UI must remain clean and out of gameplay sightlines.
+// NOTES: Anchored top-right, compact panel. Phase 1H.4 hazard and test-mode readouts. No console logging.
 // =============================================================================
 
 namespace CCS.Survival
 {
     public sealed class CCS_SurvivalDebugOverlay : MonoBehaviour
     {
+        private const int SurvivalPanelLineCount = 11;
+
         #region Variables
 
         [Header("Debug Overlay")]
         [Tooltip("When enabled, draws the temporary survival vitals panel.")]
         [SerializeField] private bool showOverlay = true;
 
-        [Tooltip("Survival module used for readouts. Resolves from scene only when unset (temporary debug behavior).")]
+        [Tooltip("Survival module used for vitals readouts. Resolves from scene only when unset (temporary debug behavior).")]
         [SerializeField] private CCS_SurvivalModule survivalModule;
+
+        [Tooltip("Optional player hazard receiver. Resolved once from scene when unset.")]
+        [SerializeField] private CCS_SurvivalHazardReceiver playerHazardReceiver;
+
+        [Tooltip("Optional traversal agent hazard receiver. Used when the player root is inactive during traversal tests.")]
+        [SerializeField] private CCS_SurvivalHazardReceiver traversalHazardReceiver;
 
         [Header("Layout")]
         [Tooltip("Screen padding from top and right edges in pixels.")]
@@ -48,6 +57,7 @@ namespace CCS.Survival
         private Texture2D backgroundTexture;
         private int cachedFontSize = -1;
         private float cachedBackgroundAlpha = -1f;
+        private bool hazardReceiversResolved;
 
         #endregion
 
@@ -56,6 +66,7 @@ namespace CCS.Survival
         private void Awake()
         {
             ResolveSurvivalModuleReference();
+            ResolveHazardReceiverReferences();
         }
 
         private void OnDestroy()
@@ -102,6 +113,102 @@ namespace CCS.Survival
             }
 
             survivalModule = FindFirstObjectByType<CCS_SurvivalModule>();
+        }
+
+        private void ResolveHazardReceiverReferences()
+        {
+            if (hazardReceiversResolved)
+            {
+                return;
+            }
+
+            if (!CCS_Validation.IsObjectValid(playerHazardReceiver)
+                || !CCS_Validation.IsObjectValid(traversalHazardReceiver))
+            {
+                CCS_SurvivalHazardReceiver[] receivers = FindObjectsByType<CCS_SurvivalHazardReceiver>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+                for (int i = 0; i < receivers.Length; i++)
+                {
+                    CCS_SurvivalHazardReceiver receiver = receivers[i];
+                    if (receiver == null)
+                    {
+                        continue;
+                    }
+
+                    if (!CCS_Validation.IsObjectValid(playerHazardReceiver)
+                        && receiver.AppliesToSurvivalVitals)
+                    {
+                        playerHazardReceiver = receiver;
+                        continue;
+                    }
+
+                    if (!CCS_Validation.IsObjectValid(traversalHazardReceiver)
+                        && !receiver.AppliesToSurvivalVitals)
+                    {
+                        traversalHazardReceiver = receiver;
+                    }
+                }
+            }
+
+            hazardReceiversResolved = true;
+        }
+
+        private CCS_SurvivalHazardReceiver ResolveDisplayHazardReceiver()
+        {
+            ResolveHazardReceiverReferences();
+
+            if (CCS_Validation.IsObjectValid(traversalHazardReceiver)
+                && traversalHazardReceiver.isActiveAndEnabled)
+            {
+                return traversalHazardReceiver;
+            }
+
+            if (CCS_Validation.IsObjectValid(playerHazardReceiver)
+                && playerHazardReceiver.isActiveAndEnabled)
+            {
+                return playerHazardReceiver;
+            }
+
+            if (CCS_Validation.IsObjectValid(traversalHazardReceiver))
+            {
+                return traversalHazardReceiver;
+            }
+
+            return playerHazardReceiver;
+        }
+
+        private bool TryGetTraversalIsolationActive(out bool isIsolationActive)
+        {
+            isIsolationActive = false;
+
+            if (survivalModule is CCS_ISurvivalVitalsTestModeService testModeService)
+            {
+                isIsolationActive = testModeService.IsTraversalVitalsIsolationActive;
+                return true;
+            }
+
+            if (!CCS_Validation.IsObjectValid(survivalModule))
+            {
+                return false;
+            }
+
+            CCS_RuntimeHost host = survivalModule.GetComponent<CCS_RuntimeHost>();
+            if (!CCS_Validation.IsObjectValid(host))
+            {
+                host = survivalModule.GetComponentInParent<CCS_RuntimeHost>();
+            }
+
+            if (!CCS_Validation.IsObjectValid(host)
+                || !host.IsRuntimeInitialized
+                || !host.ServiceRegistry.TryGetService(out CCS_ISurvivalVitalsTestModeService resolvedTestMode))
+            {
+                return false;
+            }
+
+            isIsolationActive = resolvedTestMode.IsTraversalVitalsIsolationActive;
+            return true;
         }
 
         private void EnsureGuiResources()
@@ -164,7 +271,24 @@ namespace CCS.Survival
         private void DrawSurvivalPanel()
         {
             CCS_SurvivalState state = survivalModule.CurrentState;
-            float panelHeight = GetPanelHeight(6);
+            CCS_SurvivalHazardReceiver hazardReceiver = ResolveDisplayHazardReceiver();
+
+            string hazardSummary = "None";
+            string safeLabel = "No";
+
+            if (CCS_Validation.IsObjectValid(hazardReceiver))
+            {
+                hazardSummary = hazardReceiver.GetActiveHazardSummary();
+                safeLabel = hazardReceiver.IsSafeZoneActive ? "Yes" : "No";
+            }
+
+            bool testIsolationActive = false;
+            if (TryGetTraversalIsolationActive(out bool isolationActive))
+            {
+                testIsolationActive = isolationActive;
+            }
+
+            float panelHeight = GetPanelHeight(SurvivalPanelLineCount);
             Rect panelRect = BuildTopRightRect(panelHeight);
             DrawPanelBackground(panelRect);
 
@@ -182,6 +306,19 @@ namespace CCS.Survival
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Water {state.Thirst:F0}", labelStyle);
             y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"STM {state.Stamina:F0}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Temp {state.BodyTemperature:F1}C", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Exposure {state.Exposure:F1}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Hazard {hazardSummary}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Safe {safeLabel}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(
+                new Rect(x, y, contentWidth, lineHeight),
+                $"Test Iso {(testIsolationActive ? "On" : "Off")}",
+                labelStyle);
             y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), state.IsAlive ? "Alive" : "Dead", labelStyle);
         }
