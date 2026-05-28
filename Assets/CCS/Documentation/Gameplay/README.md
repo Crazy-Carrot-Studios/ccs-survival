@@ -16,12 +16,12 @@ Planning and design direction for CCS Survival gameplay — **not implementation
 | [Gameplay Systems Breakdown](CCS_Survival_Gameplay_Systems_Breakdown.md) | Module candidates, dependencies, save boundaries, implementation phasing |
 | [Gameplay Loop Specification](CCS_Survival_Gameplay_Loop_Specification.md) | Player flow, pacing, onboarding, progression, vertical slice goal |
 | [Reputation & Law Design Spec](CCS_Survival_Reputation_And_Law_Design_Spec.md) | Reputation scale, crime, witnesses, bounties, war, raids, death persistence |
+| [Settlement & Territory Design Spec](CCS_Survival_Settlement_And_Territory_Design_Spec.md) | Claims, town growth, influence, permissions, decay, raids, and settlement economy |
 
 ---
 
 ## Planned (not yet written)
 
-- Settlement & Territory Spec
 - Economy & Logistics Spec
 
 ---
