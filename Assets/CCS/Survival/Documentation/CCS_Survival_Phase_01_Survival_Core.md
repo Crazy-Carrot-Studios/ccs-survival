@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1I.1 — Interaction Pickup Runtime Validation (Standalone Passed)
+**Status:** Phase 1I.2 — Manual Pickup UX Pass + Fresh Player Build (Build Passed; Manual UX Pending)
 
 ---
 
@@ -1558,6 +1558,103 @@ Saved local copies (not committed): `Logs/Player_0_5_0_A_PlayerMode.log`, `Logs/
 ### Result status
 
 **Passed** automated standalone bootstrap + traversal compatibility criteria for Phase 1I interaction foundation. **Pending** manual Play Mode and standalone pickup interaction pass before inventory work.
+
+---
+
+## Phase 1I.2 — Manual Pickup UX Pass + Fresh Player Build
+
+### Purpose
+
+Close the pending manual interaction checks from **Phase 1I.1** and produce a clean **player-mode** standalone build (`0.5.0-B`) for pickup testing — without traversal override and without adding inventory.
+
+### Pre-check
+
+| Check | Result |
+|-------|--------|
+| Git clean except expected untracked local files | **Pass** — `ProjectSettings/SceneTemplateSettings.json`, `Editor.meta`, `Editor/Temp.meta`, `Editor/Temp/` (build script only; removed after build) |
+| `enableTraversalTest` off in committed scene | **Pass** |
+| `CCS_PlayerRoot` has scanner + input | **Pass** |
+| Pickups: `PU_FoodTin`, `PU_WaterCanteen`, `PU_Kindling` | **Pass** |
+| `Gameplay/Interact` — **E** + **buttonWest**; keyboard fallback on input component | **Pass** |
+
+### Play Mode pickup UX validation
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| WASD movement | **Pending** manual Play Mode | Scene/controller wiring unchanged from 1E baseline |
+| Camera follows player | **Pending** manual Play Mode | `CM_PrototypeFollow` → `CCS_PlayerCameraTarget` |
+| Overlay starts `Interaction None` | **Pending** manual Play Mode | Scanner default prompt |
+| Near `PU_FoodTin` → `Pick up Food Tin` | **Pending** manual Play Mode | Scene pickup display names wired |
+| **E** → one collect log + hide | **Pending** manual Play Mode | Expected: `Collected pickup 'Food Tin' (id=survival.pickup.food_tin, amount=1).` |
+| Repeat for `PU_WaterCanteen`, `PU_Kindling` | **Pending** manual Play Mode | |
+| Walk away → `Interaction None` | **Pending** manual Play Mode | |
+| No console errors / no repeat collect spam | **Pending** manual Play Mode | Scanner `enableDebugLogs` off in scene |
+
+Automated agent cannot drive Unity Editor Play Mode; run the checklist in `SCN_CCS_Survival_Bootstrap.unity` with traversal **off**.
+
+### Traversal compatibility spot check
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| Traversal on → player hides, camera follows agent | **Pending** manual Play Mode | **1I.1** standalone traversal smoke: 10 route **PASSED** loops |
+| Interaction overlay **None** / scanner inactive | **Pending** manual Play Mode | Scanner lives on inactive `CCS_PlayerRoot` |
+| No auto-pickup on agent | **Pass** (1I.1 baseline) | `PickupCollected=0` in traversal smoke log |
+| Traversal off → player/camera/interaction restore | **Pending** manual Play Mode | Scene committed with `enableTraversalTest: 0` |
+
+### Fresh player-mode standalone build (0.5.0-B)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.5.0-B/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_5_0_B.log` (prefix `[CCS 0.5.0-B]`) |
+| **Unity log** | `Logs/Build_0_5_0_B_Unity.log` (not committed) |
+| **Traversal override** | **None** — player mode only |
+| **Scene after build** | `enableTraversalTest: 0` retained |
+
+Build log excerpt:
+
+```text
+[CCS 0.5.0-B] Fresh player-mode standalone build (enableTraversalTest remains off in scene).
+[CCS 0.5.0-B] Build succeeded: .../Builds/Windows/CCS-Survival-0.5.0-B/CCS_Survival.exe
+```
+
+Use this build (not **0.5.0-A** traversal smoke exe) for manual standalone pickup testing.
+
+### Standalone smoke log check (~25s, no input simulation)
+
+| Metric | Count | Expected |
+|--------|------:|----------|
+| Exception | 0 | 0 |
+| LogError | 0 | 0 |
+| NullReferenceException | 0 | 0 |
+| MissingReferenceException | 0 | 0 |
+| Cannot set the parent | 0 | 0 |
+| Core health OK | 1 | present |
+| Survival validation rules passed | 1 | present |
+| Pickup collected | 0 | 0 unless manual **E** in exe |
+
+Saved local copy (not committed): `Logs/Player_0_5_0_B_PlayerMode.log`.
+
+### Manual standalone pickup status
+
+**Pending.** Smoke run did not simulate **E** / gamepad input. Launch `Builds/Windows/CCS-Survival-0.5.0-B/CCS_Survival.exe`, walk to each pickup, press **E**, confirm single collect log and hidden pickup.
+
+### Known limitations
+
+- No inventory/resource storage yet.
+- Play Mode pickup UX checklist still requires Editor manual pass.
+- Standalone collect behavior not log-confirmed without manual input in the **0.5.0-B** exe.
+- Pickups hide renderers/colliders but are not destroyed (supports future respawn tooling).
+
+### Cleanup
+
+- Temporary build script removed (`Assets/CCS/Survival/Editor/Temp/CCS_StandaloneBuild_0_5_0_B_Editor.cs`).
+- Unity batch noise restored (`ProjectSettings/*`, `Assets/Settings/*`).
+- Build output and logs **not** staged for commit.
+
+### Final status
+
+**Passed** fresh player-mode standalone build + bootstrap smoke log criteria. **Pending** manual Play Mode pickup UX and standalone **E** collect confirmation before inventory work.
 
 ---
 
