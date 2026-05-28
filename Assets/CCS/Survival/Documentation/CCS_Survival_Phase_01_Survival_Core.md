@@ -65,6 +65,14 @@ CM_PrototypeFollow → CCS_PlayerCameraTarget (unchanged from Phase 1D)
 
 Wire input through a small player-side component; do not put Input Actions or `PlayerInput` on the bootstrap root.
 
+#### Input device glyph direction (Phase 1E.1)
+
+- Support **mouse/keyboard** and **gamepad** through the same Input Actions asset and `Gameplay` map bindings.
+- **Track last-used input device live** during gameplay (keyboard/mouse vs gamepad), not only at startup.
+- **UI prompts and control glyphs** must update to match the **current** active device when UI is shown.
+- Device selection must be based on the **most recent meaningful input action** (move, look, sprint, interact, etc.) — not whichever device was connected or used when the scene loaded.
+- **Final glyph UI** (sprites, layout, localization) is **deferred**, but input/player architecture must expose a stable hook (e.g. active device changed event or service) so UI can subscribe without rewriting movement code later.
+
 ### 5. Cinemachine Direction
 
 - Keep **Cinemachine 3.1.6** and existing **`CM_PrototypeFollow`** as the prototype camera.
