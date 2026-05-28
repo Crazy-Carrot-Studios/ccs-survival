@@ -220,7 +220,10 @@ After Phase 1D **implementation** proves Cinemachine camera + player placeholder
 - Camera-relative movement using **Main Camera** transform; world-relative fallback with one-time warning if unset
 - **Look** action bound but not consumed (camera look deferred)
 - **Jump** action bound; **disabled** on controller (`enableJump` off) for prototype
+- Prototype movement test pad added in scene: **`CCS_PrototypeGround`** (40x40 plane near origin) + **`CCS_PrototypeStep`** collision step
+- Movement/gravity validation support added so CharacterController settles against ground instead of falling indefinitely
 - Dynamic glyph UI and **stamina** sprint gating still deferred
+- Terrain system and final environment art remain deferred
 - `PF_CCS_Survival_BootstrapRoot` unchanged; vitals remain on composition root
 - Standalone build checkpoint **0.4.0-B** should follow after Play Mode validation
 
@@ -229,7 +232,8 @@ After Phase 1D **implementation** proves Cinemachine camera + player placeholder
 1. Open `SCN_CCS_Survival_Bootstrap.unity` → Play Mode
 2. **WASD** / arrows move capsule; **Left Shift** sprints; gravity keeps player grounded
 3. Gamepad left stick moves if connected; left stick press sprints
-4. Camera follows via `CM_PrototypeFollow`; survival overlay top-right; console **`Services=1`**
+4. CharacterController collides with **`CCS_PrototypeGround`** and **`CCS_PrototypeStep`** as expected
+5. Camera follows via `CM_PrototypeFollow`; survival overlay top-right; console **`Services=1`**
 
 ---
 
