@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 // =============================================================================
@@ -16,7 +17,8 @@ namespace CCS.Survival.Testing.Traversal
     public sealed class CCS_TraversalTestAgent : MonoBehaviour
     {
         private const string LogPrefix = "[CCS Traversal Test]";
-        private const string ManualPlayerCameraTargetName = "CCS_PlayerCameraTarget";
+        private const string PlayerCameraTargetName = "CCS_PlayerCameraTarget";
+        private const string TraversalAgentCameraTargetName = "CCS_TraversalAgentCameraTarget";
 
         private enum CCS_TraversalRouteResultStatus
         {
@@ -44,8 +46,15 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("When enabled, deactivates the manual player root during traversal tests so CharacterControllers do not overlap the route.")]
         [SerializeField] private bool disableManualPlayerDuringTest = true;
 
-        [Tooltip("Optional Cinemachine follow target while the manual player is hidden. Defaults to this agent transform.")]
-        [SerializeField] private Transform traversalCameraFollowTarget;
+        [Header("Camera")]
+        [Tooltip("Player Cinemachine follow/look target (CCS_PlayerCameraTarget).")]
+        [SerializeField] private Transform playerCameraTarget;
+
+        [Tooltip("Traversal agent Cinemachine follow/look target (CCS_TraversalAgentCameraTarget).")]
+        [SerializeField] private Transform traversalCameraTarget;
+
+        [Tooltip("Prototype virtual camera used for survival Play Mode (CM_PrototypeFollow).")]
+        [SerializeField] private CinemachineCamera prototypeVirtualCamera;
 
         [Header("Movement")]
         [Tooltip("Horizontal movement speed in meters per second.")]
@@ -83,6 +92,14 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("Logs per-waypoint reach and advance messages (verbose).")]
         [SerializeField] private bool enableDebugLogs;
 
+        private static bool isApplicationQuitting;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetApplicationQuitFlag()
+        {
+            isApplicationQuitting = false;
+        }
+
         private CharacterController characterController;
         private Vector3 verticalVelocity;
         private float rotationVelocity;
@@ -91,11 +108,11 @@ namespace CCS.Survival.Testing.Traversal
         private bool isWaitingAtWaypoint;
         private bool loggedInvalidRoute;
         private bool loggedRouteStart;
+        private bool loggedMissingCameraReference;
         private bool manualPlayerCachedActive;
         private bool manualPlayerHiddenByAgent;
-        private Transform manualPlayerCameraTarget;
-        private Transform manualPlayerCameraTargetCachedParent;
-        private bool manualPlayerCameraTargetReparented;
+        private bool hasRestoredPlayerState;
+        private bool isShuttingDown;
         private bool lastEnableTraversalTest;
         private float testStartTime;
         private float currentRouteStartTime;
@@ -131,17 +148,13 @@ namespace CCS.Survival.Testing.Traversal
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
-
-            if (traversalCameraFollowTarget == null)
-            {
-                traversalCameraFollowTarget = transform;
-            }
-
-            ResolveManualPlayerCameraTarget();
+            ResolveCameraTargets();
         }
 
         private void OnEnable()
         {
+            isShuttingDown = false;
+            hasRestoredPlayerState = false;
             lastEnableTraversalTest = enableTraversalTest;
             ResetRouteState();
             SyncManualPlayerForTraversalTest();
@@ -154,13 +167,22 @@ namespace CCS.Survival.Testing.Traversal
 
         private void OnDisable()
         {
-            RestoreManualPlayerAfterTraversalTest();
+            isShuttingDown = true;
+            RestoreManualPlayerAfterTraversalTest(allowCameraTargetRestore: CanMutateCameraTargets());
             routeResultStatus = CCS_TraversalRouteResultStatus.Idle;
         }
 
         private void OnDestroy()
         {
-            RestoreManualPlayerAfterTraversalTest();
+            if (!hasRestoredPlayerState)
+            {
+                RestoreManualPlayerAfterTraversalTest(allowCameraTargetRestore: CanMutateCameraTargets());
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            isApplicationQuitting = true;
         }
 
         private void Update()
@@ -533,14 +555,41 @@ namespace CCS.Survival.Testing.Traversal
             loggedFlag = true;
         }
 
-        private void ResolveManualPlayerCameraTarget()
+        private void ResolveCameraTargets()
         {
-            if (manualPlayerRoot == null || manualPlayerCameraTarget != null)
+            if (manualPlayerRoot != null && playerCameraTarget == null)
+            {
+                playerCameraTarget = manualPlayerRoot.transform.Find(PlayerCameraTargetName);
+            }
+
+            if (traversalCameraTarget == null)
+            {
+                traversalCameraTarget = transform.Find(TraversalAgentCameraTargetName);
+            }
+        }
+
+        private bool CanMutateCameraTargets()
+        {
+            return !isApplicationQuitting && !isShuttingDown;
+        }
+
+        private void ApplyCameraTarget(Transform target)
+        {
+            if (!CanMutateCameraTargets())
             {
                 return;
             }
 
-            manualPlayerCameraTarget = manualPlayerRoot.transform.Find(ManualPlayerCameraTargetName);
+            if (prototypeVirtualCamera == null || target == null)
+            {
+                LogOnce(
+                    ref loggedMissingCameraReference,
+                    $"{LogPrefix} Prototype virtual camera or camera target is not assigned.");
+                return;
+            }
+
+            prototypeVirtualCamera.Target.TrackingTarget = target;
+            prototypeVirtualCamera.Target.LookAtTarget = target;
         }
 
         private void SyncManualPlayerForTraversalTest()
@@ -551,7 +600,7 @@ namespace CCS.Survival.Testing.Traversal
                 return;
             }
 
-            RestoreManualPlayerAfterTraversalTest();
+            RestoreManualPlayerAfterTraversalTest(allowCameraTargetRestore: true);
         }
 
         private void HideManualPlayerForTraversalTest()
@@ -562,35 +611,28 @@ namespace CCS.Survival.Testing.Traversal
             }
 
             manualPlayerCachedActive = manualPlayerRoot.activeSelf;
-            ResolveManualPlayerCameraTarget();
-
-            if (manualPlayerCameraTarget != null && traversalCameraFollowTarget != null)
-            {
-                manualPlayerCameraTargetCachedParent = manualPlayerCameraTarget.parent;
-                manualPlayerCameraTarget.SetParent(traversalCameraFollowTarget, true);
-                manualPlayerCameraTargetReparented = true;
-            }
-
+            hasRestoredPlayerState = false;
+            ApplyCameraTarget(traversalCameraTarget);
             manualPlayerRoot.SetActive(false);
             manualPlayerHiddenByAgent = true;
         }
 
-        private void RestoreManualPlayerAfterTraversalTest()
+        private void RestoreManualPlayerAfterTraversalTest(bool allowCameraTargetRestore)
         {
-            if (!manualPlayerHiddenByAgent || manualPlayerRoot == null)
+            if (!manualPlayerHiddenByAgent || manualPlayerRoot == null || hasRestoredPlayerState)
             {
                 return;
             }
 
             manualPlayerRoot.SetActive(manualPlayerCachedActive);
 
-            if (manualPlayerCameraTargetReparented && manualPlayerCameraTarget != null && manualPlayerCameraTargetCachedParent != null)
+            if (allowCameraTargetRestore)
             {
-                manualPlayerCameraTarget.SetParent(manualPlayerCameraTargetCachedParent, false);
-                manualPlayerCameraTargetReparented = false;
+                ApplyCameraTarget(playerCameraTarget);
             }
 
             manualPlayerHiddenByAgent = false;
+            hasRestoredPlayerState = true;
         }
 
         #endregion

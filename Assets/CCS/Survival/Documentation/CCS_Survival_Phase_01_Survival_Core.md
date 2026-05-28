@@ -286,8 +286,8 @@ Waypoints are **empty Transform markers** (or lightweight gizmo components) plac
 2. Enable **`enableTraversalTest`** on `CCS_TraversalTestAgent` — agent follows spawn → stairs → platform → ramp → return
 3. Confirm loop restarts when `loopRoute` is enabled
 4. Console: concise `[CCS Traversal Test]` logs only when `enableDebugLogs` is on
-5. With **`disableManualPlayerDuringTest`** on (default), **`CCS_PlayerRoot`** is deactivated during the test; **`CCS_PlayerCameraTarget`** is temporarily reparented to the traversal agent so Cinemachine stays valid
-6. Disable the test — **`CCS_PlayerRoot`** restores to its prior active state and WASD works again
+5. With **`disableManualPlayerDuringTest`** on (default), **`CCS_PlayerRoot`** is deactivated during the test; **`CM_PrototypeFollow`** tracks **`CCS_TraversalAgentCameraTarget`** instead of the player target
+6. Disable the test — **`CCS_PlayerRoot`** and player camera tracking restore; WASD works again
 
 ---
 
@@ -345,8 +345,8 @@ Temporary **`CCS_StandaloneBuild_0_4_0_D_Editor`** auto-run scripts were **remov
 ### Traversal / manual player isolation (Play Mode + standalone)
 
 - **Traversal mode:** when **`enableTraversalTest`** is on and **`disableManualPlayerDuringTest`** is on (default), **`CCS_PlayerRoot`** is set inactive so its **CharacterController** cannot block the route.
-- **Camera:** **`CCS_PlayerCameraTarget`** is reparented to **`traversalCameraFollowTarget`** (defaults to **`CCS_TraversalTestAgent`**) before the player root is hidden so **`CM_PrototypeFollow`** keeps a live tracking target.
-- **Normal player mode:** when the traversal test is off, cached active state is restored on **`CCS_PlayerRoot`** and the camera target is reparented back for manual WASD testing.
+- **Camera:** **`CM_PrototypeFollow`** switches follow/look targets between **`CCS_PlayerCameraTarget`** and **`CCS_TraversalAgentCameraTarget`** (no transform reparenting).
+- **Normal player mode:** when the traversal test is off, cached active state is restored on **`CCS_PlayerRoot`** and Cinemachine targets return to the player camera target.
 - **`OnDisable`** / **`OnDestroy`** restore defensively if Play Mode stops while the test is active.
 
 ### Follow-up (post 1F.7)
@@ -411,10 +411,12 @@ No per-frame logging. **`enableTraversalTest`** remains **off** by default.
 
 Public properties on **`CCS_TraversalTestAgent`**: `CompletedRouteCount`, `FailedRouteCount`, `CurrentRouteElapsedTime`, `IsTraversalRunning`, `CurrentWaypointIndex`.
 
-### Player isolation (unchanged from 1F.7)
+### Player isolation and camera (1F.7+)
 
-- **Traversal off:** normal **`CCS_PlayerRoot`** + WASD
-- **Traversal on:** player root hidden, camera target follows traversal agent, restored when test ends or fails (if `stopTestOnFailure`)
+- **Traversal off:** normal **`CCS_PlayerRoot`** + WASD; **`CM_PrototypeFollow`** uses **`CCS_PlayerCameraTarget`**
+- **Traversal on:** **`CCS_PlayerRoot`** hidden; Cinemachine tracks **`CCS_TraversalAgentCameraTarget`** on the agent
+- **Lifecycle-safe teardown:** no **`SetParent`** on camera targets; Play Mode exit skips Cinemachine mutations when the application is quitting or the agent is shutting down
+- **Restore:** player active state and player camera target are restored on normal test stop; duplicate restore is prevented per session
 
 ### Validation checklist
 

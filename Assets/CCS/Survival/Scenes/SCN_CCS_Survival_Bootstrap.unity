@@ -2849,8 +2849,40 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 300000521}
   - {fileID: 300000511}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &300000520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 300000521}
+  m_Layer: 0
+  m_Name: CCS_TraversalAgentCameraTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &300000521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300000520}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 300000501}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &300000502
 CharacterController:
@@ -2893,7 +2925,9 @@ MonoBehaviour:
   traversalRoute: {fileID: 300000402}
   manualPlayerRoot: {fileID: 422606779}
   disableManualPlayerDuringTest: 1
-  traversalCameraFollowTarget: {fileID: 300000501}
+  playerCameraTarget: {fileID: 1609101304}
+  traversalCameraTarget: {fileID: 300000521}
+  prototypeVirtualCamera: {fileID: 2145020465}
   moveSpeed: 4
   gravity: -20
   rotationSmoothTime: 0.12

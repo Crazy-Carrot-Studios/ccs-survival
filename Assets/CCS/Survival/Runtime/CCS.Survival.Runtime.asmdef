@@ -3,6 +3,7 @@
     "rootNamespace": "CCS.Survival",
     "references": [
         "CCS.Core.Runtime",
+        "Unity.Cinemachine",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],
