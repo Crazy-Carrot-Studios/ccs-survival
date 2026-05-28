@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.5 — Survival Framework Quality Gate (documentation + consistency pass; no gameplay)
+0.4.0 — Survival Core Prototype Start
 
 ## Repository Purpose
 
@@ -124,13 +124,13 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.0 Scope (current)
+## Milestone 0.4.0 Scope (current)
 
-**In scope:** `ccs.survival.character` module skeleton, installer, diagnostics constants, survival install sequencing.
+**In scope:** Phase 1 survival core prototype (vitals module, manual validation harness, service registration, debug overlay).
 
-**Out of scope:** movement, attributes, inventory, crafting, hunger/thirst, combat, AI, save, networking packages.
+**Foundation complete (0.3.5):** framework quality gate, documentation stack, bootstrap composition root, character module skeleton.
 
-See [Survival README](Assets/CCS/Survival/README.md).
+See [Survival README](Assets/CCS/Survival/README.md) and [Phase 1 — Survival Core Plan](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_01_Survival_Core.md).
 
 ## Unity Version
 

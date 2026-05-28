@@ -1,10 +1,14 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.5 — Survival Framework Quality Gate + Documentation Pass  
+**Milestone:** 0.4.0 — Survival Core Prototype Start  
 **Author:** James Schilz  
-**Date:** 2026-05-24
+**Date:** 2026-05-27
 
-## Framework Quality Gate Completed
+## Current Version
+
+Active prototype work at **v0.4.0** — Phase 1 survival core (vitals module, service registration, manual Play Mode validation).
+
+## Framework Quality Gate Completed (0.3.5)
 
 Pre-gameplay foundation audit completed at **v0.3.5**:
 

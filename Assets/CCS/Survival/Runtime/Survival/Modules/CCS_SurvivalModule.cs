@@ -18,6 +18,7 @@ namespace CCS.Survival
     public sealed class CCS_SurvivalModule : MonoBehaviour, CCS_ISurvivalVitalsService
     {
         private const string LogCategory = CCS_SurvivalVitalsDiagnostics.LogCategory;
+        private const float VitalDisplayPrecision = 0.1f;
 
         #region Variables
 
@@ -442,19 +443,20 @@ namespace CCS.Survival
 
         private void PublishHealthChanged(float previousValue, float newValue)
         {
-            if (Mathf.Approximately(previousValue, newValue))
+            if (!HasMeaningfulVitalChange(previousValue, newValue))
             {
                 return;
             }
 
             OnHealthChanged?.Invoke(newValue);
             PublishSurvivalStateChanged();
-            LogDebug($"Health changed: {previousValue:F1} -> {newValue:F1}");
+            LogDebug(
+                $"Health changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
         }
 
         private void PublishHungerChanged(float previousValue, float newValue)
         {
-            if (Mathf.Approximately(previousValue, newValue))
+            if (!HasMeaningfulVitalChange(previousValue, newValue))
             {
                 return;
             }
@@ -465,7 +467,7 @@ namespace CCS.Survival
 
         private void PublishThirstChanged(float previousValue, float newValue)
         {
-            if (Mathf.Approximately(previousValue, newValue))
+            if (!HasMeaningfulVitalChange(previousValue, newValue))
             {
                 return;
             }
@@ -476,7 +478,7 @@ namespace CCS.Survival
 
         private void PublishStaminaChanged(float previousValue, float newValue)
         {
-            if (Mathf.Approximately(previousValue, newValue))
+            if (!HasMeaningfulVitalChange(previousValue, newValue))
             {
                 return;
             }
@@ -487,14 +489,25 @@ namespace CCS.Survival
 
         private void PublishTemperatureChanged(float previousValue, float newValue)
         {
-            if (Mathf.Approximately(previousValue, newValue))
+            if (!HasMeaningfulVitalChange(previousValue, newValue))
             {
                 return;
             }
 
             OnTemperatureChanged?.Invoke(newValue);
             PublishSurvivalStateChanged();
-            LogDebug($"Body temperature changed: {previousValue:F1} -> {newValue:F1}");
+            LogDebug(
+                $"Body temperature changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
+        }
+
+        private static float RoundVitalForDisplay(float value)
+        {
+            return Mathf.Round(value / VitalDisplayPrecision) * VitalDisplayPrecision;
+        }
+
+        private static bool HasMeaningfulVitalChange(float previousValue, float newValue)
+        {
+            return !Mathf.Approximately(RoundVitalForDisplay(previousValue), RoundVitalForDisplay(newValue));
         }
 
         private void LogDebug(string message)
