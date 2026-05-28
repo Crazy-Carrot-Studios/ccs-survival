@@ -18,6 +18,7 @@ Pre-gameplay audits and contributor documentation are complete at **v0.3.5**. Ga
 | Architecture (authoritative) | [Framework_Architecture_Guide.md](Framework_Architecture_Guide.md) |
 | Gameplay module guidelines | [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md) |
 | Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |
+| Prototype roadmap | [CCS_Survival_Prototype_Roadmap.md](CCS_Survival_Prototype_Roadmap.md) |
 
 ---
 

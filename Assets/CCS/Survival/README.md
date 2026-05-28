@@ -23,6 +23,7 @@ Pre-gameplay foundation audit completed at **v0.3.5**:
 - [Reputation & Law Design Spec](../Documentation/Gameplay/CCS_Survival_Reputation_And_Law_Design_Spec.md) — reputation scale, crime, bounties, war, raids
 - [Settlement & Territory Design Spec](../Documentation/Gameplay/CCS_Survival_Settlement_And_Territory_Design_Spec.md) — claims, town growth, influence, permissions, economy, decay
 - [Economy & Logistics Design Spec](../Documentation/Gameplay/CCS_Survival_Economy_And_Logistics_Design_Spec.md) — player economy, regional pricing, quality, transport, and scarcity dynamics
+- [Prototype Roadmap](Documentation/CCS_Survival_Prototype_Roadmap.md) — phased prototype plan, scope boundaries, and exit criteria
 - [Framework Architecture Guide](Documentation/Framework_Architecture_Guide.md)
 - [Future Gameplay Module Guidelines](Documentation/Future_Gameplay_Module_Guidelines.md)
 - [Scene Bootstrap Standards](Documentation/Scene_Bootstrap_Standards.md)
