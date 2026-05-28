@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.5 — Overlapping Vitals Modifier Zone Testbed (Implemented)
+**Status:** Phase 1H.6 — Overlapping Zone Testbed Scene Setup + Validation (Implemented)
 
 ---
 
@@ -1056,7 +1056,83 @@ Enter/exit only when `enableVitalsZoneTelemetryLogging` is on (traversal agent d
 
 ### Result status
 
-**Implemented** in repo. Run scene setup menu once if `CCS_PrototypeVitalsZonesRoot` is not in the scene.
+**Implemented** in repo. Scene testbed populated in **1H.6** (see below).
+
+---
+
+## Phase 1H.6 — Overlapping Zone Testbed Scene Setup + Validation
+
+### Purpose
+
+Generate, save, and validate the **Phase 1H.5 vitals modifier testbed** in `SCN_CCS_Survival_Bootstrap` so overlapping broad + nested zones can be exercised in Play Mode and traversal validation.
+
+This milestone is **setup/validation only** — no new gameplay systems.
+
+### Setup performed
+
+| Step | Result |
+|------|--------|
+| Unity compiles Phase 1H.5 scripts | **Pass** (no new runtime API changes in 1H.6) |
+| Testbed layout applied to scene | **Pass** — 10 zones under `CCS_PrototypeVitalsZonesRoot` |
+| Scene saved | **Pass** — committed in repo |
+
+**Note:** Interactive menu **CCS → Survival → Setup Phase 1H.5 Vitals Modifier Testbed** remains the authoritative re-run path in Unity (normalizes materials/primitives). Layout matches `CCS_VitalsModifierZoneSceneSetup_Editor.cs` rates and positions.
+
+### Generated scene objects
+
+**Root:** `CCS_PrototypeVitalsZonesRoot`
+
+| Broad box zones | Nested capsule/cylinder zones |
+|-----------------|-------------------------------|
+| `VZ_WeatherCold_Box` | `VZ_HungerDrain_Capsule` |
+| `VZ_ToxicCloud_Box` | `VZ_HungerRestore_Capsule` |
+| `VZ_Shelter_Box` | `VZ_ThirstDrain_Cylinder` |
+| | `VZ_ThirstRestore_Cylinder` |
+| | `VZ_StaminaDrain_Capsule` |
+| | `VZ_StaminaRestore_Capsule` |
+| | `VZ_ExposureRecovery_Cylinder` |
+
+Each zone includes a `_Visual` child primitive (gizmos also enabled).
+
+### Receiver wiring (verified in scene)
+
+| Entity | `CCS_SurvivalVitalsZoneReceiver` | Settings |
+|--------|----------------------------------|----------|
+| `CCS_PlayerRoot` | Present | `applyToSurvivalVitals` **on**, telemetry **off** |
+| `CCS_TraversalTestAgent` | Present | `applyToSurvivalVitals` **off**, telemetry **on** |
+
+`enableTraversalTest` remains **off** by default.
+
+### Layout validation (scene audit)
+
+| Check | Result |
+|-------|--------|
+| Broad + nested overlap | **Pass** — `VZ_WeatherCold_Box` overlaps `VZ_HungerDrain_Capsule`; shelter cluster overlaps restore + exposure recovery |
+| Restore + shelter/safe | **Pass** — restore capsules/box overlap `VZ_Shelter_Box`; existing `SZ_SpawnShelter` hazard safe zone retained west of spawn |
+| Traversal route intersection | **Pass** — waypoints at z ≈ 1.8–7.6 pass through cold approach, thirst drain, platform toxic/stamina zones |
+| Manual player reachability | **Pass** — drain/restore fields placed on approach, platform, and spawn shelter cluster |
+| Visual primitives | **Pass** — semi-transparent-style visuals; triggers only (no blocking colliders on visuals) |
+| Existing hazard zones | **Pass** — `HZ_ColdApproach`, `HZ_ToxicPlatform`, `SZ_SpawnShelter` unchanged |
+
+### Play Mode validation
+
+| Mode | Status | Notes |
+|------|--------|-------|
+| **Player** (traversal off) | **Pending** manual Play Mode | Expected: Food/Water/STM/Exposure/Modifier overlay respond in drain vs restore zones; `Safe Yes` in `SZ_SpawnShelter`; enter/exit only logs when telemetry enabled |
+| **Traversal** (test on) | **Pending** manual Play Mode | Expected: agent telemetry, `Modifier` on agent receiver, route **PASSED**, player/camera restore on disable |
+
+No tuning changes applied in 1H.6 (rates match 1H.5 editor defaults).
+
+### Known limitations
+
+- Play Mode pass/fail not automated in CI for this milestone.
+- Re-run Unity setup menu after pulling if zone visuals/materials look wrong locally.
+- Broad weather/toxic boxes are **prototype context**, not a weather simulation.
+- Single shared vitals service — player and agent do not have separate vitals state.
+
+### Result status
+
+**Scene testbed committed.** Manual Play Mode checklist above recommended once per milestone review.
 
 ---
 
