@@ -222,6 +222,8 @@ After Phase 1D **implementation** proves Cinemachine camera + player placeholder
 - **Jump** action bound; **disabled** on controller (`enableJump` off) for prototype
 - Prototype movement test pad added in scene: **`CCS_PrototypeGround`** (40x40 plane near origin) + **`CCS_PrototypeStep`** collision step
 - Movement/gravity validation support added so CharacterController settles against ground instead of falling indefinitely
+- Prototype visual readability pass added for movement testing
+- Yellow player marker and simple ground spatial reference added (prototype materials + lightweight grid line strips)
 - Dynamic glyph UI and **stamina** sprint gating still deferred
 - Terrain system and final environment art remain deferred
 - `PF_CCS_Survival_BootstrapRoot` unchanged; vitals remain on composition root
