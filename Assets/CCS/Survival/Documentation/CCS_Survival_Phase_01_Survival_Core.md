@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.4 — Connected Traversal Test Course (Implemented)
+**Status:** Phase 1F.5 — Automated Traversal Test Agent (Planning)
 
 ---
 
@@ -170,6 +170,106 @@ SCN_CCS_Survival_Bootstrap
 ### Standalone build 0.4.0-C
 
 Smoke build after Phase 1F.1–1F.4: `Builds/Windows/CCS-Survival-0.4.0-C/CCS_Survival.exe` — validates stamina sprint, grid ground material, and connected traversal course outside the Editor.
+
+---
+
+## Phase 1F.5 — Automated Traversal Test Agent Plan
+
+### 1. Purpose
+
+Add a **development-only** automated test agent that can move through the prototype traversal course to repeatedly validate:
+
+- Movement and gravity
+- Stairs, ramp, and platform transitions
+- Stamina behavior during automated sprint segments (when enabled)
+- **Later:** fall damage when that milestone is implemented
+
+This is a **test harness**, not player replacement, not final AI, and not shipping gameplay.
+
+### 2. Test route
+
+**Primary loop (bidirectional course validation):**
+
+1. Start near spawn
+2. Move to stairs base
+3. Climb stairs
+4. Cross platform
+5. Descend ramp to ground
+6. **Return path:**
+   - Climb ramp
+   - Cross platform
+   - Descend stairs
+7. Repeat
+
+**Future fall-damage branch (deferred):**
+
+1. Move to platform edge (no ramp/stairs)
+2. Walk off platform edge
+3. Allow gravity to take over
+4. Later: validate fall damage rules when implemented
+
+### 3. Architecture
+
+- **Prototype / test-only** component — clearly separated from gameplay systems.
+- **Must not** replace normal player input as the default play experience.
+- **Must not** be framed or implemented as final AI.
+- Prefer reusing existing **`CharacterController`** movement logic where clean; otherwise use a **lightweight test-driver adapter** that feeds the same motor constraints (walk/sprint speeds, gravity, step offset, slope limit).
+- **Avoid** scene-wide searches in `Update` (`FindObjectOfType`, reflection discovery, etc.).
+- Use **serialized waypoint references** and/or a **route asset** (ScriptableObject) for explicit route data.
+- Keep under a clear test namespace/path.
+
+**Suggested future script path:**
+
+`Assets/CCS/Survival/Runtime/Testing/Traversal/CCS_PrototypeTraversalTestAgent.cs`
+
+**Suggested supporting types (future):**
+
+- `CCS_PrototypeTraversalRoute` — ordered waypoint list, loop flags, optional return-path segment definitions
+- `CCS_PrototypeTraversalWaypoint` — transform reference + arrival radius + optional sprint flag
+
+```text
+CCS_PlayerRoot (manual control default)
+├── CCS_SurvivalPrototypeCharacterController
+└── CCS_PrototypeTraversalTestAgent (disabled by default; dev/test only)
+      └── reads CCS_PrototypeTraversalRoute (serialized or SO)
+```
+
+### 4. Scene organization
+
+Suggested route parent in `SCN_CCS_Survival_Bootstrap.unity`:
+
+```text
+CCS_PrototypeTraversalRoute
+├── WP_Start
+├── WP_StairsBase
+├── WP_PlatformTop
+├── WP_RampBottom
+├── WP_RampTop
+├── WP_StairsTop
+└── WP_FallTestEdge          (later — fall-damage branch)
+```
+
+Waypoints are **empty Transform markers** (or lightweight gizmo components) placed at course landmarks aligned with the Phase 1F.4 connected path along **+Z**.
+
+### 5. Done criteria (future implementation)
+
+- [ ] Agent can **follow** the serialized route in order
+- [ ] Agent can **loop** the full out-and-back course without manual input
+- [ ] Route/agent can be **enabled/disabled** in the Inspector (default off)
+- [ ] **Manual player control** remains possible when the agent is disabled
+- [ ] No final AI behavior implied (no combat, no navmesh chasing, no perception)
+- [ ] Logs are **concise pass/fail** style per waypoint/segment (not per-frame spam)
+- [ ] Design supports **future test report integration** (structured pass/fail events, optional batch/CI hook later)
+
+### 6. Deferred
+
+- Final AI / NPC locomotion
+- NavMesh pathfinding
+- Combat AI
+- Wildlife AI
+- Fall damage implementation and validation
+- Behavior trees / GOAP
+- Automated test result file export (JSON/XML) — plan for later integration only
 
 ---
 
