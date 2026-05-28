@@ -1,6 +1,7 @@
 using CCS.Core;
 using CCS.Survival.Environment.Hazards;
 using CCS.Survival.Environment.VitalsZones;
+using CCS.Survival.Interaction;
 using UnityEngine;
 
 // =============================================================================
@@ -17,7 +18,7 @@ namespace CCS.Survival
 {
     public sealed class CCS_SurvivalDebugOverlay : MonoBehaviour
     {
-        private const int SurvivalPanelLineCount = 12;
+        private const int SurvivalPanelLineCount = 13;
 
         #region Variables
 
@@ -39,6 +40,9 @@ namespace CCS.Survival
 
         [Tooltip("Optional traversal agent vitals modifier receiver.")]
         [SerializeField] private CCS_SurvivalVitalsZoneReceiver traversalVitalsZoneReceiver;
+
+        [Tooltip("Optional player interaction scanner for prompt readout.")]
+        [SerializeField] private CCS_SurvivalInteractionScanner interactionScanner;
 
         [Header("Layout")]
         [Tooltip("Screen padding from top and right edges in pixels.")]
@@ -76,6 +80,7 @@ namespace CCS.Survival
             ResolveSurvivalModuleReference();
             ResolveHazardReceiverReferences();
             ResolveVitalsZoneReceiverReferences();
+            ResolveInteractionScannerReference();
         }
 
         private void OnDestroy()
@@ -226,6 +231,20 @@ namespace CCS.Survival
             }
 
             vitalsZoneReceiversResolved = true;
+        }
+
+        private void ResolveInteractionScannerReference()
+        {
+            if (CCS_Validation.IsObjectValid(interactionScanner))
+            {
+                return;
+            }
+
+            GameObject playerRoot = GameObject.Find("CCS_PlayerRoot");
+            if (playerRoot != null)
+            {
+                interactionScanner = playerRoot.GetComponent<CCS_SurvivalInteractionScanner>();
+            }
         }
 
         private CCS_SurvivalVitalsZoneReceiver ResolveDisplayVitalsZoneReceiver()
@@ -402,7 +421,24 @@ namespace CCS.Survival
                 $"Test Iso {(testIsolationActive ? "On" : "Off")}",
                 labelStyle);
             y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Interaction {ResolveInteractionPrompt()}", labelStyle);
+            y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), state.IsAlive ? "Alive" : "Dead", labelStyle);
+        }
+
+        private string ResolveInteractionPrompt()
+        {
+            if (!CCS_Validation.IsObjectValid(interactionScanner))
+            {
+                return "None";
+            }
+
+            if (!interactionScanner.isActiveAndEnabled)
+            {
+                return "None";
+            }
+
+            return interactionScanner.CurrentInteractionPrompt;
         }
 
         private float GetLineHeight()

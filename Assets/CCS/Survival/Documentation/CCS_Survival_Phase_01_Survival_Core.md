@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.8 — Manual Visual Validation + Debug Noise Cleanup (Implemented)
+**Status:** Phase 1I — Basic Interaction + Pickup Foundation (Implemented)
 
 ---
 
@@ -1299,6 +1299,139 @@ Implementation uses shared stepped logging (`TryLogSteppedVitalChange`) for heal
 ### Result status
 
 **Complete.** Manual visual checklist closed; vitals debug noise reduced while preserving validation overlay and zone telemetry.
+
+---
+
+## Phase 1I.0 — Project Version Normalization
+
+### Purpose
+
+Standardize CCS Survival project versioning before interaction systems land, reflecting the transition from core startup to a functional survival systems prototype.
+
+### Version change
+
+| Item | Previous | New |
+|------|----------|-----|
+| **Project version** | 0.4.0 — Survival Core Prototype Start | **0.5.0 — Survival Systems Prototype** |
+| **`ProjectSettings.bundleVersion`** | 0.4.0 | **0.5.0** |
+
+**0.5.0** marks the transition from core prototype startup into a **functional survival systems prototype** phase (traversal validation, standalone builds, hazards, overlapping vitals modifier zones, debug overlay expansion, telemetry, player/agent validation modes).
+
+### Build naming (forward)
+
+Future standalone builds use:
+
+- Output folders: `Builds/Windows/CCS-Survival-0.5.0-*`
+- Log prefix: `[CCS 0.5.0-*]`
+
+Older **0.4.0-*** archived build folders are unchanged.
+
+### Result status
+
+**Complete.** Project-facing version references updated; framework upstream docs remain at Core **0.4.0** baseline.
+
+---
+
+## Phase 1I — Basic Interaction + Pickup Foundation
+
+### Purpose
+
+Introduce the first reusable **player interaction foundation** so the prototype can detect and interact with simple world objects — starting with prototype pickups that will later feed inventory, crafting, and shelter loops.
+
+Survival pressure systems (vitals, hazards, modifier zones, traversal validation) remain unchanged.
+
+### Architecture
+
+```text
+CCS_PlayerRoot
+├── CCS_SurvivalInteractionScanner   (OverlapSphereNonAlloc target resolve)
+├── CCS_SurvivalInteractionInput     (Gameplay/Interact + E fallback)
+└── existing movement / hazard / vitals receivers
+
+CCS_PrototypePickupsRoot
+├── PU_FoodTin          (CCS_SurvivalPickupInteractable)
+├── PU_WaterCanteen
+└── PU_Kindling
+
+PF_CCS_Survival_BootstrapRoot
+└── CCS_SurvivalDebugOverlay (+ Interaction line)
+```
+
+- **Low coupling:** interactables expose `CCS_ISurvivalInteractable`; scanner never references inventory.
+- **Event-driven hooks:** optional `CCS_SurvivalInteractionEvents` payloads dispatch through `CCS_RuntimeHost.EventDispatcher`.
+- **Traversal safe:** scanner/input live on `CCS_PlayerRoot`; deactivated during traversal validation — no agent auto-pickup.
+- **No inventory yet:** pickups log + hide; `CCS_SurvivalPickupCollectedEvent` is the future inventory/resource hook.
+
+### Scripts (`Assets/CCS/Survival/Runtime/Interaction/`)
+
+| Script | Role |
+|--------|------|
+| `CCS_ISurvivalInteractable` | Prompt + `CanInteract` + `Interact` contract |
+| `CCS_SurvivalInteractionScanner` | Nearest-target overlap scan; performs interaction |
+| `CCS_SurvivalInteractionInput` | New Input System `Gameplay/Interact` (+ **E** fallback) |
+| `CCS_SurvivalPickupInteractable` | Prototype pickup id/name/amount; hides after collect |
+| `CCS_SurvivalInteractionEvents` | Target changed, interaction performed, pickup collected |
+
+### Input behavior
+
+| Action | Binding |
+|--------|---------|
+| **Interact** | **E** (Keyboard&Mouse), **buttonWest** (Gamepad) |
+
+Asset: `Assets/CCS/Survival/Settings/Input/CCS_Survival_InputActions.inputactions` — `Gameplay/Interact` added alongside Move/Sprint/Jump.
+
+If the action reference is unset at runtime, `CCS_SurvivalInteractionInput` falls back to keyboard **E**.
+
+### Prototype pickup behavior
+
+| Object | Id | Location (approx.) |
+|--------|-----|-------------------|
+| `PU_FoodTin` | `survival.pickup.food_tin` | Near spawn `(1.8, 0.35, 1.2)` |
+| `PU_WaterCanteen` | `survival.pickup.water_canteen` | Near shelter `(-5.5, 0.35, 0.4)` |
+| `PU_Kindling` | `survival.pickup.kindling` (×3) | Near cold approach `(1.2, 0.25, 3.4)` |
+
+On interact:
+
+1. One concise log: `Collected pickup 'Food Tin' (id=..., amount=1).`
+2. Dispatches `CCS_SurvivalPickupCollectedEvent` when bootstrap runtime host is wired
+3. Disables colliders/renderers (does not destroy — supports future respawn tooling)
+
+### Debug overlay
+
+Added compact line:
+
+```text
+Interaction None
+Interaction Pick up Food Tin
+```
+
+Scanner prompt updates while in range; returns **None** when player is inactive (traversal mode).
+
+### Scene setup
+
+Menu: **CCS → Survival → Setup Phase 1I Interaction Pickups** (`CCS_InteractionPickupSceneSetup_Editor`). Idempotent; wires player scanner/input, overlay reference, and pickup root.
+
+Pickups placed off the traversal route centerline (route remains at x ≈ 0).
+
+### Future inventory connection
+
+`CCS_SurvivalPickupCollectedEvent` carries `PickupId`, `DisplayName`, and `Amount`. A future `ccs.survival.inventory` module can subscribe without changing pickup or scanner code.
+
+### Validation checklist
+
+| Check | Status |
+|-------|--------|
+| Player WASD unchanged | **Pass** (movement on separate controller) |
+| Walk near pickup → overlay prompt updates | **Pending** Play Mode |
+| Press **E** → one log + pickup hides | **Pending** Play Mode |
+| Walk away → prompt clears | **Pending** Play Mode |
+| Traversal on → player/scanner inactive; route **PASSED** | **Expected** (1G/1H baseline) |
+| No auto-collection on traversal agent | **Pass** (scanner not on agent) |
+| No console errors | **Pending** Play Mode |
+
+### Result status
+
+**Foundation implemented.** Scene setup menu + bootstrap wiring committed; manual Play Mode pickup pass recommended once per milestone review.
 
 ---
 
