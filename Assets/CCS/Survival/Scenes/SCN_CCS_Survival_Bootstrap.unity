@@ -2897,7 +2897,14 @@ MonoBehaviour:
   moveSpeed: 4
   gravity: -20
   rotationSmoothTime: 0.12
-  enableDebugLogs: 1
+  enableTelemetryLogging: 1
+  enableStuckDetection: 1
+  stuckDistanceThreshold: 0.15
+  stuckTimeLimit: 5
+  maxRouteDurationSeconds: 120
+  logRouteSummaryOnComplete: 1
+  stopTestOnFailure: 1
+  enableDebugLogs: 0
 --- !u!1 &300000510
 GameObject:
   m_ObjectHideFlags: 0

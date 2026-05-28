@@ -3,7 +3,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_TraversalTestAgent
 // CATEGORY: Survival / Testing / Traversal
-// PURPOSE: Dev-only CharacterController agent that follows a serialized traversal test route.
+// PURPOSE: Dev-only CharacterController traversal harness with telemetry, stuck detection, and pass/fail validation.
 // PLACEMENT: Attach to CCS_TraversalTestAgent in SCN_CCS_Survival_Bootstrap (disabled by default).
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
@@ -17,6 +17,16 @@ namespace CCS.Survival.Testing.Traversal
     {
         private const string LogPrefix = "[CCS Traversal Test]";
         private const string ManualPlayerCameraTargetName = "CCS_PlayerCameraTarget";
+
+        private enum CCS_TraversalRouteResultStatus
+        {
+            Idle,
+            Running,
+            Passed,
+            FailedStuck,
+            FailedTimeout,
+            Stopped
+        }
 
         #region Variables
 
@@ -47,8 +57,30 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("Rotation smoothing time when turning toward the next waypoint.")]
         [SerializeField] private float rotationSmoothTime = 0.12f;
 
+        [Header("Validation")]
+        [Tooltip("Logs traversal start, pass summaries, and failure warnings.")]
+        [SerializeField] private bool enableTelemetryLogging = true;
+
+        [Tooltip("Fails the route when the agent stops moving toward a waypoint for too long.")]
+        [SerializeField] private bool enableStuckDetection = true;
+
+        [Tooltip("Minimum world-space movement required to reset stuck detection.")]
+        [SerializeField] private float stuckDistanceThreshold = 0.15f;
+
+        [Tooltip("Seconds without sufficient movement before the route is marked stuck.")]
+        [SerializeField] private float stuckTimeLimit = 5f;
+
+        [Tooltip("Maximum seconds allowed to complete one route pass before failure.")]
+        [SerializeField] private float maxRouteDurationSeconds = 120f;
+
+        [Tooltip("Logs a concise PASSED summary when a route pass completes.")]
+        [SerializeField] private bool logRouteSummaryOnComplete = true;
+
+        [Tooltip("Stops the traversal test and restores manual player state when validation fails.")]
+        [SerializeField] private bool stopTestOnFailure = true;
+
         [Header("Debug")]
-        [Tooltip("Logs route start, waypoint advances, and loop completion.")]
+        [Tooltip("Logs per-waypoint reach and advance messages (verbose).")]
         [SerializeField] private bool enableDebugLogs;
 
         private CharacterController characterController;
@@ -64,6 +96,34 @@ namespace CCS.Survival.Testing.Traversal
         private Transform manualPlayerCameraTarget;
         private Transform manualPlayerCameraTargetCachedParent;
         private bool manualPlayerCameraTargetReparented;
+        private bool lastEnableTraversalTest;
+        private float testStartTime;
+        private float currentRouteStartTime;
+        private int completedRouteCount;
+        private int failedRouteCount;
+        private float lastWaypointAdvanceTime;
+        private float distanceToCurrentWaypoint;
+        private int totalWaypointAdvances;
+        private Vector3 lastKnownPosition;
+        private float stuckTimer;
+        private CCS_TraversalRouteResultStatus routeResultStatus;
+        private bool currentRouteFailureHandled;
+
+        #endregion
+
+        #region Properties
+
+        public int CompletedRouteCount => completedRouteCount;
+
+        public int FailedRouteCount => failedRouteCount;
+
+        public float CurrentRouteElapsedTime => currentRouteElapsedTime;
+
+        public bool IsTraversalRunning => enableTraversalTest && routeResultStatus == CCS_TraversalRouteResultStatus.Running;
+
+        public int CurrentWaypointIndex => currentWaypointIndex;
+
+        private float currentRouteElapsedTime => Time.time - currentRouteStartTime;
 
         #endregion
 
@@ -83,13 +143,20 @@ namespace CCS.Survival.Testing.Traversal
 
         private void OnEnable()
         {
+            lastEnableTraversalTest = enableTraversalTest;
             ResetRouteState();
             SyncManualPlayerForTraversalTest();
+
+            if (enableTraversalTest)
+            {
+                BeginTraversalSession();
+            }
         }
 
         private void OnDisable()
         {
             RestoreManualPlayerAfterTraversalTest();
+            routeResultStatus = CCS_TraversalRouteResultStatus.Idle;
         }
 
         private void OnDestroy()
@@ -99,6 +166,16 @@ namespace CCS.Survival.Testing.Traversal
 
         private void Update()
         {
+            if (enableTraversalTest && !lastEnableTraversalTest)
+            {
+                BeginTraversalSession();
+            }
+            else if (!enableTraversalTest && lastEnableTraversalTest)
+            {
+                routeResultStatus = CCS_TraversalRouteResultStatus.Idle;
+            }
+
+            lastEnableTraversalTest = enableTraversalTest;
             SyncManualPlayerForTraversalTest();
 
             if (!enableTraversalTest)
@@ -107,6 +184,13 @@ namespace CCS.Survival.Testing.Traversal
             }
 
             if (!TryValidateRoute())
+            {
+                return;
+            }
+
+            UpdateTelemetry();
+
+            if (TryFailRouteFromValidation())
             {
                 return;
             }
@@ -127,6 +211,7 @@ namespace CCS.Survival.Testing.Traversal
 
             Vector3 targetPosition = waypoint.WorldPosition;
             Vector3 toTarget = targetPosition - transform.position;
+            distanceToCurrentWaypoint = toTarget.magnitude;
 
             if (HasArrivedAtWaypoint(waypoint, toTarget))
             {
@@ -145,11 +230,153 @@ namespace CCS.Survival.Testing.Traversal
             Vector3 moveDirection = toTarget.normalized;
             Vector3 moveDelta = moveDirection * (moveSpeed * Time.deltaTime);
             characterController.Move(moveDelta + (verticalVelocity * Time.deltaTime));
+            UpdateStuckDetectionAfterMove();
         }
 
         #endregion
 
         #region Private Methods
+
+        private void BeginTraversalSession()
+        {
+            testStartTime = Time.time;
+            completedRouteCount = 0;
+            failedRouteCount = 0;
+            routeResultStatus = CCS_TraversalRouteResultStatus.Running;
+            ResetRouteState();
+            BeginRoutePass();
+
+            if (enableTelemetryLogging)
+            {
+                LogOnce(ref loggedRouteStart, $"{LogPrefix} Traversal validation started.");
+            }
+        }
+
+        private void BeginRoutePass()
+        {
+            currentRouteStartTime = Time.time;
+            lastWaypointAdvanceTime = Time.time;
+            currentWaypointIndex = 0;
+            waitTimer = 0f;
+            isWaitingAtWaypoint = false;
+            verticalVelocity = Vector3.zero;
+            rotationVelocity = 0f;
+            totalWaypointAdvances = 0;
+            lastKnownPosition = transform.position;
+            stuckTimer = 0f;
+            routeResultStatus = CCS_TraversalRouteResultStatus.Running;
+            currentRouteFailureHandled = false;
+
+            if (enableDebugLogs && enableTelemetryLogging)
+            {
+                Debug.Log($"{LogPrefix} Route pass started.");
+            }
+        }
+
+        private void UpdateTelemetry()
+        {
+            if (traversalRoute.TryGetWaypoint(currentWaypointIndex, out CCS_TraversalTestWaypoint waypoint))
+            {
+                distanceToCurrentWaypoint = Vector3.Distance(transform.position, waypoint.WorldPosition);
+            }
+            else
+            {
+                distanceToCurrentWaypoint = 0f;
+            }
+
+            if (enableStuckDetection && !isWaitingAtWaypoint)
+            {
+                UpdateStuckDetectionWhileMoving();
+            }
+        }
+
+        private void UpdateStuckDetectionWhileMoving()
+        {
+            float movedDistance = Vector3.Distance(transform.position, lastKnownPosition);
+            if (movedDistance >= stuckDistanceThreshold)
+            {
+                lastKnownPosition = transform.position;
+                stuckTimer = 0f;
+                return;
+            }
+
+            stuckTimer += Time.deltaTime;
+        }
+
+        private void UpdateStuckDetectionAfterMove()
+        {
+            float movedDistance = Vector3.Distance(transform.position, lastKnownPosition);
+            if (movedDistance >= stuckDistanceThreshold)
+            {
+                lastKnownPosition = transform.position;
+                stuckTimer = 0f;
+            }
+        }
+
+        private bool TryFailRouteFromValidation()
+        {
+            if (enableStuckDetection && !isWaitingAtWaypoint && stuckTimer >= stuckTimeLimit)
+            {
+                string waypointLabel = GetCurrentWaypointLabel();
+                FailRoute(
+                    CCS_TraversalRouteResultStatus.FailedStuck,
+                    $"{LogPrefix} FAILED: Agent stuck near waypoint {waypointLabel}.");
+                return true;
+            }
+
+            if (currentRouteElapsedTime > maxRouteDurationSeconds)
+            {
+                FailRoute(
+                    CCS_TraversalRouteResultStatus.FailedTimeout,
+                    $"{LogPrefix} FAILED: Route exceeded max duration.");
+                return true;
+            }
+
+            return false;
+        }
+
+        private void FailRoute(CCS_TraversalRouteResultStatus failureStatus, string message)
+        {
+            if (currentRouteFailureHandled)
+            {
+                return;
+            }
+
+            currentRouteFailureHandled = true;
+            failedRouteCount++;
+            routeResultStatus = failureStatus;
+
+            if (enableTelemetryLogging)
+            {
+                Debug.LogWarning(message);
+            }
+
+            if (stopTestOnFailure)
+            {
+                StopTraversalTest(CCS_TraversalRouteResultStatus.Stopped);
+            }
+        }
+
+        private void CompleteRoutePass()
+        {
+            completedRouteCount++;
+            routeResultStatus = CCS_TraversalRouteResultStatus.Passed;
+
+            if (logRouteSummaryOnComplete && enableTelemetryLogging)
+            {
+                Debug.Log(
+                    $"{LogPrefix} PASSED: Route completed in {currentRouteElapsedTime:F2}s. " +
+                    $"Waypoints={traversalRoute.WaypointCount}. Loops={completedRouteCount}.");
+            }
+        }
+
+        private void StopTraversalTest(CCS_TraversalRouteResultStatus stopStatus)
+        {
+            routeResultStatus = stopStatus;
+            enableTraversalTest = false;
+            lastEnableTraversalTest = false;
+            SyncManualPlayerForTraversalTest();
+        }
 
         private bool TryValidateRoute()
         {
@@ -189,6 +416,9 @@ namespace CCS.Survival.Testing.Traversal
 
         private void BeginWaypointWait(CCS_TraversalTestWaypoint waypoint)
         {
+            lastKnownPosition = transform.position;
+            stuckTimer = 0f;
+
             if (waypoint.WaitDurationSeconds > 0f)
             {
                 isWaitingAtWaypoint = true;
@@ -224,10 +454,16 @@ namespace CCS.Survival.Testing.Traversal
                 Debug.Log($"{LogPrefix} Reached '{completedWaypoint.name}' (index {currentWaypointIndex}).");
             }
 
+            totalWaypointAdvances++;
+            lastWaypointAdvanceTime = Time.time;
+            lastKnownPosition = transform.position;
+            stuckTimer = 0f;
             currentWaypointIndex++;
 
             if (currentWaypointIndex >= traversalRoute.WaypointCount)
             {
+                CompleteRoutePass();
+
                 if (traversalRoute.LoopRoute)
                 {
                     if (enableDebugLogs)
@@ -235,8 +471,7 @@ namespace CCS.Survival.Testing.Traversal
                         Debug.Log($"{LogPrefix} Route loop complete — restarting.");
                     }
 
-                    currentWaypointIndex = 0;
-                    loggedRouteStart = false;
+                    BeginRoutePass();
                     return;
                 }
 
@@ -245,8 +480,7 @@ namespace CCS.Survival.Testing.Traversal
                     Debug.Log($"{LogPrefix} Route complete.");
                 }
 
-                enableTraversalTest = false;
-                SyncManualPlayerForTraversalTest();
+                StopTraversalTest(CCS_TraversalRouteResultStatus.Passed);
                 return;
             }
 
@@ -276,11 +510,19 @@ namespace CCS.Survival.Testing.Traversal
             rotationVelocity = 0f;
             loggedInvalidRoute = false;
             loggedRouteStart = false;
+            lastKnownPosition = transform.position;
+            stuckTimer = 0f;
+            distanceToCurrentWaypoint = 0f;
+        }
 
-            if (enableTraversalTest && enableDebugLogs && TryValidateRoute())
+        private string GetCurrentWaypointLabel()
+        {
+            if (traversalRoute.TryGetWaypoint(currentWaypointIndex, out CCS_TraversalTestWaypoint waypoint))
             {
-                LogOnce(ref loggedRouteStart, $"{LogPrefix} Traversal test started.");
+                return $"'{waypoint.name}' (index {currentWaypointIndex})";
             }
+
+            return $"index {currentWaypointIndex}";
         }
 
         private static void LogOnce(ref bool loggedFlag, string message)

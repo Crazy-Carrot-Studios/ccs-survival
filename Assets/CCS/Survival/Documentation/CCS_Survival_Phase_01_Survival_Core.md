@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.7 — Standalone Traversal Validation Build (Validated)
+**Status:** Phase 1G — Traversal Telemetry & Runtime Validation (Implemented)
 
 ---
 
@@ -356,6 +356,80 @@ Temporary **`CCS_StandaloneBuild_0_4_0_D_Editor`** auto-run scripts were **remov
 ### Result status
 
 **Passed** automated log criteria (no errors; traversal loop logs). **Manual visual checklist** remains for Play Mode / standalone spot-check.
+
+---
+
+## Phase 1G — Traversal Telemetry & Runtime Validation
+
+### Purpose
+
+Upgrade **`CCS_TraversalTestAgent`** from a visual route follower into a lightweight **dev/test validation harness** with runtime telemetry, stuck detection, route duration limits, and concise **PASSED** / **FAILED** logging — without replacing gameplay AI or manual player testing.
+
+### Telemetry (runtime)
+
+Tracked on the agent during an active traversal session:
+
+| Field | Role |
+|-------|------|
+| `testStartTime` | Session start (`Time.time`) |
+| `currentRouteElapsedTime` | Elapsed time for the current route pass |
+| `completedRouteCount` | Successful full-route completions |
+| `failedRouteCount` | Failed route passes (stuck or timeout) |
+| `currentWaypointIndex` | Active waypoint index |
+| `lastWaypointAdvanceTime` | Time of last waypoint advance |
+| `distanceToCurrentWaypoint` | Distance to active waypoint |
+| `totalWaypointAdvances` | Waypoint advances this pass |
+| `lastKnownPosition` | Last position used for stuck detection |
+| `stuckTimer` | Time without sufficient movement |
+| `routeResultStatus` | Internal idle / running / passed / failed / stopped state |
+
+### Validation settings (Inspector)
+
+| Setting | Default | Behavior |
+|---------|---------|----------|
+| `enableTelemetryLogging` | on | Start, **PASSED**, and **FAILED** messages |
+| `enableStuckDetection` | on | Fail if movement &lt; `stuckDistanceThreshold` for `stuckTimeLimit` s (not while waiting) |
+| `stuckDistanceThreshold` | 0.15 m | Movement required to reset stuck timer |
+| `stuckTimeLimit` | 5 s | Stuck duration before failure |
+| `maxRouteDurationSeconds` | 120 s | Max time per route pass |
+| `logRouteSummaryOnComplete` | on | Log **PASSED** summary on completion |
+| `stopTestOnFailure` | on | Stop test and restore manual player on failure |
+| `enableDebugLogs` | off | Verbose per-waypoint logs (optional) |
+
+### Pass / fail logging
+
+| Event | Log |
+|-------|-----|
+| Session start | `[CCS Traversal Test] Traversal validation started.` |
+| Route pass success | `[CCS Traversal Test] PASSED: Route completed in X.XXs. Waypoints=N. Loops=N.` |
+| Stuck | `[CCS Traversal Test] FAILED: Agent stuck near waypoint '<name>' (index N).` |
+| Timeout | `[CCS Traversal Test] FAILED: Route exceeded max duration.` |
+
+No per-frame logging. **`enableTraversalTest`** remains **off** by default.
+
+### Read-only debug access
+
+Public properties on **`CCS_TraversalTestAgent`**: `CompletedRouteCount`, `FailedRouteCount`, `CurrentRouteElapsedTime`, `IsTraversalRunning`, `CurrentWaypointIndex`.
+
+### Player isolation (unchanged from 1F.7)
+
+- **Traversal off:** normal **`CCS_PlayerRoot`** + WASD
+- **Traversal on:** player root hidden, camera target follows traversal agent, restored when test ends or fails (if `stopTestOnFailure`)
+
+### Validation checklist
+
+1. Play Mode — **`enableTraversalTest`** off → WASD player works
+2. Enable traversal test → player hidden, camera follows blue agent
+3. Agent completes route → one **PASSED** summary per loop (no spam)
+4. Loop route → timer resets per pass; `Loops` increments in summary
+5. Disable test → player and camera restore; WASD works
+6. Optional: lower `stuckTimeLimit` in Inspector to confirm **FAILED** stuck path
+7. No console errors
+
+### Implementation status
+
+- **`CCS_TraversalTestAgent`** — telemetry, stuck detection, duration validation, pass/fail summaries
+- Scene **`SCN_CCS_Survival_Bootstrap`** — validation defaults wired; `enableTraversalTest` off; `enableDebugLogs` off (telemetry on)
 
 ---
 
