@@ -129,6 +129,22 @@ Design for long-term MMO/survival scale **without** implementing networking ever
 
 ---
 
+## Unity ProjectSettings hygiene (before commits)
+
+Before staging or committing, inspect dirty `ProjectSettings/ProjectSettings.asset` with `git diff ProjectSettings/ProjectSettings.asset`.
+
+**Usually Unity noise — `git restore` and do not commit:**
+
+- `projectName` drifting to `CCS_Framework` (this repo is **ccs-survival**; keep `CCS_Survival` / correct product name)
+- `preloadedAssets` gaining Input System or other assets after Editor open/build with no intentional project change
+- `m_BuildTargetBatching` / graphics / cloud IDs changing from a local standalone build or Editor session only
+
+**Commit only** when the diff reflects an intentional, documented project setting change requested for the milestone.
+
+Also avoid committing unrelated noise: `ShaderGraphSettings.asset`, `SceneTemplateSettings.json`, RP assets under `Assets/Settings/` unless the task requires them.
+
+---
+
 ## When unsure
 
 1. If it is **genre-specific gameplay** → **ccs-survival**, not `ccs-framework`
