@@ -33,6 +33,9 @@ namespace CCS.Survival
         [Tooltip("When enabled, survival state changes are written to the Unity console.")]
         [SerializeField] private bool enableDebugLogs;
 
+        [Tooltip("Minimum whole-health step required before writing another health-changed debug log.")]
+        [SerializeField] private float healthDebugLogStep = 5f;
+
         private CCS_SurvivalState survivalState;
         private bool isInitialized;
         private bool isServiceRegistered;
@@ -51,6 +54,7 @@ namespace CCS.Survival
         private float staminaRecoveryRate;
         private float respawnHealthPercent;
         private float meaningfulChangePrecision;
+        private float lastLoggedHealthValue = float.NaN;
 
         #endregion
 
@@ -118,6 +122,7 @@ namespace CCS.Survival
             survivalState = CCS_SurvivalState.CreateDefault();
             survivalState.BodyTemperature = defaultBodyTemperature;
             ClampStateToMaximums();
+            lastLoggedHealthValue = float.NaN;
             isInitialized = true;
             PublishTemperatureChanged(0f, survivalState.BodyTemperature);
             LogDebug(isUsingFallbackProfile
@@ -186,6 +191,7 @@ namespace CCS.Survival
 
             survivalState.Health = 0f;
             survivalState.IsAlive = false;
+            lastLoggedHealthValue = float.NaN;
             PublishHealthChanged(maxHealth, survivalState.Health);
             OnPlayerDied?.Invoke();
             PublishSurvivalStateChanged();
@@ -198,6 +204,7 @@ namespace CCS.Survival
             survivalState = CCS_SurvivalState.CreateDefault();
             survivalState.BodyTemperature = defaultBodyTemperature;
             survivalState.Health = maxHealth * Mathf.Clamp01(respawnHealthPercent / 100f);
+            lastLoggedHealthValue = float.NaN;
             ClampStateToMaximums();
             OnPlayerRespawned?.Invoke();
             PublishSurvivalStateChanged();
@@ -492,8 +499,7 @@ namespace CCS.Survival
 
             OnHealthChanged?.Invoke(newValue);
             PublishSurvivalStateChanged();
-            LogDebug(
-                $"Health changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
+            TryLogHealthChanged(previousValue, newValue);
         }
 
         private void PublishHungerChanged(float previousValue, float newValue)
@@ -555,6 +561,24 @@ namespace CCS.Survival
         private void LogDebug(string message)
         {
             CCS_Logger.Log(LogCategory, message, enableDebugLogs);
+        }
+
+        private void TryLogHealthChanged(float previousValue, float newValue)
+        {
+            if (!enableDebugLogs)
+            {
+                return;
+            }
+
+            float clampedStep = Mathf.Max(1f, healthDebugLogStep);
+            float roundedNew = Mathf.Floor(newValue);
+            if (!float.IsNaN(lastLoggedHealthValue) && Mathf.Abs(roundedNew - lastLoggedHealthValue) < clampedStep)
+            {
+                return;
+            }
+
+            lastLoggedHealthValue = roundedNew;
+            LogDebug($"Health changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
         }
 
         #endregion

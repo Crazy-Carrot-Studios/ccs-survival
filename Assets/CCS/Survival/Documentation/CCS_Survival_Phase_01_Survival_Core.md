@@ -224,10 +224,13 @@ After Phase 1D **implementation** proves Cinemachine camera + player placeholder
 - Movement/gravity validation support added so CharacterController settles against ground instead of falling indefinitely
 - Prototype visual readability pass added for movement testing
 - Yellow player marker and simple ground spatial reference added (prototype materials + lightweight grid line strips)
+- Movement-space debug option added (`CameraRelative` / `WorldRelative`) on prototype controller
+- Scene temporarily set to **WorldRelative** to verify straighter A/D lateral movement during Phase 1E testing
+- Survival vitals debug log noise reduced (health-change logs now step-based at larger intervals, events/overlay unchanged)
 - Dynamic glyph UI and **stamina** sprint gating still deferred
 - Terrain system and final environment art remain deferred
 - `PF_CCS_Survival_BootstrapRoot` unchanged; vitals remain on composition root
-- Standalone build checkpoint **0.4.0-B** should follow after Play Mode validation
+- Standalone build checkpoint **0.4.0-B** performed for movement validation outside Editor
 
 ### Phase 1E manual validation
 

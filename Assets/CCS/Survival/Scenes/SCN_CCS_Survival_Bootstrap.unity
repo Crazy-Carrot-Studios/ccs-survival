@@ -337,6 +337,10 @@ PrefabInstance:
       propertyPath: enableRuntimeDiagnostics
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 973492005, guid: f1a2b3c4d5e6478990abcdef12345606, type: 3}
+      propertyPath: healthDebugLogStep
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -617,6 +621,7 @@ MonoBehaviour:
   gravity: -20
   jumpHeight: 1.2
   rotationSmoothTime: 0.12
+  movementSpace: 1
   cameraTransform: {fileID: 890761265}
   enableDebugLogs: 0
 --- !u!114 &636537617

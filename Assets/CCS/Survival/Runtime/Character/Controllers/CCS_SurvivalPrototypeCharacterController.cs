@@ -13,6 +13,12 @@ using UnityEngine.InputSystem;
 
 namespace CCS.Survival
 {
+    public enum CCS_SurvivalPrototypeMovementSpace
+    {
+        CameraRelative = 0,
+        WorldRelative = 1
+    }
+
     [RequireComponent(typeof(CharacterController))]
     public sealed class CCS_SurvivalPrototypeCharacterController : MonoBehaviour
     {
@@ -48,6 +54,9 @@ namespace CCS.Survival
 
         [Tooltip("Rotation smoothing time when turning toward movement direction.")]
         [SerializeField] private float rotationSmoothTime = 0.12f;
+
+        [Tooltip("Movement space used to resolve input direction during prototype testing.")]
+        [SerializeField] private CCS_SurvivalPrototypeMovementSpace movementSpace = CCS_SurvivalPrototypeMovementSpace.CameraRelative;
 
         [Header("Camera")]
         [Tooltip("Camera transform for camera-relative movement (e.g. Main Camera). Falls back to world axes if unset.")]
@@ -164,6 +173,11 @@ namespace CCS.Survival
 
             Vector3 input = new Vector3(moveInput.x, 0f, moveInput.y);
             input.Normalize();
+
+            if (movementSpace == CCS_SurvivalPrototypeMovementSpace.WorldRelative)
+            {
+                return input;
+            }
 
             if (cameraTransform != null)
             {
