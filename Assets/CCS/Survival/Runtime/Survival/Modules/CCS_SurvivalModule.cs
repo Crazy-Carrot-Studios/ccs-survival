@@ -297,7 +297,49 @@ namespace CCS.Survival
 
         public CCS_SurvivalState CurrentState => survivalState;
 
+        public float CurrentStamina => survivalState.Stamina;
+
         public bool IsAlive => survivalState.IsAlive;
+
+        public bool HasStamina(float requiredAmount)
+        {
+            if (!isInitialized || !survivalState.IsAlive || requiredAmount <= 0f)
+            {
+                return requiredAmount <= 0f;
+            }
+
+            return survivalState.Stamina >= requiredAmount;
+        }
+
+        public bool TryConsumeStamina(float amount)
+        {
+            if (!isInitialized || !survivalState.IsAlive || amount <= 0f)
+            {
+                return amount <= 0f;
+            }
+
+            if (survivalState.Stamina < amount)
+            {
+                return false;
+            }
+
+            float previousStamina = survivalState.Stamina;
+            survivalState.Stamina = Mathf.Max(0f, survivalState.Stamina - amount);
+            PublishStaminaChanged(previousStamina, survivalState.Stamina);
+            return true;
+        }
+
+        public void RestoreStamina(float amount)
+        {
+            if (!isInitialized || amount <= 0f)
+            {
+                return;
+            }
+
+            float previousStamina = survivalState.Stamina;
+            survivalState.Stamina = Mathf.Min(maxStamina, survivalState.Stamina + amount);
+            PublishStaminaChanged(previousStamina, survivalState.Stamina);
+        }
 
         #endregion
 

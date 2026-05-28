@@ -1,3 +1,4 @@
+using CCS.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,6 +47,19 @@ namespace CCS.Survival
         [Tooltip("Sprint speed in meters per second.")]
         [SerializeField] private float sprintSpeed = 7f;
 
+        [Header("Sprint Stamina")]
+        [Tooltip("When enabled, sprint requires stamina through CCS_ISurvivalVitalsService.")]
+        [SerializeField] private bool requireStaminaForSprint = true;
+
+        [Tooltip("Stamina consumed per second while sprinting and moving.")]
+        [SerializeField] private float sprintStaminaCostPerSecond = 18f;
+
+        [Tooltip("Minimum stamina required to begin or continue sprinting.")]
+        [SerializeField] private float minimumStaminaToSprint = 5f;
+
+        [Tooltip("Optional runtime host for one-time vitals service resolve. Falls back to a single scene lookup when unset.")]
+        [SerializeField] private CCS_RuntimeHost runtimeHost;
+
         [Tooltip("Gravity acceleration applied each frame when airborne.")]
         [SerializeField] private float gravity = -20f;
 
@@ -65,9 +79,12 @@ namespace CCS.Survival
         [SerializeField] private bool enableDebugLogs;
 
         private CharacterController characterController;
+        private CCS_ISurvivalVitalsService vitalsService;
         private Vector3 verticalVelocity;
         private float rotationVelocity;
         private bool loggedMissingCamera;
+        private bool loggedMissingVitalsService;
+        private bool vitalsServiceResolveAttempted;
 
         #endregion
 
@@ -78,6 +95,11 @@ namespace CCS.Survival
             characterController = GetComponent<CharacterController>();
         }
 
+        private void Start()
+        {
+            ResolveVitalsService();
+        }
+
         private void OnEnable()
         {
             EnableInputAction(moveAction);
@@ -85,6 +107,11 @@ namespace CCS.Survival
             if (enableJump)
             {
                 EnableInputAction(jumpAction);
+            }
+
+            if (!vitalsServiceResolveAttempted)
+            {
+                ResolveVitalsService();
             }
         }
 
@@ -113,7 +140,9 @@ namespace CCS.Survival
             }
 
             Vector3 moveDirection = ResolveMoveDirection(moveInput);
-            float speed = isSprinting ? sprintSpeed : walkSpeed;
+            bool isMoving = moveDirection.sqrMagnitude > 0.0001f;
+            bool useSprintSpeed = isSprinting && isMoving && TrySprintWithStamina(Time.deltaTime);
+            float speed = useSprintSpeed ? sprintSpeed : walkSpeed;
             Vector3 horizontalMove = moveDirection * (speed * Time.deltaTime);
 
             RotateTowardMovement(moveDirection);
@@ -205,6 +234,56 @@ namespace CCS.Survival
             }
 
             return input;
+        }
+
+        private void ResolveVitalsService()
+        {
+            vitalsServiceResolveAttempted = true;
+
+            if (!CCS_Validation.IsObjectValid(runtimeHost))
+            {
+                runtimeHost = FindFirstObjectByType<CCS_RuntimeHost>();
+            }
+
+            if (!CCS_Validation.IsObjectValid(runtimeHost) || !runtimeHost.IsRuntimeInitialized)
+            {
+                vitalsService = null;
+                return;
+            }
+
+            runtimeHost.ServiceRegistry.TryGetService(out vitalsService);
+        }
+
+        private bool TrySprintWithStamina(float deltaTime)
+        {
+            if (!requireStaminaForSprint)
+            {
+                return true;
+            }
+
+            if (vitalsService == null)
+            {
+                if (!loggedMissingVitalsService)
+                {
+                    Debug.LogWarning($"{LogPrefix} CCS_ISurvivalVitalsService not found; allowing sprint without stamina cost.");
+                    loggedMissingVitalsService = true;
+                }
+
+                return true;
+            }
+
+            if (!vitalsService.IsAlive || !vitalsService.HasStamina(minimumStaminaToSprint))
+            {
+                return false;
+            }
+
+            float staminaCost = sprintStaminaCostPerSecond * deltaTime;
+            if (staminaCost <= 0f)
+            {
+                return true;
+            }
+
+            return vitalsService.TryConsumeStamina(staminaCost);
         }
 
         private void RotateTowardMovement(Vector3 moveDirection)

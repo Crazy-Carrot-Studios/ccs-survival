@@ -16,7 +16,15 @@ namespace CCS.Survival
     {
         CCS_SurvivalState CurrentState { get; }
 
+        float CurrentStamina { get; }
+
         bool IsAlive { get; }
+
+        bool HasStamina(float requiredAmount);
+
+        bool TryConsumeStamina(float amount);
+
+        void RestoreStamina(float amount);
 
         void ApplyDamage(float amount);
 

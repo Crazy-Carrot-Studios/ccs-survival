@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F — Movement Polish + Stamina Hook (Planning)
+**Status:** Phase 1F.1 — Sprint Stamina Integration (Implemented)
 
 ---
 
@@ -60,19 +60,38 @@ PF_CCS_Survival_BootstrapRoot              CCS_PlayerRoot
 - Multiplayer ownership / replication
 - Inventory or load-weight movement penalties
 
-### 6. Done criteria (future implementation)
+### 6. Done criteria
 
-- [ ] Sprint **drains stamina** while sprint input is held and the player is moving.
-- [ ] Stamina **recovers** when not sprinting (per profile tuning).
-- [ ] Sprint **stops or falls back to walk** when stamina is empty.
-- [ ] Movement still works with **keyboard/gamepad** (existing Input Actions unchanged in spirit).
-- [ ] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**).
-- [ ] Survival debug overlay remains readable; no per-tick health log spam.
-- [ ] No direct survival state mutation from movement code outside service contracts.
+- [x] Sprint **drains stamina** while sprint input is held and the player is moving (Phase 1F.1).
+- [x] Stamina **recovers** when not sprinting (per profile tuning; owned by `CCS_SurvivalModule`).
+- [x] Sprint **stops or falls back to walk** when stamina is empty or below minimum threshold.
+- [x] Movement still works with **keyboard/gamepad** (existing Input Actions unchanged in spirit).
+- [x] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**).
+- [x] Survival debug overlay remains readable; no per-tick health log spam.
+- [x] No direct survival state mutation from movement code outside service contracts.
 
 ### 7. Standalone build checkpoint
 
-After Phase 1F **implementation**, if sprint/stamina behavior changes significantly from **0.4.0-B**, create a follow-up standalone smoke build (e.g. **0.4.0-C**) to validate stamina gating and overlay outside the Editor.
+After Phase 1F.1, create a follow-up standalone smoke build (**0.4.0-C** recommended) to validate stamina gating and overlay outside the Editor.
+
+---
+
+## Implementation Status (Phase 1F.1)
+
+- Sprint now **consumes stamina** through **`CCS_ISurvivalVitalsService`** (`HasStamina`, `TryConsumeStamina`, `RestoreStamina`, `CurrentStamina`).
+- **`CCS_SurvivalPrototypeCharacterController`** resolves the vitals service once at startup (optional serialized `CCS_RuntimeHost`, otherwise one scene lookup); no per-frame scene search.
+- Movement does **not** directly own or mutate **`CCS_SurvivalState`**; stamina recovery remains owned by **`CCS_SurvivalModule`** (`RecoverStamina` in `Update`).
+- Scene tuning on **`SCN_CCS_Survival_Bootstrap`**: `sprintStaminaCostPerSecond` **18**, `minimumStaminaToSprint` **5**, `movementSpace` **WorldRelative**.
+- Debug overlay **`STM`** line continues to reflect stamina while sprinting and recovering (not final UI).
+- Standalone build **0.4.0-C** recommended after Play Mode validation.
+
+### Phase 1F.1 manual validation
+
+1. Open `SCN_CCS_Survival_Bootstrap.unity` → Play Mode
+2. **WASD** moves; **Left Shift** sprint drains stamina on the overlay
+3. Sprint falls back to walk when stamina is depleted or below minimum
+4. Stamina recovers when sprint is released
+5. Console **`Services=1`**; no errors; missing-service fallback allows sprint with a one-time warning only when vitals are absent
 
 ---
 
@@ -294,7 +313,7 @@ After Phase 1D **implementation** proves Cinemachine camera + player placeholder
 - Movement-space debug option added (`CameraRelative` / `WorldRelative`) on prototype controller
 - Scene temporarily set to **WorldRelative** to verify straighter A/D lateral movement during Phase 1E testing
 - Survival vitals debug log noise reduced (health-change logs now step-based at larger intervals, events/overlay unchanged)
-- Dynamic glyph UI and **stamina** sprint gating still deferred
+- Dynamic glyph UI still deferred; **stamina** sprint gating delivered in Phase 1F.1
 - Terrain system and final environment art remain deferred
 - `PF_CCS_Survival_BootstrapRoot` unchanged; vitals remain on composition root
 - Standalone build checkpoint **0.4.0-B** performed for movement validation outside Editor

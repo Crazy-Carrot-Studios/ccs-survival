@@ -618,6 +618,10 @@ MonoBehaviour:
   enableJump: 0
   walkSpeed: 4
   sprintSpeed: 7
+  requireStaminaForSprint: 1
+  sprintStaminaCostPerSecond: 18
+  minimumStaminaToSprint: 5
+  runtimeHost: {fileID: 0}
   gravity: -20
   jumpHeight: 1.2
   rotationSmoothTime: 0.12
