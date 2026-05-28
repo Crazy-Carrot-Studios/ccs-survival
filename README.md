@@ -57,6 +57,7 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 | [Settlement & Territory Design Spec](Assets/CCS/Documentation/Gameplay/CCS_Survival_Settlement_And_Territory_Design_Spec.md) | Claims, territory hierarchy, town growth, influence, economy, and decay |
 | [Economy & Logistics Design Spec](Assets/CCS/Documentation/Gameplay/CCS_Survival_Economy_And_Logistics_Design_Spec.md) | Regional pricing, quality tiers, logistics, scarcity, and trade specialization |
 | [Prototype Roadmap](Assets/CCS/Survival/Documentation/CCS_Survival_Prototype_Roadmap.md) | Phased prototype plan, dependencies, scope boundaries, and completion criteria |
+| [Phase 1 — Survival Core Plan](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_01_Survival_Core.md) | Hunger, thirst, health, exposure, death/respawn implementation plan |
 | [Survival Gameplay Architecture](Documentation/Architecture/Survival_Gameplay_Architecture.md) | High-level gameplay structure and module layering |
 | [Survival Module Boundaries](Documentation/Architecture/Survival_Module_Boundaries.md) | Core vs Modules vs Survival folder rules |
 | [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |

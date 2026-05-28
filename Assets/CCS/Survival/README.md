@@ -24,6 +24,7 @@ Pre-gameplay foundation audit completed at **v0.3.5**:
 - [Settlement & Territory Design Spec](../Documentation/Gameplay/CCS_Survival_Settlement_And_Territory_Design_Spec.md) — claims, town growth, influence, permissions, economy, decay
 - [Economy & Logistics Design Spec](../Documentation/Gameplay/CCS_Survival_Economy_And_Logistics_Design_Spec.md) — player economy, regional pricing, quality, transport, and scarcity dynamics
 - [Prototype Roadmap](Documentation/CCS_Survival_Prototype_Roadmap.md) — phased prototype plan, scope boundaries, and exit criteria
+- [Phase 1 — Survival Core Plan](Documentation/CCS_Survival_Phase_01_Survival_Core.md) — vitals loop engineering plan, events, testing, and done criteria
 - [Framework Architecture Guide](Documentation/Framework_Architecture_Guide.md)
 - [Future Gameplay Module Guidelines](Documentation/Future_Gameplay_Module_Guidelines.md)
 - [Scene Bootstrap Standards](Documentation/Scene_Bootstrap_Standards.md)
