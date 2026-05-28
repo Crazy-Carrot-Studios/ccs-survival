@@ -2797,7 +2797,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 422606779}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6074890abcdef12345832, type: 3}
+  m_Script: {fileID: 11500000, guid: 54cc156470c84a02a8e0f813253b317f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalInteractionScanner
   scanOrigin: {fileID: 0}
@@ -2816,7 +2816,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 422606779}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6074890abcdef12345833, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d3cb4c13e3a4a14b579f3f66570191f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalInteractionInput
   interactionScanner: {fileID: 422606785}
@@ -5461,7 +5461,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847302001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6074890abcdef12345834, type: 3}
+  m_Script: {fileID: 11500000, guid: aa3e448fd5244e71b5b7ad91927ce0bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalPickupInteractable
   pickupId: survival.pickup.food_tin
@@ -5593,7 +5593,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847303001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6074890abcdef12345834, type: 3}
+  m_Script: {fileID: 11500000, guid: aa3e448fd5244e71b5b7ad91927ce0bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalPickupInteractable
   pickupId: survival.pickup.water_canteen
@@ -5725,7 +5725,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847304001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6074890abcdef12345834, type: 3}
+  m_Script: {fileID: 11500000, guid: aa3e448fd5244e71b5b7ad91927ce0bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalPickupInteractable
   pickupId: survival.pickup.kindling

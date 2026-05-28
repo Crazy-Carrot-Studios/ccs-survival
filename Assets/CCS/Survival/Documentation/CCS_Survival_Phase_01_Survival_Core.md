@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1I — Basic Interaction + Pickup Foundation (Implemented)
+**Status:** Phase 1I.1 — Interaction Pickup Runtime Validation (Standalone Passed)
 
 ---
 
@@ -1432,6 +1432,132 @@ Pickups placed off the traversal route centerline (route remains at x ≈ 0).
 ### Result status
 
 **Foundation implemented.** Scene setup menu + bootstrap wiring committed; manual Play Mode pickup pass recommended once per milestone review.
+
+---
+
+## Phase 1I.1 — Interaction Pickup Runtime Validation
+
+### Purpose
+
+Validate the Phase **1I** interaction + pickup foundation in Play Mode and standalone **before** adding inventory or resource storage. Confirm scanner/input wiring, prototype pickups, traversal compatibility, and bootstrap health with no runtime errors.
+
+This milestone is **validation only** — no inventory, crafting, AI, combat, VFX, or final UI art.
+
+### Pre-check
+
+| Check | Result |
+|-------|--------|
+| Git clean except expected untracked local files | **Pass** — `ProjectSettings/SceneTemplateSettings.json`, `Assets/CCS/Survival/Editor/Temp/` (removed after build) |
+| `SCN_CCS_Survival_Bootstrap.unity` loads | **Pass** |
+| Unity compiles cleanly | **Pass** after fixing invalid placeholder `.meta` GUIDs on Phase 1I interaction scripts |
+| `CCS_PlayerRoot` has `CCS_SurvivalInteractionScanner` + `CCS_SurvivalInteractionInput` | **Pass** |
+| `CCS_PrototypePickupsRoot` has `PU_FoodTin`, `PU_WaterCanteen`, `PU_Kindling` | **Pass** |
+| `Gameplay/Interact` — **E** + **buttonWest** | **Pass** (`CCS_Survival_InputActions.inputactions`) |
+| `enableTraversalTest` off in committed scene | **Pass** |
+
+**Build fix note:** Phase 1I interaction `.meta` files used placeholder GUID tokens Unity’s YAML parser rejected (`abcdef…`), so scripts were ignored and `CCS_SurvivalDebugOverlay` failed to compile. Replaced with valid GUIDs and updated scene script references.
+
+### Play Mode validation — player interaction
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| WASD movement unchanged | **Pending** manual Play Mode | Standalone player-mode bootstrap health OK |
+| Camera follows player | **Pending** manual Play Mode | |
+| Debug overlay readable | **Pending** manual Play Mode | Interaction line wired on overlay |
+| Near pickup → overlay prompt updates | **Pending** manual Play Mode | Expected: `Interaction Pick up Food Tin` / canteen / kindling |
+| **E** → one log + pickup hides | **Pending** manual Play Mode | Log string: `Collected pickup '…'` |
+| Walk away → `Interaction None` | **Pending** manual Play Mode | |
+| No console errors / no pickup spam | **Pending** manual Play Mode | Scanner debug logs off by default in scene |
+
+Automated agent cannot run Unity Editor Play Mode; manual Game View pass still required for pickup prompt/collect UX.
+
+### Play Mode validation — traversal compatibility
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| Traversal on → player/scanner/input inactive | **Log-confirmed** standalone | Player root hidden during traversal test (1G/1H baseline) |
+| Overlay Interaction shows **None** during traversal | **Expected** | Scanner on inactive player root |
+| Agent route **PASSED** | **Pass** — 10 loops in 60s standalone smoke | Last: `PASSED: Route completed in 5.25s. Waypoints=7. Loops=10.` |
+| No pickup auto-collection on agent | **Pass** — `PickupCollected=0` in traversal smoke log | Scanner not on traversal agent |
+| Traversal off → player/camera/interaction restore | **Pending** manual Play Mode | Scene committed with `enableTraversalTest: 0` |
+
+### Standalone build (0.5.0-A)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.5.0-A/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_5_0_A.log` (prefix `[CCS 0.5.0-A]`) |
+| **Unity log** | `Logs/Build_0_5_0_A_Unity.log` (not committed) |
+| **Player-mode build** | `enableTraversalTest` remains **off** in scene |
+| **Traversal smoke rebuild** | Temporary Editor step enabled traversal for packaged player only; scene restored to **off** after build |
+
+Build log excerpt:
+
+```text
+[CCS 0.5.0-A] Player-mode standalone build (enableTraversalTest remains off in scene).
+[CCS 0.5.0-A] Build succeeded: .../Builds/Windows/CCS-Survival-0.5.0-A/CCS_Survival.exe
+[CCS 0.5.0-A] Traversal test enabled temporarily for route compatibility smoke build.
+[CCS 0.5.0-A] Traversal smoke build succeeded: .../Builds/Windows/CCS-Survival-0.5.0-A/CCS_Survival.exe
+[CCS 0.5.0-A] Restored enableTraversalTest on scene agent.
+```
+
+### Player.log counts
+
+**Player mode (~25s, traversal off in build)**
+
+| Metric | Count | Expected |
+|--------|------:|----------|
+| Exception | 0 | 0 |
+| LogError | 0 | 0 |
+| NullReferenceException | 0 | 0 |
+| MissingReferenceException | 0 | 0 |
+| Cannot set the parent | 0 | 0 |
+| Interaction performed | 0 | 0 (scanner debug off; no input simulation) |
+| Pickup collected | 0 | 0 (manual interaction pending) |
+| Traversal FAILED | 0 | 0 |
+| Traversal PASSED | 0 | 0 (player mode) |
+| Core health OK | 1 | present |
+| Survival validation rules passed | 1 | present |
+
+**Traversal smoke (~60s, traversal on in packaged build)**
+
+| Metric | Count | Expected |
+|--------|------:|----------|
+| Exception | 0 | 0 |
+| LogError | 0 | 0 |
+| NullReferenceException | 0 | 0 |
+| MissingReferenceException | 0 | 0 |
+| Cannot set the parent | 0 | 0 |
+| Interaction performed | 0 | 0 |
+| Pickup collected | 0 | 0 |
+| Traversal FAILED | 0 | 0 |
+| Traversal PASSED | **10** | ≥ 2 |
+| Core health OK | 1 | present |
+| Survival validation rules passed | 1 | present |
+
+Saved local copies (not committed): `Logs/Player_0_5_0_A_PlayerMode.log`, `Logs/Player_0_5_0_A_TraversalSmoke.log`.
+
+### Manual standalone interaction status
+
+**Pending.** No safe automated input simulation was used in standalone; pickup prompt/collect behavior requires manual **E** / gamepad **West** testing in the player-mode build.
+
+### Known limitations
+
+- No inventory or resource storage yet — pickups log + hide only.
+- Play Mode pickup UX checklist still manual (overlay prompt, single collect, no spam).
+- Standalone interaction not exercised without manual input.
+- Traversal smoke build overwrites the same exe path as player-mode build; use player-mode build for manual pickup testing after traversal validation.
+- Phase 1I interaction `.meta` GUID fix required for Unity to import scripts (committed with this validation).
+
+### Cleanup
+
+- Temporary build scripts removed (`Assets/CCS/Survival/Editor/Temp/CCS_StandaloneBuild_0_5_0_A*.cs`).
+- Unity batch noise restored (`ProjectSettings/*`, `Assets/Settings/*`); scene YAML reorder from batch save discarded — only interaction script GUID references retained.
+- Build output and logs **not** staged for commit.
+
+### Result status
+
+**Passed** automated standalone bootstrap + traversal compatibility criteria for Phase 1I interaction foundation. **Pending** manual Play Mode and standalone pickup interaction pass before inventory work.
 
 ---
 
