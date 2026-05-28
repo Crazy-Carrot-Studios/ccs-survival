@@ -30,6 +30,10 @@ namespace CCS.Survival
 
         void RestoreHealth(float amount);
 
+        void SetBodyTemperature(float bodyTemperature);
+
+        void SetExposure(float exposureValue);
+
         void ConsumeFood(float nutritionValue);
 
         void ConsumeWater(float hydrationValue);

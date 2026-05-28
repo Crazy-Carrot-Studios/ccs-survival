@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H — Survival Gameplay Direction Lock (Planning)
+**Status:** Phase 1H.1 — Environmental Hazard Zones (Implemented)
 
 ---
 
@@ -576,7 +576,7 @@ Categorized backlog for planning. Items may move as milestones are reprioritized
 
 | System | Purpose | Priority |
 |--------|---------|----------|
-| Hazard volumes (cold, heat, damage) | Environmental danger with clear boundaries | **Recommended Early** |
+| Hazard volumes (cold, heat, damage) | Environmental danger with clear boundaries | **Done** (Phase 1H.1) |
 | Day / night cycle (prototype) | Pacing and exposure pressure | **Later / Deferred** |
 | Weather (lightweight) | Atmosphere + survival modifiers | **Later / Deferred** |
 | Fall damage | Vertical hazard validation on platform course | **Later / Deferred** (branch planned near traversal route) |
@@ -686,7 +686,7 @@ Proposed roadmap **after Phase 1H** (order may change after playtests):
 
 | Milestone | Focus |
 |-----------|--------|
-| **1H.1** | Environmental hazard zones (volume-based cold/heat/damage prototype) |
+| **1H.1** | Environmental hazard zones (volume-based cold/heat/damage prototype) — **implemented** |
 | **1H.2** | Survival vitals balancing pass (readable drain/recovery tuning) |
 | **1H.3** | Basic item pickup (data + interact hook, no full UI) |
 | **1H.4** | Inventory module integration (carry limits, service API) |
@@ -712,6 +712,106 @@ Proposed roadmap **after Phase 1H** (order may change after playtests):
 ### Result status
 
 **Planning complete.** Implementation milestones begin at **1H.1** or reprioritized equivalent after review.
+
+---
+
+## Phase 1H.1 — Environmental Hazard Zones
+
+### Purpose
+
+Introduce the first **gameplay-pressure** milestone: modular **environmental hazard zones** that influence survival vitals through existing service boundaries — without weather simulation, combat, or complex VFX.
+
+### Architecture
+
+```text
+CCS_SurvivalHazardZone / CCS_SurvivalSafeZone (trigger volumes)
+        ↓ enter/exit
+CCS_SurvivalHazardReceiver (per entity: player, traversal agent, future avatars)
+        ↓ applies pressure while inside
+CCS_ISurvivalVitalsService (CCS_SurvivalModule on bootstrap root)
+```
+
+- **Low coupling:** zones do not reference the player directly; they notify receivers on trigger overlap.
+- **Multiplayer-conscious:** one receiver per authority-owned body; vitals service remains on session/bootstrap host.
+- **Traversal preserved:** test agent has a receiver with **telemetry-only** logging (`applyToSurvivalVitals` off).
+
+### Scripts (`Assets/CCS/Survival/Runtime/Environment/Hazards/`)
+
+| Script | Role |
+|--------|------|
+| `CCS_SurvivalHazardType` | Cold, Heat, Toxic, Radiation (placeholder), GenericDamage |
+| `CCS_SurvivalHazardProfile` | Optional ScriptableObject preset for zone tuning |
+| `CCS_SurvivalHazardZone` | Trigger hazard volume with rates + gizmo color |
+| `CCS_SurvivalSafeZone` | Suppresses hazard pressure; optional recovery |
+| `CCS_SurvivalHazardReceiver` | Aggregates active zones; applies vitals pressure |
+
+### Supported hazard pressure
+
+| Channel | Use |
+|---------|-----|
+| Health damage / sec | Toxic, generic damage |
+| Exposure / sec | Cold (feeds existing exposure damage on module) |
+| Stamina drain / sec | Cold exertion, heat stress |
+| Temperature change / sec | Cold / heat directional pressure |
+
+### Safe zone behavior
+
+While inside an active safe zone, **hazard pressure is suppressed**. Optional recovery:
+
+- Health recovery per second
+- Stamina recovery per second
+- Exposure reduction or **clear exposure** while inside
+
+### Vitals integration
+
+- Extended **`CCS_ISurvivalVitalsService`** with `SetBodyTemperature` and `SetExposure` for hazard receivers.
+- Receiver uses existing `ApplyDamage`, `TryConsumeStamina`, `RestoreHealth`, `RestoreStamina` — no duplicate vitals state.
+
+### Telemetry (concise)
+
+When enabled on a receiver:
+
+```text
+[CCS Survival Hazard] Entered Cold zone.
+[CCS Survival Hazard] Exited Cold zone.
+```
+
+Traversal test agent enables hazard telemetry; player receiver keeps telemetry off by default.
+
+### Scene setup (`SCN_CCS_Survival_Bootstrap`)
+
+| Object | Notes |
+|--------|--------|
+| `CCS_PrototypeHazardsRoot` | Parent for prototype volumes |
+| `HZ_ColdApproach` | Intersects traversal path near stairs approach |
+| `HZ_ToxicPlatform` | Toxic pressure near platform segment |
+| `SZ_SpawnShelter` | Safe recovery volume west of spawn |
+| `CCS_PlayerRoot` | `CCS_SurvivalHazardReceiver` (vitals on) |
+| `CCS_TraversalTestAgent` | `CCS_SurvivalHazardReceiver` (telemetry only) |
+
+Gizmo colors: cold = blue, heat = orange, toxic = green, safe = cyan.
+
+### Validation checklist
+
+| Check | Status |
+|-------|--------|
+| Player enters hazard → vitals react | **Pending** Play Mode |
+| Exit hazard → normal drain resumes | **Pending** |
+| Safe zone suppresses / recovers | **Pending** |
+| Traversal agent logs enter/exit when test on | **Pending** |
+| Traversal telemetry still passes | **Pending** standalone |
+| No console errors | **Pending** |
+
+### Future extensibility
+
+- Per-zone hazard profiles and data-driven tables
+- Authority-filtered receivers for multiplayer
+- Wildlife/AI receivers sharing the same zone components
+- Weather and visual FX layered on top of zone contracts (not replacing them)
+
+### Result status
+
+**Implemented** in repo. Play Mode / standalone validation pending human or automated pass.
 
 ---
 
