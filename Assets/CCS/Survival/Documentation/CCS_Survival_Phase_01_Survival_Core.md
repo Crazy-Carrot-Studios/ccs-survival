@@ -5,7 +5,17 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1B — Manual Validation Setup (In Progress)
+**Status:** Phase 1C — Vitals ScriptableObject Profile (In Progress)
+
+---
+
+## Implementation Status (Phase 1C)
+
+- Survival tuning moved to `CCS_SurvivalVitalsProfile` ScriptableObject
+- Default profile asset: `Assets/CCS/Survival/Settings/Survival/CCS_DefaultSurvivalVitalsProfile.asset`
+- `CCS_SurvivalModule` references profile instead of per-component tuning fields
+- Safe fallback tuning values used only when profile is missing (warning logged, no exceptions)
+- Create menu: **Assets → Create → CCS → Survival → Survival Vitals Profile**
 
 ---
 
@@ -33,7 +43,7 @@
 - Manual Play Mode validation setup added on bootstrap composition root (`PF_CCS_Survival_BootstrapRoot`)
 - Debug overlay used only for temporary testing (top-right compact panel)
 - Context menu debug helpers on `CCS_SurvivalModule` for damage, recovery, food/water, kill, respawn, exposure
-- Fast drain/damage tuning on test harness for short Play Mode validation cycles
+- Fast drain/damage tuning via `CCS_DefaultSurvivalVitalsProfile` for short Play Mode validation cycles
 - Final UI still deferred
 - Standalone build testing not required yet
 

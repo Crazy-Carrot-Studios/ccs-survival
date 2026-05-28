@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Attach to PF_CCS_Survival_BootstrapRoot with CCS_RuntimeHost (composition root). Registers CCS_ISurvivalVitalsService on Awake.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-27
-// NOTES: Skeleton only. No final UI, weather, inventory, networking, or save/load. See CCS_Survival_Phase_01_Survival_Core.md.
+// NOTES: Requires CCS_SurvivalVitalsProfile (Assets → Create → CCS → Survival → Survival Vitals Profile). See CCS_Survival_Phase_01_Survival_Core.md.
 // =============================================================================
 
 namespace CCS.Survival
@@ -18,49 +18,16 @@ namespace CCS.Survival
     public sealed class CCS_SurvivalModule : MonoBehaviour, CCS_ISurvivalVitalsService
     {
         private const string LogCategory = CCS_SurvivalVitalsDiagnostics.LogCategory;
-        private const float VitalDisplayPrecision = 0.1f;
 
         #region Variables
+
+        [Header("Survival Vitals Profile")]
+        [Tooltip("Required tuning profile for this module. Create via Assets → Create → CCS → Survival → Survival Vitals Profile, then assign CCS_DefaultSurvivalVitalsProfile (Assets/CCS/Survival/Settings/Survival/) or your own asset.")]
+        [SerializeField] private CCS_SurvivalVitalsProfile survivalVitalsProfile;
 
         [Header("Service Registration")]
         [Tooltip("Runtime host for service registry registration. Resolves on this GameObject, then parent, when unset.")]
         [SerializeField] private CCS_RuntimeHost runtimeHost;
-
-        [Header("Vital Maximums")]
-        [Tooltip("Maximum health value.")]
-        [SerializeField] private float maxHealth = 100f;
-
-        [Tooltip("Maximum hunger value.")]
-        [SerializeField] private float maxHunger = 100f;
-
-        [Tooltip("Maximum thirst value.")]
-        [SerializeField] private float maxThirst = 100f;
-
-        [Tooltip("Maximum stamina value.")]
-        [SerializeField] private float maxStamina = 100f;
-
-        [Header("Drain and Damage Rates")]
-        [Tooltip("Hunger drained per second while alive.")]
-        [SerializeField] private float hungerDrainRate = 0.5f;
-
-        [Tooltip("Thirst drained per second while alive.")]
-        [SerializeField] private float thirstDrainRate = 0.75f;
-
-        [Tooltip("Health damage per second when hunger is depleted.")]
-        [SerializeField] private float starvationDamageRate = 2f;
-
-        [Tooltip("Health damage per second when thirst is depleted.")]
-        [SerializeField] private float dehydrationDamageRate = 3f;
-
-        [Tooltip("Health damage per second when exposure is above zero.")]
-        [SerializeField] private float exposureDamageRate = 1f;
-
-        [Tooltip("Stamina recovered per second while alive.")]
-        [SerializeField] private float staminaRecoveryRate = 8f;
-
-        [Header("Death and Respawn")]
-        [Tooltip("Health restored as a percent of max health on respawn.")]
-        [SerializeField] private float respawnHealthPercent = 50f;
 
         [Header("Debug")]
         [Tooltip("When enabled, survival state changes are written to the Unity console.")]
@@ -69,6 +36,21 @@ namespace CCS.Survival
         private CCS_SurvivalState survivalState;
         private bool isInitialized;
         private bool isServiceRegistered;
+        private bool isUsingFallbackProfile;
+
+        private float maxHealth;
+        private float maxHunger;
+        private float maxThirst;
+        private float maxStamina;
+        private float defaultBodyTemperature;
+        private float hungerDrainRate;
+        private float thirstDrainRate;
+        private float starvationDamageRate;
+        private float dehydrationDamageRate;
+        private float exposureDamageRate;
+        private float staminaRecoveryRate;
+        private float respawnHealthPercent;
+        private float meaningfulChangePrecision;
 
         #endregion
 
@@ -96,6 +78,7 @@ namespace CCS.Survival
 
         private void Awake()
         {
+            ResolveVitalsTuning();
             Initialize();
             TryRegisterSurvivalService();
             PublishSurvivalStateChanged();
@@ -133,10 +116,13 @@ namespace CCS.Survival
             }
 
             survivalState = CCS_SurvivalState.CreateDefault();
+            survivalState.BodyTemperature = defaultBodyTemperature;
             ClampStateToMaximums();
             isInitialized = true;
             PublishTemperatureChanged(0f, survivalState.BodyTemperature);
-            LogDebug("Survival vitals service initialized.");
+            LogDebug(isUsingFallbackProfile
+                ? "Survival vitals service initialized with fallback tuning values."
+                : "Survival vitals service initialized from vitals profile.");
         }
 
         public void ApplyDamage(float amount)
@@ -210,6 +196,7 @@ namespace CCS.Survival
         {
             float previousTemperature = survivalState.BodyTemperature;
             survivalState = CCS_SurvivalState.CreateDefault();
+            survivalState.BodyTemperature = defaultBodyTemperature;
             survivalState.Health = maxHealth * Mathf.Clamp01(respawnHealthPercent / 100f);
             ClampStateToMaximums();
             OnPlayerRespawned?.Invoke();
@@ -313,8 +300,63 @@ namespace CCS.Survival
         {
             if (!isInitialized)
             {
+                ResolveVitalsTuning();
                 Initialize();
             }
+        }
+
+        private void ResolveVitalsTuning()
+        {
+            if (CCS_Validation.IsObjectValid(survivalVitalsProfile))
+            {
+                survivalVitalsProfile.ValidateAndClamp();
+                ApplyProfileValues(survivalVitalsProfile);
+                isUsingFallbackProfile = false;
+                return;
+            }
+
+            CCS_Logger.LogWarning(
+                LogCategory,
+                "CCS_SurvivalVitalsProfile is not assigned. Using safe fallback tuning values. " +
+                "Create one via Assets → Create → CCS → Survival → Survival Vitals Profile and assign " +
+                "CCS_DefaultSurvivalVitalsProfile on this component.");
+
+            ApplyFallbackValues();
+            isUsingFallbackProfile = true;
+        }
+
+        private void ApplyProfileValues(CCS_SurvivalVitalsProfile profile)
+        {
+            maxHealth = profile.MaxHealth;
+            maxHunger = profile.MaxHunger;
+            maxThirst = profile.MaxThirst;
+            maxStamina = profile.MaxStamina;
+            defaultBodyTemperature = profile.DefaultBodyTemperature;
+            hungerDrainRate = profile.HungerDrainRate;
+            thirstDrainRate = profile.ThirstDrainRate;
+            starvationDamageRate = profile.StarvationDamageRate;
+            dehydrationDamageRate = profile.DehydrationDamageRate;
+            exposureDamageRate = profile.ExposureDamageRate;
+            staminaRecoveryRate = profile.StaminaRecoveryRate;
+            respawnHealthPercent = profile.RespawnHealthPercent;
+            meaningfulChangePrecision = profile.MeaningfulChangePrecision;
+        }
+
+        private void ApplyFallbackValues()
+        {
+            maxHealth = 100f;
+            maxHunger = 100f;
+            maxThirst = 100f;
+            maxStamina = 100f;
+            defaultBodyTemperature = 37f;
+            hungerDrainRate = 8f;
+            thirstDrainRate = 10f;
+            starvationDamageRate = 4f;
+            dehydrationDamageRate = 5f;
+            exposureDamageRate = 2f;
+            staminaRecoveryRate = 8f;
+            respawnHealthPercent = 50f;
+            meaningfulChangePrecision = 0.1f;
         }
 
         private void ResolveRuntimeHostReference()
@@ -500,12 +542,12 @@ namespace CCS.Survival
                 $"Body temperature changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
         }
 
-        private static float RoundVitalForDisplay(float value)
+        private float RoundVitalForDisplay(float value)
         {
-            return Mathf.Round(value / VitalDisplayPrecision) * VitalDisplayPrecision;
+            return Mathf.Round(value / meaningfulChangePrecision) * meaningfulChangePrecision;
         }
 
-        private static bool HasMeaningfulVitalChange(float previousValue, float newValue)
+        private bool HasMeaningfulVitalChange(float previousValue, float newValue)
         {
             return !Mathf.Approximately(RoundVitalForDisplay(previousValue), RoundVitalForDisplay(newValue));
         }
