@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1G.1 — Standalone Telemetry Validation Build (Validated)
+**Status:** Phase 1H — Survival Gameplay Direction Lock (Planning)
 
 ---
 
@@ -487,6 +487,231 @@ Last sample pass: `PASSED: Route completed in 5.24s. Waypoints=7. Loops=10.`
 ### Result status
 
 **Passed** automated Player.log criteria for standalone telemetry validation. Manual visual checklist **pending**.
+
+---
+
+## Phase 1H — Survival Gameplay Direction Lock
+
+### 1. Purpose
+
+Before adding more gameplay systems, lock a **foundational survival direction** for **CCS Survival** so future modules, scenes, and milestones align around one prototype target and one readable gameplay loop.
+
+Phase **1A–1G.1** proved Core bootstrap, vitals, movement, stamina, traversal course validation, and standalone telemetry. Phase **1H** is **planning only** — no major gameplay implementation in this milestone.
+
+This section is a **living gameplay direction document** and may expand as playtests inform priorities.
+
+---
+
+### 2. Core survival pillars
+
+Intended pillars for the Phase 1 prototype and near-term survival core:
+
+| Pillar | Direction (prototype) |
+|--------|------------------------|
+| **Traversal & environmental movement** | Ground-based travel with readable elevation (steps, ramps, stairs); stamina-aware sprint; future hazards tied to terrain zones |
+| **Exploration** | Short-loop discovery of landmarks, resources, and risk — not open-world scale yet |
+| **Survival pressure** | Vitals (health, stamina, hunger/thirst placeholders) create **decisions**, not instant fail states |
+| **Stamina / resource management** | Sprint and exertion consume recoverable stamina; future consumables extend the same service boundaries |
+| **Inventory pressure** | Limited carry capacity and item scarcity drive route planning (later milestone) |
+| **Environmental danger** | Heat, cold, fall, exposure, and hazard volumes as **readable** threats before complex simulation |
+| **Shelter / safe zones** | Recovery spaces that reduce pressure or pause certain drains (camp, interior, fire — phased) |
+| **Progression pacing** | Early sessions = learn loop; mid prototype = optimize routes; later = unlock tools/structures |
+| **Realism vs accessibility** | **Grounded frontier survival** with **readable feedback** (overlay, audio, UI) — avoid opaque simulation |
+| **Immersive simulation vs arcade balance** | Prefer **tactical readability** over hardcore micromanagement in Phase 1; deepen simulation only where it improves decisions |
+
+**Design bias:** pressure should be **felt** through vitals, environment, and inventory — not through unfair hidden rules.
+
+---
+
+### 3. Intended player fantasy
+
+The prototype should communicate this experience:
+
+| Theme | Notes |
+|-------|--------|
+| **Lone survivor** | Single-player focus first; systems avoid hidden global singletons to stay multiplayer-conscious |
+| **Western / frontier realism** | Tone and content live in **ccs-survival** (Reckoning product lore); not framework branding |
+| **Harsh environmental survival** | Weather, exposure, and terrain matter; death/recovery rules stay understandable |
+| **Tactical resource management** | Stamina today; food/water/tools tomorrow — plan routes and recovery |
+| **Exploration-driven progression** | Learn the space, find better resources, establish safer loops |
+| **Camp / shelter building** | Deferred as a structured milestone; directionally part of the fantasy |
+| **Emergent encounters** | Wildlife, NPCs, and events **later** — architecture leaves hooks, no premature AI scope |
+| **Multiplayer future compatibility** | Service-owned state, explicit ownership, save-stable IDs — no netcode in Phase 1 |
+
+**Player sentence (north star):** *Survive the frontier by reading the land, managing your body, and making deliberate trips between risk and recovery.*
+
+---
+
+### 4. Prototype success criteria
+
+Phase 1 should **prove** the following before expanding scope:
+
+| Criterion | Meaning |
+|-----------|---------|
+| **Traversal feels good** | Connected course + real player control; automated traversal harness catches regressions |
+| **Survival pressure creates decisions** | Sprint gating, vitals drift, and future hazards change player choices |
+| **Player understands vitals** | Debug overlay (then HUD) makes cause/effect readable |
+| **Environment influences gameplay** | Zones, shelter, and terrain modifiers affect survival — not cosmetic-only world |
+| **Gameplay loop stays readable** | One core loop document; systems do not fight each other |
+| **Systems are modular and scalable** | Modules/services per CCS platform rules; gameplay stays in **ccs-survival** |
+
+**Not required in Phase 1:** MMO scale, full crafting trees, combat depth, or final art pass.
+
+---
+
+### 5. Candidate early survival systems
+
+Categorized backlog for planning. Items may move as milestones are reprioritized.
+
+#### Core survival
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Vitals (health, stamina, hunger/thirst) | Central survival pressure and recovery | **Recommended Early** (health/stamina in progress) |
+| Vitals tuning & failure rules | Readable drain/recovery; optional downed state later | **Recommended Early** |
+| Consumables (food/water/medical) | Restore vitals; first crafting-adjacent loop | **Later / Deferred** |
+| Status effects (bleeding, cold, heat) | Layered pressure from environment/combat | **Later / Deferred** |
+
+#### Environment
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Hazard volumes (cold, heat, damage) | Environmental danger with clear boundaries | **Recommended Early** |
+| Day / night cycle (prototype) | Pacing and exposure pressure | **Later / Deferred** |
+| Weather (lightweight) | Atmosphere + survival modifiers | **Later / Deferred** |
+| Fall damage | Vertical hazard validation on platform course | **Later / Deferred** (branch planned near traversal route) |
+
+#### Traversal
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| CharacterController locomotion | Player movement baseline | **Done** (Phase 1E+) |
+| Stamina-linked sprint | Survival-aware movement | **Done** (Phase 1F+) |
+| Traversal test harness | Automated route validation | **Done** (Phase 1F.6–1G.1) |
+| Climb / mantle / vehicles | Advanced locomotion | **Later / Deferred** |
+
+#### Inventory
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Item definitions (data) | Save-stable IDs, module-friendly | **Recommended Early** |
+| Pickup & carry | Gather supplies in the world | **Recommended Early** |
+| Inventory UI (prototype) | Readability for testing | **Later / Deferred** |
+| Equipment slots | Wearables affecting survival stats | **Later / Deferred** |
+
+#### Interaction
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Interactable framework | Use/open/harvest/pickup contracts | **Recommended Early** |
+| World containers & stations | Stash, campfire, workbench placeholders | **Later / Deferred** |
+| Dialogue / quests | Narrative systems | **Later / Deferred** |
+
+#### AI / wildlife
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Passive wildlife placeholders | Atmosphere only | **Later / Deferred** |
+| Threat wildlife / NPC combat | Combat loop | **Later / Deferred** |
+| Traversal test agent | Dev validation only — **not** gameplay AI | **Done** (dev-only) |
+
+#### World simulation
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Spawn & landmark markers | Readable prototype spaces | **In progress** (prototype course) |
+| Resource nodes (respawn rules) | Gather loop | **Later / Deferred** |
+| Faction / territory simulation | Product-scale MMO direction | **Later / Deferred** |
+
+#### Save / progression
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Session vitals persistence | Continue survival state | **Later / Deferred** |
+| Player progression / unlocks | Long-term goals | **Later / Deferred** |
+| World state persistence | Structures, containers, map | **Later / Deferred** |
+
+#### Multiplayer future considerations
+
+| System | Purpose | Priority |
+|--------|---------|----------|
+| Authority-safe service ownership | Host/client-ready boundaries | **Recommended Early** (ongoing discipline) |
+| Deterministic simulation hooks | Future replication | **Later / Deferred** |
+| Netcode / replication | Actual multiplayer | **Later / Deferred** |
+
+---
+
+### 6. Recommended initial gameplay loop
+
+First-pass **high-level** loop for the survival prototype (iterative, not final design):
+
+```text
+Spawn / wake at safe point
+    → Orient (vitals overlay / landmarks)
+    → Explore (stamina-aware traversal)
+    → Gather or interact (pickup / resources — when implemented)
+    → Face environmental pressure (hazard zones, exposure, future fall damage)
+    → Manage vitals (rest, consume, retreat)
+    → Recover at shelter / safe zone (reduced drain or faster recovery)
+    → Plan next sortie (inventory + stamina + route)
+    → Repeat
+```
+
+**Phase 1 slice:** prove **explore → pressure → recover** with movement, vitals, and one environmental hazard before adding deep crafting or combat.
+
+---
+
+### 7. Technical direction notes
+
+Align gameplay implementation with CCS platform rules already in use:
+
+| Topic | Direction |
+|-------|-----------|
+| **Event-driven communication** | `CCS_EventDispatcher` and service callbacks for cross-system signals |
+| **Modular services / modules** | `CCS_IModule`, `CCS_ISurvivalVitalsService`, manual install plans — no scene-wide discovery |
+| **Save-stable IDs** | Item, hazard, and zone identifiers suitable for future persistence |
+| **Multiplayer-conscious patterns** | Instance-owned hosts; avoid static global gameplay state |
+| **Low coupling** | Movement asks vitals service; hazards publish events; UI reads services |
+| **CharacterController traversal** | Prototype locomotion stays controller-based (not Rigidbody gameplay motor) |
+| **Telemetry / test-first** | Traversal harness pattern extends to future automated validation (hazards, vitals thresholds) |
+| **Dev vs shipping** | Test agents, debug overlays, and validation builds stay clearly dev-scoped |
+
+**Repository boundary:** reusable platform in **ccs-framework**; survival gameplay in **ccs-survival** only.
+
+---
+
+### 8. Immediate recommended next milestones
+
+Proposed roadmap **after Phase 1H** (order may change after playtests):
+
+| Milestone | Focus |
+|-----------|--------|
+| **1H.1** | Environmental hazard zones (volume-based cold/heat/damage prototype) |
+| **1H.2** | Survival vitals balancing pass (readable drain/recovery tuning) |
+| **1H.3** | Basic item pickup (data + interact hook, no full UI) |
+| **1H.4** | Inventory module integration (carry limits, service API) |
+| **1H.5** | Shelter / safe zone recovery (modifier volumes or stations) |
+| **1H.6** | Basic interaction framework (shared interactable contract) |
+| **1H.7** | Day/night prototype (lighting + survival modifier, lightweight) |
+| **1H.8** | Standalone validation build per milestone (same pattern as **0.4.0-E**) |
+
+**Gate before large features:** each milestone should keep **manual player mode** intact and extend automated validation where practical.
+
+---
+
+### 9. Phase 1H done criteria (planning)
+
+- [x] Core survival pillars documented
+- [x] Player fantasy and prototype success criteria defined
+- [x] Candidate systems categorized (early vs deferred)
+- [x] Initial gameplay loop drafted
+- [x] Technical direction aligned with CCS architecture
+- [x] Next-milestone roadmap proposed
+- [ ] Implementation of new gameplay systems (explicitly **out of scope** for 1H)
+
+### Result status
+
+**Planning complete.** Implementation milestones begin at **1H.1** or reprioritized equivalent after review.
 
 ---
 
