@@ -5,7 +5,85 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1D — Character + Camera Integration (Implemented)
+**Status:** Phase 1E — Player Movement + New Input System (Planning)
+
+---
+
+## Phase 1E — Player Movement + New Input System Plan
+
+### 1. Purpose
+
+Add minimum playable movement to the survival prototype so the player can move around the Phase 1D scene while survival vitals continue running on the bootstrap composition root.
+
+Phase 1D proved camera framing, placeholder presence, and vitals overlay in Game View and standalone **0.4.0-A**; Phase 1E adds locomotion without coupling movement to survival state ownership.
+
+### 2. Architecture
+
+- **Player movement** belongs on **`CCS_PlayerRoot`** or a future player prefab — **not** on `PF_CCS_Survival_BootstrapRoot`.
+- **Survival vitals** stay on the bootstrap root (`CCS_SurvivalModule`, `CCS_ISurvivalVitalsService`, debug overlay).
+- Movement may **query** survival or stamina through `CCS_ISurvivalVitalsService` in a later pass (e.g. sprint gating) but must **not** own or mutate survival state directly.
+- Use **event/service boundaries** — no vitals logic inside input or motor MonoBehaviours beyond thin service calls.
+- Keep **multiplayer-conscious ownership** (player root = locomotion authority placeholder; bootstrap = session/module host) but **do not** implement networking or replication.
+
+```text
+PF_CCS_Survival_BootstrapRoot          CCS_PlayerRoot (scene / future prefab)
+├── CCS_RuntimeHost                    ├── CharacterController + movement driver
+├── CCS_SurvivalBootstrap              ├── CCS_PlayerCameraTarget
+├── CCS_SurvivalModule (vitals)        └── PlaceholderVisual
+└── CCS_SurvivalDebugOverlay
+
+CM_PrototypeFollow → CCS_PlayerCameraTarget (unchanged from Phase 1D)
+```
+
+### 3. Movement Direction
+
+- Use Unity **`CharacterController`** for prototype locomotion.
+- **Do not** use Rigidbody-based locomotion.
+- **Root motion OFF** — all displacement from scripted/controller movement.
+- **Prototype scope only:**
+  - Walk / move
+  - **Sprint** optional if low risk (may later consult stamina via service)
+  - Gravity and simple grounding via `CharacterController.isGrounded`
+  - **No jump** unless trivial and isolated (default: **deferred**)
+  - **No crouch**, **no combat**, **no animation controller** yet
+
+### 4. Input Direction
+
+- Use the **Unity New Input System** (`com.unity.inputsystem`).
+- Create a survival prototype **Input Actions** asset during **Phase 1E implementation** (not in this planning pass).
+- **Proposed asset path:** `Assets/CCS/Survival/Settings/Input/CCS_Survival_InputActions.inputactions`
+- **Proposed action map:** `Gameplay`
+- **Proposed actions:**
+
+| Action | Phase 1E |
+|--------|----------|
+| **Move** | In scope |
+| **Look** | In scope (may drive camera later; movement can defer look) |
+| **Sprint** | In scope (optional / low risk) |
+| **Jump** | Optional / **deferred** by default |
+| **Interact** | Optional / **deferred** |
+
+Wire input through a small player-side component; do not put Input Actions or `PlayerInput` on the bootstrap root.
+
+### 5. Cinemachine Direction
+
+- Keep **Cinemachine 3.1.6** and existing **`CM_PrototypeFollow`** as the prototype camera.
+- **Target remains** `CCS_PlayerCameraTarget` on the player hierarchy.
+- Movement should become **camera-relative** when look/yaw is available (standard third-person feel).
+- **First implementation** may use simple **world-relative** movement on WASD only if explicitly documented as **temporary**; follow up with camera-relative facing in the same phase or immediate sub-pass.
+
+### 6. Done Criteria
+
+- [ ] Player can **move** in Play Mode in `SCN_CCS_Survival_Bootstrap`
+- [ ] **Camera follows** the player (`CM_PrototypeFollow` → `CCS_PlayerCameraTarget`)
+- [ ] **Survival debug overlay** remains visible and readable (top-right)
+- [ ] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**)
+- [ ] No final UI, inventory, combat, or networking
+- [ ] Scene stays prototype-focused (no animation controller, no combat systems)
+
+### 7. Standalone Build
+
+After Phase 1E **implementation**, create standalone build checkpoint **0.4.0-B** to validate movement, camera follow, and survival overlay **outside** the Unity Editor (same smoke pattern as **0.4.0-A**).
 
 ---
 
@@ -122,7 +200,7 @@ The placeholder player may remain static for prototype camera/survival validatio
 
 ### 9. Standalone Build Checkpoint
 
-After Phase 1D **implementation** proves Cinemachine camera + player placeholder + survival overlay together in Play Mode, create a **standalone build** smoke test. This validates rendering, bootstrap prefab wiring, and vitals overlay outside the Editor before Phase 2 scope expands.
+After Phase 1D **implementation** proves Cinemachine camera + player placeholder + survival overlay together in Play Mode, create a **standalone build** smoke test (**0.4.0-A** — completed). Phase 1E targets **0.4.0-B** after movement is implemented.
 
 ---
 
