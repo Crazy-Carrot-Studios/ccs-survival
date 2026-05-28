@@ -107,7 +107,6 @@ namespace CCS.Survival.Testing.Traversal
         private Vector3 lastKnownPosition;
         private float stuckTimer;
         private CCS_TraversalRouteResultStatus routeResultStatus;
-        private bool currentRouteFailureHandled;
 
         #endregion
 
@@ -265,7 +264,6 @@ namespace CCS.Survival.Testing.Traversal
             lastKnownPosition = transform.position;
             stuckTimer = 0f;
             routeResultStatus = CCS_TraversalRouteResultStatus.Running;
-            currentRouteFailureHandled = false;
 
             if (enableDebugLogs && enableTelemetryLogging)
             {
@@ -337,12 +335,11 @@ namespace CCS.Survival.Testing.Traversal
 
         private void FailRoute(CCS_TraversalRouteResultStatus failureStatus, string message)
         {
-            if (currentRouteFailureHandled)
+            if (routeResultStatus != CCS_TraversalRouteResultStatus.Running)
             {
                 return;
             }
 
-            currentRouteFailureHandled = true;
             failedRouteCount++;
             routeResultStatus = failureStatus;
 
