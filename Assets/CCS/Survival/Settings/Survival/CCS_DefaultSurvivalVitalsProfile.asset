@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8f3c2914e6d7b0c9e1f2a3b4c5d6e8, type: 3}
+  m_Script: {fileID: 11500000, guid: c1d8e9f20a3b4c5d6e7f8091a2b3c4d5, type: 3}
   m_Name: CCS_DefaultSurvivalVitalsProfile
-  m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalVitalsProfile
+  m_EditorClassIdentifier: 
   maxHealth: 100
   maxHunger: 100
   maxThirst: 100

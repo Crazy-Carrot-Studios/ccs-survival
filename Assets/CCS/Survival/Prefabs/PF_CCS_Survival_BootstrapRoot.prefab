@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 283b63929d708b14090332ae2136707e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalModule
-  survivalVitalsProfile: {fileID: 11400000, guid: 8d5f0b3c2e4a5f6b9c8d7e6f5a4b3c2d, type: 2}
+  survivalVitalsProfile: {fileID: 11400000, guid: e2f3a4b5c6d7e8f9012345678abcdef0, type: 2}
   runtimeHost: {fileID: 973492003}
   enableDebugLogs: 1
 --- !u!114 &973492006
