@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.6 — Overlapping Zone Testbed Scene Setup + Validation (Implemented)
+**Status:** Phase 1H.7 — Overlapping Zone Runtime Validation Build (Standalone Passed)
 
 ---
 
@@ -1133,6 +1133,104 @@ No tuning changes applied in 1H.6 (rates match 1H.5 editor defaults).
 ### Result status
 
 **Scene testbed committed.** Manual Play Mode checklist above recommended once per milestone review.
+
+---
+
+## Phase 1H.7 — Overlapping Zone Runtime Validation Build
+
+### Purpose
+
+Validate the Phase **1H.6** overlapping vitals modifier testbed in a **Windows standalone Development** build with traversal test enabled at build time only. Confirm hazard + vitals zone telemetry, route reliability, and core bootstrap health with no runtime errors.
+
+This milestone is **validation only** — no new gameplay systems and no committed scene tuning changes.
+
+### Pre-build checks
+
+| Check | Result |
+|-------|--------|
+| Unity Editor closed before batch build | **Pass** |
+| No shared/junction `Library` worktree | **Pass** — main project path only |
+| Git worktree list clean | **Pass** — single `main` worktree |
+| `enableTraversalTest` off in committed scene | **Pass** |
+| 10 zones under `CCS_PrototypeVitalsZonesRoot` | **Pass** (unchanged from 1H.6) |
+
+**Build note:** Cleared a stale `Library/Bee` lock from a prior failed attempt (lingering Unity ILPP/dotnet worker) before the successful batch run. Do not junction-link `Library` or run multiple Unity instances against the same project.
+
+### Standalone build (0.4.0-G)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.4.0-G/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_4_0_G.log` (prefix `[CCS 0.4.0-G]`) |
+| **Unity log** | `Logs/Build_0_4_0_G_Unity.log` (not committed) |
+| **Bootstrap scene** | `SCN_CCS_Survival_Bootstrap.unity` (build index **0**) |
+| **Validation mode** | Temporary Editor build step enabled **`enableTraversalTest`** for the packaged player only; scene restored to **`enableTraversalTest` off** after build |
+
+Build log excerpt:
+
+```text
+[CCS 0.4.0-G] Traversal test enabled temporarily for standalone vitals zone validation.
+[CCS 0.4.0-G] Build succeeded: .../Builds/Windows/CCS-Survival-0.4.0-G/CCS_Survival.exe
+[CCS 0.4.0-G] Restored enableTraversalTest on scene agent.
+```
+
+### Runtime validation (automated)
+
+| Item | Value |
+|------|--------|
+| **Duration** | ~60 seconds |
+| **Exception** | 0 |
+| **LogError** | 0 |
+| **NullReferenceException** | 0 |
+| **MissingReferenceException** | 0 |
+| **Cannot set the parent** | 0 |
+| **Traversal FAILED** (`[CCS Traversal Test] FAILED`) | 0 |
+| **Traversal PASSED** | **10** (≥ 2 required) |
+| **Hazard Entered** (`[CCS Survival Hazard] Entered`) | **32** |
+| **Hazard Exited** (`[CCS Survival Hazard] Exited`) | **31** |
+| **Vitals Zone Entered** (`[CCS Survival Vitals Zone] Entered`) | **95** |
+| **Vitals Zone Exited** (`[CCS Survival Vitals Zone] Exited`) | **93** |
+| **Core health OK** | **1** |
+| **Survival validation rules passed** | **1** |
+
+Last sample pass: `PASSED: Route completed in 5.25s. Waypoints=7. Loops=10.`
+
+Traversal agent intersected both hazard volumes and overlapping broad/nested vitals modifier zones; enter/exit telemetry remained concise (no per-frame spam).
+
+### Play Mode validation
+
+| Mode | Status | Notes |
+|------|--------|-------|
+| **Player** (traversal off) | **Pending** manual Play Mode | Standalone bootstrap health OK; walk drain/restore/safe zones in Editor to confirm overlay readability |
+| **Traversal** (test on) | **Log-confirmed** in standalone | Agent telemetry, overlapping modifier/hazard lines, 10 route passes, player/camera restore expected on disable in Editor |
+
+### Balance / readability notes
+
+- **Zone response:** Traversal intersects modifier zones frequently (95 enter events in 60s); effects are active and readable in telemetry during overlapping broad + nested volumes.
+- **Overlay:** Not visually confirmed in standalone automation; manual Game View check still recommended for **Modifier**, **Hazard**, **Safe**, and **Test Iso** line clarity.
+- **Strength:** Default 1H.5 rates remain appropriate for prototype validation — no drain/restore tuning changes applied.
+- **Traversal reliability:** 10 consecutive **PASSED** summaries (~5.25s per loop); no stuck or timeout failures.
+
+### Manual visual checklist
+
+| Check | Status |
+|-------|--------|
+| Player walk into drain/restore zones → Food/Water/STM respond | **Pending** |
+| Overlapping broad + nested → Modifier/Hazard lines readable | **Pending** |
+| Safe zone shows **Yes** in shelter | **Pending** |
+| Traversal on → camera follows agent, player hidden | **Log-confirmed** route pass; visual **Pending** |
+| Traversal off → player + camera restore | **Pending** |
+| Debug overlay readable in Game View | **Pending** |
+
+### Cleanup
+
+- Temporary build script removed (`Assets/CCS/Survival/Editor/Temp/CCS_StandaloneBuild_0_4_0_G_Editor.cs`).
+- Unity batch noise restored (`ProjectSettings/*`, `Assets/Settings/*`, scene YAML reorder from batch save).
+- Build output and logs **not** staged for commit.
+
+### Result status
+
+**Passed** automated standalone Player.log criteria for overlapping vitals + hazard zone validation. Manual Play Mode visual checklist **pending**.
 
 ---
 
