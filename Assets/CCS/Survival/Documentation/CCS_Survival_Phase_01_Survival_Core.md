@@ -5,7 +5,74 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1E — Player Movement + New Input System (Implemented)
+**Status:** Phase 1F — Movement Polish + Stamina Hook (Planning)
+
+---
+
+## Phase 1F — Movement Polish + Stamina Hook Plan
+
+### 1. Purpose
+
+Connect movement feel to survival stamina without tightly coupling the movement controller to survival internals.
+
+Phase 1E proved basic locomotion, input bindings, prototype test ground, visual readability, and standalone **0.4.0-B** validation. Phase 1F adds the first survival-aware sprint loop: stamina drain while sprinting, recovery while not sprinting, and sprint gating when depleted — while keeping movement on the player root and vitals on the bootstrap composition root.
+
+### 2. Goals
+
+- **Sprint** should eventually **consume stamina** while active.
+- **Stamina** should **recover** when the player is not sprinting (baseline recovery rules owned by survival service/module).
+- Player should **not sprint** when stamina is depleted (or should fall back to walk speed only).
+- Movement controller should communicate through **`CCS_ISurvivalVitalsService`** or a **clean adapter** — not directly edit survival state fields or bypass the service boundary.
+- Keep the **debug overlay** readable during sprint/recovery testing.
+- Keep the controller **prototype-focused** (no final animation, camera look, or HUD polish in this pass).
+
+### 3. Movement polish targets
+
+- Validate **`WorldRelative`** vs **`CameraRelative`** movement using `CCS_SurvivalPrototypeMovementSpace`.
+- **Keep WorldRelative for now** if it gives cleaner straight-line testing (current scene default after Phase 1E.5).
+- **Return to CameraRelative** once camera look/control is implemented (Phase 1F does not implement look).
+- **Smooth rotation** only if it does not reintroduce movement arc/drift during A/D validation.
+- **Avoid over-polishing** locomotion feel until final third-person controller direction is locked.
+
+### 4. Architecture
+
+```text
+PF_CCS_Survival_BootstrapRoot              CCS_PlayerRoot
+├── CCS_RuntimeHost                        ├── CCS_SurvivalPrototypeCharacterController
+├── CCS_SurvivalBootstrap                  │     ├── asks: CanSprint? / TryConsumeStaminaForSprint
+├── CCS_SurvivalModule (vitals + stamina)  │     └── applies walk/sprint speed from input + service
+└── CCS_SurvivalDebugOverlay                 └── CharacterController + camera target
+```
+
+- **Movement** remains on **`CCS_PlayerRoot`**.
+- **Survival vitals** (including stamina) remain on **`PF_CCS_Survival_BootstrapRoot`** via `CCS_SurvivalModule` / `CCS_ISurvivalVitalsService`.
+- **Stamina changes** belong to the survival module/service — not inside the movement MonoBehaviour as hidden state.
+- Movement **asks** whether sprint is allowed and **requests** stamina use (read/query + thin write API on service); survival module applies drain/recovery rules.
+- **Do not** create direct hidden object dependencies, `FindObjectOfType`, or scene searches in `Update`.
+- Prefer explicit references (serialized service host, injected adapter, or registry resolve once at enable) over global singletons.
+
+### 5. Deferred
+
+- Final animation
+- Final camera look / aim
+- Final stamina UI
+- Dynamic glyph UI
+- Multiplayer ownership / replication
+- Inventory or load-weight movement penalties
+
+### 6. Done criteria (future implementation)
+
+- [ ] Sprint **drains stamina** while sprint input is held and the player is moving.
+- [ ] Stamina **recovers** when not sprinting (per profile tuning).
+- [ ] Sprint **stops or falls back to walk** when stamina is empty.
+- [ ] Movement still works with **keyboard/gamepad** (existing Input Actions unchanged in spirit).
+- [ ] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**).
+- [ ] Survival debug overlay remains readable; no per-tick health log spam.
+- [ ] No direct survival state mutation from movement code outside service contracts.
+
+### 7. Standalone build checkpoint
+
+After Phase 1F **implementation**, if sprint/stamina behavior changes significantly from **0.4.0-B**, create a follow-up standalone smoke build (e.g. **0.4.0-C**) to validate stamina gating and overlay outside the Editor.
 
 ---
 
