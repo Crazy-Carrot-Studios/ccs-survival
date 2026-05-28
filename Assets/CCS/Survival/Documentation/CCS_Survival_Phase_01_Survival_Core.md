@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1D — Character + Camera Integration (Planning)
+**Status:** Phase 1D — Character + Camera Integration (Implemented)
 
 ---
 
@@ -18,71 +18,132 @@ Connect the survival vitals prototype to an actual playable scene with a player 
 ### 2. Goals
 
 - Add a simple player character/root object
-- Add a gameplay camera
-- Keep survival module on the bootstrap/composition root
+- Add a gameplay camera using **Cinemachine 3.1.6** (`com.unity.cinemachine`)
+- Keep survival module on the bootstrap/composition root (not on player or camera)
 - Avoid coupling vitals directly to camera or input
 - Prepare for New Input System integration soon
 - Keep systems multiplayer-conscious but not networked yet
 
-### 3. Preferred Architecture
+### 3. Camera Foundation — Cinemachine
+
+**Cinemachine is the chosen camera foundation** for the survival prototype and for future third-person controller work. Phase 1D uses a single follow camera only; advanced camera modes are deferred.
+
+| Package | Version |
+|---------|---------|
+| `com.unity.cinemachine` | **3.1.6** |
+
+**Cinemachine 3 naming (implementation reference)**
+
+| Component | Role |
+|-----------|------|
+| `CinemachineBrain` | On **Main Camera**; blends/routes Cinemachine Camera output to Game View |
+| `CinemachineCamera` | One prototype rig in the scene; follow/look-at targets drive framing |
+
+Do not use legacy Cinemachine 2 `CinemachineVirtualCamera` setup patterns in new survival scenes.
+
+### 4. Preferred Architecture
 
 ```text
-PF_CCS_Survival_BootstrapRoot (composition root)
+SCN_CCS_Survival_Bootstrap.unity
+
+PF_CCS_Survival_BootstrapRoot (composition root — unchanged)
 ├── CCS_RuntimeHost
 ├── CCS_SurvivalBootstrap
-├── CCS_SurvivalModule          ← vitals service; no camera/input coupling
-└── CCS_SurvivalDebugOverlay    ← temporary OnGUI readout
+├── CCS_SurvivalModule          ← vitals service; stays here, not on player/camera
+└── CCS_SurvivalDebugOverlay
 
-Player Root (scene instance)
-├── Placeholder mesh/capsule/visual
+Main Camera
+└── CinemachineBrain            ← required on Main Camera
+
+CM_PrototypeFollow (CinemachineCamera)
+├── Follow  → CCS_PlayerCameraTarget
+└── Look At → CCS_PlayerCameraTarget (or same target for minimal prototype)
+
+CCS_PlayerRoot (placeholder)
+├── Placeholder visual (capsule/primitive or minimal prefab mesh)
+├── CCS_PlayerCameraTarget      ← child transform; camera aim/follow anchor
 └── (future) character module, movement, avatar binding
-
-Camera Root (scene instance)
-└── Gameplay camera aimed at / following player
 ```
 
-- **Bootstrap root** owns runtime host, survival bootstrap, survival module, and debug overlay.
-- **Player root** owns character/movement/avatar components later.
-- **Camera root** follows or observes the player.
-- **Survival vitals** remain service-driven via `CCS_ISurvivalVitalsService`; no direct hardwiring to scene object references in vitals internals.
+- **Bootstrap root** owns runtime host, survival bootstrap, survival module, and debug overlay only.
+- **Player root** owns placeholder geometry and the camera follow target child.
+- **Main Camera + CinemachineBrain** provide rendering; **one Cinemachine Camera** provides prototype follow.
+- **Survival vitals** remain service-driven via `CCS_ISurvivalVitalsService`; no references from vitals code to camera or player transforms.
 
-### 4. Initial Implementation Scope
+### 5. Phase 1D Implementation Steps
+
+1. Ensure the scene has a **Main Camera** with **CinemachineBrain** (default Cinemachine 3 scene setup is acceptable).
+2. Add **one** `CinemachineCamera` for prototype follow (e.g. `CM_PrototypeFollow`).
+3. Create a simple **player placeholder root** in the scene (e.g. `CCS_PlayerRoot`).
+4. Add a follow target child on the player root: **`CCS_PlayerCameraTarget`** (empty transform at chest/head height is sufficient).
+5. Configure the Cinemachine Camera **Follow** and **Look At** to `CCS_PlayerCameraTarget` (same target for minimal prototype is fine).
+6. Tune a modest follow offset/distance so the player is visible and the debug overlay stays out of center view.
+7. Keep bootstrap prefab/scene wiring minimal — no custom camera scripts required for Phase 1D.
+8. Verify Play Mode: Game View renders, camera tracks target, survival service still registers on bootstrap root.
+
+### 6. Initial Implementation Scope
 
 **In scope**
 
-- Basic camera rendering so Game View is no longer “No cameras rendering”
-- Simple placeholder player object (primitive or minimal prefab)
-- Camera view aimed at the player (static follow offset acceptable for prototype)
+- Main Camera + CinemachineBrain (fixes “No cameras rendering”)
+- One Cinemachine Camera with follow/look-at on `CCS_PlayerCameraTarget`
+- Simple placeholder player root + camera target child
 - Survival overlay and diagnostics unchanged on bootstrap root
 
-**Out of scope**
+**Out of scope (Phase 1D)**
 
-- Final character controller (unless an existing safe foundation component is already available and trivial to wire)
+- Aim camera
+- Camera mode switching
+- Shoulder camera
+- Combat camera
+- Final character controller
 - Final animation
-- Combat
-- Inventory
-- Final HUD
+- **Input Actions asset** (New Input System deferred until movement implementation)
+- Combat, inventory, final HUD
 - Networking / replication
 
-### 5. Input Direction
+### 7. Input Direction
 
-Player movement and control will use the **Unity New Input System** when Phase 1D+ implementation adds actual locomotion. Do **not** create an Input Actions asset in the planning pass; defer asset creation until movement implementation is scheduled and required.
+Player movement and control will use the **Unity New Input System** when a later milestone adds locomotion. **Do not** create an Input Actions asset for Phase 1D unless actual movement is implemented in the same pass.
 
-Until then, the placeholder player may remain static or use minimal test-only motion that does not establish long-term input coupling on the survival module.
+The placeholder player may remain static for prototype camera/survival validation.
 
-### 6. Done Criteria
+### 8. Done Criteria
 
-- [ ] Game View renders a basic scene (no “No cameras rendering”)
-- [ ] Player placeholder is visible in the world
-- [ ] Camera is stable and frames the player acceptably
-- [ ] Survival debug overlay remains readable and top-right, out of center gameplay sightlines
-- [ ] `CCS_ISurvivalVitalsService` still registers (`Services=1` in diagnostics)
-- [ ] Diagnostics remain clean (no new error spam)
-- [ ] Scene remains simple and prototype-focused
+- [x] Game View renders a basic scene (no “No cameras rendering”)
+- [x] Main Camera has **CinemachineBrain**
+- [x] One **CinemachineCamera** follows/looks at **CCS_PlayerCameraTarget**
+- [x] Player placeholder root is visible in the world
+- [x] Camera framing is stable for prototype testing
+- [x] Survival debug overlay remains readable and top-right
+- [x] `CCS_ISurvivalVitalsService` still registers on bootstrap root (`Services=1`)
+- [x] Diagnostics remain clean (no new error spam)
+- [x] Scene remains simple and prototype-focused
 
-### 7. Standalone Build Checkpoint
+### 9. Standalone Build Checkpoint
 
-After Phase 1D **implementation** proves camera + player + survival overlay together in Play Mode, create a **standalone build** smoke test. This validates rendering, bootstrap prefab wiring, and vitals overlay outside the Editor before Phase 2 scope expands.
+After Phase 1D **implementation** proves Cinemachine camera + player placeholder + survival overlay together in Play Mode, create a **standalone build** smoke test. This validates rendering, bootstrap prefab wiring, and vitals overlay outside the Editor before Phase 2 scope expands.
+
+---
+
+## Implementation Status (Phase 1D)
+
+- Cinemachine **3.1.6** prototype camera setup implemented in `SCN_CCS_Survival_Bootstrap.unity`
+- **Main Camera** tagged `MainCamera` with **CinemachineBrain**, **Camera**, and **AudioListener**
+- **CM_PrototypeFollow** (`CinemachineCamera`) with **CinemachineFollow** (offset behind/above) and **CinemachineHardLookAt**
+- Follow / Look At target: **CCS_PlayerCameraTarget** (child of **CCS_PlayerRoot** at chest/head height)
+- **CCS_PlayerRoot** at world origin with capsule **PlaceholderVisual** (collider removed)
+- **Directional Light** added for prototype visibility
+- `PF_CCS_Survival_BootstrapRoot` unchanged as composition root (module, overlay, diagnostics)
+- Player movement, New Input System, and final character controller still deferred
+
+### Phase 1D manual validation
+
+1. Open `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+2. Enter Play Mode
+3. Confirm Game View shows capsule + sky (no “No cameras rendering”)
+4. Confirm **Main Camera** has **CinemachineBrain**; **CM_PrototypeFollow** targets **CCS_PlayerCameraTarget**
+5. Confirm top-right survival overlay and console `Services=1`
 
 ---
 
