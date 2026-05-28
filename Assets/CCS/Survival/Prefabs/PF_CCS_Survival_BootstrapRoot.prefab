@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 973492002}
   - component: {fileID: 973492003}
   - component: {fileID: 973492004}
+  - component: {fileID: 973492005}
+  - component: {fileID: 973492006}
   m_Layer: 0
   m_Name: PF_CCS_Survival_BootstrapRoot
   m_TagString: Untagged
@@ -60,3 +62,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalBootstrap
   enableSurvivalDiagnostics: 1
   enableDebugLogs: 1
+--- !u!114 &973492005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973492001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283b63929d708b14090332ae2136707e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalModule
+  runtimeHost: {fileID: 973492003}
+  maxHealth: 100
+  maxHunger: 100
+  maxThirst: 100
+  maxStamina: 100
+  hungerDrainRate: 8
+  thirstDrainRate: 10
+  starvationDamageRate: 4
+  dehydrationDamageRate: 5
+  exposureDamageRate: 2
+  staminaRecoveryRate: 8
+  respawnHealthPercent: 50
+  enableDebugLogs: 1
+--- !u!114 &973492006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973492001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa6dfd4622e626f4fa84af7ac6f7df14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalDebugOverlay
+  showOverlay: 1
+  survivalModule: {fileID: 973492005}
+  screenPadding: 12
+  panelWidth: 190
+  overlayFontSize: 12

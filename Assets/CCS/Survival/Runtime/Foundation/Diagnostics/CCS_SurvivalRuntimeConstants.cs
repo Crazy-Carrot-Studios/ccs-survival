@@ -34,7 +34,7 @@ namespace CCS.Survival
 
         public const int ExpectedSkeletonModuleCount = 1;
 
-        public const int SkeletonExpectedServicesCount = 0;
+        public const int SkeletonExpectedServicesCount = 1;
 
         public const int SkeletonExpectedUpdateSystemsCount = 0;
 

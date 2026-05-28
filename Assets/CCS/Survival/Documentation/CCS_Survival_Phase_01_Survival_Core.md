@@ -19,9 +19,18 @@
 
 ---
 
+## Implementation Status (Phase 1B.1)
+
+- `CCS_SurvivalModule` moved to bootstrap composition root (`PF_CCS_Survival_BootstrapRoot`) with `CCS_RuntimeHost`
+- `CCS_ISurvivalVitalsService` registers on service registry when runtime host is initialized
+- Diagnostics expected service count updated to 1
+- Separate `CCS_Survival_TestHarness` scene object removed (module + overlay live on bootstrap prefab)
+
+---
+
 ## Implementation Status (Phase 1B)
 
-- Manual Play Mode validation setup added (`CCS_Survival_TestHarness` in `SCN_CCS_Survival_Bootstrap`)
+- Manual Play Mode validation setup added on bootstrap composition root (`PF_CCS_Survival_BootstrapRoot`)
 - Debug overlay used only for temporary testing (top-right compact panel)
 - Context menu debug helpers on `CCS_SurvivalModule` for damage, recovery, food/water, kill, respawn, exposure
 - Fast drain/damage tuning on test harness for short Play Mode validation cycles
@@ -31,9 +40,10 @@
 ### Manual validation steps
 
 1. Open `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
-2. Enter Play Mode
-3. Observe top-right overlay: hunger/thirst drain, health loss when depleted, death, then use **Debug/Respawn Player** context menu on `CCS_SurvivalModule`
-4. Optional: use other **Debug/** context menu actions on the module while playing
+2. Enter Play Mode on `PF_CCS_Survival_BootstrapRoot` (composition root)
+3. Confirm diagnostics log shows `Services=1`
+4. Observe top-right overlay: hunger/thirst drain, health loss when depleted, death, then use **Debug/Respawn Player** on `CCS_SurvivalModule`
+5. Optional: use other **Debug/** context menu actions on the module while playing
 
 ---
 

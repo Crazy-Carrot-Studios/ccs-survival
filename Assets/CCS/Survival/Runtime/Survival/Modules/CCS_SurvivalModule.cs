@@ -6,7 +6,7 @@ using UnityEngine;
 // SCRIPT: CCS_SurvivalModule
 // CATEGORY: Survival / Runtime / Survival / Modules
 // PURPOSE: Phase 1A survival vitals MonoBehaviour module implementing CCS_ISurvivalVitalsService.
-// PLACEMENT: Attach to player or survival test root. Optional CCS_RuntimeHost on same object enables service registration.
+// PLACEMENT: Attach to PF_CCS_Survival_BootstrapRoot with CCS_RuntimeHost (composition root). Registers CCS_ISurvivalVitalsService on Awake.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-27
 // NOTES: Skeleton only. No final UI, weather, inventory, networking, or save/load. See CCS_Survival_Phase_01_Survival_Core.md.
@@ -14,6 +14,7 @@ using UnityEngine;
 
 namespace CCS.Survival
 {
+    [DefaultExecutionOrder(50)]
     public sealed class CCS_SurvivalModule : MonoBehaviour, CCS_ISurvivalVitalsService
     {
         private const string LogCategory = CCS_SurvivalVitalsDiagnostics.LogCategory;
@@ -21,7 +22,7 @@ namespace CCS.Survival
         #region Variables
 
         [Header("Service Registration")]
-        [Tooltip("Optional runtime host used to register this module on CCS_ServiceRegistry. Resolves on the same GameObject when unset.")]
+        [Tooltip("Runtime host for service registry registration. Resolves on this GameObject, then parent, when unset.")]
         [SerializeField] private CCS_RuntimeHost runtimeHost;
 
         [Header("Vital Maximums")]
@@ -315,16 +316,35 @@ namespace CCS.Survival
             }
         }
 
+        private void ResolveRuntimeHostReference()
+        {
+            if (CCS_Validation.IsObjectValid(runtimeHost))
+            {
+                return;
+            }
+
+            runtimeHost = GetComponent<CCS_RuntimeHost>();
+            if (CCS_Validation.IsObjectValid(runtimeHost))
+            {
+                return;
+            }
+
+            runtimeHost = GetComponentInParent<CCS_RuntimeHost>();
+        }
+
         private void TryRegisterSurvivalService()
         {
-            if (!CCS_Validation.IsObjectValid(runtimeHost))
-            {
-                runtimeHost = GetComponent<CCS_RuntimeHost>();
-            }
+            ResolveRuntimeHostReference();
 
             if (!CCS_Validation.IsObjectValid(runtimeHost))
             {
                 LogDebug("No CCS_RuntimeHost found. Survival service registration skipped.");
+                return;
+            }
+
+            if (!runtimeHost.IsRuntimeInitialized)
+            {
+                CCS_Logger.LogWarning(LogCategory, "Runtime host is not initialized. Survival service registration skipped.");
                 return;
             }
 
