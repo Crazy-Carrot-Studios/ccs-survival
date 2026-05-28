@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.4.0 — Survival Core Prototype Start
+0.5.0 — Survival Systems Prototype
 
 ## Repository Purpose
 
@@ -124,9 +124,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.4.0 Scope (current)
+## Milestone 0.5.0 Scope (current)
 
-**In scope:** Phase 1 survival core prototype (vitals module, manual validation harness, service registration, debug overlay).
+**In scope:** Phase 1 survival systems prototype — vitals, hazards, modifier zones, traversal validation, interaction/pickup foundation, debug overlay.
+
+**Prior milestone (0.4.0):** Phase 1 survival core startup (vitals module, manual validation harness, service registration, debug overlay).
 
 **Foundation complete (0.3.5):** framework quality gate, documentation stack, bootstrap composition root, character module skeleton.
 

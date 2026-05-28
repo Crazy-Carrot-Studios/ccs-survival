@@ -1,13 +1,13 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.4.0 — Survival Core Prototype Start  
+**Milestone:** 0.5.0 — Survival Systems Prototype  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
 ## Current Version
 
-Active prototype work at **v0.4.0** — Phase 1 survival core implementation and manual validation.
+Active prototype work at **v0.5.0** — Phase 1 survival systems prototype (vitals, hazards, traversal validation, interaction/pickup foundation).
 
 ## Framework Quality Gate Completed (0.3.5)
 

@@ -1,12 +1,12 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.0 — Survival Core Prototype Start  
+**Milestone:** 0.5.0 — Survival Systems Prototype  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
 ## Current Version
 
-Active prototype work at **v0.4.0** — Phase 1 survival core (vitals module, service registration, manual Play Mode validation).
+Active prototype work at **v0.5.0** — Phase 1 survival systems prototype (vitals, hazards, modifier zones, traversal validation, interaction foundation).
 
 ## Framework Quality Gate Completed (0.3.5)
 
