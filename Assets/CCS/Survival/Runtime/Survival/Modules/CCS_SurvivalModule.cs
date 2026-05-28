@@ -36,6 +36,12 @@ namespace CCS.Survival
         [Tooltip("Minimum whole-health step required before writing another health-changed debug log.")]
         [SerializeField] private float healthDebugLogStep = 5f;
 
+        [Tooltip("Minimum body-temperature step (Celsius) required before writing another temperature-changed debug log.")]
+        [SerializeField] private float temperatureDebugLogStep = 0.5f;
+
+        [Tooltip("Minimum exposure step required before writing another exposure-changed debug log.")]
+        [SerializeField] private float exposureDebugLogStep = 0.5f;
+
         [Header("Traversal Validation (Dev)")]
         [Tooltip("Optional vitals isolation while CCS_TraversalTestAgent validation is active.")]
         [SerializeField] private CCS_SurvivalVitalsTestIsolationSettings vitalsTestIsolation =
@@ -60,6 +66,8 @@ namespace CCS.Survival
         private float respawnHealthPercent;
         private float meaningfulChangePrecision;
         private float lastLoggedHealthValue = float.NaN;
+        private float lastLoggedTemperatureValue = float.NaN;
+        private float lastLoggedExposureValue = float.NaN;
         private bool isTraversalValidationActive;
         private bool isTestModeServiceRegistered;
         private bool isSubscribedToTraversalValidationEvents;
@@ -153,6 +161,8 @@ namespace CCS.Survival
             survivalState.BodyTemperature = defaultBodyTemperature;
             ClampStateToMaximums();
             lastLoggedHealthValue = float.NaN;
+            lastLoggedTemperatureValue = float.NaN;
+            lastLoggedExposureValue = float.NaN;
             isInitialized = true;
             PublishTemperatureChanged(0f, survivalState.BodyTemperature);
             LogDebug(isUsingFallbackProfile
@@ -367,6 +377,8 @@ namespace CCS.Survival
             survivalState.BodyTemperature = defaultBodyTemperature;
             survivalState.Health = maxHealth * Mathf.Clamp01(respawnHealthPercent / 100f);
             lastLoggedHealthValue = float.NaN;
+            lastLoggedTemperatureValue = float.NaN;
+            lastLoggedExposureValue = float.NaN;
             ClampStateToMaximums();
             OnPlayerRespawned?.Invoke();
             PublishSurvivalStateChanged();
@@ -389,10 +401,13 @@ namespace CCS.Survival
         {
             float previousExposure = survivalState.Exposure;
             survivalState.Exposure = Mathf.Max(0f, exposureValue);
-            if (!Mathf.Approximately(previousExposure, survivalState.Exposure))
+            if (!HasMeaningfulVitalChange(previousExposure, survivalState.Exposure))
             {
-                PublishSurvivalStateChanged();
+                return;
             }
+
+            PublishSurvivalStateChanged();
+            TryLogExposureChanged(previousExposure, survivalState.Exposure);
         }
 
         [ContextMenu("Debug/Apply Test Damage")]
@@ -741,6 +756,8 @@ namespace CCS.Survival
             survivalState.BodyTemperature = defaultBodyTemperature;
             ClampStateToMaximums();
             lastLoggedHealthValue = float.NaN;
+            lastLoggedTemperatureValue = float.NaN;
+            lastLoggedExposureValue = float.NaN;
             PublishSurvivalStateChanged();
             LogDebug("Vitals reset for traversal validation (dev test isolation).");
         }
@@ -868,8 +885,7 @@ namespace CCS.Survival
 
             OnTemperatureChanged?.Invoke(newValue);
             PublishSurvivalStateChanged();
-            LogDebug(
-                $"Body temperature changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
+            TryLogTemperatureChanged(previousValue, newValue);
         }
 
         private float RoundVitalForDisplay(float value)
@@ -889,20 +905,55 @@ namespace CCS.Survival
 
         private void TryLogHealthChanged(float previousValue, float newValue)
         {
+            TryLogSteppedVitalChange(
+                previousValue,
+                newValue,
+                ref lastLoggedHealthValue,
+                Mathf.Max(1f, healthDebugLogStep),
+                "Health changed");
+        }
+
+        private void TryLogTemperatureChanged(float previousValue, float newValue)
+        {
+            TryLogSteppedVitalChange(
+                previousValue,
+                newValue,
+                ref lastLoggedTemperatureValue,
+                Mathf.Max(0.1f, temperatureDebugLogStep),
+                "Body temperature changed");
+        }
+
+        private void TryLogExposureChanged(float previousValue, float newValue)
+        {
+            TryLogSteppedVitalChange(
+                previousValue,
+                newValue,
+                ref lastLoggedExposureValue,
+                Mathf.Max(0.1f, exposureDebugLogStep),
+                "Exposure changed");
+        }
+
+        private void TryLogSteppedVitalChange(
+            float previousValue,
+            float newValue,
+            ref float lastLoggedValue,
+            float debugLogStep,
+            string logLabel)
+        {
             if (!AreVitalsDebugLogsEnabled())
             {
                 return;
             }
 
-            float clampedStep = Mathf.Max(1f, healthDebugLogStep);
-            float roundedNew = Mathf.Floor(newValue);
-            if (!float.IsNaN(lastLoggedHealthValue) && Mathf.Abs(roundedNew - lastLoggedHealthValue) < clampedStep)
+            float roundedNew = RoundVitalForDisplay(newValue);
+            if (!float.IsNaN(lastLoggedValue) && Mathf.Abs(roundedNew - lastLoggedValue) < debugLogStep)
             {
                 return;
             }
 
-            lastLoggedHealthValue = roundedNew;
-            LogDebug($"Health changed: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
+            lastLoggedValue = roundedNew;
+            LogDebug(
+                $"{logLabel}: {RoundVitalForDisplay(previousValue):F1} -> {RoundVitalForDisplay(newValue):F1}");
         }
 
         #endregion

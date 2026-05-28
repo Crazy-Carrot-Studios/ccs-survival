@@ -78,6 +78,8 @@ MonoBehaviour:
   runtimeHost: {fileID: 973492003}
   enableDebugLogs: 1
   healthDebugLogStep: 5
+  temperatureDebugLogStep: 0.5
+  exposureDebugLogStep: 0.5
   vitalsTestIsolation:
     enableTraversalValidationIsolation: 0
     pauseGlobalVitalsTickDuringTraversalTest: 1

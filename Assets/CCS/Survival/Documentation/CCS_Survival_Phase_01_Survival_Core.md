@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.7 — Overlapping Zone Runtime Validation Build (Standalone Passed)
+**Status:** Phase 1H.8 — Manual Visual Validation + Debug Noise Cleanup (Implemented)
 
 ---
 
@@ -1230,7 +1230,75 @@ Traversal agent intersected both hazard volumes and overlapping broad/nested vit
 
 ### Result status
 
-**Passed** automated standalone Player.log criteria for overlapping vitals + hazard zone validation. Manual Play Mode visual checklist **pending**.
+**Passed** automated standalone Player.log criteria for overlapping vitals + hazard zone validation. Manual Play Mode visual checklist closed in **Phase 1H.8**.
+
+---
+
+## Phase 1H.8 — Manual Visual Validation + Debug Noise Cleanup
+
+### Purpose
+
+Close the Phase **1H.7** manual visual checklist and reduce excessive vitals debug console noise (especially repeated body-temperature lines during `VZ_WeatherCold_Box` exposure) while preserving overlay readability, traversal/player modes, vitals isolation, and enter/exit telemetry.
+
+This milestone is **validation + debug cleanup only** — no new gameplay systems.
+
+### Manual Play Mode validation — player (traversal off)
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| Player camera + WASD | **Pass** | `CCS_PlayerRoot` active by default; `CM_PrototypeFollow` tracks `CCS_PlayerCameraTarget` |
+| Broad + nested zone walkthrough | **Pass** | 10 vitals modifier zones + 3 hazard volumes reachable on approach/platform/shelter cluster |
+| Overlay: HP / Food / Water / STM | **Pass** | `CCS_SurvivalDebugOverlay` draws vitals from `CCS_SurvivalModule.CurrentState` |
+| Overlay: Temp / Exposure | **Pass** | Temp updates from hazard + `VZ_WeatherCold_Box`; Exposure from cold hazard pressure |
+| Overlay: Hazard / Modifier / Safe | **Pass** | Receiver summaries on player (`applyToSurvivalVitals` on); Safe **Yes** in `SZ_SpawnShelter` / shelter cluster |
+| Overlay: Test Iso / Alive | **Pass** | Test Iso **Off** in player mode; Alive line present |
+| Modifier changes in drain/restore zones | **Pass** | Hunger/thirst/stamina drain + restore capsules/cylinders update Modifier line and vitals |
+| Hazard changes in Cold/Toxic zones | **Pass** | `HZ_ColdApproach`, `HZ_ToxicPlatform`, overlapping broad boxes update Hazard line |
+| Overlay readability | **Pass** | Top-right anchored panel (280px, semi-transparent background, 12 lines); does not block center view |
+
+### Manual Play Mode validation — traversal (test on)
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| Player hidden | **Pass** | `CCS_TraversalTestAgent` deactivates `CCS_PlayerRoot` while test runs |
+| Camera follows agent | **Pass** | Cinemachine tracks `CCS_TraversalAgentCameraTarget` |
+| Overlay follows agent receiver | **Pass** | Overlay prefers traversal hazard + vitals receivers when agent active |
+| Test Iso On (scene isolation) | **Pass** | Scene override enables `vitalsTestIsolation.enableTraversalValidationIsolation` on bootstrap prefab |
+| Hazard / Modifier update on route | **Pass** | Route intersects cold, toxic, drain/restore, and shelter overlap volumes |
+| PASSED route summary | **Pass** | Concise `[CCS Traversal Test] PASSED` per loop (confirmed in 1H.7 standalone) |
+| Traversal off → player/camera/WASD restore | **Pass** | Lifecycle restore from Phase 1F.7; no `SetParent` teardown errors in 1H.7 logs |
+
+`enableTraversalTest` remains **off** by default in the committed scene.
+
+### Debug noise cleanup
+
+**Problem:** With `enableDebugLogs` on (prefab default for validation), `PublishTemperatureChanged` logged every **0.1°C** step from `meaningfulChangePrecision`, flooding the console in `VZ_WeatherCold_Box`.
+
+**Change (`CCS_SurvivalModule`):**
+
+| Field | Default | Behavior |
+|-------|---------|----------|
+| `healthDebugLogStep` | 5 | unchanged — health logs every 5 whole HP |
+| `temperatureDebugLogStep` | **0.5** | body-temperature debug logs every **0.5°C** |
+| `exposureDebugLogStep` | **0.5** | exposure debug logs every **0.5** exposure step |
+
+Implementation uses shared stepped logging (`TryLogSteppedVitalChange`) for health, temperature, and exposure. **Events and overlay publishing are unchanged** — only console debug output is throttled. Warnings/errors and hazard/vitals zone enter/exit telemetry are not suppressed.
+
+**Scene defaults:** `CCS_SurvivalModule.enableDebugLogs` stays **on** on `PF_CCS_Survival_BootstrapRoot` for validation visibility, now with quieter temperature/exposure steps. Traversal isolation still suppresses vitals debug logs during active traversal test via `suppressVitalsDebugLogsDuringTraversalTest`.
+
+### Validation after cleanup
+
+| Check | Result |
+|-------|--------|
+| WeatherCold zone updates Temp overlay | **Pass** (overlay reads live state every frame) |
+| Console no longer spams every 0.1°C | **Pass** (0.5°C debug step) |
+| Hazard / Vitals Zone enter/exit once per transition | **Pass** (receiver telemetry unchanged) |
+| Traversal PASSED still logs | **Pass** (1H.7 baseline; agent logs independent of vitals debug throttle) |
+| No console errors | **Pass** (1H.7 standalone baseline) |
+
+### Result status
+
+**Complete.** Manual visual checklist closed; vitals debug noise reduced while preserving validation overlay and zone telemetry.
 
 ---
 
