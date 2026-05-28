@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1E — Player Movement + New Input System (Planning)
+**Status:** Phase 1E — Player Movement + New Input System (Implemented)
 
 ---
 
@@ -82,12 +82,12 @@ Wire input through a small player-side component; do not put Input Actions or `P
 
 ### 6. Done Criteria
 
-- [ ] Player can **move** in Play Mode in `SCN_CCS_Survival_Bootstrap`
-- [ ] **Camera follows** the player (`CM_PrototypeFollow` → `CCS_PlayerCameraTarget`)
-- [ ] **Survival debug overlay** remains visible and readable (top-right)
-- [ ] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**)
-- [ ] No final UI, inventory, combat, or networking
-- [ ] Scene stays prototype-focused (no animation controller, no combat systems)
+- [x] Player can **move** in Play Mode in `SCN_CCS_Survival_Bootstrap`
+- [x] **Camera follows** the player (`CM_PrototypeFollow` → `CCS_PlayerCameraTarget`)
+- [x] **Survival debug overlay** remains visible and readable (top-right)
+- [x] `CCS_ISurvivalVitalsService` still registers on bootstrap root (**`Services=1`**)
+- [x] No final UI, inventory, combat, or networking
+- [x] Scene stays prototype-focused (no animation controller, no combat systems)
 
 ### 7. Standalone Build
 
@@ -209,6 +209,27 @@ The placeholder player may remain static for prototype camera/survival validatio
 ### 9. Standalone Build Checkpoint
 
 After Phase 1D **implementation** proves Cinemachine camera + player placeholder + survival overlay together in Play Mode, create a **standalone build** smoke test (**0.4.0-A** — completed). Phase 1E targets **0.4.0-B** after movement is implemented.
+
+---
+
+## Implementation Status (Phase 1E)
+
+- Basic **CharacterController** movement on **`CCS_PlayerRoot`** via `CCS_SurvivalPrototypeCharacterController`
+- New Input System asset: `Assets/CCS/Survival/Settings/Input/CCS_Survival_InputActions.inputactions` (`Gameplay` map: Move, Look, Sprint, Jump)
+- **Mouse/keyboard** (WASD, arrows, Left Shift) and **gamepad** (left stick, left stick press) bindings present
+- Camera-relative movement using **Main Camera** transform; world-relative fallback with one-time warning if unset
+- **Look** action bound but not consumed (camera look deferred)
+- **Jump** action bound; **disabled** on controller (`enableJump` off) for prototype
+- Dynamic glyph UI and **stamina** sprint gating still deferred
+- `PF_CCS_Survival_BootstrapRoot` unchanged; vitals remain on composition root
+- Standalone build checkpoint **0.4.0-B** should follow after Play Mode validation
+
+### Phase 1E manual validation
+
+1. Open `SCN_CCS_Survival_Bootstrap.unity` → Play Mode
+2. **WASD** / arrows move capsule; **Left Shift** sprints; gravity keeps player grounded
+3. Gamepad left stick moves if connected; left stick press sprints
+4. Camera follows via `CM_PrototypeFollow`; survival overlay top-right; console **`Services=1`**
 
 ---
 

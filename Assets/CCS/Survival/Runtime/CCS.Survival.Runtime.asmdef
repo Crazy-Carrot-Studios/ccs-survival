@@ -2,7 +2,8 @@
     "name": "CCS.Survival.Runtime",
     "rootNamespace": "CCS.Survival",
     "references": [
-        "CCS.Core.Runtime"
+        "CCS.Core.Runtime",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
