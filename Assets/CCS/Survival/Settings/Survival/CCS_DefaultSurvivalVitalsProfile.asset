@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c4e9a2b1d3f4e5f8a6b9c0d1e2f3a4, type: 3}
+  m_Script: {fileID: 11500000, guid: a8f3c2914e6d7b0c9e1f2a3b4c5d6e8, type: 3}
   m_Name: CCS_DefaultSurvivalVitalsProfile
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalVitalsProfile
   maxHealth: 100
@@ -22,6 +22,6 @@ MonoBehaviour:
   starvationDamageRate: 4
   dehydrationDamageRate: 5
   exposureDamageRate: 2
-  staminaRecoveryRate: 8
+  staminaRecoveryRate: 20
   respawnHealthPercent: 50
   meaningfulChangePrecision: 0.1

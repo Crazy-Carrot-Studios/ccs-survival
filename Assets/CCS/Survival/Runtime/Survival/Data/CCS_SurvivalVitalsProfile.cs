@@ -52,7 +52,7 @@ namespace CCS.Survival
         [SerializeField] private float exposureDamageRate = 2f;
 
         [Tooltip("Stamina recovered per second while alive.")]
-        [SerializeField] private float staminaRecoveryRate = 8f;
+        [SerializeField] private float staminaRecoveryRate = 20f;
 
         [Header("Death and Respawn")]
         [Tooltip("Health restored as a percent of max health on respawn.")]
