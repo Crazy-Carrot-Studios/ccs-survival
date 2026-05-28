@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.3 — Ground Grid Material (Implemented)
+**Status:** Phase 1F.4 — Connected Traversal Test Course (Implemented)
 
 ---
 
@@ -149,6 +149,27 @@ SCN_CCS_Survival_Bootstrap
 2. Ground shows subtle grid in Scene/Game view; **`MeshCollider`** still on ground
 3. No missing materials; traversal objects still visible
 4. Movement, sprint stamina, overlay, **`Services=1`**, no console errors
+
+---
+
+## Implementation Status (Phase 1F.4)
+
+- Connected traversal course: **ground → stairs → platform → ramp → ground** along **+Z** from spawn.
+- **`CCS_PrototypeStairsRoot`**: 6 steps, **0.25m** rise, **0.6m** depth, **2.5m** width (total rise **1.5m**).
+- **`CCS_PrototypePlatform`**: **3.5×2.8m** deck at **1.5m** height (`MAT_CCS_Prototype_Platform_Green`).
+- **`CCS_PrototypeRamp`**: **22°** slope, **4.2m** run, connects platform front to ground.
+- **`CCS_PrototypeStep`** remains separate for isolated step-offset testing at `(3, 0.25, 3)`.
+- Final level design / environment art / terrain remain **deferred**.
+
+### Phase 1F.4 manual validation
+
+1. From spawn, walk to stairs at **+Z**, climb to green platform, descend blue ramp back to ground
+2. No floating gaps between stair top, platform, and ramp
+3. Movement, sprint/stamina, camera follow on elevation, overlay, **`Services=1`**
+
+### Standalone build 0.4.0-C
+
+Smoke build after Phase 1F.1–1F.4: `Builds/Windows/CCS-Survival-0.4.0-C/CCS_Survival.exe` — validates stamina sprint, grid ground material, and connected traversal course outside the Editor.
 
 ---
 
