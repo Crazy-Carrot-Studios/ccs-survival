@@ -38,6 +38,30 @@ namespace CCS.Survival
 
         void ConsumeWater(float hydrationValue);
 
+        void DrainHunger(float amount);
+
+        void RestoreHunger(float amount);
+
+        void DrainThirst(float amount);
+
+        void RestoreThirst(float amount);
+
+        void DrainStamina(float amount);
+
+        void AddExposure(float amount);
+
+        void ReduceExposure(float amount);
+
+        void ModifyBodyTemperature(float delta);
+
+        void SetHunger(float hungerValue);
+
+        void SetThirst(float thirstValue);
+
+        void SetStamina(float staminaValue);
+
+        void SetHealth(float healthValue);
+
         void Kill();
 
         void Respawn();

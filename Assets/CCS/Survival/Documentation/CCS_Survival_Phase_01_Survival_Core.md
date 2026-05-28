@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.4 — Survival Debug UI Vitals Expansion (Implemented)
+**Status:** Phase 1H.5 — Overlapping Vitals Modifier Zone Testbed (Implemented)
 
 ---
 
@@ -959,6 +959,104 @@ Read-only additions on hazard receiver: `IsSafeZoneActive`, `AppliesToSurvivalVi
 ### Result status
 
 **Implemented** in repo (`CCS_SurvivalDebugOverlay` + hazard receiver summary API).
+
+---
+
+## Phase 1H.5 — Overlapping Vitals Modifier Zone Testbed
+
+### Purpose
+
+Prototype **overlapping environmental and vitals modifier zones** so manual play and traversal validation can test **multiple simultaneous pressures** without weather simulation, inventory, or final HUD work.
+
+**Broad box zones** represent large environmental contexts (weather-like cold, toxic cloud, shelter restore field). **Nested capsule/cylinder zones** represent direct resource modifier fields (hunger/thirst/stamina/exposure).
+
+Existing **`CCS_SurvivalHazardZone`** volumes are preserved for hazard pressure; modifier zones are a separate layer.
+
+### Architecture
+
+```text
+CCS_SurvivalVitalsModifierZone (trigger volumes)
+        ↓ enter/exit
+CCS_SurvivalVitalsZoneReceiver (per entity: player, traversal agent)
+        ↓ applies rates while inside
+CCS_ISurvivalVitalsService (CCS_SurvivalModule)
+```
+
+- **No duplicate vitals state** — all mutations go through the bootstrap vitals service.
+- **Traversal agent** uses `applyToSurvivalVitals` off + telemetry on (same pattern as hazard receiver).
+- **Phase 1H.3 isolation** unchanged — global tick pause is independent of zone receivers.
+
+### Modifier types (`CCS_SurvivalVitalsModifierType`)
+
+| Category | Types |
+|----------|--------|
+| Hunger / thirst | `HungerDrain`, `HungerRestore`, `ThirstDrain`, `ThirstRestore` |
+| Stamina | `StaminaDrain`, `StaminaRestore` |
+| Exposure / temp | `ExposureIncrease`, `ExposureRecovery`, `TemperatureIncrease`, `TemperatureDecrease` |
+| Health | `HealthDrain`, `HealthRestore` |
+
+Each zone supports: rate per second, optional min/max vital clamp, enable toggle, telemetry toggle, gizmo color, display label.
+
+### Scene layout (`SCN_CCS_Survival_Bootstrap`)
+
+Root: **`CCS_PrototypeVitalsZonesRoot`**
+
+| Zone | Shape | Role |
+|------|-------|------|
+| `VZ_WeatherCold_Box` | Box | Broad cold context (`TemperatureDecrease`) overlapping cold approach |
+| `VZ_ToxicCloud_Box` | Box | Broad toxic cloud (`ExposureIncrease`) overlapping platform area |
+| `VZ_Shelter_Box` | Box | Broad shelter restore field near spawn |
+| `VZ_HungerDrain_Capsule` | Capsule | Fast hunger drain on approach path |
+| `VZ_HungerRestore_Capsule` | Capsule | Hunger restore inside shelter overlap |
+| `VZ_ThirstDrain_Cylinder` | Capsule | Thirst drain along approach |
+| `VZ_ThirstRestore_Cylinder` | Capsule | Thirst restore in shelter |
+| `VZ_StaminaDrain_Capsule` | Capsule | Stamina drain on platform approach |
+| `VZ_StaminaRestore_Capsule` | Capsule | Stamina restore in shelter |
+| `VZ_ExposureRecovery_Cylinder` | Capsule | Exposure recovery overlapping shelter |
+
+**`SZ_SpawnShelter`** (hazard safe zone) remains for hazard suppression/recovery.
+
+Traversal route is unchanged (7 waypoints); existing path intersects cold approach, platform, and spawn shelter overlaps.
+
+**Scene setup:** menu **CCS → Survival → Setup Phase 1H.5 Vitals Modifier Testbed** (`CCS_VitalsModifierZoneSceneSetup_Editor`). Idempotent; re-run after pulling if the root is missing.
+
+### Vitals service extensions
+
+`CCS_ISurvivalVitalsService` adds explicit drain/restore helpers (`DrainHunger`, `RestoreHunger`, `DrainThirst`, `RestoreThirst`, `DrainStamina`, `AddExposure`, `ReduceExposure`, `ModifyBodyTemperature`, and setters for clamping).
+
+### Debug UI (Phase 1H.4 + 1H.5)
+
+`CCS_SurvivalDebugOverlay` adds **`Modifier`** line (e.g. `HungerDrain + ThirstDrain` or `None`).
+
+### Telemetry
+
+```text
+[CCS Survival Vitals Zone] Entered HungerDrain zone.
+[CCS Survival Vitals Zone] Exited HungerDrain zone.
+```
+
+Enter/exit only when `enableVitalsZoneTelemetryLogging` is on (traversal agent default).
+
+### Validation checklist
+
+| Check | Expected |
+|-------|----------|
+| Hunger drain capsule | Food decreases faster while inside |
+| Restore zones in shelter | Food/Water/STM recover; exposure can drop |
+| Overlap broad + nested | Combined modifiers visible on overlay |
+| Hazard zones | Still function; `Hazard` line unchanged |
+| Traversal | Route **PASSED**; concise zone logs; `Test Iso` behaves per 1H.3 |
+| Console | No errors |
+
+### Future connection
+
+- Weather systems can drive broad box rates instead of static prototype values.
+- Items/consumables can call the same vitals service helpers.
+- Authority-filtered receivers for multiplayer.
+
+### Result status
+
+**Implemented** in repo. Run scene setup menu once if `CCS_PrototypeVitalsZonesRoot` is not in the scene.
 
 ---
 

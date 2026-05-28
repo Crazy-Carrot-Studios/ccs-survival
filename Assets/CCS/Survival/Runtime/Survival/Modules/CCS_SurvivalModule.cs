@@ -201,14 +201,146 @@ namespace CCS.Survival
 
         public void ConsumeWater(float hydrationValue)
         {
-            if (!survivalState.IsAlive || hydrationValue <= 0f)
+            RestoreThirst(hydrationValue);
+        }
+
+        public void DrainHunger(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
+            {
+                return;
+            }
+
+            float previousHunger = survivalState.Hunger;
+            survivalState.Hunger = Mathf.Max(0f, survivalState.Hunger - amount);
+            PublishHungerChanged(previousHunger, survivalState.Hunger);
+            PublishSurvivalStateChanged();
+        }
+
+        public void RestoreHunger(float amount)
+        {
+            ConsumeFood(amount);
+        }
+
+        public void DrainThirst(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
             {
                 return;
             }
 
             float previousThirst = survivalState.Thirst;
-            survivalState.Thirst = Mathf.Min(maxThirst, survivalState.Thirst + hydrationValue);
+            survivalState.Thirst = Mathf.Max(0f, survivalState.Thirst - amount);
             PublishThirstChanged(previousThirst, survivalState.Thirst);
+            PublishSurvivalStateChanged();
+        }
+
+        public void RestoreThirst(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
+            {
+                return;
+            }
+
+            float previousThirst = survivalState.Thirst;
+            survivalState.Thirst = Mathf.Min(maxThirst, survivalState.Thirst + amount);
+            PublishThirstChanged(previousThirst, survivalState.Thirst);
+            PublishSurvivalStateChanged();
+        }
+
+        public void DrainStamina(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
+            {
+                return;
+            }
+
+            float previousStamina = survivalState.Stamina;
+            survivalState.Stamina = Mathf.Max(0f, survivalState.Stamina - amount);
+            PublishStaminaChanged(previousStamina, survivalState.Stamina);
+            PublishSurvivalStateChanged();
+        }
+
+        public void AddExposure(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
+            {
+                return;
+            }
+
+            SetExposure(survivalState.Exposure + amount);
+        }
+
+        public void ReduceExposure(float amount)
+        {
+            if (!survivalState.IsAlive || amount <= 0f)
+            {
+                return;
+            }
+
+            SetExposure(Mathf.Max(0f, survivalState.Exposure - amount));
+        }
+
+        public void ModifyBodyTemperature(float delta)
+        {
+            if (!survivalState.IsAlive || Mathf.Approximately(delta, 0f))
+            {
+                return;
+            }
+
+            SetBodyTemperature(survivalState.BodyTemperature + delta);
+        }
+
+        public void SetHunger(float hungerValue)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            float previousHunger = survivalState.Hunger;
+            survivalState.Hunger = Mathf.Clamp(hungerValue, 0f, maxHunger);
+            PublishHungerChanged(previousHunger, survivalState.Hunger);
+            PublishSurvivalStateChanged();
+        }
+
+        public void SetThirst(float thirstValue)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            float previousThirst = survivalState.Thirst;
+            survivalState.Thirst = Mathf.Clamp(thirstValue, 0f, maxThirst);
+            PublishThirstChanged(previousThirst, survivalState.Thirst);
+            PublishSurvivalStateChanged();
+        }
+
+        public void SetStamina(float staminaValue)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            float previousStamina = survivalState.Stamina;
+            survivalState.Stamina = Mathf.Clamp(staminaValue, 0f, maxStamina);
+            PublishStaminaChanged(previousStamina, survivalState.Stamina);
+            PublishSurvivalStateChanged();
+        }
+
+        public void SetHealth(float healthValue)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            float previousHealth = survivalState.Health;
+            survivalState.Health = Mathf.Clamp(healthValue, 0f, maxHealth);
+            PublishHealthChanged(previousHealth, survivalState.Health);
+            EvaluateDeathState();
             PublishSurvivalStateChanged();
         }
 

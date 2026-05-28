@@ -2205,6 +2205,7 @@ GameObject:
   - component: {fileID: 300000502}
   - component: {fileID: 300000503}
   - component: {fileID: 300000504}
+  - component: {fileID: 300000505}
   m_Layer: 0
   m_Name: CCS_TraversalTestAgent
   m_TagString: Untagged
@@ -2301,6 +2302,21 @@ MonoBehaviour:
   applyToSurvivalVitals: 0
   runtimeHost: {fileID: 0}
   enableHazardTelemetryLogging: 1
+--- !u!114 &300000505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300000500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6478990abcdef12345813, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Environment.VitalsZones.CCS_SurvivalVitalsZoneReceiver
+  applyToSurvivalVitals: 0
+  runtimeHost: {fileID: 0}
+  enableVitalsZoneTelemetryLogging: 1
 --- !u!1 &300000510
 GameObject:
   m_ObjectHideFlags: 0
@@ -2658,6 +2674,7 @@ GameObject:
   - component: {fileID: 422606781}
   - component: {fileID: 422606782}
   - component: {fileID: 422606783}
+  - component: {fileID: 422606784}
   m_Layer: 0
   m_Name: CCS_PlayerRoot
   m_TagString: Untagged
@@ -2750,6 +2767,21 @@ MonoBehaviour:
   applyToSurvivalVitals: 1
   runtimeHost: {fileID: 0}
   enableHazardTelemetryLogging: 0
+--- !u!114 &422606784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422606779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6478990abcdef12345813, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Environment.VitalsZones.CCS_SurvivalVitalsZoneReceiver
+  applyToSurvivalVitals: 1
+  runtimeHost: {fileID: 0}
+  enableVitalsZoneTelemetryLogging: 0
 --- !u!114 &636537617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3933,6 +3965,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &815700001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 815700002}
+  m_Layer: 0
+  m_Name: CCS_PrototypeVitalsZonesRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &815700002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815700001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3946,3 +4009,4 @@ SceneRoots:
   - {fileID: 300000401}
   - {fileID: 300000501}
   - {fileID: 815686593}
+  - {fileID: 815700002}

@@ -1,5 +1,6 @@
 using CCS.Core;
 using CCS.Survival.Environment.Hazards;
+using CCS.Survival.Environment.VitalsZones;
 using UnityEngine;
 
 // =============================================================================
@@ -16,7 +17,7 @@ namespace CCS.Survival
 {
     public sealed class CCS_SurvivalDebugOverlay : MonoBehaviour
     {
-        private const int SurvivalPanelLineCount = 11;
+        private const int SurvivalPanelLineCount = 12;
 
         #region Variables
 
@@ -32,6 +33,12 @@ namespace CCS.Survival
 
         [Tooltip("Optional traversal agent hazard receiver. Used when the player root is inactive during traversal tests.")]
         [SerializeField] private CCS_SurvivalHazardReceiver traversalHazardReceiver;
+
+        [Tooltip("Optional player vitals modifier receiver. Resolved once from scene when unset.")]
+        [SerializeField] private CCS_SurvivalVitalsZoneReceiver playerVitalsZoneReceiver;
+
+        [Tooltip("Optional traversal agent vitals modifier receiver.")]
+        [SerializeField] private CCS_SurvivalVitalsZoneReceiver traversalVitalsZoneReceiver;
 
         [Header("Layout")]
         [Tooltip("Screen padding from top and right edges in pixels.")]
@@ -58,6 +65,7 @@ namespace CCS.Survival
         private int cachedFontSize = -1;
         private float cachedBackgroundAlpha = -1f;
         private bool hazardReceiversResolved;
+        private bool vitalsZoneReceiversResolved;
 
         #endregion
 
@@ -67,6 +75,7 @@ namespace CCS.Survival
         {
             ResolveSurvivalModuleReference();
             ResolveHazardReceiverReferences();
+            ResolveVitalsZoneReceiverReferences();
         }
 
         private void OnDestroy()
@@ -179,6 +188,70 @@ namespace CCS.Survival
             return playerHazardReceiver;
         }
 
+        private void ResolveVitalsZoneReceiverReferences()
+        {
+            if (vitalsZoneReceiversResolved)
+            {
+                return;
+            }
+
+            if (!CCS_Validation.IsObjectValid(playerVitalsZoneReceiver)
+                || !CCS_Validation.IsObjectValid(traversalVitalsZoneReceiver))
+            {
+                CCS_SurvivalVitalsZoneReceiver[] receivers = FindObjectsByType<CCS_SurvivalVitalsZoneReceiver>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+                for (int i = 0; i < receivers.Length; i++)
+                {
+                    CCS_SurvivalVitalsZoneReceiver receiver = receivers[i];
+                    if (receiver == null)
+                    {
+                        continue;
+                    }
+
+                    if (!CCS_Validation.IsObjectValid(playerVitalsZoneReceiver)
+                        && receiver.AppliesToSurvivalVitals)
+                    {
+                        playerVitalsZoneReceiver = receiver;
+                        continue;
+                    }
+
+                    if (!CCS_Validation.IsObjectValid(traversalVitalsZoneReceiver)
+                        && !receiver.AppliesToSurvivalVitals)
+                    {
+                        traversalVitalsZoneReceiver = receiver;
+                    }
+                }
+            }
+
+            vitalsZoneReceiversResolved = true;
+        }
+
+        private CCS_SurvivalVitalsZoneReceiver ResolveDisplayVitalsZoneReceiver()
+        {
+            ResolveVitalsZoneReceiverReferences();
+
+            if (CCS_Validation.IsObjectValid(traversalVitalsZoneReceiver)
+                && traversalVitalsZoneReceiver.isActiveAndEnabled)
+            {
+                return traversalVitalsZoneReceiver;
+            }
+
+            if (CCS_Validation.IsObjectValid(playerVitalsZoneReceiver)
+                && playerVitalsZoneReceiver.isActiveAndEnabled)
+            {
+                return playerVitalsZoneReceiver;
+            }
+
+            if (CCS_Validation.IsObjectValid(traversalVitalsZoneReceiver))
+            {
+                return traversalVitalsZoneReceiver;
+            }
+
+            return playerVitalsZoneReceiver;
+        }
+
         private bool TryGetTraversalIsolationActive(out bool isIsolationActive)
         {
             isIsolationActive = false;
@@ -272,14 +345,21 @@ namespace CCS.Survival
         {
             CCS_SurvivalState state = survivalModule.CurrentState;
             CCS_SurvivalHazardReceiver hazardReceiver = ResolveDisplayHazardReceiver();
+            CCS_SurvivalVitalsZoneReceiver vitalsZoneReceiver = ResolveDisplayVitalsZoneReceiver();
 
             string hazardSummary = "None";
             string safeLabel = "No";
+            string modifierSummary = "None";
 
             if (CCS_Validation.IsObjectValid(hazardReceiver))
             {
                 hazardSummary = hazardReceiver.GetActiveHazardSummary();
                 safeLabel = hazardReceiver.IsSafeZoneActive ? "Yes" : "No";
+            }
+
+            if (CCS_Validation.IsObjectValid(vitalsZoneReceiver))
+            {
+                modifierSummary = vitalsZoneReceiver.GetActiveModifierSummary();
             }
 
             bool testIsolationActive = false;
@@ -312,6 +392,8 @@ namespace CCS.Survival
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Exposure {state.Exposure:F1}", labelStyle);
             y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Hazard {hazardSummary}", labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Modifier {modifierSummary}", labelStyle);
             y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Safe {safeLabel}", labelStyle);
             y += lineHeight + lineSpacing;
