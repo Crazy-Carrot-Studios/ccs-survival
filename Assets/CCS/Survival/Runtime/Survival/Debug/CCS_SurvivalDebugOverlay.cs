@@ -26,19 +26,19 @@ namespace CCS.Survival
 
         [Header("Layout")]
         [Tooltip("Screen padding from top and right edges in pixels.")]
-        [SerializeField] private float screenPadding = 14f;
+        [SerializeField] private float screenPadding = 16f;
 
         [Tooltip("Inner padding around overlay text in pixels.")]
-        [SerializeField] private float panelPadding = 8f;
+        [SerializeField] private float panelPadding = 16f;
 
         [Tooltip("Panel width in pixels.")]
-        [SerializeField] private float panelWidth = 200f;
+        [SerializeField] private float panelWidth = 280f;
 
         [Tooltip("Font size for overlay labels.")]
-        [SerializeField] private int fontSize = 16;
+        [SerializeField] private int fontSize = 32;
 
         [Tooltip("Extra vertical space between stat lines in pixels.")]
-        [SerializeField] private float lineSpacing = 4f;
+        [SerializeField] private float lineSpacing = 8f;
 
         [Tooltip("Alpha for the semi-transparent dark background (0 = invisible, 1 = opaque).")]
         [Range(0.35f, 0.95f)]
@@ -188,7 +188,7 @@ namespace CCS.Survival
 
         private float GetLineHeight()
         {
-            return fontSize + 4f;
+            return fontSize + 6f;
         }
 
         private float GetPanelHeight(int lineCount)

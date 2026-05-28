@@ -91,9 +91,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalDebugOverlay
   showOverlay: 1
   survivalModule: {fileID: 973492005}
-  screenPadding: 14
-  panelPadding: 8
-  panelWidth: 200
-  fontSize: 16
-  lineSpacing: 4
+  screenPadding: 16
+  panelPadding: 16
+  panelWidth: 280
+  fontSize: 32
+  lineSpacing: 8
   backgroundAlpha: 0.72
