@@ -65,6 +65,7 @@ namespace CCS.Survival
         [SerializeField] private bool enableDebugLogs;
 
         private CCS_SurvivalState survivalState;
+        private bool isInitialized;
         private bool isServiceRegistered;
 
         #endregion
@@ -93,8 +94,7 @@ namespace CCS.Survival
 
         private void Awake()
         {
-            survivalState = CCS_SurvivalState.CreateDefault();
-            ClampStateToMaximums();
+            Initialize();
             TryRegisterSurvivalService();
             PublishSurvivalStateChanged();
         }
@@ -102,6 +102,7 @@ namespace CCS.Survival
         private void OnDestroy()
         {
             TryUnregisterSurvivalService();
+            isInitialized = false;
         }
 
         private void Update()
@@ -121,6 +122,20 @@ namespace CCS.Survival
         #endregion
 
         #region Public Methods
+
+        public void Initialize()
+        {
+            if (isInitialized)
+            {
+                return;
+            }
+
+            survivalState = CCS_SurvivalState.CreateDefault();
+            ClampStateToMaximums();
+            isInitialized = true;
+            PublishTemperatureChanged(0f, survivalState.BodyTemperature);
+            LogDebug("Survival vitals service initialized.");
+        }
 
         public void ApplyDamage(float amount)
         {
@@ -191,6 +206,7 @@ namespace CCS.Survival
 
         public void Respawn()
         {
+            float previousTemperature = survivalState.BodyTemperature;
             survivalState = CCS_SurvivalState.CreateDefault();
             survivalState.Health = maxHealth * Mathf.Clamp01(respawnHealthPercent / 100f);
             ClampStateToMaximums();
@@ -200,7 +216,15 @@ namespace CCS.Survival
             PublishHungerChanged(0f, survivalState.Hunger);
             PublishThirstChanged(0f, survivalState.Thirst);
             PublishStaminaChanged(0f, survivalState.Stamina);
+            PublishTemperatureChanged(previousTemperature, survivalState.BodyTemperature);
             LogDebug("Player respawned with default vitals.");
+        }
+
+        public void SetBodyTemperature(float bodyTemperature)
+        {
+            float previousTemperature = survivalState.BodyTemperature;
+            survivalState.BodyTemperature = bodyTemperature;
+            PublishTemperatureChanged(previousTemperature, survivalState.BodyTemperature);
         }
 
         public void SetExposure(float exposureValue)
@@ -216,6 +240,8 @@ namespace CCS.Survival
         #endregion
 
         #region Properties
+
+        public bool IsInitialized => isInitialized;
 
         public CCS_SurvivalState CurrentState => survivalState;
 
@@ -373,6 +399,18 @@ namespace CCS.Survival
 
             OnStaminaChanged?.Invoke(newValue);
             PublishSurvivalStateChanged();
+        }
+
+        private void PublishTemperatureChanged(float previousValue, float newValue)
+        {
+            if (Mathf.Approximately(previousValue, newValue))
+            {
+                return;
+            }
+
+            OnTemperatureChanged?.Invoke(newValue);
+            PublishSurvivalStateChanged();
+            LogDebug($"Body temperature changed: {previousValue:F1} -> {newValue:F1}");
         }
 
         private void LogDebug(string message)
