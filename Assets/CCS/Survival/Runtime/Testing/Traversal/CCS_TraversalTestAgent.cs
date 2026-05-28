@@ -1,4 +1,3 @@
-using CCS.Survival;
 using UnityEngine;
 
 // =============================================================================
@@ -17,6 +16,7 @@ namespace CCS.Survival.Testing.Traversal
     public sealed class CCS_TraversalTestAgent : MonoBehaviour
     {
         private const string LogPrefix = "[CCS Traversal Test]";
+        private const string ManualPlayerCameraTargetName = "CCS_PlayerCameraTarget";
 
         #region Variables
 
@@ -28,11 +28,14 @@ namespace CCS.Survival.Testing.Traversal
         [SerializeField] private CCS_TraversalTestRoute traversalRoute;
 
         [Header("Manual Player")]
-        [Tooltip("Manual player root (CCS_PlayerRoot). Movement and CharacterController are disabled while the traversal test runs.")]
+        [Tooltip("Manual player root (CCS_PlayerRoot). Deactivated during traversal tests when isolation is enabled.")]
         [SerializeField] private GameObject manualPlayerRoot;
 
-        [Tooltip("When enabled, disables manual player locomotion during traversal tests to avoid CharacterController overlap at spawn.")]
+        [Tooltip("When enabled, deactivates the manual player root during traversal tests so CharacterControllers do not overlap the route.")]
         [SerializeField] private bool disableManualPlayerDuringTest = true;
+
+        [Tooltip("Optional Cinemachine follow target while the manual player is hidden. Defaults to this agent transform.")]
+        [SerializeField] private Transform traversalCameraFollowTarget;
 
         [Header("Movement")]
         [Tooltip("Horizontal movement speed in meters per second.")]
@@ -56,9 +59,11 @@ namespace CCS.Survival.Testing.Traversal
         private bool isWaitingAtWaypoint;
         private bool loggedInvalidRoute;
         private bool loggedRouteStart;
-        private CharacterController manualPlayerCharacterController;
-        private CCS_SurvivalPrototypeCharacterController manualPlayerMovement;
-        private bool manualPlayerLocomotionDisabledByAgent;
+        private bool manualPlayerCachedActive;
+        private bool manualPlayerHiddenByAgent;
+        private Transform manualPlayerCameraTarget;
+        private Transform manualPlayerCameraTargetCachedParent;
+        private bool manualPlayerCameraTargetReparented;
 
         #endregion
 
@@ -67,7 +72,13 @@ namespace CCS.Survival.Testing.Traversal
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
-            CacheManualPlayerComponents();
+
+            if (traversalCameraFollowTarget == null)
+            {
+                traversalCameraFollowTarget = transform;
+            }
+
+            ResolveManualPlayerCameraTarget();
         }
 
         private void OnEnable()
@@ -78,7 +89,12 @@ namespace CCS.Survival.Testing.Traversal
 
         private void OnDisable()
         {
-            SetManualPlayerLocomotionEnabled(true);
+            RestoreManualPlayerAfterTraversalTest();
+        }
+
+        private void OnDestroy()
+        {
+            RestoreManualPlayerAfterTraversalTest();
         }
 
         private void Update()
@@ -278,46 +294,64 @@ namespace CCS.Survival.Testing.Traversal
             loggedFlag = true;
         }
 
-        private void CacheManualPlayerComponents()
+        private void ResolveManualPlayerCameraTarget()
         {
-            if (manualPlayerRoot == null)
+            if (manualPlayerRoot == null || manualPlayerCameraTarget != null)
             {
                 return;
             }
 
-            manualPlayerCharacterController = manualPlayerRoot.GetComponent<CharacterController>();
-            manualPlayerMovement = manualPlayerRoot.GetComponent<CCS_SurvivalPrototypeCharacterController>();
+            manualPlayerCameraTarget = manualPlayerRoot.transform.Find(ManualPlayerCameraTargetName);
         }
 
         private void SyncManualPlayerForTraversalTest()
         {
-            SetManualPlayerLocomotionEnabled(!enableTraversalTest);
+            if (enableTraversalTest)
+            {
+                HideManualPlayerForTraversalTest();
+                return;
+            }
+
+            RestoreManualPlayerAfterTraversalTest();
         }
 
-        private void SetManualPlayerLocomotionEnabled(bool locomotionEnabled)
+        private void HideManualPlayerForTraversalTest()
         {
-            if (!disableManualPlayerDuringTest || manualPlayerRoot == null)
+            if (!disableManualPlayerDuringTest || manualPlayerRoot == null || manualPlayerHiddenByAgent)
             {
                 return;
             }
 
-            bool shouldDisable = !locomotionEnabled;
-            if (shouldDisable == manualPlayerLocomotionDisabledByAgent)
+            manualPlayerCachedActive = manualPlayerRoot.activeSelf;
+            ResolveManualPlayerCameraTarget();
+
+            if (manualPlayerCameraTarget != null && traversalCameraFollowTarget != null)
+            {
+                manualPlayerCameraTargetCachedParent = manualPlayerCameraTarget.parent;
+                manualPlayerCameraTarget.SetParent(traversalCameraFollowTarget, true);
+                manualPlayerCameraTargetReparented = true;
+            }
+
+            manualPlayerRoot.SetActive(false);
+            manualPlayerHiddenByAgent = true;
+        }
+
+        private void RestoreManualPlayerAfterTraversalTest()
+        {
+            if (!manualPlayerHiddenByAgent || manualPlayerRoot == null)
             {
                 return;
             }
 
-            if (manualPlayerCharacterController != null)
+            manualPlayerRoot.SetActive(manualPlayerCachedActive);
+
+            if (manualPlayerCameraTargetReparented && manualPlayerCameraTarget != null && manualPlayerCameraTargetCachedParent != null)
             {
-                manualPlayerCharacterController.enabled = locomotionEnabled;
+                manualPlayerCameraTarget.SetParent(manualPlayerCameraTargetCachedParent, false);
+                manualPlayerCameraTargetReparented = false;
             }
 
-            if (manualPlayerMovement != null)
-            {
-                manualPlayerMovement.enabled = locomotionEnabled;
-            }
-
-            manualPlayerLocomotionDisabledByAgent = shouldDisable;
+            manualPlayerHiddenByAgent = false;
         }
 
         #endregion

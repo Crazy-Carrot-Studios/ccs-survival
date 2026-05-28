@@ -2893,6 +2893,7 @@ MonoBehaviour:
   traversalRoute: {fileID: 300000402}
   manualPlayerRoot: {fileID: 422606779}
   disableManualPlayerDuringTest: 1
+  traversalCameraFollowTarget: {fileID: 300000501}
   moveSpeed: 4
   gravity: -20
   rotationSmoothTime: 0.12

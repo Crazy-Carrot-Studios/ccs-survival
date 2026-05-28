@@ -278,7 +278,7 @@ Waypoints are **empty Transform markers** (or lightweight gizmo components) plac
 - **`CCS_TraversalTestWaypoint`**, **`CCS_TraversalTestRoute`**, **`CCS_TraversalTestAgent`** under `Assets/CCS/Survival/Runtime/Testing/Traversal/`.
 - Scene objects in **`SCN_CCS_Survival_Bootstrap`**: `CCS_PrototypeTraversalRoute` (7 waypoints) + `CCS_TraversalTestAgent` (blue capsule visual, disabled by default).
 - Agent uses **CharacterController** + simple gravity; follows serialized route; optional loop; no Input System.
-- Manual **`CCS_PlayerRoot`** movement unchanged when test agent is disabled.
+- Manual **`CCS_PlayerRoot`** is unchanged when the test agent is disabled; traversal mode hides the player root and restores it when the test ends.
 
 ### Phase 1F.6 manual validation
 
@@ -286,7 +286,8 @@ Waypoints are **empty Transform markers** (or lightweight gizmo components) plac
 2. Enable **`enableTraversalTest`** on `CCS_TraversalTestAgent` — agent follows spawn → stairs → platform → ramp → return
 3. Confirm loop restarts when `loopRoute` is enabled
 4. Console: concise `[CCS Traversal Test]` logs only when `enableDebugLogs` is on
-5. With **`disableManualPlayerDuringTest`** on (default), manual **`CCS_PlayerRoot`** locomotion is disabled while the test runs (camera target remains active)
+5. With **`disableManualPlayerDuringTest`** on (default), **`CCS_PlayerRoot`** is deactivated during the test; **`CCS_PlayerCameraTarget`** is temporarily reparented to the traversal agent so Cinemachine stays valid
+6. Disable the test — **`CCS_PlayerRoot`** restores to its prior active state and WASD works again
 
 ---
 
@@ -341,10 +342,16 @@ Validate the Phase 1F.6 automated traversal test agent in a **Windows standalone
 
 Temporary **`CCS_StandaloneBuild_0_4_0_D_Editor`** auto-run scripts were **removed** after the build so the Editor does not keep re-triggering builds on script reload.
 
+### Traversal / manual player isolation (Play Mode + standalone)
+
+- **Traversal mode:** when **`enableTraversalTest`** is on and **`disableManualPlayerDuringTest`** is on (default), **`CCS_PlayerRoot`** is set inactive so its **CharacterController** cannot block the route.
+- **Camera:** **`CCS_PlayerCameraTarget`** is reparented to **`traversalCameraFollowTarget`** (defaults to **`CCS_TraversalTestAgent`**) before the player root is hidden so **`CM_PrototypeFollow`** keeps a live tracking target.
+- **Normal player mode:** when the traversal test is off, cached active state is restored on **`CCS_PlayerRoot`** and the camera target is reparented back for manual WASD testing.
+- **`OnDisable`** / **`OnDestroy`** restore defensively if Play Mode stops while the test is active.
+
 ### Follow-up (post 1F.7)
 
-- **`CCS_TraversalTestAgent`** now disables manual player **CharacterController** + movement while the traversal test runs (avoids overlap with **`CCS_PlayerRoot`** at spawn); re-enable when test stops or component disables
-- Rebuild **0.4.0-D** after pulling this fix if validating player/agent separation in standalone
+- Rebuild **0.4.0-D** after pulling player-isolation fixes if validating traversal in standalone again
 
 ### Result status
 
