@@ -21,6 +21,8 @@ namespace CCS.Survival.Environment.Hazards
 
         #region Variables
 
+        private const float MaxHazardExposureCap = 3f;
+
         [Header("Vitals")]
         [Tooltip("When enabled, hazard pressure is applied through CCS_ISurvivalVitalsService.")]
         [SerializeField] private bool applyToSurvivalVitals = true;
@@ -194,7 +196,7 @@ namespace CCS.Survival.Environment.Hazards
             if (exposure > 0f)
             {
                 float nextExposure = vitalsService.CurrentState.Exposure + (exposure * deltaTime);
-                vitalsService.SetExposure(nextExposure);
+                vitalsService.SetExposure(Mathf.Min(MaxHazardExposureCap, nextExposure));
             }
 
             if (staminaDrain > 0f)

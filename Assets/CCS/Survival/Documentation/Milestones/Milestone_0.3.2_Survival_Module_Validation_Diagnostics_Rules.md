@@ -29,7 +29,7 @@
 |------|-------------|
 | Module ID prefix | Must start with `ccs.survival.` |
 | Module count | `ExpectedSkeletonModuleCount` (= 1) |
-| Services | `SkeletonExpectedServicesCount` (= 0) |
+| Services | `SkeletonExpectedServicesCount` (= 2: vitals + vitals test mode) |
 | Update systems | `SkeletonExpectedUpdateSystemsCount` (= 0) |
 | Duplicate module IDs | None in registry |
 | Bootstrap installers | 1 on runner (diagnostics warning) |

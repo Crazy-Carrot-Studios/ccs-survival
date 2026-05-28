@@ -1,3 +1,5 @@
+using CCS.Core;
+using CCS.Survival;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -92,6 +94,13 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("Logs per-waypoint reach and advance messages (verbose).")]
         [SerializeField] private bool enableDebugLogs;
 
+        [Header("Vitals Test Mode")]
+        [Tooltip("Optional runtime host for traversal lifecycle events and vitals test mode service.")]
+        [SerializeField] private CCS_RuntimeHost runtimeHost;
+
+        [Tooltip("Notifies CCS_SurvivalModule when traversal validation starts or stops.")]
+        [SerializeField] private bool notifyVitalsTestMode = true;
+
         private static bool isApplicationQuitting;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -114,6 +123,7 @@ namespace CCS.Survival.Testing.Traversal
         private bool hasRestoredPlayerState;
         private bool isShuttingDown;
         private bool lastEnableTraversalTest;
+        private bool isTraversalValidationNotifiedActive;
         private float testStartTime;
         private float currentRouteStartTime;
         private int completedRouteCount;
@@ -168,6 +178,7 @@ namespace CCS.Survival.Testing.Traversal
         private void OnDisable()
         {
             isShuttingDown = true;
+            NotifyTraversalValidationInactive();
             RestoreManualPlayerAfterTraversalTest(allowCameraTargetRestore: CanMutateCameraTargets());
             routeResultStatus = CCS_TraversalRouteResultStatus.Idle;
         }
@@ -194,6 +205,7 @@ namespace CCS.Survival.Testing.Traversal
             else if (!enableTraversalTest && lastEnableTraversalTest)
             {
                 routeResultStatus = CCS_TraversalRouteResultStatus.Idle;
+                NotifyTraversalValidationInactive();
             }
 
             lastEnableTraversalTest = enableTraversalTest;
@@ -265,6 +277,7 @@ namespace CCS.Survival.Testing.Traversal
             failedRouteCount = 0;
             routeResultStatus = CCS_TraversalRouteResultStatus.Running;
             ResetRouteState();
+            NotifyTraversalValidationActive();
             BeginRoutePass();
 
             if (enableTelemetryLogging)
@@ -394,6 +407,7 @@ namespace CCS.Survival.Testing.Traversal
             routeResultStatus = stopStatus;
             enableTraversalTest = false;
             lastEnableTraversalTest = false;
+            NotifyTraversalValidationInactive();
             SyncManualPlayerForTraversalTest();
         }
 
@@ -633,6 +647,89 @@ namespace CCS.Survival.Testing.Traversal
 
             manualPlayerHiddenByAgent = false;
             hasRestoredPlayerState = true;
+        }
+
+        private void NotifyTraversalValidationActive()
+        {
+            PublishTraversalValidationLifecycle(true);
+        }
+
+        private void NotifyTraversalValidationInactive()
+        {
+            PublishTraversalValidationLifecycle(false);
+        }
+
+        private void PublishTraversalValidationLifecycle(bool isActive)
+        {
+            if (!notifyVitalsTestMode || isApplicationQuitting)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                if (isTraversalValidationNotifiedActive)
+                {
+                    return;
+                }
+
+                isTraversalValidationNotifiedActive = true;
+            }
+            else
+            {
+                if (!isTraversalValidationNotifiedActive)
+                {
+                    return;
+                }
+
+                isTraversalValidationNotifiedActive = false;
+            }
+
+            if (TryNotifyVitalsTestModeService(isActive))
+            {
+                return;
+            }
+
+            TryDispatchTraversalValidationLifecycleEvent(isActive);
+        }
+
+        private bool TryNotifyVitalsTestModeService(bool isActive)
+        {
+            if (!TryResolveRuntimeHost(out CCS_RuntimeHost host))
+            {
+                return false;
+            }
+
+            if (!host.ServiceRegistry.TryGetService(out CCS_ISurvivalVitalsTestModeService testModeService))
+            {
+                return false;
+            }
+
+            testModeService.NotifyTraversalValidationActive(isActive);
+            return true;
+        }
+
+        private bool TryDispatchTraversalValidationLifecycleEvent(bool isActive)
+        {
+            if (!TryResolveRuntimeHost(out CCS_RuntimeHost host))
+            {
+                return false;
+            }
+
+            host.EventDispatcher.Dispatch(new CCS_SurvivalTraversalValidationLifecycleEvent(isActive));
+            return true;
+        }
+
+        private bool TryResolveRuntimeHost(out CCS_RuntimeHost resolvedHost)
+        {
+            resolvedHost = runtimeHost;
+            if (CCS_Validation.IsObjectValid(resolvedHost) && resolvedHost.IsRuntimeInitialized)
+            {
+                return true;
+            }
+
+            resolvedHost = FindFirstObjectByType<CCS_RuntimeHost>();
+            return CCS_Validation.IsObjectValid(resolvedHost) && resolvedHost.IsRuntimeInitialized;
         }
 
         #endregion

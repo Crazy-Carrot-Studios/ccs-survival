@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1H.1 — Environmental Hazard Zones (Implemented)
+**Status:** Phase 1H.3 — Vitals Debug Isolation + Test Mode Controls (Implemented)
 
 ---
 
@@ -812,6 +812,87 @@ Gizmo colors: cold = blue, heat = orange, toxic = green, safe = cyan.
 ### Result status
 
 **Implemented** in repo. Play Mode / standalone validation pending human or automated pass.
+
+---
+
+## Phase 1H.3 — Vitals Debug Isolation + Test Mode Controls
+
+### Purpose
+
+Phase 1H.2 showed traversal and hazard zones work, but **`CCS_SurvivalModule.Update`** still applies global hunger/thirst drain and **`ApplyEnvironmentalDamage`** on the shared vitals service. That noise made hazard-only validation hard to read in the console.
+
+Phase 1H.3 adds **dev/test-only** controls so traversal validation can **isolate global vitals ticking** while keeping normal player gameplay unchanged when isolation is off.
+
+### Why isolation was needed
+
+| Symptom | Cause |
+|---------|--------|
+| Health drops during traversal with agent `applyToSurvivalVitals` off | Single `CCS_ISurvivalVitalsService`; module keeps simulating starvation/dehydration/exposure damage |
+| Hazard telemetry looks correct but vitals logs confuse validation | `[CCS Survival Vitals] Health changed` from module tick, not hazard receiver `ApplyDamage` |
+
+### What was isolated (when enabled)
+
+On **`CCS_SurvivalModule`** → **Traversal Validation (Dev)** → **`vitalsTestIsolation`**:
+
+| Toggle | Effect while traversal validation is active |
+|--------|---------------------------------------------|
+| `enableTraversalValidationIsolation` | Master switch (off = normal gameplay always) |
+| `pauseGlobalVitalsTickDuringTraversalTest` | Pauses hunger/thirst drain, stamina recovery, and environmental damage |
+| `disableEnvironmentalDamageDuringTraversalTest` | If global tick is not fully paused, skips `ApplyEnvironmentalDamage` only |
+| `suppressVitalsDebugLogsDuringTraversalTest` | Hides module vitals debug logs during traversal |
+| `resetVitalsOnTestStart` | Resets vitals to profile defaults when validation starts |
+
+### What stays active during traversal validation
+
+- **`CCS_TraversalTestAgent`** route movement, stuck detection, PASSED/FAILED telemetry
+- **`CCS_SurvivalHazardReceiver`** enter/exit logs on the agent (`enableHazardTelemetryLogging`)
+- Hazard receiver **vitals application** on the player when playing manually (`applyToSurvivalVitals` on `CCS_PlayerRoot`)
+- Manual damage/heal/food/water APIs on `CCS_ISurvivalVitalsService` (isolation only affects module `Update` tick paths)
+
+### Notification path (decoupled)
+
+```text
+CCS_TraversalTestAgent
+  → Try CCS_ISurvivalVitalsTestModeService.NotifyTraversalValidationActive
+  → else dispatch CCS_SurvivalTraversalValidationLifecycleEvent on CCS_RuntimeHost.EventDispatcher
+CCS_SurvivalModule subscribes + implements test mode service
+```
+
+No singletons. Optional serialized `CCS_RuntimeHost` on the agent; falls back to a single scene `CCS_RuntimeHost` lookup for the dev harness only.
+
+### Scene / prefab defaults
+
+| Asset | Default |
+|-------|---------|
+| `PF_CCS_Survival_BootstrapRoot` | `enableTraversalValidationIsolation` **off** (normal gameplay) |
+| `SCN_CCS_Survival_Bootstrap` | Scene override: isolation **on** for validation Play Mode |
+| `CCS_TraversalTestAgent` | `notifyVitalsTestMode` **on** |
+
+Committed gameplay: **`enableTraversalTest` off**, isolation master off on prefab unless scene override is intentional for local validation.
+
+### Validation checklist
+
+| Check | Expected |
+|-------|----------|
+| Traversal on + scene isolation on | Hazard enter/exit logs; route **PASSED**; no global vitals health spam |
+| Traversal off | Full hunger/thirst/environmental damage; player hazards apply normally |
+| Isolation master off on module | Traversal does not pause global vitals even when test runs |
+| Stop / disable traversal | Vitals tick and logs restore |
+| Console | No errors on play/stop |
+
+### Scripts
+
+| Script | Role |
+|--------|------|
+| `CCS_SurvivalVitalsTestIsolationSettings` | Serializable dev toggles |
+| `CCS_ISurvivalVitalsTestModeService` | Service notify API |
+| `CCS_SurvivalTraversalValidationLifecycleEvent` | Event fallback |
+| `CCS_SurvivalModule` | Isolation + service + event subscription |
+| `CCS_TraversalTestAgent` | Start/stop notifications |
+
+### Result status
+
+**Implemented** in repo. Play Mode validation recommended with scene isolation override enabled.
 
 ---
 

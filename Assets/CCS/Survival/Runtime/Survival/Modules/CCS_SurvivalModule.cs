@@ -15,7 +15,7 @@ using UnityEngine;
 namespace CCS.Survival
 {
     [DefaultExecutionOrder(50)]
-    public sealed class CCS_SurvivalModule : MonoBehaviour, CCS_ISurvivalVitalsService
+    public sealed class CCS_SurvivalModule : MonoBehaviour, CCS_ISurvivalVitalsService, CCS_ISurvivalVitalsTestModeService
     {
         private const string LogCategory = CCS_SurvivalVitalsDiagnostics.LogCategory;
 
@@ -36,6 +36,11 @@ namespace CCS.Survival
         [Tooltip("Minimum whole-health step required before writing another health-changed debug log.")]
         [SerializeField] private float healthDebugLogStep = 5f;
 
+        [Header("Traversal Validation (Dev)")]
+        [Tooltip("Optional vitals isolation while CCS_TraversalTestAgent validation is active.")]
+        [SerializeField] private CCS_SurvivalVitalsTestIsolationSettings vitalsTestIsolation =
+            new CCS_SurvivalVitalsTestIsolationSettings();
+
         private CCS_SurvivalState survivalState;
         private bool isInitialized;
         private bool isServiceRegistered;
@@ -55,6 +60,9 @@ namespace CCS.Survival
         private float respawnHealthPercent;
         private float meaningfulChangePrecision;
         private float lastLoggedHealthValue = float.NaN;
+        private bool isTraversalValidationActive;
+        private bool isTestModeServiceRegistered;
+        private bool isSubscribedToTraversalValidationEvents;
 
         #endregion
 
@@ -84,13 +92,15 @@ namespace CCS.Survival
         {
             ResolveVitalsTuning();
             Initialize();
-            TryRegisterSurvivalService();
+            TryRegisterSurvivalServices();
+            TrySubscribeToTraversalValidationEvents();
             PublishSurvivalStateChanged();
         }
 
         private void OnDestroy()
         {
-            TryUnregisterSurvivalService();
+            TryUnsubscribeFromTraversalValidationEvents();
+            TryUnregisterSurvivalServices();
             isInitialized = false;
         }
 
@@ -102,9 +112,29 @@ namespace CCS.Survival
             }
 
             float deltaTime = Time.deltaTime;
-            UpdateHungerAndThirst(deltaTime);
-            ApplyEnvironmentalDamage(deltaTime);
-            RecoverStamina(deltaTime);
+            bool traversalIsolationActive = IsTraversalIsolationActive();
+
+            if (!traversalIsolationActive
+                || !vitalsTestIsolation.PauseGlobalVitalsTickDuringTraversalTest)
+            {
+                if (!traversalIsolationActive)
+                {
+                    UpdateHungerAndThirst(deltaTime);
+                    ApplyEnvironmentalDamage(deltaTime);
+                    RecoverStamina(deltaTime);
+                }
+                else
+                {
+                    UpdateHungerAndThirst(deltaTime);
+                    if (!vitalsTestIsolation.DisableEnvironmentalDamageDuringTraversalTest)
+                    {
+                        ApplyEnvironmentalDamage(deltaTime);
+                    }
+
+                    RecoverStamina(deltaTime);
+                }
+            }
+
             EvaluateDeathState();
         }
 
@@ -289,9 +319,16 @@ namespace CCS.Survival
             SetExposure(0f);
         }
 
+        public void NotifyTraversalValidationActive(bool isActive)
+        {
+            ApplyTraversalValidationState(isActive);
+        }
+
         #endregion
 
         #region Properties
+
+        public bool IsTraversalValidationActive => isTraversalValidationActive;
 
         public bool IsInitialized => isInitialized;
 
@@ -424,7 +461,7 @@ namespace CCS.Survival
             runtimeHost = GetComponentInParent<CCS_RuntimeHost>();
         }
 
-        private void TryRegisterSurvivalService()
+        private void TryRegisterSurvivalServices()
         {
             ResolveRuntimeHostReference();
 
@@ -440,9 +477,9 @@ namespace CCS.Survival
                 return;
             }
 
-            bool registered = runtimeHost.ServiceRegistry.RegisterService<CCS_ISurvivalVitalsService>(this);
-            isServiceRegistered = registered;
-            if (registered)
+            bool registeredVitals = runtimeHost.ServiceRegistry.RegisterService<CCS_ISurvivalVitalsService>(this);
+            isServiceRegistered = registeredVitals;
+            if (registeredVitals)
             {
                 LogDebug("Registered CCS_ISurvivalVitalsService on runtime host service registry.");
             }
@@ -450,17 +487,128 @@ namespace CCS.Survival
             {
                 CCS_Logger.LogWarning(LogCategory, "Failed to register CCS_ISurvivalVitalsService.");
             }
+
+            bool registeredTestMode =
+                runtimeHost.ServiceRegistry.RegisterService<CCS_ISurvivalVitalsTestModeService>(this);
+            isTestModeServiceRegistered = registeredTestMode;
+            if (registeredTestMode)
+            {
+                LogDebug("Registered CCS_ISurvivalVitalsTestModeService on runtime host service registry.");
+            }
+            else
+            {
+                CCS_Logger.LogWarning(LogCategory, "Failed to register CCS_ISurvivalVitalsTestModeService.");
+            }
         }
 
-        private void TryUnregisterSurvivalService()
+        private void TryUnregisterSurvivalServices()
         {
-            if (!isServiceRegistered || !CCS_Validation.IsObjectValid(runtimeHost))
+            if (!CCS_Validation.IsObjectValid(runtimeHost))
+            {
+                return;
+            }
+
+            if (isTestModeServiceRegistered)
+            {
+                runtimeHost.ServiceRegistry.UnregisterService<CCS_ISurvivalVitalsTestModeService>();
+                isTestModeServiceRegistered = false;
+            }
+
+            if (!isServiceRegistered)
             {
                 return;
             }
 
             runtimeHost.ServiceRegistry.UnregisterService<CCS_ISurvivalVitalsService>();
             isServiceRegistered = false;
+        }
+
+        private void TrySubscribeToTraversalValidationEvents()
+        {
+            ResolveRuntimeHostReference();
+
+            if (isSubscribedToTraversalValidationEvents
+                || !CCS_Validation.IsObjectValid(runtimeHost)
+                || !runtimeHost.IsRuntimeInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.EventDispatcher.Subscribe<CCS_SurvivalTraversalValidationLifecycleEvent>(
+                OnTraversalValidationLifecycleEvent);
+            isSubscribedToTraversalValidationEvents = true;
+        }
+
+        private void TryUnsubscribeFromTraversalValidationEvents()
+        {
+            if (!isSubscribedToTraversalValidationEvents || !CCS_Validation.IsObjectValid(runtimeHost))
+            {
+                return;
+            }
+
+            runtimeHost.EventDispatcher.Unsubscribe<CCS_SurvivalTraversalValidationLifecycleEvent>(
+                OnTraversalValidationLifecycleEvent);
+            isSubscribedToTraversalValidationEvents = false;
+        }
+
+        private void OnTraversalValidationLifecycleEvent(CCS_SurvivalTraversalValidationLifecycleEvent lifecycleEvent)
+        {
+            ApplyTraversalValidationState(lifecycleEvent.IsActive);
+        }
+
+        private void ApplyTraversalValidationState(bool isActive)
+        {
+            if (isTraversalValidationActive == isActive)
+            {
+                return;
+            }
+
+            isTraversalValidationActive = isActive;
+
+            if (!isActive || !vitalsTestIsolation.EnableTraversalValidationIsolation)
+            {
+                return;
+            }
+
+            if (vitalsTestIsolation.ResetVitalsOnTestStart)
+            {
+                ResetVitalsForTraversalValidation();
+            }
+        }
+
+        private bool IsTraversalIsolationActive()
+        {
+            return isTraversalValidationActive && vitalsTestIsolation.EnableTraversalValidationIsolation;
+        }
+
+        private bool AreVitalsDebugLogsEnabled()
+        {
+            if (!enableDebugLogs)
+            {
+                return false;
+            }
+
+            if (IsTraversalIsolationActive() && vitalsTestIsolation.SuppressVitalsDebugLogsDuringTraversalTest)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void ResetVitalsForTraversalValidation()
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            survivalState = CCS_SurvivalState.CreateDefault();
+            survivalState.BodyTemperature = defaultBodyTemperature;
+            ClampStateToMaximums();
+            lastLoggedHealthValue = float.NaN;
+            PublishSurvivalStateChanged();
+            LogDebug("Vitals reset for traversal validation (dev test isolation).");
         }
 
         private void UpdateHungerAndThirst(float deltaTime)
@@ -602,12 +750,12 @@ namespace CCS.Survival
 
         private void LogDebug(string message)
         {
-            CCS_Logger.Log(LogCategory, message, enableDebugLogs);
+            CCS_Logger.Log(LogCategory, message, AreVitalsDebugLogsEnabled());
         }
 
         private void TryLogHealthChanged(float previousValue, float newValue)
         {
-            if (!enableDebugLogs)
+            if (!AreVitalsDebugLogsEnabled())
             {
                 return;
             }

@@ -77,6 +77,13 @@ MonoBehaviour:
   survivalVitalsProfile: {fileID: 11400000, guid: e2f3a4b5c6d7e8f9012345678abcdef0, type: 2}
   runtimeHost: {fileID: 973492003}
   enableDebugLogs: 1
+  healthDebugLogStep: 5
+  vitalsTestIsolation:
+    enableTraversalValidationIsolation: 0
+    pauseGlobalVitalsTickDuringTraversalTest: 1
+    disableEnvironmentalDamageDuringTraversalTest: 1
+    suppressVitalsDebugLogsDuringTraversalTest: 1
+    resetVitalsOnTestStart: 1
 --- !u!114 &973492006
 MonoBehaviour:
   m_ObjectHideFlags: 0
