@@ -2891,6 +2891,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Testing.Traversal.CCS_TraversalTestAgent
   enableTraversalTest: 0
   traversalRoute: {fileID: 300000402}
+  manualPlayerRoot: {fileID: 422606779}
+  disableManualPlayerDuringTest: 1
   moveSpeed: 4
   gravity: -20
   rotationSmoothTime: 0.12

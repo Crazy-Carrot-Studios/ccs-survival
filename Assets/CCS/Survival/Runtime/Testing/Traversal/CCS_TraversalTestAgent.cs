@@ -1,3 +1,4 @@
+using CCS.Survival;
 using UnityEngine;
 
 // =============================================================================
@@ -26,6 +27,13 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("Traversal route asset in the scene.")]
         [SerializeField] private CCS_TraversalTestRoute traversalRoute;
 
+        [Header("Manual Player")]
+        [Tooltip("Manual player root (CCS_PlayerRoot). Movement and CharacterController are disabled while the traversal test runs.")]
+        [SerializeField] private GameObject manualPlayerRoot;
+
+        [Tooltip("When enabled, disables manual player locomotion during traversal tests to avoid CharacterController overlap at spawn.")]
+        [SerializeField] private bool disableManualPlayerDuringTest = true;
+
         [Header("Movement")]
         [Tooltip("Horizontal movement speed in meters per second.")]
         [SerializeField] private float moveSpeed = 4f;
@@ -48,6 +56,9 @@ namespace CCS.Survival.Testing.Traversal
         private bool isWaitingAtWaypoint;
         private bool loggedInvalidRoute;
         private bool loggedRouteStart;
+        private CharacterController manualPlayerCharacterController;
+        private CCS_SurvivalPrototypeCharacterController manualPlayerMovement;
+        private bool manualPlayerLocomotionDisabledByAgent;
 
         #endregion
 
@@ -56,15 +67,24 @@ namespace CCS.Survival.Testing.Traversal
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            CacheManualPlayerComponents();
         }
 
         private void OnEnable()
         {
             ResetRouteState();
+            SyncManualPlayerForTraversalTest();
+        }
+
+        private void OnDisable()
+        {
+            SetManualPlayerLocomotionEnabled(true);
         }
 
         private void Update()
         {
+            SyncManualPlayerForTraversalTest();
+
             if (!enableTraversalTest)
             {
                 return;
@@ -210,6 +230,7 @@ namespace CCS.Survival.Testing.Traversal
                 }
 
                 enableTraversalTest = false;
+                SyncManualPlayerForTraversalTest();
                 return;
             }
 
@@ -255,6 +276,48 @@ namespace CCS.Survival.Testing.Traversal
 
             Debug.Log(message);
             loggedFlag = true;
+        }
+
+        private void CacheManualPlayerComponents()
+        {
+            if (manualPlayerRoot == null)
+            {
+                return;
+            }
+
+            manualPlayerCharacterController = manualPlayerRoot.GetComponent<CharacterController>();
+            manualPlayerMovement = manualPlayerRoot.GetComponent<CCS_SurvivalPrototypeCharacterController>();
+        }
+
+        private void SyncManualPlayerForTraversalTest()
+        {
+            SetManualPlayerLocomotionEnabled(!enableTraversalTest);
+        }
+
+        private void SetManualPlayerLocomotionEnabled(bool locomotionEnabled)
+        {
+            if (!disableManualPlayerDuringTest || manualPlayerRoot == null)
+            {
+                return;
+            }
+
+            bool shouldDisable = !locomotionEnabled;
+            if (shouldDisable == manualPlayerLocomotionDisabledByAgent)
+            {
+                return;
+            }
+
+            if (manualPlayerCharacterController != null)
+            {
+                manualPlayerCharacterController.enabled = locomotionEnabled;
+            }
+
+            if (manualPlayerMovement != null)
+            {
+                manualPlayerMovement.enabled = locomotionEnabled;
+            }
+
+            manualPlayerLocomotionDisabledByAgent = shouldDisable;
         }
 
         #endregion

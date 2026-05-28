@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1F.6 — Automated Traversal Test Agent (Implemented)
+**Status:** Phase 1F.7 — Standalone Traversal Validation Build (Validated)
 
 ---
 
@@ -286,6 +286,69 @@ Waypoints are **empty Transform markers** (or lightweight gizmo components) plac
 2. Enable **`enableTraversalTest`** on `CCS_TraversalTestAgent` — agent follows spawn → stairs → platform → ramp → return
 3. Confirm loop restarts when `loopRoute` is enabled
 4. Console: concise `[CCS Traversal Test]` logs only when `enableDebugLogs` is on
+5. With **`disableManualPlayerDuringTest`** on (default), manual **`CCS_PlayerRoot`** locomotion is disabled while the test runs (camera target remains active)
+
+---
+
+## Phase 1F.7 — Standalone Traversal Validation Build
+
+### Purpose
+
+Validate the Phase 1F.6 automated traversal test agent in a **Windows standalone Development** build outside the Unity Editor.
+
+### Build
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.4.0-D/CCS_Survival.exe` |
+| **Log** | `Logs/Build_0_4_0_D.log` (prefix `[CCS 0.4.0-D]`) |
+| **Bootstrap scene** | `SCN_CCS_Survival_Bootstrap.unity` (build index **0**) |
+| **Validation mode** | Traversal test enabled **only in the built player** via temporary Editor build step; committed scene keeps **`enableTraversalTest` off** by default |
+
+### Runtime validation (automated pass)
+
+| Item | Result |
+|------|--------|
+| **Duration** | ~90 seconds (headless process stop; extended 5-minute pass optional) |
+| **Exception** | 0 |
+| **LogError** | 0 |
+| **NullReferenceException** | 0 |
+| **MissingReferenceException** | 0 |
+| **CharacterController warnings** | 0 |
+| **Services=** | 1 |
+| **Health changed** | 20 |
+| **Bootstrap diagnostics** | Present (normal startup) |
+| **`[CCS Traversal Test]` logs** | Present (debug enabled on agent); route loop restarts observed |
+
+### Manual visual checklist
+
+| Check | Status |
+|-------|--------|
+| Camera visible and stable | **Pending** human confirmation |
+| Manual player movement (test off) | **Pending** |
+| Sprint and stamina | **Pending** |
+| Debug overlay readable | **Pending** |
+| Traversal agent follows route in standalone | **Log-confirmed**; visual **Pending** |
+| Stairs / platform / ramp stable | **Pending** |
+| Loop behavior | **Log-confirmed** (`Route loop complete` ×16 in sample pass) |
+
+### Build console notes (expected, not failures)
+
+- **URP assets included** — informational listing of `PC_RPAsset` / `PC_Renderer`
+- **Stripping Runtime Debug Shader Variants** — normal for player builds
+- **`CCS.Core.Editor.asmdef` will not be compiled** — empty Editor asmdef; harmless
+- **`[CCS 0.4.0-D] Build succeeded`** — success marker
+
+Temporary **`CCS_StandaloneBuild_0_4_0_D_Editor`** auto-run scripts were **removed** after the build so the Editor does not keep re-triggering builds on script reload.
+
+### Follow-up (post 1F.7)
+
+- **`CCS_TraversalTestAgent`** now disables manual player **CharacterController** + movement while the traversal test runs (avoids overlap with **`CCS_PlayerRoot`** at spawn); re-enable when test stops or component disables
+- Rebuild **0.4.0-D** after pulling this fix if validating player/agent separation in standalone
+
+### Result status
+
+**Passed** automated log criteria (no errors; traversal loop logs). **Manual visual checklist** remains for Play Mode / standalone spot-check.
 
 ---
 

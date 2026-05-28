@@ -24,9 +24,11 @@ namespace CCS.Survival.Testing.Traversal
         [Tooltip("When enabled, the route restarts at the first waypoint after the last.")]
         [SerializeField] private bool loopRoute = true;
 
+#if UNITY_EDITOR
         [Header("Gizmos")]
         [Tooltip("Draw route lines and waypoint markers in the Scene view when selected.")]
         [SerializeField] private bool drawRouteGizmos = true;
+#endif
 
         #endregion
 
