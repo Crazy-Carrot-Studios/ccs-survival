@@ -1,12 +1,12 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.6.0 — Phase One Survival Prototype Complete  
+**Milestone:** 0.6.1 — Phase One Cleanup Patch  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
 ## Current Version
 
-Phase One complete at **v0.6.0** — survival vitals, hazards, modifier zones, traversal validation, interaction/pickup foundation, and dev validation grouping in the bootstrap scene.
+Phase One complete at **v0.6.1** — validated at 0.6.0; default bootstrap scene hides dev validation volumes (`CCS_DevValidationRoot` off) with gameplay ground and pickups kept active.
 
 ## Framework Quality Gate Completed (0.3.5)
 

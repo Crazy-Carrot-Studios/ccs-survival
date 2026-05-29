@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase One Complete — 0.6.0 validated
+**Status:** Phase One Complete — 0.6.1 cleanup patch
 
 ---
 
@@ -1880,6 +1880,74 @@ Use player-mode **`CCS_Survival.exe`** or Editor Play Mode for manual closure be
 ### Final status
 
 **Phase One Complete — 0.6.0 validated.** Automated standalone bootstrap + traversal criteria **passed**. Manual Play Mode pickup UX and traversal toggle remain **pending** in Editor.
+
+---
+
+## Phase 1J.2 — Dev Validation Root Cleanup Patch
+
+### Purpose
+
+After **0.6.0** validation, default gameplay should not show transparent hazard/vitals/traversal volumes or apply hidden zone pressure. Reusable validation systems stay in the scene but are **opt-in** via **`CCS_DevValidationRoot`**.
+
+### Version (1J.2.0)
+
+| Reference | Value |
+|-----------|--------|
+| **Project version** | **0.6.1 — Phase One Cleanup Patch** |
+| **`ProjectSettings.bundleVersion`** | **0.6.1** |
+| **Future standalone naming** | `Builds/Windows/CCS-Survival-0.6.1-*`, prefix `[CCS 0.6.1-*]` |
+
+### Scene changes
+
+| Change | Detail |
+|--------|--------|
+| **`CCS_DevValidationRoot`** | **`m_IsActive: 0`** by default (children preserved) |
+| **`CCS_GameplayPlayAreaRoot`** | New scene root; holds **`CCS_PrototypeGround`** so player has collider when dev root is off |
+| **Pickups** | **`PU_WaterCanteen`** moved from hazard cluster `(-5.5, 0.35, 0.4)` → `(2.4, 0.35, 0.8)` near spawn |
+| **Traversal default** | **`enableTraversalTest`** remains **off** on committed scene |
+
+**Dev validation (opt-in):**
+
+1. **CCS → Survival → Validation → Enable Dev Validation Root**
+2. Enable **`enableTraversalTest`** on **`CCS_TraversalTestAgent`**
+3. Run route validation
+4. Before commit: disable traversal test and **Disable Dev Validation Root**
+
+Editor menus: `CCS_DevValidationRootSceneSetup_Editor` (Editor-only).
+
+### Default gameplay expectations
+
+| Check | Expected |
+|-------|----------|
+| Transparent dev zone clutter | Hidden |
+| Hazard / modifier overlay lines | **None** (no active zones) |
+| Immediate cold/exposure from hidden zones | None |
+| Interaction overlay | **None** until near pickup |
+| Pickups reachable | **PU_FoodTin**, **PU_WaterCanteen**, **PU_Kindling** near spawn |
+
+### Play Mode validation
+
+| Check | Status |
+|-------|--------|
+| Default mode — dev root inactive, clean view | **Pass** (scene/config) |
+| Player/camera/WASD | **Pending** manual Editor |
+| Pickup UX (walk + **E**) | **Pending** manual Editor |
+| Dev mode — enable root + traversal, route PASSED | **Pending** manual Editor |
+
+### Standalone build (0.6.1-A)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.6.1-A/CCS_Survival.exe` |
+| **Log** | `Logs/Build_0_6_1_A.log` |
+| **Prefix** | `[CCS 0.6.1-A]` |
+| **Build status** | **Pending** — Unity Editor had project open (batch lock). Re-run with Editor closed: `CCS.Survival.Editor.Temp.CCS_StandaloneBuild_0_6_1_A.ExecuteWindowsDevelopmentBuild` |
+
+**Expected Player.log smoke (~30s, dev root off):** all error metrics **0**; **Core health OK** and **Survival validation rules passed** present; no hazard/modifier telemetry from disabled dev root.
+
+### Final status
+
+**Phase One cleanup patch at 0.6.1.** Default bootstrap scene is gameplay-readable; dev validation is opt-in. Proceed to Phase Two inventory when manual pickup pass is complete.
 
 ---
 

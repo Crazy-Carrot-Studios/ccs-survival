@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.6.0 — Phase One Survival Prototype Complete
+0.6.1 — Phase One Cleanup Patch
 
 ## Repository Purpose
 
@@ -124,9 +124,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.6.0 — Phase One Complete
+## Milestone 0.6.1 — Phase One Cleanup Patch
 
-**Delivered:** Phase 1 survival prototype — vitals, hazards, modifier zones, traversal validation, interaction/pickup foundation, debug overlay, dev validation grouping, standalone **0.6.0-A** player-mode build.
+**Delivered:** Default bootstrap scene hides **`CCS_DevValidationRoot`** (opt-in dev validation); gameplay ground under **`CCS_GameplayPlayAreaRoot`**; pickup cluster moved away from hazard testbed; Editor validation menus.
+
+**Prior (0.6.0):** Phase One survival prototype complete — standalone **0.6.0-A** validated (`14f68f8`).
 
 **Prior milestone (0.5.0):** Survival systems prototype (interaction foundation, overlapping zone validation).
 

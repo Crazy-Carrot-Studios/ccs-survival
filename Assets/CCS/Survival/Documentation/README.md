@@ -1,13 +1,13 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.6.0 — Phase One Survival Prototype Complete  
+**Milestone:** 0.6.1 — Phase One Cleanup Patch  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
 ## Current Version
 
-Phase One complete at **v0.6.0** — survival systems prototype validated; see `CCS_Survival_Phase_01_Survival_Core.md`.
+Phase One complete at **v0.6.1** — cleanup patch after 0.6.0 validation; see `CCS_Survival_Phase_01_Survival_Core.md`.
 
 ## Framework Quality Gate Completed (0.3.5)
 

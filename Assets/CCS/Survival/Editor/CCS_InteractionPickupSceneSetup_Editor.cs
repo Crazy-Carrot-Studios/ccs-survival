@@ -123,7 +123,7 @@ namespace CCS.Survival.Editor
             CreatePickup(
                 root,
                 "PU_WaterCanteen",
-                new Vector3(-5.5f, 0.35f, 0.4f),
+                new Vector3(2.4f, 0.35f, 0.8f),
                 PrimitiveType.Capsule,
                 new Vector3(0.35f, 0.35f, 0.35f),
                 new Color(0.25f, 0.55f, 0.95f, 1f),
