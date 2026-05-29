@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: CCS_Framework
+  productName: CCS_Survival
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -143,7 +143,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.4.4
+  bundleVersion: 0.3.5
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -846,14 +846,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: CCS_Framework
+  metroPackageName: CCS_Survival
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: CCS_Framework
+  metroApplicationDescription: CCS_Survival
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -927,7 +927,7 @@ PlayerSettings:
   cloudProjectId: c68b4356-751c-459d-8040-bae61ade583c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: CCS_Framework
+  projectName: CCS_Survival
   organizationId: crazycarrotstudios
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
