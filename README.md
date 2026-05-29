@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.5 — Survival Framework Quality Gate (documentation + consistency pass; no gameplay)
+0.3.6 — Development Framework Support Foundation
 
 ## Repository Purpose
 
@@ -116,7 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.0 Scope (current)
+## Milestone 0.3.6 Scope (current)
+
+Survival **development / framework support** foundation: runtime diagnostics hub, editor validation menus, dev test toggles, settings placeholders, and scene bootstrap profile tooling. **No gameplay mechanics.**
+
+Prior foundation milestone **0.3.5** remains the architecture quality gate reference.
 
 **In scope:** `ccs.survival.character` module skeleton, installer, diagnostics constants, survival install sequencing.
 

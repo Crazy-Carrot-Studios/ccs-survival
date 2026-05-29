@@ -1,10 +1,27 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.5 — Survival Framework Quality Gate + Documentation Pass  
+**Milestone:** 0.3.6 — Development Framework Support Foundation  
 **Author:** James Schilz  
-**Date:** 2026-05-24
+**Date:** 2026-05-28
 
-## Framework Quality Gate Completed
+## Development Framework Support (0.3.6)
+
+Pre-gameplay development infrastructure added at **v0.3.6**:
+
+| Area | Path |
+|------|------|
+| Runtime development | `Runtime/Development/` |
+| Editor development | `Editor/Development/` |
+| Module roadmap | [Documentation/CCS_Survival_Module_Roadmap.md](Documentation/CCS_Survival_Module_Roadmap.md) |
+| Support guide | [Documentation/CCS_Survival_Development_Framework_Support.md](Documentation/CCS_Survival_Development_Framework_Support.md) |
+
+**Editor menus:**
+
+- **CCS → Survival → Validation → Run Survival Validation**
+- **CCS → Survival → Bootstrap → Validate Active Scene Bootstrap**
+- **CCS → Survival → Testing →** reset/apply test toggle profiles
+
+## Framework Quality Gate Completed (0.3.5)
 
 Pre-gameplay foundation audit completed at **v0.3.5**:
 
@@ -45,6 +62,7 @@ Pre-gameplay foundation audit completed at **v0.3.5**:
 | Profile slot | `Runtime/Foundation/Bootstrap/` |
 | Validation | `Runtime/Foundation/Validation/` |
 | Profiles | `Runtime/Foundation/Profiles/` |
+| Development support | `Runtime/Development/`, `Editor/Development/` |
 
 ## Skeleton diagnostics expectations
 
@@ -61,11 +79,15 @@ Pre-gameplay foundation audit completed at **v0.3.5**:
 - Inventory, attributes, combat, AI
 - Required profile slots or gameplay profile assets
 
-## Runtime assembly
+## Runtime assemblies
 
-`Assets/CCS/Survival/Runtime/CCS.Survival.Runtime.asmdef` references **`CCS.Core.Runtime` only**.
+| Assembly | References |
+|----------|------------|
+| `CCS.Survival.Runtime` | `CCS.Core.Runtime` |
+| `CCS.Survival.Editor` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
 
 ## Related documentation
 
 - [In-Unity doc index](Documentation/README.md)
+- [Module roadmap](Documentation/CCS_Survival_Module_Roadmap.md)
 - [Milestone 0.3.5](Documentation/Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md)

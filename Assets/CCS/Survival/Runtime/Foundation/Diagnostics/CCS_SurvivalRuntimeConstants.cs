@@ -14,6 +14,10 @@ namespace CCS.Survival
     {
         public const string ModuleIdPrefix = "ccs.survival.";
 
+        public const string DevelopmentDiagnosticsLogCategory = "Survival Development Diagnostics";
+
+        public const string DevelopmentModuleId = ModuleIdPrefix + "development";
+
         public const string CharacterModuleId = ModuleIdPrefix + "character";
 
         public const string SurvivalDiagnosticsLogCategory = "Survival Diagnostics";
