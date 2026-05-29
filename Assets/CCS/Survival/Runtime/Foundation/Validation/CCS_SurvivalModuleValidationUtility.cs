@@ -188,6 +188,12 @@ namespace CCS.Survival
                     $"Expected installed module: {CCS_SurvivalRuntimeConstants.CharacterModuleId}");
             }
 
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalRuntimeConstants.InventoryModuleId))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.InventoryModuleId}");
+            }
+
             if (moduleCountValidation.IsWarning)
             {
                 return moduleCountValidation;

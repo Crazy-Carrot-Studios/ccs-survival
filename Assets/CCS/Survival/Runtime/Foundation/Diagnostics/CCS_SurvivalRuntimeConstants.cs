@@ -16,6 +16,8 @@ namespace CCS.Survival
 
         public const string CharacterModuleId = ModuleIdPrefix + "character";
 
+        public const string InventoryModuleId = ModuleIdPrefix + "inventory";
+
         public const string SurvivalVitalsModuleId = ModuleIdPrefix + "vitals";
 
         public const string SurvivalVitalsLogCategory = "Survival Vitals";
@@ -32,9 +34,13 @@ namespace CCS.Survival
 
         public const string CharacterInstallerLogCategory = "Survival Character Installer";
 
-        public const int ExpectedSkeletonModuleCount = 1;
+        public const string InventoryLogCategory = "Survival Inventory";
 
-        public const int SkeletonExpectedServicesCount = 2;
+        public const string InventoryInstallerLogCategory = "Survival Inventory Installer";
+
+        public const int ExpectedSkeletonModuleCount = 2;
+
+        public const int SkeletonExpectedServicesCount = 3;
 
         public const int SkeletonExpectedUpdateSystemsCount = 0;
 

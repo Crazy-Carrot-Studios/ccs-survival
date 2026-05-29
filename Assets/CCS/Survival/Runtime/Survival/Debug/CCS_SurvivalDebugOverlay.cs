@@ -2,6 +2,7 @@ using CCS.Core;
 using CCS.Survival.Environment.Hazards;
 using CCS.Survival.Environment.VitalsZones;
 using CCS.Survival.Interaction;
+using CCS.Survival.Inventory;
 using UnityEngine;
 
 // =============================================================================
@@ -18,7 +19,7 @@ namespace CCS.Survival
 {
     public sealed class CCS_SurvivalDebugOverlay : MonoBehaviour
     {
-        private const int SurvivalPanelLineCount = 13;
+        private const int SurvivalPanelLineCount = 15;
 
         #region Variables
 
@@ -423,6 +424,10 @@ namespace CCS.Survival
             y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Interaction {ResolveInteractionPrompt()}", labelStyle);
             y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), ResolveInventoryOccupancyLine(), labelStyle);
+            y += lineHeight + lineSpacing;
+            GUI.Label(new Rect(x, y, contentWidth, lineHeight), $"Items {ResolveInventoryItemsLine()}", labelStyle);
+            y += lineHeight + lineSpacing;
             GUI.Label(new Rect(x, y, contentWidth, lineHeight), state.IsAlive ? "Alive" : "Dead", labelStyle);
         }
 
@@ -439,6 +444,57 @@ namespace CCS.Survival
             }
 
             return interactionScanner.CurrentInteractionPrompt;
+        }
+
+        private string ResolveInventoryOccupancyLine()
+        {
+            if (!TryResolveInventoryService(out CCS_ISurvivalInventoryService inventoryService))
+            {
+                return "Inventory N/A";
+            }
+
+            return $"Inventory {inventoryService.OccupiedSlotCount}/{inventoryService.SlotCount}";
+        }
+
+        private string ResolveInventoryItemsLine()
+        {
+            if (!TryResolveInventoryService(out CCS_ISurvivalInventoryService inventoryService))
+            {
+                return "None";
+            }
+
+            return inventoryService.BuildCompactItemSummary(4);
+        }
+
+        private bool TryResolveInventoryService(out CCS_ISurvivalInventoryService inventoryService)
+        {
+            inventoryService = null;
+
+            if (CCS_Validation.IsObjectValid(survivalModule))
+            {
+                CCS_RuntimeHost host = survivalModule.GetComponent<CCS_RuntimeHost>();
+                if (!CCS_Validation.IsObjectValid(host))
+                {
+                    host = survivalModule.GetComponentInParent<CCS_RuntimeHost>();
+                }
+
+                if (CCS_Validation.IsObjectValid(host)
+                    && host.IsRuntimeInitialized
+                    && host.ServiceRegistry.TryGetService(out inventoryService))
+                {
+                    return true;
+                }
+            }
+
+            CCS_RuntimeHost sceneHost = FindFirstObjectByType<CCS_RuntimeHost>();
+            if (CCS_Validation.IsObjectValid(sceneHost)
+                && sceneHost.IsRuntimeInitialized
+                && sceneHost.ServiceRegistry.TryGetService(out inventoryService))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private float GetLineHeight()

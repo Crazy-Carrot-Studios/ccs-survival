@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.6.1 — Phase One Cleanup Patch (validated)
+0.7.0 — Inventory Prototype Foundation
 
 ## Repository Purpose
 
@@ -138,9 +138,9 @@ Core must never reference survival or gameplay modules.
 
 See [Survival README](Assets/CCS/Survival/README.md), [Phase 1 — Survival Core](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_01_Survival_Core.md), and [Phase 2 — Inventory Core (planning)](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_02_Inventory_Core.md).
 
-## Phase Two (started)
+## Phase Two (in progress)
 
-**2A — Inventory foundation readiness + architecture planning** (current). Project version remains **0.6.1** until Phase **2B** implementation begins (**0.7.0** target).
+**2B — Core inventory service + item definitions** (current, **0.7.0**). Next: **2C** pickup-to-inventory integration.
 
 ## Unity Version
 

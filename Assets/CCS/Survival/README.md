@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.6.1 — Phase One Cleanup Patch  
+**Milestone:** 0.7.0 — Inventory Prototype Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
@@ -8,9 +8,9 @@
 
 | Item | Status |
 |------|--------|
-| **Phase One** | **Complete** — 0.6.1 validated (pickup UX passed) |
-| **Phase Two** | **2A started** — inventory architecture planning ([Phase 2 doc](Documentation/CCS_Survival_Phase_02_Inventory_Core.md)) |
-| **Project version** | **0.6.1** (target **0.7.0** when inventory implementation begins) |
+| **Phase One** | **Complete** — 0.6.1 validated |
+| **Phase Two** | **2B complete** — inventory core at **0.7.0** ([Phase 2 doc](Documentation/CCS_Survival_Phase_02_Inventory_Core.md)) |
+| **Next** | **2C** — pickup-to-inventory integration |
 
 ## Framework Quality Gate Completed (0.3.5)
 

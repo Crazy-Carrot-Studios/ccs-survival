@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.6.1 — Phase One Cleanup Patch  
+**Milestone:** 0.7.0 — Inventory Prototype Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-27
 
@@ -9,9 +9,9 @@
 
 | Phase | Status |
 |-------|--------|
-| **Phase One** | **Complete** — 0.6.1 cleanup patch validated ([Phase 1 plan](CCS_Survival_Phase_01_Survival_Core.md)) |
-| **Phase Two** | **Started** — 2A inventory architecture planning ([Phase 2 plan](CCS_Survival_Phase_02_Inventory_Core.md)) |
-| **Project version** | **0.6.1** until inventory implementation begins (**0.7.0** target) |
+| **Phase One** | **Complete** — 0.6.1 validated ([Phase 1 plan](CCS_Survival_Phase_01_Survival_Core.md)) |
+| **Phase Two** | **2B** — inventory core implemented ([Phase 2 plan](CCS_Survival_Phase_02_Inventory_Core.md)) |
+| **Project version** | **0.7.0** |
 
 ## Framework Quality Gate Completed (0.3.5)
 

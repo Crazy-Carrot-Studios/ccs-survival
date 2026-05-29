@@ -7,8 +7,10 @@ using CCS.Core;
 // PLACEMENT: Registered on CCS_BootstrapRunner by CCS_SurvivalBootstrap.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-24
-// NOTES: Registers character module skeleton. See CCS_SurvivalFrameworkFutureMarkers.GameplayModuleRegistrationExpansion.
+// NOTES: Registers character and inventory module skeletons. See CCS_SurvivalFrameworkFutureMarkers.GameplayModuleRegistrationExpansion.
 // =============================================================================
+
+using CCS.Survival.Inventory;
 
 namespace CCS.Survival
 {
@@ -47,6 +49,7 @@ namespace CCS.Survival
             }
 
             InstallCharacterModuleSkeleton(runtimeHost);
+            InstallInventoryModule(runtimeHost);
 
             CCS_Logger.Log(LogCategory, "Survival installer completed.", enableDebugLogs);
         }
@@ -74,6 +77,27 @@ namespace CCS.Survival
                     $"Character module skeleton registered: {CCS_SurvivalCharacterDiagnostics.ModuleId}",
                     enableDebugLogs);
             }
+        }
+
+        private void InstallInventoryModule(CCS_RuntimeHost runtimeHost)
+        {
+            const int defaultInventorySlotCount = 16;
+            CCS_SurvivalInventoryModuleInstaller inventoryModuleInstaller =
+                new CCS_SurvivalInventoryModuleInstaller(defaultInventorySlotCount, enableDebugLogs);
+            inventoryModuleInstaller.Install(runtimeHost);
+
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalInventoryDiagnostics.ModuleId))
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    "Inventory module was not registered after install.");
+                return;
+            }
+
+            CCS_Logger.Log(
+                LogCategory,
+                $"Inventory module registered: {CCS_SurvivalInventoryDiagnostics.ModuleId}",
+                enableDebugLogs);
         }
 
         #endregion

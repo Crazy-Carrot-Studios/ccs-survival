@@ -10,6 +10,8 @@ using CCS.Core;
 // NOTES: Bootstrap-time only. See CCS_SurvivalFrameworkFutureMarkers.FeatureDiagnosticsExtension.
 // =============================================================================
 
+using CCS.Survival.Inventory;
+
 namespace CCS.Survival
 {
     public static class CCS_SurvivalDiagnostics
@@ -128,6 +130,41 @@ namespace CCS.Survival
             if (!characterModuleValidation.IsSuccess)
             {
                 return characterModuleValidation.ToCoreResult();
+            }
+
+            CCS_SurvivalValidationResult inventoryModuleValidation =
+                CCS_SurvivalModuleValidationUtility.ValidateModuleIdPrefix(CCS_SurvivalRuntimeConstants.InventoryModuleId);
+            LogValidationResult(inventoryModuleValidation, enableDebugLogs);
+
+            if (!runtimeHost.ModuleHost.IsModuleInstalled(CCS_SurvivalRuntimeConstants.InventoryModuleId))
+            {
+                CCS_Logger.LogWarning(
+                    LogCategory,
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.InventoryModuleId}");
+                return CCS_Result.Failure(
+                    CCS_CoreErrorCode.ValidationFailed,
+                    $"Expected installed module: {CCS_SurvivalRuntimeConstants.InventoryModuleId}");
+            }
+
+            if (!inventoryModuleValidation.IsSuccess)
+            {
+                return inventoryModuleValidation.ToCoreResult();
+            }
+
+            if (!runtimeHost.ServiceRegistry.TryGetService(out CCS_ISurvivalInventoryService inventoryService))
+            {
+                CCS_Logger.LogWarning(LogCategory, "Expected CCS_ISurvivalInventoryService to be registered.");
+                return CCS_Result.Failure(
+                    CCS_CoreErrorCode.ValidationFailed,
+                    "Expected CCS_ISurvivalInventoryService to be registered.");
+            }
+
+            if (inventoryService.SlotCount < 1)
+            {
+                CCS_Logger.LogWarning(LogCategory, "Inventory service slot count must be at least 1.");
+                return CCS_Result.Failure(
+                    CCS_CoreErrorCode.ValidationFailed,
+                    "Inventory service slot count must be at least 1.");
             }
 
             CCS_CoreDiagnosticsReport report = runtimeHost.BuildDiagnosticsReport();

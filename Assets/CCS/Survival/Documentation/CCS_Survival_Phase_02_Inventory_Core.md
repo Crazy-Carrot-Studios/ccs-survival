@@ -5,7 +5,7 @@
 **Phase:** 2 — Inventory Core  
 **Author:** James Schilz  
 **Date:** 2026-05-28  
-**Status:** Phase 2A — Inventory architecture planning (implementation not started)
+**Status:** Phase 2B — Inventory core implemented (0.7.0)
 
 ---
 
@@ -13,11 +13,9 @@
 
 | Item | Value |
 |------|--------|
-| **Current project version** | **0.6.1 — Phase One Cleanup Patch** (unchanged until inventory implementation begins) |
-| **Phase Two target version** | **0.7.0 — Inventory Prototype Foundation** |
+| **Current project version** | **0.7.0 — Inventory Prototype Foundation** |
+| **Prior version** | **0.6.1 — Phase One Cleanup Patch** |
 | **Future build naming** | `Builds/Windows/CCS-Survival-0.7.0-*`, log prefix `[CCS 0.7.0-*]` |
-
-Phase 2A is **cleanup + planning only**. No inventory runtime code in this milestone.
 
 ---
 
@@ -250,6 +248,72 @@ Prototype pickup ids today (`survival.pickup.food_tin`, etc.) become or map to *
 
 ---
 
+## Phase 2B — Core Inventory Service + Item Definitions
+
+### Purpose
+
+Implement runtime inventory foundation: item definitions, stack/slot/container data, inventory service/module, events, prototype item assets, debug overlay readout, and bootstrap validation updates. **Pickup-to-inventory bridge deferred to Phase 2C.**
+
+### Implemented (2B)
+
+| Area | Deliverable |
+|------|-------------|
+| **Definitions** | `CCS_SurvivalItemDefinition` (ScriptableObject), `CCS_SurvivalItemCategory`, validation utility |
+| **Data** | `CCS_SurvivalItemStack`, `CCS_SurvivalInventorySlot`, `CCS_SurvivalInventorySlotSnapshot` |
+| **Container** | `CCS_SurvivalInventoryContainer` — merge stacks, fill slots, overflow `remainingAmount` |
+| **Service** | `CCS_ISurvivalInventoryService` — add/remove/query, local events, dispatcher payloads |
+| **Module** | `CCS_SurvivalInventoryModule` — module ID **`ccs.survival.inventory`**, default **16** slots |
+| **Installer** | `CCS_SurvivalInventoryModuleInstaller` via `CCS_SurvivalInstaller` |
+| **Events** | `CCS_SurvivalInventoryChangedEvent`, `CCS_SurvivalItemAddedEvent`, `CCS_SurvivalItemRemovedEvent` |
+| **Assets** | `Assets/CCS/Survival/Data/Items/` — `ITM_FoodTin`, `ITM_WaterCanteen`, `ITM_Kindling` |
+| **Overlay** | `Inventory occupied/total` + compact `Items` summary line on `CCS_SurvivalDebugOverlay` |
+| **Diagnostics** | `ExpectedSkeletonModuleCount = 2`, `SkeletonExpectedServicesCount = 3`, inventory module/service checks |
+| **Bootstrap self-test** | `CCS_SurvivalInventoryBootstrapSelfTest` when inventory debug logs enabled at install |
+
+### Prototype item assets
+
+| Asset | itemId | Category | maxStack |
+|-------|--------|----------|---------:|
+| `ITM_FoodTin` | `survival.item.food_tin` | Food | 12 |
+| `ITM_WaterCanteen` | `survival.item.water_canteen` | Water | 6 |
+| `ITM_Kindling` | `survival.item.kindling` | Material | 24 |
+
+### Service registration
+
+| Check | Result |
+|-------|--------|
+| Module installed via `CCS_SurvivalInstaller` | **Yes** — after character module |
+| `CCS_ISurvivalInventoryService` on `CCS_ServiceRegistry` | **Yes** — registered in `OnInstall` |
+| Inventory starts empty at bootstrap | **Yes** |
+| Pickups still collect/hide (no inventory mutation yet) | **Yes** — Phase 2C |
+
+### Validation checklist (2B)
+
+| Check | Status |
+|-------|--------|
+| Unity compiles | **Pass** — batch compile (6000.3.10f1) |
+| Core health OK | **Expected** — service count now **3** |
+| Survival validation rules passed | **Expected** — inventory module installed |
+| Overlay `Inventory 0/16` at start | **Expected** (Play Mode) |
+| Overlay `Items None` at start | **Expected** (Play Mode) |
+| Pickup UX unchanged | **Expected** (Play Mode) |
+| `CCS_DevValidationRoot` inactive | **Unchanged** |
+
+### Deferred (post-2B)
+
+| Item | Phase |
+|------|-------|
+| Pickup → inventory (`CCS_SurvivalPickupCollectedEvent` bridge) | **2C** |
+| Full inventory UI / drag-drop | Later |
+| Consume hooks | **2E** |
+| Save/load, crafting, equipment | Later |
+
+### Final status (2B)
+
+**0.7.0 inventory core foundation implemented.** Ready for **Phase 2C — Pickup-to-Inventory Integration**.
+
+---
+
 ## Next step
 
-**Phase 2B — Core Inventory Service + Item Definitions** (begin implementation, bump to **0.7.0**).
+**Phase 2C — Pickup-to-Inventory Integration** (map `survival.pickup.*` → `survival.item.*`, add on collect).
