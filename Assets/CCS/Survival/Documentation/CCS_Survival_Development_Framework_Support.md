@@ -95,8 +95,7 @@ Do **not** extend menu classes with hard-coded rules.
 | Script / folder | Role |
 |-----------------|------|
 | `CCS_SurvivalTestToggleProfile` | Toggles: diagnostics, traversal, simulation, inventory, **save/load** |
-| `CCS_SurvivalTestRuntimeFlags` | Static mirror for runtime checks |
-| `CCS_SurvivalTestingMenu` | Reset flags / apply selected profile |
+| `CCS_SurvivalTestRuntimeFlags` | Static mirror for runtime checks (no editor menus in 0.3.7b) |
 | `Testing/Traversal/` | Reserved automated traversal tests |
 | `Testing/Simulation/` | Reserved survival simulation tests |
 | `Testing/Inventory/` | Reserved inventory smoke tests |

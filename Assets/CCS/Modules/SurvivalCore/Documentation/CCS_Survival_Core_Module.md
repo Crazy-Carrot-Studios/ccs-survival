@@ -1,6 +1,6 @@
 # CCS Survival — Survival Core Module
 
-**Milestone:** 0.3.7a — Module folder structure cleanup (behavior from 0.3.7)  
+**Milestone:** 0.3.7b — Foundation cleanup (behavior from 0.3.7)  
 **Module ID:** `ccs.survival.core`  
 **Namespace:** `CCS.Modules.SurvivalCore` (editor: `CCS.Modules.SurvivalCore.Editor`)  
 **Author:** James Schilz (Developer)  
@@ -91,8 +91,7 @@ Event name constants: `CCS_SurvivalCoreEvents`.
 | `CCS_SurvivalStatDefinition` | Min / max / starting per stat |
 | `CCS_SurvivalStatDecayDefinition` | Per-second drain/gain/exposure drift |
 
-**Default asset path:** `Assets/CCS/Survival/Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset`  
-**Create via menu:** **CCS → Survival → Survival Core → Create Default Survival Core Profile**
+**Default asset path:** `Assets/CCS/Survival/Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` (committed project configuration; do not move into Modules)
 
 Default starting values:
 

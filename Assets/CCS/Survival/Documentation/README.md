@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.7a — Module folder structure cleanup  
+**Milestone:** 0.3.7b — Foundation cleanup & validation retention  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -50,6 +50,7 @@
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.7b Foundation lock | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7a Module layout | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7 Survival Core | [../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
 | 0.3.6 Development support | [CCS_Survival_Development_Framework_Support.md](CCS_Survival_Development_Framework_Support.md) |
@@ -57,6 +58,6 @@
 
 ---
 
-## Milestone 0.3.7a rule
+## Milestone 0.3.7b rule
 
-**Gameplay modules under `Assets/CCS/Modules/<Name>/`.** Survival shell (`Assets/CCS/Survival/`) holds bootstrap, scenes, profiles, and project composition only.
+**Validation stays; temporary editor tooling goes.** Default tuning profiles live under `Assets/CCS/Survival/Profiles/`. Gameplay modules under `Assets/CCS/Modules/<Name>/`.

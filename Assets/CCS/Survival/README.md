@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.7a — Module folder structure cleanup  
+**Milestone:** 0.3.7b — Foundation cleanup & validation retention  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -23,10 +23,13 @@ Stat foundation for Health, Stamina, Hunger, Thirst, Temperature, and Fatigue:
 | Default profile | `Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` |
 | Module doc | [../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
 
-**Editor menus:**
+**Editor menus (permanent):**
 
+- **CCS → Survival → Validate Survival** (foundation)
 - **CCS → Survival → Survival Core → Validate Survival Core**
-- **CCS → Survival → Survival Core → Create Default Survival Core Profile**
+- **CCS → Survival → Bootstrap → Validate Scene Bootstrap**
+
+**Default profile:** `Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` (committed project configuration)
 
 ## Development Framework Support (0.3.6)
 

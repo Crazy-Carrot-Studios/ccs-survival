@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.7a — Module folder structure cleanup (Survival Core under `Assets/CCS/Modules/`)
+0.3.7b — Foundation cleanup (validation retained, temporary editor tooling removed)
 
 ## Repository Purpose
 
@@ -116,9 +116,9 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.7a Scope (current)
+## Milestone 0.3.7b Scope (current)
 
-**Module folder cleanup:** Survival Core lives under `Assets/CCS/Modules/SurvivalCore/`; survival shell stays under `Assets/CCS/Survival/`. Core stat foundation (`CCS_SurvivalCoreService`, profiles) unchanged in behavior — **not yet** wired to bootstrap installer or scene tick.
+**Foundation lock:** Validation pipeline and menus retained. One-time profile creation and development testing convenience menus removed. Default Survival Core profile committed under `Assets/CCS/Survival/Profiles/SurvivalCore/`.
 
 **Next:** 0.3.8 Character Controller under `Assets/CCS/Modules/CharacterController/`.
 

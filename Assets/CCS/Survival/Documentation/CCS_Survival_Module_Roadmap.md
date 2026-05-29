@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.7a — Module folder structure cleanup  
+**Milestone baseline:** 0.3.7b — Foundation cleanup & validation retention  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Survival Core under `Assets/CCS/Modules/SurvivalCore/` — **complete** at 0.3.7a. **0.3.8 Character Controller** is next (`Assets/CCS/Modules/CharacterController/`).
+**Status:** Foundation **locked** at 0.3.7b (validation retained, temporary editor menus removed). **0.3.8 Character Controller** is next (`Assets/CCS/Modules/CharacterController/`).
 
 ---
 
@@ -15,6 +15,7 @@
 | **0.3.6** | Development / Framework Support Foundation |
 | **0.3.7** | Survival Core (Health, Stamina, Hunger, Thirst, Fatigue, Temperature architecture) |
 | **0.3.7a** | Module folder structure cleanup (`Assets/CCS/Modules/`) |
+| **0.3.7b** | Foundation cleanup — commit default profile, remove temporary editor tooling |
 | **0.3.8** | Character Controller (`Assets/CCS/Modules/CharacterController/`) |
 | **0.3.9** | Interaction |
 | **0.4.0** | Inventory |
@@ -117,6 +118,18 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 | Namespaces `CCS.Modules.SurvivalCore` | **Complete** |
 | `SurvivalDiagnosticsLogCategory` compile fix | **Complete** |
 | Documentation + version **0.3.7a** | **Complete** |
+
+---
+
+## 0.3.7b definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Default profile committed under `Assets/CCS/Survival/Profiles/SurvivalCore/` | **Complete** |
+| Profile creation menu removed | **Complete** |
+| Development testing convenience menus removed | **Complete** |
+| Validation pipeline + menus retained | **Complete** |
+| Version **0.3.7b** | **Complete** |
 
 ---
 

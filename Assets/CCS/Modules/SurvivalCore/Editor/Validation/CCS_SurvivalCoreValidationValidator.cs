@@ -43,7 +43,6 @@ namespace CCS.Modules.SurvivalCore.Editor
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Validation", $"{SurvivalCoreRuntimeRoot}/Validation");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Editor", SurvivalCoreEditorRoot);
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Editor/Validation", $"{SurvivalCoreEditorRoot}/Validation");
-            ValidateRequiredFolder(report, "Modules/SurvivalCore/Editor/Tools", $"{SurvivalCoreEditorRoot}/Tools");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Documentation", $"{SurvivalCoreRoot}/Documentation");
 
             ValidateRequiredScript(report, "CCS_SurvivalStatType", $"{SurvivalCoreRuntimeRoot}/Stats/CCS_SurvivalStatType.cs");

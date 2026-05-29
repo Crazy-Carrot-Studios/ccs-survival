@@ -1,10 +1,16 @@
 # CCS Gameplay Modules
 
-**Version:** 0.3.7a  
+**Version:** 0.3.7b  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
 ## Folder rules
+
+| Zone | Path |
+|------|------|
+| **Modules** | `Assets/CCS/Modules/` |
+| **Project shell** | `Assets/CCS/Survival/` |
+| **Framework** | `Assets/CCS/Framework/` |
 
 | Path | Purpose |
 |------|---------|
@@ -14,12 +20,24 @@
 
 Do **not** place gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/`.
 
+Project configuration assets (for example default tuning profiles) belong under `Assets/CCS/Survival/Profiles/`, not inside module folders.
+
+## Editor tool policy
+
+| Category | Examples | Policy |
+|----------|----------|--------|
+| **Allowed (permanent)** | Validation, database authoring, content generation | Keep; register via validation pipeline where applicable |
+| **Temporary** | Testing utilities, migration utilities | Runtime code may remain; remove editor menus when no longer needed |
+| **Remove after use** | Setup wizards, debug convenience menus, temporary test menus | Delete once the asset or workflow is committed |
+
+**0.3.7b:** Removed one-time Survival Core profile creation menu and development testing convenience menus. Validation menus and pipeline remain.
+
 ## Standard module layout
 
 ```text
 Assets/CCS/Modules/<ModuleName>/
   Runtime/           # Runtime scripts + CCS.Modules.<Name>.Runtime.asmdef
-  Editor/            # Editor scripts + CCS.Modules.<Name>.Editor.asmdef
+  Editor/            # Editor scripts + CCS.Modules.<Name>.Editor.asmdef (validation only when possible)
   Documentation/     # Module-specific docs (optional)
   Tests/             # Feature tests (optional)
   Prefabs/           # Feature prefabs (optional)
@@ -37,7 +55,7 @@ Assets/CCS/Modules/<ModuleName>/
 
 | Folder | Milestone |
 |--------|-----------|
-| `SurvivalCore/` | 0.3.7 / 0.3.7a |
+| `SurvivalCore/` | 0.3.7 / 0.3.7a / 0.3.7b |
 | `CharacterController/` | 0.3.8 |
 | `Interaction/` | 0.3.9 |
 | `Inventory/` | 0.4.0 |
