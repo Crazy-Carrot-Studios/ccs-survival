@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase 1I.2 — Manual Pickup UX Pass + Fresh Player Build (Build Passed; Manual UX Pending)
+**Status:** Phase One Complete — 0.6.0
 
 ---
 
@@ -1655,6 +1655,161 @@ Saved local copy (not committed): `Logs/Player_0_5_0_B_PlayerMode.log`.
 ### Final status
 
 **Passed** fresh player-mode standalone build + bootstrap smoke log criteria. **Pending** manual Play Mode pickup UX and standalone **E** collect confirmation before inventory work.
+
+---
+
+## Phase 1J — Phase One Completion, Cleanup, Validation, and Version Bump
+
+### Purpose
+
+Close **Phase One** with a clean, AAA-minded pass: organize dev-only validation content, remove stale temp artifacts, bump the project to **0.6.0**, validate player-mode standalone, and document what ships vs what remains manual.
+
+### Pre-check
+
+| Check | Result |
+|-------|--------|
+| Branch `main` | **Pass** |
+| Git clean except expected untracked | **Pass** — `Editor.meta`, `Editor/Temp.meta`, `SceneTemplateSettings.json` |
+| Build scene index **0** | **Pass** — `SCN_CCS_Survival_Bootstrap.unity` |
+| `bundleVersion` before bump | **0.5.0** |
+| Unity compiles after scene grouping | **Pass** (batch build) |
+| `enableTraversalTest` off in committed scene | **Pass** |
+
+### Phase One deliverables (0.6.0)
+
+| Area | Delivered |
+|------|-----------|
+| **Core vitals** | Hunger, thirst, health, stamina, temperature, exposure, injury-lite hooks, death/respawn foundation |
+| **Bootstrap** | `PF_CCS_Survival_BootstrapRoot`, module installer, `CCS_ISurvivalVitalsService`, debug overlay |
+| **Movement / camera** | CharacterController, New Input System, Cinemachine follow |
+| **Traversal validation** | `CCS_TraversalTestAgent`, route, standalone smoke (reusable) |
+| **Hazards** | Profiles, zones, receiver, safe zone |
+| **Vitals modifier zones** | Overlapping testbed, telemetry |
+| **Interaction / pickup** | Scanner, input, prototype pickups, events (no inventory yet) |
+| **Standalone builds** | Development Windows builds with log prefixes and Player.log smoke criteria |
+
+### Scene cleanup
+
+**Main gameplay roots** (scene root level — readable default):
+
+| Root | Role |
+|------|------|
+| `PF_CCS_Survival_BootstrapRoot` (prefab) | Composition root, vitals module, debug overlay |
+| `CCS_PlayerRoot` | Movement, interaction scanner/input, camera target |
+| `Main Camera` / `CM_PrototypeFollow` | Rendering + prototype follow |
+| `Directional Light` | Scene lighting |
+| `CCS_PrototypePickupsRoot` | `PU_FoodTin`, `PU_WaterCanteen`, `PU_Kindling` |
+
+**Dev-only validation** — grouped under **`CCS_DevValidationRoot`** (folded in hierarchy; remains active for QA):
+
+| Child | Contents |
+|-------|----------|
+| `CCS_PrototypeEnvironmentRoot` | Ground, step, stairs, ramp, platform, boundary markers |
+| `CCS_PrototypeTraversalRoute` | Waypoints + route component |
+| `CCS_TraversalTestAgent` | Agent, visual, camera target (`enableTraversalTest` default **off**) |
+| `CCS_PrototypeHazardsRoot` | Hazard + safe zones |
+| `CCS_PrototypeVitalsZonesRoot` | Overlapping modifier zone testbed |
+
+No separate validation scene was added in 1J — single bootstrap scene with clearer hierarchy. A future `SCN_CCS_Survival_Validation.unity` remains optional if the testbed outgrows the bootstrap scene.
+
+**Removed / not committed:**
+
+- Stale `Assets/CCS/Survival/Editor/Temp/*` standalone build scripts (untracked local copies cleared)
+- Build output under `Builds/`
+- Unity batch noise (`ProjectSettings/*`, `Assets/Settings/*` except intentional `bundleVersion`)
+
+**Kept (reusable):**
+
+- Traversal test runtime (`Assets/CCS/Survival/Runtime/Testing/Traversal/`)
+- Hazard / vitals zone runtime + editor setup menus
+- Interaction foundation + `CCS → Survival → Setup Phase 1I Interaction Pickups`
+- Debug overlay
+
+### Version bump (1J.0)
+
+| Reference | Value |
+|-----------|--------|
+| **Project version** | **0.6.0 — Phase One Survival Prototype Complete** |
+| **`ProjectSettings.bundleVersion`** | **0.6.0** |
+| **Future standalone naming** | `Builds/Windows/CCS-Survival-0.6.0-*`, log prefix `[CCS 0.6.0-*]` |
+
+### Play Mode validation
+
+| Check | Status |
+|-------|--------|
+| Player mode — movement, camera, overlay, pickups | **Pending** manual Editor pass |
+| Traversal toggle — agent route, no auto-pickup, restore | **Pending** manual Editor pass (standalone traversal smoke **Pass** below) |
+
+### Interaction scanner fix (post scene YAML reparent)
+
+After grouping validation content under **`CCS_DevValidationRoot`**, the first **0.6.0-A** standalone run spammed **`UnassignedReferenceException`** on **`CCS_SurvivalInteractionScanner.scanOrigin`** (`scanOrigin: {fileID: 0}` in scene YAML; `OnEnable` ran before a safe origin was available).
+
+| Fix | Detail |
+|-----|--------|
+| **Runtime** | `EnsureScanOrigin()` uses Unity `== null` and assigns `transform`; called from `Awake`, `OnEnable`, and before overlap scan |
+| **Scene** | `scanOrigin` wired to **`CCS_PlayerRoot`** transform (`422606780`) on `CCS_SurvivalInteractionScanner` |
+
+Re-run **0.6.0-A** player-mode + optional traversal smoke after this fix (batch build: `CCS.Survival.Editor.Temp.CCS_StandaloneBuild_0_6_0_A`).
+
+### Standalone validation build (0.6.0-A)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.6.0-A/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_6_0_A.log` (prefix `[CCS 0.6.0-A]`) |
+| **Mode** | Player mode — `enableTraversalTest` **off** |
+| **Build status** | **Pending re-run** after `scanOrigin` fix (first attempt failed interaction spam; rebuild when Unity Editor is closed) |
+
+**Expected player-mode smoke (~30s, no input simulation)**
+
+| Metric | Expected |
+|--------|----------|
+| Exception / LogError / NRE / MissingReference / Cannot set the parent | **0** |
+| Core health OK / Survival validation rules passed | **present** |
+| Pickup collected | **0** unless manual **E** in exe |
+
+**Expected traversal smoke (~60s, optional build-time override; scene restored after)**
+
+| Metric | Expected |
+|--------|----------|
+| All error metrics | **0** |
+| Traversal PASSED | **≥ 1** (prior 0.5.x smoke: **10** loops) |
+| Pickup collected | **0** |
+
+### Manual pickup UX status
+
+**Pending** in Editor and **0.6.0-A** exe (no automated **E** input). Use player-mode build for manual collect confirmation.
+
+### Known limitations
+
+- No inventory, crafting, AI, combat, or final HUD art.
+- Full hazard/vitals testbed remains in bootstrap scene under dev root (not a separate gameplay slice).
+- Manual Play Mode pickup + traversal toggle checklist not closed by automation.
+- Debug overlay remains for Phase One; final UI deferred.
+
+### Phase One final validation checklist
+
+| Item | Status |
+|------|--------|
+| Compiles cleanly | **Pass** |
+| Bootstrap scene build index 0 | **Pass** |
+| Dev validation grouped under `CCS_DevValidationRoot` | **Pass** |
+| Traversal off by default | **Pass** |
+| Player-mode standalone 0.6.0-A | **Pending** re-run after `scanOrigin` fix |
+| Traversal smoke PASSED | **Pending** re-run after `scanOrigin` fix |
+| Manual pickup UX | **Pending** |
+| Version 0.6.0 synced | **Pass** |
+
+### Next recommended direction (Phase Two)
+
+1. **`ccs.survival.inventory`** — subscribe to `CCS_SurvivalPickupCollectedEvent`, minimal storage UI stub.
+2. **Resource / crafting hooks** — food/water/kindling ids from prototype pickups.
+3. **Gameplay scene split** — optional dedicated gameplay vs validation scenes once content grows.
+4. **Reduce debug overlay** — gate behind dev builds or replace with first HUD pass.
+
+### Final status
+
+**Phase One complete at 0.6.0** (code, scene organization, version, docs). Re-run **0.6.0-A** standalone smoke after the `scanOrigin` fix when the Editor is not locking the project. Manual pickup UX pass remains the recommended first Editor task before inventory work.
 
 ---
 

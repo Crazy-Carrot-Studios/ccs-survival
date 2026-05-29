@@ -389,7 +389,7 @@ Transform:
   - {fileID: 300000052}
   - {fileID: 300000022}
   - {fileID: 300000042}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 900000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &300000021
 GameObject:
@@ -1844,7 +1844,7 @@ Transform:
   - {fileID: 300000452}
   - {fileID: 300000462}
   - {fileID: 300000472}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 900000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &300000402
 MonoBehaviour:
@@ -2232,7 +2232,7 @@ Transform:
   m_Children:
   - {fileID: 300000521}
   - {fileID: 300000511}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 900000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &300000502
 CharacterController:
@@ -2800,7 +2800,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54cc156470c84a02a8e0f813253b317f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.Interaction.CCS_SurvivalInteractionScanner
-  scanOrigin: {fileID: 0}
+  scanOrigin: {fileID: 422606780}
   scanRadius: 2.25
   interactableLayers:
     serializedVersion: 2
@@ -2988,7 +2988,7 @@ Transform:
   - {fileID: 1180049235}
   - {fileID: 816016477}
   - {fileID: 975712919}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 900000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &816016476
 GameObject:
@@ -4034,7 +4034,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 900000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &815710001
 GameObject:
@@ -5735,18 +5735,50 @@ MonoBehaviour:
   hideAfterCollect: 1
   runtimeHost: {fileID: 0}
   enableDebugLogs: 1
---- !u!1660057539 &9223372036854775807
-SceneRoots:
+--- !u!1 &900000001
+GameObject:
   m_ObjectHideFlags: 0
-  m_Roots:
-  - {fileID: 200000001}
-  - {fileID: 1285007729}
-  - {fileID: 422606780}
-  - {fileID: 890761265}
-  - {fileID: 2145020466}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 900000002}
+  m_Layer: 0
+  m_Name: CCS_DevValidationRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &900000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
   - {fileID: 300000002}
   - {fileID: 300000401}
   - {fileID: 300000501}
   - {fileID: 815686593}
   - {fileID: 815700002}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 900000002}
+  - {fileID: 200000001}
+  - {fileID: 1285007729}
+  - {fileID: 422606780}
+  - {fileID: 890761265}
+  - {fileID: 2145020466}
   - {fileID: 847300002}

@@ -57,14 +57,12 @@ namespace CCS.Survival.Interaction
 
         private void Awake()
         {
-            if (!CCS_Validation.IsObjectValid(scanOrigin))
-            {
-                scanOrigin = transform;
-            }
+            EnsureScanOrigin();
         }
 
         private void OnEnable()
         {
+            EnsureScanOrigin();
             ResolveRuntimeHostReference();
             RefreshCurrentTarget(forceNotify: true);
         }
@@ -129,10 +127,19 @@ namespace CCS.Survival.Interaction
             SetCurrentTarget(bestInteractable, forceNotify);
         }
 
+        private void EnsureScanOrigin()
+        {
+            if (scanOrigin == null)
+            {
+                scanOrigin = transform;
+            }
+        }
+
         private CCS_ISurvivalInteractable FindBestInteractable(out float bestDistanceSqr)
         {
             bestDistanceSqr = float.MaxValue;
             CCS_ISurvivalInteractable bestInteractable = null;
+            EnsureScanOrigin();
             Vector3 origin = scanOrigin.position;
             int hitCount = Physics.OverlapSphereNonAlloc(
                 origin,
