@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase One Complete — 0.6.0
+**Status:** Phase One Complete — 0.6.0 validated
 
 ---
 
@@ -1749,7 +1749,7 @@ After grouping validation content under **`CCS_DevValidationRoot`**, the first *
 | **Runtime** | `EnsureScanOrigin()` uses Unity `== null` and assigns `transform`; called from `Awake`, `OnEnable`, and before overlap scan |
 | **Scene** | `scanOrigin` wired to **`CCS_PlayerRoot`** transform (`422606780`) on `CCS_SurvivalInteractionScanner` |
 
-Re-run **0.6.0-A** player-mode + optional traversal smoke after this fix (batch build: `CCS.Survival.Editor.Temp.CCS_StandaloneBuild_0_6_0_A`).
+**Closed in Phase 1J.1** — see [Phase 1J.1](#phase-1j1--final-060-a-build--manual-closure-validation) for build paths and **Player.log** counts.
 
 ### Standalone validation build (0.6.0-A)
 
@@ -1758,23 +1758,7 @@ Re-run **0.6.0-A** player-mode + optional traversal smoke after this fix (batch 
 | **Output** | `Builds/Windows/CCS-Survival-0.6.0-A/CCS_Survival.exe` |
 | **Summary log** | `Logs/Build_0_6_0_A.log` (prefix `[CCS 0.6.0-A]`) |
 | **Mode** | Player mode — `enableTraversalTest` **off** |
-| **Build status** | **Pending re-run** after `scanOrigin` fix (first attempt failed interaction spam; rebuild when Unity Editor is closed) |
-
-**Expected player-mode smoke (~30s, no input simulation)**
-
-| Metric | Expected |
-|--------|----------|
-| Exception / LogError / NRE / MissingReference / Cannot set the parent | **0** |
-| Core health OK / Survival validation rules passed | **present** |
-| Pickup collected | **0** unless manual **E** in exe |
-
-**Expected traversal smoke (~60s, optional build-time override; scene restored after)**
-
-| Metric | Expected |
-|--------|----------|
-| All error metrics | **0** |
-| Traversal PASSED | **≥ 1** (prior 0.5.x smoke: **10** loops) |
-| Pickup collected | **0** |
+| **Build status** | **Pass** (Phase 1J.1) — first attempt before `scanOrigin` fix failed; re-run succeeded |
 
 ### Manual pickup UX status
 
@@ -1795,8 +1779,8 @@ Re-run **0.6.0-A** player-mode + optional traversal smoke after this fix (batch 
 | Bootstrap scene build index 0 | **Pass** |
 | Dev validation grouped under `CCS_DevValidationRoot` | **Pass** |
 | Traversal off by default | **Pass** |
-| Player-mode standalone 0.6.0-A | **Pending** re-run after `scanOrigin` fix |
-| Traversal smoke PASSED | **Pending** re-run after `scanOrigin` fix |
+| Player-mode standalone 0.6.0-A | **Pass** (Phase 1J.1) |
+| Traversal smoke PASSED | **Pass** — 10 loops (Phase 1J.1) |
 | Manual pickup UX | **Pending** |
 | Version 0.6.0 synced | **Pass** |
 
@@ -1809,7 +1793,93 @@ Re-run **0.6.0-A** player-mode + optional traversal smoke after this fix (batch 
 
 ### Final status
 
-**Phase One complete at 0.6.0** (code, scene organization, version, docs). Re-run **0.6.0-A** standalone smoke after the `scanOrigin` fix when the Editor is not locking the project. Manual pickup UX pass remains the recommended first Editor task before inventory work.
+**Phase One complete at 0.6.0** (code, scene organization, version, docs). Standalone **0.6.0-A** validation closed in **Phase 1J.1** (`2ea9424` + follow-up doc commit). Manual pickup UX pass remains the recommended first Editor task before inventory work.
+
+---
+
+## Phase 1J.1 — Final 0.6.0-A Build + Manual Closure Validation
+
+### Purpose
+
+Close the remaining Phase 1J gaps after commit **`2ea9424`**: player-mode **0.6.0-A** standalone build, **Player.log** smoke, optional traversal smoke, and documentation of manual Editor checks.
+
+### Pre-check
+
+| Check | Result |
+|-------|--------|
+| Unity Editor not running | **Pass** |
+| Branch `main` up to date with `origin/main` | **Pass** |
+| Repo clean except expected untracked | **Pass** — `Editor.meta`, `Editor/Temp.meta`, `SceneTemplateSettings.json` |
+| `bundleVersion` **0.6.0** | **Pass** |
+| `enableTraversalTest` off in committed scene | **Pass** (restored after traversal smoke build) |
+| `scanOrigin` assigned + `EnsureScanOrigin()` fallback | **Pass** |
+| Build scene index **0** = `SCN_CCS_Survival_Bootstrap.unity` | **Pass** |
+
+### Standalone build (0.6.0-A player mode)
+
+| Item | Value |
+|------|--------|
+| **Output** | `Builds/Windows/CCS-Survival-0.6.0-A/CCS_Survival.exe` |
+| **Summary log** | `Logs/Build_0_6_0_A.log` |
+| **Unity batch log** | `Logs/Unity_Batch_0_6_0_A.log` |
+| **Prefix** | `[CCS 0.6.0-A]` |
+| **Mode** | Player mode — `enableTraversalTest` **off** |
+| **Result** | **Pass** — build succeeded |
+
+### Player-mode smoke (~32s, no input simulation)
+
+| Metric | Count |
+|--------|------:|
+| Exception | 0 |
+| LogError | 0 |
+| NullReferenceException | 0 |
+| MissingReferenceException | 0 |
+| UnassignedReferenceException | 0 |
+| Cannot set the parent | 0 |
+| Core health OK | 1 |
+| Survival validation rules passed | 1 |
+| Interaction scanner errors (`scanOrigin` / UnassignedReference) | 0 |
+| Pickup collected | 0 |
+
+Local log copy (not committed): `Logs/Player_0_6_0_A_PlayerMode.log`.
+
+### Traversal smoke (~62s, build-time override; scene restored)
+
+| Item | Value |
+|------|--------|
+| **Build** | Temporary `enableTraversalTest` on during build only; scene restored to **off** |
+| **Unity batch log** | `Logs/Unity_Batch_0_6_0_A_Traversal.log` |
+| **Result** | **Pass** |
+
+| Metric | Count |
+|--------|------:|
+| Exception / LogError / NRE / MissingReference / UnassignedReference / Cannot set the parent | 0 |
+| Traversal PASSED (`PASSED: Route`) | **10** |
+| Traversal FAILED | 0 |
+| Pickup collected | 0 |
+| Core health OK | 1 |
+| Survival validation rules passed | 1 |
+
+Local log copy (not committed): `Logs/Player_0_6_0_A_TraversalSmoke.log`.
+
+### Manual checks (Editor)
+
+| Check | Status |
+|-------|--------|
+| Play Mode pickup UX (walk + **E** on all three pickups) | **Pending** — not runnable from Cursor automation |
+| Play Mode traversal toggle (enable/disable, restore player/camera/WASD) | **Pending** — not runnable from Cursor automation |
+
+Use player-mode **`CCS_Survival.exe`** or Editor Play Mode for manual closure before Phase Two inventory work.
+
+### Cleanup
+
+- Temporary build scripts removed (`Assets/CCS/Survival/Editor/Temp/CCS_StandaloneBuild_0_6_0_A*.cs`).
+- Unity batch noise restored (`ProjectSettings/*`, `Assets/Settings/*`, scene YAML reorder discarded).
+- Build output and Player.log copies **not** staged.
+
+### Final status
+
+**Phase One Complete — 0.6.0 validated.** Automated standalone bootstrap + traversal criteria **passed**. Manual Play Mode pickup UX and traversal toggle remain **pending** in Editor.
 
 ---
 
