@@ -6,7 +6,11 @@
 
 ## Current Version
 
-**Phase One Complete — 0.6.1 cleanup patch validated.** Default bootstrap scene hides dev validation volumes (`CCS_DevValidationRoot` off); manual Play Mode pickup UX passed (Food Tin, Water Canteen, Kindling).
+| Item | Status |
+|------|--------|
+| **Phase One** | **Complete** — 0.6.1 validated (pickup UX passed) |
+| **Phase Two** | **2A started** — inventory architecture planning ([Phase 2 doc](Documentation/CCS_Survival_Phase_02_Inventory_Core.md)) |
+| **Project version** | **0.6.1** (target **0.7.0** when inventory implementation begins) |
 
 ## Framework Quality Gate Completed (0.3.5)
 

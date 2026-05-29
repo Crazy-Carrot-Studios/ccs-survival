@@ -136,7 +136,11 @@ Core must never reference survival or gameplay modules.
 
 **Foundation complete (0.3.5):** framework quality gate, documentation stack, bootstrap composition root, character module skeleton.
 
-See [Survival README](Assets/CCS/Survival/README.md) and [Phase 1 — Survival Core Plan](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_01_Survival_Core.md).
+See [Survival README](Assets/CCS/Survival/README.md), [Phase 1 — Survival Core](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_01_Survival_Core.md), and [Phase 2 — Inventory Core (planning)](Assets/CCS/Survival/Documentation/CCS_Survival_Phase_02_Inventory_Core.md).
+
+## Phase Two (started)
+
+**2A — Inventory foundation readiness + architecture planning** (current). Project version remains **0.6.1** until Phase **2B** implementation begins (**0.7.0** target).
 
 ## Unity Version
 

@@ -7,7 +7,11 @@
 
 ## Current Version
 
-**Phase One Complete — 0.6.1 cleanup patch validated** — manual pickup UX passed; see `CCS_Survival_Phase_01_Survival_Core.md`.
+| Phase | Status |
+|-------|--------|
+| **Phase One** | **Complete** — 0.6.1 cleanup patch validated ([Phase 1 plan](CCS_Survival_Phase_01_Survival_Core.md)) |
+| **Phase Two** | **Started** — 2A inventory architecture planning ([Phase 2 plan](CCS_Survival_Phase_02_Inventory_Core.md)) |
+| **Project version** | **0.6.1** until inventory implementation begins (**0.7.0** target) |
 
 ## Framework Quality Gate Completed (0.3.5)
 
@@ -24,6 +28,7 @@ Pre-gameplay audits and contributor documentation are complete at **v0.3.5**. Ga
 | Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |
 | Prototype roadmap | [CCS_Survival_Prototype_Roadmap.md](CCS_Survival_Prototype_Roadmap.md) |
 | Phase 1 — Survival Core plan | [CCS_Survival_Phase_01_Survival_Core.md](CCS_Survival_Phase_01_Survival_Core.md) |
+| Phase 2 — Inventory Core plan | [CCS_Survival_Phase_02_Inventory_Core.md](CCS_Survival_Phase_02_Inventory_Core.md) |
 
 ---
 
