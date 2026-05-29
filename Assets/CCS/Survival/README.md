@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.7b — Foundation cleanup & validation retention  
+**Milestone:** 0.3.8 — Character Controller Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -12,7 +12,18 @@
 | `Assets/CCS/Survival/` | Bootstrap, scenes, profiles, composition, project roadmap docs |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
 
-## Survival Core (0.3.7 / 0.3.7a)
+## Character Controller (0.3.8)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/CharacterController/Runtime/` |
+| Editor validation | `../Modules/CharacterController/Editor/Validation/` |
+| Default profile | `Profiles/CharacterController/CCS_DefaultCharacterControllerProfile.asset` |
+| Module doc | [../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
+
+**Editor menu:** **CCS → Survival → Character Controller → Validate Character Controller**
+
+## Survival Core (0.3.7 / 0.3.7a / 0.3.7b)
 
 Stat foundation for Health, Stamina, Hunger, Thirst, Temperature, and Fatigue:
 
@@ -68,10 +79,13 @@ Stat foundation for Health, Stamina, Hunger, Thirst, Temperature, and Fatigue:
 | `CCS.Survival.Editor` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
 | `CCS.Modules.SurvivalCore.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
 | `CCS.Modules.SurvivalCore.Editor` | `CCS.Core.Runtime`, `CCS.Survival.Runtime`, `CCS.Survival.Editor`, `CCS.Modules.SurvivalCore.Runtime` |
+| `CCS.Modules.CharacterController.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
+| `CCS.Modules.CharacterController.Editor` | Core, Survival runtime/editor, CharacterController runtime |
 
 ## Related documentation
 
 - [In-Unity doc index](Documentation/README.md)
 - [Module roadmap](Documentation/CCS_Survival_Module_Roadmap.md)
+- [Character Controller module](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
 - [Survival Core module](../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md)
 - [Gameplay modules index](../Modules/README.md)

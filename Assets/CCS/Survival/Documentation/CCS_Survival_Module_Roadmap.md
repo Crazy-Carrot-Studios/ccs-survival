@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.7b — Foundation cleanup & validation retention  
+**Milestone baseline:** 0.3.8 — Character Controller Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Foundation **locked** at 0.3.7b (validation retained, temporary editor menus removed). **0.3.8 Character Controller** is next (`Assets/CCS/Modules/CharacterController/`).
+**Status:** Character Controller foundation **complete** at 0.3.8. **0.3.9 Interaction** is next.
 
 ---
 
@@ -51,7 +51,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | — | **0.3.6** | **Development / Framework Support** | `ccs.survival.development` (support layer) — **Complete** |
 | — | 0.3.0 | Character skeleton | `ccs.survival.character` — **Installed** |
 | 1 | **0.3.7** | **Survival Core** | `ccs.survival.core` — **Complete** (foundation) |
-| 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` |
+| 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` — **Complete** (foundation) |
 | 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` |
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` |
 | 5 | 0.4.x | Equipment | `ccs.survival.equipment` |
@@ -105,7 +105,22 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.3.8 — Character Controller Module Foundation** (`Assets/CCS/Modules/CharacterController/`)
+**0.3.9 — Interaction Module Foundation**
+
+---
+
+## 0.3.8 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `Assets/CCS/Modules/CharacterController/` layout | **Complete** |
+| Unity `CharacterController` motor (no Rigidbody) | **Complete** |
+| Input abstraction + camera-look foundation | **Complete** |
+| Stamina drain **request** event (no Survival Core calls) | **Complete** |
+| Default profile under `Assets/CCS/Survival/Profiles/CharacterController/` | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.3.8** | **Complete** |
+| Bootstrap installer / scene prefab wiring | **Deferred** |
 
 ---
 
@@ -150,6 +165,7 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ## Related
 
 - [Survival Core Module](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md)
+- [Character Controller Module](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
 - [Gameplay modules index](../../Modules/README.md)
 - [Development Framework Support](CCS_Survival_Development_Framework_Support.md)
 - [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)

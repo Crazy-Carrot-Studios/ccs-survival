@@ -1,0 +1,17 @@
+{
+    "name": "CCS.Modules.CharacterController.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

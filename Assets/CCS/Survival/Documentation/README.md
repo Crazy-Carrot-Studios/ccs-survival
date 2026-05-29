@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.7b — Foundation cleanup & validation retention  
+**Milestone:** 0.3.8 — Character Controller Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -13,7 +13,13 @@
 | `Assets/CCS/Survival/Documentation/` | Project roadmap, bootstrap standards, framework quality gate |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
 
-## Survival Core (0.3.7 / 0.3.7a)
+## Character Controller (0.3.8)
+
+| Guide | Path |
+|-------|------|
+| Character Controller module | [../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
+
+## Survival Core (0.3.7 / 0.3.7a / 0.3.7b)
 
 | Guide | Path |
 |-------|------|
@@ -50,6 +56,7 @@
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.8 Character Controller | [../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
 | 0.3.7b Foundation lock | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7a Module layout | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7 Survival Core | [../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
