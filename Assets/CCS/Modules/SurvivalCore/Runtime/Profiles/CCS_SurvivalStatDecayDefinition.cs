@@ -11,7 +11,7 @@ using UnityEngine;
 // NOTES: Placeholder rates for 0.3.7 — not tuned for final gameplay pressure.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     [Serializable]
     public sealed class CCS_SurvivalStatDecayDefinition

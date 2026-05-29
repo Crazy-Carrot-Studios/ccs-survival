@@ -8,7 +8,7 @@
 // NOTES: Normalized value is 0-1 across min/max span.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public sealed class CCS_SurvivalStatState
     {

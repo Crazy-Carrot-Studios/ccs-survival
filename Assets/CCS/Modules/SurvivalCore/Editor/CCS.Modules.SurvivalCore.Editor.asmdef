@@ -1,0 +1,21 @@
+{
+    "name": "CCS.Modules.SurvivalCore.Editor",
+    "rootNamespace": "CCS.Modules.SurvivalCore.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.SurvivalCore.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

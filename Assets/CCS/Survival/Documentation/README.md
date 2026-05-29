@@ -1,15 +1,24 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.7 — Survival Core Module Foundation  
+**Milestone:** 0.3.7a — Module folder structure cleanup  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
-## Survival Core (0.3.7)
+## Folder rules
+
+| Path | Purpose |
+|------|---------|
+| `Assets/CCS/Modules/` | Gameplay modules — module-specific docs live under each module |
+| `Assets/CCS/Survival/Documentation/` | Project roadmap, bootstrap standards, framework quality gate |
+| `Assets/CCS/Framework/` | Reusable Core Platform |
+
+## Survival Core (0.3.7 / 0.3.7a)
 
 | Guide | Path |
 |-------|------|
-| Survival Core module | [CCS_Survival_Core_Module.md](CCS_Survival_Core_Module.md) |
+| Survival Core module | [../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
+| Gameplay modules index | [../../Modules/README.md](../../Modules/README.md) |
 
 ## Development Framework Support (0.3.6)
 
@@ -41,12 +50,13 @@
 
 | Milestone | Path |
 |-----------|------|
-| 0.3.7 Survival Core | [CCS_Survival_Core_Module.md](CCS_Survival_Core_Module.md) |
+| 0.3.7a Module layout | [../../Modules/README.md](../../Modules/README.md) |
+| 0.3.7 Survival Core | [../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
 | 0.3.6 Development support | [CCS_Survival_Development_Framework_Support.md](CCS_Survival_Development_Framework_Support.md) |
 | 0.3.5 Quality gate | [Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md](Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md) |
 
 ---
 
-## Milestone 0.3.7 rule
+## Milestone 0.3.7a rule
 
-**Survival core stat foundation only.** Service, profiles, events, validation. Bootstrap wiring and UI deferred.
+**Gameplay modules under `Assets/CCS/Modules/<Name>/`.** Survival shell (`Assets/CCS/Survival/`) holds bootstrap, scenes, profiles, and project composition only.

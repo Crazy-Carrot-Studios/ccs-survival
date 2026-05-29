@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Survival;
 using UnityEngine;
 
 // =============================================================================
@@ -11,7 +12,7 @@ using UnityEngine;
 // NOTES: Health/Stamina heal-damage placeholders use stat definitions; passive health decay optional via decay list.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     [CreateAssetMenu(
         fileName = "CCS_SurvivalCoreProfile",

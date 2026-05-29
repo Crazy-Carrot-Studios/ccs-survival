@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using CCS.Survival.SurvivalCore;
+using CCS.Modules.SurvivalCore;
+using CCS.Survival;
 using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalCoreProfileCreationMenu
-// CATEGORY: Survival / Editor / SurvivalCore / Tools
+// CATEGORY: Modules / SurvivalCore / Editor / Tools
 // PURPOSE: Creates default CCS_SurvivalCoreProfile asset with placeholder tuning values.
 // PLACEMENT: Menu path CCS/Survival/Survival Core/Create Default Survival Core Profile.
 // AUTHOR: James Schilz (Developer)
@@ -13,7 +14,7 @@ using UnityEngine;
 // NOTES: Safe placeholder decay rates for 0.3.7 foundation.
 // =============================================================================
 
-namespace CCS.Survival.Editor.SurvivalCore
+namespace CCS.Modules.SurvivalCore.Editor
 {
     public static class CCS_SurvivalCoreProfileCreationMenu
     {
@@ -106,7 +107,7 @@ namespace CCS.Survival.Editor.SurvivalCore
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.core.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
                 "Default survival core stat tuning for 0.3.7 foundation.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.3.7";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.3.7a";
             serializedProfile.FindProperty("passiveHealthHealPerSecond").floatValue = 0f;
             serializedProfile.FindProperty("passiveHealthDamagePerSecond").floatValue = 0f;
             serializedProfile.FindProperty("staminaRecoveryPerSecond").floatValue = 2f;

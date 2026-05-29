@@ -10,7 +10,7 @@ using System;
 // NOTES: Safe when min equals max (returns 0 normalized).
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public static class CCS_SurvivalStatUtility
     {

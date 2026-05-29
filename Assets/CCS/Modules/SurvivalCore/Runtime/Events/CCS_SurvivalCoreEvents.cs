@@ -10,7 +10,7 @@ using System;
 // NOTES: Instance events live on CCS_SurvivalCoreService; this type documents contracts.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public static class CCS_SurvivalCoreEvents
     {

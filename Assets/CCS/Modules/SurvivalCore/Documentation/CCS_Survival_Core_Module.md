@@ -1,10 +1,11 @@
 # CCS Survival — Survival Core Module
 
-**Milestone:** 0.3.7 — Survival Core Module Foundation  
+**Milestone:** 0.3.7a — Module folder structure cleanup (behavior from 0.3.7)  
 **Module ID:** `ccs.survival.core`  
+**Namespace:** `CCS.Modules.SurvivalCore` (editor: `CCS.Modules.SurvivalCore.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Foundation complete (not yet wired to bootstrap installer)
+**Status:** Foundation complete under `Assets/CCS/Modules/SurvivalCore/` (not yet wired to bootstrap installer)
 
 ---
 
@@ -30,19 +31,28 @@ Provide a **data-driven survival stat foundation** for Health, Stamina, Hunger, 
 ## Architecture
 
 ```text
-Assets/CCS/Survival/Runtime/SurvivalCore/
-  Stats/          → types, state, modifier, snapshot, utility
-  Profiles/       → ScriptableObject tuning
-  Runtime/        → CCS_SurvivalCoreService
-  Events/         → change/depleted/restored/initialized contracts
-  Validation/     → profile/stat/decay validation (runtime-safe)
+Assets/CCS/Modules/SurvivalCore/
+  Runtime/
+    Stats/          → types, state, modifier, snapshot, utility
+    Profiles/       → ScriptableObject tuning
+    Runtime/        → CCS_SurvivalCoreService
+    Events/         → change/depleted/restored/initialized contracts
+    Validation/     → profile/stat/decay validation (runtime-safe)
+  Editor/
+    Validation/     → pipeline validator + menu
+    Tools/          → default profile creation menu
+  Documentation/    → this file
 
-Assets/CCS/Survival/Editor/SurvivalCore/
-  Validation/     → pipeline validator + menu
-  Tools/          → default profile creation menu
+Assets/CCS/Survival/Profiles/SurvivalCore/   → default profile assets (project shell)
 ```
 
-**Dependencies:** `CCS.Survival.Runtime` → `CCS.Core.Runtime` only.  
+**Assemblies:**
+
+| Assembly | References |
+|----------|------------|
+| `CCS.Modules.SurvivalCore.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
+| `CCS.Modules.SurvivalCore.Editor` | Core, Survival runtime/editor, SurvivalCore runtime |
+
 **No:** UI, CharacterController, inventory, equipment, scene objects.
 
 ---

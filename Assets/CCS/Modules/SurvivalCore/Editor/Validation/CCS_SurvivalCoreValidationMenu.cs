@@ -1,9 +1,10 @@
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalCoreValidationMenu
-// CATEGORY: Survival / Editor / SurvivalCore / Validation
+// CATEGORY: Modules / SurvivalCore / Editor / Validation
 // PURPOSE: Unity menu entry for survival core validation through the central pipeline.
 // PLACEMENT: Menu path CCS/Survival/Survival Core/Validate Survival Core.
 // AUTHOR: James Schilz (Developer)
@@ -11,7 +12,7 @@ using UnityEngine;
 // NOTES: Runs all registered validators; survival core rules live in CCS_SurvivalCoreValidationValidator.
 // =============================================================================
 
-namespace CCS.Survival.Editor.SurvivalCore
+namespace CCS.Modules.SurvivalCore.Editor
 {
     public static class CCS_SurvivalCoreValidationMenu
     {
@@ -22,7 +23,7 @@ namespace CCS.Survival.Editor.SurvivalCore
         [MenuItem(MenuPath, priority = 110)]
         public static void ValidateSurvivalCore()
         {
-            Development.CCS_SurvivalValidationReport report = Development.CCS_SurvivalValidationPipeline.RunAll();
+            CCS_SurvivalValidationReport report = CCS_SurvivalValidationPipeline.RunAll();
             string detailedLog = report.BuildDetailedLog();
 
             if (report.HasErrors())

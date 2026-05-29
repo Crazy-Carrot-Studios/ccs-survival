@@ -1,8 +1,9 @@
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalCoreValidationRegistration
-// CATEGORY: Survival / Editor / SurvivalCore / Validation
+// CATEGORY: Modules / SurvivalCore / Editor / Validation
 // PURPOSE: Registers survival core validator with the central validation pipeline at editor load.
 // PLACEMENT: Editor assembly only. No runtime behavior.
 // AUTHOR: James Schilz (Developer)
@@ -10,7 +11,7 @@ using UnityEditor;
 // NOTES: Uses InitializeOnLoad so menus do not own registration logic.
 // =============================================================================
 
-namespace CCS.Survival.Editor.SurvivalCore
+namespace CCS.Modules.SurvivalCore.Editor
 {
     [InitializeOnLoad]
     public static class CCS_SurvivalCoreValidationRegistration
@@ -19,7 +20,7 @@ namespace CCS.Survival.Editor.SurvivalCore
 
         static CCS_SurvivalCoreValidationRegistration()
         {
-            Development.CCS_SurvivalValidationPipeline.RegisterValidator(
+            CCS_SurvivalValidationPipeline.RegisterValidator(
                 new CCS_SurvivalCoreValidationValidator());
         }
 

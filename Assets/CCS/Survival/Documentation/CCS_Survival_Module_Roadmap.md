@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.7 — Survival Core Module Foundation  
+**Milestone baseline:** 0.3.7a — Module folder structure cleanup  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Survival Core foundation **complete** at 0.3.7. **0.3.8 Character Controller** is next.
+**Status:** Survival Core under `Assets/CCS/Modules/SurvivalCore/` — **complete** at 0.3.7a. **0.3.8 Character Controller** is next (`Assets/CCS/Modules/CharacterController/`).
 
 ---
 
@@ -14,13 +14,24 @@
 | **0.3.5 / 0.3.5a** | Survival framework quality gate (pre-gameplay) |
 | **0.3.6** | Development / Framework Support Foundation |
 | **0.3.7** | Survival Core (Health, Stamina, Hunger, Thirst, Fatigue, Temperature architecture) |
-| **0.3.8** | Character Controller |
+| **0.3.7a** | Module folder structure cleanup (`Assets/CCS/Modules/`) |
+| **0.3.8** | Character Controller (`Assets/CCS/Modules/CharacterController/`) |
 | **0.3.9** | Interaction |
 | **0.4.0** | Inventory |
 
 Later milestones continue from **0.4.1+** (Equipment, UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
 ---
+
+## Folder policy
+
+| Path | Purpose |
+|------|---------|
+| `Assets/CCS/Modules/` | Gameplay modules — one folder per feature |
+| `Assets/CCS/Survival/` | Project shell — bootstrap, scenes, profiles, composition, roadmap docs |
+| `Assets/CCS/Framework/` | Reusable Core Platform |
+
+Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/`.
 
 ## Roadmap policy
 
@@ -93,7 +104,19 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.3.8 — Character Controller Module Foundation**
+**0.3.8 — Character Controller Module Foundation** (`Assets/CCS/Modules/CharacterController/`)
+
+---
+
+## 0.3.7a definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `Assets/CCS/Modules/SurvivalCore/` layout | **Complete** |
+| Module asmdefs (`CCS.Modules.SurvivalCore.*`) | **Complete** |
+| Namespaces `CCS.Modules.SurvivalCore` | **Complete** |
+| `SurvivalDiagnosticsLogCategory` compile fix | **Complete** |
+| Documentation + version **0.3.7a** | **Complete** |
 
 ---
 
@@ -113,7 +136,8 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Related
 
-- [Survival Core Module](CCS_Survival_Core_Module.md)
+- [Survival Core Module](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md)
+- [Gameplay modules index](../../Modules/README.md)
 - [Development Framework Support](CCS_Survival_Development_Framework_Support.md)
 - [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)
 - [Framework Architecture Guide](Framework_Architecture_Guide.md)

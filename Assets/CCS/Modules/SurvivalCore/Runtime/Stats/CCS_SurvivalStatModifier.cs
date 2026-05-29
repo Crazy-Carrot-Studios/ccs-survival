@@ -8,7 +8,7 @@
 // NOTES: No inventory or equipment coupling in 0.3.7.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public readonly struct CCS_SurvivalStatModifier
     {

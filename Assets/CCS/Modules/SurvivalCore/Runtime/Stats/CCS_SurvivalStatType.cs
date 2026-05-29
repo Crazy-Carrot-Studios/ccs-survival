@@ -8,7 +8,7 @@
 // NOTES: No UI or gameplay system dependencies.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public enum CCS_SurvivalStatType
     {

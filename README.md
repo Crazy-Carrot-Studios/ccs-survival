@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.7 — Survival Core Module Foundation
+0.3.7a — Module folder structure cleanup (Survival Core under `Assets/CCS/Modules/`)
 
 ## Repository Purpose
 
@@ -116,9 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.7 Scope (current)
+## Milestone 0.3.7a Scope (current)
 
-Survival **core stat foundation**: Health, Stamina, Hunger, Thirst, Temperature, Fatigue via `CCS_SurvivalCoreService` and ScriptableObject profiles. **Not yet** wired to bootstrap installer or scene tick.
+**Module folder cleanup:** Survival Core lives under `Assets/CCS/Modules/SurvivalCore/`; survival shell stays under `Assets/CCS/Survival/`. Core stat foundation (`CCS_SurvivalCoreService`, profiles) unchanged in behavior — **not yet** wired to bootstrap installer or scene tick.
+
+**Next:** 0.3.8 Character Controller under `Assets/CCS/Modules/CharacterController/`.
 
 Prior milestones: **0.3.6** development support, **0.3.5** framework quality gate.
 

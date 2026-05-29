@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CCS.Core;
+using CCS.Survival;
 using CCS.Survival.Development;
 
 // =============================================================================
@@ -13,7 +14,7 @@ using CCS.Survival.Development;
 // NOTES: No UI, CharacterController, inventory, or equipment dependencies in 0.3.7.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public sealed class CCS_SurvivalCoreService : CCS_ISurvivalService
     {

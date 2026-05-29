@@ -11,7 +11,7 @@ using UnityEngine;
 // NOTES: Configuration only. Validated by CCS_SurvivalCoreValidationUtility.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     [Serializable]
     public sealed class CCS_SurvivalStatDefinition

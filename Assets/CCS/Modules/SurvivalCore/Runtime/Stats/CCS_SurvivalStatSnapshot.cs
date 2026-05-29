@@ -8,7 +8,7 @@
 // NOTES: No UI dependencies.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public readonly struct CCS_SurvivalStatSnapshot
     {

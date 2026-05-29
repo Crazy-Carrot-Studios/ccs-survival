@@ -24,6 +24,8 @@ namespace CCS.Survival
 
         public const string SurvivalCoreLogCategory = "Survival Core";
 
+        public const string SurvivalDiagnosticsLogCategory = "Survival Diagnostics";
+
         public const string SurvivalInstallerLogCategory = "Survival Installer";
 
         public const string SurvivalBootstrapLogCategory = "Survival Bootstrap";

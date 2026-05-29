@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Survival;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalCoreValidationUtility
@@ -10,7 +11,7 @@ using System.Collections.Generic;
 // NOTES: Returns CCS_SurvivalValidationResult for consistency with survival foundation.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public static class CCS_SurvivalCoreValidationUtility
     {

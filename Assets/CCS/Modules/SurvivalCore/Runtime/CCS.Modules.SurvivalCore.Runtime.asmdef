@@ -1,0 +1,17 @@
+{
+    "name": "CCS.Modules.SurvivalCore.Runtime",
+    "rootNamespace": "CCS.Modules.SurvivalCore",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

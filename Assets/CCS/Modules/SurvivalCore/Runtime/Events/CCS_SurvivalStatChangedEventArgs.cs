@@ -8,7 +8,7 @@
 // NOTES: Includes previous and current snapshots for event-driven consumers.
 // =============================================================================
 
-namespace CCS.Survival.SurvivalCore
+namespace CCS.Modules.SurvivalCore
 {
     public sealed class CCS_SurvivalStatChangedEventArgs
     {
