@@ -143,7 +143,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.3.6
+  bundleVersion: 0.3.7
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -927,7 +927,7 @@ PlayerSettings:
   cloudProjectId: c68b4356-751c-459d-8040-bae61ade583c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: CCS_Survival
+  projectName: CCS_Framework
   organizationId: crazycarrotstudios
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

@@ -1,0 +1,64 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+// =============================================================================
+// SCRIPT: CCS_SurvivalCoreProfile
+// CATEGORY: Survival / Runtime / SurvivalCore / Profiles
+// PURPOSE: ScriptableObject tuning profile for survival core stats and decay rates.
+// PLACEMENT: Assets/CCS/Survival/Profiles/SurvivalCore/. Referenced by CCS_SurvivalCoreService.
+// AUTHOR: James Schilz (Developer)
+// CREATED: 2026-05-28
+// NOTES: Health/Stamina heal-damage placeholders use stat definitions; passive health decay optional via decay list.
+// =============================================================================
+
+namespace CCS.Survival.SurvivalCore
+{
+    [CreateAssetMenu(
+        fileName = "CCS_SurvivalCoreProfile",
+        menuName = "CCS/Survival/Survival Core/Core Profile")]
+    public sealed class CCS_SurvivalCoreProfile : CCS_SurvivalProfileBase
+    {
+        #region Variables
+
+        [Header("Stat Definitions")]
+        [Tooltip("Min, max, and starting values per survival stat.")]
+        [SerializeField] private List<CCS_SurvivalStatDefinition> statDefinitions = new List<CCS_SurvivalStatDefinition>();
+
+        [Header("Decay And Recovery")]
+        [Tooltip("Per-second change rules for hunger, thirst, fatigue, temperature, stamina placeholders.")]
+        [SerializeField] private List<CCS_SurvivalStatDecayDefinition> decayDefinitions =
+            new List<CCS_SurvivalStatDecayDefinition>();
+
+        [Header("Health Placeholders")]
+        [Tooltip("Placeholder heal rate per second when passive heal is enabled in service (0 = disabled).")]
+        [SerializeField] private float passiveHealthHealPerSecond;
+
+        [Tooltip("Placeholder damage per second when passive health drain is enabled (0 = disabled).")]
+        [SerializeField] private float passiveHealthDamagePerSecond;
+
+        [Header("Stamina Placeholders")]
+        [Tooltip("Placeholder stamina recovery per second when recovery rule is active.")]
+        [SerializeField] private float staminaRecoveryPerSecond = 2f;
+
+        [Tooltip("Placeholder stamina drain per second when exertion rule is active.")]
+        [SerializeField] private float staminaDrainPerSecond = 4f;
+
+        #endregion
+
+        #region Properties
+
+        public IReadOnlyList<CCS_SurvivalStatDefinition> StatDefinitions => statDefinitions;
+
+        public IReadOnlyList<CCS_SurvivalStatDecayDefinition> DecayDefinitions => decayDefinitions;
+
+        public float PassiveHealthHealPerSecond => passiveHealthHealPerSecond;
+
+        public float PassiveHealthDamagePerSecond => passiveHealthDamagePerSecond;
+
+        public float StaminaRecoveryPerSecond => staminaRecoveryPerSecond;
+
+        public float StaminaDrainPerSecond => staminaDrainPerSecond;
+
+        #endregion
+    }
+}

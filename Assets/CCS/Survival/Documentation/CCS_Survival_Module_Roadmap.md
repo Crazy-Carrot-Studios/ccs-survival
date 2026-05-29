@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.6 — Development Framework Support Foundation  
+**Milestone baseline:** 0.3.7 — Survival Core Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Development / Framework Support **complete** at 0.3.6. **0.3.7 Survival Core** is next.
+**Status:** Survival Core foundation **complete** at 0.3.7. **0.3.8 Character Controller** is next.
 
 ---
 
@@ -38,7 +38,7 @@ Later milestones continue from **0.4.1+** (Equipment, UI, Crafting, world system
 |------:|------------------|-------------|---------------------|
 | — | **0.3.6** | **Development / Framework Support** | `ccs.survival.development` (support layer) — **Complete** |
 | — | 0.3.0 | Character skeleton | `ccs.survival.character` — **Installed** |
-| 1 | **0.3.7** | **Survival Core** | `ccs.survival.core` — Health, Stamina, Hunger, Thirst, Fatigue, Temperature |
+| 1 | **0.3.7** | **Survival Core** | `ccs.survival.core` — **Complete** (foundation) |
 | 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` |
 | 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` |
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` |
@@ -93,12 +93,27 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.3.7 — Survival Core Module Foundation** (Health, Stamina, Hunger, Thirst, Fatigue, Temperature architecture).
+**0.3.8 — Character Controller Module Foundation**
+
+---
+
+## 0.3.7 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Stat architecture (6 stats) | **Complete** |
+| Profiles + default asset tool | **Complete** |
+| `CCS_SurvivalCoreService` + events | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Documentation | **Complete** |
+| Version **0.3.7** | **Complete** |
+| Bootstrap installer wiring | **Deferred** |
 
 ---
 
 ## Related
 
+- [Survival Core Module](CCS_Survival_Core_Module.md)
 - [Development Framework Support](CCS_Survival_Development_Framework_Support.md)
 - [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)
 - [Framework Architecture Guide](Framework_Architecture_Guide.md)
