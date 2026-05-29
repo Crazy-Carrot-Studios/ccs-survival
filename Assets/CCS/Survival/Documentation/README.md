@@ -7,7 +7,7 @@
 
 ## Current Version
 
-Phase One complete at **v0.6.1** — cleanup patch after 0.6.0 validation; see `CCS_Survival_Phase_01_Survival_Core.md`.
+**Phase One Complete — 0.6.1 cleanup patch validated** — manual pickup UX passed; see `CCS_Survival_Phase_01_Survival_Core.md`.
 
 ## Framework Quality Gate Completed (0.3.5)
 

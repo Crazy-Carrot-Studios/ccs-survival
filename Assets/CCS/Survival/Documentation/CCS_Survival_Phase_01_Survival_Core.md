@@ -5,7 +5,7 @@
 **Phase:** 1 — Survival Core  
 **Author:** James Schilz  
 **Date:** 2026-05-27  
-**Status:** Phase One Complete — 0.6.1 cleanup patch
+**Status:** Phase One Complete — 0.6.1 cleanup patch validated
 
 ---
 
@@ -1781,7 +1781,7 @@ After grouping validation content under **`CCS_DevValidationRoot`**, the first *
 | Traversal off by default | **Pass** |
 | Player-mode standalone 0.6.0-A | **Pass** (Phase 1J.1) |
 | Traversal smoke PASSED | **Pass** — 10 loops (Phase 1J.1) |
-| Manual pickup UX | **Pending** |
+| Manual pickup UX | **Pass** (Phase 1J.3, 0.6.1) |
 | Version 0.6.0 synced | **Pass** |
 
 ### Next recommended direction (Phase Two)
@@ -1930,8 +1930,8 @@ Editor menus: `CCS_DevValidationRootSceneSetup_Editor` (Editor-only).
 | Check | Status |
 |-------|--------|
 | Default mode — dev root inactive, clean view | **Pass** (scene/config) |
-| Player/camera/WASD | **Pending** manual Editor |
-| Pickup UX (walk + **E**) | **Pending** manual Editor |
+| Player/camera/WASD | **Pass** (manual Editor, 1J.3) |
+| Pickup UX (walk + **E**) | **Pass** (manual Editor, 1J.3) |
 | Dev mode — enable root + traversal, route PASSED | **Pending** manual Editor |
 
 ### Standalone build (0.6.1-A)
@@ -1947,7 +1947,60 @@ Editor menus: `CCS_DevValidationRootSceneSetup_Editor` (Editor-only).
 
 ### Final status
 
-**Phase One cleanup patch at 0.6.1.** Default bootstrap scene is gameplay-readable; dev validation is opt-in. Proceed to Phase Two inventory when manual pickup pass is complete.
+**Phase One cleanup patch at 0.6.1.** Default bootstrap scene is gameplay-readable; dev validation is opt-in. Manual Play Mode pickup UX **passed** in Phase 1J.3.
+
+---
+
+## Phase 1J.3 — Manual Pickup Validation Notes
+
+### Purpose
+
+Close the remaining manual Play Mode pickup checklist after **0.6.1** scene cleanup (`6adfeb1`).
+
+### Pre-check
+
+| Check | Result |
+|-------|--------|
+| Version **0.6.1** | **Pass** |
+| **`CCS_DevValidationRoot`** inactive in committed scene | **Pass** |
+| **`enableTraversalTest`** off | **Pass** |
+| Default scene starts clean (no dev zone clutter) | **Pass** |
+
+### Play Mode pickup UX (default mode)
+
+**Environment:** `CCS_DevValidationRoot` **inactive**; **`enableTraversalTest`** **off**; no transparent hazard/vitals validation volumes in view.
+
+| Pickup | Result |
+|--------|--------|
+| **Food Tin** (`PU_FoodTin`) | **Pass** — collected successfully with **E** |
+| **Water Canteen** (`PU_WaterCanteen`) | **Pass** — collected successfully with **E** |
+| **Kindling** (`PU_Kindling`) | **Pass** — collected successfully with **E** |
+
+| Check | Result |
+|-------|--------|
+| Overlay prompt near each pickup | **Pass** |
+| Single collect log per pickup | **Pass** |
+| Pickup hides / marks collected | **Pass** |
+| Overlay clears or advances to next target | **Pass** |
+| **Core health OK** | **Pass** |
+| **Survival validation rules passed** | **Pass** |
+| Console errors | **None** |
+
+### Default gameplay notes
+
+- **Hazard / modifier overlay lines:** **None** at start (hidden dev zones inactive).
+- **Normal vitals drain** still occurs over time from the survival module (expected Phase One behavior).
+- **Hidden hazard/vitals test zones** under **`CCS_DevValidationRoot`** do **not** affect the player while the dev root is disabled.
+
+### Standalone build (0.6.1-A)
+
+| Item | Status |
+|------|--------|
+| **0.6.1-A** player-mode build + **Player.log** smoke | **Pending** (batch build not re-run after 1J.2; **0.6.0-A** standalone criteria already passed in 1J.1) |
+
+### Final status
+
+**Phase One Complete — 0.6.1 cleanup patch validated.** Manual Play Mode pickup UX **passed** for all three prototype pickups. Ready to begin Phase Two inventory when desired.
 
 ---
 

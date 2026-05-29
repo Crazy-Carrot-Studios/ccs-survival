@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.6.1 — Phase One Cleanup Patch
+0.6.1 — Phase One Cleanup Patch (validated)
 
 ## Repository Purpose
 

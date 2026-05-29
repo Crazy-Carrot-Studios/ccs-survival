@@ -6,7 +6,7 @@
 
 ## Current Version
 
-Phase One complete at **v0.6.1** — validated at 0.6.0; default bootstrap scene hides dev validation volumes (`CCS_DevValidationRoot` off) with gameplay ground and pickups kept active.
+**Phase One Complete — 0.6.1 cleanup patch validated.** Default bootstrap scene hides dev validation volumes (`CCS_DevValidationRoot` off); manual Play Mode pickup UX passed (Food Tin, Water Canteen, Kindling).
 
 ## Framework Quality Gate Completed (0.3.5)
 
