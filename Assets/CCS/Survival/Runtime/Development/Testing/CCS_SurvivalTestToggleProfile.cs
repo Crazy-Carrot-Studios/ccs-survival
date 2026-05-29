@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Settings/Development/Testing/ (future). Editor/dev builds only.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-28
-// NOTES: No gameplay automation in 0.3.6. Prepares traversal, simulation, and inventory test flags.
+// NOTES: Reserved categories: Traversal, Simulation, Inventory, SaveLoad. No automation in 0.3.6.
 // =============================================================================
 
 namespace CCS.Survival.Development
@@ -23,14 +23,21 @@ namespace CCS.Survival.Development
         [Tooltip("When true, verbose development diagnostics may be emitted.")]
         [SerializeField] private bool enableDevelopmentDiagnostics;
 
-        [Tooltip("Reserved for future traversal route validation.")]
+        [Header("Traversal Tests (Reserved)")]
+        [Tooltip("Reserved: automated traversal route validation under Runtime/Development/Testing/Traversal/.")]
         [SerializeField] private bool enableTraversalRouteTests;
 
-        [Tooltip("Reserved for future survival simulation validation.")]
+        [Header("Survival Simulation Tests (Reserved)")]
+        [Tooltip("Reserved: survival pressure simulation under Runtime/Development/Testing/Simulation/.")]
         [SerializeField] private bool enableSurvivalSimulationTests;
 
-        [Tooltip("Reserved for future inventory smoke validation.")]
+        [Header("Inventory Tests (Reserved)")]
+        [Tooltip("Reserved: inventory smoke tests under Runtime/Development/Testing/Inventory/.")]
         [SerializeField] private bool enableInventorySmokeTests;
+
+        [Header("Save/Load Tests (Reserved)")]
+        [Tooltip("Reserved: save/load round-trip tests under Runtime/Development/Testing/SaveLoad/.")]
+        [SerializeField] private bool enableSaveLoadTests;
 
         #endregion
 
@@ -43,6 +50,8 @@ namespace CCS.Survival.Development
         public bool EnableSurvivalSimulationTests => enableSurvivalSimulationTests;
 
         public bool EnableInventorySmokeTests => enableInventorySmokeTests;
+
+        public bool EnableSaveLoadTests => enableSaveLoadTests;
 
         #endregion
 

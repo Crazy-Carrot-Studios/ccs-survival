@@ -4,11 +4,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_SurvivalSceneBootstrapProfile
 // CATEGORY: Survival / Runtime / Development / Bootstrap
-// PURPOSE: ScriptableObject profile describing required scene startup expectations for future validation.
+// PURPOSE: ScriptableObject profile for required/optional scene startup services and objects.
 // PLACEMENT: Assets/CCS/Survival/Settings/Development/Bootstrap/ (future). Optional reference.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-28
-// NOTES: Defines required prefab/service placeholders. No gameplay modules instantiated in 0.3.6.
+// NOTES: Lists may be empty in 0.3.6. Future modules append requirements without architecture changes.
 // =============================================================================
 
 namespace CCS.Survival.Development
@@ -20,18 +20,27 @@ namespace CCS.Survival.Development
     {
         #region Variables
 
-        [Header("Scene Requirements")]
+        [Header("Composition Root")]
         [Tooltip("When true, active scene must contain exactly one CCS_RuntimeHost.")]
         [SerializeField] private bool requireRuntimeHost = true;
 
         [Tooltip("When true, active scene must contain exactly one CCS_SurvivalBootstrap.")]
         [SerializeField] private bool requireSurvivalBootstrap = true;
 
-        [Tooltip("Optional required prefab asset names (content validation only; not auto-spawned).")]
-        [SerializeField] private List<string> requiredPrefabAssetNames = new List<string>();
+        [Header("Required Services")]
+        [Tooltip("Service contracts that must be registered on the runtime service registry when lists are populated.")]
+        [SerializeField] private List<CCS_SurvivalSceneBootstrapServiceRequirement> requiredServices =
+            new List<CCS_SurvivalSceneBootstrapServiceRequirement>();
 
-        [Tooltip("Optional required service contract type names for future registration checks.")]
-        [SerializeField] private List<string> requiredServiceContractNames = new List<string>();
+        [Header("Required Scene Objects")]
+        [Tooltip("Scene GameObjects that must exist in the active scene hierarchy.")]
+        [SerializeField] private List<CCS_SurvivalSceneBootstrapRequirementEntry> requiredSceneObjects =
+            new List<CCS_SurvivalSceneBootstrapRequirementEntry>();
+
+        [Header("Optional Scene Objects")]
+        [Tooltip("Scene GameObjects that are recommended but do not fail validation when missing.")]
+        [SerializeField] private List<CCS_SurvivalSceneBootstrapRequirementEntry> optionalSceneObjects =
+            new List<CCS_SurvivalSceneBootstrapRequirementEntry>();
 
         #endregion
 
@@ -41,9 +50,11 @@ namespace CCS.Survival.Development
 
         public bool RequireSurvivalBootstrap => requireSurvivalBootstrap;
 
-        public IReadOnlyList<string> RequiredPrefabAssetNames => requiredPrefabAssetNames;
+        public IReadOnlyList<CCS_SurvivalSceneBootstrapServiceRequirement> RequiredServices => requiredServices;
 
-        public IReadOnlyList<string> RequiredServiceContractNames => requiredServiceContractNames;
+        public IReadOnlyList<CCS_SurvivalSceneBootstrapRequirementEntry> RequiredSceneObjects => requiredSceneObjects;
+
+        public IReadOnlyList<CCS_SurvivalSceneBootstrapRequirementEntry> OptionalSceneObjects => optionalSceneObjects;
 
         #endregion
     }

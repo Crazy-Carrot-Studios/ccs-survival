@@ -9,7 +9,7 @@ using CCS.Core;
 // PLACEMENT: Registered manually by future development bootstrap wiring. Not a singleton.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-28
-// NOTES: Event-driven message feed. No gameplay references. Instance-owned per runtime host context.
+// NOTES: Event-driven message feed with Info/Warning/Error severity. No gameplay references.
 // =============================================================================
 
 namespace CCS.Survival.Development
@@ -28,17 +28,17 @@ namespace CCS.Survival.Development
 
         #endregion
 
-        #region Properties
-
-        public bool IsInitialized => isInitialized;
-
-        #endregion
-
         #region Events
 
         public event Action<CCS_SurvivalDiagnosticsMessage> MessageAdded;
 
         public event Action<string, CCS_SurvivalDiagnosticsState> SystemStateChanged;
+
+        #endregion
+
+        #region Properties
+
+        public bool IsInitialized => isInitialized;
 
         #endregion
 
@@ -59,9 +59,17 @@ namespace CCS.Survival.Development
         {
             messages.Add(message);
             systemStates[message.SourceSystemId] = message.State;
-            CCS_Logger.Log(LogPrefix, $"{message.SourceSystemId} [{message.State}] {message.Message}");
+            LogMessage(message);
             MessageAdded?.Invoke(message);
             SystemStateChanged?.Invoke(message.SourceSystemId, message.State);
+        }
+
+        public void ReportMessage(
+            string sourceSystemId,
+            string message,
+            CCS_SurvivalDiagnosticsSeverity severity)
+        {
+            ReportMessage(CCS_SurvivalDiagnosticsMessage.Create(sourceSystemId, message, severity));
         }
 
         public void ReportMessage(string sourceSystemId, string message, CCS_SurvivalDiagnosticsState state)
@@ -110,6 +118,29 @@ namespace CCS.Survival.Development
             messages.Clear();
             systemStates.Clear();
             CCS_Logger.Log(LogPrefix, "Diagnostics messages and system states cleared.");
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void LogMessage(CCS_SurvivalDiagnosticsMessage message)
+        {
+            string formatted =
+                $"{message.SourceSystemId} [{message.Severity}] [{message.State}] {message.Message}";
+
+            switch (message.Severity)
+            {
+                case CCS_SurvivalDiagnosticsSeverity.Error:
+                    CCS_Logger.LogWarning(LogPrefix, formatted);
+                    break;
+                case CCS_SurvivalDiagnosticsSeverity.Warning:
+                    CCS_Logger.LogWarning(LogPrefix, formatted);
+                    break;
+                default:
+                    CCS_Logger.Log(LogPrefix, formatted);
+                    break;
+            }
         }
 
         #endregion

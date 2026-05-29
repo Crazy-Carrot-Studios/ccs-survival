@@ -22,7 +22,7 @@ namespace CCS.Survival.Editor.Development
         [MenuItem(MenuPath, priority = 100)]
         public static void RunSurvivalValidation()
         {
-            CCS_SurvivalValidationReport report = CCS_SurvivalValidationUtility.RunDevelopmentValidation();
+            CCS_SurvivalValidationReport report = CCS_SurvivalValidationPipeline.RunAll();
             string detailedLog = report.BuildDetailedLog();
 
             if (report.HasErrors())
