@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.8 — Character Controller Module Foundation  
+**Milestone:** 0.3.8a — Batch validation runner hotfix  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -56,6 +56,7 @@
 
 | Milestone | Path |
 |-----------|------|
+| 0.3.8a Batch validation | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.8 Character Controller | [../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
 | 0.3.7b Foundation lock | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7a Module layout | [../../Modules/README.md](../../Modules/README.md) |

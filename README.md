@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.8 — Character Controller Module Foundation
+0.3.8a — Batch validation runner hotfix
 
 ## Repository Purpose
 
@@ -116,13 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.8 Scope (current)
+## Milestone 0.3.8a Scope (current)
 
-**Character Controller foundation** under `Assets/CCS/Modules/CharacterController/`: Unity `CharacterController` motor, input abstraction, camera-look hooks, movement events, and stamina drain **requests** (no direct Survival Core coupling). Default profile at `Assets/CCS/Survival/Profiles/CharacterController/`.
+**Batch validation runner:** `CCS_SurvivalValidationBatchUtility`, `HasWarnings()`, batchmode exit codes, and menu updates. Includes Survival Core stat constructor and Editor asmdef GUID fixes.
 
-**Next:** 0.3.9 Interaction.
-
-**Deferred:** bootstrap installer wiring, player prefab, New Input System actions, camera polish, combat, inventory, UI.
+**Next:** 0.3.9 Interaction under `Assets/CCS/Modules/Interaction/`.
 
 See [Survival README](Assets/CCS/Survival/README.md).
 

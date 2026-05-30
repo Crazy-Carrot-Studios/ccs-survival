@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.8 — Character Controller Module Foundation  
+**Milestone baseline:** 0.3.8a — Batch validation runner hotfix  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Character Controller foundation **complete** at 0.3.8. **0.3.9 Interaction** is next.
+**Status:** Batch validation infrastructure **complete** at 0.3.8a. **0.3.9 Interaction** is next.
 
 ---
 
@@ -17,6 +17,7 @@
 | **0.3.7a** | Module folder structure cleanup (`Assets/CCS/Modules/`) |
 | **0.3.7b** | Foundation cleanup — commit default profile, remove temporary editor tooling |
 | **0.3.8** | Character Controller (`Assets/CCS/Modules/CharacterController/`) |
+| **0.3.8a** | Batch validation runner + Survival Core editor asmdef fix |
 | **0.3.9** | Interaction |
 | **0.4.0** | Inventory |
 
@@ -106,6 +107,18 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ## Next milestone
 
 **0.3.9 — Interaction Module Foundation**
+
+---
+
+## 0.3.8a definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_SurvivalValidationBatchUtility` + `HasWarnings()` | **Complete** |
+| Batchmode exit 0 pass / 1 on warnings or errors | **Complete** |
+| Validation menus skip dialogs in batchmode | **Complete** |
+| Survival Core stat constructor + Editor asmdef GUID fix | **Complete** |
+| Version **0.3.8a** | **Complete** |
 
 ---
 

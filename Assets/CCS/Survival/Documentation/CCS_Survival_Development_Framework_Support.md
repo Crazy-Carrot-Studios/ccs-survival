@@ -18,6 +18,7 @@
 | **0.3.6** | Development Framework Support (**this milestone**) |
 | 0.3.7 | Survival Core |
 | 0.3.8 | Character Controller |
+| 0.3.8a | Batch validation runner hotfix |
 | 0.3.9 | Interaction |
 | 0.4.0 | Inventory |
 
@@ -87,6 +88,18 @@ CCS_SurvivalValidationPipeline.RegisterValidator(new MyFeatureValidationValidato
 ```
 
 Do **not** extend menu classes with hard-coded rules.
+
+### Batch validation (CI / pre-commit)
+
+`CCS_SurvivalValidationBatchUtility` runs the pipeline with **warnings treated as failures** in batchmode and calls `EditorApplication.Exit` with a non-zero code on failure.
+
+| Entry point | `-executeMethod` |
+|-------------|------------------|
+| Full survival validation | `CCS.Survival.Editor.Development.CCS_SurvivalValidationMenu.RunSurvivalValidation` |
+| Survival Core (same pipeline) | `CCS.Modules.SurvivalCore.Editor.CCS_SurvivalCoreValidationMenu.ValidateSurvivalCore` |
+| Character Controller (same pipeline) | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerValidationMenu.ValidateCharacterController` |
+
+Log to `Logs/CCS_Validation.log` (and module-specific logs when applicable). Require **0 errors and 0 warnings** before commit or milestone tags.
 
 ---
 

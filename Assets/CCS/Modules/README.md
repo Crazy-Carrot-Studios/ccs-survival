@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.3.8  
+**Version:** 0.3.8a  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -31,6 +31,29 @@ Project configuration assets (for example default tuning profiles) belong under 
 | **Remove after use** | Setup wizards, debug convenience menus, temporary test menus | Delete once the asset or workflow is committed |
 
 **0.3.7b:** Removed one-time Survival Core profile creation menu and development testing convenience menus. Validation menus and pipeline remain.
+
+## Unity batch validation (before commit / tag)
+
+Run after compile succeeds. Policy: **0 errors, 0 warnings** (warnings fail in batchmode).
+
+```powershell
+$unity = "C:\Program Files\Unity\Hub\Editor\6000.4.1f1\Editor\Unity.exe"
+$project = "<PROJECT_PATH>"
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Survival.Editor.Development.CCS_SurvivalValidationMenu.RunSurvivalValidation `
+  -logFile Logs/CCS_Validation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.SurvivalCore.Editor.CCS_SurvivalCoreValidationMenu.ValidateSurvivalCore `
+  -logFile Logs/CCS_SurvivalCoreValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.CharacterController.Editor.CCS_CharacterControllerValidationMenu.ValidateCharacterController `
+  -logFile Logs/CCS_CharacterControllerValidation.log
+```
+
+Exit code **0** required for each run. Do not tag a milestone if validation fails.
 
 ## Standard module layout
 

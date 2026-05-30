@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.8 — Character Controller Module Foundation  
+**Milestone:** 0.3.8a — Batch validation runner hotfix  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

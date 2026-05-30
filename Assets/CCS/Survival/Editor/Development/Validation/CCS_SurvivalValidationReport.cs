@@ -51,6 +51,19 @@ namespace CCS.Survival.Editor.Development
             return false;
         }
 
+        public bool HasWarnings()
+        {
+            for (int index = 0; index < issues.Count; index++)
+            {
+                if (issues[index].Severity == CCS_SurvivalValidationIssueSeverity.Warning)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public string BuildSummary()
         {
             int infoCount = 0;

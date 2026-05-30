@@ -25,9 +25,9 @@ namespace CCS.Modules.SurvivalCore
         public CCS_SurvivalStatState(CCS_SurvivalStatType statType, float minValue, float maxValue, float startingValue)
         {
             StatType = statType;
-            minValue = minValue;
-            maxValue = maxValue;
-            currentValue = CCS_SurvivalStatUtility.ClampValue(startingValue, minValue, maxValue);
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            currentValue = CCS_SurvivalStatUtility.ClampValue(startingValue, this.minValue, this.maxValue);
         }
 
         public CCS_SurvivalStatSnapshot ToSnapshot()
