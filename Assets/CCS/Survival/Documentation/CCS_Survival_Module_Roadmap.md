@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.1d — Repository Sanitization Check  
+**Milestone baseline:** 0.4.2 — UI/HUD Foundation  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-28  
-**Status:** Foundation phase **complete**. Repository presentation sanitized at **0.4.1d**. **0.4.2+ UI / HUD** is next.
+**Date:** 2026-05-30  
+**Status:** UI/HUD presentation foundation **complete** at **0.4.2**. Service wiring and expanded menus deferred.
 
 ---
 
@@ -25,6 +25,7 @@
 | **0.4.1b** | Prototype scene build verification |
 | **0.4.1c** | README & repository presentation cleanup |
 | **0.4.1d** | Repository sanitization check |
+| **0.4.2** | UI/HUD foundation |
 
 Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
@@ -61,7 +62,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` — **Complete** (foundation) |
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` — **Complete** (foundation) |
 | 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
-| 6 | 0.4.x | UI / HUD | `ccs.survival.ui` — **after Inventory** to visually validate each new system |
+| 6 | **0.4.2** | **UI / HUD** | `ccs.survival.ui` — **Foundation complete** |
 | 7 | 0.4.x | Crafting | `ccs.survival.crafting` |
 | 8 | 0.4.x | World Resources | `ccs.survival.world.resources` |
 | 9 | 0.4.x | Save / Load | `ccs.survival.save` |
@@ -111,7 +112,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.2+ — UI / HUD (after foundation phase and build verification)**
+**0.4.3+ — Gameplay service wiring and expanded UI panels**
+
+---
+
+## 0.4.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| UI module under `Assets/CCS/Modules/UI/` | **Complete** |
+| Read-only `CCS_HudPresentationService` | **Complete** |
+| HUD presenters + `PF_CCS_HUD_Root` | **Complete** |
+| Default HUD profile asset | **Complete** |
+| Bootstrap scene HUD instance | **Verify** |
+| UI validation registered | **Complete** |
+| No full inventory menu / drag-drop / crafting UI | **Complete** |
+| Version **0.4.2** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

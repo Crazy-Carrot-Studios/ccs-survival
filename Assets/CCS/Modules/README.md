@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.4.1d  
+**Version:** 0.4.2  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -63,6 +63,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.Equipment.Editor.CCS_EquipmentValidationMenu.ValidateEquipment `
   -logFile Logs/CCS_EquipmentValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.UI.Editor.CCS_UIValidationMenu.ValidateUI `
+  -logFile Logs/CCS_UIValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.

@@ -85,7 +85,7 @@ namespace CCS.Survival.Editor.Development
             }
 
             CCS.Survival.CCS_SurvivalBootstrap[] survivalBootstraps =
-                Object.FindObjectsByType<CCS.Survival.CCS_SurvivalBootstrap>();
+                CCS.Survival.CCS_SurvivalSceneQueryUtility.FindActiveObjectsByType<CCS.Survival.CCS_SurvivalBootstrap>();
 
             for (int index = 1; index < survivalBootstraps.Length; index++)
             {
@@ -120,7 +120,7 @@ namespace CCS.Survival.Editor.Development
 
         private static void RemoveDuplicateMainCameras()
         {
-            Camera[] cameras = FindSceneCameras();
+            Camera[] cameras = CCS.Survival.CCS_SurvivalSceneQueryUtility.FindAllObjectsByType<Camera>();
             List<Camera> mainCameras = new List<Camera>();
 
             for (int index = 0; index < cameras.Length; index++)
@@ -181,7 +181,7 @@ namespace CCS.Survival.Editor.Development
 
         private static void RemoveExtraAudioListeners(GameObject keepListenerOn)
         {
-            AudioListener[] listeners = FindSceneAudioListeners();
+            AudioListener[] listeners = CCS.Survival.CCS_SurvivalSceneQueryUtility.FindAllObjectsByType<AudioListener>();
 
             for (int index = 0; index < listeners.Length; index++)
             {
@@ -193,20 +193,6 @@ namespace CCS.Survival.Editor.Development
 
                 Object.DestroyImmediate(listener);
             }
-        }
-
-        private static Camera[] FindSceneCameras()
-        {
-#pragma warning disable CS0618
-            return Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#pragma warning restore CS0618
-        }
-
-        private static AudioListener[] FindSceneAudioListeners()
-        {
-#pragma warning disable CS0618
-            return Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#pragma warning restore CS0618
         }
 
         private static void EnsureBuildVerificationGround()

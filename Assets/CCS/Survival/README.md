@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.1d — Repository Sanitization Check  
+**Milestone:** 0.4.2 — UI/HUD Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

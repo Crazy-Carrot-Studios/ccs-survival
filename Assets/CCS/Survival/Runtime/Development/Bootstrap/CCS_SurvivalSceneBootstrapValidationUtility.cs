@@ -140,7 +140,7 @@ namespace CCS.Survival.Development
         {
             if (profile.RequireRuntimeHost)
             {
-                CCS_RuntimeHost[] runtimeHosts = Object.FindObjectsByType<CCS_RuntimeHost>();
+                CCS_RuntimeHost[] runtimeHosts = CCS_SurvivalSceneQueryUtility.FindActiveObjectsByType<CCS_RuntimeHost>();
 
                 if (runtimeHosts.Length != CCS_SurvivalRuntimeConstants.ExpectedRuntimeHostCount)
                 {
@@ -151,7 +151,8 @@ namespace CCS.Survival.Development
 
             if (profile.RequireSurvivalBootstrap)
             {
-                CCS_SurvivalBootstrap[] survivalBootstraps = Object.FindObjectsByType<CCS_SurvivalBootstrap>();
+                CCS_SurvivalBootstrap[] survivalBootstraps =
+                    CCS_SurvivalSceneQueryUtility.FindActiveObjectsByType<CCS_SurvivalBootstrap>();
 
                 if (survivalBootstraps.Length != CCS_SurvivalRuntimeConstants.ExpectedSurvivalBootstrapCount)
                 {

@@ -23,28 +23,28 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.4.1d** — Repository Sanitization Check
+**0.4.2** — UI/HUD Foundation
 
 **Unity:** Unity 6
 
 ### Status
 
-**Foundation Phase Complete**
+Foundation phase complete. UI/HUD presentation foundation added at **0.4.2**.
 
 ### Implemented Modules
-
-- Survival Core
 - Character Controller
 - Interaction
 - Inventory
 - Equipment
+- UI / HUD (presentation foundation)
 
 ### Validated
 
 - Batch compilation
 - Module validation pipeline
 - Bootstrap scene validation
-- Windows build verification (0.4.1b)
+- UI validation
+- Windows build verification (0.4.2)
 
 ---
 
@@ -87,7 +87,8 @@ Assets/
     │   ├── CharacterController/
     │   ├── Interaction/
     │   ├── Inventory/
-    │   └── Equipment/
+    │   ├── Equipment/
+    │   └── UI/
     │
     └── Survival/
         ├── Scenes/
@@ -108,12 +109,12 @@ Assets/
 | Interaction | Complete |
 | Inventory | Complete |
 | Equipment | Complete |
+| UI / HUD | Foundation (0.4.2) |
 | Crafting | Planned |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
 | Save System | Planned |
-| UI/HUD | Planned |
 
 Module IDs use reverse-DNS style (for example `ccs.survival.inventory`). Modules register manually through the survival bootstrap install pipeline — no auto-discovery or scene scanning.
 
@@ -130,6 +131,7 @@ Every milestone must pass:
 - Interaction validation
 - Inventory validation
 - Equipment validation
+- UI validation
 - Bootstrap scene validation
 
 **Policy:** zero warnings, zero errors.
@@ -149,8 +151,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.4.1b  
-**Build output:** `Builds/CCS_Survival_0.4.1b_Windows/` (gitignored)
+**Latest verified build:** 0.4.2  
+**Build output:** `Builds/CCS_Survival_0.4.2_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
@@ -189,7 +191,7 @@ See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream
 
 ## Next Milestone
 
-**0.4.2+** — UI / HUD foundation (after foundation phase and build verification)
+**0.4.3+** — Inventory/equipment UI expansion and gameplay service wiring
 
 ---
 
