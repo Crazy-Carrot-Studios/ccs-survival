@@ -21,7 +21,7 @@
 | 0.3.8a | Batch validation runner hotfix |
 | 0.3.9 | Interaction |
 | 0.4.0 | Inventory |
-| 0.4.1 | Equipment |
+| 0.4.1a | Equipment carry capacity expansion |
 
 ---
 

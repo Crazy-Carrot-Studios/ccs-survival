@@ -55,6 +55,7 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquippedItem", RuntimeRoot + "/Data/CCS_EquippedItem.cs");
             ValidateRequiredScript(report, "CCS_EquipmentSnapshot", RuntimeRoot + "/Data/CCS_EquipmentSnapshot.cs");
             ValidateRequiredScript(report, "CCS_DurabilityState", RuntimeRoot + "/Data/CCS_DurabilityState.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentCapacityModifierUtility", RuntimeRoot + "/Data/CCS_EquipmentCapacityModifierUtility.cs");
             ValidateRequiredScript(report, "CCS_EquipmentSlot", RuntimeRoot + "/Slots/CCS_EquipmentSlot.cs");
             ValidateRequiredScript(report, "CCS_PlayerEquipmentService", RuntimeRoot + "/Services/CCS_PlayerEquipmentService.cs");
             ValidateRequiredScript(report, "CCS_EquipmentEventArgs", RuntimeRoot + "/Events/CCS_EquipmentEventArgs.cs");
@@ -63,6 +64,34 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquipmentValidationUtility", RuntimeRoot + "/Validation/CCS_EquipmentValidationUtility.cs");
 
             ValidateDocumentationAsset(report, "Equipment Module Doc", ModuleDocPath);
+
+            CCS_SurvivalValidationResult carrySlotValidation =
+                CCS_EquipmentValidationUtility.ValidateCarryRelatedSlotTypes();
+
+            report.AddIssue(
+                carrySlotValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Carry-Related Equipment Slots",
+                carrySlotValidation.Message);
+
+            CCS_SurvivalValidationResult nullCapacityValidation =
+                CCS_EquipmentValidationUtility.ValidateCapacityModifiers(null);
+
+            if (nullCapacityValidation.IsSuccess)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Capacity Modifier Validation",
+                    "ValidateCapacityModifiers(null) should fail.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Equipment Capacity Modifier Validation",
+                    "Capacity modifier validation rejects null definitions and enforces non-negative values.");
+            }
 
             if (File.Exists(DefaultProfilePath))
             {

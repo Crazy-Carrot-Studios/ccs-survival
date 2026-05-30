@@ -137,7 +137,7 @@ namespace CCS.Modules.Equipment
             }
 
             RaiseItemEquipped(slot, equipmentDefinition, equippedItem);
-            RaiseEquipmentChanged(slot, equipmentDefinition, equippedItem, "Item equipped.");
+            RaiseEquipmentChangedForItem(slot, equipmentDefinition, equippedItem, isEquipped: true);
             return true;
         }
 
@@ -168,8 +168,36 @@ namespace CCS.Modules.Equipment
             }
 
             RaiseItemUnequipped(slot, removed.EquipmentDefinition, removed);
-            RaiseEquipmentChanged(slot, removed.EquipmentDefinition, null, "Item unequipped.");
+            RaiseEquipmentChangedForItem(slot, removed.EquipmentDefinition, removed, isEquipped: false);
             return true;
+        }
+
+        public int GetAdditionalInventorySlots()
+        {
+            if (!EnsureInitialized())
+            {
+                return 0;
+            }
+
+            CalculateAggregateCapacityModifiers(
+                out int totalAdditionalInventorySlots,
+                out _);
+
+            return totalAdditionalInventorySlots;
+        }
+
+        public float GetAdditionalCarryWeight()
+        {
+            if (!EnsureInitialized())
+            {
+                return 0f;
+            }
+
+            CalculateAggregateCapacityModifiers(
+                out _,
+                out float totalAdditionalCarryWeight);
+
+            return totalAdditionalCarryWeight;
         }
 
         public bool IsSlotEmpty(CCS_EquipmentSlotType slot)
@@ -269,14 +297,23 @@ namespace CCS.Modules.Equipment
                 entry.Value.Clear();
             }
 
-            RaiseEquipmentChanged(CCS_EquipmentSlotType.Head, null, null, "All equipment cleared.");
+            RaiseEquipmentChanged(
+                CCS_EquipmentSlotType.Head,
+                null,
+                null,
+                "All equipment cleared.");
         }
 
         public CCS_EquipmentSnapshot CreateSnapshot()
         {
             if (!EnsureInitialized())
             {
-                return new CCS_EquipmentSnapshot(System.Array.Empty<CCS_EquippedItem>(), 0, 0);
+                return new CCS_EquipmentSnapshot(
+                    System.Array.Empty<CCS_EquippedItem>(),
+                    0,
+                    0,
+                    0,
+                    0f);
             }
 
             List<CCS_EquippedItem> equippedItems = new List<CCS_EquippedItem>();
@@ -291,7 +328,16 @@ namespace CCS.Modules.Equipment
                 }
             }
 
-            return new CCS_EquipmentSnapshot(equippedItems, occupiedCount, slots.Count);
+            CalculateAggregateCapacityModifiers(
+                out int totalAdditionalInventorySlots,
+                out float totalAdditionalCarryWeight);
+
+            return new CCS_EquipmentSnapshot(
+                equippedItems,
+                occupiedCount,
+                slots.Count,
+                totalAdditionalInventorySlots,
+                totalAdditionalCarryWeight);
         }
 
         #endregion
@@ -384,6 +430,51 @@ namespace CCS.Modules.Equipment
                 slot,
                 equipmentDefinition,
                 message: message));
+        }
+
+        private void CalculateAggregateCapacityModifiers(
+            out int totalAdditionalInventorySlots,
+            out float totalAdditionalCarryWeight)
+        {
+            List<CCS_EquippedItem> equippedItems = new List<CCS_EquippedItem>();
+
+            foreach (KeyValuePair<CCS_EquipmentSlotType, CCS_EquipmentSlot> entry in slots)
+            {
+                if (entry.Value.IsOccupied)
+                {
+                    equippedItems.Add(entry.Value.EquippedItem);
+                }
+            }
+
+            CCS_EquipmentCapacityModifierUtility.CalculateAggregateModifiers(
+                equippedItems,
+                out totalAdditionalInventorySlots,
+                out totalAdditionalCarryWeight);
+        }
+
+        private void RaiseEquipmentChangedForItem(
+            CCS_EquipmentSlotType slot,
+            CCS_EquipmentItemDefinition equipmentDefinition,
+            CCS_EquippedItem equippedItem,
+            bool isEquipped)
+        {
+            if (CCS_EquipmentCapacityModifierUtility.AffectsCapacity(equipmentDefinition))
+            {
+                string action = isEquipped ? "equipped" : "unequipped";
+                RaiseEquipmentChanged(
+                    slot,
+                    equipmentDefinition,
+                    isEquipped ? equippedItem : null,
+                    $"Capacity-affecting equipment {action}.");
+                return;
+            }
+
+            string defaultMessage = isEquipped ? "Item equipped." : "Item unequipped.";
+            RaiseEquipmentChanged(
+                slot,
+                equipmentDefinition,
+                isEquipped ? equippedItem : null,
+                defaultMessage);
         }
 
         #endregion

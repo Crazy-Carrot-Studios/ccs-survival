@@ -19,11 +19,15 @@ namespace CCS.Modules.Equipment
         public CCS_EquipmentSnapshot(
             IReadOnlyList<CCS_EquippedItem> equippedItems,
             int occupiedSlotCount,
-            int totalSlotCount)
+            int totalSlotCount,
+            int totalAdditionalInventorySlots,
+            float totalAdditionalCarryWeight)
         {
             EquippedItems = equippedItems;
             OccupiedSlotCount = occupiedSlotCount;
             TotalSlotCount = totalSlotCount;
+            TotalAdditionalInventorySlots = totalAdditionalInventorySlots < 0 ? 0 : totalAdditionalInventorySlots;
+            TotalAdditionalCarryWeight = totalAdditionalCarryWeight < 0f ? 0f : totalAdditionalCarryWeight;
         }
 
         #endregion
@@ -35,6 +39,10 @@ namespace CCS.Modules.Equipment
         public int OccupiedSlotCount { get; }
 
         public int TotalSlotCount { get; }
+
+        public int TotalAdditionalInventorySlots { get; }
+
+        public float TotalAdditionalCarryWeight { get; }
 
         #endregion
     }

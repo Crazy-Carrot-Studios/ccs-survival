@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.1 — Equipment Module Foundation  
+**Milestone baseline:** 0.4.1a — Equipment Carry Capacity Expansion  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Equipment foundation **complete** at 0.4.1. **0.4.x UI / Crafting** is next.
+**Status:** Equipment carry capacity modifiers **complete** at 0.4.1a. **0.4.x UI** is next.
 
 ---
 
@@ -21,8 +21,9 @@
 | **0.3.9** | Interaction |
 | **0.4.0** | Inventory |
 | **0.4.1** | Equipment |
+| **0.4.1a** | Equipment carry capacity expansion |
 
-Later milestones continue from **0.4.1+** (Equipment, UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -107,7 +108,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.x — UI and Crafting (after Equipment foundation)**
+**0.4.x — UI (after equipment carry capacity expansion)**
+
+---
+
+## 0.4.1a definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Carry-related slots (`Back`, `Satchel`, `Bedroll`) | **Complete** |
+| Equipment capacity modifier fields on definitions | **Complete** |
+| Aggregate modifiers on snapshot + service queries | **Complete** |
+| `CCS_InventoryCapacityModifierSnapshot` placeholder in Inventory | **Complete** |
+| Inventory does not reference Equipment directly | **Complete** |
+| Validation for non-negative capacity modifiers | **Complete** |
+| Version **0.4.1a** | **Complete** |
+| Bootstrap composition wiring to Inventory | **Deferred** |
+| UI display of resolved capacity | **Deferred** |
 
 ---
 

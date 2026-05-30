@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.1 — Equipment Module Foundation  
+**Milestone:** 0.4.1a — Equipment Carry Capacity Expansion  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -12,7 +12,7 @@
 | `Assets/CCS/Survival/` | Bootstrap, scenes, profiles, composition, project roadmap docs |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
 
-## Equipment (0.4.1)
+## Equipment (0.4.1 / 0.4.1a)
 
 | Area | Path |
 |------|------|
@@ -20,6 +20,8 @@
 | Editor validation | `../Modules/Equipment/Editor/Validation/` |
 | Default profile | `Profiles/Equipment/CCS_DefaultEquipmentProfile.asset` |
 | Module doc | [../Modules/Equipment/Documentation/CCS_Equipment_Module.md](../Modules/Equipment/Documentation/CCS_Equipment_Module.md) |
+
+**0.4.1a:** Carry capacity modifiers (`Back`, `Satchel`, `Bedroll` slots) expose additional inventory slots and carry weight through `CCS_PlayerEquipmentService`.
 
 **Editor menu:** **CCS → Survival → Equipment → Validate Equipment**
 

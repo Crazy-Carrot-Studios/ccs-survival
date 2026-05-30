@@ -169,11 +169,28 @@ Batch entry: `CCS.Modules.Inventory.Editor.CCS_InventoryValidationMenu.ValidateI
 
 ---
 
+## Capacity expansion hook (0.4.1a)
+
+`CCS_InventoryCapacityModifierSnapshot` is a lightweight placeholder struct:
+
+| Field | Purpose |
+|-------|---------|
+| `AdditionalInventorySlots` | Bonus slots from equipped gear (future composition input) |
+| `AdditionalCarryWeight` | Bonus carry weight from equipped gear (future composition input) |
+
+Inventory does **not** reference the Equipment module. Bootstrap/composition will:
+
+1. Read aggregate modifiers from `CCS_PlayerEquipmentService`
+2. Build `CCS_InventoryCapacityModifierSnapshot`
+3. Apply resolved capacity to player inventory before UI reads final values
+
+---
+
 ## Future integrations (post-0.4.0)
 
 | Feature | Notes |
 |---------|--------|
-| Equipment | Equip slots consume item stacks from inventory |
+| Equipment | Equip slots consume item stacks from inventory; capacity modifiers via composition (0.4.1a hook) |
 | Crafting | Recipe inputs/outputs via container API |
 | Storage / chests | Additional `CCS_InventoryContainer` instances |
 | Loot | Spawn items into player container via service |

@@ -15,7 +15,7 @@ MonoBehaviour:
   profileDisplayName: Default Equipment
   profileId: ccs.survival.profile.equipment.default
   profileDescription: Default equipment rules placeholder for 0.4.1 foundation.
-  profileVersion: 0.4.1
+  profileVersion: 0.4.1a
   enableDebugLogs: 0
   allowDualWield: 0
   requireDurabilityForEquip: 0

@@ -50,7 +50,56 @@ namespace CCS.Modules.Equipment
                 return CCS_SurvivalValidationResult.Fail("Max durability must be greater than zero when durability is enabled.");
             }
 
+            CCS_SurvivalValidationResult capacityValidation =
+                ValidateCapacityModifiers(equipmentDefinition);
+
+            if (!capacityValidation.IsSuccess)
+            {
+                return capacityValidation;
+            }
+
             return CCS_SurvivalValidationResult.Pass("Equipment item definition validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateCapacityModifiers(
+            CCS_EquipmentItemDefinition equipmentDefinition)
+        {
+            if (equipmentDefinition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Equipment item definition is null.");
+            }
+
+            if (equipmentDefinition.AdditionalInventorySlots < 0)
+            {
+                return CCS_SurvivalValidationResult.Fail("Additional inventory slots cannot be negative.");
+            }
+
+            if (equipmentDefinition.AdditionalCarryWeight < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Additional carry weight cannot be negative.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Equipment capacity modifiers validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateCarryRelatedSlotTypes()
+        {
+            if (!System.Enum.IsDefined(typeof(CCS_EquipmentSlotType), CCS_EquipmentSlotType.Back))
+            {
+                return CCS_SurvivalValidationResult.Fail("Equipment slot type Back is not defined.");
+            }
+
+            if (!System.Enum.IsDefined(typeof(CCS_EquipmentSlotType), CCS_EquipmentSlotType.Satchel))
+            {
+                return CCS_SurvivalValidationResult.Fail("Equipment slot type Satchel is not defined.");
+            }
+
+            if (!System.Enum.IsDefined(typeof(CCS_EquipmentSlotType), CCS_EquipmentSlotType.Bedroll))
+            {
+                return CCS_SurvivalValidationResult.Fail("Equipment slot type Bedroll is not defined.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Carry-related equipment slot types validated.");
         }
 
         public static bool IsSlotCompatible(

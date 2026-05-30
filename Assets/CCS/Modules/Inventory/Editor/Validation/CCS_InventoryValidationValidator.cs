@@ -55,6 +55,7 @@ namespace CCS.Modules.Inventory.Editor
             ValidateRequiredScript(report, "CCS_ItemStack", RuntimeRoot + "/Data/CCS_ItemStack.cs");
             ValidateRequiredScript(report, "CCS_InventorySlot", RuntimeRoot + "/Data/CCS_InventorySlot.cs");
             ValidateRequiredScript(report, "CCS_InventorySnapshot", RuntimeRoot + "/Data/CCS_InventorySnapshot.cs");
+            ValidateRequiredScript(report, "CCS_InventoryCapacityModifierSnapshot", RuntimeRoot + "/Data/CCS_InventoryCapacityModifierSnapshot.cs");
             ValidateRequiredScript(report, "CCS_IInventoryContainer", RuntimeRoot + "/Containers/CCS_IInventoryContainer.cs");
             ValidateRequiredScript(report, "CCS_InventoryContainer", RuntimeRoot + "/Containers/CCS_InventoryContainer.cs");
             ValidateRequiredScript(report, "CCS_PlayerInventoryService", RuntimeRoot + "/Services/CCS_PlayerInventoryService.cs");

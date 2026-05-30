@@ -1,6 +1,6 @@
 # CCS Survival — Equipment Module
 
-**Milestone:** 0.4.1 — Equipment Module Foundation  
+**Milestone:** 0.4.1a — Equipment Carry Capacity Expansion  
 **Module ID:** `ccs.survival.equipment`  
 **Namespace:** `CCS.Modules.Equipment` (editor: `CCS.Modules.Equipment.Editor`)  
 **Author:** James Schilz (Developer)  
@@ -76,7 +76,9 @@ Supported `CCS_EquipmentSlotType` values:
 | Legs | Pants, chaps |
 | Feet | Boots |
 | Hands | Gloves |
-| Back | Backpacks, capes |
+| Back | Backpacks, capes, pack frames |
+| Satchel | Belt satchels, small carry pouches |
+| Bedroll | Bedroll / bedroll strap carry expansion |
 | Neck | Necklaces, bandanas |
 | Accessory | Rings, trinkets |
 | MainHand | Primary weapon/tool |
@@ -104,9 +106,38 @@ Supported `CCS_EquipmentSlotType` values:
 | `IsSlotEmpty` / `IsSlotOccupied` | Slot state helpers |
 | `ValidateSlotCompatibility` / `CanEquip` | Pre-flight checks |
 | `DamageEquippedDurability` / `RepairEquippedDurability` | Durability foundation API |
-| `CreateSnapshot` | Read-only equipment state |
+| `CreateSnapshot` | Read-only equipment state including aggregate capacity modifiers |
+| `GetAdditionalInventorySlots` | Sum of equipped inventory slot bonuses |
+| `GetAdditionalCarryWeight` | Sum of equipped carry weight bonuses |
 
 No inventory UI references. No automatic inventory removal in 0.4.1 — future integration will coordinate stack removal on equip.
+
+---
+
+## Carry capacity modifiers (0.4.1a)
+
+`CCS_EquipmentItemDefinition` exposes modifier fields (defaults: flags **false**, values **0**):
+
+| Field | Purpose |
+|-------|---------|
+| `ModifiesInventoryCapacity` | When true, `AdditionalInventorySlots` contributes while equipped |
+| `AdditionalInventorySlots` | Extra player inventory slots (non-negative) |
+| `ModifiesCarryWeight` | When true, `AdditionalCarryWeight` contributes while equipped |
+| `AdditionalCarryWeight` | Extra carry weight capacity (non-negative) |
+
+Examples: satchel, backpack (`Back`), bedroll (`Bedroll`), future pack frame / saddle bag.
+
+`CCS_EquipmentCapacityModifierUtility` aggregates equipped modifiers.  
+`CCS_EquipmentSnapshot` includes `TotalAdditionalInventorySlots` and `TotalAdditionalCarryWeight`.
+
+`EquipmentChanged` fires with a capacity-specific message when capacity-affecting gear is equipped or unequipped.
+
+**Rules:**
+
+- Equipment exposes modifiers only — it does **not** resize inventory containers.
+- Inventory module does **not** reference Equipment in 0.4.1a.
+- Future bootstrap/composition will map equipment modifiers into inventory resolved capacity.
+- UI should read **final resolved capacity** from composition, not raw profile slot count alone.
 
 ---
 
@@ -131,12 +162,16 @@ Enabled per item via `CCS_EquipmentItemDefinition.DurabilityEnabled`.
 |-------|----------------|
 | **Inventory** | Owns stacks, add/remove, container capacity |
 | **Equipment** | References `CCS_ItemDefinition` through `CCS_EquipmentItemDefinition` |
+| **Composition (future)** | Applies `CCS_InventoryCapacityModifierSnapshot` to resolved player capacity |
 
 Equipment definitions **require** an inventory item reference. Future milestones will:
 
 - Remove one stack from inventory on equip
 - Return stack to inventory on unequip
 - Validate player owns item before equipping
+- Connect equipment aggregate modifiers to inventory slot/weight resolution via bootstrap
+
+Inventory placeholder: `CCS_InventoryCapacityModifierSnapshot` (no Equipment assembly reference).
 
 ---
 

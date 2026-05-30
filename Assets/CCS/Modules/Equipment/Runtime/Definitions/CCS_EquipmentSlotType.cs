@@ -23,6 +23,8 @@ namespace CCS.Modules.Equipment
         MainHand = 8,
         OffHand = 9,
         Sidearm = 10,
-        Tool = 11
+        Tool = 11,
+        Satchel = 12,
+        Bedroll = 13
     }
 }

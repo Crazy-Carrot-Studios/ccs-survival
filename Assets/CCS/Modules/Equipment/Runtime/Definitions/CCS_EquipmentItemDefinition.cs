@@ -39,6 +39,20 @@ namespace CCS.Modules.Equipment
         [Tooltip("Future stat modifier key or serialized placeholder for authoring tools.")]
         [SerializeField] private string statModifierPlaceholder = string.Empty;
 
+        [Header("Inventory Capacity (Placeholder)")]
+        [Tooltip("When enabled, this equipment adds inventory slot capacity while equipped.")]
+        [SerializeField] private bool modifiesInventoryCapacity;
+
+        [Tooltip("Additional inventory slots granted while equipped.")]
+        [SerializeField] private int additionalInventorySlots;
+
+        [Header("Carry Weight (Placeholder)")]
+        [Tooltip("When enabled, this equipment modifies maximum carry weight while equipped.")]
+        [SerializeField] private bool modifiesCarryWeight;
+
+        [Tooltip("Additional carry weight granted while equipped.")]
+        [SerializeField] private float additionalCarryWeight;
+
         #endregion
 
         #region Properties
@@ -52,6 +66,14 @@ namespace CCS.Modules.Equipment
         public float MaxDurability => maxDurability;
 
         public string StatModifierPlaceholder => statModifierPlaceholder;
+
+        public bool ModifiesInventoryCapacity => modifiesInventoryCapacity;
+
+        public int AdditionalInventorySlots => additionalInventorySlots;
+
+        public bool ModifiesCarryWeight => modifiesCarryWeight;
+
+        public float AdditionalCarryWeight => additionalCarryWeight;
 
         #endregion
     }
