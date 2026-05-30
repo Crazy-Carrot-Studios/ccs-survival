@@ -28,6 +28,10 @@ namespace CCS.Survival
 
         public const string InteractionLogCategory = "Interaction";
 
+        public const string InventoryModuleId = ModuleIdPrefix + "inventory";
+
+        public const string InventoryLogCategory = "Inventory";
+
         public const string SurvivalCoreModuleId = ModuleIdPrefix + "core";
 
         public const string SurvivalCoreLogCategory = "Survival Core";

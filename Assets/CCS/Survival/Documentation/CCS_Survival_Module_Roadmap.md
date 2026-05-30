@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.9 — Interaction Module Foundation  
+**Milestone baseline:** 0.4.0 — Inventory Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Interaction foundation **complete** at 0.3.9. **0.4.0 Inventory** is next.
+**Status:** Inventory foundation **complete** at 0.4.0. **0.4.x Equipment / UI** is next.
 
 ---
 
@@ -54,7 +54,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 1 | **0.3.7** | **Survival Core** | `ccs.survival.core` — **Complete** (foundation) |
 | 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` — **Complete** (foundation) |
 | 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` — **Complete** (foundation) |
-| 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` |
+| 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` — **Complete** (foundation) |
 | 5 | 0.4.x | Equipment | `ccs.survival.equipment` |
 | 6 | 0.4.x | UI / HUD | `ccs.survival.ui` — **after Inventory** to visually validate each new system |
 | 7 | 0.4.x | Crafting | `ccs.survival.crafting` |
@@ -106,7 +106,22 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.0 — Inventory Module Foundation**
+**0.4.x — Equipment and UI (after Inventory foundation)**
+
+---
+
+## 0.4.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `Assets/CCS/Modules/Inventory/` layout | **Complete** |
+| Item definitions, stacks, slots, snapshots | **Complete** |
+| Container with merge/split + player inventory service | **Complete** |
+| No UI/equipment/crafting/storage/save coupling | **Complete** |
+| Default profile under `Assets/CCS/Survival/Profiles/Inventory/` | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.4.0** | **Complete** |
+| Bootstrap installer / scene wiring | **Deferred** |
 
 ---
 

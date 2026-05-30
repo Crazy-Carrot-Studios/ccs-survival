@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.3.9 — Interaction Module Foundation  
+**Milestone:** 0.4.0 — Inventory Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -11,6 +11,17 @@
 | `Assets/CCS/Modules/` | Gameplay modules (Survival Core, Character Controller, …) |
 | `Assets/CCS/Survival/` | Bootstrap, scenes, profiles, composition, project roadmap docs |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
+
+## Inventory (0.4.0)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/Inventory/Runtime/` |
+| Editor validation | `../Modules/Inventory/Editor/Validation/` |
+| Default profile | `Profiles/Inventory/CCS_DefaultInventoryProfile.asset` |
+| Module doc | [../Modules/Inventory/Documentation/CCS_Inventory_Module.md](../Modules/Inventory/Documentation/CCS_Inventory_Module.md) |
+
+**Editor menu:** **CCS → Survival → Inventory → Validate Inventory**
 
 ## Interaction (0.3.9)
 
@@ -94,11 +105,14 @@ Stat foundation for Health, Stamina, Hunger, Thirst, Temperature, and Fatigue:
 | `CCS.Modules.CharacterController.Editor` | Core, Survival runtime/editor, CharacterController runtime |
 | `CCS.Modules.Interaction.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
 | `CCS.Modules.Interaction.Editor` | Core, Survival runtime/editor, Interaction runtime |
+| `CCS.Modules.Inventory.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
+| `CCS.Modules.Inventory.Editor` | Core, Survival runtime/editor, Inventory runtime |
 
 ## Related documentation
 
 - [In-Unity doc index](Documentation/README.md)
 - [Module roadmap](Documentation/CCS_Survival_Module_Roadmap.md)
+- [Inventory module](../Modules/Inventory/Documentation/CCS_Inventory_Module.md)
 - [Interaction module](../Modules/Interaction/Documentation/CCS_Interaction_Module.md)
 - [Character Controller module](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
 - [Survival Core module](../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md)

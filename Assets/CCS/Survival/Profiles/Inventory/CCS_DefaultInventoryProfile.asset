@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4c5d6e7f8a9490b90abcdef1234560e, type: 3}
+  m_Name: CCS_DefaultInventoryProfile
+  m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_InventoryProfile
+  profileDisplayName: Default Inventory
+  profileId: ccs.survival.profile.inventory.default
+  profileDescription: Default player inventory tuning for 0.4.0 foundation.
+  profileVersion: 0.4.0
+  enableDebugLogs: 0
+  inventorySlotCount: 40
+  enableWeightLimit: 0
+  maxCarryWeight: 100

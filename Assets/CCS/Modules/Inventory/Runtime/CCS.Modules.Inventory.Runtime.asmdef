@@ -1,0 +1,17 @@
+{
+    "name": "CCS.Modules.Inventory.Runtime",
+    "rootNamespace": "CCS.Modules.Inventory",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
