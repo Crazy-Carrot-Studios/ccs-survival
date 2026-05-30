@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.1b — Prototype Scene Build Verification  
+**Milestone baseline:** 0.4.1c — README & Repository Presentation Cleanup  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Bootstrap scene build verification **complete** at 0.4.1b. **0.4.x UI / HUD** is next.
+**Status:** Foundation phase **complete**. Public README and repository presentation updated at **0.4.1c**. **0.4.x UI / HUD** is next.
 
 ---
 
@@ -23,6 +23,7 @@
 | **0.4.1** | Equipment |
 | **0.4.1a** | Equipment carry capacity expansion |
 | **0.4.1b** | Prototype scene build verification |
+| **0.4.1c** | README & repository presentation cleanup |
 
 Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
@@ -109,7 +110,20 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.x — UI / HUD (after prototype build verification)**
+**0.4.2+ — UI / HUD (after foundation phase and build verification)**
+
+---
+
+## 0.4.1c definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Root README rewritten (framework-focused, no obsolete references) | **Complete** |
+| UPM git URL install section | **Complete** |
+| Updated folder layout and module table | **Complete** |
+| Validation and build verification sections | **Complete** |
+| Version **0.4.1c** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
 
 ---
 

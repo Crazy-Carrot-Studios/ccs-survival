@@ -1,114 +1,70 @@
 # CCS Survival
 
-Survival-focused gameplay repository for Crazy Carrot Studios.
+Modular survival gameplay framework for Unity, built by Crazy Carrot Studios.
 
 **Repository:** https://github.com/Crazy-Carrot-Studios/ccs-survival  
 **Upstream Core:** [ccs-framework](https://github.com/Crazy-Carrot-Studios/ccs-framework) (vendored under `Assets/CCS/Framework/`)
 
-## Current Project Version
+---
 
-0.4.1b — Prototype Scene Build Verification
+## Unity Package Manager Install
 
-## Repository Purpose
+Use Unity Package Manager:
 
-**ccs-survival** is a **gameplay and content** repository. It owns survival mechanics, genre modules, scenes, narrative product themes (including western MMO / *Reckoning* lore), and game-specific UI — while keeping the reusable **CCS Core Platform** protected under `Assets/CCS/Framework/Core/`.
+**Window → Package Manager → + → Add package from git URL**
 
-| Layer | Location | Policy |
-|-------|----------|--------|
-| **Core Platform** | `Assets/CCS/Framework/Core/` | Upstream-aligned; no gameplay logic; changes upstream when reusable |
-| **Gameplay modules** | `Assets/CCS/Modules/` | Feature assemblies (`ccs.survival.*` module IDs) |
-| **Survival identity & plans** | `Assets/CCS/Survival/`, `Documentation/` | Game repo direction, milestones, architecture notes |
-
-## What Belongs Here
-
-- Survival loops, crafting, inventory, equipment, character control (as modules)
-- Factions, quests, weapons, biomes, and narrative content
-- Game scenes, prefabs, ScriptableObjects, and game-specific UI
-- Module installers and manual bootstrap install plans for this game
-- Survival architecture and milestone documentation
-
-## What Does NOT Belong Here (use upstream)
-
-Changes that benefit **every** CCS game belong in **ccs-framework**, not duplicated as one-off forks:
-
-- Runtime host, bootstrap runner, service registry, event dispatcher
-- Module registry contracts, lifecycle, diagnostics, validation
-- Core smoke tests and `SCN_CCS_Bootstrap` validation scene
-
-See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md).
-
-## Studio Repository Structure
-
-| Repository | Role |
-|------------|------|
-| **ccs-framework** | Permanent reusable Core Platform upstream |
-| **ccs-survival** | Survival-focused gameplay and game content (this repo) |
-
-Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO survival) live **inside** this project — not in framework naming or upstream module ID examples.
-
-## Documentation (start here)
-
-| Document | Purpose |
-|----------|---------|
-| [Survival Gameplay Architecture](Documentation/Architecture/Survival_Gameplay_Architecture.md) | High-level gameplay structure and module layering |
-| [Survival Module Boundaries](Documentation/Architecture/Survival_Module_Boundaries.md) | Core vs Modules vs Survival folder rules |
-| [Survival Networking Authority](Documentation/Architecture/Survival_Networking_Authority.md) | Multiplayer authority direction (contracts first) |
-| [Survival Persistence Direction](Documentation/Architecture/Survival_Persistence_Direction.md) | Save/load direction (no implementation in 0.1.0) |
-| [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md) | Identity setup scope and checklist |
-| [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md) | Bootstrap scene + empty install pipeline |
-| [Survival (Unity) docs](Assets/CCS/Survival/Documentation/README.md) | In-project survival documentation index |
-
-**Core reference (read-only for gameplay authors):**
-
-- [CCS Core Platform Architecture](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)
-- [CCS Script Standards](Assets/CCS/Framework/Documentation/CCS_Script_Standards.md)
-
-## Module ID Convention
-
-Use reverse-DNS style IDs scoped to survival gameplay:
-
-- `ccs.survival.inventory`
-- `ccs.survival.crafting`
-- `ccs.survival.character`
-
-Do **not** use `ccs.reckoning.*` in shared upstream docs; *Reckoning* is product/lore inside this game repo.
-
-## Architecture Policies (inherited from Core)
-
-- No singleton managers or static global service locators
-- No auto-discovery or scene scanning for installers/modules
-- Manual bootstrap install plans and explicit module registration
-- Instance-owned subsystems via `CCS_RuntimeHost` per runtime context
-- Diagnostics-gated smoke tests remain under `Framework/Core/Runtime/SmokeTests/`
-
-Gameplay code uses Core **contracts** (`CCS_IModule`, `CCS_ModuleInstallerBase`, `CCS_Result`, `CCS_EventDispatcher`) — it does not modify Core behavior for one-off game needs.
-
-## Folder Layout (authoritative)
+Copy/paste URL:
 
 ```text
-ccs-survival/
-├── Documentation/
-│   ├── Architecture/          # Survival architecture direction
-│   └── Milestones/            # Game repo milestones
-├── Assets/CCS/
-│   ├── Framework/             # Vendored Core Platform (protect from gameplay)
-│   ├── Modules/               # Gameplay feature modules (future implementation)
-│   └── Survival/              # Survival bootstrap, docs, game-specific shell
-│       ├── Scenes/            # SCN_CCS_Survival_Bootstrap
-│       ├── Prefabs/           # PF_CCS_Survival_BootstrapRoot
-│       ├── Documentation/
-│       └── Runtime/             # CCS.Survival.Runtime (bootstrap + character skeleton)
-└── README.md
+https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ```
 
-## Cursor Workspace Rules
+---
 
-- [.cursor/rules/ccs-core-platform-rules.mdc](.cursor/rules/ccs-core-platform-rules.mdc) — `alwaysApply: true`
-- Enforces Core vs survival separation, script standards, naming, and multiplayer-safe direction
+## Current Version
 
-## Dependency rule (studio-critical)
+**0.4.1c** — README & Repository Presentation Cleanup
 
-Gameplay code depends **downward only:**
+**Unity:** Unity 6
+
+### Status
+
+**Foundation Phase Complete**
+
+### Implemented Modules
+
+- Survival Core
+- Character Controller
+- Interaction
+- Inventory
+- Equipment
+
+### Validated
+
+- Batch compilation
+- Module validation pipeline
+- Bootstrap scene validation
+- Windows build verification (0.4.1b)
+
+---
+
+## Overview
+
+**CCS Survival** is a modular, AAA-quality survival gameplay framework built on top of **CCS Core**. It provides reusable survival systems, explicit module composition, validation tooling, and a bootstrap scene for integration testing — without tying the repository to a single game product.
+
+Gameplay modules live under `Assets/CCS/Modules/`. Project composition, scenes, profiles, and bootstrap configuration live under `Assets/CCS/Survival/`. The reusable platform lives under `Assets/CCS/Framework/Core/`.
+
+---
+
+## Architecture
+
+| Layer | Role |
+|-------|------|
+| **Framework/Core** | Reusable CCS platform systems |
+| **Modules** | Gameplay systems reusable across survival projects |
+| **Survival** | Project-specific composition, profiles, scenes, validation, and bootstrap configuration |
+
+Dependency direction:
 
 ```text
 Survival → Modules → Core
@@ -116,24 +72,129 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.4.1b Scope (current)
+---
 
-**Prototype scene build verification:** `SCN_CCS_Survival_Bootstrap` includes one Main Camera, build verification ground reference, Windows development build under `Builds/CCS_Survival_0.4.1b_Windows/`. No UI/HUD, Cinemachine, or final player prefab wiring.
+## Folder Layout
 
-**Next:** 0.4.x UI / HUD milestone.
+```text
+Assets/
+└── CCS/
+    ├── Framework/
+    │   └── Core/
+    │
+    ├── Modules/
+    │   ├── SurvivalCore/
+    │   ├── CharacterController/
+    │   ├── Interaction/
+    │   ├── Inventory/
+    │   └── Equipment/
+    │
+    └── Survival/
+        ├── Scenes/
+        ├── Prefabs/
+        ├── Profiles/
+        ├── Runtime/
+        └── Documentation/
+```
 
-See [Survival README](Assets/CCS/Survival/README.md).
+---
 
-## Unity Version
+## Modules
 
-Unity 6
+| Module | Status |
+|--------|--------|
+| Survival Core | Complete |
+| Character Controller | Complete |
+| Interaction | Complete |
+| Inventory | Complete |
+| Equipment | Complete |
+| Crafting | Planned |
+| Building | Planned |
+| Wildlife | Planned |
+| Combat | Planned |
+| Save System | Planned |
+| UI/HUD | Planned |
+
+Module IDs use reverse-DNS style (for example `ccs.survival.inventory`). Modules register manually through the survival bootstrap install pipeline — no auto-discovery or scene scanning.
+
+---
+
+## Validation
+
+Every milestone must pass:
+
+- Batch compile
+- Survival validation
+- Survival Core validation
+- Character Controller validation
+- Interaction validation
+- Inventory validation
+- Equipment validation
+- Bootstrap scene validation
+
+**Policy:** zero warnings, zero errors.
+
+Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md](Assets/CCS/Modules/README.md).
+
+---
+
+## Build Verification
+
+**Bootstrap scene:** `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+
+**Verified at 0.4.1b:**
+
+- Main Camera
+- Bootstrap root (`PF_CCS_Survival_BootstrapRoot`)
+- Validation pipeline
+- Windows development build
+
+**Latest verified build:** 0.4.1b  
+**Build output:** `Builds/CCS_Survival_0.4.1b_Windows/` (gitignored)
+
+Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Survival documentation index](Assets/CCS/Survival/Documentation/README.md) | In-project survival docs |
+| [Module roadmap](Assets/CCS/Survival/Documentation/CCS_Survival_Module_Roadmap.md) | Milestone sequence and module order |
+| [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md) | Scene, camera, and build requirements |
+| [Modules README](Assets/CCS/Modules/README.md) | Module layout and batch validation commands |
+| [Core Platform Architecture](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md) | Upstream Core reference |
+
+---
+
+## What Belongs Here
+
+- Survival gameplay modules and installers
+- Bootstrap scenes, prefabs, and profiles
+- Validation and build verification tooling
+- Survival architecture and milestone documentation
+
+## What Belongs Upstream
+
+Changes that benefit every CCS game belong in **ccs-framework**:
+
+- Runtime host, bootstrap runner, service registry, event dispatcher
+- Module registry contracts, lifecycle, diagnostics
+- Core smoke tests and framework bootstrap scene
+
+See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md).
+
+---
+
+## Next Milestone
+
+**0.4.2+** — UI / HUD foundation (after foundation phase and build verification)
+
+---
 
 ## Git Hygiene
 
-Do not commit local Unity churn (`Library/`, `UserSettings/`, incidental `ProjectSettings` edits unless intentional). See `.gitignore` and Core template checklist.
-
-## Versioning
-
-Game repo milestones use **0.x.y** during foundation (e.g. `0.1.0` identity setup). Align `ProjectSettings` → Player → **Version** with milestone releases when you tag gameplay milestones.
+Do not commit local Unity churn (`Library/`, `UserSettings/`, `Builds/`, or incidental `ProjectSettings` edits unless intentional). See `.gitignore`.
 
 **Author:** James Schilz

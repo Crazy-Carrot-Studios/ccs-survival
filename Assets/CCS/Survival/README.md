@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.1b — Prototype Scene Build Verification  
+**Milestone:** 0.4.1c — README & Repository Presentation Cleanup  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
