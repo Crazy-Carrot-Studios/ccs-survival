@@ -11,7 +11,7 @@ This document defines how **ccs-survival** structures gameplay on top of the CCS
 
 ## Design intent
 
-**ccs-survival** delivers survival-focused gameplay (western MMO, extraction, co-op, and related genres) as **explicit modules** composed at bootstrap time. The Core Platform provides lifecycle, services, events, and module install — not survival rules, items, or world simulation.
+**ccs-survival** delivers survival-focused gameplay (extraction, co-op, multiplayer, and related modes) as **explicit modules** composed at bootstrap time. The Core Platform provides lifecycle, services, events, and module install — not survival rules, items, or world simulation.
 
 ```text
 SCN_CCS_Survival_Bootstrap (implemented 0.2.0)
@@ -92,8 +92,8 @@ All handlers must tolerate missing modules during bootstrap ordering tests.
 ## Product vs platform naming
 
 - **Platform / repo:** `ccs-survival`, module IDs `ccs.survival.*`
-- **Product / lore:** *Reckoning*, factions, western setting — scenes, copy, content folders only
-- Never encode product title into Core or upstream framework identifiers
+- **Project content:** game-specific scenes, copy, profiles, and content folders — not framework identifiers
+- Never encode a single product title into Core or upstream framework identifiers
 
 ---
 

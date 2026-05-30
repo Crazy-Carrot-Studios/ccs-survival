@@ -16,7 +16,7 @@ This document describes how **`ccs-framework`** serves as the permanent reusable
 | **ccs-framework** | Reusable upstream Core Platform |
 | **ccs-survival** | Survival-focused gameplay and game repo |
 
-Use **genre- or mode-focused** repo names (`ccs-survival`), not a single game title or lore name. Themes such as *Reckoning*, western MMO setting, factions, and narrative belong in the **game project** (product name, scenes, content, module IDs like `ccs.survival.inventory`) — not in `ccs-framework` or upstream documentation examples.
+Use **genre- or mode-focused** repo names (`ccs-survival`), not a single product title in reusable architecture docs. Game-specific themes, factions, and narrative belong in **project content** (scenes, profiles, module IDs like `ccs.survival.inventory`) — not in `ccs-framework` or upstream documentation examples.
 
 ---
 

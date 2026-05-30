@@ -82,7 +82,7 @@ cd ccs-framework
 2. Clone the new repository.
 3. Open in Unity 6 (match `ProjectSettings/ProjectVersion.txt`).
 4. Add gameplay under `Assets/CCS/Modules/` — **not** under `Framework/Core/`.
-5. Keep game lore and theme (e.g. a specific western MMO product) in game content and naming inside that repo — not in `ccs-framework`.
+5. Keep game-specific themes and content naming inside the game repository — not in `ccs-framework`.
 
 ### Pull upstream fixes into a game repo
 

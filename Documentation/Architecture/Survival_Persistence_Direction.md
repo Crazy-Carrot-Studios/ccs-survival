@@ -61,12 +61,12 @@ Do not use Unity `GetInstanceID` or scene object names as persistent IDs.
 
 | Entity | Planned ID style |
 |--------|------------------|
-| Item definition | Stable string ID (`item.western.bandage`) |
+| Item definition | Stable string ID (`item.survival.bandage`) |
 | Item stack instance | GUID or ulong assigned at creation (server) |
 | Character | Persistent player/character GUID |
 | World chunk | Spatial key (implementation TBD) |
 
-Product flavor (*Reckoning*, western) appears in **content IDs**, not in framework module names.
+Product-specific content prefixes appear in **content IDs**, not in framework module names.
 
 ---
 

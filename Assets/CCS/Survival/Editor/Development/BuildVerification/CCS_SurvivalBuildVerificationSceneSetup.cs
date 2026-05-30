@@ -84,8 +84,8 @@ namespace CCS.Survival.Editor.Development
                 return;
             }
 
-            CCS.Survival.CCS_SurvivalBootstrap[] survivalBootstraps = Object.FindObjectsByType<CCS.Survival.CCS_SurvivalBootstrap>(
-                FindObjectsInactive.Exclude);
+            CCS.Survival.CCS_SurvivalBootstrap[] survivalBootstraps =
+                Object.FindObjectsByType<CCS.Survival.CCS_SurvivalBootstrap>();
 
             for (int index = 1; index < survivalBootstraps.Length; index++)
             {
@@ -120,7 +120,7 @@ namespace CCS.Survival.Editor.Development
 
         private static void RemoveDuplicateMainCameras()
         {
-            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Include);
+            Camera[] cameras = FindSceneCameras();
             List<Camera> mainCameras = new List<Camera>();
 
             for (int index = 0; index < cameras.Length; index++)
@@ -181,8 +181,7 @@ namespace CCS.Survival.Editor.Development
 
         private static void RemoveExtraAudioListeners(GameObject keepListenerOn)
         {
-            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(
-                FindObjectsInactive.Include);
+            AudioListener[] listeners = FindSceneAudioListeners();
 
             for (int index = 0; index < listeners.Length; index++)
             {
@@ -194,6 +193,20 @@ namespace CCS.Survival.Editor.Development
 
                 Object.DestroyImmediate(listener);
             }
+        }
+
+        private static Camera[] FindSceneCameras()
+        {
+#pragma warning disable CS0618
+            return Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#pragma warning restore CS0618
+        }
+
+        private static AudioListener[] FindSceneAudioListeners()
+        {
+#pragma warning disable CS0618
+            return Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#pragma warning restore CS0618
         }
 
         private static void EnsureBuildVerificationGround()

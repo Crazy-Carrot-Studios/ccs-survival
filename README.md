@@ -23,7 +23,7 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.4.1c** — README & Repository Presentation Cleanup
+**0.4.1d** — Repository Sanitization Check
 
 **Unity:** Unity 6
 

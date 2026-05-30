@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.1c — README & Repository Presentation Cleanup  
+**Milestone baseline:** 0.4.1d — Repository Sanitization Check  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Foundation phase **complete**. Public README and repository presentation updated at **0.4.1c**. **0.4.x UI / HUD** is next.
+**Status:** Foundation phase **complete**. Repository presentation sanitized at **0.4.1d**. **0.4.2+ UI / HUD** is next.
 
 ---
 
@@ -24,6 +24,7 @@
 | **0.4.1a** | Equipment carry capacity expansion |
 | **0.4.1b** | Prototype scene build verification |
 | **0.4.1c** | README & repository presentation cleanup |
+| **0.4.1d** | Repository sanitization check |
 
 Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
@@ -111,6 +112,17 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ## Next milestone
 
 **0.4.2+ — UI / HUD (after foundation phase and build verification)**
+
+---
+
+## 0.4.1d definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Removed obsolete public references (product themes, tooling language) | **Complete** |
+| Architecture docs use framework-first language | **Complete** |
+| Version **0.4.1d** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
 
 ---
 

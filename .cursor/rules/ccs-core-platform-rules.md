@@ -1,8 +1,8 @@
-# CCS Core Platform — Cursor Workspace Rules
+# CCS Core Platform — Development Rules
 
-Permanent development rules for AI-assisted work on Crazy Carrot Studios repositories.
+Permanent development rules for Crazy Carrot Studios repositories.
 
-**Applies to:** `ccs-framework` (this upstream repo) and future game repos such as `ccs-survival`.
+**Applies to:** `ccs-framework` (upstream core) and gameplay repos such as `ccs-survival`.
 
 ---
 
@@ -14,19 +14,18 @@ Permanent development rules for AI-assisted work on Crazy Carrot Studios reposit
 - Runtime systems, bootstrap, modules, services, diagnostics, validation
 - **No** gameplay systems
 - **No** survival mechanics
-- **No** western-specific logic
-- **No** MMO content
+- **No** genre-specific logic in Core
 - **No** game-specific UI
-- **No** faction or story systems
+- **No** faction or story systems in Core
 
 All gameplay code belongs in a **game repository**, not here.
 
 ### ccs-survival (gameplay repository)
 
-- Actual survival-focused gameplay and game content
-- Survival mechanics, crafting, factions, quests, weapons, lore
-- Western MMO and other survival genres **inside this repo** (product/theme), not in framework naming
+- Modular survival gameplay framework and project shell
+- Survival mechanics, crafting, equipment, interaction, and related gameplay modules
 - Modules under `Assets/CCS/Modules/` in the game project
+- Project composition under `Assets/CCS/Survival/`
 
 ---
 
@@ -80,15 +79,15 @@ When creating or editing C# in this ecosystem:
 
 ### Do not use
 
-- `ccs-reckoning-survival` or other **game-title** names for reusable architecture docs or repo slugs
-- Game-specific repo naming for framework/upstream guidance
+- Single-product-title repo names for reusable architecture docs or repo slugs
+- Game-specific product naming in framework or upstream module ID examples
 
-### Reckoning and product lore
+### Product-specific content
 
-- **Reckoning**, western MMO, factions, and narrative are **lore/product/game title** — valid inside `ccs-survival` (scenes, content, marketing)
-- **Not** framework branding, upstream repo names, or Core module IDs in `ccs-framework`
+- Game-specific themes, factions, and narrative belong in **project content** (scenes, profiles, marketing)
+- **Not** in framework branding, upstream repo names, or Core module IDs in `ccs-framework`
 
-Example module IDs in game repos: `ccs.survival.inventory` — not `ccs.reckoning.*` in shared upstream docs.
+Example module IDs in game repos: `ccs.survival.inventory` — not product-title prefixes in shared upstream docs.
 
 ---
 
@@ -106,13 +105,13 @@ Example module IDs in game repos: `ccs.survival.inventory` — not `ccs.reckonin
 
 ## Future multiplayer direction
 
-Design for long-term MMO/survival scale **without** implementing networking everywhere prematurely:
+Design for long-term multiplayer survival scale **without** implementing networking everywhere prematurely:
 
 - **Multiplayer-safe:** avoid static global state; prefer instance-owned subsystems
 - **Authority-safe:** clear ownership of registries and hosts per runtime context
 - **Modular:** features as modules with explicit install order
 - **Deterministic** where practical for simulation and validation
-- **Scalable** for future co-op / MMO survival — contracts first, netcode in game repos later
+- **Scalable** for future co-op / multiplayer survival — contracts first, netcode in game repos later
 
 ---
 

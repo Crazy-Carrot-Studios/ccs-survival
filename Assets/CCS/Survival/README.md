@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.1c — README & Repository Presentation Cleanup  
+**Milestone:** 0.4.1d — Repository Sanitization Check  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

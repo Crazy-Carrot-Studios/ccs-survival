@@ -1,7 +1,7 @@
 # Survival Module Boundaries
 
 **Version:** 0.2.0  
-**Status:** Boundary rules (enforcement via review and Cursor rules)  
+**Status:** Boundary rules (enforcement via review and project standards)  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -33,7 +33,7 @@ Treat `Assets/CCS/Framework/Core/` as **read-mostly** from a gameplay perspectiv
 ### Forbidden in Core
 
 - References to `ccs.survival.*` module IDs in Core runtime code
-- Hardcoded western, faction, or *Reckoning* assumptions
+- Hardcoded product-specific, faction, or genre theme assumptions
 - Inventory stacks, damage formulas, or biome generators
 - Game HUD or menu flows
 
@@ -143,7 +143,7 @@ Gameplay tests must not require modifying `SCN_CCS_Bootstrap` or Core smoke inst
 - Singleton `GameManager` or static `Inventory.Instance`
 - Scene-wide installer discovery
 - Gameplay `#if` branches inside Core files
-- Module ID `ccs.reckoning.*` in code shared with upstream docs
+- Module IDs tied to a single product title in code shared with upstream docs
 
 ---
 

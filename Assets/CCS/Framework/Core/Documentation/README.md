@@ -6,7 +6,7 @@ Architecture and upstream documentation for the CCS Core Platform runtime.
 
 - **[CCS Upstream Workflow](CCS_Upstream_Workflow.md)** — Reusable upstream philosophy, platform vs gameplay, Git workflow
 - **[CCS GitHub Template Setup](CCS_GitHub_Template_Setup.md)** — Template repo, branch protection, tags, releases (manual steps)
-- **Cursor workspace rules** — [.cursor/rules/ccs-core-platform-rules.mdc](../../../../.cursor/rules/ccs-core-platform-rules.mdc) (auto-apply; repo root)
+- **[Survival Module Boundaries](../../../../Documentation/Architecture/Survival_Module_Boundaries.md)** — Core, Modules, and Survival separation rules
 
 ## Platform baseline
 
