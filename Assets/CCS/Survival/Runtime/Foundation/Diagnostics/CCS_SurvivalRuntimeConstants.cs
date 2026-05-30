@@ -24,6 +24,10 @@ namespace CCS.Survival
 
         public const string CharacterControllerLogCategory = "Character Controller";
 
+        public const string InteractionModuleId = ModuleIdPrefix + "interaction";
+
+        public const string InteractionLogCategory = "Interaction";
+
         public const string SurvivalCoreModuleId = ModuleIdPrefix + "core";
 
         public const string SurvivalCoreLogCategory = "Survival Core";

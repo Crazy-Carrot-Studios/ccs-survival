@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.3.8a — Batch validation runner hotfix  
+**Milestone:** 0.3.9 — Interaction Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -12,6 +12,12 @@
 | `Assets/CCS/Modules/` | Gameplay modules — module-specific docs live under each module |
 | `Assets/CCS/Survival/Documentation/` | Project roadmap, bootstrap standards, framework quality gate |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
+
+## Interaction (0.3.9)
+
+| Guide | Path |
+|-------|------|
+| Interaction module | [../../Modules/Interaction/Documentation/CCS_Interaction_Module.md](../../Modules/Interaction/Documentation/CCS_Interaction_Module.md) |
 
 ## Character Controller (0.3.8)
 
@@ -57,6 +63,7 @@
 | Milestone | Path |
 |-----------|------|
 | 0.3.8a Batch validation | [../../Modules/README.md](../../Modules/README.md) |
+| 0.3.9 Interaction | [../../Modules/Interaction/Documentation/CCS_Interaction_Module.md](../../Modules/Interaction/Documentation/CCS_Interaction_Module.md) |
 | 0.3.8 Character Controller | [../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
 | 0.3.7b Foundation lock | [../../Modules/README.md](../../Modules/README.md) |
 | 0.3.7a Module layout | [../../Modules/README.md](../../Modules/README.md) |

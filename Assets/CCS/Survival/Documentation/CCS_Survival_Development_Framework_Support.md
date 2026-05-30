@@ -98,6 +98,7 @@ Do **not** extend menu classes with hard-coded rules.
 | Full survival validation | `CCS.Survival.Editor.Development.CCS_SurvivalValidationMenu.RunSurvivalValidation` |
 | Survival Core (same pipeline) | `CCS.Modules.SurvivalCore.Editor.CCS_SurvivalCoreValidationMenu.ValidateSurvivalCore` |
 | Character Controller (same pipeline) | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerValidationMenu.ValidateCharacterController` |
+| Interaction (same pipeline) | `CCS.Modules.Interaction.Editor.CCS_InteractionValidationMenu.ValidateInteraction` |
 
 Log to `Logs/CCS_Validation.log` (and module-specific logs when applicable). Require **0 errors and 0 warnings** before commit or milestone tags.
 

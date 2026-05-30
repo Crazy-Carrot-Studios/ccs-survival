@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.3.8a  
+**Version:** 0.3.9  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -51,6 +51,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.CharacterController.Editor.CCS_CharacterControllerValidationMenu.ValidateCharacterController `
   -logFile Logs/CCS_CharacterControllerValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.Interaction.Editor.CCS_InteractionValidationMenu.ValidateInteraction `
+  -logFile Logs/CCS_InteractionValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -80,7 +84,7 @@ Assets/CCS/Modules/<ModuleName>/
 |--------|-----------|
 | `SurvivalCore/` | 0.3.7 / 0.3.7a / 0.3.7b |
 | `CharacterController/` | 0.3.8 — **Complete** (foundation) |
-| `Interaction/` | 0.3.9 |
+| `Interaction/` | 0.3.9 — **Complete** (foundation) |
 | `Inventory/` | 0.4.0 |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

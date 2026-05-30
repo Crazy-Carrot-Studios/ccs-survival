@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.3.8a — Batch validation runner hotfix  
+**Milestone baseline:** 0.3.9 — Interaction Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Batch validation infrastructure **complete** at 0.3.8a. **0.3.9 Interaction** is next.
+**Status:** Interaction foundation **complete** at 0.3.9. **0.4.0 Inventory** is next.
 
 ---
 
@@ -53,7 +53,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | — | 0.3.0 | Character skeleton | `ccs.survival.character` — **Installed** |
 | 1 | **0.3.7** | **Survival Core** | `ccs.survival.core` — **Complete** (foundation) |
 | 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` — **Complete** (foundation) |
-| 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` |
+| 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` — **Complete** (foundation) |
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` |
 | 5 | 0.4.x | Equipment | `ccs.survival.equipment` |
 | 6 | 0.4.x | UI / HUD | `ccs.survival.ui` — **after Inventory** to visually validate each new system |
@@ -106,7 +106,22 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.3.9 — Interaction Module Foundation**
+**0.4.0 — Inventory Module Foundation**
+
+---
+
+## 0.3.9 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `Assets/CCS/Modules/Interaction/` layout | **Complete** |
+| `CCS_IInteractable` + `CCS_InteractableBase` | **Complete** |
+| Forward-raycast scanner + service + events | **Complete** |
+| No inventory/crafting/equipment/save/quest coupling | **Complete** |
+| Default profile under `Assets/CCS/Survival/Profiles/Interaction/` | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.3.9** | **Complete** |
+| Bootstrap installer / scene wiring | **Deferred** |
 
 ---
 
@@ -178,6 +193,7 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ## Related
 
 - [Survival Core Module](../../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md)
+- [Interaction Module](../../Modules/Interaction/Documentation/CCS_Interaction_Module.md)
 - [Character Controller Module](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
 - [Gameplay modules index](../../Modules/README.md)
 - [Development Framework Support](CCS_Survival_Development_Framework_Support.md)

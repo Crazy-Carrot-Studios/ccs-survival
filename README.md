@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.8a — Batch validation runner hotfix
+0.3.9 — Interaction Module Foundation
 
 ## Repository Purpose
 
@@ -116,11 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.3.8a Scope (current)
+## Milestone 0.3.9 Scope (current)
 
-**Batch validation runner:** `CCS_SurvivalValidationBatchUtility`, `HasWarnings()`, batchmode exit codes, and menu updates. Includes Survival Core stat constructor and Editor asmdef GUID fixes.
+**Interaction foundation** under `Assets/CCS/Modules/Interaction/`: `CCS_IInteractable`, forward-raycast scanner, `CCS_InteractionService`, events, and default profile at `Assets/CCS/Survival/Profiles/Interaction/`. No inventory, crafting, storage, doors, quests, or UI.
 
-**Next:** 0.3.9 Interaction under `Assets/CCS/Modules/Interaction/`.
+**Next:** 0.4.0 Inventory Module Foundation.
 
 See [Survival README](Assets/CCS/Survival/README.md).
 
