@@ -1,7 +1,7 @@
 # CCS UI / HUD Module
 
 **Module ID (planned):** `ccs.survival.ui`  
-**Milestone:** 0.4.2 — UI/HUD Foundation  
+**Milestone:** 0.4.2a — HUD Readability & Anchor Pass  
 **Author:** James Schilz  
 **Date:** 2026-05-30
 
@@ -28,7 +28,7 @@ The UI module binds to:
 | **Gameplay modules** | Own data, services, events, and mutation |
 | **CCS_HudPresentationService** | Cache snapshots and raise presentation events |
 | **Presenters** | Render placeholder Unity UI from cached data |
-| **CCS_HudProfile** | Toggle HUD areas and notification tuning |
+| **CCS_HudProfile** | Toggle HUD areas, layout tuning, and notification settings |
 
 Rules:
 
@@ -39,13 +39,51 @@ Rules:
 
 ---
 
+## HUD anchoring rules
+
+| Element | Anchor | Notes |
+|---------|--------|-------|
+| Survival bars | Lower-left | Clear of center gameplay view |
+| Interaction prompt | Lower-center | Only center-ish element; kept low to avoid blocking aim/view |
+| Inventory summary | Lower-right | Compact readable line, not a full menu |
+| Equipment summary | Lower-right | Stacked near inventory summary |
+| Notifications | Top-right | Vertical stack; profile-driven max count |
+
+General rules:
+
+- Avoid screen center except the low interaction prompt
+- Use safe margins from profile layout settings
+- Avoid tiny debug text
+- Keep the gameplay scene visible
+
+`CCS_HudLayoutApplicator` applies profile layout at runtime from `CCS_HudRootPresenter`.
+
+---
+
+## Readability standards
+
+Default profile targets readable text at **1080p** and **1440p**:
+
+- Survival bar width: 320–420 px (default 400)
+- Survival bar row height: 28–40 px (default 34)
+- Survival bar font size: 17
+- Summary font size: 16
+- Interaction prompt font size: 22
+- Notification row height: 40
+- Notification font size: 16
+- Safe margin: 28 px
+
+Missing gameplay data shows safe placeholders such as `Health: --`, `Inventory: --`, and `Equipment: --`. The interaction prompt stays hidden until a valid target prompt exists.
+
+---
+
 ## Presenter responsibilities
 
 | Presenter | Display |
 |-----------|---------|
-| `CCS_HudRootPresenter` | Owns presentation service and binds child presenters |
+| `CCS_HudRootPresenter` | Owns presentation service, layout areas, and binds child presenters |
 | `CCS_SurvivalBarPresenter` | Health, stamina, hunger, thirst bars |
-| `CCS_InteractionPromptPresenter` | Current interactable prompt text |
+| `CCS_InteractionPromptPresenter` | Plain-text interact prompt |
 | `CCS_InventorySummaryPresenter` | Slot and quantity summary |
 | `CCS_EquipmentSummaryPresenter` | Equipped slot summary |
 | `CCS_NotificationQueue` | Transient notification stack |
@@ -61,13 +99,26 @@ Default asset:
 
 Settings:
 
-- Show survival bars
-- Show interaction prompt
-- Show inventory summary
-- Show equipment summary
-- Show notifications
-- Notification max visible count
-- Notification lifetime seconds
+- Visibility toggles for each HUD area
+- Layout settings (`CCS_HudLayoutSettings`): scale, safe margin, bar dimensions, font sizes, prompt offset
+- Notification settings (`CCS_NotificationProfile`): max visible count, lifetime, width, row height, font size
+
+---
+
+## Input glyphs (deferred)
+
+Glyph assets are deferred until Input Actions / Input System integration.
+
+Current HUD uses **plain text prompts only**, such as:
+
+- `Interact`
+- `Interact: {TargetName}`
+
+Future glyph needs may include:
+
+- Keyboard: E, I, Tab, Esc, Shift, Ctrl, R
+- Mouse: LMB, RMB, MMB
+- Gamepad: A/Cross, B/Circle, X/Square, Y/Triangle, LB/RB, LT/RT, Start/Menu, D-pad
 
 ---
 
@@ -80,9 +131,9 @@ Contains:
 - Canvas + Canvas Scaler + Graphic Raycaster
 - Survival bar area (lower-left)
 - Interaction prompt (lower-center)
-- Inventory summary (upper-right)
-- Equipment summary (upper-right)
-- Notification queue (upper-right stack)
+- Inventory summary (lower-right)
+- Equipment summary (lower-right)
+- Notification queue (top-right stack)
 
 ---
 
@@ -90,11 +141,12 @@ Contains:
 
 `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` includes one instance of `PF_CCS_HUD_Root`.
 
-HUD may exist without final player wiring. Presenters show placeholder/unavailable text when services are not bound.
+HUD may exist without final player wiring. Presenters show placeholder text when services are not bound.
 
-Batch setup entry:
+Batch setup entries:
 
-`CCS.Modules.UI.Editor.CCS_UIHudBootstrapSetup.ExecuteBatch`
+- `CCS.Modules.UI.Editor.CCS_UIHudBootstrapSetup.ExecuteBatch`
+- `CCS.Modules.UI.Editor.CCS_UIHudLayoutSetup.ExecuteBatch`
 
 ---
 
@@ -116,4 +168,5 @@ Batch entry:
 - Equipment paper-doll UI
 - Final art and animation
 - Input Actions wiring
+- Input glyph assets
 - Settings menu UI (player-facing preferences)

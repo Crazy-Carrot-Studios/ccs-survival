@@ -37,6 +37,7 @@ namespace CCS.Modules.UI
             }
 
             gameObject.SetActive(profile == null || profile.ShowEquipmentSummary);
+            ApplyTypography(profile);
             RefreshDisplay();
         }
 
@@ -76,15 +77,26 @@ namespace CCS.Modules.UI
                 return;
             }
 
-            if (presentationService?.EquipmentSnapshot == null)
+            if (presentationService?.EquipmentSnapshot == null ||
+                presentationService.EquipmentSnapshot.TotalSlotCount <= 0)
             {
-                summaryText.text = "Equipment: unavailable";
+                summaryText.text = "Equipment: --";
                 return;
             }
 
             CCS.Modules.Equipment.CCS_EquipmentSnapshot snapshot = presentationService.EquipmentSnapshot;
             summaryText.text =
                 $"Equipment: {snapshot.OccupiedSlotCount}/{snapshot.TotalSlotCount} | +Slots {snapshot.TotalAdditionalInventorySlots} | +Wt {snapshot.TotalAdditionalCarryWeight:0}";
+        }
+
+        private void ApplyTypography(CCS_HudProfile profile)
+        {
+            if (profile?.LayoutSettings == null || summaryText == null)
+            {
+                return;
+            }
+
+            CCS_HudLayoutApplicator.ApplyTypography(summaryText, profile.LayoutSettings.SummaryFontSize);
         }
 
         #endregion

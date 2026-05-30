@@ -26,6 +26,23 @@ namespace CCS.Modules.UI
 
         #region Public Methods
 
+        public void ConfigureLayout(float rowHeight, int fontSize)
+        {
+            LayoutElement layoutElement = GetComponent<LayoutElement>();
+            if (layoutElement == null)
+            {
+                layoutElement = gameObject.AddComponent<LayoutElement>();
+            }
+
+            layoutElement.preferredHeight = rowHeight;
+            layoutElement.minHeight = rowHeight;
+
+            if (messageText != null)
+            {
+                CCS_HudLayoutApplicator.ApplyTypography(messageText, fontSize);
+            }
+        }
+
         public void Show(string message, float lifetimeSeconds)
         {
             if (messageText != null)

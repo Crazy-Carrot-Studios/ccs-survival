@@ -45,6 +45,27 @@ namespace CCS.Modules.UI
                 return CCS_SurvivalValidationResult.Fail("Notification lifetime must be greater than zero.");
             }
 
+            if (notificationProfile.NotificationWidth <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Notification width must be greater than zero.");
+            }
+
+            if (notificationProfile.NotificationRowHeight <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Notification row height must be greater than zero.");
+            }
+
+            CCS_HudLayoutSettings layoutSettings = profile.LayoutSettings;
+            if (layoutSettings == null)
+            {
+                return CCS_SurvivalValidationResult.Warn("HUD profile layout settings are null.");
+            }
+
+            if (layoutSettings.SurvivalBarWidth <= 0f || layoutSettings.SurvivalBarHeight <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Survival bar layout dimensions must be greater than zero.");
+            }
+
             return CCS_SurvivalValidationResult.Pass("HUD profile validated.");
         }
 

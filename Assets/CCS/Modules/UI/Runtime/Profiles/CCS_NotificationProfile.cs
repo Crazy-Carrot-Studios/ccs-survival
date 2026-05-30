@@ -24,6 +24,15 @@ namespace CCS.Modules.UI
         [Tooltip("Seconds before a notification is dismissed automatically.")]
         [SerializeField] private float notificationLifetimeSeconds = 4f;
 
+        [Tooltip("Width of each notification row.")]
+        [SerializeField] private float notificationWidth = 400f;
+
+        [Tooltip("Height of each notification row.")]
+        [SerializeField] private float notificationRowHeight = 40f;
+
+        [Tooltip("Font size for notification messages.")]
+        [SerializeField] private int notificationFontSize = 16;
+
         #endregion
 
         #region Properties
@@ -32,6 +41,12 @@ namespace CCS.Modules.UI
 
         public float NotificationLifetimeSeconds =>
             notificationLifetimeSeconds < 0.5f ? 0.5f : notificationLifetimeSeconds;
+
+        public float NotificationWidth => notificationWidth < 280f ? 280f : notificationWidth;
+
+        public float NotificationRowHeight => notificationRowHeight < 32f ? 32f : notificationRowHeight;
+
+        public int NotificationFontSize => notificationFontSize < 14 ? 14 : notificationFontSize;
 
         #endregion
     }

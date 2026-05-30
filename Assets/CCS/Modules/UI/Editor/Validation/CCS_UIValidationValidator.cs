@@ -53,9 +53,11 @@ namespace CCS.Modules.UI.Editor
             ValidateRequiredFile(report, "Editor asmdef", EditorRoot + "/CCS.Modules.UI.Editor.asmdef");
 
             ValidateRequiredScript(report, "CCS_HudProfile", RuntimeRoot + "/Profiles/CCS_HudProfile.cs");
+            ValidateRequiredScript(report, "CCS_HudLayoutSettings", RuntimeRoot + "/Profiles/CCS_HudLayoutSettings.cs");
             ValidateRequiredScript(report, "CCS_NotificationProfile", RuntimeRoot + "/Profiles/CCS_NotificationProfile.cs");
             ValidateRequiredScript(report, "CCS_HudPresentationService", RuntimeRoot + "/Services/CCS_HudPresentationService.cs");
             ValidateRequiredScript(report, "CCS_HudRootPresenter", RuntimeRoot + "/Presentation/CCS_HudRootPresenter.cs");
+            ValidateRequiredScript(report, "CCS_HudLayoutApplicator", RuntimeRoot + "/Presentation/CCS_HudLayoutApplicator.cs");
             ValidateRequiredScript(report, "CCS_SurvivalBarPresenter", RuntimeRoot + "/Presentation/CCS_SurvivalBarPresenter.cs");
             ValidateRequiredScript(report, "CCS_InteractionPromptPresenter", RuntimeRoot + "/Presentation/CCS_InteractionPromptPresenter.cs");
             ValidateRequiredScript(report, "CCS_InventorySummaryPresenter", RuntimeRoot + "/Presentation/CCS_InventorySummaryPresenter.cs");

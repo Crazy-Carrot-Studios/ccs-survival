@@ -257,9 +257,17 @@ namespace CCS.Modules.UI
             else
             {
                 CCS_IInteractable target = interactionService.CurrentTarget;
-                currentInteractionPrompt = target != null && target.CanInteract()
-                    ? $"[E] {target.GetInteractionDisplayName()}"
-                    : string.Empty;
+                if (target != null && target.CanInteract())
+                {
+                    string displayName = target.GetInteractionDisplayName();
+                    currentInteractionPrompt = string.IsNullOrWhiteSpace(displayName)
+                        ? "Interact"
+                        : $"Interact: {displayName}";
+                }
+                else
+                {
+                    currentInteractionPrompt = string.Empty;
+                }
             }
 
             if (!string.Equals(previousPrompt, currentInteractionPrompt, StringComparison.Ordinal))

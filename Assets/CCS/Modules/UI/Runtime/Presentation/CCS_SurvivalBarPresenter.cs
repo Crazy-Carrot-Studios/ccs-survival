@@ -45,6 +45,7 @@ namespace CCS.Modules.UI
             }
 
             gameObject.SetActive(profile == null || profile.ShowSurvivalBars);
+            ApplyTypography(profile);
             RefreshDisplay();
         }
 
@@ -83,6 +84,20 @@ namespace CCS.Modules.UI
             UpdateBar(staminaLabel, staminaFill, "Stamina", presentationService, CCS_SurvivalStatType.Stamina);
             UpdateBar(hungerLabel, hungerFill, "Hunger", presentationService, CCS_SurvivalStatType.Hunger);
             UpdateBar(thirstLabel, thirstFill, "Thirst", presentationService, CCS_SurvivalStatType.Thirst);
+        }
+
+        private void ApplyTypography(CCS_HudProfile profile)
+        {
+            if (profile?.LayoutSettings == null)
+            {
+                return;
+            }
+
+            int fontSize = profile.LayoutSettings.SurvivalBarFontSize;
+            CCS_HudLayoutApplicator.ApplyTypography(healthLabel, fontSize);
+            CCS_HudLayoutApplicator.ApplyTypography(staminaLabel, fontSize);
+            CCS_HudLayoutApplicator.ApplyTypography(hungerLabel, fontSize);
+            CCS_HudLayoutApplicator.ApplyTypography(thirstLabel, fontSize);
         }
 
         private void UpdateBar(

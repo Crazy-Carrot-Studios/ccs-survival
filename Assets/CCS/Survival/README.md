@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.2 — UI/HUD Foundation  
+**Milestone:** 0.4.2a — HUD Readability & Anchor Pass  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

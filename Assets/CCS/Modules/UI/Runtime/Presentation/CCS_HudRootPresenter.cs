@@ -17,6 +17,11 @@ namespace CCS.Modules.UI
         #region Variables
 
         [SerializeField] private CCS_HudProfile hudProfile;
+        [SerializeField] private RectTransform survivalBarArea;
+        [SerializeField] private RectTransform interactionPromptArea;
+        [SerializeField] private RectTransform inventorySummaryArea;
+        [SerializeField] private RectTransform equipmentSummaryArea;
+        [SerializeField] private RectTransform notificationArea;
         [SerializeField] private CCS_SurvivalBarPresenter survivalBarPresenter;
         [SerializeField] private CCS_InteractionPromptPresenter interactionPromptPresenter;
         [SerializeField] private CCS_InventorySummaryPresenter inventorySummaryPresenter;
@@ -33,6 +38,16 @@ namespace CCS.Modules.UI
 
         public CCS_HudProfile HudProfile => hudProfile;
 
+        public RectTransform SurvivalBarArea => survivalBarArea;
+
+        public RectTransform InteractionPromptArea => interactionPromptArea;
+
+        public RectTransform InventorySummaryArea => inventorySummaryArea;
+
+        public RectTransform EquipmentSummaryArea => equipmentSummaryArea;
+
+        public RectTransform NotificationArea => notificationArea;
+
         #endregion
 
         #region Unity Callbacks
@@ -48,6 +63,7 @@ namespace CCS.Modules.UI
             }
 
             BindPresenters();
+            ApplyLayoutFromProfile();
             presentationService.RefreshCachedData("HUD root initialized.");
         }
 
@@ -72,11 +88,22 @@ namespace CCS.Modules.UI
             }
 
             BindPresenters();
+            ApplyLayoutFromProfile();
         }
 
         #endregion
 
         #region Private Methods
+
+        private void ApplyLayoutFromProfile()
+        {
+            if (hudProfile == null)
+            {
+                return;
+            }
+
+            CCS_HudLayoutApplicator.Apply(this, hudProfile);
+        }
 
         private void BindPresenters()
         {

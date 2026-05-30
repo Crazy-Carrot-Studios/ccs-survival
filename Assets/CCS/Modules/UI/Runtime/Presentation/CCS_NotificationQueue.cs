@@ -26,6 +26,8 @@ namespace CCS.Modules.UI
         private CCS_HudProfile hudProfile;
         private float defaultLifetimeSeconds = 4f;
         private int maxVisibleCount = 4;
+        private float notificationRowHeight = 40f;
+        private int notificationFontSize = 16;
 
         #endregion
 
@@ -41,6 +43,8 @@ namespace CCS.Modules.UI
             {
                 defaultLifetimeSeconds = profile.NotificationProfile.NotificationLifetimeSeconds;
                 maxVisibleCount = profile.NotificationProfile.MaxVisibleCount;
+                notificationRowHeight = profile.NotificationProfile.NotificationRowHeight;
+                notificationFontSize = profile.NotificationProfile.NotificationFontSize;
             }
 
             if (presentationService != null)
@@ -116,6 +120,7 @@ namespace CCS.Modules.UI
 
             CCS_NotificationPresenter presenter = Instantiate(notificationTemplate, notificationContainer);
             presenter.gameObject.SetActive(true);
+            presenter.ConfigureLayout(notificationRowHeight, notificationFontSize);
             presenter.Show(eventArgs.Message, defaultLifetimeSeconds);
             activePresenters.Add(presenter);
         }

@@ -20,6 +20,7 @@ namespace CCS.Modules.UI
         [SerializeField] private Text promptText;
 
         private CCS_HudPresentationService presentationService;
+        private bool isEnabledByProfile = true;
 
         #endregion
 
@@ -36,7 +37,9 @@ namespace CCS.Modules.UI
                 presentationService.HudInitialized += HandlePromptChanged;
             }
 
-            gameObject.SetActive(profile == null || profile.ShowInteractionPrompt);
+            isEnabledByProfile = profile == null || profile.ShowInteractionPrompt;
+            gameObject.SetActive(isEnabledByProfile);
+            ApplyTypography(profile);
             RefreshDisplay();
         }
 
@@ -82,7 +85,19 @@ namespace CCS.Modules.UI
 
             bool hasPrompt = !string.IsNullOrWhiteSpace(prompt);
             promptText.text = hasPrompt ? prompt : string.Empty;
-            promptText.gameObject.SetActive(hasPrompt);
+            gameObject.SetActive(isEnabledByProfile && hasPrompt);
+        }
+
+        private void ApplyTypography(CCS_HudProfile profile)
+        {
+            if (profile?.LayoutSettings == null || promptText == null)
+            {
+                return;
+            }
+
+            CCS_HudLayoutApplicator.ApplyTypography(
+                promptText,
+                profile.LayoutSettings.InteractionPromptFontSize);
         }
 
         #endregion

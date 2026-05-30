@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.UI.Runtime::CCS.Modules.UI.CCS_HudProfile
   profileDisplayName: Default HUD
   profileId: ccs.survival.profile.ui.default
-  profileDescription: Default HUD presentation profile for 0.4.2 foundation.
-  profileVersion: 0.4.2
+  profileDescription: Default HUD presentation profile tuned for readability at 0.4.2a.
+  profileVersion: 0.4.2a
   enableDebugLogs: 0
   showSurvivalBars: 1
   showInteractionPrompt: 1
@@ -25,3 +25,20 @@ MonoBehaviour:
   notificationProfile:
     maxVisibleCount: 4
     notificationLifetimeSeconds: 4
+    notificationWidth: 400
+    notificationRowHeight: 40
+    notificationFontSize: 16
+  layoutSettings:
+    hudScale: 1
+    safeMargin: 28
+    survivalBarWidth: 400
+    survivalBarHeight: 34
+    survivalBarFontSize: 17
+    summaryFontSize: 16
+    interactionPromptFontSize: 22
+    interactionPromptVerticalOffset: 56
+    interactionPromptWidth: 480
+    interactionPromptHeight: 44
+    summaryPanelWidth: 420
+    summaryPanelHeight: 38
+    notificationAreaHeight: 240

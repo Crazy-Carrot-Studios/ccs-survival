@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.4.2  
+**Version:** 0.4.2a  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

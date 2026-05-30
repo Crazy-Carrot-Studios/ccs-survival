@@ -25,11 +25,27 @@ namespace CCS.Modules.UI.Editor
         private const string BootstrapScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
         private const string LogPrefix = "[CCS_UIHudBootstrapSetup]";
 
+        private const float SafeMargin = 28f;
+        private const float SurvivalBarWidth = 400f;
+        private const float SurvivalBarHeight = 34f;
+        private const int SurvivalBarFontSize = 17;
+        private const int SummaryFontSize = 16;
+        private const int InteractionPromptFontSize = 22;
+        private const float InteractionPromptVerticalOffset = 56f;
+        private const float InteractionPromptWidth = 480f;
+        private const float InteractionPromptHeight = 44f;
+        private const float SummaryPanelWidth = 420f;
+        private const float SummaryPanelHeight = 38f;
+        private const float NotificationWidth = 400f;
+        private const float NotificationRowHeight = 40f;
+        private const int NotificationFontSize = 16;
+        private const float NotificationAreaHeight = 240f;
+
         #region Public Methods
 
         public static void ExecuteBatch()
         {
-            EnsureProfileFolders();
+            EnsureProfileFoldersPublic();
             CCS_HudProfile profile = EnsureDefaultProfile();
             EnsureHudPrefab(profile);
             EnsureBootstrapSceneHudInstance();
@@ -39,15 +55,147 @@ namespace CCS.Modules.UI.Editor
             EditorApplication.Exit(0);
         }
 
-        #endregion
-
-        #region Private Methods
-
-        private static void EnsureProfileFolders()
+        public static void EnsureProfileFoldersPublic()
         {
             EnsureFolder("Assets/CCS/Survival/Profiles");
             EnsureFolder("Assets/CCS/Survival/Profiles/UI");
         }
+
+        public static void BuildHudPrefab(CCS_HudProfile profile, string prefabPath)
+        {
+            EnsureFolder("Assets/CCS/Modules/UI/Prefabs");
+
+            GameObject root = new GameObject("PF_CCS_HUD_Root");
+            Canvas canvas = root.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 10;
+
+            CanvasScaler scaler = root.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+
+            root.AddComponent<GraphicRaycaster>();
+            CCS_HudRootPresenter rootPresenter = root.AddComponent<CCS_HudRootPresenter>();
+
+            float survivalPanelHeight = ((SurvivalBarHeight + 6f) * 4f) + 12f;
+            GameObject survivalArea = CreatePanel(
+                root.transform,
+                "SurvivalBarArea",
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(SafeMargin, SafeMargin),
+                new Vector2(SurvivalBarWidth, survivalPanelHeight));
+            survivalArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.2f);
+            CCS_SurvivalBarPresenter survivalPresenter = survivalArea.AddComponent<CCS_SurvivalBarPresenter>();
+            CreateSurvivalBars(survivalArea.transform, survivalPresenter);
+
+            GameObject promptArea = CreatePanel(
+                root.transform,
+                "InteractionPromptArea",
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, InteractionPromptVerticalOffset),
+                new Vector2(InteractionPromptWidth, InteractionPromptHeight));
+            promptArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.35f);
+            CCS_InteractionPromptPresenter promptPresenter = promptArea.AddComponent<CCS_InteractionPromptPresenter>();
+            Text promptText = CreateText(promptArea.transform, "PromptText", string.Empty, InteractionPromptFontSize, TextAnchor.MiddleCenter);
+            promptText.color = Color.white;
+            SetPresenterField(promptPresenter, "promptText", promptText);
+
+            GameObject inventoryArea = CreatePanel(
+                root.transform,
+                "InventorySummaryArea",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(-SafeMargin, SafeMargin + SummaryPanelHeight + 8f),
+                new Vector2(SummaryPanelWidth, SummaryPanelHeight));
+            inventoryArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
+            CCS_InventorySummaryPresenter inventoryPresenter = inventoryArea.AddComponent<CCS_InventorySummaryPresenter>();
+            Text inventoryText = CreateText(inventoryArea.transform, "SummaryText", "Inventory: --", SummaryFontSize, TextAnchor.MiddleRight);
+            inventoryText.color = new Color(0.95f, 0.95f, 0.95f, 1f);
+            SetPresenterField(inventoryPresenter, "summaryText", inventoryText);
+
+            GameObject equipmentArea = CreatePanel(
+                root.transform,
+                "EquipmentSummaryArea",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(-SafeMargin, SafeMargin),
+                new Vector2(SummaryPanelWidth, SummaryPanelHeight));
+            equipmentArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
+            CCS_EquipmentSummaryPresenter equipmentPresenter = equipmentArea.AddComponent<CCS_EquipmentSummaryPresenter>();
+            Text equipmentText = CreateText(equipmentArea.transform, "SummaryText", "Equipment: --", SummaryFontSize, TextAnchor.MiddleRight);
+            equipmentText.color = new Color(0.95f, 0.95f, 0.95f, 1f);
+            SetPresenterField(equipmentPresenter, "summaryText", equipmentText);
+
+            GameObject notificationArea = CreatePanel(
+                root.transform,
+                "NotificationArea",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-SafeMargin, -SafeMargin),
+                new Vector2(NotificationWidth, NotificationAreaHeight));
+            notificationArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            VerticalLayoutGroup notificationLayout = notificationArea.AddComponent<VerticalLayoutGroup>();
+            notificationLayout.childAlignment = TextAnchor.UpperRight;
+            notificationLayout.spacing = 8f;
+            notificationLayout.childControlWidth = true;
+            notificationLayout.childControlHeight = false;
+            notificationLayout.childForceExpandWidth = true;
+            notificationLayout.childForceExpandHeight = false;
+
+            CCS_NotificationQueue notificationQueue = notificationArea.AddComponent<CCS_NotificationQueue>();
+            RectTransform notificationContainer = notificationArea.GetComponent<RectTransform>();
+            GameObject notificationTemplateObject = CreatePanel(
+                notificationArea.transform,
+                "NotificationTemplate",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(NotificationWidth, NotificationRowHeight));
+            notificationTemplateObject.SetActive(false);
+            CCS_NotificationPresenter notificationTemplate = notificationTemplateObject.AddComponent<CCS_NotificationPresenter>();
+            Text notificationText = CreateText(
+                notificationTemplateObject.transform,
+                "MessageText",
+                "Notification",
+                NotificationFontSize,
+                TextAnchor.MiddleLeft);
+            notificationText.color = Color.white;
+            SetPresenterField(notificationTemplate, "messageText", notificationText);
+            Image notificationBackground = notificationTemplateObject.GetComponent<Image>();
+            notificationBackground.color = new Color(0f, 0f, 0f, 0.55f);
+            SetPresenterField(notificationTemplate, "backgroundImage", notificationBackground);
+            SetPresenterField(notificationQueue, "notificationContainer", notificationContainer);
+            SetPresenterField(notificationQueue, "notificationTemplate", notificationTemplate);
+
+            SerializedObject rootSerializedObject = new SerializedObject(rootPresenter);
+            rootSerializedObject.FindProperty("hudProfile").objectReferenceValue = profile;
+            rootSerializedObject.FindProperty("survivalBarArea").objectReferenceValue = survivalArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("interactionPromptArea").objectReferenceValue = promptArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("inventorySummaryArea").objectReferenceValue = inventoryArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("equipmentSummaryArea").objectReferenceValue = equipmentArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("notificationArea").objectReferenceValue = notificationArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("survivalBarPresenter").objectReferenceValue = survivalPresenter;
+            rootSerializedObject.FindProperty("interactionPromptPresenter").objectReferenceValue = promptPresenter;
+            rootSerializedObject.FindProperty("inventorySummaryPresenter").objectReferenceValue = inventoryPresenter;
+            rootSerializedObject.FindProperty("equipmentSummaryPresenter").objectReferenceValue = equipmentPresenter;
+            rootSerializedObject.FindProperty("notificationQueue").objectReferenceValue = notificationQueue;
+            rootSerializedObject.ApplyModifiedPropertiesWithoutUndo();
+
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            Object.DestroyImmediate(root);
+        }
+
+        #endregion
+
+        #region Private Methods
 
         private static CCS_HudProfile EnsureDefaultProfile()
         {
@@ -90,66 +238,7 @@ namespace CCS.Modules.UI.Editor
                 return;
             }
 
-            GameObject root = new GameObject("PF_CCS_HUD_Root");
-            Canvas canvas = root.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 10;
-
-            CanvasScaler scaler = root.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-
-            root.AddComponent<GraphicRaycaster>();
-            CCS_HudRootPresenter rootPresenter = root.AddComponent<CCS_HudRootPresenter>();
-
-            GameObject survivalArea = CreatePanel(root.transform, "SurvivalBarArea", new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 20f), new Vector2(320f, 180f));
-            CCS_SurvivalBarPresenter survivalPresenter = survivalArea.AddComponent<CCS_SurvivalBarPresenter>();
-            CreateSurvivalBars(survivalArea.transform, survivalPresenter);
-
-            GameObject promptArea = CreatePanel(root.transform, "InteractionPromptArea", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 40f), new Vector2(420f, 40f));
-            CCS_InteractionPromptPresenter promptPresenter = promptArea.AddComponent<CCS_InteractionPromptPresenter>();
-            Text promptText = CreateText(promptArea.transform, "PromptText", string.Empty, 18, TextAnchor.MiddleCenter);
-            promptText.color = Color.white;
-            SetPresenterField(promptPresenter, "promptText", promptText);
-
-            GameObject inventoryArea = CreatePanel(root.transform, "InventorySummaryArea", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -20f), new Vector2(320f, 36f));
-            CCS_InventorySummaryPresenter inventoryPresenter = inventoryArea.AddComponent<CCS_InventorySummaryPresenter>();
-            Text inventoryText = CreateText(inventoryArea.transform, "SummaryText", "Inventory: --", 14, TextAnchor.MiddleRight);
-            inventoryText.color = new Color(0.9f, 0.9f, 0.9f, 1f);
-            SetPresenterField(inventoryPresenter, "summaryText", inventoryText);
-
-            GameObject equipmentArea = CreatePanel(root.transform, "EquipmentSummaryArea", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -60f), new Vector2(420f, 36f));
-            CCS_EquipmentSummaryPresenter equipmentPresenter = equipmentArea.AddComponent<CCS_EquipmentSummaryPresenter>();
-            Text equipmentText = CreateText(equipmentArea.transform, "SummaryText", "Equipment: --", 14, TextAnchor.MiddleRight);
-            equipmentText.color = new Color(0.9f, 0.9f, 0.9f, 1f);
-            SetPresenterField(equipmentPresenter, "summaryText", equipmentText);
-
-            GameObject notificationArea = CreatePanel(root.transform, "NotificationArea", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -110f), new Vector2(360f, 180f));
-            CCS_NotificationQueue notificationQueue = notificationArea.AddComponent<CCS_NotificationQueue>();
-            RectTransform notificationContainer = notificationArea.GetComponent<RectTransform>();
-            GameObject notificationTemplateObject = CreatePanel(notificationArea.transform, "NotificationTemplate", new Vector2(1f, 1f), new Vector2(1f, 1f), Vector2.zero, new Vector2(340f, 32f));
-            notificationTemplateObject.SetActive(false);
-            CCS_NotificationPresenter notificationTemplate = notificationTemplateObject.AddComponent<CCS_NotificationPresenter>();
-            Text notificationText = CreateText(notificationTemplateObject.transform, "MessageText", "Notification", 13, TextAnchor.MiddleLeft);
-            notificationText.color = Color.white;
-            SetPresenterField(notificationTemplate, "messageText", notificationText);
-            Image notificationBackground = notificationTemplateObject.GetComponent<Image>();
-            SetPresenterField(notificationTemplate, "backgroundImage", notificationBackground);
-            SetPresenterField(notificationQueue, "notificationContainer", notificationContainer);
-            SetPresenterField(notificationQueue, "notificationTemplate", notificationTemplate);
-
-            SerializedObject rootSerializedObject = new SerializedObject(rootPresenter);
-            rootSerializedObject.FindProperty("hudProfile").objectReferenceValue = profile;
-            rootSerializedObject.FindProperty("survivalBarPresenter").objectReferenceValue = survivalPresenter;
-            rootSerializedObject.FindProperty("interactionPromptPresenter").objectReferenceValue = promptPresenter;
-            rootSerializedObject.FindProperty("inventorySummaryPresenter").objectReferenceValue = inventoryPresenter;
-            rootSerializedObject.FindProperty("equipmentSummaryPresenter").objectReferenceValue = equipmentPresenter;
-            rootSerializedObject.FindProperty("notificationQueue").objectReferenceValue = notificationQueue;
-            rootSerializedObject.ApplyModifiedPropertiesWithoutUndo();
-
-            EnsureFolder("Assets/CCS/Modules/UI/Prefabs");
-            PrefabUtility.SaveAsPrefabAsset(root, HudPrefabPath);
-            Object.DestroyImmediate(root);
+            BuildHudPrefab(profile, HudPrefabPath);
         }
 
         private static void EnsureBootstrapSceneHudInstance()
@@ -182,10 +271,11 @@ namespace CCS.Modules.UI.Editor
 
         private static void CreateSurvivalBars(Transform parent, CCS_SurvivalBarPresenter presenter)
         {
-            CreateBarRow(parent, "HealthRow", "Health", 140f, out Text healthLabel, out Image healthFill);
-            CreateBarRow(parent, "StaminaRow", "Stamina", 110f, out Text staminaLabel, out Image staminaFill);
-            CreateBarRow(parent, "HungerRow", "Hunger", 80f, out Text hungerLabel, out Image hungerFill);
-            CreateBarRow(parent, "ThirstRow", "Thirst", 50f, out Text thirstLabel, out Image thirstFill);
+            float rowSpacing = SurvivalBarHeight + 6f;
+            CreateBarRow(parent, "HealthRow", "Health", rowSpacing * 3f, out Text healthLabel, out Image healthFill);
+            CreateBarRow(parent, "StaminaRow", "Stamina", rowSpacing * 2f, out Text staminaLabel, out Image staminaFill);
+            CreateBarRow(parent, "HungerRow", "Hunger", rowSpacing, out Text hungerLabel, out Image hungerFill);
+            CreateBarRow(parent, "ThirstRow", "Thirst", 0f, out Text thirstLabel, out Image thirstFill);
 
             SetPresenterField(presenter, "healthLabel", healthLabel);
             SetPresenterField(presenter, "healthFill", healthFill);
@@ -205,17 +295,39 @@ namespace CCS.Modules.UI.Editor
             out Text label,
             out Image fill)
         {
-            GameObject row = CreatePanel(parent, rowName, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, anchoredY), new Vector2(300f, 28f));
-            label = CreateText(row.transform, "Label", $"{labelPrefix}: --", 13, TextAnchor.MiddleLeft);
+            GameObject row = CreatePanel(
+                parent,
+                rowName,
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, anchoredY),
+                new Vector2(SurvivalBarWidth - 16f, SurvivalBarHeight));
+            row.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.15f);
+            label = CreateText(row.transform, "Label", $"{labelPrefix}: --", SurvivalBarFontSize, TextAnchor.MiddleLeft);
             label.rectTransform.anchorMin = new Vector2(0f, 0f);
-            label.rectTransform.anchorMax = new Vector2(0.45f, 1f);
+            label.rectTransform.anchorMax = new Vector2(0.42f, 1f);
             label.rectTransform.offsetMin = Vector2.zero;
             label.rectTransform.offsetMax = Vector2.zero;
             label.color = Color.white;
 
-            GameObject fillBackground = CreatePanel(row.transform, "FillBackground", new Vector2(0.45f, 0.1f), new Vector2(1f, 0.9f), Vector2.zero, Vector2.zero);
-            fillBackground.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.45f);
-            GameObject fillObject = CreatePanel(fillBackground.transform, "Fill", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            GameObject fillBackground = CreatePanel(
+                row.transform,
+                "FillBackground",
+                new Vector2(0.42f, 0.12f),
+                new Vector2(1f, 0.88f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                Vector2.zero);
+            fillBackground.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+            GameObject fillObject = CreatePanel(
+                fillBackground.transform,
+                "Fill",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(0f, 0.5f),
+                Vector2.zero,
+                Vector2.zero);
             fill = fillObject.GetComponent<Image>();
             fill.color = new Color(0.2f, 0.75f, 0.35f, 0.95f);
             fill.type = Image.Type.Filled;
@@ -228,6 +340,7 @@ namespace CCS.Modules.UI.Editor
             string objectName,
             Vector2 anchorMin,
             Vector2 anchorMax,
+            Vector2 pivot,
             Vector2 anchoredPosition,
             Vector2 sizeDelta)
         {
@@ -236,7 +349,7 @@ namespace CCS.Modules.UI.Editor
             RectTransform rectTransform = panelObject.GetComponent<RectTransform>();
             rectTransform.anchorMin = anchorMin;
             rectTransform.anchorMax = anchorMax;
-            rectTransform.pivot = anchorMin == anchorMax ? anchorMin : new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = pivot;
             rectTransform.anchoredPosition = anchoredPosition;
             rectTransform.sizeDelta = sizeDelta;
             Image image = panelObject.GetComponent<Image>();
@@ -251,8 +364,8 @@ namespace CCS.Modules.UI.Editor
             RectTransform rectTransform = textObject.GetComponent<RectTransform>();
             rectTransform.anchorMin = Vector2.zero;
             rectTransform.anchorMax = Vector2.one;
-            rectTransform.offsetMin = new Vector2(8f, 2f);
-            rectTransform.offsetMax = new Vector2(-8f, -2f);
+            rectTransform.offsetMin = new Vector2(10f, 2f);
+            rectTransform.offsetMax = new Vector2(-10f, -2f);
             Text textComponent = textObject.GetComponent<Text>();
             textComponent.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             textComponent.text = text;

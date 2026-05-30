@@ -37,6 +37,7 @@ namespace CCS.Modules.UI
             }
 
             gameObject.SetActive(profile == null || profile.ShowInventorySummary);
+            ApplyTypography(profile);
             RefreshDisplay();
         }
 
@@ -76,15 +77,26 @@ namespace CCS.Modules.UI
                 return;
             }
 
-            if (presentationService?.InventorySnapshot == null)
+            if (presentationService?.InventorySnapshot == null ||
+                presentationService.InventorySnapshot.SlotCount <= 0)
             {
-                summaryText.text = "Inventory: unavailable";
+                summaryText.text = "Inventory: --";
                 return;
             }
 
             CCS.Modules.Inventory.CCS_InventorySnapshot snapshot = presentationService.InventorySnapshot;
             summaryText.text =
-                $"Inventory: {snapshot.UsedSlotCount}/{snapshot.SlotCount} slots | Qty {snapshot.TotalItemQuantity}";
+                $"Inventory: {snapshot.UsedSlotCount}/{snapshot.SlotCount} | Qty {snapshot.TotalItemQuantity}";
+        }
+
+        private void ApplyTypography(CCS_HudProfile profile)
+        {
+            if (profile?.LayoutSettings == null || summaryText == null)
+            {
+                return;
+            }
+
+            CCS_HudLayoutApplicator.ApplyTypography(summaryText, profile.LayoutSettings.SummaryFontSize);
         }
 
         #endregion

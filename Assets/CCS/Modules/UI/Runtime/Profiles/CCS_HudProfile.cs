@@ -39,6 +39,9 @@ namespace CCS.Modules.UI
         [Header("Notifications")]
         [SerializeField] private CCS_NotificationProfile notificationProfile = new CCS_NotificationProfile();
 
+        [Header("Layout")]
+        [SerializeField] private CCS_HudLayoutSettings layoutSettings = new CCS_HudLayoutSettings();
+
         #endregion
 
         #region Properties
@@ -54,6 +57,8 @@ namespace CCS.Modules.UI
         public bool ShowNotifications => showNotifications;
 
         public CCS_NotificationProfile NotificationProfile => notificationProfile;
+
+        public CCS_HudLayoutSettings LayoutSettings => layoutSettings;
 
         #endregion
     }
