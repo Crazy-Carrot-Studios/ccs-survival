@@ -23,7 +23,7 @@ namespace CCS.Survival.Editor.Development
         public static void ValidateActiveSceneBootstrap()
         {
             CCS.Survival.Development.CCS_SurvivalSceneBootstrapper bootstrapper =
-                Object.FindFirstObjectByType<CCS.Survival.Development.CCS_SurvivalSceneBootstrapper>();
+                Object.FindAnyObjectByType<CCS.Survival.Development.CCS_SurvivalSceneBootstrapper>();
 
             CCS.Survival.Development.CCS_SurvivalSceneBootstrapProfile profile =
                 bootstrapper != null ? bootstrapper.BootstrapProfile : null;

@@ -76,7 +76,7 @@ namespace CCS.Survival.Development
                 return profileRequirements;
             }
 
-            CCS_SurvivalBootstrap survivalBootstrap = Object.FindFirstObjectByType<CCS_SurvivalBootstrap>();
+            CCS_SurvivalBootstrap survivalBootstrap = Object.FindAnyObjectByType<CCS_SurvivalBootstrap>();
             if (survivalBootstrap == null)
             {
                 return CCS_SurvivalValidationResult.Fail("Active scene is missing CCS_SurvivalBootstrap.");
@@ -117,8 +117,7 @@ namespace CCS.Survival.Development
             if (profile.RequireRuntimeHost)
             {
                 CCS_RuntimeHost[] runtimeHosts = Object.FindObjectsByType<CCS_RuntimeHost>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
 
                 if (runtimeHosts.Length != CCS_SurvivalRuntimeConstants.ExpectedRuntimeHostCount)
                 {
@@ -130,8 +129,7 @@ namespace CCS.Survival.Development
             if (profile.RequireSurvivalBootstrap)
             {
                 CCS_SurvivalBootstrap[] survivalBootstraps = Object.FindObjectsByType<CCS_SurvivalBootstrap>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
 
                 if (survivalBootstraps.Length != CCS_SurvivalRuntimeConstants.ExpectedSurvivalBootstrapCount)
                 {
@@ -195,7 +193,7 @@ namespace CCS.Survival.Development
                 return CCS_SurvivalValidationResult.Pass("No required services listed on bootstrap profile.");
             }
 
-            CCS_RuntimeHost runtimeHost = Object.FindFirstObjectByType<CCS_RuntimeHost>();
+            CCS_RuntimeHost runtimeHost = Object.FindAnyObjectByType<CCS_RuntimeHost>();
             if (runtimeHost == null || !runtimeHost.IsRuntimeInitialized)
             {
                 return CCS_SurvivalValidationResult.Warn(

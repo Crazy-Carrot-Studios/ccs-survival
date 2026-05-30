@@ -158,8 +158,7 @@ namespace CCS.Survival
         public static CCS_SurvivalValidationResult ValidateNoDuplicateSceneBootstrapComponents()
         {
             CCS_RuntimeHost[] runtimeHosts = Object.FindObjectsByType<CCS_RuntimeHost>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
             if (runtimeHosts.Length > CCS_SurvivalRuntimeConstants.ExpectedRuntimeHostCount)
             {
@@ -168,8 +167,7 @@ namespace CCS.Survival
             }
 
             CCS_SurvivalBootstrap[] survivalBootstraps = Object.FindObjectsByType<CCS_SurvivalBootstrap>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
             if (survivalBootstraps.Length > CCS_SurvivalRuntimeConstants.ExpectedSurvivalBootstrapCount)
             {

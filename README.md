@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.4.0 — Inventory Module Foundation
+0.4.1 — Equipment Module Foundation
 
 ## Repository Purpose
 
@@ -116,11 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.4.0 Scope (current)
+## Milestone 0.4.1 Scope (current)
 
-**Inventory foundation** under `Assets/CCS/Modules/Inventory/`: item definitions, stacks, slots, containers, `CCS_PlayerInventoryService`, events, and default profile at `Assets/CCS/Survival/Profiles/Inventory/`. Data architecture only — no UI, equipment, crafting, storage world objects, or save coupling.
+**Equipment foundation** under `Assets/CCS/Modules/Equipment/`: slot types, equipment item definitions (inventory-linked), durability state, `CCS_PlayerEquipmentService`, events, and default profile at `Assets/CCS/Survival/Profiles/Equipment/`. Runtime architecture only — no UI, combat, weapon functionality, or character visuals.
 
-**Next:** 0.4.x Equipment and UI milestones.
+**Next:** 0.4.x UI and crafting milestones.
 
 See [Survival README](Assets/CCS/Survival/README.md).
 

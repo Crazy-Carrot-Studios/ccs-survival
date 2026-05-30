@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.0 — Inventory Module Foundation  
+**Milestone baseline:** 0.4.1 — Equipment Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Inventory foundation **complete** at 0.4.0. **0.4.x Equipment / UI** is next.
+**Status:** Equipment foundation **complete** at 0.4.1. **0.4.x UI / Crafting** is next.
 
 ---
 
@@ -20,6 +20,7 @@
 | **0.3.8a** | Batch validation runner + Survival Core editor asmdef fix |
 | **0.3.9** | Interaction |
 | **0.4.0** | Inventory |
+| **0.4.1** | Equipment |
 
 Later milestones continue from **0.4.1+** (Equipment, UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
@@ -55,7 +56,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 2 | **0.3.8** | **Character Controller** | `ccs.survival.movement` — **Complete** (foundation) |
 | 3 | **0.3.9** | **Interaction** | `ccs.survival.interaction` — **Complete** (foundation) |
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` — **Complete** (foundation) |
-| 5 | 0.4.x | Equipment | `ccs.survival.equipment` |
+| 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
 | 6 | 0.4.x | UI / HUD | `ccs.survival.ui` — **after Inventory** to visually validate each new system |
 | 7 | 0.4.x | Crafting | `ccs.survival.crafting` |
 | 8 | 0.4.x | World Resources | `ccs.survival.world.resources` |
@@ -106,7 +107,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.x — Equipment and UI (after Inventory foundation)**
+**0.4.x — UI and Crafting (after Equipment foundation)**
+
+---
+
+## 0.4.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `Assets/CCS/Modules/Equipment/` layout | **Complete** |
+| Slot types, definitions, durability, equipped item data | **Complete** |
+| Player equipment service + events | **Complete** |
+| Inventory item definition references (no duplicate ownership) | **Complete** |
+| No UI/combat/visual/weapon gameplay coupling | **Complete** |
+| Default profile under `Assets/CCS/Survival/Profiles/Equipment/` | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| CS0618 bootstrap validation warning fixed | **Complete** |
+| Version **0.4.1** | **Complete** |
+| Bootstrap installer / scene wiring | **Deferred** |
 
 ---
 
