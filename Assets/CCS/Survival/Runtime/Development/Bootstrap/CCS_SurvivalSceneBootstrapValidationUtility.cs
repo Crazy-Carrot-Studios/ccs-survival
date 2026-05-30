@@ -82,10 +82,34 @@ namespace CCS.Survival.Development
                 return CCS_SurvivalValidationResult.Fail("Active scene is missing CCS_SurvivalBootstrap.");
             }
 
+            CCS_RuntimeHost runtimeHost = survivalBootstrap.GetComponent<CCS_RuntimeHost>();
+            CCS_SurvivalValidationResult compositionValidation =
+                CCS.Survival.CCS_SurvivalSceneBootstrapValidationUtility.ValidateCompositionRoot(
+                    runtimeHost,
+                    survivalBootstrap);
+            if (!compositionValidation.IsSuccess)
+            {
+                return compositionValidation;
+            }
+
+            CCS_SurvivalValidationResult duplicateValidation =
+                CCS.Survival.CCS_SurvivalSceneBootstrapValidationUtility.ValidateNoDuplicateSceneBootstrapComponents();
+            if (!duplicateValidation.IsSuccess)
+            {
+                return duplicateValidation;
+            }
+
             CCS_SurvivalRuntimeContext survivalContext = survivalBootstrap.SurvivalContext;
             if (survivalContext == null)
             {
-                return CCS_SurvivalValidationResult.Warn("Survival bootstrap context is not available yet.");
+                if (compositionValidation.IsWarning || duplicateValidation.IsWarning || profileRequirements.IsWarning)
+                {
+                    return CCS_SurvivalValidationResult.Warn(
+                        "Active scene bootstrap composition validated with warnings (runtime context pending Play Mode).");
+                }
+
+                return CCS_SurvivalValidationResult.Pass(
+                    "Active scene bootstrap composition validated (runtime context pending Play Mode).");
             }
 
             CCS_SurvivalValidationResult foundationValidation =

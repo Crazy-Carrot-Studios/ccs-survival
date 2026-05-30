@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 // =============================================================================
@@ -16,8 +17,41 @@ namespace CCS.Survival.Editor.Development
     public static class CCS_SurvivalSceneBootstrapValidationMenu
     {
         private const string MenuPath = "CCS/Survival/Bootstrap/Validate Active Scene Bootstrap";
+        private const string BootstrapScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+        private const string LogPrefix = "CCS_SurvivalSceneBootstrapValidationMenu";
 
         #region Public Methods
+
+        public static void ExecuteBatch()
+        {
+            EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
+
+            CCS.Survival.Development.CCS_SurvivalSceneBootstrapper bootstrapper =
+                Object.FindAnyObjectByType<CCS.Survival.Development.CCS_SurvivalSceneBootstrapper>();
+
+            CCS.Survival.Development.CCS_SurvivalSceneBootstrapProfile profile =
+                bootstrapper != null ? bootstrapper.BootstrapProfile : null;
+
+            CCS.Survival.CCS_SurvivalValidationResult validationResult =
+                CCS.Survival.Development.CCS_SurvivalSceneBootstrapValidationUtility.ValidateActiveSceneBootstrap(profile);
+
+            if (!validationResult.IsSuccess)
+            {
+                Debug.LogError($"[{LogPrefix}] {validationResult.Message}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            if (validationResult.IsWarning)
+            {
+                Debug.LogError($"[{LogPrefix}] {validationResult.Message}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            Debug.Log($"[{LogPrefix}] {validationResult.Message}");
+            EditorApplication.Exit(0);
+        }
 
         [MenuItem(MenuPath, priority = 150)]
         public static void ValidateActiveSceneBootstrap()

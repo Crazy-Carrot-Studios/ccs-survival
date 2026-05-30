@@ -20,6 +20,7 @@ namespace CCS.Survival.Editor.Development
     public static class CCS_SurvivalBuildVerificationSceneSetup
     {
         private const string ScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+        private const string BootstrapPrefabPath = "Assets/CCS/Survival/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
         private const string SceneRootName = "CCS_BuildVerificationScene";
         private const string GroundName = "CCS_BuildVerificationGround";
         private const string MainCameraName = "Main Camera";
@@ -37,6 +38,7 @@ namespace CCS.Survival.Editor.Development
 
             Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             ConfigureBuildSettings();
+            EnsureBootstrapPrefabInstance();
             RemoveDuplicateMainCameras();
             EnsureMainCamera();
             EnsureBuildVerificationGround();
@@ -73,9 +75,52 @@ namespace CCS.Survival.Editor.Development
             Debug.Log("[CCS_SurvivalBuildVerificationSceneSetup] Build settings updated (Survival bootstrap first).");
         }
 
+        private static void EnsureBootstrapPrefabInstance()
+        {
+            if (!File.Exists(BootstrapPrefabPath))
+            {
+                Debug.LogError($"[CCS_SurvivalBuildVerificationSceneSetup] Missing bootstrap prefab: {BootstrapPrefabPath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            CCS.Survival.CCS_SurvivalBootstrap[] survivalBootstraps = Object.FindObjectsByType<CCS.Survival.CCS_SurvivalBootstrap>(
+                FindObjectsInactive.Exclude);
+
+            for (int index = 1; index < survivalBootstraps.Length; index++)
+            {
+                Object.DestroyImmediate(survivalBootstraps[index].gameObject);
+            }
+
+            if (survivalBootstraps.Length >= 1)
+            {
+                Debug.Log("[CCS_SurvivalBuildVerificationSceneSetup] Bootstrap prefab instance already present.");
+                return;
+            }
+
+            GameObject bootstrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BootstrapPrefabPath);
+            if (bootstrapPrefab == null)
+            {
+                Debug.LogError($"[CCS_SurvivalBuildVerificationSceneSetup] Failed to load bootstrap prefab: {BootstrapPrefabPath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            GameObject bootstrapInstance = PrefabUtility.InstantiatePrefab(bootstrapPrefab) as GameObject;
+            if (bootstrapInstance == null)
+            {
+                Debug.LogError("[CCS_SurvivalBuildVerificationSceneSetup] Failed to instantiate bootstrap prefab.");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            bootstrapInstance.name = bootstrapPrefab.name;
+            Debug.Log("[CCS_SurvivalBuildVerificationSceneSetup] Bootstrap prefab instance added to scene.");
+        }
+
         private static void RemoveDuplicateMainCameras()
         {
-            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Include);
             List<Camera> mainCameras = new List<Camera>();
 
             for (int index = 0; index < cameras.Length; index++)
@@ -137,8 +182,7 @@ namespace CCS.Survival.Editor.Development
         private static void RemoveExtraAudioListeners(GameObject keepListenerOn)
         {
             AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int index = 0; index < listeners.Length; index++)
             {
