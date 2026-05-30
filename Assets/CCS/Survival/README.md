@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.1a — Equipment Carry Capacity Expansion  
+**Milestone:** 0.4.1b — Prototype Scene Build Verification  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -11,6 +11,12 @@
 | `Assets/CCS/Modules/` | Gameplay modules (Survival Core, Character Controller, …) |
 | `Assets/CCS/Survival/` | Bootstrap, scenes, profiles, composition, project roadmap docs |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
+
+## Build verification (0.4.1b)
+
+| Doc | Path |
+|-----|------|
+| Build verification | [Documentation/CCS_Survival_Build_Verification.md](Documentation/CCS_Survival_Build_Verification.md) |
 
 ## Equipment (0.4.1 / 0.4.1a)
 

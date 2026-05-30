@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.1a — Equipment Carry Capacity Expansion  
+**Milestone baseline:** 0.4.1b — Prototype Scene Build Verification  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Equipment carry capacity modifiers **complete** at 0.4.1a. **0.4.x UI** is next.
+**Status:** Bootstrap scene build verification **complete** at 0.4.1b. **0.4.x UI / HUD** is next.
 
 ---
 
@@ -22,6 +22,7 @@
 | **0.4.0** | Inventory |
 | **0.4.1** | Equipment |
 | **0.4.1a** | Equipment carry capacity expansion |
+| **0.4.1b** | Prototype scene build verification |
 
 Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
 
@@ -108,7 +109,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.x — UI (after equipment carry capacity expansion)**
+**0.4.x — UI / HUD (after prototype build verification)**
+
+---
+
+## 0.4.1b definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| One Main Camera in `SCN_CCS_Survival_Bootstrap` | **Complete** |
+| Build verification ground reference object | **Complete** |
+| Survival bootstrap first in Build Settings | **Complete** |
+| Windows development build succeeds | **Verify** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Build output not committed (`Builds/`) | **Complete** |
+| Version **0.4.1b** | **Complete** |
+| UI / HUD | **Deferred** |
+| Cinemachine / gameplay camera | **Deferred** |
+| Final player prefab wiring | **Deferred** |
 
 ---
 

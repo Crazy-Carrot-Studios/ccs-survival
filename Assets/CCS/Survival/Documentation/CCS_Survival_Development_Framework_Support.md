@@ -22,6 +22,7 @@
 | 0.3.9 | Interaction |
 | 0.4.0 | Inventory |
 | 0.4.1a | Equipment carry capacity expansion |
+| 0.4.1b | Prototype scene build verification |
 
 ---
 

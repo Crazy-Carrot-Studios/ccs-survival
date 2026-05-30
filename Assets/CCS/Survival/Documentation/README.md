@@ -1,7 +1,7 @@
 # CCS Survival — In-Project Documentation
 
 **Location:** `Assets/CCS/Survival/Documentation/`  
-**Milestone:** 0.4.1a — Equipment Carry Capacity Expansion  
+**Milestone:** 0.4.1b — Prototype Scene Build Verification  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -12,6 +12,12 @@
 | `Assets/CCS/Modules/` | Gameplay modules — module-specific docs live under each module |
 | `Assets/CCS/Survival/Documentation/` | Project roadmap, bootstrap standards, framework quality gate |
 | `Assets/CCS/Framework/` | Reusable Core Platform |
+
+## Build verification (0.4.1b)
+
+| Guide | Path |
+|-------|------|
+| Build verification | [CCS_Survival_Build_Verification.md](CCS_Survival_Build_Verification.md) |
 
 ## Equipment (0.4.1)
 
@@ -75,6 +81,7 @@
 | Milestone | Path |
 |-----------|------|
 | 0.3.8a Batch validation | [../../Modules/README.md](../../Modules/README.md) |
+| 0.4.1b Build verification | [CCS_Survival_Build_Verification.md](CCS_Survival_Build_Verification.md) |
 | 0.4.1a Equipment carry capacity | [../../Modules/Equipment/Documentation/CCS_Equipment_Module.md](../../Modules/Equipment/Documentation/CCS_Equipment_Module.md) |
 | 0.4.1 Equipment | [../../Modules/Equipment/Documentation/CCS_Equipment_Module.md](../../Modules/Equipment/Documentation/CCS_Equipment_Module.md) |
 | 0.4.0 Inventory | [../../Modules/Inventory/Documentation/CCS_Inventory_Module.md](../../Modules/Inventory/Documentation/CCS_Inventory_Module.md) |

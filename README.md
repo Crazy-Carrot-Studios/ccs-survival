@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.4.1a — Equipment Carry Capacity Expansion
+0.4.1b — Prototype Scene Build Verification
 
 ## Repository Purpose
 
@@ -116,11 +116,11 @@ Survival → Modules → Core
 
 Core must never reference survival or gameplay modules.
 
-## Milestone 0.4.1a Scope (current)
+## Milestone 0.4.1b Scope (current)
 
-**Equipment carry capacity expansion:** equipped gear (Back, Satchel, Bedroll, etc.) exposes inventory slot and carry weight modifiers via `CCS_PlayerEquipmentService`. Inventory receives a placeholder `CCS_InventoryCapacityModifierSnapshot` hook only — bootstrap composition will connect systems before UI.
+**Prototype scene build verification:** `SCN_CCS_Survival_Bootstrap` includes one Main Camera, build verification ground reference, Windows development build under `Builds/CCS_Survival_0.4.1b_Windows/`. No UI/HUD, Cinemachine, or final player prefab wiring.
 
-**Next:** 0.4.x UI milestone.
+**Next:** 0.4.x UI / HUD milestone.
 
 See [Survival README](Assets/CCS/Survival/README.md).
 
