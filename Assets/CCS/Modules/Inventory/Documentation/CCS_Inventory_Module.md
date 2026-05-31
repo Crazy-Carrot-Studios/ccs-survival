@@ -199,12 +199,29 @@ Harvest failures return safe results when inventory is full. Inventory events re
 
 ---
 
+## Crafting integration (0.5.3)
+
+Crafting consumes and produces items through the same container API:
+
+| Operation | API |
+|-----------|-----|
+| Pre-check ingredients | `HasItem(CCS_ItemDefinition, int quantity)` |
+| Pre-check output capacity | `CanAdd(CCS_ItemDefinition, int quantity)` |
+| Consume recipe inputs | `RemoveItem(CCS_ItemDefinition, int quantity)` |
+| Grant recipe outputs | `AddItem(CCS_ItemDefinition, int quantity)` |
+
+`CCS_CraftingService` validates output capacity before removing ingredients and restores ingredients if result grant fails. Crafting events drive HUD notifications; inventory summary refreshes on successful craft.
+
+Test craft outputs (`Campfire Kit`, `Bandage`) fit the default 40-slot inventory profile.
+
+---
+
 ## Future integrations (post-0.4.0)
 
 | Feature | Notes |
 |---------|--------|
 | Equipment | Equip slots consume item stacks from inventory; capacity modifiers via composition (0.4.1a hook) |
-| Crafting | Recipe inputs/outputs via container API |
+| Crafting | **Wired at 0.5.3** via `CCS_CraftingService` |
 | World resource harvest | **Wired at 0.5.2** via `CCS_ResourceHarvestService` |
 | Storage / chests | Additional `CCS_InventoryContainer` instances |
 | Loot | Spawn items into player container via service |

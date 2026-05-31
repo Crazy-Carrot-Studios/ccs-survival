@@ -99,15 +99,82 @@ namespace CCS.Modules.Inventory.Editor
                     $"Missing required asset: {DefaultProfilePath}");
             }
 
+            ValidateCraftOutputCapacity(report);
+
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Inventory validator completed (data architecture foundation; no UI/equipment/crafting coupling).");
+                "Inventory validator completed (crafting output capacity validated at 0.5.3).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateCraftOutputCapacity(CCS_SurvivalValidationReport report)
+        {
+            const string campfireKitPath =
+                SurvivalRoot + "/Profiles/Crafting/TestItems/CCS_TestItem_CampfireKit.asset";
+            const string bandagePath =
+                SurvivalRoot + "/Profiles/Crafting/TestItems/CCS_TestItem_Bandage.asset";
+
+            if (!File.Exists(DefaultProfilePath))
+            {
+                return;
+            }
+
+            CCS_InventoryProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_InventoryProfile>(DefaultProfilePath);
+
+            if (profile == null)
+            {
+                return;
+            }
+
+            CCS_InventoryContainer container = new CCS_InventoryContainer(profile.InventorySlotCount);
+            ValidateCraftOutputItem(report, container, campfireKitPath, "Campfire Kit Craft Output");
+            ValidateCraftOutputItem(report, container, bandagePath, "Bandage Craft Output");
+        }
+
+        private static void ValidateCraftOutputItem(
+            CCS_SurvivalValidationReport report,
+            CCS_InventoryContainer container,
+            string itemAssetPath,
+            string context)
+        {
+            if (!File.Exists(itemAssetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    context,
+                    $"Craft output item asset missing: {itemAssetPath}");
+                return;
+            }
+
+            CCS_ItemDefinition itemDefinition = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(itemAssetPath);
+            if (itemDefinition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Could not load craft output item: {itemAssetPath}");
+                return;
+            }
+
+            if (container.CanAdd(itemDefinition, 1))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    context,
+                    "Default inventory profile can hold test craft output.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                context,
+                "Default inventory profile cannot hold test craft output.");
+        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,

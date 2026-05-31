@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.5.2 — Resource Harvesting Integration  
+**Milestone baseline:** 0.5.3 — Crafting Gameplay Integration  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Resource harvesting integration **complete** at **0.5.2**. Final input, tools, and save/load deferred.
+**Status:** Crafting gameplay integration **complete** at **0.5.3**. Final crafting UI, station objects, input, and save/load deferred.
 
 ---
 
@@ -31,8 +31,9 @@
 | **0.5.0** | Crafting module foundation |
 | **0.5.1** | World resource module foundation |
 | **0.5.2** | Resource harvesting integration |
+| **0.5.3** | Crafting gameplay integration |
 
-Later milestones continue from **0.5.2+** (save/load, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.5.3+** (save/load, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -68,7 +69,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` — **Complete** (foundation) |
 | 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
-| 7 | **0.5.0** | **Crafting** | `ccs.survival.crafting` — **Complete** (foundation) |
+| 7 | **0.5.0 / 0.5.3** | **Crafting** | `ccs.survival.crafting` — **Foundation + gameplay integration complete** |
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
 | 9 | 0.5.x | Save / Load | `ccs.survival.save` |
 | 10 | 0.4.x | Time of Day | `ccs.survival.time` |
@@ -117,7 +118,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.5.3+ — Final player input, tool gameplay, and save/load planning**
+**0.5.4+ — Final player input, tool gameplay, and save/load planning**
+
+---
+
+## 0.5.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_CraftingService` registered on bootstrap gameplay host | **Complete** |
+| Test recipes and craft output items created | **Complete** |
+| Craft validates capacity before consuming ingredients | **Complete** |
+| Craft rollback on grant failure | **Complete** |
+| HUD crafting notifications + inventory refresh | **Complete** |
+| Development crafting test harness | **Complete** |
+| Version **0.5.3** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

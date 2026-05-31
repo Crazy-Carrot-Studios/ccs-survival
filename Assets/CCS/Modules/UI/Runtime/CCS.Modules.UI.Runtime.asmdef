@@ -8,7 +8,8 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Equipment.Runtime",
-        "CCS.Modules.WorldResources.Runtime"
+        "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Crafting.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
@@ -32,6 +33,7 @@ namespace CCS.Modules.UI
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_ResourceHarvestService resourceHarvestService;
         private CCS_ResourceRespawnService resourceRespawnService;
+        private CCS_CraftingService craftingService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -235,6 +237,21 @@ namespace CCS.Modules.UI
             resourceRespawnService.ResourceRespawned += HandleResourceRespawned;
         }
 
+        public void BindCraftingService(CCS_CraftingService service)
+        {
+            UnbindCraftingService();
+            craftingService = service;
+
+            if (craftingService == null)
+            {
+                return;
+            }
+
+            craftingService.CraftingCompleted += HandleCraftingCompleted;
+            craftingService.CraftingFailed += HandleCraftingFailed;
+            craftingService.RecipeUnlocked += HandleRecipeUnlocked;
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -267,6 +284,7 @@ namespace CCS.Modules.UI
             UnbindEquipmentService();
             UnbindResourceHarvestService();
             UnbindResourceRespawnService();
+            UnbindCraftingService();
             isInitialized = false;
         }
 
@@ -339,6 +357,51 @@ namespace CCS.Modules.UI
             HudDataRefreshed?.Invoke(BuildEventArgs("Resource respawned."));
         }
 
+        private void HandleCraftingCompleted(CCS_CraftingEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueNotification(BuildCraftingCompletedNotification(eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Crafting completed."));
+        }
+
+        private void HandleCraftingFailed(CCS_CraftingEventArgs eventArgs)
+        {
+            string reason = eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message)
+                ? eventArgs.Message
+                : "Crafting failed.";
+
+            QueueNotification($"Crafting Failed: {reason}");
+        }
+
+        private void HandleRecipeUnlocked(CCS_CraftingEventArgs eventArgs)
+        {
+            QueueNotification(BuildRecipeUnlockedNotification(eventArgs));
+        }
+
+        private static string BuildCraftingCompletedNotification(CCS_CraftingEventArgs eventArgs)
+        {
+            string recipeName = ResolveRecipeDisplayName(eventArgs?.Recipe);
+            return $"Crafting Completed: {recipeName}";
+        }
+
+        private static string BuildRecipeUnlockedNotification(CCS_CraftingEventArgs eventArgs)
+        {
+            string recipeName = ResolveRecipeDisplayName(eventArgs?.Recipe);
+            return $"Recipe Unlocked: {recipeName}";
+        }
+
+        private static string ResolveRecipeDisplayName(CCS_CraftingRecipeDefinition recipe)
+        {
+            if (recipe == null)
+            {
+                return "Recipe";
+            }
+
+            return string.IsNullOrWhiteSpace(recipe.DisplayName)
+                ? recipe.name
+                : recipe.DisplayName;
+        }
+
         private void QueueHarvestNotifications(CCS_ResourceEventArgs eventArgs)
         {
             if (eventArgs?.Drops == null || eventArgs.Drops.Count == 0)
@@ -376,7 +439,6 @@ namespace CCS.Modules.UI
         private void HandleInventoryItemRemoved(CCS_InventoryEventArgs eventArgs)
         {
             RefreshInventorySnapshot();
-            QueueNotification(BuildInventoryNotification("Item Removed", eventArgs));
             HudDataRefreshed?.Invoke(BuildEventArgs("Inventory item removed."));
         }
 
@@ -608,6 +670,19 @@ namespace CCS.Modules.UI
 
             resourceRespawnService.ResourceRespawned -= HandleResourceRespawned;
             resourceRespawnService = null;
+        }
+
+        private void UnbindCraftingService()
+        {
+            if (craftingService == null)
+            {
+                return;
+            }
+
+            craftingService.CraftingCompleted -= HandleCraftingCompleted;
+            craftingService.CraftingFailed -= HandleCraftingFailed;
+            craftingService.RecipeUnlocked -= HandleRecipeUnlocked;
+            craftingService = null;
         }
 
         #endregion

@@ -7,10 +7,10 @@ using UnityEngine;
 // SCRIPT: CCS_CraftingService
 // CATEGORY: Modules / Crafting / Runtime / Services
 // PURPOSE: Validates and executes crafting against inventory and station context.
-// PLACEMENT: Registered as CCS_ISurvivalService by future composition wiring.
+// PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No UI, interaction, or world resource references in 0.5.0 foundation.
+// NOTES: Inventory integration with rollback on partial failure at 0.5.3.
 // =============================================================================
 
 namespace CCS.Modules.Crafting
@@ -212,6 +212,7 @@ namespace CCS.Modules.Crafting
 
             if (!GrantResults(recipe, request.CraftCount))
             {
+                RestoreIngredients(recipe, request.CraftCount);
                 return FailCraft(recipe, "Failed to grant crafting results.", stationContext, request.CraftCount);
             }
 
@@ -307,6 +308,9 @@ namespace CCS.Modules.Crafting
 
         private bool ConsumeIngredients(CCS_CraftingRecipeDefinition recipe, int craftCount)
         {
+            List<(CCS_ItemDefinition itemDefinition, int quantity)> consumedEntries =
+                new List<(CCS_ItemDefinition, int)>();
+
             IReadOnlyList<CCS_CraftingIngredientDefinition> ingredients = recipe.Ingredients;
             for (int i = 0; i < ingredients.Count; i++)
             {
@@ -320,8 +324,11 @@ namespace CCS.Modules.Crafting
                 int removed = inventoryService.RemoveItem(ingredient.ItemDefinition, requiredQuantity);
                 if (removed < requiredQuantity)
                 {
+                    RestoreConsumedEntries(consumedEntries);
                     return false;
                 }
+
+                consumedEntries.Add((ingredient.ItemDefinition, removed));
             }
 
             return true;
@@ -347,6 +354,36 @@ namespace CCS.Modules.Crafting
             }
 
             return true;
+        }
+
+        private void RestoreIngredients(CCS_CraftingRecipeDefinition recipe, int craftCount)
+        {
+            IReadOnlyList<CCS_CraftingIngredientDefinition> ingredients = recipe.Ingredients;
+            for (int i = 0; i < ingredients.Count; i++)
+            {
+                CCS_CraftingIngredientDefinition ingredient = ingredients[i];
+                if (ingredient == null || ingredient.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                int restoreQuantity = ingredient.Quantity * craftCount;
+                inventoryService.AddItem(ingredient.ItemDefinition, restoreQuantity);
+            }
+        }
+
+        private void RestoreConsumedEntries(List<(CCS_ItemDefinition itemDefinition, int quantity)> consumedEntries)
+        {
+            for (int i = 0; i < consumedEntries.Count; i++)
+            {
+                (CCS_ItemDefinition itemDefinition, int quantity) entry = consumedEntries[i];
+                if (entry.itemDefinition == null || entry.quantity <= 0)
+                {
+                    continue;
+                }
+
+                inventoryService.AddItem(entry.itemDefinition, entry.quantity);
+            }
         }
 
         private CCS_CraftingResult FailCraft(

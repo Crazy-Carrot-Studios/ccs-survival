@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingProfile
   profileDisplayName: Default Crafting
   profileId: ccs.survival.profile.crafting.default
-  profileDescription: Default crafting rules for 0.5.0 foundation.
-  profileVersion: 0.5.0
+  profileDescription: Default crafting rules for 0.5.3 gameplay integration.
+  profileVersion: 0.5.3
   enableDebugLogs: 0
   allowHandCrafting: 1
   allowQueueing: 0

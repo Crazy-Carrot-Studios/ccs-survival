@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.5.2 — Resource Harvesting Integration  
+**Milestone:** 0.5.3 — Crafting Gameplay Integration  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

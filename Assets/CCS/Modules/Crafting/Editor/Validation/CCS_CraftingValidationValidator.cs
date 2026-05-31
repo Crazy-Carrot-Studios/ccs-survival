@@ -25,7 +25,17 @@ namespace CCS.Modules.Crafting.Editor
         private const string SurvivalRoot = "Assets/CCS/Survival";
         private const string DefaultProfilePath =
             SurvivalRoot + "/Profiles/Crafting/CCS_DefaultCraftingProfile.asset";
+        private const string TestRecipesRoot = SurvivalRoot + "/Profiles/Crafting/TestRecipes";
+        private const string TestItemsRoot = SurvivalRoot + "/Profiles/Crafting/TestItems";
+        private const string BootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
+        private const string GameplayServiceRegistrationPath =
+            SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Crafting_Module.md";
+
+        private const string TestCampfireRecipePath = TestRecipesRoot + "/CCS_TestCampfireRecipe.asset";
+        private const string TestBandageRecipePath = TestRecipesRoot + "/CCS_TestBandageRecipe.asset";
+        private const string TestCampfireKitItemPath = TestItemsRoot + "/CCS_TestItem_CampfireKit.asset";
+        private const string TestBandageItemPath = TestItemsRoot + "/CCS_TestItem_Bandage.asset";
 
         #region Properties
 
@@ -42,6 +52,7 @@ namespace CCS.Modules.Crafting.Editor
             ValidateRequiredFolder(report, "Runtime/Data", RuntimeRoot + "/Data");
             ValidateRequiredFolder(report, "Runtime/Stations", RuntimeRoot + "/Stations");
             ValidateRequiredFolder(report, "Runtime/Services", RuntimeRoot + "/Services");
+            ValidateRequiredFolder(report, "Runtime/Testing", RuntimeRoot + "/Testing");
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
@@ -61,6 +72,8 @@ namespace CCS.Modules.Crafting.Editor
             ValidateRequiredScript(report, "CCS_CraftingSnapshot", RuntimeRoot + "/Data/CCS_CraftingSnapshot.cs");
             ValidateRequiredScript(report, "CCS_CraftingStationContext", RuntimeRoot + "/Stations/CCS_CraftingStationContext.cs");
             ValidateRequiredScript(report, "CCS_CraftingService", RuntimeRoot + "/Services/CCS_CraftingService.cs");
+            ValidateRequiredScript(report, "CCS_CraftingRuntimeBridge", RuntimeRoot + "/Services/CCS_CraftingRuntimeBridge.cs");
+            ValidateRequiredScript(report, "CCS_CraftingTestHarness", RuntimeRoot + "/Testing/CCS_CraftingTestHarness.cs");
             ValidateRequiredScript(report, "CCS_CraftingEventArgs", RuntimeRoot + "/Events/CCS_CraftingEventArgs.cs");
             ValidateRequiredScript(report, "CCS_CraftingEvents", RuntimeRoot + "/Events/CCS_CraftingEvents.cs");
             ValidateRequiredScript(report, "CCS_CraftingProfile", RuntimeRoot + "/Profiles/CCS_CraftingProfile.cs");
@@ -79,6 +92,9 @@ namespace CCS.Modules.Crafting.Editor
                 stationValidation.Message);
 
             ValidateRecipeDefinitionRules(report);
+            ValidateGameplayServiceRegistration(report);
+            ValidateBootstrapCraftingProfile(report);
+            ValidateTestRecipeAssets(report);
 
             if (File.Exists(DefaultProfilePath))
             {
@@ -116,12 +132,228 @@ namespace CCS.Modules.Crafting.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Crafting validator completed (runtime architecture foundation; no UI/world station/save coupling).");
+                "Crafting validator completed (gameplay integration at 0.5.3; crafting UI and world stations deferred).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateGameplayServiceRegistration(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(GameplayServiceRegistrationPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Crafting Service Registration",
+                    $"Missing gameplay service registration script: {GameplayServiceRegistrationPath}");
+                return;
+            }
+
+            string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
+            if (registrationSource.Contains("CreateCraftingService")
+                && registrationSource.Contains("CCS_CraftingProfile"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Crafting Service Registration",
+                    "CCS_SurvivalGameplayServiceRegistration registers CCS_CraftingService.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Crafting Service Registration",
+                "CCS_SurvivalGameplayServiceRegistration is missing crafting service registration.");
+        }
+
+        private static void ValidateBootstrapCraftingProfile(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapPrefabPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Crafting Profile",
+                    $"Missing bootstrap prefab: {BootstrapPrefabPath}");
+                return;
+            }
+
+            GameObject bootstrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BootstrapPrefabPath);
+            Component gameplayServiceHost = FindGameplayServiceHost(bootstrapPrefab);
+            if (gameplayServiceHost == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Crafting Profile",
+                    "PF_CCS_Survival_BootstrapRoot is missing CCS_SurvivalGameplayServiceHost.");
+                return;
+            }
+
+            SerializedObject serializedHost = new SerializedObject(gameplayServiceHost);
+            SerializedProperty craftingProfileProperty = serializedHost.FindProperty("craftingProfile");
+            if (craftingProfileProperty != null && craftingProfileProperty.objectReferenceValue != null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Crafting Profile",
+                    "Crafting profile assigned on bootstrap prefab gameplay service host.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Bootstrap Crafting Profile",
+                "Crafting profile is not assigned on PF_CCS_Survival_BootstrapRoot.");
+        }
+
+        private static void ValidateTestRecipeAssets(CCS_SurvivalValidationReport report)
+        {
+            ValidateRequiredFolder(report, "Crafting Test Recipes", TestRecipesRoot);
+            ValidateRequiredFolder(report, "Crafting Test Items", TestItemsRoot);
+
+            ValidateTestRecipeAsset(report, "Test Bandage Recipe", TestBandageRecipePath);
+            ValidateTestRecipeAsset(report, "Test Campfire Recipe", TestCampfireRecipePath);
+            ValidateTestItemAsset(report, "Test Bandage Item", TestBandageItemPath);
+            ValidateTestItemAsset(report, "Test Campfire Kit Item", TestCampfireKitItemPath);
+        }
+
+        private static void ValidateTestRecipeAsset(
+            CCS_SurvivalValidationReport report,
+            string context,
+            string assetPath)
+        {
+            if (!File.Exists(assetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Missing required test recipe asset: {assetPath}");
+                return;
+            }
+
+            CCS_CraftingRecipeDefinition recipe =
+                AssetDatabase.LoadAssetAtPath<CCS_CraftingRecipeDefinition>(assetPath);
+
+            if (recipe == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Could not load test recipe asset: {assetPath}");
+                return;
+            }
+
+            CCS_SurvivalValidationResult recipeValidation =
+                CCS_CraftingValidationUtility.ValidateRecipeDefinition(recipe);
+
+            report.AddIssue(
+                recipeValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                context,
+                recipeValidation.Message);
+
+            ValidateRecipeIngredientsAndResults(report, context, recipe);
+        }
+
+        private static void ValidateRecipeIngredientsAndResults(
+            CCS_SurvivalValidationReport report,
+            string context,
+            CCS_CraftingRecipeDefinition recipe)
+        {
+            bool hasValidIngredient = false;
+            for (int i = 0; i < recipe.Ingredients.Count; i++)
+            {
+                CCS_CraftingIngredientDefinition ingredient = recipe.Ingredients[i];
+                if (ingredient?.ItemDefinition != null && ingredient.Quantity > 0)
+                {
+                    hasValidIngredient = true;
+                    break;
+                }
+            }
+
+            if (!hasValidIngredient)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Test recipe is missing non-null ingredients with positive quantities.");
+            }
+
+            bool hasValidResult = false;
+            for (int i = 0; i < recipe.Results.Count; i++)
+            {
+                CCS_CraftingResultDefinition result = recipe.Results[i];
+                if (result?.ItemDefinition != null && result.Quantity > 0)
+                {
+                    hasValidResult = true;
+                    break;
+                }
+            }
+
+            if (!hasValidResult)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Test recipe is missing non-null results with positive quantities.");
+            }
+
+            if (System.Enum.IsDefined(typeof(CCS_CraftingStationType), recipe.RequiredStationType))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    context,
+                    $"Station type validated: {recipe.RequiredStationType}.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Test recipe station type is invalid.");
+            }
+        }
+
+        private static void ValidateTestItemAsset(
+            CCS_SurvivalValidationReport report,
+            string context,
+            string assetPath)
+        {
+            if (!File.Exists(assetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Missing required test item asset: {assetPath}");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                context,
+                $"Test craft output item present: {assetPath}");
+        }
+
+        private static Component FindGameplayServiceHost(GameObject bootstrapPrefab)
+        {
+            if (bootstrapPrefab == null)
+            {
+                return null;
+            }
+
+            Component[] components = bootstrapPrefab.GetComponents<Component>();
+            for (int index = 0; index < components.Length; index++)
+            {
+                Component component = components[index];
+                if (component != null && component.GetType().Name == "CCS_SurvivalGameplayServiceHost")
+                {
+                    return component;
+                }
+            }
+
+            return null;
+        }
 
         private static void ValidateRecipeDefinitionRules(CCS_SurvivalValidationReport report)
         {

@@ -1,4 +1,5 @@
 using CCS.Core;
+using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
@@ -77,6 +78,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_ResourceRespawnService resourceRespawnService))
             {
                 presentationService.BindResourceRespawnService(resourceRespawnService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_CraftingService craftingService))
+            {
+                presentationService.BindCraftingService(craftingService);
                 wiredAnyService = true;
             }
 

@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.5.2** — Resource Harvesting Integration
+**0.5.3** — Crafting Gameplay Integration
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**.
 
 ### Implemented Modules
 - Character Controller
@@ -46,7 +46,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module 
 - Module validation pipeline
 - Bootstrap scene validation
 - UI validation
-- Windows build verification (0.5.2)
+- Windows build verification (0.5.3)
 
 ---
 
@@ -112,7 +112,7 @@ Assets/
 | Inventory | Complete |
 | Equipment | Complete |
 | UI / HUD | Runtime wiring (0.4.3) |
-| Crafting | Foundation (0.5.0) |
+| Crafting | Gameplay integration (0.5.3) |
 | World Resources | Harvest integration (0.5.2) |
 | Building | Planned |
 | Wildlife | Planned |
@@ -154,8 +154,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.5.2
-**Build output:** `Builds/CCS_Survival_0.5.2_Windows/` (gitignored)
+**Latest verified build:** 0.5.3
+**Build output:** `Builds/CCS_Survival_0.5.3_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

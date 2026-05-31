@@ -209,6 +209,8 @@ namespace CCS.Modules.UI.Editor
             ValidateBootstrapProfileReference(report, serializedHost, "interactionProfile", "Interaction Profile");
             ValidateBootstrapProfileReference(report, serializedHost, "inventoryProfile", "Inventory Profile");
             ValidateBootstrapProfileReference(report, serializedHost, "equipmentProfile", "Equipment Profile");
+            ValidateBootstrapProfileReference(report, serializedHost, "craftingProfile", "Crafting Profile");
+            ValidateHudCraftingWiringScripts(report);
         }
 
         private static Component FindGameplayServiceHost(GameObject bootstrapPrefab)
@@ -251,6 +253,44 @@ namespace CCS.Modules.UI.Editor
                 CCS_SurvivalValidationIssueSeverity.Warning,
                 "Bootstrap Gameplay Services",
                 $"{label} is not assigned on PF_CCS_Survival_BootstrapRoot.");
+        }
+
+        private static void ValidateHudCraftingWiringScripts(CCS_SurvivalValidationReport report)
+        {
+            const string presentationServicePath = RuntimeRoot + "/Services/CCS_HudPresentationService.cs";
+            const string wiringPath = RuntimeRoot + "/Services/CCS_HudGameplayServiceWiring.cs";
+
+            if (File.Exists(presentationServicePath)
+                && File.ReadAllText(presentationServicePath).Contains("BindCraftingService"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "HUD Crafting Wiring",
+                    "CCS_HudPresentationService exposes BindCraftingService.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Crafting Wiring",
+                    "CCS_HudPresentationService is missing BindCraftingService.");
+            }
+
+            if (File.Exists(wiringPath)
+                && File.ReadAllText(wiringPath).Contains("BindCraftingService"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "HUD Crafting Wiring",
+                    "CCS_HudGameplayServiceWiring binds CCS_CraftingService.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Crafting Wiring",
+                    "CCS_HudGameplayServiceWiring is missing crafting service binding.");
+            }
         }
 
         private static void ValidateRequiredFolder(

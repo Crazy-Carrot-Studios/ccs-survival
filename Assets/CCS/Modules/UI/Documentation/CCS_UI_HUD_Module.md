@@ -1,7 +1,7 @@
 # CCS UI / HUD Module
 
 **Module ID (planned):** `ccs.survival.ui`  
-**Milestone:** 0.4.3 — HUD Runtime Wiring Pass  
+**Milestone:** 0.4.3 — HUD Runtime Wiring Pass (crafting notifications at **0.5.3**)  
 **Author:** James Schilz  
 **Date:** 2026-05-30
 
@@ -53,19 +53,23 @@ Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_Sur
 | `CCS_PlayerEquipmentService` | Equipped count and bonus inventory slots |
 | `CCS_ResourceHarvestService` | Harvest/depletion notifications |
 | `CCS_ResourceRespawnService` | Respawn notifications |
+| `CCS_CraftingService` | Crafting completed/failed/unlock notifications |
 
 `CCS_HudPresentationService` subscribes to gameplay events and raises read-only HUD notifications:
 
 | Source event | Notification |
 |--------------|--------------|
 | Inventory item added | Inventory summary refresh |
-| Inventory item removed | Item Removed |
+| Inventory item removed | Inventory summary refresh |
 | Equipment item equipped | Item Equipped |
 | Equipment item unequipped | Item Unequipped |
 | Harvest completed | Harvested {Item} x{N} |
 | Harvest failed | Harvest failed: {reason} |
 | Resource depleted | Resource depleted |
 | Resource respawned | Resource respawned |
+| Crafting completed | Crafting Completed: {RecipeName} |
+| Crafting failed | Crafting Failed: {Reason} |
+| Recipe unlocked | Recipe Unlocked: {RecipeName} |
 
 `CCS_NotificationQueue` displays notifications from `CCS_HudPresentationService.NotificationQueued` using profile lifetime and max visible count.
 
@@ -196,7 +200,7 @@ Batch entry:
 
 - Full inventory menu
 - Drag/drop
-- Crafting UI
+- Crafting UI (crafting notifications wired at **0.5.3**)
 - Equipment paper-doll UI
 - Final art and animation
 - Input Actions wiring

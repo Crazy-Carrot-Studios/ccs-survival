@@ -1,4 +1,5 @@
 using CCS.Core;
+using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
@@ -30,6 +31,7 @@ namespace CCS.Survival.Composition
             CCS_InventoryProfile inventoryProfile,
             CCS_EquipmentProfile equipmentProfile,
             CCS_WorldResourceProfile worldResourceProfile,
+            CCS_CraftingProfile craftingProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -39,10 +41,14 @@ namespace CCS.Survival.Composition
 
             RegisterService(runtimeHost, CreateSurvivalCoreService(survivalCoreProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateInteractionService(interactionProfile), enableDebugLogs);
-            RegisterService(runtimeHost, CreateInventoryService(inventoryProfile), enableDebugLogs);
+
+            CCS_PlayerInventoryService inventoryService = CreateInventoryService(inventoryProfile);
+            RegisterService(runtimeHost, inventoryService, enableDebugLogs);
+
             RegisterService(runtimeHost, CreateEquipmentService(equipmentProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
+            RegisterService(runtimeHost, CreateCraftingService(craftingProfile, inventoryService), enableDebugLogs);
         }
 
         #endregion
@@ -130,6 +136,22 @@ namespace CCS.Survival.Composition
             }
 
             service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_CraftingService CreateCraftingService(
+            CCS_CraftingProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_CraftingService service = new CCS_CraftingService();
+            service.Initialize();
+
+            if (profile == null || inventoryService == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile, inventoryService);
             return service;
         }
 

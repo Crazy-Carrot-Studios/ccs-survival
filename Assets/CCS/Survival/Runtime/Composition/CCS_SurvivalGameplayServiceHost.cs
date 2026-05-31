@@ -1,4 +1,5 @@
 using CCS.Core;
+using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
@@ -39,6 +40,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default world resource profile used to register resource harvest and respawn services.")]
         [SerializeField] private CCS_WorldResourceProfile worldResourceProfile;
 
+        [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
+        [SerializeField] private CCS_CraftingProfile craftingProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -72,6 +76,7 @@ namespace CCS.Survival.Composition
                 inventoryProfile,
                 equipmentProfile,
                 worldResourceProfile,
+                craftingProfile,
                 enableDebugLogs);
         }
 
