@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.7.3** — Survival Core Environment Integration
+**0.7.4** — Clothing & Equipment Environmental Modifiers
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**. Environment effects foundation delivered at **0.7.2**. Survival Core environment integration delivered at **0.7.3**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**. Environment effects foundation delivered at **0.7.2**. Survival Core environment integration delivered at **0.7.3**. Equipment environmental modifiers delivered at **0.7.4**.
 
 ### Implemented Modules
 - Character Controller
@@ -114,15 +114,15 @@ Assets/
 | Character Controller | Complete |
 | Interaction | Complete |
 | Inventory | Complete |
-| Equipment | Complete |
+| Equipment | Environmental modifiers — temperature, wetness, exposure resistance (0.7.4) |
 | UI / HUD | Runtime wiring (0.4.3) |
 | Crafting | Gameplay integration (0.5.3) |
 | World Resources | Harvest integration (0.5.2) |
 | Save / Load | Foundation + inventory/equipment persistence (0.6.2) |
 | Time Of Day | Global game clock foundation (0.7.0) |
 | Weather | Global weather state foundation (0.7.1) |
-| Environment Effects | Ambient temperature, wetness, exposure simulation (0.7.2) |
-| Survival Core | Environment integration — temperature, fatigue, thirst pressure (0.7.3) |
+| Environment Effects | Raw/effective ambient simulation with equipment modifiers (0.7.4) |
+| Survival Core | Effective environment pressure — temperature, fatigue, thirst (0.7.3 / 0.7.4) |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
@@ -168,8 +168,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.7.3
-**Build output:** `Builds/CCS_Survival_0.7.3_Windows/` (gitignored)
+**Latest verified build:** 0.7.4
+**Build output:** `Builds/CCS_Survival_0.7.4_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

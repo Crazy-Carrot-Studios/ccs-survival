@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.3 — Survival Core Environment Integration  
+**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -120,6 +120,16 @@
 **Editor menu:** **CCS → Survival → Survival Core → Validate Survival Core**
 
 **0.7.3:** Environment Effects drives temperature, fatigue, and thirst pressure through `CCS_SurvivalCoreService`. Bootstrap influence HUD panel for debug verification. No Health damage or death systems.
+
+## Equipment Environmental Modifiers (0.7.4)
+
+| Area | Path |
+|------|------|
+| Runtime bridge | `../Modules/Equipment/Runtime/Services/CCS_EquipmentEnvironmentRuntimeBridge.cs` |
+| Modifier snapshot | `../Modules/Equipment/Runtime/Data/CCS_EquipmentEnvironmentalModifierSnapshot.cs` |
+| Test assets | `Profiles/Equipment/TestItems/CCS_TestEquipment_WarmHat.asset`, `CCS_TestEquipment_HeavyCoat.asset`, `CCS_TestEquipment_WaterproofBoots.asset` |
+
+**0.7.4:** Equipped items aggregate temperature, wetness, and exposure resistance. Environment Effects exposes raw and effective values on snapshots and bootstrap HUD. Survival Core consumes effective values.
 
 ## Inventory (0.4.0)
 

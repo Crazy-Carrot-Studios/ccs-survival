@@ -75,7 +75,8 @@ namespace CCS.Survival.Composition
             CCS_EnvironmentEffectsService environmentEffectsService = CreateEnvironmentEffectsService(
                 environmentEffectsProfile,
                 timeOfDayService,
-                weatherService);
+                weatherService,
+                equipmentService);
             RegisterService(runtimeHost, environmentEffectsService, enableDebugLogs);
             RegisterEnvironmentEffectsUpdatable(runtimeHost, environmentEffectsService);
 
@@ -272,7 +273,8 @@ namespace CCS.Survival.Composition
         private static CCS_EnvironmentEffectsService CreateEnvironmentEffectsService(
             CCS_EnvironmentEffectsProfile profile,
             CCS_TimeOfDayService timeOfDayService,
-            CCS_WeatherService weatherService)
+            CCS_WeatherService weatherService,
+            CCS_PlayerEquipmentService equipmentService)
         {
             CCS_EnvironmentEffectsService service = new CCS_EnvironmentEffectsService();
             service.Initialize();
@@ -290,6 +292,11 @@ namespace CCS.Survival.Composition
             if (weatherService != null && weatherService.IsInitialized)
             {
                 service.BindWeatherService(weatherService);
+            }
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                service.BindEquipmentService(equipmentService);
             }
 
             service.InitializeFromProfile(profile);

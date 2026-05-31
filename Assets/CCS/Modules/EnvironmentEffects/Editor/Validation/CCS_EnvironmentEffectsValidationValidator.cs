@@ -55,6 +55,7 @@ namespace CCS.Modules.EnvironmentEffects.Editor
 
             ValidateRequiredScript(report, "CCS_EnvironmentState", RuntimeRoot + "/Data/CCS_EnvironmentState.cs");
             ValidateRequiredScript(report, "CCS_EnvironmentSnapshot", RuntimeRoot + "/Data/CCS_EnvironmentSnapshot.cs");
+            ValidateRequiredScript(report, "CCS_EnvironmentEffectiveValueUtility", RuntimeRoot + "/Data/CCS_EnvironmentEffectiveValueUtility.cs");
             ValidateRequiredScript(report, "CCS_EnvironmentSaveData", RuntimeRoot + "/Data/CCS_EnvironmentSaveData.cs");
             ValidateRequiredScript(report, "CCS_EnvironmentEffectsProfile", RuntimeRoot + "/Profiles/CCS_EnvironmentEffectsProfile.cs");
             ValidateRequiredScript(report, "CCS_EnvironmentEffectsEvents", RuntimeRoot + "/Events/CCS_EnvironmentEffectsEvents.cs");
@@ -72,11 +73,12 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             ValidateRestoreOrder(report);
             ValidateBootstrapHudPresenter(report);
             ValidateSurvivalCoreIntegration(report);
+            ValidateEquipmentModifierIntegration(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Environment effects validator completed (0.7.3 Survival Core integration).");
+                "Environment effects validator completed (0.7.4 equipment modifiers).");
         }
 
         #endregion
@@ -166,7 +168,8 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             if (registrationSource.Contains("CreateEnvironmentEffectsService")
                 && registrationSource.Contains("RegisterSaveable(environmentEffectsService)")
                 && registrationSource.Contains("BindTimeOfDayService")
-                && registrationSource.Contains("BindWeatherService"))
+                && registrationSource.Contains("BindWeatherService")
+                && registrationSource.Contains("BindEquipmentService"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
@@ -271,7 +274,8 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             }
 
             string sceneText = File.ReadAllText(bootstrapScenePath);
-            if (sceneText.Contains("CCS_EnvironmentEffectsHudPresenter"))
+            if (sceneText.Contains("CCS_EnvironmentEffectsHudPresenter")
+                && sceneText.Contains("EnvironmentHudArea"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
@@ -284,6 +288,59 @@ namespace CCS.Modules.EnvironmentEffects.Editor
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Bootstrap Environment HUD",
                 "Bootstrap scene is missing CCS_EnvironmentEffectsHudPresenter.");
+        }
+
+        private static void ValidateEquipmentModifierIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string snapshotPath = RuntimeRoot + "/Data/CCS_EnvironmentSnapshot.cs";
+            const string validationUtilityPath = RuntimeRoot + "/Validation/CCS_EnvironmentEffectsValidationUtility.cs";
+            const string bridgePath =
+                "Assets/CCS/Modules/Equipment/Runtime/Services/CCS_EquipmentEnvironmentRuntimeBridge.cs";
+
+            if (File.Exists(snapshotPath))
+            {
+                string snapshotSource = File.ReadAllText(snapshotPath);
+                if (snapshotSource.Contains("RawTemperature")
+                    && snapshotSource.Contains("EffectiveTemperature")
+                    && snapshotSource.Contains("EquipmentModifierSnapshot"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Snapshot Raw/Effective Fields",
+                        "CCS_EnvironmentSnapshot exposes raw, effective, and equipment modifier values.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment Snapshot Raw/Effective Fields",
+                        "CCS_EnvironmentSnapshot is missing raw/effective environment fields.");
+                }
+            }
+
+            if (File.Exists(validationUtilityPath))
+            {
+                string validationSource = File.ReadAllText(validationUtilityPath);
+                if (validationSource.Contains("Temp Res:")
+                    && validationSource.Contains("Eff Temp:")
+                    && validationSource.Contains("Eff Wet:")
+                    && validationSource.Contains("Eff Exp:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment HUD Display",
+                        "Environment display formatting includes resistance and effective values.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment HUD Display",
+                        "Environment display formatting is missing resistance or effective values.");
+                }
+            }
+
+            ValidateRequiredFile(report, "Equipment Environment Runtime Bridge", bridgePath);
         }
 
         private static void ValidateRequiredFolder(

@@ -1,11 +1,11 @@
 # CCS Survival — Survival Core Module
 
-**Milestone:** 0.7.3 — Survival Core Environment Integration  
+**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
 **Module ID:** `ccs.survival.core`  
 **Namespace:** `CCS.Modules.SurvivalCore` (editor: `CCS.Modules.SurvivalCore.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Foundation complete at **0.3.7b**. Environment integration complete at **0.7.3**.
+**Status:** Foundation complete at **0.3.7b**. Environment integration complete at **0.7.3**. Equipment effective environment values consumed at **0.7.4**.
 
 ---
 
@@ -71,11 +71,13 @@ Diagnostics reports use `ccs.survival.core` when a diagnostics service is presen
 
 ---
 
-## Environment → Survival flow (0.7.3)
+## Environment → Survival flow (0.7.3 / 0.7.4)
 
 ```text
-CCS_EnvironmentEffectsService (authoritative ambient temp, wetness, exposure)
-        ↓ snapshot
+CCS_EnvironmentEffectsService (raw ambient from Time + Weather)
+        ↓ equipment resistances applied
+CCS_EnvironmentSnapshot (raw + effective + equipment modifiers)
+        ↓ effective values
 CCS_SurvivalEnvironmentInfluenceUtility.Calculate
         ↓ per-second rates
 CCS_SurvivalCoreService.ApplyEnvironmentInfluence
@@ -85,11 +87,11 @@ Temperature / Fatigue / Thirst stat states (clamped)
 
 | Environment input | Survival stat | Rule |
 |-------------------|---------------|------|
-| Ambient temperature | **Temperature** | Positive ambient × recovery rate; negative ambient × decay rate; clamped by profile min/max |
-| Exposure | **Fatigue** | Exposure × exposure fatigue multiplier |
-| Wetness | **Thirst** | Wetness × wetness thirst multiplier (additional drain) |
+| **Effective** ambient temperature | **Temperature** | Positive effective × recovery rate; negative effective × decay rate; clamped by profile min/max |
+| **Effective** exposure | **Fatigue** | Effective exposure × exposure fatigue multiplier |
+| **Effective** wetness | **Thirst** | Effective wetness × wetness thirst multiplier (additional drain) |
 
-**Health is not modified.** No hypothermia, heat stroke, damage, or death systems in 0.7.3.
+**Health is not modified.** No hypothermia, heat stroke, damage, or death systems in 0.7.4.
 
 `CCS_SurvivalEnvironmentInfluence` exposes ambient inputs and calculated per-second deltas for HUD/debug.
 
@@ -164,7 +166,7 @@ Checks: folders, scripts, profile completeness, min/max/start validity, non-nega
 | Inventory item modifiers | 0.4.0 |
 | UI / HUD readouts | After inventory |
 | Save/load persistence | Later |
-| Environmental zone modifiers | 0.7.3 environment integration (local modifiers via Environment Effects) |
+| Environmental zone modifiers | 0.7.4 equipment resistances via Environment Effects effective values |
 | Clothing insulation | 0.7.4+ |
 | Death / respawn rules | Later |
 

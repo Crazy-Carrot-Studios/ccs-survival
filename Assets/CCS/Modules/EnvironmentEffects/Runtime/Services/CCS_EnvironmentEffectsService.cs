@@ -1,4 +1,5 @@
 using CCS.Core;
+using CCS.Modules.Equipment;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
@@ -12,7 +13,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Reads Time Of Day and Weather only. No Survival Core stat mutation in 0.7.2.
+// NOTES: Reads Time Of Day and Weather. Applies equipment environmental modifiers at 0.7.4.
 // =============================================================================
 
 namespace CCS.Modules.EnvironmentEffects
@@ -28,6 +29,7 @@ namespace CCS.Modules.EnvironmentEffects
         private CCS_EnvironmentEffectsProfile activeProfile;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
+        private CCS_PlayerEquipmentService playerEquipmentService;
         private CCS_WeatherType lastWeatherType = CCS_WeatherType.Clear;
         private CCS_TimeOfDayPhase lastTimePhase = CCS_TimeOfDayPhase.Dawn;
         private bool isInitialized;
@@ -112,6 +114,19 @@ namespace CCS.Modules.EnvironmentEffects
             weatherService.WeatherChanged += HandleWeatherChanged;
             weatherService.WeatherTransitionStarted += HandleWeatherChanged;
             weatherService.WeatherTransitionCompleted += HandleWeatherChanged;
+        }
+
+        public void BindEquipmentService(CCS_PlayerEquipmentService service)
+        {
+            UnbindEquipmentService();
+            playerEquipmentService = service;
+
+            if (playerEquipmentService == null || !playerEquipmentService.IsInitialized)
+            {
+                return;
+            }
+
+            playerEquipmentService.EquipmentChanged += HandleEquipmentChanged;
         }
 
         public void Tick(float deltaTime)
@@ -213,6 +228,11 @@ namespace CCS.Modules.EnvironmentEffects
             RecalculateEnvironment("Weather changed.", false);
         }
 
+        private void HandleEquipmentChanged(CCS_EquipmentEventArgs eventArgs)
+        {
+            RaiseEnvironmentChanged("Equipment modifiers changed.", true, true, true);
+        }
+
         private void RecalculateEnvironment(string message, bool forceRaiseAll)
         {
             if (activeProfile == null)
@@ -284,10 +304,32 @@ namespace CCS.Modules.EnvironmentEffects
 
         private CCS_EnvironmentSnapshot BuildSnapshot()
         {
+            CCS_EquipmentEnvironmentalModifierSnapshot equipmentModifiers =
+                playerEquipmentService != null && playerEquipmentService.IsInitialized
+                    ? playerEquipmentService.GetEnvironmentalModifiers()
+                    : CCS_EquipmentEnvironmentalModifierSnapshot.Empty;
+
+            float rawTemperature = environmentState.AmbientTemperature;
+            float rawWetness = environmentState.Wetness;
+            float rawExposure = environmentState.Exposure;
+
+            CCS_EnvironmentEffectiveValueUtility.ApplyEquipmentModifiers(
+                rawTemperature,
+                rawWetness,
+                rawExposure,
+                equipmentModifiers,
+                out float effectiveTemperature,
+                out float effectiveWetness,
+                out float effectiveExposure);
+
             return new CCS_EnvironmentSnapshot(
-                environmentState.AmbientTemperature,
-                environmentState.Wetness,
-                environmentState.Exposure,
+                rawTemperature,
+                rawWetness,
+                rawExposure,
+                effectiveTemperature,
+                effectiveWetness,
+                effectiveExposure,
+                equipmentModifiers,
                 lastWeatherType,
                 lastTimePhase);
         }
@@ -342,6 +384,17 @@ namespace CCS.Modules.EnvironmentEffects
             weatherService.WeatherTransitionStarted -= HandleWeatherChanged;
             weatherService.WeatherTransitionCompleted -= HandleWeatherChanged;
             weatherService = null;
+        }
+
+        private void UnbindEquipmentService()
+        {
+            if (playerEquipmentService == null)
+            {
+                return;
+            }
+
+            playerEquipmentService.EquipmentChanged -= HandleEquipmentChanged;
+            playerEquipmentService = null;
         }
 
         #endregion

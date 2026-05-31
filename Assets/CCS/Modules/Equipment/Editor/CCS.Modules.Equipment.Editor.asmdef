@@ -5,7 +5,8 @@
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
         "CCS.Survival.Editor",
-        "CCS.Modules.Equipment.Runtime"
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Inventory.Runtime"
     ],
     "includePlatforms": [
         "Editor"

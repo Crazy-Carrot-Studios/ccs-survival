@@ -206,6 +206,41 @@ namespace CCS.Modules.Equipment
             return totalAdditionalCarryWeight;
         }
 
+        public CCS_EquipmentEnvironmentalModifierSnapshot GetEnvironmentalModifiers()
+        {
+            if (!EnsureInitialized())
+            {
+                return CCS_EquipmentEnvironmentalModifierSnapshot.Empty;
+            }
+
+            float totalTemperatureResistance = 0f;
+            float totalWetnessResistance = 0f;
+            float totalExposureResistance = 0f;
+
+            foreach (KeyValuePair<CCS_EquipmentSlotType, CCS_EquipmentSlot> entry in slots)
+            {
+                if (!entry.Value.IsOccupied)
+                {
+                    continue;
+                }
+
+                CCS_EquipmentItemDefinition equipmentDefinition = entry.Value.EquippedItem?.EquipmentDefinition;
+                if (equipmentDefinition == null)
+                {
+                    continue;
+                }
+
+                totalTemperatureResistance += equipmentDefinition.TemperatureResistance;
+                totalWetnessResistance += equipmentDefinition.WetnessResistance;
+                totalExposureResistance += equipmentDefinition.ExposureResistance;
+            }
+
+            return new CCS_EquipmentEnvironmentalModifierSnapshot(
+                totalTemperatureResistance,
+                totalWetnessResistance,
+                totalExposureResistance);
+        }
+
         public bool IsSlotEmpty(CCS_EquipmentSlotType slot)
         {
             return TryGetSlot(slot, out CCS_EquipmentSlot equipmentSlot) && equipmentSlot.IsEmpty;

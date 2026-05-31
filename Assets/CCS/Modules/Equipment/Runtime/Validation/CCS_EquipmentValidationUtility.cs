@@ -58,6 +58,14 @@ namespace CCS.Modules.Equipment
                 return capacityValidation;
             }
 
+            CCS_SurvivalValidationResult environmentalValidation =
+                ValidateEnvironmentalModifiers(equipmentDefinition);
+
+            if (!environmentalValidation.IsSuccess)
+            {
+                return environmentalValidation;
+            }
+
             return CCS_SurvivalValidationResult.Pass("Equipment item definition validated.");
         }
 
@@ -80,6 +88,32 @@ namespace CCS.Modules.Equipment
             }
 
             return CCS_SurvivalValidationResult.Pass("Equipment capacity modifiers validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateEnvironmentalModifiers(
+            CCS_EquipmentItemDefinition equipmentDefinition)
+        {
+            if (equipmentDefinition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Equipment item definition is null.");
+            }
+
+            if (equipmentDefinition.TemperatureResistance < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Temperature resistance cannot be negative.");
+            }
+
+            if (equipmentDefinition.WetnessResistance < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Wetness resistance cannot be negative.");
+            }
+
+            if (equipmentDefinition.ExposureResistance < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Exposure resistance cannot be negative.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Equipment environmental modifiers validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateCarryRelatedSlotTypes()

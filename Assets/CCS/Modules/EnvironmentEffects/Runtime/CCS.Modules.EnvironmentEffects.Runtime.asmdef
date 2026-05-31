@@ -6,7 +6,8 @@
         "CCS.Survival.Runtime",
         "CCS.Modules.TimeOfDay.Runtime",
         "CCS.Modules.Weather.Runtime",
-        "CCS.Modules.SaveLoad.Runtime"
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.Equipment.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

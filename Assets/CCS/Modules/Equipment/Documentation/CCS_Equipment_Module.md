@@ -1,6 +1,6 @@
 # CCS Survival — Equipment Module
 
-**Milestone:** 0.4.1a — Equipment Carry Capacity Expansion  
+**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
 **Module ID:** `ccs.survival.equipment`  
 **Namespace:** `CCS.Modules.Equipment` (editor: `CCS.Modules.Equipment.Editor`)  
 **Author:** James Schilz (Developer)  
@@ -155,6 +155,35 @@ Examples: satchel, backpack (`Back`), bedroll (`Bedroll`), future pack frame / s
 - Inventory module does **not** reference Equipment in 0.4.1a.
 - Future bootstrap/composition will map equipment modifiers into inventory resolved capacity.
 - UI should read **final resolved capacity** from composition, not raw profile slot count alone.
+
+---
+
+## Environmental survival modifiers (0.7.4)
+
+Equipment is the **authoritative source** for environmental resistance while items are equipped.
+
+| Field | Purpose |
+|-------|---------|
+| `TemperatureResistance` | Adds warmth mitigation to cold ambient pressure (default **0**) |
+| `WetnessResistance` | Reduces effective wetness (default **0**) |
+| `ExposureResistance` | Reduces effective exposure (default **0**) |
+
+Survival modifiers only — **not** armor, combat stats, damage reduction, or visuals.
+
+`CCS_EquipmentEnvironmentalModifierSnapshot` aggregates equipped resistances.  
+`CCS_PlayerEquipmentService.GetEnvironmentalModifiers()` returns the aggregate without per-call list allocation.
+
+`CCS_EquipmentEnvironmentRuntimeBridge` resolves the equipment service safely from the runtime registry.
+
+Test validation assets under `Assets/CCS/Survival/Profiles/Equipment/TestItems/`:
+
+| Asset | Modifiers |
+|-------|-----------|
+| Warm Hat | Temperature +1 |
+| Heavy Coat | Temperature +2, Exposure +0.3 |
+| Waterproof Boots | Wetness +0.4 |
+
+Future clothing progression will expand slot coverage, tiered gear, and crafting sources.
 
 ---
 

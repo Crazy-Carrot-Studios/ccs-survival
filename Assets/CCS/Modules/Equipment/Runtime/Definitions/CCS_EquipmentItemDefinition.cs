@@ -53,6 +53,16 @@ namespace CCS.Modules.Equipment
         [Tooltip("Additional carry weight granted while equipped.")]
         [SerializeField] private float additionalCarryWeight;
 
+        [Header("Environmental Survival Modifiers (0.7.4)")]
+        [Tooltip("Adds warmth resistance while equipped. Mitigates cold ambient pressure only.")]
+        [SerializeField] private float temperatureResistance;
+
+        [Tooltip("Reduces effective wetness while equipped. Survival modifier only.")]
+        [SerializeField] private float wetnessResistance;
+
+        [Tooltip("Reduces effective exposure while equipped. Survival modifier only.")]
+        [SerializeField] private float exposureResistance;
+
         #endregion
 
         #region Properties
@@ -74,6 +84,12 @@ namespace CCS.Modules.Equipment
         public bool ModifiesCarryWeight => modifiesCarryWeight;
 
         public float AdditionalCarryWeight => additionalCarryWeight;
+
+        public float TemperatureResistance => temperatureResistance < 0f ? 0f : temperatureResistance;
+
+        public float WetnessResistance => wetnessResistance < 0f ? 0f : wetnessResistance;
+
+        public float ExposureResistance => exposureResistance < 0f ? 0f : exposureResistance;
 
         #endregion
     }

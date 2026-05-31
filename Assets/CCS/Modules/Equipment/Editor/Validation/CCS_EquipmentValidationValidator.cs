@@ -3,6 +3,7 @@ using CCS.Modules.Equipment;
 using CCS.Survival;
 using CCS.Survival.Editor.Development;
 using UnityEditor;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_EquipmentValidationValidator
@@ -56,6 +57,8 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquipmentSnapshot", RuntimeRoot + "/Data/CCS_EquipmentSnapshot.cs");
             ValidateRequiredScript(report, "CCS_DurabilityState", RuntimeRoot + "/Data/CCS_DurabilityState.cs");
             ValidateRequiredScript(report, "CCS_EquipmentCapacityModifierUtility", RuntimeRoot + "/Data/CCS_EquipmentCapacityModifierUtility.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentEnvironmentalModifierSnapshot", RuntimeRoot + "/Data/CCS_EquipmentEnvironmentalModifierSnapshot.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentEnvironmentalModifierUtility", RuntimeRoot + "/Data/CCS_EquipmentEnvironmentalModifierUtility.cs");
             ValidateRequiredScript(report, "CCS_EquipmentSlot", RuntimeRoot + "/Slots/CCS_EquipmentSlot.cs");
             ValidateRequiredScript(report, "CCS_PlayerEquipmentService", RuntimeRoot + "/Services/CCS_PlayerEquipmentService.cs");
             ValidateRequiredScript(report, "CCS_EquipmentEventArgs", RuntimeRoot + "/Events/CCS_EquipmentEventArgs.cs");
@@ -66,6 +69,7 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquipmentSaveSlotEntry", RuntimeRoot + "/Data/CCS_EquipmentSaveSlotEntry.cs");
             ValidateRequiredScript(report, "CCS_EquipmentItemDefinitionLookup", RuntimeRoot + "/Definitions/CCS_EquipmentItemDefinitionLookup.cs");
             ValidateRequiredScript(report, "CCS_EquipmentRuntimeBridge", RuntimeRoot + "/Services/CCS_EquipmentRuntimeBridge.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentEnvironmentRuntimeBridge", RuntimeRoot + "/Services/CCS_EquipmentEnvironmentRuntimeBridge.cs");
             ValidateRequiredScript(
                 report,
                 "CCS_InventoryEquipmentPersistenceTestHarness",
@@ -73,6 +77,8 @@ namespace CCS.Modules.Equipment.Editor
 
             ValidateDocumentationAsset(report, "Equipment Module Doc", ModuleDocPath);
             ValidateEquipmentPersistenceIntegration(report);
+            ValidateEnvironmentalModifierIntegration(report);
+            ValidateTestEnvironmentalEquipmentAssets(report);
 
             CCS_SurvivalValidationResult carrySlotValidation =
                 CCS_EquipmentValidationUtility.ValidateCarryRelatedSlotTypes();
@@ -138,7 +144,7 @@ namespace CCS.Modules.Equipment.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Equipment validator completed (0.6.2 equipment persistence integrated with save/load).");
+                "Equipment validator completed (0.7.4 environmental modifiers).");
         }
 
         #endregion
@@ -204,6 +210,175 @@ namespace CCS.Modules.Equipment.Editor
                     "Equipment Save Registration",
                     "Gameplay composition is missing equipment saveable registration.");
             }
+        }
+
+        private static void ValidateEnvironmentalModifierIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string definitionPath = RuntimeRoot + "/Definitions/CCS_EquipmentItemDefinition.cs";
+            const string servicePath = RuntimeRoot + "/Services/CCS_PlayerEquipmentService.cs";
+            const string environmentServicePath =
+                "Assets/CCS/Modules/EnvironmentEffects/Runtime/Services/CCS_EnvironmentEffectsService.cs";
+
+            if (File.Exists(definitionPath))
+            {
+                string definitionSource = File.ReadAllText(definitionPath);
+                if (definitionSource.Contains("temperatureResistance")
+                    && definitionSource.Contains("wetnessResistance")
+                    && definitionSource.Contains("exposureResistance"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Equipment Environmental Modifier Fields",
+                        "CCS_EquipmentItemDefinition exposes temperature, wetness, and exposure resistance fields.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Equipment Environmental Modifier Fields",
+                        "CCS_EquipmentItemDefinition is missing environmental modifier fields.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("GetEnvironmentalModifiers"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Equipment Environmental Aggregation",
+                        "CCS_PlayerEquipmentService aggregates equipped environmental modifiers.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Equipment Environmental Aggregation",
+                        "CCS_PlayerEquipmentService is missing GetEnvironmentalModifiers().");
+                }
+            }
+
+            CCS_SurvivalValidationResult nullEnvironmentalValidation =
+                CCS_EquipmentValidationUtility.ValidateEnvironmentalModifiers(null);
+
+            if (nullEnvironmentalValidation.IsSuccess)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Environmental Modifier Validation",
+                    "ValidateEnvironmentalModifiers(null) should fail.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Equipment Environmental Modifier Validation",
+                    "Environmental modifier validation rejects null definitions and negative values.");
+            }
+
+            if (File.Exists(environmentServicePath))
+            {
+                string environmentServiceSource = File.ReadAllText(environmentServicePath);
+                if (environmentServiceSource.Contains("BindEquipmentService")
+                    && environmentServiceSource.Contains("GetEnvironmentalModifiers"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Equipment Integration",
+                        "CCS_EnvironmentEffectsService reads equipment environmental modifiers.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment Equipment Integration",
+                        "CCS_EnvironmentEffectsService is missing equipment modifier integration.");
+                }
+            }
+        }
+
+        private static void ValidateTestEnvironmentalEquipmentAssets(CCS_SurvivalValidationReport report)
+        {
+            ValidateTestEquipmentAsset(
+                report,
+                "Warm Hat Test Equipment",
+                SurvivalRoot + "/Profiles/Equipment/TestItems/CCS_TestEquipment_WarmHat.asset",
+                1f,
+                0f,
+                0f);
+
+            ValidateTestEquipmentAsset(
+                report,
+                "Heavy Coat Test Equipment",
+                SurvivalRoot + "/Profiles/Equipment/TestItems/CCS_TestEquipment_HeavyCoat.asset",
+                2f,
+                0f,
+                0.3f);
+
+            ValidateTestEquipmentAsset(
+                report,
+                "Waterproof Boots Test Equipment",
+                SurvivalRoot + "/Profiles/Equipment/TestItems/CCS_TestEquipment_WaterproofBoots.asset",
+                0f,
+                0.4f,
+                0f);
+        }
+
+        private static void ValidateTestEquipmentAsset(
+            CCS_SurvivalValidationReport report,
+            string context,
+            string assetPath,
+            float expectedTemperatureResistance,
+            float expectedWetnessResistance,
+            float expectedExposureResistance)
+        {
+            if (!File.Exists(assetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Missing required test equipment asset: {assetPath}");
+                return;
+            }
+
+            CCS_EquipmentItemDefinition equipmentDefinition =
+                AssetDatabase.LoadAssetAtPath<CCS_EquipmentItemDefinition>(assetPath);
+            if (equipmentDefinition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Could not load test equipment asset: {assetPath}");
+                return;
+            }
+
+            CCS_SurvivalValidationResult validation =
+                CCS_EquipmentValidationUtility.ValidateEquipmentDefinition(equipmentDefinition);
+            if (!validation.IsSuccess)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    validation.Message);
+                return;
+            }
+
+            if (!Mathf.Approximately(equipmentDefinition.TemperatureResistance, expectedTemperatureResistance)
+                || !Mathf.Approximately(equipmentDefinition.WetnessResistance, expectedWetnessResistance)
+                || !Mathf.Approximately(equipmentDefinition.ExposureResistance, expectedExposureResistance))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Test equipment environmental modifier values do not match expected tuning.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                context,
+                $"Asset present with expected environmental modifiers: {assetPath}");
         }
 
         private static void ValidateRequiredFolder(

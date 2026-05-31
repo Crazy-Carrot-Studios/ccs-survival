@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.7.3  
+**Version:** 0.7.4  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -122,13 +122,13 @@ Assets/CCS/Modules/<ModuleName>/
 | `CharacterController/` | 0.3.8 — **Complete** (foundation) |
 | `Interaction/` | 0.3.9 — **Complete** (foundation) |
 | `Inventory/` | 0.4.0 — **Complete** (foundation) |
-| `Equipment/` | 0.4.1 — **Complete** (foundation) |
+| `Equipment/` | 0.4.1 / 0.7.4 — **Foundation + environmental modifiers complete** |
 | `Crafting/` | 0.5.0 / 0.5.3 — **Foundation + gameplay integration complete** |
 | `WorldResources/` | 0.5.1 / 0.5.2 — **Foundation + harvest integration complete** |
 | `SaveLoad/` | 0.6.0 – 0.6.2 — **Foundation + inventory/equipment persistence complete** |
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
-| `EnvironmentEffects/` | 0.7.2 — **Foundation complete** |
-| `SurvivalCore/` | 0.3.7 / 0.7.3 — **Foundation + environment integration complete** |
+| `EnvironmentEffects/` | 0.7.2 / 0.7.4 — **Foundation + equipment modifiers complete** |
+| `SurvivalCore/` | 0.3.7 / 0.7.4 — **Foundation + effective environment integration complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

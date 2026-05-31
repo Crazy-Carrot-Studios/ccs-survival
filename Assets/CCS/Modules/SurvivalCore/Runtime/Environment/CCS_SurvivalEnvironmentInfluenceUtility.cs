@@ -25,9 +25,9 @@ namespace CCS.Modules.SurvivalCore
                 return CCS_SurvivalEnvironmentInfluence.Empty;
             }
 
-            float ambientTemperature = environmentSnapshot.AmbientTemperature;
-            float wetness = environmentSnapshot.Wetness;
-            float exposure = environmentSnapshot.Exposure;
+            float ambientTemperature = environmentSnapshot.EffectiveTemperature;
+            float wetness = environmentSnapshot.EffectiveWetness;
+            float exposure = environmentSnapshot.EffectiveExposure;
 
             float temperatureDeltaPerSecond = 0f;
             if (ambientTemperature > 0f)

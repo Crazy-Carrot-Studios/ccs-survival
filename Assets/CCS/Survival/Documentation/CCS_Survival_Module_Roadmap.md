@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.7.3 — Survival Core Environment Integration  
+**Milestone baseline:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Environment → Survival Core integration **complete** at **0.7.3**. Damage, hypothermia, clothing insulation, and biome modifiers deferred.
+**Status:** Equipment environmental modifiers **complete** at **0.7.4**. Biome modifiers, damage, and hypothermia systems deferred.
 
 ---
 
@@ -39,8 +39,9 @@
 | **0.7.1** | Weather foundation |
 | **0.7.2** | Environment effects foundation |
 | **0.7.3** | Survival Core environment integration |
+| **0.7.4** | Clothing & equipment environmental modifiers |
 
-Later milestones continue from **0.7.4+** (clothing insulation, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
+Later milestones continue from **0.7.5+** (biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
 
 ---
 
@@ -83,13 +84,14 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 11 | **0.7.1** | **Weather** | `ccs.survival.weather` — **Foundation complete** |
 | 12 | **0.7.2** | **Environment Effects** | `ccs.survival.environment` — **Foundation complete** |
 | 13 | **0.7.3** | **Survival Core Environment Integration** | `ccs.survival.core` — **Environment integration complete** |
-| 14 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
-| 15 | 0.5.x | Combat | `ccs.survival.combat` |
-| 16 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
-| 17 | 0.5.x | Building | `ccs.survival.building` |
-| 18 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
-| 19 | 0.5.x | Audio | `ccs.survival.audio` |
-| 20 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
+| 14 | **0.7.4** | **Clothing & Equipment Environmental Modifiers** | `ccs.survival.equipment` + `ccs.survival.environment` — **Complete** |
+| 15 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
+| 16 | 0.5.x | Combat | `ccs.survival.combat` |
+| 17 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
+| 18 | 0.5.x | Building | `ccs.survival.building` |
+| 19 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
+| 20 | 0.5.x | Audio | `ccs.survival.audio` |
+| 21 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
 
 **Rationale:** UI immediately after Inventory lets every subsequent system be validated on-screen as it is built.
 
@@ -127,7 +129,25 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.7.4 — Clothing Insulation Foundation** (equipment-driven temperature and exposure mitigation)
+**0.7.5 — Biome & Regional Environment Modifiers** (regional offsets layered on environment simulation)
+
+---
+
+## 0.7.4 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Equipment definition environmental modifier fields | **Complete** |
+| `CCS_EquipmentEnvironmentalModifierSnapshot` and aggregation | **Complete** |
+| `CCS_EnvironmentEffectsService` reads equipment modifiers | **Complete** |
+| Raw vs effective values on environment snapshot | **Complete** |
+| Survival Core uses effective environment values | **Complete** |
+| Bootstrap environment HUD resistance/effective display | **Complete** |
+| Test equipment assets (Warm Hat, Heavy Coat, Waterproof Boots) | **Complete** |
+| Validation pipeline updates | **Complete** |
+| Version **0.7.4** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

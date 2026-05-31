@@ -67,17 +67,44 @@ Persisted fields: ambient temperature, wetness, exposure.
 
 Bootstrap scene includes `EnvironmentHudArea` beneath time and weather panels (upper-right):
 
-```
+```text
 Env Temp: 2
 Wetness: 0
 Exposure: 0
+Temp Res: 0
+Wet Res: 0
+Exp Res: 0
+Eff Temp: 2
+Eff Wet: 0
+Eff Exp: 0
 ```
+
+Raw values come from Time Of Day and Weather. Effective values apply equipped item resistances.
 
 Plain text only. No icons or final art.
 
 ---
 
-## Survival Core Integration (0.7.3)
+## Equipment Environmental Modifiers (0.7.4)
+
+`CCS_EnvironmentEffectsService` binds `CCS_PlayerEquipmentService` and applies aggregated equipment modifiers when building snapshots.
+
+| Value | Rule |
+|-------|------|
+| **Raw** | Simulated ambient temperature, wetness, exposure from Time + Weather |
+| **Effective temperature** | Raw temperature + temperature resistance |
+| **Effective wetness** | `max(0, raw wetness − wetness resistance)` |
+| **Effective exposure** | `max(0, raw exposure − exposure resistance)` |
+
+`CCS_EnvironmentSnapshot` exposes raw values, effective values, and `EquipmentModifierSnapshot`.
+
+Survival Core reads **effective** values for temperature, fatigue, and thirst pressure.
+
+Persisted save data remains **raw** environment simulation; equipment modifiers are derived at runtime from equipped items.
+
+---
+
+## Survival Core Integration (0.7.3 / 0.7.4)
 
 Environment Effects remains authoritative for ambient temperature, wetness, and exposure.
 
@@ -101,7 +128,7 @@ Thirst Δ: X
 
 ## Future Clothing Insulation Integration
 
-Clothing and equipment will provide insulation modifiers applied **after** environment simulation. Deferred until equipment/environment coupling milestone.
+Tiered clothing sets, slot-specific gear progression, and crafting sources will expand the 0.7.4 resistance foundation. Biome and regional modifiers remain deferred.
 
 ---
 
@@ -115,7 +142,6 @@ Biome profiles may add regional temperature offsets and weather weighting. Envir
 
 - Damage / health effects from exposure
 - Hypothermia / heat stroke systems
-- Clothing insulation
 - Biome regional offsets
 - Wetness accumulation over time (beyond snapshot modifiers)
 

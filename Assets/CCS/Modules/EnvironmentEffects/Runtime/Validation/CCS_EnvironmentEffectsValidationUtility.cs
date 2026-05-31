@@ -35,9 +35,15 @@ namespace CCS.Modules.EnvironmentEffects
         public static string FormatEnvironmentDisplay(CCS_EnvironmentSnapshot snapshot)
         {
             return
-                $"Env Temp: {snapshot.AmbientTemperature:0.#}\n" +
-                $"Wetness: {snapshot.Wetness:0.##}\n" +
-                $"Exposure: {snapshot.Exposure:0.##}";
+                $"Env Temp: {snapshot.RawTemperature:0.#}\n" +
+                $"Wetness: {snapshot.RawWetness:0.##}\n" +
+                $"Exposure: {snapshot.RawExposure:0.##}\n" +
+                $"Temp Res: {snapshot.EquipmentModifierSnapshot.TemperatureResistance:0.#}\n" +
+                $"Wet Res: {snapshot.EquipmentModifierSnapshot.WetnessResistance:0.##}\n" +
+                $"Exp Res: {snapshot.EquipmentModifierSnapshot.ExposureResistance:0.##}\n" +
+                $"Eff Temp: {snapshot.EffectiveTemperature:0.#}\n" +
+                $"Eff Wet: {snapshot.EffectiveWetness:0.##}\n" +
+                $"Eff Exp: {snapshot.EffectiveExposure:0.##}";
         }
 
         #endregion

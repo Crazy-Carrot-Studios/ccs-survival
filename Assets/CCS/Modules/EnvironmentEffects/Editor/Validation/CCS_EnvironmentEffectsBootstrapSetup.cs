@@ -156,7 +156,7 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             panelRect.anchorMax = new Vector2(1f, 1f);
             panelRect.pivot = new Vector2(1f, 1f);
             panelRect.anchoredPosition = new Vector2(-28f, -232f);
-            panelRect.sizeDelta = new Vector2(180f, 90f);
+            panelRect.sizeDelta = new Vector2(180f, 150f);
 
             CCS_EnvironmentEffectsHudPresenter hudPresenter =
                 panelObject.GetComponent<CCS_EnvironmentEffectsHudPresenter>();
@@ -177,12 +177,15 @@ namespace CCS.Modules.EnvironmentEffects.Editor
                 statusRect.offsetMax = new Vector2(-8f, -8f);
                 statusText = statusObject.AddComponent<Text>();
                 statusText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                statusText.fontSize = 14;
+                statusText.fontSize = 12;
                 statusText.alignment = TextAnchor.UpperLeft;
                 statusText.color = new Color(0.95f, 0.95f, 0.95f, 1f);
                 statusText.horizontalOverflow = HorizontalWrapMode.Wrap;
                 statusText.verticalOverflow = VerticalWrapMode.Truncate;
-                statusText.text = "Env Temp: 0\nWetness: 0\nExposure: 0";
+                statusText.text =
+                    "Env Temp: 0\nWetness: 0\nExposure: 0\n" +
+                    "Temp Res: 0\nWet Res: 0\nExp Res: 0\n" +
+                    "Eff Temp: 0\nEff Wet: 0\nEff Exp: 0";
             }
 
             SerializedObject serializedPresenter = new SerializedObject(hudPresenter);
