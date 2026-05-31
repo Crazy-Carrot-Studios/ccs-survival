@@ -4,6 +4,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.TimeOfDay;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace CCS.Modules.UI
         private CCS_ResourceHarvestService resourceHarvestService;
         private CCS_ResourceRespawnService resourceRespawnService;
         private CCS_CraftingService craftingService;
+        private CCS_TimeOfDayService timeOfDayService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -44,6 +46,7 @@ namespace CCS.Modules.UI
         private CCS_SurvivalStatSnapshot thirstSnapshot;
         private CCS_SurvivalStatSnapshot fatigueSnapshot;
         private CCS_SurvivalStatSnapshot temperatureSnapshot;
+        private CCS_GameTimeSnapshot gameTimeSnapshot;
 
         private bool isInitialized;
 
@@ -82,6 +85,8 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot FatigueSnapshot => fatigueSnapshot;
 
         public CCS_SurvivalStatSnapshot TemperatureSnapshot => temperatureSnapshot;
+
+        public CCS_GameTimeSnapshot GameTimeSnapshot => gameTimeSnapshot;
 
         public int EffectiveInventorySlotCount
         {
@@ -252,12 +257,28 @@ namespace CCS.Modules.UI
             craftingService.RecipeUnlocked += HandleRecipeUnlocked;
         }
 
+        public void BindTimeOfDayService(CCS_TimeOfDayService service)
+        {
+            UnbindTimeOfDayService();
+            timeOfDayService = service;
+
+            if (timeOfDayService == null)
+            {
+                return;
+            }
+
+            timeOfDayService.TimeChanged += HandleTimeOfDayChanged;
+            timeOfDayService.PhaseChanged += HandleTimeOfDayChanged;
+            RefreshGameTimeSnapshot();
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
             RefreshInteractionPrompt();
             RefreshInventorySnapshot();
             RefreshEquipmentSnapshot();
+            RefreshGameTimeSnapshot();
             HudDataRefreshed?.Invoke(BuildEventArgs(message));
         }
 
@@ -285,6 +306,7 @@ namespace CCS.Modules.UI
             UnbindResourceHarvestService();
             UnbindResourceRespawnService();
             UnbindCraftingService();
+            UnbindTimeOfDayService();
             isInitialized = false;
         }
 
@@ -683,6 +705,32 @@ namespace CCS.Modules.UI
             craftingService.CraftingFailed -= HandleCraftingFailed;
             craftingService.RecipeUnlocked -= HandleRecipeUnlocked;
             craftingService = null;
+        }
+
+        private void HandleTimeOfDayChanged(CCS_TimeOfDayEventArgs eventArgs)
+        {
+            RefreshGameTimeSnapshot();
+            HudDataRefreshed?.Invoke(BuildEventArgs("Game time changed."));
+        }
+
+        private void RefreshGameTimeSnapshot()
+        {
+            gameTimeSnapshot = timeOfDayService != null && timeOfDayService.IsInitialized
+                ? timeOfDayService.CreateSnapshot()
+                : CCS_GameTimeSnapshot.Empty;
+        }
+
+        private void UnbindTimeOfDayService()
+        {
+            if (timeOfDayService == null)
+            {
+                return;
+            }
+
+            timeOfDayService.TimeChanged -= HandleTimeOfDayChanged;
+            timeOfDayService.PhaseChanged -= HandleTimeOfDayChanged;
+            timeOfDayService = null;
+            gameTimeSnapshot = CCS_GameTimeSnapshot.Empty;
         }
 
         #endregion

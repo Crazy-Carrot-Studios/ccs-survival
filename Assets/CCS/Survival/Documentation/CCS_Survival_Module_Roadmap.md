@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.6.2 — Inventory & Equipment Persistence  
+**Milestone baseline:** 0.7.0 — Time Of Day Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Inventory and equipment persistence **complete** at **0.6.2**. World/building/combat persistence deferred.
+**Status:** Global game clock foundation **complete** at **0.7.0**. Weather, lighting art, sleep, and AI schedules deferred.
 
 ---
 
@@ -35,8 +35,9 @@
 | **0.6.0** | Save / load foundation |
 | **0.6.1** | Save / load debug controls |
 | **0.6.2** | Inventory & equipment persistence |
+| **0.7.0** | Time of day foundation |
 
-Later milestones continue from **0.6.2+** (world resources, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.7.0+** (weather, sleep, AI schedules, combat, building, quests, audio, settings finalization).
 
 ---
 
@@ -74,9 +75,9 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0 / 0.5.3** | **Crafting** | `ccs.survival.crafting` — **Foundation + gameplay integration complete** |
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
-| 9 | **0.6.0 / 0.6.1 / 0.6.2** | **Save / Load** | `ccs.survival.saveload` — **Foundation + debug controls + inventory/equipment persistence complete** |
-| 10 | 0.6.x | Time of Day | `ccs.survival.time` |
-| 11 | 0.4.x | Weather | `ccs.survival.weather` |
+| 9 | **0.6.0 – 0.6.2** | **Save / Load** | `ccs.survival.saveload` — **Foundation + inventory/equipment persistence complete** |
+| 10 | **0.7.0** | **Time Of Day** | `ccs.survival.timeofday` — **Foundation complete** |
+| 11 | 0.7.x | Weather | `ccs.survival.weather` |
 | 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 13 | 0.5.x | Combat | `ccs.survival.combat` |
 | 14 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
@@ -121,7 +122,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.6.3+ — World resource and additional gameplay persistence**
+**0.7.1+ — Weather and lighting integration planning**
+
+---
+
+## 0.7.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| TimeOfDay module under `Assets/CCS/Modules/TimeOfDay/` | **Complete** |
+| Global game clock service with phases and events | **Complete** |
+| Default time-of-day profile asset | **Complete** |
+| Save/load integration via `CCS_ISaveable` | **Complete** |
+| Bootstrap HUD time display | **Complete** |
+| Validation pipeline registration | **Complete** |
+| Version **0.7.0** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

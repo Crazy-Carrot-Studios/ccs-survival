@@ -125,7 +125,7 @@ namespace CCS.Modules.SaveLoad.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Save/load validator completed (0.6.2 inventory and equipment persistence integrated).");
+                "Save/load validator completed (0.7.0 time-of-day persistence integrated).");
         }
 
         #endregion
@@ -142,24 +142,26 @@ namespace CCS.Modules.SaveLoad.Editor
             string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
             if (registrationSource.Contains("RegisterGameplaySaveables")
                 && registrationSource.Contains("RegisterSaveable(inventoryService)")
-                && registrationSource.Contains("RegisterSaveable(equipmentService)"))
+                && registrationSource.Contains("RegisterSaveable(equipmentService)")
+                && registrationSource.Contains("RegisterSaveable(timeOfDayService)"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Gameplay Saveable Registration",
-                    "Gameplay composition registers inventory and equipment saveables.");
+                    "Gameplay composition registers inventory, equipment, and time-of-day saveables.");
                 return;
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Gameplay Saveable Registration",
-                "Gameplay composition is missing inventory/equipment saveable registration wiring.");
+                "Gameplay composition is missing inventory/equipment/time-of-day saveable registration wiring.");
         }
 
         private static void ValidateRestoreOrder(CCS_SurvivalValidationReport report)
         {
             const string registryPath = RuntimeRoot + "/Services/CCS_SaveableRegistry.cs";
+            const string saveableIdsPath = RuntimeRoot + "/Data/CCS_SaveLoadSaveableIds.cs";
             if (!File.Exists(registryPath))
             {
                 report.AddIssue(
@@ -169,14 +171,26 @@ namespace CCS.Modules.SaveLoad.Editor
                 return;
             }
 
+            if (!File.Exists(saveableIdsPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Save Restore Order",
+                    $"Missing saveable ids script: {saveableIdsPath}");
+                return;
+            }
+
             string registrySource = File.ReadAllText(registryPath);
+            string saveableIdsSource = File.ReadAllText(saveableIdsPath);
             if (registrySource.Contains("CCS_SaveLoadSaveableIds.ModuleRestoreOrder")
-                && registrySource.Contains("RestoreOrderedSaveables"))
+                && registrySource.Contains("RestoreOrderedSaveables")
+                && saveableIdsSource.Contains("GlobalTimeOfDay")
+                && saveableIdsSource.Contains("ModuleRestoreOrder"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Save Restore Order",
-                    "Registry restores inventory before equipment using ModuleRestoreOrder.");
+                    "Registry restores inventory, equipment, and time-of-day using ModuleRestoreOrder.");
                 return;
             }
 

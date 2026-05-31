@@ -72,8 +72,11 @@ Registered at **0.6.2**:
 |------------|--------|
 | `ccs.survival.saveable.inventory.player` | `CCS_PlayerInventoryService` |
 | `ccs.survival.saveable.equipment.player` | `CCS_PlayerEquipmentService` |
+| `ccs.survival.saveable.timeofday.global` | `CCS_TimeOfDayService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
+
+Load order: inventory → equipment → time of day (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
 
 ---
 

@@ -82,4 +82,5 @@ MonoBehaviour:
   worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   craftingProfile: {fileID: 11400000, guid: 7a454d0b9860c0c44ad990feaba001bf, type: 2}
   saveLoadProfile: {fileID: 11400000, guid: c76ec8514d859824fbdb8e015a7223e4, type: 2}
+  timeOfDayProfile: {fileID: 11400000, guid: 0263a6837d876f4428a53d5a3974a047, type: 2}
   enableDebugLogs: 0

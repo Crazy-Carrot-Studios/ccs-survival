@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.6.2  
+**Version:** 0.7.0  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -79,6 +79,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.SaveLoad.Editor.CCS_SaveLoadValidationMenu.ValidateSaveLoad `
   -logFile Logs/CCS_SaveLoadValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.TimeOfDay.Editor.CCS_TimeOfDayValidationMenu.ValidateTimeOfDay `
+  -logFile Logs/CCS_TimeOfDayValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -113,6 +117,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `Equipment/` | 0.4.1 — **Complete** (foundation) |
 | `Crafting/` | 0.5.0 / 0.5.3 — **Foundation + gameplay integration complete** |
 | `WorldResources/` | 0.5.1 / 0.5.2 — **Foundation + harvest integration complete** |
-| `SaveLoad/` | 0.6.0 / 0.6.1 / 0.6.2 — **Foundation + debug controls + inventory/equipment persistence complete** |
+| `SaveLoad/` | 0.6.0 – 0.6.2 — **Foundation + inventory/equipment persistence complete** |
+| `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

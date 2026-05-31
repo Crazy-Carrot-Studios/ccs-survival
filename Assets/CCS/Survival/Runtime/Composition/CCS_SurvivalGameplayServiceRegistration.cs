@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.TimeOfDay;
 using CCS.Modules.WorldResources;
 
 // =============================================================================
@@ -34,6 +35,7 @@ namespace CCS.Survival.Composition
             CCS_WorldResourceProfile worldResourceProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
+            CCS_TimeOfDayProfile timeOfDayProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -56,7 +58,12 @@ namespace CCS.Survival.Composition
 
             CCS_SaveLoadService saveLoadService = CreateSaveLoadService(saveLoadProfile);
             RegisterService(runtimeHost, saveLoadService, enableDebugLogs);
-            RegisterGameplaySaveables(saveLoadService, inventoryService, equipmentService);
+
+            CCS_TimeOfDayService timeOfDayService = CreateTimeOfDayService(timeOfDayProfile);
+            RegisterService(runtimeHost, timeOfDayService, enableDebugLogs);
+            RegisterTimeOfDayUpdatable(runtimeHost, timeOfDayService);
+
+            RegisterGameplaySaveables(saveLoadService, inventoryService, equipmentService, timeOfDayService);
         }
 
         #endregion
@@ -177,10 +184,37 @@ namespace CCS.Survival.Composition
             return service;
         }
 
+        private static CCS_TimeOfDayService CreateTimeOfDayService(CCS_TimeOfDayProfile profile)
+        {
+            CCS_TimeOfDayService service = new CCS_TimeOfDayService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static void RegisterTimeOfDayUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            if (runtimeHost == null || timeOfDayService == null || !timeOfDayService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(timeOfDayService);
+        }
+
         private static void RegisterGameplaySaveables(
             CCS_SaveLoadService saveLoadService,
             CCS_PlayerInventoryService inventoryService,
-            CCS_PlayerEquipmentService equipmentService)
+            CCS_PlayerEquipmentService equipmentService,
+            CCS_TimeOfDayService timeOfDayService)
         {
             if (saveLoadService == null || !saveLoadService.IsInitialized)
             {
@@ -207,6 +241,11 @@ namespace CCS.Survival.Composition
             if (equipmentService != null && equipmentService.IsInitialized)
             {
                 saveLoadService.RegisterSaveable(equipmentService);
+            }
+
+            if (timeOfDayService != null && timeOfDayService.IsInitialized)
+            {
+                saveLoadService.RegisterSaveable(timeOfDayService);
             }
         }
 

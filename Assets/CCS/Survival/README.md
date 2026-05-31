@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.6.2 — Inventory & Equipment Persistence  
+**Milestone:** 0.7.0 — Time Of Day Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -67,6 +67,19 @@
 **Editor menu:** **CCS → Survival → Equipment → Validate Equipment**
 
 **0.6.2:** `CCS_PlayerEquipmentService` persists equipped slots via `CCS_EquipmentSaveData` (`saveDataVersion`). Restores after inventory on load.
+
+## Time Of Day (0.7.0)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/TimeOfDay/Runtime/` |
+| Editor validation | `../Modules/TimeOfDay/Editor/Validation/` |
+| Default profile | `Profiles/TimeOfDay/CCS_DefaultTimeOfDayProfile.asset` |
+| Module doc | [../Modules/TimeOfDay/Documentation/CCS_Time_Of_Day_Module.md](../Modules/TimeOfDay/Documentation/CCS_Time_Of_Day_Module.md) |
+
+**Editor menu:** **CCS → Survival → Time Of Day → Validate Time Of Day**
+
+**0.7.0:** Global game clock with phases, events, save/load persistence, and bootstrap HUD time display.
 
 ## Inventory (0.4.0)
 

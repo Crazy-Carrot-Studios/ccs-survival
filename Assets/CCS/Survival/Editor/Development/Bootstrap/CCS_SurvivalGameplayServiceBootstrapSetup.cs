@@ -27,6 +27,8 @@ namespace CCS.Survival.Editor.Development
             "Assets/CCS/Survival/Profiles/Crafting/CCS_DefaultCraftingProfile.asset";
         private const string SaveLoadProfilePath =
             "Assets/CCS/Survival/Profiles/SaveLoad/CCS_DefaultSaveLoadProfile.asset";
+        private const string TimeOfDayProfilePath =
+            "Assets/CCS/Survival/Profiles/TimeOfDay/CCS_DefaultTimeOfDayProfile.asset";
         private const string LogPrefix = "[CCS_SurvivalGameplayServiceBootstrapSetup]";
 
         #region Public Methods
@@ -64,6 +66,8 @@ namespace CCS.Survival.Editor.Development
                 AssetDatabase.LoadAssetAtPath<Object>(CraftingProfilePath);
             serializedHost.FindProperty("saveLoadProfile").objectReferenceValue =
                 AssetDatabase.LoadAssetAtPath<Object>(SaveLoadProfilePath);
+            serializedHost.FindProperty("timeOfDayProfile").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Object>(TimeOfDayProfilePath);
             serializedHost.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(prefabContents, prefabPath);

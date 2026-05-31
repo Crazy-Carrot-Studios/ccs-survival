@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.TimeOfDay;
 using CCS.Modules.WorldResources;
 using UnityEngine;
 
@@ -47,6 +48,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default save/load profile used to register CCS_SaveLoadService.")]
         [SerializeField] private CCS_SaveLoadProfile saveLoadProfile;
 
+        [Tooltip("Default time-of-day profile used to register CCS_TimeOfDayService.")]
+        [SerializeField] private CCS_TimeOfDayProfile timeOfDayProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -82,6 +86,7 @@ namespace CCS.Survival.Composition
                 worldResourceProfile,
                 craftingProfile,
                 saveLoadProfile,
+                timeOfDayProfile,
                 enableDebugLogs);
         }
 

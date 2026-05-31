@@ -20,10 +20,13 @@ namespace CCS.Modules.SaveLoad
 
         public const string TestDevelopment = "ccs.survival.saveable.test.development";
 
+        public const string GlobalTimeOfDay = "ccs.survival.saveable.timeofday.global";
+
         public static readonly string[] ModuleRestoreOrder =
         {
             PlayerInventory,
-            PlayerEquipment
+            PlayerEquipment,
+            GlobalTimeOfDay
         };
 
         #endregion
