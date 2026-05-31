@@ -851,6 +851,10 @@ MonoBehaviour:
   craftAttemptIntervalSeconds: 5
   bandageRecipe: {fileID: 11400000, guid: d550a5031ed366f46a468343521233ea, type: 2}
   campfireRecipe: {fileID: 11400000, guid: 5cf7e366b5338f64993f86980f156464, type: 2}
+  spearRecipe: {fileID: 11400000, guid: 383b0bf8eb4155741b6bf4841ff3ace6, type: 2}
+  bowStaveRecipe: {fileID: 11400000, guid: db563df545b857543b30c9dac84e24b8, type: 2}
+  arrowShaftRecipe: {fileID: 11400000, guid: 2cac8e16466252c41bbf389b43768e18, type: 2}
+  campfireKitRecipe: {fileID: 11400000, guid: f63192917e3425d4480313bf52d55b6f, type: 2}
 --- !u!1 &632943391
 GameObject:
   m_ObjectHideFlags: 0
@@ -1654,7 +1658,7 @@ MonoBehaviour:
   resourceDefinition: {fileID: 0}
   worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   interactionDistance: 3
-  assumeRequiredToolEquipped: 1
+  assumeRequiredToolEquipped: 0
 --- !u!23 &1035413225
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2405,7 +2409,7 @@ MonoBehaviour:
   resourceDefinition: {fileID: 0}
   worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   interactionDistance: 3
-  assumeRequiredToolEquipped: 1
+  assumeRequiredToolEquipped: 0
 --- !u!23 &1362610039
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3511,7 +3515,7 @@ MonoBehaviour:
   resourceDefinition: {fileID: 0}
   worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   interactionDistance: 3
-  assumeRequiredToolEquipped: 1
+  assumeRequiredToolEquipped: 0
 --- !u!23 &2137871266
 MeshRenderer:
   m_ObjectHideFlags: 0

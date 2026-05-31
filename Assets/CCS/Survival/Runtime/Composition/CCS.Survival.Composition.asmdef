@@ -16,7 +16,8 @@
         "CCS.Modules.EnvironmentEffects.Runtime",
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.Building.Runtime",
-        "CCS.Modules.CharacterController.Runtime"
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

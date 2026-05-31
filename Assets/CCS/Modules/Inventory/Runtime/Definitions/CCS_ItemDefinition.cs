@@ -43,6 +43,13 @@ namespace CCS.Modules.Inventory
         [Tooltip("Item weight for future encumbrance systems.")]
         [SerializeField] private float weight = 0f;
 
+        [Header("Tool Identity (Placeholder)")]
+        [Tooltip("When enabled, this item satisfies matching harvest tool requirements from inventory.")]
+        [SerializeField] private bool hasToolIdentity;
+
+        [Tooltip("Harvest tool category satisfied when this item is present in inventory.")]
+        [SerializeField] private CCS_ItemToolType toolType = CCS_ItemToolType.None;
+
         [Header("Presentation (Placeholder)")]
         [Tooltip("Optional icon sprite reference for future UI.")]
         [SerializeField] private Sprite icon;
@@ -64,6 +71,10 @@ namespace CCS.Modules.Inventory
         public bool IsStackable => isStackable;
 
         public float Weight => weight;
+
+        public bool HasToolIdentity => hasToolIdentity;
+
+        public CCS_ItemToolType ToolType => toolType;
 
         public Sprite Icon => icon;
 

@@ -12,6 +12,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.CharacterController;
+using CCS.Survival.Player.Loadout;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalGameplayServiceRegistration
@@ -46,6 +47,7 @@ namespace CCS.Survival.Composition
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             CCS_BuildingProfile buildingProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
+            CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -65,7 +67,13 @@ namespace CCS.Survival.Composition
 
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
-            RegisterService(runtimeHost, CreateCraftingService(craftingProfile, inventoryService), enableDebugLogs);
+
+            CCS_CraftingService craftingService = CreateCraftingService(craftingProfile, inventoryService);
+            RegisterService(runtimeHost, craftingService, enableDebugLogs);
+
+            CCS_StarterLoadoutService starterLoadoutService =
+                CreateStarterLoadoutService(starterLoadoutProfile, inventoryService, craftingService);
+            RegisterService(runtimeHost, starterLoadoutService, enableDebugLogs);
 
             CCS_SaveLoadService saveLoadService = CreateSaveLoadService(saveLoadProfile);
             RegisterService(runtimeHost, saveLoadService, enableDebugLogs);
@@ -420,6 +428,25 @@ namespace CCS.Survival.Composition
             }
 
             shelterService.BindBuildingService(buildingService);
+        }
+
+        private static CCS_StarterLoadoutService CreateStarterLoadoutService(
+            CCS_StarterLoadoutProfile profile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_CraftingService craftingService)
+        {
+            CCS_StarterLoadoutService service = new CCS_StarterLoadoutService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            service.RegisterPrimitiveRecipes(craftingService);
+            service.TryApplyStarterLoadout(inventoryService);
+            return service;
         }
 
         private static void BindCharacterStaminaIntegration(

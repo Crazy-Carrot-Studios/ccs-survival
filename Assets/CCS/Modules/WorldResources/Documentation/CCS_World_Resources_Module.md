@@ -85,12 +85,42 @@ Assets/CCS/Survival/Profiles/WorldResources/
 | Tool | Purpose |
 |------|---------|
 | None | Hand gathering |
-| Axe | Tree harvesting |
+| Axe | Tree harvesting (heavier wood — later progression) |
 | Pickaxe | Rock harvesting |
-| Knife | Plant harvesting |
+| Knife | Early tree branch harvesting and plant harvesting |
 | Shovel | Buried resource harvesting |
 
-Tool gameplay is foundation-only in 0.5.1. Harvest validation compares equipped tool type against the resource definition.
+Tool gameplay is foundation-only in 0.5.1. Harvest validation compares equipped tool type against the resource definition. At **0.9.1**, the bootstrap test tree uses **Knife → Branch** for the early-game loop. Axe/hatchet harvesting for heavier wood outputs is deferred.
+
+---
+
+## Early-game harvest loop (0.9.1)
+
+```text
+Starter loadout grants Knife
+        ↓
+Player interacts with test tree (Knife required)
+        ↓
+CCS_InventoryToolUtility confirms Knife in inventory
+        ↓
+Tree drops Branch x2–4
+        ↓
+Branches feed primitive hand crafting recipes
+```
+
+Bootstrap scene harvestables use `assumeRequiredToolEquipped = false` so the player path validates inventory tools.
+
+---
+
+## Rock resource planning (deferred)
+
+Stone is **not** sourced from random loose rocks scattered across terrain as the primary loop.
+
+| Decision | Notes |
+|----------|-------|
+| Primary stone source | Rock formations, outcrops, and quarries (future milestone) |
+| Loose stones | Rare optional pickups later — not the core resource loop |
+| Current bootstrap rock node | Retains pickaxe test path; not the intended early-game progression |
 
 ---
 
@@ -137,7 +167,7 @@ Inventory is optional at harvest time. Callers may apply drops later without UI 
 
 | Object | Node Type | Tool |
 |--------|-----------|------|
-| `CCS_TestTree` | Tree | Axe |
+| `CCS_TestTree` | Tree | Knife (Branch drops at 0.9.1) |
 | `CCS_TestRock` | Rock | Pickaxe |
 | `CCS_TestPlant` | Plant | Knife |
 

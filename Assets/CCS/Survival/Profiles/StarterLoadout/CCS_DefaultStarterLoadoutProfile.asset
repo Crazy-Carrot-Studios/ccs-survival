@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecec9d40e4451e84189d6be391a848a8, type: 3}
+  m_Name: CCS_DefaultStarterLoadoutProfile
+  m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.Loadout.CCS_StarterLoadoutProfile
+  profileDisplayName: Default Starter Loadout
+  profileId: ccs.survival.profile.starterloadout.default
+  profileDescription: Starter loadout and primitive progression for 0.9.1.
+  profileVersion: 0.9.1
+  enableDebugLogs: 0
+  startingItems:
+  - itemDefinition: {fileID: 11400000, guid: 196e681ce550b204b9de52033d55d868, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
+    quantity: 2
+  currencyItemDefinition: {fileID: 11400000, guid: f79e92daebd51ba4eb8a49b557d23f91, type: 2}
+  startingCurrencyAmount: 10
+  applyWhenInventoryEmpty: 1
+  primitiveRecipes:
+  - {fileID: 11400000, guid: 383b0bf8eb4155741b6bf4841ff3ace6, type: 2}
+  - {fileID: 11400000, guid: db563df545b857543b30c9dac84e24b8, type: 2}
+  - {fileID: 11400000, guid: 2cac8e16466252c41bbf389b43768e18, type: 2}
+  - {fileID: 11400000, guid: f63192917e3425d4480313bf52d55b6f, type: 2}

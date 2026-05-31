@@ -6,6 +6,8 @@
         "CCS.Survival.Runtime",
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.SurvivalCore.Runtime",
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.SaveLoad.Runtime",

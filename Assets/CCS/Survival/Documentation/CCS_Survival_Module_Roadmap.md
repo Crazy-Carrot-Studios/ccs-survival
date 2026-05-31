@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.9.0 — Character Controller Gameplay Integration  
+**Milestone baseline:** 0.9.1 — Starter Loadout & Primitive Progression Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Playable player path **complete** at **0.9.0**. Glyphs, final animation, and combat deferred.
+**Status:** Early-game survival loop **defined** at **0.9.1**. Combat, vendors, final economy, and rock systems deferred.
 
 ---
 
@@ -48,8 +48,27 @@
 | **0.8.4** | Building persistence restore |
 | **0.8.5** | Building shelter integration |
 | **0.9.0** | Character controller gameplay integration (player prefab, input, interaction, stamina) |
+| **0.9.1** | Starter loadout and primitive progression (knife, branches, hand crafting placeholders) |
 
-Later milestones continue from **0.9.1+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+Later milestones continue from **0.9.2+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+
+---
+
+## 0.9.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Starter loadout profile (`CCS_DefaultStarterLoadoutProfile`) | **Complete** |
+| Starter items: Knife, Basic Food, Coin, Branch, Spear, Bow Stave, Arrow Shaft, Campfire Kit | **Complete** |
+| Knife tool identity satisfies `RequiredToolType.Knife` harvest checks | **Complete** |
+| Test tree harvest: Knife → Branch x2–4 | **Complete** |
+| Primitive hand recipes (Spear, Bow Stave, Arrow Shafts, Campfire Kit) | **Complete** |
+| `CCS_StarterLoadoutService` with empty-inventory guard | **Complete** |
+| Bootstrap composition + HUD inventory summary lines | **Complete** |
+| Rock formation sourcing documented (implementation deferred) | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.1** | **Complete** |
+| Combat, animals, vendors, final economy | **Deferred** |
 
 ---
 

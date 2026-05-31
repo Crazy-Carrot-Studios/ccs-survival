@@ -7,6 +7,9 @@
         "CCS.Survival.Composition",
         "CCS.Survival.Player.Runtime",
         "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.WorldResources.Runtime",
         "Unity.InputSystem"
     ],
     "includePlatforms": [

@@ -87,7 +87,25 @@ namespace CCS.Modules.UI
 
             CCS.Modules.Inventory.CCS_InventorySnapshot snapshot = presentationService.InventorySnapshot;
             int totalSlots = presentationService.EffectiveInventorySlotCount;
-            summaryText.text = $"Inventory\n{snapshot.UsedSlotCount} / {totalSlots} Slots";
+            System.Text.StringBuilder builder = new System.Text.StringBuilder(256);
+            builder.AppendLine("Inventory");
+            builder.AppendLine($"{snapshot.UsedSlotCount} / {totalSlots} Slots");
+
+            int linesAdded = 0;
+            const int maxItemLines = 8;
+            for (int index = 0; index < snapshot.SlotStacks.Count && linesAdded < maxItemLines; index++)
+            {
+                CCS.Modules.Inventory.CCS_ItemStack stack = snapshot.SlotStacks[index];
+                if (stack.IsEmpty || stack.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                builder.AppendLine($"{stack.ItemDefinition.DisplayName} x{stack.Quantity}");
+                linesAdded++;
+            }
+
+            summaryText.text = builder.ToString().TrimEnd();
         }
 
         private void ApplyTypography(CCS_HudProfile profile)

@@ -82,6 +82,38 @@ No gameplay stats or equipment data in 0.4.0.
 
 ---
 
+## Tool identity (0.9.1)
+
+`CCS_ItemDefinition` exposes optional harvest tool identity:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Has Tool Identity | bool | When true, item satisfies matching harvest tool checks |
+| Tool Type | `CCS_ItemToolType` | Aligns with `CCS_RequiredToolType` values |
+
+`CCS_InventoryToolUtility` scans the player inventory for a matching tool item. No durability, equipped-slot logic, or weapon damage in 0.9.1.
+
+---
+
+## Starter loadout items (0.9.1)
+
+Starter content lives under `Assets/CCS/Survival/Content/Items/Starter/`:
+
+| Asset | Display Name | Role |
+|-------|--------------|------|
+| `CCS_Item_Knife` | Knife | Starter tool (`CCS_ItemToolType.Knife`) |
+| `CCS_Item_BasicFood` | Basic Food | Starter consumable placeholder |
+| `CCS_Item_Coin` | Coin | Currency placeholder (no economy yet) |
+| `CCS_Item_Branch` | Branch | Early harvest material |
+| `CCS_Item_Spear` | Spear | Primitive craft output placeholder |
+| `CCS_Item_BowStave` | Bow Stave | Bow component placeholder |
+| `CCS_Item_ArrowShaft` | Arrow Shaft | Arrow component placeholder |
+| `CCS_Item_CampfireKit` | Campfire Kit | Campfire kit placeholder |
+
+`CCS_StarterLoadoutService` grants Knife x1, Basic Food x2, and Coin x10 on fresh runtime when inventory is empty. Save restore skips duplicate grants.
+
+---
+
 ## Stacks and slots
 
 | Type | Role |

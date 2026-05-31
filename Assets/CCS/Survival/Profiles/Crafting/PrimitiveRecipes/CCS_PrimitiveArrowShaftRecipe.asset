@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9580f4fa601173b4f8496335df283d42, type: 3}
+  m_Name: CCS_PrimitiveArrowShaftRecipe
+  m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingRecipeDefinition
+  recipeId: ccs.survival.recipe.primitive.arrowshaft
+  displayName: Primitive Arrow Shafts
+  description: Primitive hand crafting recipe for early-game progression.
+  requiredStationType: 0
+  ingredients:
+  - itemDefinition: {fileID: 11400000, guid: 090cecb34d27e5b46b0c7330837d54f7, type: 2}
+    quantity: 1
+  results:
+  - itemDefinition: {fileID: 11400000, guid: b415c59a6f5406148a75c613f523a237, type: 2}
+    quantity: 4
+  craftTimeSeconds: 0
+  isUnlockedByDefault: 1

@@ -4,7 +4,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CraftingTestHarness
 // CATEGORY: Modules / Crafting / Runtime / Testing
-// PURPOSE: Development-only harness that attempts test recipes when inventory is ready.
+// PURPOSE: Development-only harness that attempts test and primitive recipes when inventory is ready.
 // PLACEMENT: Bootstrap verification scenes only. Disable for shipping builds.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
@@ -25,15 +25,34 @@ namespace CCS.Modules.Crafting
         [Tooltip("Seconds between automated craft attempts.")]
         [SerializeField] private float craftAttemptIntervalSeconds = 5f;
 
-        [Tooltip("First test recipe attempted when ingredients are available.")]
+        [Tooltip("First legacy test recipe attempted when ingredients are available.")]
         [SerializeField] private CCS_CraftingRecipeDefinition bandageRecipe;
 
-        [Tooltip("Second test recipe attempted when ingredients are available.")]
+        [Tooltip("Second legacy test recipe attempted when ingredients are available.")]
         [SerializeField] private CCS_CraftingRecipeDefinition campfireRecipe;
 
+        [Tooltip("Primitive spear recipe attempted when branches are available.")]
+        [SerializeField] private CCS_CraftingRecipeDefinition spearRecipe;
+
+        [Tooltip("Primitive bow stave recipe attempted when branches are available.")]
+        [SerializeField] private CCS_CraftingRecipeDefinition bowStaveRecipe;
+
+        [Tooltip("Primitive arrow shaft recipe attempted when branches are available.")]
+        [SerializeField] private CCS_CraftingRecipeDefinition arrowShaftRecipe;
+
+        [Tooltip("Primitive campfire kit recipe attempted when branches are available.")]
+        [SerializeField] private CCS_CraftingRecipeDefinition campfireKitRecipe;
+
         private float nextCraftAttemptTime;
+        private float nextWaitingLogTime;
         private bool bandageCraftAttempted;
         private bool campfireCraftAttempted;
+        private bool spearCraftAttempted;
+        private bool bowStaveCraftAttempted;
+        private bool arrowShaftCraftAttempted;
+        private bool campfireKitCraftAttempted;
+
+        private const float WaitingLogIntervalSeconds = 8f;
 
         #endregion
 
@@ -65,6 +84,30 @@ namespace CCS.Modules.Crafting
 
             nextCraftAttemptTime = Time.time + craftAttemptIntervalSeconds;
 
+            if (!spearCraftAttempted && TryAttemptRecipe(craftingService, inventoryService, spearRecipe))
+            {
+                spearCraftAttempted = true;
+                return;
+            }
+
+            if (!bowStaveCraftAttempted && TryAttemptRecipe(craftingService, inventoryService, bowStaveRecipe))
+            {
+                bowStaveCraftAttempted = true;
+                return;
+            }
+
+            if (!arrowShaftCraftAttempted && TryAttemptRecipe(craftingService, inventoryService, arrowShaftRecipe))
+            {
+                arrowShaftCraftAttempted = true;
+                return;
+            }
+
+            if (!campfireKitCraftAttempted && TryAttemptRecipe(craftingService, inventoryService, campfireKitRecipe))
+            {
+                campfireKitCraftAttempted = true;
+                return;
+            }
+
             if (!bandageCraftAttempted && TryAttemptRecipe(craftingService, inventoryService, bandageRecipe))
             {
                 bandageCraftAttempted = true;
@@ -81,7 +124,7 @@ namespace CCS.Modules.Crafting
 
         #region Private Methods
 
-        private static bool TryAttemptRecipe(
+        private bool TryAttemptRecipe(
             CCS_CraftingService craftingService,
             CCS_PlayerInventoryService inventoryService,
             CCS_CraftingRecipeDefinition recipe)
@@ -93,7 +136,7 @@ namespace CCS.Modules.Crafting
 
             if (!HasRequiredIngredients(inventoryService, recipe))
             {
-                Debug.Log($"[CCS_CraftingTestHarness] Waiting for ingredients: {recipe.DisplayName}.");
+                LogWaitingForIngredients(recipe.DisplayName);
                 return false;
             }
 
@@ -107,6 +150,17 @@ namespace CCS.Modules.Crafting
                 : $"[CCS_CraftingTestHarness] Craft failed: {recipe.DisplayName} — {result.Message}");
 
             return result.IsSuccess;
+        }
+
+        private void LogWaitingForIngredients(string recipeDisplayName)
+        {
+            if (Time.time < nextWaitingLogTime)
+            {
+                return;
+            }
+
+            nextWaitingLogTime = Time.time + WaitingLogIntervalSeconds;
+            Debug.Log($"[CCS_CraftingTestHarness] Waiting for ingredients: {recipeDisplayName}.");
         }
 
         private static bool HasRequiredIngredients(

@@ -233,9 +233,29 @@ namespace CCS.Modules.WorldResources
 
         private CCS_RequiredToolType ResolveEquippedToolType()
         {
-            if (assumeRequiredToolEquipped && resourceDefinition != null)
+            if (resourceDefinition == null)
+            {
+                return CCS_RequiredToolType.None;
+            }
+
+            if (assumeRequiredToolEquipped)
             {
                 return resourceDefinition.RequiredToolType;
+            }
+
+            CCS_RequiredToolType requiredTool = resourceDefinition.RequiredToolType;
+            if (requiredTool == CCS_RequiredToolType.None)
+            {
+                return CCS_RequiredToolType.None;
+            }
+
+            if (inventoryService != null
+                && inventoryService.IsInitialized
+                && CCS_InventoryToolUtility.InventoryContainsTool(
+                    inventoryService,
+                    (CCS_ItemToolType)(int)requiredTool))
+            {
+                return requiredTool;
             }
 
             return CCS_RequiredToolType.None;

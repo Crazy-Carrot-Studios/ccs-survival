@@ -92,6 +92,21 @@ Bootstrap setup batch: `CCS.Modules.Crafting.Editor.CCS_CraftingBootstrapSetup.E
 
 ---
 
+## Primitive hand recipes (0.9.1)
+
+Early-game recipes under `Assets/CCS/Survival/Profiles/Crafting/PrimitiveRecipes/`:
+
+| Asset | Station | Ingredients | Result |
+|-------|---------|-------------|--------|
+| `CCS_PrimitiveSpearRecipe` | Hand | Branch x3 | Spear x1 |
+| `CCS_PrimitiveBowStaveRecipe` | Hand | Branch x2 | Bow Stave x1 |
+| `CCS_PrimitiveArrowShaftRecipe` | Hand | Branch x1 | Arrow Shaft x4 |
+| `CCS_PrimitiveCampfireKitRecipe` | Hand | Branch x5 | Campfire Kit x1 |
+
+Recipes are unlocked by default and registered through `CCS_StarterLoadoutService.RegisterPrimitiveRecipes()`. Bow assembly, arrow fletching, fire placement, and cooking are deferred.
+
+---
+
 ## Service registration (0.5.3)
 
 `CCS_SurvivalGameplayServiceRegistration` registers `CCS_CraftingService` after `CCS_PlayerInventoryService`:

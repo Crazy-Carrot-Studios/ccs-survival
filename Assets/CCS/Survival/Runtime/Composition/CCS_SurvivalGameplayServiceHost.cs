@@ -12,6 +12,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.CharacterController;
+using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
 // =============================================================================
@@ -71,6 +72,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
+        [Tooltip("Default starter loadout profile used to grant early-game items on fresh starts.")]
+        [SerializeField] private CCS_StarterLoadoutProfile starterLoadoutProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -112,6 +116,7 @@ namespace CCS.Survival.Composition
                 environmentEffectsProfile,
                 buildingProfile,
                 characterControllerProfile,
+                starterLoadoutProfile,
                 enableDebugLogs);
         }
 

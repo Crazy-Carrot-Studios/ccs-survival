@@ -88,4 +88,5 @@ MonoBehaviour:
   environmentEffectsProfile: {fileID: 11400000, guid: f1d4e437c7d6ad34cada10c98cf8f74e, type: 2}
   buildingProfile: {fileID: 11400000, guid: 804a5d53b77786241ab09d0513527db7, type: 2}
   characterControllerProfile: {fileID: 11400000, guid: 5edc05f571b3c6a48b6eeba09502dd60, type: 2}
+  starterLoadoutProfile: {fileID: 11400000, guid: f8a19f9b3ce49a942aaf52a9dd1912e8, type: 2}
   enableDebugLogs: 0

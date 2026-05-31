@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.0 — Character Controller Gameplay Integration  
+**Milestone:** 0.9.1 — Starter Loadout & Primitive Progression Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
