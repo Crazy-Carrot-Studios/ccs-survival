@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.3 — HUD Runtime Wiring Pass  
+**Milestone:** 0.5.0 — Crafting Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -17,6 +17,17 @@
 | Doc | Path |
 |-----|------|
 | Build verification | [Documentation/CCS_Survival_Build_Verification.md](Documentation/CCS_Survival_Build_Verification.md) |
+
+## Crafting (0.5.0)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/Crafting/Runtime/` |
+| Editor validation | `../Modules/Crafting/Editor/Validation/` |
+| Default profile | `Profiles/Crafting/CCS_DefaultCraftingProfile.asset` |
+| Module doc | [../Modules/Crafting/Documentation/CCS_Crafting_Module.md](../Modules/Crafting/Documentation/CCS_Crafting_Module.md) |
+
+**Editor menu:** **CCS → Survival → Crafting → Validate Crafting**
 
 ## Equipment (0.4.1 / 0.4.1a)
 

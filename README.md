@@ -23,19 +23,20 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.4.3** — HUD Runtime Wiring Pass
+**0.5.0** — Crafting Module Foundation
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**.
 
 ### Implemented Modules
 - Character Controller
 - Interaction
 - Inventory
 - Equipment
+- Crafting
 - UI / HUD (presentation foundation)
 
 ### Validated
@@ -44,7 +45,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**.
 - Module validation pipeline
 - Bootstrap scene validation
 - UI validation
-- Windows build verification (0.4.3)
+- Windows build verification (0.5.0)
 
 ---
 
@@ -110,7 +111,7 @@ Assets/
 | Inventory | Complete |
 | Equipment | Complete |
 | UI / HUD | Runtime wiring (0.4.3) |
-| Crafting | Planned |
+| Crafting | Foundation (0.5.0) |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
@@ -151,8 +152,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.4.3
-**Build output:** `Builds/CCS_Survival_0.4.3_Windows/` (gitignored)
+**Latest verified build:** 0.5.0
+**Build output:** `Builds/CCS_Survival_0.5.0_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
@@ -191,7 +192,7 @@ See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream
 
 ## Next Milestone
 
-**0.4.3+** — Inventory/equipment UI expansion and gameplay service wiring
+**0.5.0+** — Crafting bootstrap wiring, sample recipes, and crafting UI
 
 ---
 

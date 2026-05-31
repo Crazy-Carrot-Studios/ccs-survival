@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.4.3  
+**Version:** 0.5.0  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -67,6 +67,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.UI.Editor.CCS_UIValidationMenu.ValidateUI `
   -logFile Logs/CCS_UIValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.Crafting.Editor.CCS_CraftingValidationMenu.ValidateCrafting `
+  -logFile Logs/CCS_CraftingValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -99,5 +103,6 @@ Assets/CCS/Modules/<ModuleName>/
 | `Interaction/` | 0.3.9 — **Complete** (foundation) |
 | `Inventory/` | 0.4.0 — **Complete** (foundation) |
 | `Equipment/` | 0.4.1 — **Complete** (foundation) |
+| `Crafting/` | 0.5.0 — **Complete** (foundation) |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.4.3 — HUD Runtime Wiring Pass  
+**Milestone baseline:** 0.5.0 — Crafting Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** HUD runtime wiring **complete** at **0.4.3**. Expanded menus and input glyphs deferred.
+**Status:** Crafting module foundation **complete** at **0.5.0**. Crafting UI and world stations deferred.
 
 ---
 
@@ -28,8 +28,9 @@
 | **0.4.2** | UI/HUD foundation |
 | **0.4.2a** | HUD readability and anchor pass |
 | **0.4.3** | HUD runtime wiring pass |
+| **0.5.0** | Crafting module foundation |
 
-Later milestones continue from **0.4.2+** (UI, Crafting, world systems, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.5.0+** (Crafting UI, world systems, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -65,8 +66,8 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 4 | **0.4.0** | **Inventory** | `ccs.survival.inventory` — **Complete** (foundation) |
 | 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
-| 7 | 0.4.x | Crafting | `ccs.survival.crafting` |
-| 8 | 0.4.x | World Resources | `ccs.survival.world.resources` |
+| 7 | **0.5.0** | **Crafting** | `ccs.survival.crafting` — **Complete** (foundation) |
+| 8 | 0.5.x | World Resources | `ccs.survival.world.resources` |
 | 9 | 0.4.x | Save / Load | `ccs.survival.save` |
 | 10 | 0.4.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
@@ -114,7 +115,25 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.4.4+ — Expanded UI panels and gameplay integration tests**
+**0.5.1+ — Crafting service bootstrap wiring and sample recipes**
+
+---
+
+## 0.5.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Crafting module under `Assets/CCS/Modules/Crafting/` | **Complete** |
+| Recipe, ingredient, result ScriptableObject definitions | **Complete** |
+| Station types (Hand, FirePit, Workbench, Forge, Apothecary) | **Complete** |
+| `CCS_CraftingService` with inventory integration | **Complete** |
+| Crafting events and profile | **Complete** |
+| Default crafting profile asset | **Complete** |
+| Crafting validation registered | **Complete** |
+| No crafting UI / world stations / save-load | **Complete** |
+| Version **0.5.0** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 
