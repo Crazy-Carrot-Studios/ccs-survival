@@ -127,11 +127,26 @@ Batch entry: `CCS.Modules.Interaction.Editor.CCS_InteractionValidationMenu.Valid
 
 ---
 
+## Resource harvest integration (0.5.2)
+
+`CCS_HarvestableResource` implements `CCS_IInteractableResultProvider` so harvest attempts can fail without reporting interaction success.
+
+| Step | Owner |
+|------|--------|
+| Scan target | `CCS_InteractionService.TickScan` |
+| Focus prompt | HUD reads `CurrentTarget.GetInteractionDisplayName()` |
+| Interact | `RequestInteraction()` → `TryInteract()` on harvestable |
+| Failure reporting | Harvest service `HarvestFailed` event → HUD notification |
+
+**Deferred:** final Input System interact action, interaction UI glyphs, tool gameplay.
+
+---
+
 ## Deferred (post-0.3.9)
 
 | Feature | Notes |
 |---------|--------|
-| Inventory / Crafting / Storage | Implement `CCS_IInteractable` in those modules |
+| Inventory / Crafting / Storage | Crafting and storage still deferred; resource harvest wired at 0.5.2 |
 | Interaction UI prompt | Subscribe to Found/Lost events |
 | New Input System Interact action | Calls `RequestInteraction()` |
 | Bootstrap installer + registry | Manual install plan |

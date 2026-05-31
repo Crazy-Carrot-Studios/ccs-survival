@@ -50,12 +50,15 @@ namespace CCS.Modules.Interaction.Editor
             ValidateRequiredFile(report, "Editor asmdef", EditorRoot + "/CCS.Modules.Interaction.Editor.asmdef");
 
             ValidateRequiredScript(report, "CCS_IInteractable", RuntimeRoot + "/Interfaces/CCS_IInteractable.cs");
+            ValidateRequiredScript(report, "CCS_IInteractableResultProvider", RuntimeRoot + "/Interfaces/CCS_IInteractableResultProvider.cs");
             ValidateRequiredScript(report, "CCS_InteractableBase", RuntimeRoot + "/Interaction/CCS_InteractableBase.cs");
             ValidateRequiredScript(report, "CCS_InteractionService", RuntimeRoot + "/Interaction/CCS_InteractionService.cs");
             ValidateRequiredScript(report, "CCS_InteractionScanner", RuntimeRoot + "/Detection/CCS_InteractionScanner.cs");
             ValidateRequiredScript(report, "CCS_InteractionProfile", RuntimeRoot + "/Profiles/CCS_InteractionProfile.cs");
 
             ValidateDocumentationAsset(report, "Interaction Module Doc", ModuleDocPath);
+
+            ValidateBootstrapHarvestableInteractables(report);
 
             if (File.Exists(DefaultProfilePath))
             {
@@ -99,6 +102,35 @@ namespace CCS.Modules.Interaction.Editor
         #endregion
 
         #region Private Methods
+
+        private static void ValidateBootstrapHarvestableInteractables(CCS_SurvivalValidationReport report)
+        {
+            const string bootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+            if (!File.Exists(bootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Harvestable Interactables",
+                    $"Missing bootstrap scene: {bootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(bootstrapScenePath);
+            if (sceneText.Contains("CCS_HarvestableResource"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Harvestable Interactables",
+                    "Bootstrap scene contains harvestable resource components for interaction scanning.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Harvestable Interactables",
+                    "Bootstrap scene does not contain harvestable resource components.");
+            }
+        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,

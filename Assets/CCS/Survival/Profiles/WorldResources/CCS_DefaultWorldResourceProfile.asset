@@ -15,7 +15,7 @@ MonoBehaviour:
   profileDisplayName: Default World Resources
   profileId: ccs.survival.profile.worldresources.default
   profileDescription: Default world resource rules for 0.5.1 foundation.
-  profileVersion: 0.5.1
+  profileVersion: 0.5.2
   enableDebugLogs: 0
   enableRespawn: 1
   globalRespawnMultiplier: 1

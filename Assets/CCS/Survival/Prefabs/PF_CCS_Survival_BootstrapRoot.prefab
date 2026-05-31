@@ -79,4 +79,5 @@ MonoBehaviour:
   interactionProfile: {fileID: 11400000, guid: c9d0e1f2a3b4560690abcdef12345609, type: 2}
   inventoryProfile: {fileID: 11400000, guid: c5d6e7f8a9b0490c90abcdef1234560f, type: 2}
   equipmentProfile: {fileID: 11400000, guid: e5f6a7b8c9d0490c90abcdef1234561e, type: 2}
+  worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   enableDebugLogs: 0

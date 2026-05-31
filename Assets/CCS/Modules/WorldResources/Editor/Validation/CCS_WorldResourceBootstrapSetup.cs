@@ -213,6 +213,7 @@ namespace CCS.Modules.WorldResources.Editor
             EnsureHarvestableNode(testArea, TestTreeObjectName, PrimitiveType.Cylinder, new Vector3(-2f, 1f, 0f), new Vector3(0.6f, 2f, 0.6f), treeDefinition, profile);
             EnsureHarvestableNode(testArea, TestRockObjectName, PrimitiveType.Cube, new Vector3(0f, 0.5f, 0f), new Vector3(1.2f, 1f, 1.2f), rockDefinition, profile);
             EnsureHarvestableNode(testArea, TestPlantObjectName, PrimitiveType.Sphere, new Vector3(2f, 0.5f, 0f), new Vector3(0.8f, 0.8f, 0.8f), plantDefinition, profile);
+            EnsureDevelopmentHarness(sceneRoot);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -267,7 +268,42 @@ namespace CCS.Modules.WorldResources.Editor
             SerializedObject serializedHarvestable = new SerializedObject(harvestable);
             serializedHarvestable.FindProperty("resourceDefinition").objectReferenceValue = resourceDefinition;
             serializedHarvestable.FindProperty("worldResourceProfile").objectReferenceValue = profile;
+            serializedHarvestable.FindProperty("assumeRequiredToolEquipped").boolValue = true;
             serializedHarvestable.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void EnsureDevelopmentHarness(Transform sceneRoot)
+        {
+            const string harnessObjectName = "CCS_ResourceHarvestingTestHarness";
+            Transform existingHarness = sceneRoot.Find(harnessObjectName);
+            GameObject harnessObject = existingHarness != null
+                ? existingHarness.gameObject
+                : new GameObject(harnessObjectName);
+
+            if (existingHarness == null)
+            {
+                harnessObject.transform.SetParent(sceneRoot, false);
+            }
+
+            CCS_ResourceHarvestingTestHarness harness =
+                harnessObject.GetComponent<CCS_ResourceHarvestingTestHarness>();
+
+            if (harness == null)
+            {
+                harness = harnessObject.AddComponent<CCS_ResourceHarvestingTestHarness>();
+            }
+
+            SerializedObject serializedHarness = new SerializedObject(harness);
+            serializedHarness.FindProperty("enableHarness").boolValue = true;
+            serializedHarness.FindProperty("interactIntervalSeconds").floatValue = 3f;
+            serializedHarness.ApplyModifiedPropertiesWithoutUndo();
+
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                mainCamera.transform.localPosition = new Vector3(0f, 4f, -8f);
+                mainCamera.transform.localRotation = Quaternion.Euler(20f, 0f, 0f);
+            }
         }
 
         private static void EnsureFolder(string path)

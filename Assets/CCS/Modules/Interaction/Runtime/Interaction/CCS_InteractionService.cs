@@ -96,13 +96,13 @@ namespace CCS.Modules.Interaction
         {
             if (!isInitialized)
             {
-                RaiseInteractionFailed(null, "Interaction service is not initialized.");
+                NotifyInteractionFailed(null, "Interaction service is not initialized.");
                 return false;
             }
 
             if (currentTarget == null)
             {
-                RaiseInteractionFailed(null, "No interactable target is focused.");
+                NotifyInteractionFailed(null, "No interactable target is focused.");
                 return false;
             }
 
@@ -111,13 +111,23 @@ namespace CCS.Modules.Interaction
 
             if (!currentTarget.CanInteract())
             {
-                RaiseInteractionFailed(currentTarget, "Target cannot be interacted with right now.");
+                NotifyInteractionFailed(currentTarget, "Target cannot be interacted with right now.");
                 return false;
             }
 
-            currentTarget.Interact();
+            bool interactionSucceeded = ExecuteInteraction(currentTarget);
+            if (!interactionSucceeded)
+            {
+                return false;
+            }
+
             InteractionSucceeded?.Invoke(requestArgs);
             return true;
+        }
+
+        public void NotifyInteractionFailed(CCS_IInteractable interactable, string message)
+        {
+            RaiseInteractionFailed(interactable, message);
         }
 
         public void ClearCurrentTarget(bool notifyListeners = false)
@@ -160,6 +170,17 @@ namespace CCS.Modules.Interaction
             {
                 InteractableFound?.Invoke(BuildEventArgs(currentTarget, result.Distance));
             }
+        }
+
+        private static bool ExecuteInteraction(CCS_IInteractable interactable)
+        {
+            if (interactable is CCS_IInteractableResultProvider resultProvider)
+            {
+                return resultProvider.TryInteract();
+            }
+
+            interactable.Interact();
+            return true;
         }
 
         private static CCS_InteractionEventArgs BuildEventArgs(CCS_IInteractable interactable, float distance)

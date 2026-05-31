@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.5.1 — World Resource Module Foundation  
+**Milestone:** 0.5.2 — Resource Harvesting Integration  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -18,7 +18,7 @@
 |-----|------|
 | Build verification | [Documentation/CCS_Survival_Build_Verification.md](Documentation/CCS_Survival_Build_Verification.md) |
 
-## World Resources (0.5.1)
+## World Resources (0.5.1 / 0.5.2)
 
 | Area | Path |
 |------|------|

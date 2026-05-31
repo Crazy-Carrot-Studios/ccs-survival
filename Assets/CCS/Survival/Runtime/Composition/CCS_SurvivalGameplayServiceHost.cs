@@ -3,6 +3,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.WorldResources;
 using UnityEngine;
 
 // =============================================================================
@@ -34,6 +35,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default equipment profile used to register CCS_PlayerEquipmentService.")]
         [SerializeField] private CCS_EquipmentProfile equipmentProfile;
+
+        [Tooltip("Default world resource profile used to register resource harvest and respawn services.")]
+        [SerializeField] private CCS_WorldResourceProfile worldResourceProfile;
 
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
@@ -67,6 +71,7 @@ namespace CCS.Survival.Composition
                 interactionProfile,
                 inventoryProfile,
                 equipmentProfile,
+                worldResourceProfile,
                 enableDebugLogs);
         }
 

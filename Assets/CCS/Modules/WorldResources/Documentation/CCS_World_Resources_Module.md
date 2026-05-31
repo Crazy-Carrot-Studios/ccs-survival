@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.WorldResources` (editor: `CCS.Modules.WorldResources.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Foundation complete (harvest architecture and bootstrap test placeholders; not wired to bootstrap service installer)
+**Status:** Foundation complete at **0.5.1**. Harvest integration complete at **0.5.2**.
 
 ---
 
@@ -154,6 +154,48 @@ Each object uses `CCS_HarvestableResource` with test definitions under `Assets/C
 | OnHarvestFailed | Validation or execution failure |
 | OnResourceDepleted | Remaining harvest count reached zero |
 | OnResourceRespawned | Node state restored after respawn timer |
+
+---
+
+## Resource interaction flow (0.5.2)
+
+```text
+CCS_InteractionService.TickScan(camera origin/forward)
+        ↓
+CCS_HarvestableResource (CCS_IInteractableResultProvider)
+        ↓
+CCS_InteractionService.RequestInteraction()
+        ↓
+CCS_ResourceHarvestService.TryHarvest(request, inventoryService)
+        ↓
+CCS_PlayerInventoryService.AddItem(...)
+        ↓
+HUD inventory summary + harvest notifications
+```
+
+Harvestable resources expose display names from `CCS_ResourceDefinition`, return `CanInteract() == false` when depleted, and report harvest failures through harvest service events.
+
+---
+
+## Harvest → inventory flow (0.5.2)
+
+1. Interaction triggers `TryInteract()` on the focused harvestable.
+2. Harvest service validates tool, node state, and inventory capacity.
+3. Drops are added through `CCS_PlayerInventoryService.AddItem`.
+4. Partial inventory failures return a safe failure result without consuming the harvest.
+
+---
+
+## HUD notification flow (0.5.2)
+
+| Event | Notification |
+|-------|----------------|
+| Harvest completed | `Harvested {Item} x{N}` |
+| Harvest failed (inventory full) | `Harvest failed: Inventory Full` |
+| Resource depleted | `Resource depleted` |
+| Resource respawned | `Resource respawned` |
+
+`CCS_HudPresentationService` binds resource harvest and respawn services through the runtime registry.
 
 ---
 

@@ -1,4 +1,5 @@
 using System.IO;
+using CCS.Modules.Interaction;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using CCS.Survival.Editor.Development;
@@ -53,6 +54,8 @@ namespace CCS.Modules.WorldResources.Editor
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
+            ValidateRequiredFolder(report, "Runtime/Services", RuntimeRoot + "/Services");
+            ValidateRequiredFolder(report, "Runtime/Testing", RuntimeRoot + "/Testing");
             ValidateRequiredFolder(report, "Editor/Validation", EditorRoot + "/Validation");
             ValidateRequiredFolder(report, "Documentation", ModuleRoot + "/Documentation");
 
@@ -75,8 +78,20 @@ namespace CCS.Modules.WorldResources.Editor
             ValidateRequiredScript(report, "CCS_ResourceEvents", RuntimeRoot + "/Events/CCS_ResourceEvents.cs");
             ValidateRequiredScript(report, "CCS_WorldResourceProfile", RuntimeRoot + "/Profiles/CCS_WorldResourceProfile.cs");
             ValidateRequiredScript(report, "CCS_WorldResourceValidationUtility", RuntimeRoot + "/Validation/CCS_WorldResourceValidationUtility.cs");
+            ValidateRequiredScript(report, "CCS_WorldResourceRuntimeBridge", RuntimeRoot + "/Services/CCS_WorldResourceRuntimeBridge.cs");
+            ValidateRequiredScript(report, "CCS_ResourceHarvestingTestHarness", RuntimeRoot + "/Testing/CCS_ResourceHarvestingTestHarness.cs");
 
             ValidateDocumentationAsset(report, "World Resources Module Doc", ModuleDocPath);
+
+            report.AddIssue(
+                typeof(CCS_IInteractableResultProvider).IsAssignableFrom(typeof(CCS_HarvestableResource))
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Harvestable Interaction Contract",
+                "CCS_HarvestableResource implements CCS_IInteractableResultProvider for harvest integration.");
+
+            ValidateTestContentAssets(report);
+            ValidateBootstrapGameplayServiceHost(report);
 
             CCS_SurvivalValidationResult nodeTypeValidation =
                 CCS_WorldResourceValidationUtility.ValidateRequiredNodeTypes();
@@ -209,6 +224,109 @@ namespace CCS.Modules.WorldResources.Editor
                     CCS_SurvivalValidationIssueSeverity.Warning,
                     "Bootstrap Test Resources",
                     "Bootstrap scene does not reference CCS_HarvestableResource components.");
+            }
+            if (sceneText.Contains("CCS_ResourceHarvestingTestHarness"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Test Resources",
+                    "Bootstrap scene references development harvest test harness.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Test Resources",
+                    "Bootstrap scene does not reference CCS_ResourceHarvestingTestHarness.");
+            }
+        }
+
+        private static void ValidateTestContentAssets(CCS_SurvivalValidationReport report)
+        {
+            string[] testResourcePaths =
+            {
+                SurvivalRoot + "/Profiles/WorldResources/TestResources/CCS_TestResource_Tree.asset",
+                SurvivalRoot + "/Profiles/WorldResources/TestResources/CCS_TestResource_Rock.asset",
+                SurvivalRoot + "/Profiles/WorldResources/TestResources/CCS_TestResource_Plant.asset"
+            };
+
+            for (int i = 0; i < testResourcePaths.Length; i++)
+            {
+                string assetPath = testResourcePaths[i];
+                if (!File.Exists(assetPath))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Test Resource Definitions",
+                        $"Missing test resource definition: {assetPath}");
+                    continue;
+                }
+
+                CCS_ResourceDefinition resourceDefinition =
+                    AssetDatabase.LoadAssetAtPath<CCS_ResourceDefinition>(assetPath);
+
+                if (resourceDefinition == null)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Test Resource Definitions",
+                        $"Could not load test resource definition: {assetPath}");
+                    continue;
+                }
+
+                CCS_SurvivalValidationResult validation =
+                    CCS_WorldResourceValidationUtility.ValidateResourceDefinition(resourceDefinition);
+
+                report.AddIssue(
+                    validation.IsSuccess
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "Test Resource Definitions",
+                    $"{assetPath}: {validation.Message}");
+            }
+        }
+
+        private static void ValidateBootstrapGameplayServiceHost(CCS_SurvivalValidationReport report)
+        {
+            const string bootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
+            if (!File.Exists(bootstrapPrefabPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Gameplay Service Host",
+                    $"Missing bootstrap prefab: {bootstrapPrefabPath}");
+                return;
+            }
+
+            string prefabText = File.ReadAllText(bootstrapPrefabPath);
+            if (prefabText.Contains("CCS_SurvivalGameplayServiceHost"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Gameplay Service Host",
+                    "Bootstrap prefab includes CCS_SurvivalGameplayServiceHost.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Gameplay Service Host",
+                    "Bootstrap prefab is missing CCS_SurvivalGameplayServiceHost.");
+            }
+
+            if (prefabText.Contains("worldResourceProfile"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Gameplay Service Host",
+                    "Bootstrap gameplay service host references worldResourceProfile.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Gameplay Service Host",
+                    "Bootstrap gameplay service host is missing worldResourceProfile assignment.");
             }
         }
 

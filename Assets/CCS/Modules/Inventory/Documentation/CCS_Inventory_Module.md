@@ -186,12 +186,26 @@ Inventory does **not** reference the Equipment module. Bootstrap/composition wil
 
 ---
 
+## Resource harvest integration (0.5.2)
+
+World resource harvesting adds items through the existing container API:
+
+| Operation | API |
+|-----------|-----|
+| Pre-check capacity | `CanAdd(CCS_ItemDefinition, int quantity)` |
+| Grant harvested drops | `AddItem(CCS_ItemDefinition, int quantity)` |
+
+Harvest failures return safe results when inventory is full. Inventory events refresh the HUD summary without silent item loss.
+
+---
+
 ## Future integrations (post-0.4.0)
 
 | Feature | Notes |
 |---------|--------|
 | Equipment | Equip slots consume item stacks from inventory; capacity modifiers via composition (0.4.1a hook) |
 | Crafting | Recipe inputs/outputs via container API |
+| World resource harvest | **Wired at 0.5.2** via `CCS_ResourceHarvestService` |
 | Storage / chests | Additional `CCS_InventoryContainer` instances |
 | Loot | Spawn items into player container via service |
 | Save / load | Serialize `CCS_InventorySnapshot` or slot arrays |

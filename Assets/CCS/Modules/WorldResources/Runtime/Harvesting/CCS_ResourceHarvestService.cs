@@ -130,8 +130,18 @@ namespace CCS.Modules.WorldResources
                         continue;
                     }
 
-                    itemsAddedToInventory += inventoryService.AddItem(drop.ItemDefinition, drop.Quantity);
+                    int added = inventoryService.AddItem(drop.ItemDefinition, drop.Quantity);
+                    if (added < drop.Quantity)
+                    {
+                        return FailHarvest(request, "Inventory cannot hold harvested items.");
+                    }
+
+                    itemsAddedToInventory += added;
                 }
+            }
+            else if (inventoryService != null)
+            {
+                return FailHarvest(request, "Inventory service is not initialized.");
             }
 
             nodeState.ConsumeHarvest();

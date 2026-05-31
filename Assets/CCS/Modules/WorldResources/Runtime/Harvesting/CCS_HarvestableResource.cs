@@ -1,20 +1,20 @@
+using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
-using CCS.Survival;
 using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_HarvestableResource
 // CATEGORY: Modules / WorldResources / Runtime / Harvesting
-// PURPOSE: MonoBehaviour wrapper for harvestable world resource nodes.
+// PURPOSE: Interactable MonoBehaviour wrapper for harvestable world resource nodes.
 // PLACEMENT: Attach to primitive placeholder nodes in bootstrap verification scenes.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No visual destruction effects, UI, or save integration in 0.5.1 foundation.
+// NOTES: Integrates Interaction and Inventory services through the runtime registry in 0.5.2.
 // =============================================================================
 
 namespace CCS.Modules.WorldResources
 {
-    public sealed class CCS_HarvestableResource : MonoBehaviour
+    public sealed class CCS_HarvestableResource : MonoBehaviour, CCS_IInteractableResultProvider
     {
         #region Variables
 
@@ -22,12 +22,20 @@ namespace CCS.Modules.WorldResources
         [Tooltip("Resource definition that drives harvest rules and drops.")]
         [SerializeField] private CCS_ResourceDefinition resourceDefinition;
 
-        [Tooltip("Optional world resource profile. Uses defaults when unassigned.")]
+        [Tooltip("Optional world resource profile used when registry services are unavailable.")]
         [SerializeField] private CCS_WorldResourceProfile worldResourceProfile;
+
+        [Header("Interaction")]
+        [Tooltip("Maximum distance at which this resource accepts interaction requests.")]
+        [SerializeField] private float interactionDistance = 3f;
+
+        [Tooltip("When enabled, interaction assumes the required tool is available for harvest validation.")]
+        [SerializeField] private bool assumeRequiredToolEquipped = true;
 
         private CCS_ResourceNodeState nodeState;
         private CCS_ResourceHarvestService harvestService;
         private CCS_ResourceRespawnService respawnService;
+        private CCS_PlayerInventoryService inventoryService;
         private string nodeKey;
         private bool respawnRegistered;
 
@@ -50,21 +58,12 @@ namespace CCS.Modules.WorldResources
         private void Awake()
         {
             nodeKey = gameObject.name + "_" + GetInstanceID();
-            harvestService = new CCS_ResourceHarvestService();
-            respawnService = new CCS_ResourceRespawnService();
-
-            if (worldResourceProfile != null)
-            {
-                harvestService.InitializeFromProfile(worldResourceProfile);
-                respawnService.InitializeFromProfile(worldResourceProfile);
-            }
-            else
-            {
-                harvestService.Initialize();
-                respawnService.Initialize();
-            }
-
             ResetNode();
+        }
+
+        private void Start()
+        {
+            ResolveServices();
         }
 
         private void Update()
@@ -81,6 +80,42 @@ namespace CCS.Modules.WorldResources
         #endregion
 
         #region Public Methods
+
+        public string GetInteractionDisplayName()
+        {
+            if (resourceDefinition == null || string.IsNullOrWhiteSpace(resourceDefinition.DisplayName))
+            {
+                return "Resource";
+            }
+
+            return resourceDefinition.DisplayName;
+        }
+
+        public bool CanInteract()
+        {
+            if (resourceDefinition == null || nodeState == null || nodeState.IsDepleted)
+            {
+                return false;
+            }
+
+            return CanHarvest(ResolveEquippedToolType());
+        }
+
+        public void Interact()
+        {
+            TryInteract();
+        }
+
+        public bool TryInteract()
+        {
+            CCS_HarvestResult result = Harvest(ResolveEquippedToolType(), inventoryService);
+            return result.IsSuccess;
+        }
+
+        public float GetInteractionDistance()
+        {
+            return interactionDistance;
+        }
 
         public bool CanHarvest(CCS_RequiredToolType equippedToolType)
         {
@@ -100,12 +135,15 @@ namespace CCS.Modules.WorldResources
 
         public CCS_HarvestResult Harvest(
             CCS_RequiredToolType equippedToolType,
-            CCS_PlayerInventoryService inventoryService = null)
+            CCS_PlayerInventoryService inventoryServiceOverride = null)
         {
             if (resourceDefinition == null || nodeState == null || harvestService == null)
             {
                 return CCS_HarvestResult.Failure("Harvestable resource is not configured.");
             }
+
+            CCS_PlayerInventoryService activeInventoryService =
+                inventoryServiceOverride ?? inventoryService;
 
             CCS_HarvestRequest request = new CCS_HarvestRequest(
                 resourceDefinition,
@@ -113,7 +151,7 @@ namespace CCS.Modules.WorldResources
                 equippedToolType,
                 nodeKey);
 
-            CCS_HarvestResult result = harvestService.TryHarvest(request, inventoryService);
+            CCS_HarvestResult result = harvestService.TryHarvest(request, activeInventoryService);
 
             if (result.IsSuccess && nodeState.IsDepleted && respawnService != null && !respawnRegistered)
             {
@@ -151,6 +189,57 @@ namespace CCS.Modules.WorldResources
         #endregion
 
         #region Private Methods
+
+        private void ResolveServices()
+        {
+            if (CCS_WorldResourceRuntimeBridge.TryGetHarvestService(out CCS_ResourceHarvestService registryHarvestService))
+            {
+                harvestService = registryHarvestService;
+            }
+            else
+            {
+                harvestService = new CCS_ResourceHarvestService();
+
+                if (worldResourceProfile != null)
+                {
+                    harvestService.InitializeFromProfile(worldResourceProfile);
+                }
+                else
+                {
+                    harvestService.Initialize();
+                }
+            }
+
+            if (CCS_WorldResourceRuntimeBridge.TryGetRespawnService(out CCS_ResourceRespawnService registryRespawnService))
+            {
+                respawnService = registryRespawnService;
+            }
+            else
+            {
+                respawnService = new CCS_ResourceRespawnService();
+
+                if (worldResourceProfile != null)
+                {
+                    respawnService.InitializeFromProfile(worldResourceProfile);
+                }
+                else
+                {
+                    respawnService.Initialize();
+                }
+            }
+
+            CCS_WorldResourceRuntimeBridge.TryGetInventoryService(out inventoryService);
+        }
+
+        private CCS_RequiredToolType ResolveEquippedToolType()
+        {
+            if (assumeRequiredToolEquipped && resourceDefinition != null)
+            {
+                return resourceDefinition.RequiredToolType;
+            }
+
+            return CCS_RequiredToolType.None;
+        }
 
         private void ResetNodeFromRespawn(CCS_ResourceNodeState _)
         {

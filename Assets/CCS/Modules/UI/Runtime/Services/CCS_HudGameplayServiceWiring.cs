@@ -3,6 +3,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
 
@@ -64,6 +65,18 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerEquipmentService equipmentService))
             {
                 presentationService.BindEquipmentService(equipmentService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_ResourceHarvestService resourceHarvestService))
+            {
+                presentationService.BindResourceHarvestService(resourceHarvestService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_ResourceRespawnService resourceRespawnService))
+            {
+                presentationService.BindResourceRespawnService(resourceRespawnService);
                 wiredAnyService = true;
             }
 

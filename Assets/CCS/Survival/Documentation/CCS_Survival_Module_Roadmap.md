@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.5.1 — World Resource Module Foundation  
+**Milestone baseline:** 0.5.2 — Resource Harvesting Integration  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** World resource module foundation **complete** at **0.5.1**. Final art, terrain, and save/load deferred.
+**Status:** Resource harvesting integration **complete** at **0.5.2**. Final input, tools, and save/load deferred.
 
 ---
 
@@ -30,8 +30,9 @@
 | **0.4.3** | HUD runtime wiring pass |
 | **0.5.0** | Crafting module foundation |
 | **0.5.1** | World resource module foundation |
+| **0.5.2** | Resource harvesting integration |
 
-Later milestones continue from **0.5.1+** (resource UI, save/load, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.5.2+** (save/load, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -68,7 +69,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0** | **Crafting** | `ccs.survival.crafting` — **Complete** (foundation) |
-| 8 | **0.5.1** | **World Resources** | `ccs.survival.world.resources` — **Complete** (foundation) |
+| 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
 | 9 | 0.5.x | Save / Load | `ccs.survival.save` |
 | 10 | 0.4.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
@@ -116,7 +117,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.5.2+ — Resource harvesting interaction wiring and save/load planning**
+**0.5.3+ — Final player input, tool gameplay, and save/load planning**
+
+---
+
+## 0.5.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Harvestable resources implement interaction contract | **Complete** |
+| Harvest adds drops through `CCS_PlayerInventoryService` | **Complete** |
+| HUD inventory summary refreshes on harvest | **Complete** |
+| Harvest/depletion/respawn HUD notifications | **Complete** |
+| Resource harvest/respawn services registered on bootstrap | **Complete** |
+| Bootstrap test nodes + development harness | **Complete** |
+| Version **0.5.2** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

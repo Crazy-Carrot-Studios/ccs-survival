@@ -51,16 +51,21 @@ Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_Sur
 | `CCS_InteractionService` | Plain-text interaction prompt |
 | `CCS_PlayerInventoryService` | Used/total slot summary (includes equipment slot bonuses) |
 | `CCS_PlayerEquipmentService` | Equipped count and bonus inventory slots |
+| `CCS_ResourceHarvestService` | Harvest/depletion notifications |
+| `CCS_ResourceRespawnService` | Respawn notifications |
 
 `CCS_HudPresentationService` subscribes to gameplay events and raises read-only HUD notifications:
 
 | Source event | Notification |
 |--------------|--------------|
-| Inventory item added | Item Added |
+| Inventory item added | Inventory summary refresh |
 | Inventory item removed | Item Removed |
 | Equipment item equipped | Item Equipped |
 | Equipment item unequipped | Item Unequipped |
-| Interaction failed | Interaction Failed |
+| Harvest completed | Harvested {Item} x{N} |
+| Harvest failed | Harvest failed: {reason} |
+| Resource depleted | Resource depleted |
+| Resource respawned | Resource respawned |
 
 `CCS_NotificationQueue` displays notifications from `CCS_HudPresentationService.NotificationQueued` using profile lifetime and max visible count.
 

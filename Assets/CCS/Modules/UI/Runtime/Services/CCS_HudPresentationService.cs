@@ -3,6 +3,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
 
@@ -29,6 +30,8 @@ namespace CCS.Modules.UI
         private CCS_InteractionService interactionService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_PlayerEquipmentService equipmentService;
+        private CCS_ResourceHarvestService resourceHarvestService;
+        private CCS_ResourceRespawnService resourceRespawnService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -204,6 +207,34 @@ namespace CCS.Modules.UI
             RefreshEquipmentSnapshot();
         }
 
+        public void BindResourceHarvestService(CCS_ResourceHarvestService service)
+        {
+            UnbindResourceHarvestService();
+            resourceHarvestService = service;
+
+            if (resourceHarvestService == null)
+            {
+                return;
+            }
+
+            resourceHarvestService.HarvestCompleted += HandleHarvestCompleted;
+            resourceHarvestService.HarvestFailed += HandleHarvestFailed;
+            resourceHarvestService.ResourceDepleted += HandleResourceDepleted;
+        }
+
+        public void BindResourceRespawnService(CCS_ResourceRespawnService service)
+        {
+            UnbindResourceRespawnService();
+            resourceRespawnService = service;
+
+            if (resourceRespawnService == null)
+            {
+                return;
+            }
+
+            resourceRespawnService.ResourceRespawned += HandleResourceRespawned;
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -234,6 +265,8 @@ namespace CCS.Modules.UI
             UnbindInteractionService();
             UnbindInventoryService();
             UnbindEquipmentService();
+            UnbindResourceHarvestService();
+            UnbindResourceRespawnService();
             isInitialized = false;
         }
 
@@ -263,14 +296,81 @@ namespace CCS.Modules.UI
                 ? eventArgs.Message
                 : "Interaction failed.";
 
-            QueueNotification($"Interaction Failed: {message}");
+            if (message.IndexOf("Inventory", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                QueueNotification("Harvest failed: Inventory Full");
+                return;
+            }
+
+            QueueNotification($"Harvest failed: {message}");
         }
 
         private void HandleInventoryItemAdded(CCS_InventoryEventArgs eventArgs)
         {
             RefreshInventorySnapshot();
-            QueueNotification(BuildInventoryNotification("Item Added", eventArgs));
             HudDataRefreshed?.Invoke(BuildEventArgs("Inventory item added."));
+        }
+
+        private void HandleHarvestCompleted(CCS_ResourceEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueHarvestNotifications(eventArgs);
+            HudDataRefreshed?.Invoke(BuildEventArgs("Resource harvest completed."));
+        }
+
+        private void HandleHarvestFailed(CCS_ResourceEventArgs eventArgs)
+        {
+            string message = eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message)
+                ? eventArgs.Message
+                : "Harvest failed.";
+
+            QueueNotification(BuildHarvestFailureNotification(message));
+        }
+
+        private void HandleResourceDepleted(CCS_ResourceEventArgs eventArgs)
+        {
+            QueueNotification("Resource depleted");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Resource depleted."));
+        }
+
+        private void HandleResourceRespawned(CCS_ResourceEventArgs eventArgs)
+        {
+            QueueNotification("Resource respawned");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Resource respawned."));
+        }
+
+        private void QueueHarvestNotifications(CCS_ResourceEventArgs eventArgs)
+        {
+            if (eventArgs?.Drops == null || eventArgs.Drops.Count == 0)
+            {
+                QueueNotification("Harvest completed.");
+                return;
+            }
+
+            for (int i = 0; i < eventArgs.Drops.Count; i++)
+            {
+                CCS_HarvestedItemDrop drop = eventArgs.Drops[i];
+                if (drop?.ItemDefinition == null || drop.Quantity <= 0)
+                {
+                    continue;
+                }
+
+                string itemName = string.IsNullOrWhiteSpace(drop.ItemDefinition.DisplayName)
+                    ? "Item"
+                    : drop.ItemDefinition.DisplayName;
+
+                QueueNotification($"Harvested {itemName} x{drop.Quantity}");
+            }
+        }
+
+        private static string BuildHarvestFailureNotification(string message)
+        {
+            if (message.IndexOf("Inventory", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "Harvest failed: Inventory Full";
+            }
+
+            return $"Harvest failed: {message}";
         }
 
         private void HandleInventoryItemRemoved(CCS_InventoryEventArgs eventArgs)
@@ -484,6 +584,30 @@ namespace CCS.Modules.UI
             equipmentService.ItemUnequipped -= HandleEquipmentItemUnequipped;
             equipmentService.EquipmentChanged -= HandleEquipmentChanged;
             equipmentService = null;
+        }
+
+        private void UnbindResourceHarvestService()
+        {
+            if (resourceHarvestService == null)
+            {
+                return;
+            }
+
+            resourceHarvestService.HarvestCompleted -= HandleHarvestCompleted;
+            resourceHarvestService.HarvestFailed -= HandleHarvestFailed;
+            resourceHarvestService.ResourceDepleted -= HandleResourceDepleted;
+            resourceHarvestService = null;
+        }
+
+        private void UnbindResourceRespawnService()
+        {
+            if (resourceRespawnService == null)
+            {
+                return;
+            }
+
+            resourceRespawnService.ResourceRespawned -= HandleResourceRespawned;
+            resourceRespawnService = null;
         }
 
         #endregion

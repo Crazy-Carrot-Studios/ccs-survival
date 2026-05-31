@@ -3,6 +3,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.WorldResources;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalGameplayServiceRegistration
@@ -28,6 +29,7 @@ namespace CCS.Survival.Composition
             CCS_InteractionProfile interactionProfile,
             CCS_InventoryProfile inventoryProfile,
             CCS_EquipmentProfile equipmentProfile,
+            CCS_WorldResourceProfile worldResourceProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -39,6 +41,8 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, CreateInteractionService(interactionProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateInventoryService(inventoryProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateEquipmentService(equipmentProfile), enableDebugLogs);
+            RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
+            RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
         }
 
         #endregion
@@ -90,6 +94,34 @@ namespace CCS.Survival.Composition
         private static CCS_PlayerEquipmentService CreateEquipmentService(CCS_EquipmentProfile profile)
         {
             CCS_PlayerEquipmentService service = new CCS_PlayerEquipmentService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_ResourceHarvestService CreateResourceHarvestService(CCS_WorldResourceProfile profile)
+        {
+            CCS_ResourceHarvestService service = new CCS_ResourceHarvestService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_ResourceRespawnService CreateResourceRespawnService(CCS_WorldResourceProfile profile)
+        {
+            CCS_ResourceRespawnService service = new CCS_ResourceRespawnService();
             service.Initialize();
 
             if (profile == null)

@@ -21,6 +21,8 @@ namespace CCS.Survival.Editor.Development
         private const string InteractionProfilePath = "Assets/CCS/Survival/Profiles/Interaction/CCS_DefaultInteractionProfile.asset";
         private const string InventoryProfilePath = "Assets/CCS/Survival/Profiles/Inventory/CCS_DefaultInventoryProfile.asset";
         private const string EquipmentProfilePath = "Assets/CCS/Survival/Profiles/Equipment/CCS_DefaultEquipmentProfile.asset";
+        private const string WorldResourceProfilePath =
+            "Assets/CCS/Survival/Profiles/WorldResources/CCS_DefaultWorldResourceProfile.asset";
         private const string LogPrefix = "[CCS_SurvivalGameplayServiceBootstrapSetup]";
 
         #region Public Methods
@@ -52,6 +54,8 @@ namespace CCS.Survival.Editor.Development
                 AssetDatabase.LoadAssetAtPath<Object>(InventoryProfilePath);
             serializedHost.FindProperty("equipmentProfile").objectReferenceValue =
                 AssetDatabase.LoadAssetAtPath<Object>(EquipmentProfilePath);
+            serializedHost.FindProperty("worldResourceProfile").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Object>(WorldResourceProfilePath);
             serializedHost.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(prefabContents, prefabPath);
