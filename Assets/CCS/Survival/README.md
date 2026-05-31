@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.2 — Environment Effects Foundation  
+**Milestone:** 0.7.3 — Survival Core Environment Integration  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -106,6 +106,20 @@
 **Editor menu:** **CCS → Survival → Environment Effects → Validate Environment Effects**
 
 **0.7.2:** Ambient temperature, wetness, and exposure simulation from Time Of Day and Weather snapshots. Save/load persistence and bootstrap HUD environment display. No Survival Core stat mutation, clothing insulation, or damage.
+
+## Survival Core Environment Integration (0.7.3)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/SurvivalCore/Runtime/` |
+| Environment influence | `../Modules/SurvivalCore/Runtime/Environment/` |
+| Editor validation | `../Modules/SurvivalCore/Editor/Validation/` |
+| Default profile | `Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` |
+| Module doc | [../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md](../Modules/SurvivalCore/Documentation/CCS_Survival_Core_Module.md) |
+
+**Editor menu:** **CCS → Survival → Survival Core → Validate Survival Core**
+
+**0.7.3:** Environment Effects drives temperature, fatigue, and thirst pressure through `CCS_SurvivalCoreService`. Bootstrap influence HUD panel for debug verification. No Health damage or death systems.
 
 ## Inventory (0.4.0)
 

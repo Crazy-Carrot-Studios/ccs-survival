@@ -71,11 +71,12 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             ValidateServiceRegistration(report);
             ValidateRestoreOrder(report);
             ValidateBootstrapHudPresenter(report);
+            ValidateSurvivalCoreIntegration(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Environment effects validator completed (0.7.2 foundation; Survival Core integration deferred).");
+                "Environment effects validator completed (0.7.3 Survival Core integration).");
         }
 
         #endregion
@@ -208,6 +209,53 @@ namespace CCS.Modules.EnvironmentEffects.Editor
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Environment Restore Order",
                 "Saveable restore order is missing environment after weather.");
+        }
+
+        private static void ValidateSurvivalCoreIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string survivalServicePath =
+                "Assets/CCS/Modules/SurvivalCore/Runtime/Runtime/CCS_SurvivalCoreService.cs";
+            const string registrationPath =
+                SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
+
+            if (File.Exists(survivalServicePath))
+            {
+                string serviceSource = File.ReadAllText(survivalServicePath);
+                if (serviceSource.Contains("BindEnvironmentEffectsService")
+                    && serviceSource.Contains("CCS_EnvironmentEffectsService"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Environment Read",
+                        "CCS_SurvivalCoreService references environment effects safely through explicit binding.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Environment Read",
+                        "CCS_SurvivalCoreService is missing environment effects integration.");
+                }
+            }
+
+            if (File.Exists(registrationPath))
+            {
+                string registrationSource = File.ReadAllText(registrationPath);
+                if (registrationSource.Contains("BindSurvivalCoreEnvironmentEffects"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Environment Binding",
+                        "Gameplay composition binds environment effects into survival core.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Environment Binding",
+                        "Gameplay composition is missing BindSurvivalCoreEnvironmentEffects wiring.");
+                }
+            }
         }
 
         private static void ValidateBootstrapHudPresenter(CCS_SurvivalValidationReport report)

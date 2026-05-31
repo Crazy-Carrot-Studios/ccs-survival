@@ -41,6 +41,9 @@ namespace CCS.Modules.SurvivalCore.Editor
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Runtime", $"{SurvivalCoreRuntimeRoot}/Runtime");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Events", $"{SurvivalCoreRuntimeRoot}/Events");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Validation", $"{SurvivalCoreRuntimeRoot}/Validation");
+            ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Environment", $"{SurvivalCoreRuntimeRoot}/Environment");
+            ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Presentation", $"{SurvivalCoreRuntimeRoot}/Presentation");
+            ValidateRequiredFolder(report, "Modules/SurvivalCore/Runtime/Services", $"{SurvivalCoreRuntimeRoot}/Services");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Editor", SurvivalCoreEditorRoot);
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Editor/Validation", $"{SurvivalCoreEditorRoot}/Validation");
             ValidateRequiredFolder(report, "Modules/SurvivalCore/Documentation", $"{SurvivalCoreRoot}/Documentation");
@@ -48,7 +51,14 @@ namespace CCS.Modules.SurvivalCore.Editor
             ValidateRequiredScript(report, "CCS_SurvivalStatType", $"{SurvivalCoreRuntimeRoot}/Stats/CCS_SurvivalStatType.cs");
             ValidateRequiredScript(report, "CCS_SurvivalCoreService", $"{SurvivalCoreRuntimeRoot}/Runtime/CCS_SurvivalCoreService.cs");
             ValidateRequiredScript(report, "CCS_SurvivalCoreProfile", $"{SurvivalCoreRuntimeRoot}/Profiles/CCS_SurvivalCoreProfile.cs");
+            ValidateRequiredScript(report, "CCS_SurvivalEnvironmentInfluence", $"{SurvivalCoreRuntimeRoot}/Environment/CCS_SurvivalEnvironmentInfluence.cs");
+            ValidateRequiredScript(report, "CCS_SurvivalEnvironmentInfluenceUtility", $"{SurvivalCoreRuntimeRoot}/Environment/CCS_SurvivalEnvironmentInfluenceUtility.cs");
+            ValidateRequiredScript(report, "CCS_SurvivalEnvironmentEventArgs", $"{SurvivalCoreRuntimeRoot}/Events/CCS_SurvivalEnvironmentEventArgs.cs");
+            ValidateRequiredScript(report, "CCS_SurvivalEnvironmentInfluenceHudPresenter", $"{SurvivalCoreRuntimeRoot}/Presentation/CCS_SurvivalEnvironmentInfluenceHudPresenter.cs");
+            ValidateRequiredScript(report, "CCS_SurvivalCoreRuntimeBridge", $"{SurvivalCoreRuntimeRoot}/Services/CCS_SurvivalCoreRuntimeBridge.cs");
             ValidateRequiredScript(report, "CCS_SurvivalCoreValidationUtility", $"{SurvivalCoreRuntimeRoot}/Validation/CCS_SurvivalCoreValidationUtility.cs");
+
+            ValidateEnvironmentIntegration(report);
 
             ValidateDocumentationAsset(report, "Survival Core Module Doc", SurvivalCoreDocPath);
 
@@ -89,12 +99,123 @@ namespace CCS.Modules.SurvivalCore.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Survival core validator completed.");
+                "Survival core validator completed (0.7.3 environment integration).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateEnvironmentIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string servicePath = SurvivalCoreRuntimeRoot + "/Runtime/CCS_SurvivalCoreService.cs";
+            const string profilePath = SurvivalCoreRuntimeRoot + "/Profiles/CCS_SurvivalCoreProfile.cs";
+            const string registrationPath = SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
+            const string bootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+            const string bridgePath =
+                "Assets/CCS/Modules/EnvironmentEffects/Runtime/Services/CCS_EnvironmentEffectsRuntimeBridge.cs";
+
+            if (File.Exists(bridgePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Environment Runtime Bridge",
+                    "CCS_EnvironmentEffectsRuntimeBridge resolves environment service safely.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Environment Runtime Bridge",
+                    $"Missing environment runtime bridge: {bridgePath}");
+            }
+
+            if (File.Exists(profilePath))
+            {
+                string profileSource = File.ReadAllText(profilePath);
+                if (profileSource.Contains("temperatureRecoveryRate")
+                    && profileSource.Contains("temperatureDecayRate")
+                    && profileSource.Contains("exposureFatigueMultiplier")
+                    && profileSource.Contains("wetnessThirstMultiplier")
+                    && profileSource.Contains("minimumTemperatureClamp")
+                    && profileSource.Contains("maximumTemperatureClamp"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Environment Profile",
+                        "CCS_SurvivalCoreProfile exposes environment tuning fields.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Environment Profile",
+                        "CCS_SurvivalCoreProfile is missing environment tuning fields.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("BindEnvironmentEffectsService")
+                    && serviceSource.Contains("ApplyTemperatureInfluence")
+                    && serviceSource.Contains("ApplyFatigueInfluence")
+                    && serviceSource.Contains("ApplyThirstInfluence")
+                    && serviceSource.Contains("EnvironmentInfluenceChanged"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Environment Integration",
+                        "CCS_SurvivalCoreService reads environment snapshots and applies temperature/fatigue/thirst influence.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Environment Integration",
+                        "CCS_SurvivalCoreService is missing safe environment integration wiring.");
+                }
+            }
+
+            if (File.Exists(registrationPath))
+            {
+                string registrationSource = File.ReadAllText(registrationPath);
+                if (registrationSource.Contains("BindSurvivalCoreEnvironmentEffects")
+                    && registrationSource.Contains("RegisterSurvivalCoreUpdatable"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Service Registration",
+                        "Gameplay composition binds environment effects to survival core and registers updatable tick.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Service Registration",
+                        "Gameplay composition is missing survival core environment binding.");
+                }
+            }
+
+            if (File.Exists(bootstrapScenePath))
+            {
+                string sceneText = File.ReadAllText(bootstrapScenePath);
+                if (sceneText.Contains("CCS_SurvivalEnvironmentInfluenceHudPresenter"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Bootstrap Environment Influence HUD",
+                        "Bootstrap scene includes CCS_SurvivalEnvironmentInfluenceHudPresenter.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Bootstrap Environment Influence HUD",
+                        "Bootstrap scene is missing CCS_SurvivalEnvironmentInfluenceHudPresenter.");
+                }
+            }
+        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,

@@ -18,7 +18,10 @@ namespace CCS.Modules.SurvivalCore
         public const string StatDepletedEventName = "SurvivalCore.StatDepleted";
         public const string StatRestoredEventName = "SurvivalCore.StatRestored";
         public const string SurvivalCoreInitializedEventName = "SurvivalCore.Initialized";
+        public const string EnvironmentInfluenceChangedEventName = "SurvivalCore.EnvironmentInfluenceChanged";
     }
+
+    public delegate void SurvivalEnvironmentInfluenceChangedHandler(CCS_SurvivalEnvironmentEventArgs eventArgs);
 
     public delegate void SurvivalStatChangedHandler(CCS_SurvivalStatChangedEventArgs eventArgs);
 

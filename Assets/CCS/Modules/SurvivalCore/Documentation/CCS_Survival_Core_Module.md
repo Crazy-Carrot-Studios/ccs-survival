@@ -1,11 +1,11 @@
 # CCS Survival — Survival Core Module
 
-**Milestone:** 0.3.7b — Foundation cleanup (behavior from 0.3.7)  
+**Milestone:** 0.7.3 — Survival Core Environment Integration  
 **Module ID:** `ccs.survival.core`  
 **Namespace:** `CCS.Modules.SurvivalCore` (editor: `CCS.Modules.SurvivalCore.Editor`)  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-28  
-**Status:** Foundation complete under `Assets/CCS/Modules/SurvivalCore/` (not yet wired to bootstrap installer)
+**Date:** 2026-05-31  
+**Status:** Foundation complete at **0.3.7b**. Environment integration complete at **0.7.3**.
 
 ---
 
@@ -50,7 +50,7 @@ Assets/CCS/Survival/Profiles/SurvivalCore/   → default profile assets (project
 
 | Assembly | References |
 |----------|------------|
-| `CCS.Modules.SurvivalCore.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime` |
+| `CCS.Modules.SurvivalCore.Runtime` | `CCS.Core.Runtime`, `CCS.Survival.Runtime`, `CCS.Modules.EnvironmentEffects.Runtime` |
 | `CCS.Modules.SurvivalCore.Editor` | Core, Survival runtime/editor, SurvivalCore runtime |
 
 **No:** UI, CharacterController, inventory, equipment, scene objects.
@@ -61,12 +61,37 @@ Assets/CCS/Survival/Profiles/SurvivalCore/   → default profile assets (project
 
 1. Construct `CCS_SurvivalCoreService` (optional `CCS_SurvivalDiagnosticsService`).
 2. `InitializeFromProfile(CCS_SurvivalCoreProfile)` — builds `CCS_SurvivalStatState` per definition.
-3. External systems call `TickSurvival(deltaTime)` each frame or fixed update.
-4. Consumers read `TryGetSnapshot(statType)` or `GetAllSnapshots()`.
-5. Consumers subscribe to `StatChanged`, `StatDepleted`, `StatRestored`, `SurvivalCoreInitialized`.
-6. Optional: `TryApplyModifier` for additive/multiplicative changes.
+3. Composition binds `CCS_EnvironmentEffectsService` via `BindEnvironmentEffectsService`.
+4. `CCS_IUpdatable.Tick` calls `TickSurvival(deltaTime)` each frame through the runtime update loop.
+5. Consumers read `TryGetSnapshot(statType)` or `GetAllSnapshots()`.
+6. Consumers subscribe to `StatChanged`, `StatDepleted`, `StatRestored`, `SurvivalCoreInitialized`, `EnvironmentInfluenceChanged`.
+7. Optional: `TryApplyModifier` for additive/multiplicative changes.
 
 Diagnostics reports use `ccs.survival.core` when a diagnostics service is present; **safe when null**.
+
+---
+
+## Environment → Survival flow (0.7.3)
+
+```text
+CCS_EnvironmentEffectsService (authoritative ambient temp, wetness, exposure)
+        ↓ snapshot
+CCS_SurvivalEnvironmentInfluenceUtility.Calculate
+        ↓ per-second rates
+CCS_SurvivalCoreService.ApplyEnvironmentInfluence
+        ↓
+Temperature / Fatigue / Thirst stat states (clamped)
+```
+
+| Environment input | Survival stat | Rule |
+|-------------------|---------------|------|
+| Ambient temperature | **Temperature** | Positive ambient × recovery rate; negative ambient × decay rate; clamped by profile min/max |
+| Exposure | **Fatigue** | Exposure × exposure fatigue multiplier |
+| Wetness | **Thirst** | Wetness × wetness thirst multiplier (additional drain) |
+
+**Health is not modified.** No hypothermia, heat stroke, damage, or death systems in 0.7.3.
+
+`CCS_SurvivalEnvironmentInfluence` exposes ambient inputs and calculated per-second deltas for HUD/debug.
 
 ---
 
@@ -78,6 +103,7 @@ Diagnostics reports use `ccs.survival.core` when a diagnostics service is presen
 | `StatDepleted` | Stat crosses to at-or-below min |
 | `StatRestored` | Stat leaves depleted state |
 | `SurvivalCoreInitialized` | Profile applied successfully |
+| `EnvironmentInfluenceChanged` | Environment influence rates change meaningfully |
 
 Event name constants: `CCS_SurvivalCoreEvents`.
 
@@ -90,6 +116,16 @@ Event name constants: `CCS_SurvivalCoreEvents`.
 | `CCS_SurvivalCoreProfile` | Root tuning asset |
 | `CCS_SurvivalStatDefinition` | Min / max / starting per stat |
 | `CCS_SurvivalStatDecayDefinition` | Per-second drain/gain/exposure drift |
+
+**Environment tuning (0.7.3) on `CCS_SurvivalCoreProfile`:**
+
+| Field | Role |
+|-------|------|
+| `temperatureRecoveryRate` | Scale when ambient temperature is above neutral |
+| `temperatureDecayRate` | Scale when ambient temperature is below neutral |
+| `exposureFatigueMultiplier` | Fatigue gain per exposure unit |
+| `wetnessThirstMultiplier` | Thirst drain per wetness unit |
+| `minimumTemperatureClamp` / `maximumTemperatureClamp` | Clamp applied during environment temperature influence |
 
 **Default asset path:** `Assets/CCS/Survival/Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` (committed project configuration; do not move into Modules)
 
@@ -128,7 +164,8 @@ Checks: folders, scripts, profile completeness, min/max/start validity, non-nega
 | Inventory item modifiers | 0.4.0 |
 | UI / HUD readouts | After inventory |
 | Save/load persistence | Later |
-| Environmental zone modifiers | Later |
+| Environmental zone modifiers | 0.7.3 environment integration (local modifiers via Environment Effects) |
+| Clothing insulation | 0.7.4+ |
 | Death / respawn rules | Later |
 
 ---

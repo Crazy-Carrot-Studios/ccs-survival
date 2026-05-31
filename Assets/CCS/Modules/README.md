@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.7.2  
+**Version:** 0.7.3  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -129,5 +129,6 @@ Assets/CCS/Modules/<ModuleName>/
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
 | `EnvironmentEffects/` | 0.7.2 — **Foundation complete** |
+| `SurvivalCore/` | 0.3.7 / 0.7.3 — **Foundation + environment integration complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

@@ -77,15 +77,25 @@ Plain text only. No icons or final art.
 
 ---
 
-## Future Survival Core Integration
+## Survival Core Integration (0.7.3)
 
-0.7.2 prepares snapshots and events only. Future milestones will:
+Environment Effects remains authoritative for ambient temperature, wetness, and exposure.
 
-- Feed ambient temperature into Survival Core temperature stat
-- Apply wetness accumulation over time
-- Drive exposure-based survival penalties
+`CCS_SurvivalCoreService` reads environment snapshots and applies conservative pressure to:
 
-No stat writes occur in this foundation milestone.
+- **Temperature** — ambient temperature influence with profile recovery/decay rates and clamps
+- **Fatigue** — exposure pressure
+- **Thirst** — wetness pressure
+
+No Health modification. No damage or death systems.
+
+Bootstrap HUD includes an influence debug panel beneath the environment panel:
+
+```text
+Temp Δ: X
+Fatigue Δ: X
+Thirst Δ: X
+```
 
 ---
 
@@ -103,11 +113,11 @@ Biome profiles may add regional temperature offsets and weather weighting. Envir
 
 ## Deferred Systems
 
-- Survival Core stat mutation
 - Damage / health effects from exposure
+- Hypothermia / heat stroke systems
 - Clothing insulation
 - Biome regional offsets
-- Wetness accumulation over time
+- Wetness accumulation over time (beyond snapshot modifiers)
 
 ---
 
@@ -116,4 +126,5 @@ Biome profiles may add regional temperature offsets and weather weighting. Envir
 - [Time Of Day Module](../../TimeOfDay/Documentation/CCS_Time_Of_Day_Module.md)
 - [Weather Module](../../Weather/Documentation/CCS_Weather_Module.md)
 - [Save Load Module](../../SaveLoad/Documentation/CCS_Save_Load_Module.md)
+- [Survival Core Module](../../SurvivalCore/Documentation/CCS_Survival_Core_Module.md)
 - [Survival Module Roadmap](../../../Survival/Documentation/CCS_Survival_Module_Roadmap.md)

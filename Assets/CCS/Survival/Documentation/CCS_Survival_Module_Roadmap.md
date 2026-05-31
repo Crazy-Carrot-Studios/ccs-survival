@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.7.2 — Environment Effects Foundation  
+**Milestone baseline:** 0.7.3 — Survival Core Environment Integration  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Environment effects simulation foundation **complete** at **0.7.2**. Survival Core stat coupling, clothing insulation, and biome modifiers deferred.
+**Status:** Environment → Survival Core integration **complete** at **0.7.3**. Damage, hypothermia, clothing insulation, and biome modifiers deferred.
 
 ---
 
@@ -38,8 +38,9 @@
 | **0.7.0** | Time of day foundation |
 | **0.7.1** | Weather foundation |
 | **0.7.2** | Environment effects foundation |
+| **0.7.3** | Survival Core environment integration |
 
-Later milestones continue from **0.7.3+** (Survival Core temperature/wetness coupling, clothing insulation, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
+Later milestones continue from **0.7.4+** (clothing insulation, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
 
 ---
 
@@ -81,13 +82,14 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 10 | **0.7.0** | **Time Of Day** | `ccs.survival.timeofday` — **Foundation complete** |
 | 11 | **0.7.1** | **Weather** | `ccs.survival.weather` — **Foundation complete** |
 | 12 | **0.7.2** | **Environment Effects** | `ccs.survival.environment` — **Foundation complete** |
-| 13 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
-| 14 | 0.5.x | Combat | `ccs.survival.combat` |
-| 15 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
-| 16 | 0.5.x | Building | `ccs.survival.building` |
-| 17 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
-| 18 | 0.5.x | Audio | `ccs.survival.audio` |
-| 19 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
+| 13 | **0.7.3** | **Survival Core Environment Integration** | `ccs.survival.core` — **Environment integration complete** |
+| 14 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
+| 15 | 0.5.x | Combat | `ccs.survival.combat` |
+| 16 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
+| 17 | 0.5.x | Building | `ccs.survival.building` |
+| 18 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
+| 19 | 0.5.x | Audio | `ccs.survival.audio` |
+| 20 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
 
 **Rationale:** UI immediately after Inventory lets every subsequent system be validated on-screen as it is built.
 
@@ -125,7 +127,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.7.3 — Survival Core Environment Integration** (apply ambient temperature, wetness, and exposure to Survival Core stats)
+**0.7.4 — Clothing Insulation Foundation** (equipment-driven temperature and exposure mitigation)
+
+---
+
+## 0.7.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Survival Core profile environment tuning fields | **Complete** |
+| `CCS_SurvivalEnvironmentInfluence` model and events | **Complete** |
+| `CCS_SurvivalCoreService` reads Environment snapshots | **Complete** |
+| Temperature, fatigue, and thirst pressure applied | **Complete** |
+| Bootstrap influence HUD panel | **Complete** |
+| No Health modification or death systems | **Complete** |
+| Validation pipeline updates | **Complete** |
+| Version **0.7.3** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 
@@ -164,6 +183,13 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ---
 
 ## 0.7.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| TimeOfDay module under `Assets/CCS/Modules/TimeOfDay/` | **Complete** |
+| Global game clock service with phases and events | **Complete** |
+| Default time-of-day profile asset | **Complete** |
+| Save/load integration via `CCS_ISaveable` | **Complete** |
 | Bootstrap HUD time display | **Complete** |
 | Validation pipeline registration | **Complete** |
 | Version **0.7.0** | **Complete** |

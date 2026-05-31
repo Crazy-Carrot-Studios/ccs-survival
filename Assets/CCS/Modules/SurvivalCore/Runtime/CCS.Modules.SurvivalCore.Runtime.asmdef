@@ -3,7 +3,8 @@
     "rootNamespace": "CCS.Modules.SurvivalCore",
     "references": [
         "CCS.Core.Runtime",
-        "CCS.Survival.Runtime"
+        "CCS.Survival.Runtime",
+        "CCS.Modules.EnvironmentEffects.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

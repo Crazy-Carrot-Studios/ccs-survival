@@ -109,6 +109,24 @@ namespace CCS.Modules.SurvivalCore
                     "Stamina recovery/drain per second must be non-negative.");
             }
 
+            if (profile.TemperatureRecoveryRate < 0f || profile.TemperatureDecayRate < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Temperature recovery/decay rates must be non-negative.");
+            }
+
+            if (profile.ExposureFatigueMultiplier < 0f || profile.WetnessThirstMultiplier < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Exposure fatigue and wetness thirst multipliers must be non-negative.");
+            }
+
+            if (profile.MinimumTemperatureClamp > profile.MaximumTemperatureClamp)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Minimum temperature clamp must be <= maximum temperature clamp.");
+            }
+
             return CCS_SurvivalValidationResult.Pass("Survival core profile validated.");
         }
 

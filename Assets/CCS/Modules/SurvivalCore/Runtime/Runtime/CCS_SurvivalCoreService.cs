@@ -1,22 +1,24 @@
 using System;
 using System.Collections.Generic;
 using CCS.Core;
+using CCS.Modules.EnvironmentEffects;
 using CCS.Survival;
 using CCS.Survival.Development;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalCoreService
 // CATEGORY: Survival / Runtime / SurvivalCore / Runtime
 // PURPOSE: Runtime owner of survival core stat states, decay tick, snapshots, and events.
-// PLACEMENT: Registered as CCS_ISurvivalService by future survival core module installer.
+// PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-28
-// NOTES: No UI, CharacterController, inventory, or equipment dependencies in 0.3.7.
+// NOTES: Environment Effects integration at 0.7.3. No Health damage or death systems.
 // =============================================================================
 
 namespace CCS.Modules.SurvivalCore
 {
-    public sealed class CCS_SurvivalCoreService : CCS_ISurvivalService
+    public sealed class CCS_SurvivalCoreService : CCS_ISurvivalService, CCS_IUpdatable
     {
         private const string LogPrefix = "[CCS_SurvivalCoreService]";
 
@@ -29,6 +31,8 @@ namespace CCS.Modules.SurvivalCore
 
         private readonly CCS_SurvivalDiagnosticsService diagnosticsService;
         private CCS_SurvivalCoreProfile activeProfile;
+        private CCS_EnvironmentEffectsService environmentEffectsService;
+        private CCS_SurvivalEnvironmentInfluence currentEnvironmentInfluence = CCS_SurvivalEnvironmentInfluence.Empty;
         private bool isInitialized;
         private bool staminaDrainActive;
 
@@ -44,6 +48,8 @@ namespace CCS.Modules.SurvivalCore
 
         public event SurvivalCoreInitializedHandler SurvivalCoreInitialized;
 
+        public event SurvivalEnvironmentInfluenceChangedHandler EnvironmentInfluenceChanged;
+
         #endregion
 
         #region Properties
@@ -51,6 +57,8 @@ namespace CCS.Modules.SurvivalCore
         public bool IsInitialized => isInitialized;
 
         public CCS_SurvivalCoreProfile ActiveProfile => activeProfile;
+
+        public CCS_SurvivalEnvironmentInfluence CurrentEnvironmentInfluence => currentEnvironmentInfluence;
 
         public bool StaminaDrainActive
         {
@@ -106,12 +114,35 @@ namespace CCS.Modules.SurvivalCore
             }
 
             isInitialized = true;
+            RefreshEnvironmentInfluence(true);
             SurvivalCoreInitialized?.Invoke(activeProfile);
             LogDiagnostic(
                 CCS_SurvivalDiagnosticsSeverity.Info,
                 $"Survival core initialized from profile: {profile.ProfileDisplayName}");
 
             return CCS_Result.Success();
+        }
+
+        public void BindEnvironmentEffectsService(CCS_EnvironmentEffectsService service)
+        {
+            UnbindEnvironmentEffectsService();
+            environmentEffectsService = service;
+
+            if (environmentEffectsService == null || !environmentEffectsService.IsInitialized)
+            {
+                return;
+            }
+
+            environmentEffectsService.EnvironmentChanged += HandleEnvironmentEffectsChanged;
+            environmentEffectsService.TemperatureChanged += HandleEnvironmentEffectsChanged;
+            environmentEffectsService.WetnessChanged += HandleEnvironmentEffectsChanged;
+            environmentEffectsService.ExposureChanged += HandleEnvironmentEffectsChanged;
+            RefreshEnvironmentInfluence(true);
+        }
+
+        public void Tick(float deltaTime)
+        {
+            TickSurvival(deltaTime);
         }
 
         public void TickSurvival(float deltaTime)
@@ -122,6 +153,8 @@ namespace CCS.Modules.SurvivalCore
             }
 
             ApplyDecayDefinitions(deltaTime);
+            RefreshEnvironmentInfluence(true);
+            ApplyEnvironmentInfluence(deltaTime);
             ApplyHealthPlaceholders(deltaTime);
             ApplyStaminaPlaceholders(deltaTime);
         }
@@ -169,6 +202,126 @@ namespace CCS.Modules.SurvivalCore
         #endregion
 
         #region Private Methods
+
+        private void HandleEnvironmentEffectsChanged(CCS_EnvironmentEffectsEventArgs eventArgs)
+        {
+            RefreshEnvironmentInfluence(true);
+        }
+
+        private void RefreshEnvironmentInfluence(bool raiseEvents)
+        {
+            if (activeProfile == null)
+            {
+                return;
+            }
+
+            if (environmentEffectsService == null || !environmentEffectsService.IsInitialized)
+            {
+                if (raiseEvents
+                    && CCS_SurvivalEnvironmentInfluenceUtility.HasMeaningfulChange(
+                        currentEnvironmentInfluence,
+                        CCS_SurvivalEnvironmentInfluence.Empty))
+                {
+                    currentEnvironmentInfluence = CCS_SurvivalEnvironmentInfluence.Empty;
+                    EnvironmentInfluenceChanged?.Invoke(
+                        new CCS_SurvivalEnvironmentEventArgs(currentEnvironmentInfluence));
+                }
+                else
+                {
+                    currentEnvironmentInfluence = CCS_SurvivalEnvironmentInfluence.Empty;
+                }
+
+                return;
+            }
+
+            CCS_EnvironmentSnapshot environmentSnapshot = environmentEffectsService.GetSnapshot();
+            CCS_SurvivalEnvironmentInfluence nextInfluence =
+                CCS_SurvivalEnvironmentInfluenceUtility.Calculate(environmentSnapshot, activeProfile);
+
+            if (raiseEvents
+                && CCS_SurvivalEnvironmentInfluenceUtility.HasMeaningfulChange(
+                    currentEnvironmentInfluence,
+                    nextInfluence))
+            {
+                currentEnvironmentInfluence = nextInfluence;
+                EnvironmentInfluenceChanged?.Invoke(
+                    new CCS_SurvivalEnvironmentEventArgs(currentEnvironmentInfluence));
+                return;
+            }
+
+            currentEnvironmentInfluence = nextInfluence;
+        }
+
+        private void ApplyEnvironmentInfluence(float deltaTime)
+        {
+            if (environmentEffectsService == null || !environmentEffectsService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_SurvivalEnvironmentInfluence influence = currentEnvironmentInfluence;
+            ApplyTemperatureInfluence(influence.CalculatedTemperatureDelta, deltaTime);
+            ApplyFatigueInfluence(influence.CalculatedFatigueDelta, deltaTime);
+            ApplyThirstInfluence(influence.CalculatedThirstDelta, deltaTime);
+        }
+
+        private void ApplyTemperatureInfluence(float deltaPerSecond, float deltaTime)
+        {
+            if (!statStates.TryGetValue(CCS_SurvivalStatType.Temperature, out CCS_SurvivalStatState state))
+            {
+                return;
+            }
+
+            float delta = deltaPerSecond * deltaTime;
+            if (Math.Abs(delta) <= CCS_SurvivalStatUtility.DepletionEpsilon)
+            {
+                return;
+            }
+
+            CCS_SurvivalStatSnapshot previous = state.ToSnapshot();
+            float clampedValue = Mathf.Clamp(
+                state.CurrentValue + delta,
+                activeProfile.MinimumTemperatureClamp,
+                activeProfile.MaximumTemperatureClamp);
+            state.SetCurrent(clampedValue);
+            NotifyStatChanged(previous, state);
+        }
+
+        private void ApplyFatigueInfluence(float deltaPerSecond, float deltaTime)
+        {
+            if (!statStates.TryGetValue(CCS_SurvivalStatType.Fatigue, out CCS_SurvivalStatState state))
+            {
+                return;
+            }
+
+            float delta = deltaPerSecond * deltaTime;
+            if (Math.Abs(delta) <= CCS_SurvivalStatUtility.DepletionEpsilon)
+            {
+                return;
+            }
+
+            CCS_SurvivalStatSnapshot previous = state.ToSnapshot();
+            state.ApplyDelta(delta);
+            NotifyStatChanged(previous, state);
+        }
+
+        private void ApplyThirstInfluence(float deltaPerSecond, float deltaTime)
+        {
+            if (!statStates.TryGetValue(CCS_SurvivalStatType.Thirst, out CCS_SurvivalStatState state))
+            {
+                return;
+            }
+
+            float delta = deltaPerSecond * deltaTime;
+            if (Math.Abs(delta) <= CCS_SurvivalStatUtility.DepletionEpsilon)
+            {
+                return;
+            }
+
+            CCS_SurvivalStatSnapshot previous = state.ToSnapshot();
+            state.ApplyDelta(delta);
+            NotifyStatChanged(previous, state);
+        }
 
         private void ApplyDecayDefinitions(float deltaTime)
         {
@@ -293,6 +446,20 @@ namespace CCS.Modules.SurvivalCore
                     CCS_SurvivalDiagnosticsSeverity.Info,
                     $"{current.StatType} restored to {current.CurrentValue:F2}");
             }
+        }
+
+        private void UnbindEnvironmentEffectsService()
+        {
+            if (environmentEffectsService == null)
+            {
+                return;
+            }
+
+            environmentEffectsService.EnvironmentChanged -= HandleEnvironmentEffectsChanged;
+            environmentEffectsService.TemperatureChanged -= HandleEnvironmentEffectsChanged;
+            environmentEffectsService.WetnessChanged -= HandleEnvironmentEffectsChanged;
+            environmentEffectsService.ExposureChanged -= HandleEnvironmentEffectsChanged;
+            environmentEffectsService = null;
         }
 
         private void LogDiagnostic(CCS_SurvivalDiagnosticsSeverity severity, string message)

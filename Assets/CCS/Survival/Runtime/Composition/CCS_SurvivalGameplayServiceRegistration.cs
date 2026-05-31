@@ -47,7 +47,8 @@ namespace CCS.Survival.Composition
                 return;
             }
 
-            RegisterService(runtimeHost, CreateSurvivalCoreService(survivalCoreProfile), enableDebugLogs);
+            CCS_SurvivalCoreService survivalCoreService = CreateSurvivalCoreService(survivalCoreProfile);
+            RegisterService(runtimeHost, survivalCoreService, enableDebugLogs);
             RegisterService(runtimeHost, CreateInteractionService(interactionProfile), enableDebugLogs);
 
             CCS_PlayerInventoryService inventoryService = CreateInventoryService(inventoryProfile);
@@ -77,6 +78,9 @@ namespace CCS.Survival.Composition
                 weatherService);
             RegisterService(runtimeHost, environmentEffectsService, enableDebugLogs);
             RegisterEnvironmentEffectsUpdatable(runtimeHost, environmentEffectsService);
+
+            BindSurvivalCoreEnvironmentEffects(survivalCoreService, environmentEffectsService);
+            RegisterSurvivalCoreUpdatable(runtimeHost, survivalCoreService);
 
             RegisterGameplaySaveables(
                 saveLoadService,
@@ -302,6 +306,33 @@ namespace CCS.Survival.Composition
             }
 
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(environmentEffectsService);
+        }
+
+        private static void BindSurvivalCoreEnvironmentEffects(
+            CCS_SurvivalCoreService survivalCoreService,
+            CCS_EnvironmentEffectsService environmentEffectsService)
+        {
+            if (survivalCoreService == null
+                || !survivalCoreService.IsInitialized
+                || environmentEffectsService == null
+                || !environmentEffectsService.IsInitialized)
+            {
+                return;
+            }
+
+            survivalCoreService.BindEnvironmentEffectsService(environmentEffectsService);
+        }
+
+        private static void RegisterSurvivalCoreUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_SurvivalCoreService survivalCoreService)
+        {
+            if (runtimeHost == null || survivalCoreService == null || !survivalCoreService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(survivalCoreService);
         }
 
         private static void RegisterGameplaySaveables(

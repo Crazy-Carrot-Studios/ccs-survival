@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.SurvivalCore.Runtime::CCS.Modules.SurvivalCore.CCS_SurvivalCoreProfile
   profileDisplayName: Default Survival Core
   profileId: ccs.survival.profile.core.default
-  profileDescription: Default survival core stat tuning for 0.3.7 foundation.
-  profileVersion: 0.3.7b
+  profileDescription: Default survival core stat tuning with environment integration
+    for 0.7.3.
+  profileVersion: 0.7.3
   enableDebugLogs: 0
   statDefinitions:
   - statType: 0
@@ -67,3 +68,9 @@ MonoBehaviour:
   passiveHealthDamagePerSecond: 0
   staminaRecoveryPerSecond: 2
   staminaDrainPerSecond: 4
+  temperatureRecoveryRate: 0.15
+  temperatureDecayRate: 0.12
+  exposureFatigueMultiplier: 0.008
+  wetnessThirstMultiplier: 0.01
+  minimumTemperatureClamp: 0
+  maximumTemperatureClamp: 100
