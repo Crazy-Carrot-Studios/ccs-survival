@@ -210,6 +210,7 @@ namespace CCS.Modules.UI.Editor
             ValidateBootstrapProfileReference(report, serializedHost, "inventoryProfile", "Inventory Profile");
             ValidateBootstrapProfileReference(report, serializedHost, "equipmentProfile", "Equipment Profile");
             ValidateBootstrapProfileReference(report, serializedHost, "craftingProfile", "Crafting Profile");
+            ValidateBootstrapProfileReference(report, serializedHost, "saveLoadProfile", "Save Load Profile");
             ValidateHudCraftingWiringScripts(report);
         }
 

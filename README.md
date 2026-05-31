@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.5.3** — Crafting Gameplay Integration
+**0.6.0** — Save / Load Foundation
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**.
 
 ### Implemented Modules
 - Character Controller
@@ -38,6 +38,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module 
 - Equipment
 - Crafting
 - World Resources
+- Save / Load (persistence foundation)
 - UI / HUD (presentation foundation)
 
 ### Validated
@@ -46,7 +47,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module 
 - Module validation pipeline
 - Bootstrap scene validation
 - UI validation
-- Windows build verification (0.5.3)
+- Windows build verification (0.6.0)
 
 ---
 
@@ -114,10 +115,10 @@ Assets/
 | UI / HUD | Runtime wiring (0.4.3) |
 | Crafting | Gameplay integration (0.5.3) |
 | World Resources | Harvest integration (0.5.2) |
+| Save / Load | Foundation (0.6.0) |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
-| Save System | Planned |
 
 Module IDs use reverse-DNS style (for example `ccs.survival.inventory`). Modules register manually through the survival bootstrap install pipeline — no auto-discovery or scene scanning.
 
@@ -135,6 +136,7 @@ Every milestone must pass:
 - Inventory validation
 - Equipment validation
 - UI validation
+- Save/load validation
 - Bootstrap scene validation
 
 **Policy:** zero warnings, zero errors.
@@ -154,8 +156,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.5.3
-**Build output:** `Builds/CCS_Survival_0.5.3_Windows/` (gitignored)
+**Latest verified build:** 0.6.0
+**Build output:** `Builds/CCS_Survival_0.6.0_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

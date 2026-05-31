@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ccc8ca733d70f145a1d046035b26bc3, type: 3}
+  m_Name: CCS_DefaultSaveLoadProfile
+  m_EditorClassIdentifier: CCS.Modules.SaveLoad.Runtime::CCS.Modules.SaveLoad.CCS_SaveLoadProfile
+  profileDisplayName: Default Save Load
+  profileId: ccs.survival.profile.saveload.default
+  profileDescription: Default save/load rules for 0.6.0 foundation.
+  profileVersion: 0.6.0
+  enableDebugLogs: 0
+  autoSaveEnabled: 0
+  autoSaveIntervalSeconds: 300
+  maxSaveSlots: 10

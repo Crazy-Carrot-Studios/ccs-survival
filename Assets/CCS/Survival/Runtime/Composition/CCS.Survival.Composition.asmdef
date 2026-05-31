@@ -9,7 +9,8 @@
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.WorldResources.Runtime",
-        "CCS.Modules.Crafting.Runtime"
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.SaveLoad.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

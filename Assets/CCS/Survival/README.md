@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.5.3 — Crafting Gameplay Integration  
+**Milestone:** 0.6.0 — Save / Load Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -39,6 +39,17 @@
 | Module doc | [../Modules/Crafting/Documentation/CCS_Crafting_Module.md](../Modules/Crafting/Documentation/CCS_Crafting_Module.md) |
 
 **Editor menu:** **CCS → Survival → Crafting → Validate Crafting**
+
+## Save / Load (0.6.0)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/SaveLoad/Runtime/` |
+| Editor validation | `../Modules/SaveLoad/Editor/Validation/` |
+| Default profile | `Profiles/SaveLoad/CCS_DefaultSaveLoadProfile.asset` |
+| Module doc | [../Modules/SaveLoad/Documentation/CCS_Save_Load_Module.md](../Modules/SaveLoad/Documentation/CCS_Save_Load_Module.md) |
+
+**Editor menu:** **CCS → Survival → Save Load → Validate Save Load**
 
 ## Equipment (0.4.1 / 0.4.1a)
 

@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.5.3 — Crafting Gameplay Integration  
+**Milestone baseline:** 0.6.0 — Save / Load Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Crafting gameplay integration **complete** at **0.5.3**. Final crafting UI, station objects, input, and save/load deferred.
+**Status:** Save/load persistence framework **complete** at **0.6.0**. Gameplay module saves deferred.
 
 ---
 
@@ -32,8 +32,9 @@
 | **0.5.1** | World resource module foundation |
 | **0.5.2** | Resource harvesting integration |
 | **0.5.3** | Crafting gameplay integration |
+| **0.6.0** | Save / load foundation |
 
-Later milestones continue from **0.5.3+** (save/load, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.6.0+** (gameplay module persistence, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -71,8 +72,8 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0 / 0.5.3** | **Crafting** | `ccs.survival.crafting` — **Foundation + gameplay integration complete** |
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
-| 9 | 0.5.x | Save / Load | `ccs.survival.save` |
-| 10 | 0.4.x | Time of Day | `ccs.survival.time` |
+| 9 | **0.6.0** | **Save / Load** | `ccs.survival.saveload` — **Foundation complete** |
+| 10 | 0.6.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
 | 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 13 | 0.5.x | Combat | `ccs.survival.combat` |
@@ -118,7 +119,22 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.5.4+ — Final player input, tool gameplay, and save/load planning**
+**0.6.1+ — Gameplay module persistence and final player input planning**
+
+---
+
+## 0.6.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Save/load module under `Assets/CCS/Modules/SaveLoad/` | **Complete** |
+| `CCS_ISaveable`, registry, JSON save service | **Complete** |
+| Default save/load profile asset | **Complete** |
+| `CCS_SaveLoadService` registered on bootstrap | **Complete** |
+| Development test saveable component | **Complete** |
+| Version **0.6.0** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

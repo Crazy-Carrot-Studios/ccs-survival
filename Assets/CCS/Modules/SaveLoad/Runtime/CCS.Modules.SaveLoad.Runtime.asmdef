@@ -1,0 +1,17 @@
+{
+    "name": "CCS.Modules.SaveLoad.Runtime",
+    "rootNamespace": "CCS.Modules.SaveLoad",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -3,6 +3,7 @@ using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
+using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.WorldResources;
 using UnityEngine;
@@ -43,6 +44,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
         [SerializeField] private CCS_CraftingProfile craftingProfile;
 
+        [Tooltip("Default save/load profile used to register CCS_SaveLoadService.")]
+        [SerializeField] private CCS_SaveLoadProfile saveLoadProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -77,6 +81,7 @@ namespace CCS.Survival.Composition
                 equipmentProfile,
                 worldResourceProfile,
                 craftingProfile,
+                saveLoadProfile,
                 enableDebugLogs);
         }
 

@@ -3,6 +3,7 @@ using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
+using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.WorldResources;
 
@@ -32,6 +33,7 @@ namespace CCS.Survival.Composition
             CCS_EquipmentProfile equipmentProfile,
             CCS_WorldResourceProfile worldResourceProfile,
             CCS_CraftingProfile craftingProfile,
+            CCS_SaveLoadProfile saveLoadProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -49,6 +51,7 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateCraftingService(craftingProfile, inventoryService), enableDebugLogs);
+            RegisterService(runtimeHost, CreateSaveLoadService(saveLoadProfile), enableDebugLogs);
         }
 
         #endregion
@@ -152,6 +155,20 @@ namespace CCS.Survival.Composition
             }
 
             service.InitializeFromProfile(profile, inventoryService);
+            return service;
+        }
+
+        private static CCS_SaveLoadService CreateSaveLoadService(CCS_SaveLoadProfile profile)
+        {
+            CCS_SaveLoadService service = new CCS_SaveLoadService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
             return service;
         }
 
