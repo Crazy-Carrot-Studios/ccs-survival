@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.TimeOfDay;
+using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
@@ -36,6 +37,7 @@ namespace CCS.Modules.UI
         private CCS_ResourceRespawnService resourceRespawnService;
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
+        private CCS_WeatherService weatherService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -47,6 +49,7 @@ namespace CCS.Modules.UI
         private CCS_SurvivalStatSnapshot fatigueSnapshot;
         private CCS_SurvivalStatSnapshot temperatureSnapshot;
         private CCS_GameTimeSnapshot gameTimeSnapshot;
+        private CCS_WeatherSnapshot weatherSnapshot;
 
         private bool isInitialized;
 
@@ -87,6 +90,8 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot TemperatureSnapshot => temperatureSnapshot;
 
         public CCS_GameTimeSnapshot GameTimeSnapshot => gameTimeSnapshot;
+
+        public CCS_WeatherSnapshot WeatherSnapshot => weatherSnapshot;
 
         public int EffectiveInventorySlotCount
         {
@@ -272,6 +277,22 @@ namespace CCS.Modules.UI
             RefreshGameTimeSnapshot();
         }
 
+        public void BindWeatherService(CCS_WeatherService service)
+        {
+            UnbindWeatherService();
+            weatherService = service;
+
+            if (weatherService == null)
+            {
+                return;
+            }
+
+            weatherService.WeatherChanged += HandleWeatherChanged;
+            weatherService.WeatherTransitionStarted += HandleWeatherChanged;
+            weatherService.WeatherTransitionCompleted += HandleWeatherChanged;
+            RefreshWeatherSnapshot();
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -279,6 +300,7 @@ namespace CCS.Modules.UI
             RefreshInventorySnapshot();
             RefreshEquipmentSnapshot();
             RefreshGameTimeSnapshot();
+            RefreshWeatherSnapshot();
             HudDataRefreshed?.Invoke(BuildEventArgs(message));
         }
 
@@ -307,6 +329,7 @@ namespace CCS.Modules.UI
             UnbindResourceRespawnService();
             UnbindCraftingService();
             UnbindTimeOfDayService();
+            UnbindWeatherService();
             isInitialized = false;
         }
 
@@ -731,6 +754,33 @@ namespace CCS.Modules.UI
             timeOfDayService.PhaseChanged -= HandleTimeOfDayChanged;
             timeOfDayService = null;
             gameTimeSnapshot = CCS_GameTimeSnapshot.Empty;
+        }
+
+        private void HandleWeatherChanged(CCS_WeatherEventArgs eventArgs)
+        {
+            RefreshWeatherSnapshot();
+            HudDataRefreshed?.Invoke(BuildEventArgs("Weather changed."));
+        }
+
+        private void RefreshWeatherSnapshot()
+        {
+            weatherSnapshot = weatherService != null && weatherService.IsInitialized
+                ? weatherService.GetSnapshot()
+                : CCS_WeatherSnapshot.Empty;
+        }
+
+        private void UnbindWeatherService()
+        {
+            if (weatherService == null)
+            {
+                return;
+            }
+
+            weatherService.WeatherChanged -= HandleWeatherChanged;
+            weatherService.WeatherTransitionStarted -= HandleWeatherChanged;
+            weatherService.WeatherTransitionCompleted -= HandleWeatherChanged;
+            weatherService = null;
+            weatherSnapshot = CCS_WeatherSnapshot.Empty;
         }
 
         #endregion

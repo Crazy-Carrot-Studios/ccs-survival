@@ -1,0 +1,19 @@
+{
+    "name": "CCS.Modules.Weather.Runtime",
+    "rootNamespace": "CCS.Modules.Weather",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.TimeOfDay.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

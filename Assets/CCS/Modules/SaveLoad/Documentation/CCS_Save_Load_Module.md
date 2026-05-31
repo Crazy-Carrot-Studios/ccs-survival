@@ -73,10 +73,11 @@ Registered at **0.6.2**:
 | `ccs.survival.saveable.inventory.player` | `CCS_PlayerInventoryService` |
 | `ccs.survival.saveable.equipment.player` | `CCS_PlayerEquipmentService` |
 | `ccs.survival.saveable.timeofday.global` | `CCS_TimeOfDayService` |
+| `ccs.survival.saveable.weather.global` | `CCS_WeatherService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
 
-Load order: inventory → equipment → time of day (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
+Load order: inventory → equipment → time of day → weather (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
 
 ---
 
@@ -234,6 +235,8 @@ Equipment payload persists equipped slot entries (slot type + item ID + durabili
 
 1. **Inventory first** — item stacks must exist before equipment-dependent gameplay resumes.
 2. **Equipment second** — equipped items restore after inventory baseline is applied.
+3. **Time of day third** — global clock restores before weather that may read time snapshots.
+4. **Weather fourth** — global weather state restores after time baseline is applied.
 
 Missing item or equipment definitions fail safely during restore (slot skipped, warning logged, no corruption of other slots).
 

@@ -29,6 +29,8 @@ namespace CCS.Survival.Editor.Development
             "Assets/CCS/Survival/Profiles/SaveLoad/CCS_DefaultSaveLoadProfile.asset";
         private const string TimeOfDayProfilePath =
             "Assets/CCS/Survival/Profiles/TimeOfDay/CCS_DefaultTimeOfDayProfile.asset";
+        private const string WeatherProfilePath =
+            "Assets/CCS/Survival/Profiles/Weather/CCS_DefaultWeatherProfile.asset";
         private const string LogPrefix = "[CCS_SurvivalGameplayServiceBootstrapSetup]";
 
         #region Public Methods
@@ -68,6 +70,8 @@ namespace CCS.Survival.Editor.Development
                 AssetDatabase.LoadAssetAtPath<Object>(SaveLoadProfilePath);
             serializedHost.FindProperty("timeOfDayProfile").objectReferenceValue =
                 AssetDatabase.LoadAssetAtPath<Object>(TimeOfDayProfilePath);
+            serializedHost.FindProperty("weatherProfile").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Object>(WeatherProfilePath);
             serializedHost.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(prefabContents, prefabPath);

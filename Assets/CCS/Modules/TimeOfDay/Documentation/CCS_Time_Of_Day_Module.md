@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.TimeOfDay` (editor: `CCS.Modules.TimeOfDay.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Global game clock foundation complete at **0.7.0**. Weather, lighting art, sleep, and AI schedules deferred.
+**Status:** Global game clock foundation complete at **0.7.0**. Weather module (0.7.1) reads time snapshots; Time Of Day does not depend on Weather. Lighting art, sleep, and AI schedules deferred.
 
 ---
 
@@ -150,7 +150,7 @@ Phase: Day
 
 | Area | Status |
 |------|--------|
-| Weather coupling | Deferred |
+| Weather coupling | One-way only — Weather may read Time Of Day; not vice versa (see Weather module 0.7.1) |
 | Lighting / sky art | Deferred |
 | Sleep gameplay | Deferred |
 | Farming growth schedules | Deferred |

@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.7.0 — Time Of Day Foundation  
+**Milestone baseline:** 0.7.1 — Weather Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Global game clock foundation **complete** at **0.7.0**. Weather, lighting art, sleep, and AI schedules deferred.
+**Status:** Global weather foundation **complete** at **0.7.1**. VFX, lighting, audio, and environment stat coupling deferred.
 
 ---
 
@@ -36,8 +36,9 @@
 | **0.6.1** | Save / load debug controls |
 | **0.6.2** | Inventory & equipment persistence |
 | **0.7.0** | Time of day foundation |
+| **0.7.1** | Weather foundation |
 
-Later milestones continue from **0.7.0+** (weather, sleep, AI schedules, combat, building, quests, audio, settings finalization).
+Later milestones continue from **0.7.2+** (environment effects, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
 
 ---
 
@@ -77,14 +78,15 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
 | 9 | **0.6.0 – 0.6.2** | **Save / Load** | `ccs.survival.saveload` — **Foundation + inventory/equipment persistence complete** |
 | 10 | **0.7.0** | **Time Of Day** | `ccs.survival.timeofday` — **Foundation complete** |
-| 11 | 0.7.x | Weather | `ccs.survival.weather` |
-| 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
-| 13 | 0.5.x | Combat | `ccs.survival.combat` |
-| 14 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
-| 15 | 0.5.x | Building | `ccs.survival.building` |
-| 16 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
-| 17 | 0.5.x | Audio | `ccs.survival.audio` |
-| 18 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
+| 11 | **0.7.1** | **Weather** | `ccs.survival.weather` — **Foundation complete** |
+| 12 | 0.7.2 | Environment Effects | `ccs.survival.environment` |
+| 13 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
+| 14 | 0.5.x | Combat | `ccs.survival.combat` |
+| 15 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
+| 16 | 0.5.x | Building | `ccs.survival.building` |
+| 17 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
+| 18 | 0.5.x | Audio | `ccs.survival.audio` |
+| 19 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
 
 **Rationale:** UI immediately after Inventory lets every subsequent system be validated on-screen as it is built.
 
@@ -122,7 +124,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.7.1+ — Weather and lighting integration planning**
+**0.7.2 — Environment Effects Foundation** (temperature, wetness, exposure modifiers driven by Time + Weather)
+
+---
+
+## 0.7.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Weather module under `Assets/CCS/Modules/Weather/` | **Complete** |
+| Global weather service with transitions and events | **Complete** |
+| Default weather profile asset | **Complete** |
+| One-way Time Of Day integration | **Complete** |
+| Save/load integration via `CCS_ISaveable` | **Complete** |
+| Bootstrap HUD weather display | **Complete** |
+| Validation pipeline registration | **Complete** |
+| Version **0.7.1** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

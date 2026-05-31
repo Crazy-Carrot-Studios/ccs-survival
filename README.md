@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.7.0** — Time Of Day Foundation
+**0.7.1** — Weather Foundation
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**.
 
 ### Implemented Modules
 - Character Controller
@@ -40,6 +40,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module 
 - World Resources
 - Save / Load (persistence foundation)
 - Time Of Day (global game clock foundation)
+- Weather (global weather state foundation)
 - UI / HUD (presentation foundation)
 
 ### Validated
@@ -118,6 +119,7 @@ Assets/
 | World Resources | Harvest integration (0.5.2) |
 | Save / Load | Foundation + inventory/equipment persistence (0.6.2) |
 | Time Of Day | Global game clock foundation (0.7.0) |
+| Weather | Global weather state foundation (0.7.1) |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
@@ -142,6 +144,7 @@ Every milestone must pass:
 - World Resources validation
 - Save/load validation
 - Time Of Day validation
+- Weather validation
 - Bootstrap scene validation
 
 **Policy:** zero warnings, zero errors.
@@ -161,8 +164,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.7.0
-**Build output:** `Builds/CCS_Survival_0.7.0_Windows/` (gitignored)
+**Latest verified build:** 0.7.1
+**Build output:** `Builds/CCS_Survival_0.7.1_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
@@ -201,7 +204,7 @@ See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream
 
 ## Next Milestone
 
-**0.7.1+** — Weather and lighting integration planning
+**0.7.2+** — Environment Effects Foundation (temperature, wetness, exposure driven by Time + Weather)
 
 ---
 

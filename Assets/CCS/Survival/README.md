@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.0 — Time Of Day Foundation  
+**Milestone:** 0.7.1 — Weather Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -80,6 +80,19 @@
 **Editor menu:** **CCS → Survival → Time Of Day → Validate Time Of Day**
 
 **0.7.0:** Global game clock with phases, events, save/load persistence, and bootstrap HUD time display.
+
+## Weather (0.7.1)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/Weather/Runtime/` |
+| Editor validation | `../Modules/Weather/Editor/Validation/` |
+| Default profile | `Profiles/Weather/CCS_DefaultWeatherProfile.asset` |
+| Module doc | [../Modules/Weather/Documentation/CCS_Weather_Module.md](../Modules/Weather/Documentation/CCS_Weather_Module.md) |
+
+**Editor menu:** **CCS → Survival → Weather → Validate Weather**
+
+**0.7.1:** Global weather state with transitions, one-way Time Of Day integration, save/load persistence, and bootstrap HUD weather display. No VFX, lighting, or audio.
 
 ## Inventory (0.4.0)
 

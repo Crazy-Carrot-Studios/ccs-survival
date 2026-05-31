@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.TimeOfDay;
+using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
@@ -91,6 +92,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_TimeOfDayService timeOfDayService))
             {
                 presentationService.BindTimeOfDayService(timeOfDayService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_WeatherService weatherService))
+            {
+                presentationService.BindWeatherService(weatherService);
                 wiredAnyService = true;
             }
 
