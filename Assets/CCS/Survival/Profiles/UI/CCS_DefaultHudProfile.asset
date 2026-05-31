@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.UI.Runtime::CCS.Modules.UI.CCS_HudProfile
   profileDisplayName: Default HUD
   profileId: ccs.survival.profile.ui.default
-  profileDescription: Default HUD presentation profile tuned for readability at 0.4.2a.
-  profileVersion: 0.4.2a
+  profileDescription: Default HUD presentation profile tuned for 0.4.3 runtime wiring.
+  profileVersion: 0.4.3
   enableDebugLogs: 0
   showSurvivalBars: 1
   showInteractionPrompt: 1

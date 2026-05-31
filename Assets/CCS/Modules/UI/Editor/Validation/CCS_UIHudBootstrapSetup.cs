@@ -35,7 +35,8 @@ namespace CCS.Modules.UI.Editor
         private const float InteractionPromptWidth = 480f;
         private const float InteractionPromptHeight = 44f;
         private const float SummaryPanelWidth = 420f;
-        private const float SummaryPanelHeight = 38f;
+        private const float SummaryPanelHeight = 48f;
+        private const float EquipmentSummaryPanelHeight = 56f;
         private const float NotificationWidth = 400f;
         private const float NotificationRowHeight = 40f;
         private const int NotificationFontSize = 16;
@@ -77,7 +78,7 @@ namespace CCS.Modules.UI.Editor
             root.AddComponent<GraphicRaycaster>();
             CCS_HudRootPresenter rootPresenter = root.AddComponent<CCS_HudRootPresenter>();
 
-            float survivalPanelHeight = ((SurvivalBarHeight + 6f) * 4f) + 12f;
+            float survivalPanelHeight = ((SurvivalBarHeight + 6f) * 6f) + 12f;
             GameObject survivalArea = CreatePanel(
                 root.transform,
                 "SurvivalBarArea",
@@ -110,11 +111,11 @@ namespace CCS.Modules.UI.Editor
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(-SafeMargin, SafeMargin + SummaryPanelHeight + 8f),
+                new Vector2(-SafeMargin, SafeMargin + EquipmentSummaryPanelHeight + 8f),
                 new Vector2(SummaryPanelWidth, SummaryPanelHeight));
             inventoryArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
             CCS_InventorySummaryPresenter inventoryPresenter = inventoryArea.AddComponent<CCS_InventorySummaryPresenter>();
-            Text inventoryText = CreateText(inventoryArea.transform, "SummaryText", "Inventory: --", SummaryFontSize, TextAnchor.MiddleRight);
+            Text inventoryText = CreateText(inventoryArea.transform, "SummaryText", "Inventory\n-- / -- Slots", SummaryFontSize, TextAnchor.MiddleRight);
             inventoryText.color = new Color(0.95f, 0.95f, 0.95f, 1f);
             SetPresenterField(inventoryPresenter, "summaryText", inventoryText);
 
@@ -125,10 +126,10 @@ namespace CCS.Modules.UI.Editor
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(-SafeMargin, SafeMargin),
-                new Vector2(SummaryPanelWidth, SummaryPanelHeight));
+                new Vector2(SummaryPanelWidth, EquipmentSummaryPanelHeight));
             equipmentArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
             CCS_EquipmentSummaryPresenter equipmentPresenter = equipmentArea.AddComponent<CCS_EquipmentSummaryPresenter>();
-            Text equipmentText = CreateText(equipmentArea.transform, "SummaryText", "Equipment: --", SummaryFontSize, TextAnchor.MiddleRight);
+            Text equipmentText = CreateText(equipmentArea.transform, "SummaryText", "Equipment\n--", SummaryFontSize, TextAnchor.MiddleRight);
             equipmentText.color = new Color(0.95f, 0.95f, 0.95f, 1f);
             SetPresenterField(equipmentPresenter, "summaryText", equipmentText);
 
@@ -272,10 +273,12 @@ namespace CCS.Modules.UI.Editor
         private static void CreateSurvivalBars(Transform parent, CCS_SurvivalBarPresenter presenter)
         {
             float rowSpacing = SurvivalBarHeight + 6f;
-            CreateBarRow(parent, "HealthRow", "Health", rowSpacing * 3f, out Text healthLabel, out Image healthFill);
-            CreateBarRow(parent, "StaminaRow", "Stamina", rowSpacing * 2f, out Text staminaLabel, out Image staminaFill);
-            CreateBarRow(parent, "HungerRow", "Hunger", rowSpacing, out Text hungerLabel, out Image hungerFill);
-            CreateBarRow(parent, "ThirstRow", "Thirst", 0f, out Text thirstLabel, out Image thirstFill);
+            CreateBarRow(parent, "HealthRow", "Health", rowSpacing * 5f, out Text healthLabel, out Image healthFill);
+            CreateBarRow(parent, "StaminaRow", "Stamina", rowSpacing * 4f, out Text staminaLabel, out Image staminaFill);
+            CreateBarRow(parent, "HungerRow", "Hunger", rowSpacing * 3f, out Text hungerLabel, out Image hungerFill);
+            CreateBarRow(parent, "ThirstRow", "Thirst", rowSpacing * 2f, out Text thirstLabel, out Image thirstFill);
+            CreateBarRow(parent, "FatigueRow", "Fatigue", rowSpacing, out Text fatigueLabel, out Image fatigueFill);
+            CreateBarRow(parent, "TemperatureRow", "Temp", 0f, out Text temperatureLabel, out Image temperatureFill);
 
             SetPresenterField(presenter, "healthLabel", healthLabel);
             SetPresenterField(presenter, "healthFill", healthFill);
@@ -285,6 +288,10 @@ namespace CCS.Modules.UI.Editor
             SetPresenterField(presenter, "hungerFill", hungerFill);
             SetPresenterField(presenter, "thirstLabel", thirstLabel);
             SetPresenterField(presenter, "thirstFill", thirstFill);
+            SetPresenterField(presenter, "fatigueLabel", fatigueLabel);
+            SetPresenterField(presenter, "fatigueFill", fatigueFill);
+            SetPresenterField(presenter, "temperatureLabel", temperatureLabel);
+            SetPresenterField(presenter, "temperatureFill", temperatureFill);
         }
 
         private static void CreateBarRow(

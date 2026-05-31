@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 973492002}
   - component: {fileID: 973492003}
   - component: {fileID: 973492004}
+  - component: {fileID: 5461470704683266837}
   m_Layer: 0
   m_Name: PF_CCS_Survival_BootstrapRoot
   m_TagString: Untagged
@@ -25,6 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 973492001}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -60,3 +62,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Survival.Runtime::CCS.Survival.CCS_SurvivalBootstrap
   enableSurvivalDiagnostics: 1
   enableDebugLogs: 1
+  bootstrapProfileSlots: []
+--- !u!114 &5461470704683266837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973492001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626f13bf99c68f848806846517493dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Composition::CCS.Survival.Composition.CCS_SurvivalGameplayServiceHost
+  survivalCoreProfile: {fileID: 11400000, guid: 1357996d82ae03844ab5892847fb6c18, type: 2}
+  interactionProfile: {fileID: 11400000, guid: c9d0e1f2a3b4560690abcdef12345609, type: 2}
+  inventoryProfile: {fileID: 11400000, guid: c5d6e7f8a9b0490c90abcdef1234560f, type: 2}
+  equipmentProfile: {fileID: 11400000, guid: e5f6a7b8c9d0490c90abcdef1234561e, type: 2}
+  enableDebugLogs: 0

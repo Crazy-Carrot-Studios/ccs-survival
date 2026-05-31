@@ -77,16 +77,24 @@ namespace CCS.Modules.UI
                 return;
             }
 
-            if (presentationService?.EquipmentSnapshot == null ||
-                presentationService.EquipmentSnapshot.TotalSlotCount <= 0)
+            if (presentationService == null || presentationService.EquipmentSnapshot == null)
             {
-                summaryText.text = "Equipment: --";
+                summaryText.text = "Equipment\n--";
                 return;
             }
 
             CCS.Modules.Equipment.CCS_EquipmentSnapshot snapshot = presentationService.EquipmentSnapshot;
-            summaryText.text =
-                $"Equipment: {snapshot.OccupiedSlotCount}/{snapshot.TotalSlotCount} | +Slots {snapshot.TotalAdditionalInventorySlots} | +Wt {snapshot.TotalAdditionalCarryWeight:0}";
+            if (snapshot.TotalSlotCount <= 0)
+            {
+                summaryText.text = "Equipment\n--";
+                return;
+            }
+
+            string bonusLine = snapshot.TotalAdditionalInventorySlots > 0
+                ? $"\n+{snapshot.TotalAdditionalInventorySlots} Inventory Slots"
+                : string.Empty;
+
+            summaryText.text = $"Equipment\n{snapshot.OccupiedSlotCount} Equipped{bonusLine}";
         }
 
         private void ApplyTypography(CCS_HudProfile profile)

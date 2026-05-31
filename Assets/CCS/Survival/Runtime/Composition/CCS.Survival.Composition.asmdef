@@ -1,14 +1,15 @@
 {
-    "name": "CCS.Survival.Editor",
-    "rootNamespace": "CCS.Survival.Editor",
+    "name": "CCS.Survival.Composition",
+    "rootNamespace": "CCS.Survival.Composition",
     "references": [
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
-        "CCS.Survival.Composition"
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

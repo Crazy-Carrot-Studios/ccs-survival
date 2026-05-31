@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace CCS.Modules.UI
 {
+    [DefaultExecutionOrder(150)]
     public sealed class CCS_HudRootPresenter : MonoBehaviour
     {
         #region Variables
@@ -62,9 +63,14 @@ namespace CCS.Modules.UI
                 presentationService.InitializeFromProfile(hudProfile);
             }
 
-            BindPresenters();
             ApplyLayoutFromProfile();
-            presentationService.RefreshCachedData("HUD root initialized.");
+        }
+
+        private void Start()
+        {
+            CCS_HudGameplayServiceWiring.TryWirePresentationService(presentationService);
+            BindPresenters();
+            presentationService?.RefreshCachedData("HUD gameplay services wired.");
         }
 
         private void OnDestroy()

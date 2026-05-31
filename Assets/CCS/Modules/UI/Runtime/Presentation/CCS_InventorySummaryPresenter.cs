@@ -77,16 +77,17 @@ namespace CCS.Modules.UI
                 return;
             }
 
-            if (presentationService?.InventorySnapshot == null ||
+            if (presentationService == null ||
+                presentationService.InventorySnapshot == null ||
                 presentationService.InventorySnapshot.SlotCount <= 0)
             {
-                summaryText.text = "Inventory: --";
+                summaryText.text = "Inventory\n-- / -- Slots";
                 return;
             }
 
             CCS.Modules.Inventory.CCS_InventorySnapshot snapshot = presentationService.InventorySnapshot;
-            summaryText.text =
-                $"Inventory: {snapshot.UsedSlotCount}/{snapshot.SlotCount} | Qty {snapshot.TotalItemQuantity}";
+            int totalSlots = presentationService.EffectiveInventorySlotCount;
+            summaryText.text = $"Inventory\n{snapshot.UsedSlotCount} / {totalSlots} Slots";
         }
 
         private void ApplyTypography(CCS_HudProfile profile)

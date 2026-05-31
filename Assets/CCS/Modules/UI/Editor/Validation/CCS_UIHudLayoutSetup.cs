@@ -61,8 +61,8 @@ namespace CCS.Modules.UI.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default HUD";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.ui.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default HUD presentation profile tuned for readability at 0.4.2a.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.4.2a";
+                "Default HUD presentation profile tuned for 0.4.3 runtime wiring.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.4.3";
             serializedProfile.FindProperty("showSurvivalBars").boolValue = true;
             serializedProfile.FindProperty("showInteractionPrompt").boolValue = true;
             serializedProfile.FindProperty("showInventorySummary").boolValue = true;

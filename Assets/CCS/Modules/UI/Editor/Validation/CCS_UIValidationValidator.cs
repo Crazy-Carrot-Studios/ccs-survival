@@ -56,6 +56,7 @@ namespace CCS.Modules.UI.Editor
             ValidateRequiredScript(report, "CCS_HudLayoutSettings", RuntimeRoot + "/Profiles/CCS_HudLayoutSettings.cs");
             ValidateRequiredScript(report, "CCS_NotificationProfile", RuntimeRoot + "/Profiles/CCS_NotificationProfile.cs");
             ValidateRequiredScript(report, "CCS_HudPresentationService", RuntimeRoot + "/Services/CCS_HudPresentationService.cs");
+            ValidateRequiredScript(report, "CCS_HudGameplayServiceWiring", RuntimeRoot + "/Services/CCS_HudGameplayServiceWiring.cs");
             ValidateRequiredScript(report, "CCS_HudRootPresenter", RuntimeRoot + "/Presentation/CCS_HudRootPresenter.cs");
             ValidateRequiredScript(report, "CCS_HudLayoutApplicator", RuntimeRoot + "/Presentation/CCS_HudLayoutApplicator.cs");
             ValidateRequiredScript(report, "CCS_SurvivalBarPresenter", RuntimeRoot + "/Presentation/CCS_SurvivalBarPresenter.cs");
@@ -115,6 +116,10 @@ namespace CCS.Modules.UI.Editor
                         "HUD Prefab",
                         "PF_CCS_HUD_Root is missing CCS_HudRootPresenter.");
                 }
+                else if (prefabRoot != null)
+                {
+                    ValidateHudPrefabPresenters(report, prefabRoot);
+                }
             }
             else
             {
@@ -125,11 +130,128 @@ namespace CCS.Modules.UI.Editor
             }
 
             ValidateBootstrapSceneHudInstance(report);
+            ValidateBootstrapGameplayServiceProfiles(report);
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateHudPrefabPresenters(CCS_SurvivalValidationReport report, GameObject prefabRoot)
+        {
+            CCS_HudRootPresenter rootPresenter = prefabRoot.GetComponent<CCS_HudRootPresenter>();
+            if (rootPresenter == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedRoot = new SerializedObject(rootPresenter);
+            ValidatePresenterReference(report, serializedRoot, "survivalBarPresenter", "Survival Bar Presenter");
+            ValidatePresenterReference(report, serializedRoot, "interactionPromptPresenter", "Interaction Prompt Presenter");
+            ValidatePresenterReference(report, serializedRoot, "inventorySummaryPresenter", "Inventory Summary Presenter");
+            ValidatePresenterReference(report, serializedRoot, "equipmentSummaryPresenter", "Equipment Summary Presenter");
+            ValidatePresenterReference(report, serializedRoot, "notificationQueue", "Notification Queue");
+            ValidatePresenterReference(report, serializedRoot, "hudProfile", "HUD Profile");
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "HUD Prefab Presenters",
+                "PF_CCS_HUD_Root presenter references validated.");
+        }
+
+        private static void ValidatePresenterReference(
+            CCS_SurvivalValidationReport report,
+            SerializedObject serializedRoot,
+            string propertyName,
+            string label)
+        {
+            SerializedProperty property = serializedRoot.FindProperty(propertyName);
+            if (property != null && property.objectReferenceValue != null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "HUD Prefab Presenters",
+                    $"{label} assigned.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "HUD Prefab Presenters",
+                $"{label} is not assigned on PF_CCS_HUD_Root.");
+        }
+
+        private static void ValidateBootstrapGameplayServiceProfiles(CCS_SurvivalValidationReport report)
+        {
+            const string bootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
+            if (!File.Exists(bootstrapPrefabPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Gameplay Services",
+                    $"Missing bootstrap prefab: {bootstrapPrefabPath}");
+                return;
+            }
+
+            GameObject bootstrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(bootstrapPrefabPath);
+            Component gameplayServiceHost = FindGameplayServiceHost(bootstrapPrefab);
+            if (gameplayServiceHost == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Gameplay Services",
+                    "PF_CCS_Survival_BootstrapRoot is missing CCS_SurvivalGameplayServiceHost.");
+                return;
+            }
+
+            SerializedObject serializedHost = new SerializedObject(gameplayServiceHost);
+            ValidateBootstrapProfileReference(report, serializedHost, "survivalCoreProfile", "Survival Core Profile");
+            ValidateBootstrapProfileReference(report, serializedHost, "interactionProfile", "Interaction Profile");
+            ValidateBootstrapProfileReference(report, serializedHost, "inventoryProfile", "Inventory Profile");
+            ValidateBootstrapProfileReference(report, serializedHost, "equipmentProfile", "Equipment Profile");
+        }
+
+        private static Component FindGameplayServiceHost(GameObject bootstrapPrefab)
+        {
+            if (bootstrapPrefab == null)
+            {
+                return null;
+            }
+
+            Component[] components = bootstrapPrefab.GetComponents<Component>();
+            for (int index = 0; index < components.Length; index++)
+            {
+                Component component = components[index];
+                if (component != null && component.GetType().Name == "CCS_SurvivalGameplayServiceHost")
+                {
+                    return component;
+                }
+            }
+
+            return null;
+        }
+
+        private static void ValidateBootstrapProfileReference(
+            CCS_SurvivalValidationReport report,
+            SerializedObject serializedHost,
+            string propertyName,
+            string label)
+        {
+            SerializedProperty property = serializedHost.FindProperty(propertyName);
+            if (property != null && property.objectReferenceValue != null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Gameplay Services",
+                    $"{label} assigned on bootstrap prefab.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Warning,
+                "Bootstrap Gameplay Services",
+                $"{label} is not assigned on PF_CCS_Survival_BootstrapRoot.");
+        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,

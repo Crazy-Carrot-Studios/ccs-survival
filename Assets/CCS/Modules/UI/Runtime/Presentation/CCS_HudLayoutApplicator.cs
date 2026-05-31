@@ -73,7 +73,7 @@ namespace CCS.Modules.UI
             }
 
             float barSpacing = layout.SurvivalBarHeight + 6f;
-            float panelHeight = (barSpacing * 4f) + 12f;
+            float panelHeight = (barSpacing * 6f) + 12f;
 
             ConfigureRect(
                 area,

@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
     public sealed class CCS_SurvivalFoundationValidationValidator : CCS_ISurvivalValidationValidator
     {
         private const string SurvivalRoot = "Assets/CCS/Survival";
-        private const string ExpectedBundleVersion = "0.4.2a";
+        private const string ExpectedBundleVersion = "0.4.3";
 
         #region Properties
 

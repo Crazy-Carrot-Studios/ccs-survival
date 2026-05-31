@@ -9,7 +9,7 @@ using UnityEngine.UI;
 // PLACEMENT: Child of PF_CCS_HUD_Root notification area.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-30
-// NOTES: Presentation-only. Does not mutate gameplay systems.
+// NOTES: Displays notifications from CCS_HudPresentationService.NotificationQueued.
 // =============================================================================
 
 namespace CCS.Modules.UI

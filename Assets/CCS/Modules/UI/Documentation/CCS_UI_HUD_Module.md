@@ -1,7 +1,7 @@
 # CCS UI / HUD Module
 
 **Module ID (planned):** `ccs.survival.ui`  
-**Milestone:** 0.4.2a — HUD Readability & Anchor Pass  
+**Milestone:** 0.4.3 — HUD Runtime Wiring Pass  
 **Author:** James Schilz  
 **Date:** 2026-05-30
 
@@ -36,6 +36,33 @@ Rules:
 - No stat damage/heal from UI
 - No equip/unequip from UI
 - Safe when gameplay services are missing
+
+---
+
+## Runtime wiring
+
+Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_SurvivalGameplayServiceRegistration` during `CCS_SurvivalBootstrap` startup.
+
+`CCS_HudRootPresenter` resolves services in `Start()` via `CCS_HudGameplayServiceWiring` and binds them to `CCS_HudPresentationService`.
+
+| Gameplay service | HUD data |
+|------------------|----------|
+| `CCS_SurvivalCoreService` | Health, stamina, hunger, thirst, fatigue, temperature snapshots |
+| `CCS_InteractionService` | Plain-text interaction prompt |
+| `CCS_PlayerInventoryService` | Used/total slot summary (includes equipment slot bonuses) |
+| `CCS_PlayerEquipmentService` | Equipped count and bonus inventory slots |
+
+`CCS_HudPresentationService` subscribes to gameplay events and raises read-only HUD notifications:
+
+| Source event | Notification |
+|--------------|--------------|
+| Inventory item added | Item Added |
+| Inventory item removed | Item Removed |
+| Equipment item equipped | Item Equipped |
+| Equipment item unequipped | Item Unequipped |
+| Interaction failed | Interaction Failed |
+
+`CCS_NotificationQueue` displays notifications from `CCS_HudPresentationService.NotificationQueued` using profile lifetime and max visible count.
 
 ---
 

@@ -23,19 +23,25 @@ namespace CCS.Modules.UI
             string interactionPrompt,
             CCS_InventorySnapshot inventorySnapshot,
             CCS_EquipmentSnapshot equipmentSnapshot,
+            int effectiveInventorySlotCount,
             CCS_SurvivalStatSnapshot healthSnapshot,
             CCS_SurvivalStatSnapshot staminaSnapshot,
             CCS_SurvivalStatSnapshot hungerSnapshot,
-            CCS_SurvivalStatSnapshot thirstSnapshot)
+            CCS_SurvivalStatSnapshot thirstSnapshot,
+            CCS_SurvivalStatSnapshot fatigueSnapshot,
+            CCS_SurvivalStatSnapshot temperatureSnapshot)
         {
             Message = message ?? string.Empty;
             InteractionPrompt = interactionPrompt ?? string.Empty;
             InventorySnapshot = inventorySnapshot;
             EquipmentSnapshot = equipmentSnapshot;
+            EffectiveInventorySlotCount = effectiveInventorySlotCount;
             HealthSnapshot = healthSnapshot;
             StaminaSnapshot = staminaSnapshot;
             HungerSnapshot = hungerSnapshot;
             ThirstSnapshot = thirstSnapshot;
+            FatigueSnapshot = fatigueSnapshot;
+            TemperatureSnapshot = temperatureSnapshot;
         }
 
         #endregion
@@ -50,6 +56,8 @@ namespace CCS.Modules.UI
 
         public CCS_EquipmentSnapshot EquipmentSnapshot { get; }
 
+        public int EffectiveInventorySlotCount { get; }
+
         public CCS_SurvivalStatSnapshot HealthSnapshot { get; }
 
         public CCS_SurvivalStatSnapshot StaminaSnapshot { get; }
@@ -57,6 +65,10 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot HungerSnapshot { get; }
 
         public CCS_SurvivalStatSnapshot ThirstSnapshot { get; }
+
+        public CCS_SurvivalStatSnapshot FatigueSnapshot { get; }
+
+        public CCS_SurvivalStatSnapshot TemperatureSnapshot { get; }
 
         #endregion
     }

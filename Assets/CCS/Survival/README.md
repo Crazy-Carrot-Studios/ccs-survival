@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.4.2a — HUD Readability & Anchor Pass  
+**Milestone:** 0.4.3 — HUD Runtime Wiring Pass  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 

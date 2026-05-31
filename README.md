@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.4.2a** — HUD Readability & Anchor Pass
+**0.4.3** — HUD Runtime Wiring Pass
 
 **Unity:** Unity 6
 
 ### Status
 
-Foundation phase complete. UI/HUD readability and anchor pass delivered at **0.4.2a**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**.
 
 ### Implemented Modules
 - Character Controller
@@ -44,7 +44,7 @@ Foundation phase complete. UI/HUD readability and anchor pass delivered at **0.4
 - Module validation pipeline
 - Bootstrap scene validation
 - UI validation
-- Windows build verification (0.4.2a)
+- Windows build verification (0.4.3)
 
 ---
 
@@ -109,7 +109,7 @@ Assets/
 | Interaction | Complete |
 | Inventory | Complete |
 | Equipment | Complete |
-| UI / HUD | Foundation + readability (0.4.2a) |
+| UI / HUD | Runtime wiring (0.4.3) |
 | Crafting | Planned |
 | Building | Planned |
 | Wildlife | Planned |
@@ -151,8 +151,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.4.2a
-**Build output:** `Builds/CCS_Survival_0.4.2a_Windows/` (gitignored)
+**Latest verified build:** 0.4.3
+**Build output:** `Builds/CCS_Survival_0.4.3_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

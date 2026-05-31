@@ -37,6 +37,8 @@ namespace CCS.Modules.UI
         private CCS_SurvivalStatSnapshot staminaSnapshot;
         private CCS_SurvivalStatSnapshot hungerSnapshot;
         private CCS_SurvivalStatSnapshot thirstSnapshot;
+        private CCS_SurvivalStatSnapshot fatigueSnapshot;
+        private CCS_SurvivalStatSnapshot temperatureSnapshot;
 
         private bool isInitialized;
 
@@ -71,6 +73,27 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot HungerSnapshot => hungerSnapshot;
 
         public CCS_SurvivalStatSnapshot ThirstSnapshot => thirstSnapshot;
+
+        public CCS_SurvivalStatSnapshot FatigueSnapshot => fatigueSnapshot;
+
+        public CCS_SurvivalStatSnapshot TemperatureSnapshot => temperatureSnapshot;
+
+        public int EffectiveInventorySlotCount
+        {
+            get
+            {
+                if (inventorySnapshot == null || inventorySnapshot.SlotCount <= 0)
+                {
+                    return 0;
+                }
+
+                int bonusSlots = equipmentSnapshot != null
+                    ? equipmentSnapshot.TotalAdditionalInventorySlots
+                    : 0;
+
+                return inventorySnapshot.SlotCount + bonusSlots;
+            }
+        }
 
         #endregion
 
@@ -107,6 +130,18 @@ namespace CCS.Modules.UI
             HudInitialized?.Invoke(BuildEventArgs("HUD initialized."));
         }
 
+        public bool TryGetStatSnapshot(CCS_SurvivalStatType statType, out CCS_SurvivalStatSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (survivalCoreService == null || !survivalCoreService.IsInitialized)
+            {
+                return false;
+            }
+
+            return survivalCoreService.TryGetSnapshot(statType, out snapshot);
+        }
+
         public void BindSurvivalCoreService(CCS_SurvivalCoreService service)
         {
             UnbindSurvivalCoreService();
@@ -133,6 +168,7 @@ namespace CCS.Modules.UI
 
             interactionService.InteractableFound += HandleInteractableFound;
             interactionService.InteractableLost += HandleInteractableLost;
+            interactionService.InteractionFailed += HandleInteractionFailed;
             RefreshInteractionPrompt();
         }
 
@@ -146,6 +182,8 @@ namespace CCS.Modules.UI
                 return;
             }
 
+            inventoryService.ItemAdded += HandleInventoryItemAdded;
+            inventoryService.ItemRemoved += HandleInventoryItemRemoved;
             inventoryService.InventoryChanged += HandleInventoryChanged;
             RefreshInventorySnapshot();
         }
@@ -160,6 +198,8 @@ namespace CCS.Modules.UI
                 return;
             }
 
+            equipmentService.ItemEquipped += HandleEquipmentItemEquipped;
+            equipmentService.ItemUnequipped += HandleEquipmentItemUnequipped;
             equipmentService.EquipmentChanged += HandleEquipmentChanged;
             RefreshEquipmentSnapshot();
         }
@@ -217,10 +257,47 @@ namespace CCS.Modules.UI
             RefreshInteractionPrompt();
         }
 
+        private void HandleInteractionFailed(CCS_InteractionEventArgs eventArgs)
+        {
+            string message = eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message)
+                ? eventArgs.Message
+                : "Interaction failed.";
+
+            QueueNotification($"Interaction Failed: {message}");
+        }
+
+        private void HandleInventoryItemAdded(CCS_InventoryEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueNotification(BuildInventoryNotification("Item Added", eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Inventory item added."));
+        }
+
+        private void HandleInventoryItemRemoved(CCS_InventoryEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueNotification(BuildInventoryNotification("Item Removed", eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Inventory item removed."));
+        }
+
         private void HandleInventoryChanged(CCS_InventoryEventArgs eventArgs)
         {
             RefreshInventorySnapshot();
             HudDataRefreshed?.Invoke(BuildEventArgs("Inventory changed."));
+        }
+
+        private void HandleEquipmentItemEquipped(CCS_EquipmentEventArgs eventArgs)
+        {
+            RefreshEquipmentSnapshot();
+            QueueNotification(BuildEquipmentNotification("Item Equipped", eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Equipment item equipped."));
+        }
+
+        private void HandleEquipmentItemUnequipped(CCS_EquipmentEventArgs eventArgs)
+        {
+            RefreshEquipmentSnapshot();
+            QueueNotification(BuildEquipmentNotification("Item Unequipped", eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Equipment item unequipped."));
         }
 
         private void HandleEquipmentChanged(CCS_EquipmentEventArgs eventArgs)
@@ -237,6 +314,8 @@ namespace CCS.Modules.UI
                 staminaSnapshot = default;
                 hungerSnapshot = default;
                 thirstSnapshot = default;
+                fatigueSnapshot = default;
+                temperatureSnapshot = default;
                 return;
             }
 
@@ -244,6 +323,8 @@ namespace CCS.Modules.UI
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Stamina, out staminaSnapshot);
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Hunger, out hungerSnapshot);
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Thirst, out thirstSnapshot);
+            survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Fatigue, out fatigueSnapshot);
+            survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Temperature, out temperatureSnapshot);
         }
 
         private void RefreshInteractionPrompt()
@@ -290,6 +371,55 @@ namespace CCS.Modules.UI
                 : new CCS_EquipmentSnapshot(Array.Empty<CCS_EquippedItem>(), 0, 0, 0, 0f);
         }
 
+        private static string BuildInventoryNotification(string prefix, CCS_InventoryEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return prefix;
+            }
+
+            string itemName = eventArgs.ItemDefinition != null
+                ? eventArgs.ItemDefinition.DisplayName
+                : "Item";
+
+            if (string.IsNullOrWhiteSpace(itemName))
+            {
+                itemName = "Item";
+            }
+
+            return eventArgs.Quantity > 0
+                ? $"{prefix}: {itemName} x{eventArgs.Quantity}"
+                : $"{prefix}: {itemName}";
+        }
+
+        private static string BuildEquipmentNotification(string prefix, CCS_EquipmentEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return prefix;
+            }
+
+            string itemName = ResolveEquipmentDisplayName(eventArgs);
+            return $"{prefix}: {itemName}";
+        }
+
+        private static string ResolveEquipmentDisplayName(CCS_EquipmentEventArgs eventArgs)
+        {
+            if (eventArgs.EquipmentDefinition?.ItemDefinition != null &&
+                !string.IsNullOrWhiteSpace(eventArgs.EquipmentDefinition.ItemDefinition.DisplayName))
+            {
+                return eventArgs.EquipmentDefinition.ItemDefinition.DisplayName;
+            }
+
+            if (eventArgs.EquipmentDefinition != null &&
+                !string.IsNullOrWhiteSpace(eventArgs.EquipmentDefinition.name))
+            {
+                return eventArgs.EquipmentDefinition.name;
+            }
+
+            return "Equipment";
+        }
+
         private CCS_HudEventArgs BuildEventArgs(string message)
         {
             return new CCS_HudEventArgs(
@@ -297,10 +427,13 @@ namespace CCS.Modules.UI
                 currentInteractionPrompt,
                 inventorySnapshot,
                 equipmentSnapshot,
+                EffectiveInventorySlotCount,
                 healthSnapshot,
                 staminaSnapshot,
                 hungerSnapshot,
-                thirstSnapshot);
+                thirstSnapshot,
+                fatigueSnapshot,
+                temperatureSnapshot);
         }
 
         private void UnbindSurvivalCoreService()
@@ -323,6 +456,7 @@ namespace CCS.Modules.UI
 
             interactionService.InteractableFound -= HandleInteractableFound;
             interactionService.InteractableLost -= HandleInteractableLost;
+            interactionService.InteractionFailed -= HandleInteractionFailed;
             interactionService = null;
         }
 
@@ -333,6 +467,8 @@ namespace CCS.Modules.UI
                 return;
             }
 
+            inventoryService.ItemAdded -= HandleInventoryItemAdded;
+            inventoryService.ItemRemoved -= HandleInventoryItemRemoved;
             inventoryService.InventoryChanged -= HandleInventoryChanged;
             inventoryService = null;
         }
@@ -344,6 +480,8 @@ namespace CCS.Modules.UI
                 return;
             }
 
+            equipmentService.ItemEquipped -= HandleEquipmentItemEquipped;
+            equipmentService.ItemUnequipped -= HandleEquipmentItemUnequipped;
             equipmentService.EquipmentChanged -= HandleEquipmentChanged;
             equipmentService = null;
         }
