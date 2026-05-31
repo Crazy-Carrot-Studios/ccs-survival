@@ -1,3 +1,5 @@
+using System;
+using CCS.Modules.SaveLoad;
 using CCS.Survival;
 using UnityEngine;
 
@@ -8,12 +10,12 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by future inventory module installer.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No interaction, save, equipment, crafting, or UI references in 0.4.0.
+// NOTES: Implements CCS_ISaveable at 0.6.2. Restores before equipment save payloads.
 // =============================================================================
 
 namespace CCS.Modules.Inventory
 {
-    public sealed class CCS_PlayerInventoryService : CCS_ISurvivalService
+    public sealed class CCS_PlayerInventoryService : CCS_ISurvivalService, CCS_ISaveable
     {
         private const string LogPrefix = "[CCS_PlayerInventoryService]";
 
@@ -21,6 +23,8 @@ namespace CCS.Modules.Inventory
 
         private CCS_InventoryContainer inventoryContainer;
         private CCS_InventoryProfile activeProfile;
+        private CCS_ItemDefinitionLookup itemDefinitionLookup;
+        private Func<CCS_InventoryCapacityModifierSnapshot> capacityModifierSource;
         private bool isInitialized;
 
         #endregion
@@ -41,6 +45,8 @@ namespace CCS.Modules.Inventory
         public CCS_InventoryProfile ActiveProfile => activeProfile;
 
         public CCS_IInventoryContainer Container => inventoryContainer;
+
+        public string SaveableId => CCS_SaveLoadSaveableIds.PlayerInventory;
 
         #endregion
 
@@ -72,8 +78,14 @@ namespace CCS.Modules.Inventory
             }
 
             activeProfile = profile;
+            itemDefinitionLookup = new CCS_ItemDefinitionLookup(profile.SaveRestoreItemDefinitions);
             inventoryContainer = new CCS_InventoryContainer(profile.InventorySlotCount);
             isInitialized = true;
+        }
+
+        public void SetCapacityModifierSource(Func<CCS_InventoryCapacityModifierSnapshot> source)
+        {
+            capacityModifierSource = source;
         }
 
         public int AddItem(CCS_ItemDefinition itemDefinition, int quantity)
@@ -155,9 +167,113 @@ namespace CCS.Modules.Inventory
                 : new CCS_InventorySnapshot(System.Array.Empty<CCS_ItemStack>(), 0, 0, 0);
         }
 
+        public string CaptureState()
+        {
+            if (!EnsureInitialized())
+            {
+                return JsonUtility.ToJson(new CCS_InventorySaveData());
+            }
+
+            CCS_InventoryCapacityModifierSnapshot capacityModifiers = ResolveCapacityModifierSnapshot();
+            CCS_InventorySaveSlotEntry[] slotEntries = BuildSaveSlotEntries();
+            CCS_InventorySaveData saveData = new CCS_InventorySaveData
+            {
+                saveDataVersion = CCS_InventorySaveData.CurrentSaveDataVersion,
+                slotCount = inventoryContainer.SlotCount,
+                additionalInventorySlots = capacityModifiers.AdditionalInventorySlots,
+                additionalCarryWeight = capacityModifiers.AdditionalCarryWeight,
+                slots = slotEntries
+            };
+
+            return JsonUtility.ToJson(saveData);
+        }
+
+        public void RestoreState(string stateJson)
+        {
+            if (!EnsureInitialized())
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because service is not initialized.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(stateJson))
+            {
+                ClearInventory();
+                return;
+            }
+
+            CCS_InventorySaveData saveData = JsonUtility.FromJson<CCS_InventorySaveData>(stateJson);
+            if (saveData == null)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because payload could not be parsed.");
+                return;
+            }
+
+            if (saveData.saveDataVersion <= 0)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because saveDataVersion is missing.");
+                return;
+            }
+
+            inventoryContainer.RestoreFromSaveEntries(
+                saveData.slots,
+                itemDefinitionLookup,
+                out int restoredSlotCount,
+                out int skippedSlotCount);
+
+            if (skippedSlotCount > 0)
+            {
+                Debug.LogWarning(
+                    $"{LogPrefix} RestoreState skipped {skippedSlotCount} slot(s) due to missing or invalid item definitions.");
+            }
+
+            Debug.Log($"{LogPrefix} RestoreState restored {restoredSlotCount} occupied slot(s).");
+            RaiseInventoryChanged(null, 0, "Inventory restored from save.");
+        }
+
         #endregion
 
         #region Private Methods
+
+        private CCS_InventorySaveSlotEntry[] BuildSaveSlotEntries()
+        {
+            CCS_InventorySaveSlotEntry[] slotEntries =
+                new CCS_InventorySaveSlotEntry[inventoryContainer.SlotCount];
+
+            for (int slotIndex = 0; slotIndex < slotEntries.Length; slotIndex++)
+            {
+                CCS_InventorySlot slot = inventoryContainer.GetSlot(slotIndex);
+                CCS_InventorySaveSlotEntry saveEntry = new CCS_InventorySaveSlotEntry();
+
+                if (slot != null && !slot.IsEmpty && slot.Stack.ItemDefinition != null)
+                {
+                    saveEntry.itemId = slot.Stack.ItemDefinition.ItemId ?? string.Empty;
+                    saveEntry.quantity = slot.Stack.Quantity;
+                }
+
+                slotEntries[slotIndex] = saveEntry;
+            }
+
+            return slotEntries;
+        }
+
+        private CCS_InventoryCapacityModifierSnapshot ResolveCapacityModifierSnapshot()
+        {
+            if (capacityModifierSource == null)
+            {
+                return CCS_InventoryCapacityModifierSnapshot.Empty;
+            }
+
+            try
+            {
+                return capacityModifierSource.Invoke();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning($"{LogPrefix} Capacity modifier source failed: {exception.Message}");
+                return CCS_InventoryCapacityModifierSnapshot.Empty;
+            }
+        }
 
         private bool EnsureInitialized()
         {

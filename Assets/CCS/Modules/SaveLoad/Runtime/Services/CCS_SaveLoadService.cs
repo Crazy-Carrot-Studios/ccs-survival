@@ -52,6 +52,11 @@ namespace CCS.Modules.SaveLoad
 
         #region Public Methods
 
+        public bool IsSaveableRegistered(string saveableId)
+        {
+            return saveableRegistry.TryGetSaveable(saveableId, out _);
+        }
+
         public void Initialize()
         {
             if (isInitialized)

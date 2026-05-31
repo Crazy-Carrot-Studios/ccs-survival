@@ -99,6 +99,8 @@ namespace CCS.Modules.SaveLoad
                 $"Slot: {debugState.SelectedSlotId}\n" +
                 $"Slots: {debugState.ListedSaveSlotsSummary}\n" +
                 $"Status: {debugState.LastOperationSummary}\n" +
+                $"Inv Save: {(debugState.IsInventorySaveRegistered ? "Yes" : "No")}\n" +
+                $"Eq Save: {(debugState.IsEquipmentSaveRegistered ? "Yes" : "No")}\n" +
                 $"Path: {debugState.ShortenedSavePath}";
         }
 

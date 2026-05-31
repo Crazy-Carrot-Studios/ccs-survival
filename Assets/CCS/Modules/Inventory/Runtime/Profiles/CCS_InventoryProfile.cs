@@ -31,6 +31,10 @@ namespace CCS.Modules.Inventory
         [Tooltip("Maximum carry weight when weight limiting is enabled.")]
         [SerializeField] private float maxCarryWeight = 100f;
 
+        [Header("Save Restore")]
+        [Tooltip("Item definitions available when resolving inventory save payloads by item ID.")]
+        [SerializeField] private CCS_ItemDefinition[] saveRestoreItemDefinitions = System.Array.Empty<CCS_ItemDefinition>();
+
         #endregion
 
         #region Properties
@@ -40,6 +44,8 @@ namespace CCS.Modules.Inventory
         public bool EnableWeightLimit => enableWeightLimit;
 
         public float MaxCarryWeight => maxCarryWeight;
+
+        public CCS_ItemDefinition[] SaveRestoreItemDefinitions => saveRestoreItemDefinitions;
 
         #endregion
     }

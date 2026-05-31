@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.SaveLoad.Runtime::CCS.Modules.SaveLoad.CCS_SaveLoadProfile
   profileDisplayName: Default Save Load
   profileId: ccs.survival.profile.saveload.default
-  profileDescription: Default save/load rules for 0.6.1 debug controls.
-  profileVersion: 0.6.1
+  profileDescription: Default save/load rules for 0.6.2 inventory and equipment persistence.
+  profileVersion: 0.6.2
   enableDebugLogs: 0
   autoSaveEnabled: 0
   autoSaveIntervalSeconds: 300

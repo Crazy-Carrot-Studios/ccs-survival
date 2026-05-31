@@ -577,6 +577,7 @@ Transform:
   - {fileID: 521456345}
   - {fileID: 412588573}
   - {fileID: 303665651}
+  - {fileID: 1905824882}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &477230484
@@ -1736,7 +1737,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 28, y: -280}
-  m_SizeDelta: {x: 380, y: 210}
+  m_SizeDelta: {x: 380, y: 230}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1293014609
 MonoBehaviour:
@@ -2291,6 +2292,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900944047}
   m_CullTransparentMesh: 1
+--- !u!1 &1905824881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1905824882}
+  - component: {fileID: 1905824883}
+  m_Layer: 0
+  m_Name: CCS_InventoryEquipmentPersistenceTestHarness
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1905824882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905824881}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 436352417}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1905824883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905824881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e8a3029194dc14abea28980718067f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Equipment.Runtime::CCS.Modules.Equipment.CCS_InventoryEquipmentPersistenceTestHarness
+  enableHarness: 1
+  checkIntervalSeconds: 2
+  campfireKitItem: {fileID: 11400000, guid: 8f153629455d5884fac716abcaa7cd3d, type: 2}
+  campfireKitEquipment: {fileID: 11400000, guid: 1d53e6221cca5d642a4365f46680cb57, type: 2}
+  saveLoadDebugController: {fileID: 303665650}
 --- !u!1 &1996093381
 GameObject:
   m_ObjectHideFlags: 0

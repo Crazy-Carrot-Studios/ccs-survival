@@ -112,14 +112,29 @@ Supports **variable slot count**, **stack merging**, and **partial stack removal
 
 ## Player inventory service
 
-`CCS_PlayerInventoryService` implements `CCS_ISurvivalService`:
+`CCS_PlayerInventoryService` implements `CCS_ISurvivalService` and `CCS_ISaveable` at **0.6.2**:
 
-1. `InitializeFromProfile(CCS_InventoryProfile)` — creates container with profile slot count
+1. `InitializeFromProfile(CCS_InventoryProfile)` — creates container with profile slot count and save-restore item catalog
 2. `AddItem` / `RemoveItem` — delegates to container, raises events
 3. `CanAdd` / `HasItem` / `GetQuantity` — query helpers
 4. `ClearInventory` / `CreateSnapshot` — bulk operations and read model
+5. `CaptureState` / `RestoreState` — JSON persistence via `CCS_InventorySaveData`
 
-No interaction references. No save system references.
+SaveableId: `ccs.survival.saveable.inventory.player`
+
+---
+
+## Save/load persistence (0.6.2)
+
+| Type | Role |
+|------|------|
+| `CCS_InventorySaveData` | Root payload with `saveDataVersion`, slot count, capacity modifier fields, slot entries |
+| `CCS_InventorySaveSlotEntry` | Per-slot `itemId` + `quantity` (empty slots use blank id / zero quantity) |
+| `CCS_ItemDefinitionLookup` | Resolves saved item IDs using profile `SaveRestoreItemDefinitions` catalog |
+
+Restore skips unknown item definitions safely without corrupting other slots.
+
+Inventory restores **before** equipment during load (see Save/Load module docs).
 
 ---
 
@@ -145,6 +160,7 @@ Event name constants: `CCS_InventoryEvents`.
 | Inventory slot count | **40** |
 | Enable weight limit | false (placeholder) |
 | Max carry weight | 100 (placeholder) |
+| Save restore item catalog | `SaveRestoreItemDefinitions` — resolves saved item IDs at load time |
 
 Default asset: `Assets/CCS/Survival/Profiles/Inventory/CCS_DefaultInventoryProfile.asset`
 

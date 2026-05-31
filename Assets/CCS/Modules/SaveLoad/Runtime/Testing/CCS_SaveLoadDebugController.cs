@@ -311,7 +311,11 @@ namespace CCS.Modules.SaveLoad
                 BuildListedSaveSlotsSummary(),
                 operationSummary,
                 CCS_SavePathUtility.GetShortDisplayPath(),
-                saveLoadService != null && saveLoadService.IsInitialized);
+                saveLoadService != null && saveLoadService.IsInitialized,
+                saveLoadService != null
+                    && saveLoadService.IsSaveableRegistered(CCS_SaveLoadSaveableIds.PlayerInventory),
+                saveLoadService != null
+                    && saveLoadService.IsSaveableRegistered(CCS_SaveLoadSaveableIds.PlayerEquipment));
         }
 
         private string BuildListedSaveSlotsSummary()

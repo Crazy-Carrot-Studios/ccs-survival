@@ -63,8 +63,12 @@ namespace CCS.Modules.Inventory.Editor
             ValidateRequiredScript(report, "CCS_InventoryEvents", RuntimeRoot + "/Events/CCS_InventoryEvents.cs");
             ValidateRequiredScript(report, "CCS_InventoryProfile", RuntimeRoot + "/Profiles/CCS_InventoryProfile.cs");
             ValidateRequiredScript(report, "CCS_InventoryValidationUtility", RuntimeRoot + "/Validation/CCS_InventoryValidationUtility.cs");
+            ValidateRequiredScript(report, "CCS_InventorySaveData", RuntimeRoot + "/Data/CCS_InventorySaveData.cs");
+            ValidateRequiredScript(report, "CCS_InventorySaveSlotEntry", RuntimeRoot + "/Data/CCS_InventorySaveSlotEntry.cs");
+            ValidateRequiredScript(report, "CCS_ItemDefinitionLookup", RuntimeRoot + "/Definitions/CCS_ItemDefinitionLookup.cs");
 
             ValidateDocumentationAsset(report, "Inventory Module Doc", ModuleDocPath);
+            ValidateInventoryPersistenceIntegration(report);
 
             if (File.Exists(DefaultProfilePath))
             {
@@ -104,12 +108,73 @@ namespace CCS.Modules.Inventory.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Inventory validator completed (crafting output capacity validated at 0.5.3).");
+                "Inventory validator completed (0.6.2 inventory persistence integrated with save/load).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateInventoryPersistenceIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string servicePath = RuntimeRoot + "/Services/CCS_PlayerInventoryService.cs";
+            const string registrationPath =
+                SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
+
+            if (!File.Exists(servicePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Inventory Save Integration",
+                    $"Missing inventory service script: {servicePath}");
+                return;
+            }
+
+            string serviceSource = File.ReadAllText(servicePath);
+            if (serviceSource.Contains("CCS_ISaveable")
+                && serviceSource.Contains("CaptureState")
+                && serviceSource.Contains("RestoreState")
+                && serviceSource.Contains("saveDataVersion"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Inventory Save Integration",
+                    "CCS_PlayerInventoryService implements CCS_ISaveable with versioned save payloads.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Inventory Save Integration",
+                    "CCS_PlayerInventoryService is missing CCS_ISaveable persistence implementation.");
+            }
+
+            if (!File.Exists(registrationPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Inventory Save Registration",
+                    $"Missing gameplay service registration script: {registrationPath}");
+                return;
+            }
+
+            string registrationSource = File.ReadAllText(registrationPath);
+            if (registrationSource.Contains("RegisterGameplaySaveables")
+                && registrationSource.Contains("RegisterSaveable(inventoryService)"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Inventory Save Registration",
+                    "Inventory service registers with CCS_SaveLoadService during gameplay composition.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Inventory Save Registration",
+                    "Gameplay composition is missing inventory saveable registration.");
+            }
+        }
 
         private static void ValidateCraftOutputCapacity(CCS_SurvivalValidationReport report)
         {

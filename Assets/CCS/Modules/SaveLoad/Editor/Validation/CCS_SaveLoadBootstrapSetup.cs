@@ -1,4 +1,6 @@
 using System.IO;
+using CCS.Modules.Equipment;
+using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.UI;
 using CCS.Survival.Composition;
@@ -12,10 +14,8 @@ using UnityEngine.UI;
 // SCRIPT: CCS_SaveLoadBootstrapSetup
 // CATEGORY: Modules / SaveLoad / Editor / Validation
 // PURPOSE: Creates default profile, bootstrap wiring, and development test saveable.
-// PLACEMENT: Batch entry for 0.6.0 save/load foundation and 0.6.1 debug controls.
-// AUTHOR: James Schilz
-// CREATED: 2026-05-28
-// NOTES: Framework setup only. No gameplay module persistence yet.
+// PLACEMENT: Batch entry for 0.6.0 save/load foundation, 0.6.1 debug controls, and 0.6.2 persistence.
+// NOTES: Framework setup and inventory/equipment persistence verification wiring.
 // =============================================================================
 
 namespace CCS.Modules.SaveLoad.Editor
@@ -29,6 +29,12 @@ namespace CCS.Modules.SaveLoad.Editor
         private const string TestSaveableObjectName = "CCS_TestSaveableComponent";
         private const string DebugControllerObjectName = "CCS_SaveLoadDebugController";
         private const string DebugPanelObjectName = "SaveLoadDebugArea";
+        private const string PersistenceHarnessObjectName = "CCS_InventoryEquipmentPersistenceTestHarness";
+        private const string InventoryProfilePath = "Assets/CCS/Survival/Profiles/Inventory/CCS_DefaultInventoryProfile.asset";
+        private const string EquipmentProfilePath = "Assets/CCS/Survival/Profiles/Equipment/CCS_DefaultEquipmentProfile.asset";
+        private const string EquipmentTestItemsRoot = "Assets/CCS/Survival/Profiles/Equipment/TestItems";
+        private const string CraftingTestItemsRoot = "Assets/CCS/Survival/Profiles/Crafting/TestItems";
+        private const string WorldTestItemsRoot = "Assets/CCS/Survival/Profiles/WorldResources/TestItems";
         private const string LogPrefix = "[CCS_SaveLoadBootstrapSetup]";
 
         #region Public Methods
@@ -40,6 +46,7 @@ namespace CCS.Modules.SaveLoad.Editor
             EnsureBootstrapGameplayServiceHost();
             EnsureBootstrapTestSaveable();
             EnsureBootstrapDebugControls();
+            EnsurePersistenceTestContent();
 
             AssetDatabase.SaveAssets();
             Debug.Log($"{LogPrefix} Save/load bootstrap setup complete.");
@@ -69,8 +76,8 @@ namespace CCS.Modules.SaveLoad.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Save Load";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.saveload.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default save/load rules for 0.6.1 debug controls.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.6.1";
+                "Default save/load rules for 0.6.2 inventory and equipment persistence.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.6.2";
             serializedProfile.FindProperty("autoSaveEnabled").boolValue = false;
             serializedProfile.FindProperty("autoSaveIntervalSeconds").floatValue = 300f;
             serializedProfile.FindProperty("maxSaveSlots").intValue = 10;
@@ -226,7 +233,7 @@ namespace CCS.Modules.SaveLoad.Editor
             panelRect.anchorMax = new Vector2(0f, 1f);
             panelRect.pivot = new Vector2(0f, 1f);
             panelRect.anchoredPosition = new Vector2(28f, -280f);
-            panelRect.sizeDelta = new Vector2(380f, 210f);
+            panelRect.sizeDelta = new Vector2(380f, 230f);
 
             CCS_SaveLoadDebugPanelPresenter panelPresenter =
                 panelObject.GetComponent<CCS_SaveLoadDebugPanelPresenter>();
@@ -348,6 +355,158 @@ namespace CCS.Modules.SaveLoad.Editor
             }
 
             return button;
+        }
+
+        private static void EnsurePersistenceTestContent()
+        {
+            EnsureFolder(EquipmentTestItemsRoot);
+
+            CCS_ItemDefinition woodItem = LoadItemDefinition($"{WorldTestItemsRoot}/CCS_TestItem_Wood.asset");
+            CCS_ItemDefinition stoneItem = LoadItemDefinition($"{WorldTestItemsRoot}/CCS_TestItem_Stone.asset");
+            CCS_ItemDefinition fiberItem = LoadItemDefinition($"{WorldTestItemsRoot}/CCS_TestItem_Fiber.asset");
+            CCS_ItemDefinition bandageItem = LoadItemDefinition($"{CraftingTestItemsRoot}/CCS_TestItem_Bandage.asset");
+            CCS_ItemDefinition campfireKitItem =
+                LoadItemDefinition($"{CraftingTestItemsRoot}/CCS_TestItem_CampfireKit.asset");
+
+            if (campfireKitItem == null)
+            {
+                Debug.LogError($"{LogPrefix} Missing campfire kit test item. Run crafting bootstrap setup first.");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            CCS_EquipmentItemDefinition campfireKitEquipment = EnsureTestEquipmentDefinition(
+                "CCS_TestEquipment_CampfireKit",
+                campfireKitItem,
+                CCS_EquipmentSlotType.Tool);
+
+            UpdateInventorySaveRestoreCatalog(
+                woodItem,
+                stoneItem,
+                fiberItem,
+                bandageItem,
+                campfireKitItem);
+
+            UpdateEquipmentSaveRestoreCatalog(campfireKitEquipment);
+            EnsureBootstrapPersistenceHarness(campfireKitItem, campfireKitEquipment);
+        }
+
+        private static CCS_ItemDefinition LoadItemDefinition(string assetPath)
+        {
+            return AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(assetPath);
+        }
+
+        private static CCS_EquipmentItemDefinition EnsureTestEquipmentDefinition(
+            string assetName,
+            CCS_ItemDefinition itemDefinition,
+            CCS_EquipmentSlotType allowedSlot)
+        {
+            string assetPath = $"{EquipmentTestItemsRoot}/{assetName}.asset";
+            CCS_EquipmentItemDefinition equipmentDefinition =
+                AssetDatabase.LoadAssetAtPath<CCS_EquipmentItemDefinition>(assetPath);
+
+            if (equipmentDefinition == null)
+            {
+                equipmentDefinition = ScriptableObject.CreateInstance<CCS_EquipmentItemDefinition>();
+                AssetDatabase.CreateAsset(equipmentDefinition, assetPath);
+            }
+
+            SerializedObject serializedEquipment = new SerializedObject(equipmentDefinition);
+            serializedEquipment.FindProperty("itemDefinition").objectReferenceValue = itemDefinition;
+            serializedEquipment.FindProperty("allowedSlot").enumValueIndex = (int)allowedSlot;
+            serializedEquipment.FindProperty("durabilityEnabled").boolValue = true;
+            serializedEquipment.FindProperty("maxDurability").floatValue = 100f;
+            serializedEquipment.FindProperty("modifiesInventoryCapacity").boolValue = true;
+            serializedEquipment.FindProperty("additionalInventorySlots").intValue = 2;
+            serializedEquipment.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(equipmentDefinition);
+            return equipmentDefinition;
+        }
+
+        private static void UpdateInventorySaveRestoreCatalog(params CCS_ItemDefinition[] itemDefinitions)
+        {
+            CCS_InventoryProfile profile = AssetDatabase.LoadAssetAtPath<CCS_InventoryProfile>(InventoryProfilePath);
+            if (profile == null)
+            {
+                Debug.LogError($"{LogPrefix} Missing inventory profile: {InventoryProfilePath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            SerializedObject serializedProfile = new SerializedObject(profile);
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.6.2";
+            SerializedProperty catalogProperty = serializedProfile.FindProperty("saveRestoreItemDefinitions");
+            catalogProperty.arraySize = itemDefinitions.Length;
+            for (int index = 0; index < itemDefinitions.Length; index++)
+            {
+                catalogProperty.GetArrayElementAtIndex(index).objectReferenceValue = itemDefinitions[index];
+            }
+
+            serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(profile);
+        }
+
+        private static void UpdateEquipmentSaveRestoreCatalog(CCS_EquipmentItemDefinition equipmentDefinition)
+        {
+            CCS_EquipmentProfile profile = AssetDatabase.LoadAssetAtPath<CCS_EquipmentProfile>(EquipmentProfilePath);
+            if (profile == null)
+            {
+                Debug.LogError($"{LogPrefix} Missing equipment profile: {EquipmentProfilePath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            SerializedObject serializedProfile = new SerializedObject(profile);
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.6.2";
+            SerializedProperty catalogProperty = serializedProfile.FindProperty("saveRestoreEquipmentDefinitions");
+            catalogProperty.arraySize = 1;
+            catalogProperty.GetArrayElementAtIndex(0).objectReferenceValue = equipmentDefinition;
+            serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(profile);
+        }
+
+        private static void EnsureBootstrapPersistenceHarness(
+            CCS_ItemDefinition campfireKitItem,
+            CCS_EquipmentItemDefinition campfireKitEquipment)
+        {
+            Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
+            Transform sceneRoot = FindSceneRoot();
+            if (sceneRoot == null)
+            {
+                Debug.LogError($"{LogPrefix} Could not find CCS_BuildVerificationScene root for persistence harness.");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            CCS_SaveLoadDebugController debugController = sceneRoot.GetComponentInChildren<CCS_SaveLoadDebugController>(true);
+            Transform existingHarness = sceneRoot.Find(PersistenceHarnessObjectName);
+            GameObject harnessObject = existingHarness != null
+                ? existingHarness.gameObject
+                : new GameObject(PersistenceHarnessObjectName);
+
+            if (existingHarness == null)
+            {
+                harnessObject.transform.SetParent(sceneRoot, false);
+            }
+
+            CCS_InventoryEquipmentPersistenceTestHarness harness =
+                harnessObject.GetComponent<CCS_InventoryEquipmentPersistenceTestHarness>();
+
+            if (harness == null)
+            {
+                harness = harnessObject.AddComponent<CCS_InventoryEquipmentPersistenceTestHarness>();
+            }
+
+            SerializedObject serializedHarness = new SerializedObject(harness);
+            serializedHarness.FindProperty("enableHarness").boolValue = true;
+            serializedHarness.FindProperty("checkIntervalSeconds").floatValue = 2f;
+            serializedHarness.FindProperty("campfireKitItem").objectReferenceValue = campfireKitItem;
+            serializedHarness.FindProperty("campfireKitEquipment").objectReferenceValue = campfireKitEquipment;
+            serializedHarness.FindProperty("saveLoadDebugController").objectReferenceValue = debugController;
+            serializedHarness.ApplyModifiedPropertiesWithoutUndo();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
         }
 
         private static Transform FindSceneRoot()

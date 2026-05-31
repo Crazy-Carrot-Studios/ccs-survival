@@ -27,6 +27,11 @@ namespace CCS.Modules.Equipment
         [Tooltip("When enabled, future systems enforce durability checks before equipping.")]
         [SerializeField] private bool requireDurabilityForEquip;
 
+        [Header("Save Restore")]
+        [Tooltip("Equipment definitions available when resolving equipment save payloads by item ID.")]
+        [SerializeField] private CCS_EquipmentItemDefinition[] saveRestoreEquipmentDefinitions =
+            System.Array.Empty<CCS_EquipmentItemDefinition>();
+
         #endregion
 
         #region Properties
@@ -34,6 +39,8 @@ namespace CCS.Modules.Equipment
         public bool AllowDualWield => allowDualWield;
 
         public bool RequireDurabilityForEquip => requireDurabilityForEquip;
+
+        public CCS_EquipmentItemDefinition[] SaveRestoreEquipmentDefinitions => saveRestoreEquipmentDefinitions;
 
         #endregion
     }

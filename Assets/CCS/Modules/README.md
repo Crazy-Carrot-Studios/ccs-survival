@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.6.1  
+**Version:** 0.6.2  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -113,6 +113,6 @@ Assets/CCS/Modules/<ModuleName>/
 | `Equipment/` | 0.4.1 — **Complete** (foundation) |
 | `Crafting/` | 0.5.0 / 0.5.3 — **Foundation + gameplay integration complete** |
 | `WorldResources/` | 0.5.1 / 0.5.2 — **Foundation + harvest integration complete** |
-| `SaveLoad/` | 0.6.0 / 0.6.1 — **Foundation + debug controls complete** |
+| `SaveLoad/` | 0.6.0 / 0.6.1 / 0.6.2 — **Foundation + debug controls + inventory/equipment persistence complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

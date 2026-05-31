@@ -156,6 +156,51 @@ namespace CCS.Modules.Inventory
             return slots[index];
         }
 
+        public void RestoreFromSaveEntries(
+            CCS_InventorySaveSlotEntry[] saveEntries,
+            CCS_ItemDefinitionLookup itemDefinitionLookup,
+            out int restoredSlotCount,
+            out int skippedSlotCount)
+        {
+            restoredSlotCount = 0;
+            skippedSlotCount = 0;
+            Clear();
+
+            if (saveEntries == null || saveEntries.Length == 0)
+            {
+                return;
+            }
+
+            int slotLimit = saveEntries.Length < slots.Length ? saveEntries.Length : slots.Length;
+            for (int slotIndex = 0; slotIndex < slotLimit; slotIndex++)
+            {
+                CCS_InventorySaveSlotEntry saveEntry = saveEntries[slotIndex];
+                if (saveEntry == null
+                    || string.IsNullOrWhiteSpace(saveEntry.itemId)
+                    || saveEntry.quantity <= 0)
+                {
+                    continue;
+                }
+
+                if (itemDefinitionLookup == null
+                    || !itemDefinitionLookup.TryGetDefinition(saveEntry.itemId, out CCS_ItemDefinition itemDefinition))
+                {
+                    skippedSlotCount++;
+                    continue;
+                }
+
+                CCS_InventorySlot slot = slots[slotIndex];
+                int acceptedQuantity = slot.TryAdd(itemDefinition, saveEntry.quantity);
+                if (acceptedQuantity > 0)
+                {
+                    restoredSlotCount++;
+                    continue;
+                }
+
+                skippedSlotCount++;
+            }
+        }
+
         #endregion
 
         #region Private Methods

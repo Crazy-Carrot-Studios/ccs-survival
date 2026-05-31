@@ -1,11 +1,11 @@
 # CCS Survival — Save / Load Module
 
-**Milestone:** 0.6.1 — Save / Load Debug Controls  
+**Milestone:** 0.6.2 — Inventory & Equipment Persistence  
 **Module ID:** `ccs.survival.saveload`  
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Gameplay module saves deferred.
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**.
 
 ---
 
@@ -44,7 +44,7 @@ Assets/CCS/Modules/SaveLoad/
     Profiles/       → CCS_SaveLoadProfile
     Events/         → save/load lifecycle events
     Validation/     → runtime profile validation
-    Testing/        → CCS_TestSaveableComponent, debug controller/panel (development only)
+    Testing/          → debug controller/panel (SaveLoad), persistence harness (Equipment, development only)
   Editor/
     Validation/     → pipeline validator, bootstrap setup, menu
   Documentation/    → this file
@@ -62,9 +62,16 @@ Assets/CCS/Survival/Profiles/SaveLoad/
 | `CCS_SaveableRegistry` | Instance-owned map of `SaveableId → CCS_ISaveable` |
 | `RegisterSaveable` | Future modules call during startup |
 | `CaptureAllModuleStates` | Builds module payload dictionary during save |
-| `RestoreAllModuleStates` | Applies payloads to registered saveables during load |
+| `RestoreAllModuleStates` | Applies payloads to registered saveables during load (inventory before equipment) |
 
-Future module examples: Inventory, Equipment, Building, World Resources, Weather.
+Future module examples: Building, World Resources, Weather.
+
+Registered at **0.6.2**:
+
+| SaveableId | Module |
+|------------|--------|
+| `ccs.survival.saveable.inventory.player` | `CCS_PlayerInventoryService` |
+| `ccs.survival.saveable.equipment.player` | `CCS_PlayerEquipmentService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
 
@@ -196,15 +203,57 @@ Panel anchor: upper-left on `PF_CCS_HUD_Root` canvas — does not block center g
 
 ### Intentionally not saved yet
 
-- Inventory contents
-- Equipment state
 - World resource node state
+- Crafting queues
 - Building pieces
 - Combat state
 - Wildlife
 - Weather
 - Quests
 - Final player persistence payload (`playerDataJson` remains empty)
+
+---
+
+## Inventory and equipment persistence (0.6.2)
+
+| Saveable | Payload | Version field |
+|----------|---------|---------------|
+| `CCS_PlayerInventoryService` | `CCS_InventorySaveData` | `saveDataVersion` |
+| `CCS_PlayerEquipmentService` | `CCS_EquipmentSaveData` | `saveDataVersion` |
+
+Inventory payload persists slot entries (item definition IDs + quantities), slot count, and captured capacity modifier snapshot fields.
+
+Equipment payload persists equipped slot entries (slot type + item ID + durability), plus aggregate capacity modifier fields.
+
+### Load order dependency
+
+`CCS_SaveableRegistry` restores payloads in `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`:
+
+1. **Inventory first** — item stacks must exist before equipment-dependent gameplay resumes.
+2. **Equipment second** — equipped items restore after inventory baseline is applied.
+
+Missing item or equipment definitions fail safely during restore (slot skipped, warning logged, no corruption of other slots).
+
+### Debug registration indicators (0.6.2)
+
+Save debug panel displays read-only:
+
+- `Inv Save: Yes/No`
+- `Eq Save: Yes/No`
+
+### Persistence test harness
+
+`CCS_InventoryEquipmentPersistenceTestHarness` lives under `Assets/CCS/Modules/Equipment/Runtime/Testing/` (bootstrap only):
+
+1. Waits for harvest/craft pipeline to produce campfire kit
+2. Equips test campfire kit equipment
+3. Saves to `persistence_test` slot
+4. Clears inventory/equipment
+5. Loads save and verifies restored quantities and equipped slot
+
+Logs `PASS` or `FAIL` to the console.
+
+Bootstrap setup batch: `CCS.Modules.SaveLoad.Editor.CCS_SaveLoadBootstrapSetup.ExecuteBatch`
 
 ---
 
@@ -216,7 +265,7 @@ Panel anchor: upper-left on `PF_CCS_HUD_Root` canvas — does not block center g
 4. Deserialize and apply in `RestoreState(string stateJson)`.
 5. Unregister on shutdown if the saveable is destroyed.
 
-Deferred gameplay persistence: world resources, building pieces, combat, wildlife, weather, quests.
+Deferred gameplay persistence: world resources, building pieces, combat, wildlife, weather, quests, crafting queues.
 
 ---
 

@@ -109,8 +109,25 @@ Supported `CCS_EquipmentSlotType` values:
 | `CreateSnapshot` | Read-only equipment state including aggregate capacity modifiers |
 | `GetAdditionalInventorySlots` | Sum of equipped inventory slot bonuses |
 | `GetAdditionalCarryWeight` | Sum of equipped carry weight bonuses |
+| `CaptureState` / `RestoreState` | JSON persistence via `CCS_EquipmentSaveData` at **0.6.2** |
+
+SaveableId: `ccs.survival.saveable.equipment.player`
 
 No inventory UI references. No automatic inventory removal in 0.4.1 — future integration will coordinate stack removal on equip.
+
+---
+
+## Save/load persistence (0.6.2)
+
+| Type | Role |
+|------|------|
+| `CCS_EquipmentSaveData` | Root payload with `saveDataVersion`, capacity modifiers, equipped slot entries |
+| `CCS_EquipmentSaveSlotEntry` | Slot type, item ID, durability fields |
+| `CCS_EquipmentItemDefinitionLookup` | Resolves saved item IDs using profile `SaveRestoreEquipmentDefinitions` catalog |
+
+Equipment restores **after** inventory during load so item identities exist before equip state is applied.
+
+Missing definitions or invalid slot mappings fail safely (slot skipped, warning logged).
 
 ---
 

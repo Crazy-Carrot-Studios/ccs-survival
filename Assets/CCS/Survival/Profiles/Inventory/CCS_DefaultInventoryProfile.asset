@@ -15,8 +15,14 @@ MonoBehaviour:
   profileDisplayName: Default Inventory
   profileId: ccs.survival.profile.inventory.default
   profileDescription: Default player inventory tuning for 0.4.0 foundation.
-  profileVersion: 0.4.0
+  profileVersion: 0.6.2
   enableDebugLogs: 0
   inventorySlotCount: 40
   enableWeightLimit: 0
   maxCarryWeight: 100
+  saveRestoreItemDefinitions:
+  - {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
+  - {fileID: 11400000, guid: da3e7241a2a884241b94c2e47d92dd24, type: 2}
+  - {fileID: 11400000, guid: c4051eea87783a241be1d85d54e4702e, type: 2}
+  - {fileID: 11400000, guid: ddca9ce3baefee744ba115f673202422, type: 2}
+  - {fileID: 11400000, guid: 8f153629455d5884fac716abcaa7cd3d, type: 2}

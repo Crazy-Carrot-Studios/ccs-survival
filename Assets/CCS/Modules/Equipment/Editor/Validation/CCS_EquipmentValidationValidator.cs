@@ -62,8 +62,17 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquipmentEvents", RuntimeRoot + "/Events/CCS_EquipmentEvents.cs");
             ValidateRequiredScript(report, "CCS_EquipmentProfile", RuntimeRoot + "/Profiles/CCS_EquipmentProfile.cs");
             ValidateRequiredScript(report, "CCS_EquipmentValidationUtility", RuntimeRoot + "/Validation/CCS_EquipmentValidationUtility.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentSaveData", RuntimeRoot + "/Data/CCS_EquipmentSaveData.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentSaveSlotEntry", RuntimeRoot + "/Data/CCS_EquipmentSaveSlotEntry.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentItemDefinitionLookup", RuntimeRoot + "/Definitions/CCS_EquipmentItemDefinitionLookup.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentRuntimeBridge", RuntimeRoot + "/Services/CCS_EquipmentRuntimeBridge.cs");
+            ValidateRequiredScript(
+                report,
+                "CCS_InventoryEquipmentPersistenceTestHarness",
+                RuntimeRoot + "/Testing/CCS_InventoryEquipmentPersistenceTestHarness.cs");
 
             ValidateDocumentationAsset(report, "Equipment Module Doc", ModuleDocPath);
+            ValidateEquipmentPersistenceIntegration(report);
 
             CCS_SurvivalValidationResult carrySlotValidation =
                 CCS_EquipmentValidationUtility.ValidateCarryRelatedSlotTypes();
@@ -129,12 +138,73 @@ namespace CCS.Modules.Equipment.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Equipment validator completed (runtime architecture foundation; no UI/combat/visual coupling).");
+                "Equipment validator completed (0.6.2 equipment persistence integrated with save/load).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateEquipmentPersistenceIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string servicePath = RuntimeRoot + "/Services/CCS_PlayerEquipmentService.cs";
+            const string registrationPath =
+                SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
+
+            if (!File.Exists(servicePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Save Integration",
+                    $"Missing equipment service script: {servicePath}");
+                return;
+            }
+
+            string serviceSource = File.ReadAllText(servicePath);
+            if (serviceSource.Contains("CCS_ISaveable")
+                && serviceSource.Contains("CaptureState")
+                && serviceSource.Contains("RestoreState")
+                && serviceSource.Contains("saveDataVersion"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Equipment Save Integration",
+                    "CCS_PlayerEquipmentService implements CCS_ISaveable with versioned save payloads.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Save Integration",
+                    "CCS_PlayerEquipmentService is missing CCS_ISaveable persistence implementation.");
+            }
+
+            if (!File.Exists(registrationPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Save Registration",
+                    $"Missing gameplay service registration script: {registrationPath}");
+                return;
+            }
+
+            string registrationSource = File.ReadAllText(registrationPath);
+            if (registrationSource.Contains("RegisterGameplaySaveables")
+                && registrationSource.Contains("RegisterSaveable(equipmentService)"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Equipment Save Registration",
+                    "Equipment service registers with CCS_SaveLoadService during gameplay composition.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Save Registration",
+                    "Gameplay composition is missing equipment saveable registration.");
+            }
+        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,

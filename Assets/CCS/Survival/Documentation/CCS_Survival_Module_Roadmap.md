@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.6.1 — Save / Load Debug Controls  
+**Milestone baseline:** 0.6.2 — Inventory & Equipment Persistence  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Save/load debug manual controls **complete** at **0.6.1**. Gameplay module persistence deferred.
+**Status:** Inventory and equipment persistence **complete** at **0.6.2**. World/building/combat persistence deferred.
 
 ---
 
@@ -34,8 +34,9 @@
 | **0.5.3** | Crafting gameplay integration |
 | **0.6.0** | Save / load foundation |
 | **0.6.1** | Save / load debug controls |
+| **0.6.2** | Inventory & equipment persistence |
 
-Later milestones continue from **0.6.1+** (gameplay module persistence, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.6.2+** (world resources, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -73,7 +74,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0 / 0.5.3** | **Crafting** | `ccs.survival.crafting` — **Foundation + gameplay integration complete** |
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
-| 9 | **0.6.0 / 0.6.1** | **Save / Load** | `ccs.survival.saveload` — **Foundation + debug controls complete** |
+| 9 | **0.6.0 / 0.6.1 / 0.6.2** | **Save / Load** | `ccs.survival.saveload` — **Foundation + debug controls + inventory/equipment persistence complete** |
 | 10 | 0.6.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
 | 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
@@ -120,7 +121,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.6.2+ — Gameplay module persistence planning**
+**0.6.3+ — World resource and additional gameplay persistence**
+
+---
+
+## 0.6.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_PlayerInventoryService` implements `CCS_ISaveable` | **Complete** |
+| `CCS_PlayerEquipmentService` implements `CCS_ISaveable` | **Complete** |
+| Versioned save payloads (`saveDataVersion`) | **Complete** |
+| Registry load order: inventory before equipment | **Complete** |
+| Save debug panel registration indicators | **Complete** |
+| Persistence test harness (harvest/craft/equip/save/load) | **Complete** |
+| Version **0.6.2** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

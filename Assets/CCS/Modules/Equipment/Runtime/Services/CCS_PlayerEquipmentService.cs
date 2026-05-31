@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using CCS.Modules.SaveLoad;
 using CCS.Survival;
 using UnityEngine;
 
@@ -9,12 +11,12 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by future equipment module installer.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: References inventory item definitions only. No UI, combat, or visual coupling.
+// NOTES: References inventory item definitions only. Implements CCS_ISaveable at 0.6.2.
 // =============================================================================
 
 namespace CCS.Modules.Equipment
 {
-    public sealed class CCS_PlayerEquipmentService : CCS_ISurvivalService
+    public sealed class CCS_PlayerEquipmentService : CCS_ISurvivalService, CCS_ISaveable
     {
         private const string LogPrefix = "[CCS_PlayerEquipmentService]";
 
@@ -24,6 +26,7 @@ namespace CCS.Modules.Equipment
             new Dictionary<CCS_EquipmentSlotType, CCS_EquipmentSlot>();
 
         private CCS_EquipmentProfile activeProfile;
+        private CCS_EquipmentItemDefinitionLookup equipmentDefinitionLookup;
         private bool isInitialized;
 
         #endregion
@@ -43,6 +46,8 @@ namespace CCS.Modules.Equipment
         public bool IsInitialized => isInitialized;
 
         public CCS_EquipmentProfile ActiveProfile => activeProfile;
+
+        public string SaveableId => CCS_SaveLoadSaveableIds.PlayerEquipment;
 
         #endregion
 
@@ -74,6 +79,7 @@ namespace CCS.Modules.Equipment
             }
 
             activeProfile = profile;
+            equipmentDefinitionLookup = new CCS_EquipmentItemDefinitionLookup(profile.SaveRestoreEquipmentDefinitions);
             slots.Clear();
             CreateAllSlots();
             isInitialized = true;
@@ -340,6 +346,64 @@ namespace CCS.Modules.Equipment
                 totalAdditionalCarryWeight);
         }
 
+        public string CaptureState()
+        {
+            if (!EnsureInitialized())
+            {
+                return JsonUtility.ToJson(new CCS_EquipmentSaveData());
+            }
+
+            CalculateAggregateCapacityModifiers(
+                out int totalAdditionalInventorySlots,
+                out float totalAdditionalCarryWeight);
+
+            CCS_EquipmentSaveData saveData = new CCS_EquipmentSaveData
+            {
+                saveDataVersion = CCS_EquipmentSaveData.CurrentSaveDataVersion,
+                additionalInventorySlots = totalAdditionalInventorySlots,
+                additionalCarryWeight = totalAdditionalCarryWeight,
+                equippedSlots = BuildEquippedSaveEntries()
+            };
+
+            return JsonUtility.ToJson(saveData);
+        }
+
+        public void RestoreState(string stateJson)
+        {
+            if (!EnsureInitialized())
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because service is not initialized.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(stateJson))
+            {
+                ClearAllEquipment();
+                return;
+            }
+
+            CCS_EquipmentSaveData saveData = JsonUtility.FromJson<CCS_EquipmentSaveData>(stateJson);
+            if (saveData == null)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because payload could not be parsed.");
+                return;
+            }
+
+            if (saveData.saveDataVersion <= 0)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because saveDataVersion is missing.");
+                return;
+            }
+
+            ClearAllEquipmentSilently();
+            RestoreEquippedSaveEntries(saveData.equippedSlots);
+            RaiseEquipmentChanged(
+                CCS_EquipmentSlotType.Head,
+                null,
+                null,
+                "Equipment restored from save.");
+        }
+
         #endregion
 
         #region Private Methods
@@ -349,6 +413,144 @@ namespace CCS.Modules.Equipment
             foreach (CCS_EquipmentSlotType slotType in System.Enum.GetValues(typeof(CCS_EquipmentSlotType)))
             {
                 slots[slotType] = new CCS_EquipmentSlot(slotType);
+            }
+        }
+
+        private CCS_EquipmentSaveSlotEntry[] BuildEquippedSaveEntries()
+        {
+            List<CCS_EquipmentSaveSlotEntry> saveEntries = new List<CCS_EquipmentSaveSlotEntry>();
+
+            foreach (KeyValuePair<CCS_EquipmentSlotType, CCS_EquipmentSlot> entry in slots)
+            {
+                if (!entry.Value.IsOccupied)
+                {
+                    continue;
+                }
+
+                CCS_EquippedItem equippedItem = entry.Value.EquippedItem;
+                if (equippedItem?.EquipmentDefinition?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                CCS_EquipmentSaveSlotEntry saveEntry = new CCS_EquipmentSaveSlotEntry
+                {
+                    slotType = entry.Key.ToString(),
+                    itemId = equippedItem.EquipmentDefinition.ItemDefinition.ItemId ?? string.Empty,
+                    hasDurability = equippedItem.HasDurability,
+                    currentDurability = equippedItem.HasDurability
+                        ? equippedItem.Durability.CurrentDurability
+                        : 0f,
+                    maxDurability = equippedItem.HasDurability
+                        ? equippedItem.Durability.MaxDurability
+                        : 0f
+                };
+
+                saveEntries.Add(saveEntry);
+            }
+
+            return saveEntries.ToArray();
+        }
+
+        private void RestoreEquippedSaveEntries(CCS_EquipmentSaveSlotEntry[] equippedSaveEntries)
+        {
+            if (equippedSaveEntries == null || equippedSaveEntries.Length == 0)
+            {
+                return;
+            }
+
+            int restoredCount = 0;
+            int skippedCount = 0;
+
+            for (int index = 0; index < equippedSaveEntries.Length; index++)
+            {
+                if (TryRestoreEquippedSaveEntry(equippedSaveEntries[index]))
+                {
+                    restoredCount++;
+                    continue;
+                }
+
+                skippedCount++;
+            }
+
+            if (skippedCount > 0)
+            {
+                Debug.LogWarning(
+                    $"{LogPrefix} RestoreState skipped {skippedCount} equipped slot(s) due to missing definitions or invalid mappings.");
+            }
+
+            Debug.Log($"{LogPrefix} RestoreState restored {restoredCount} equipped slot(s).");
+        }
+
+        private bool TryRestoreEquippedSaveEntry(CCS_EquipmentSaveSlotEntry saveEntry)
+        {
+            if (saveEntry == null
+                || string.IsNullOrWhiteSpace(saveEntry.itemId)
+                || string.IsNullOrWhiteSpace(saveEntry.slotType))
+            {
+                return false;
+            }
+
+            if (!System.Enum.TryParse(saveEntry.slotType, out CCS_EquipmentSlotType slotType))
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped unknown slot type '{saveEntry.slotType}'.");
+                return false;
+            }
+
+            if (equipmentDefinitionLookup == null
+                || !equipmentDefinitionLookup.TryGetDefinitionByItemId(
+                    saveEntry.itemId,
+                    out CCS_EquipmentItemDefinition equipmentDefinition))
+            {
+                Debug.LogWarning(
+                    $"{LogPrefix} RestoreState skipped missing equipment definition for item '{saveEntry.itemId}'.");
+                return false;
+            }
+
+            if (!ValidateSlotCompatibility(slotType, equipmentDefinition))
+            {
+                Debug.LogWarning(
+                    $"{LogPrefix} RestoreState skipped invalid slot mapping for item '{saveEntry.itemId}' in slot '{slotType}'.");
+                return false;
+            }
+
+            if (!TryGetSlot(slotType, out CCS_EquipmentSlot equipmentSlot))
+            {
+                return false;
+            }
+
+            CCS_DurabilityState durabilityState = CreateRestoreDurabilityState(saveEntry, equipmentDefinition);
+            CCS_EquippedItem equippedItem = new CCS_EquippedItem(slotType, equipmentDefinition, durabilityState);
+            if (!equipmentSlot.TryEquip(equippedItem))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static CCS_DurabilityState CreateRestoreDurabilityState(
+            CCS_EquipmentSaveSlotEntry saveEntry,
+            CCS_EquipmentItemDefinition equipmentDefinition)
+        {
+            if (saveEntry == null || equipmentDefinition == null || !equipmentDefinition.DurabilityEnabled)
+            {
+                return null;
+            }
+
+            if (saveEntry.hasDurability)
+            {
+                return new CCS_DurabilityState(saveEntry.maxDurability, saveEntry.currentDurability);
+            }
+
+            return new CCS_DurabilityState(equipmentDefinition.MaxDurability);
+        }
+
+        private void ClearAllEquipmentSilently()
+        {
+            foreach (KeyValuePair<CCS_EquipmentSlotType, CCS_EquipmentSlot> entry in slots)
+            {
+                entry.Value.Clear();
             }
         }
 

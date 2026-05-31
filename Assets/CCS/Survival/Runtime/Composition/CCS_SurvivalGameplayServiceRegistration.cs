@@ -47,11 +47,16 @@ namespace CCS.Survival.Composition
             CCS_PlayerInventoryService inventoryService = CreateInventoryService(inventoryProfile);
             RegisterService(runtimeHost, inventoryService, enableDebugLogs);
 
-            RegisterService(runtimeHost, CreateEquipmentService(equipmentProfile), enableDebugLogs);
+            CCS_PlayerEquipmentService equipmentService = CreateEquipmentService(equipmentProfile);
+            RegisterService(runtimeHost, equipmentService, enableDebugLogs);
+
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateCraftingService(craftingProfile, inventoryService), enableDebugLogs);
-            RegisterService(runtimeHost, CreateSaveLoadService(saveLoadProfile), enableDebugLogs);
+
+            CCS_SaveLoadService saveLoadService = CreateSaveLoadService(saveLoadProfile);
+            RegisterService(runtimeHost, saveLoadService, enableDebugLogs);
+            RegisterGameplaySaveables(saveLoadService, inventoryService, equipmentService);
         }
 
         #endregion
@@ -170,6 +175,39 @@ namespace CCS.Survival.Composition
 
             service.InitializeFromProfile(profile);
             return service;
+        }
+
+        private static void RegisterGameplaySaveables(
+            CCS_SaveLoadService saveLoadService,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_PlayerEquipmentService equipmentService)
+        {
+            if (saveLoadService == null || !saveLoadService.IsInitialized)
+            {
+                return;
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                inventoryService.SetCapacityModifierSource(() =>
+                {
+                    if (equipmentService == null || !equipmentService.IsInitialized)
+                    {
+                        return CCS_InventoryCapacityModifierSnapshot.Empty;
+                    }
+
+                    return new CCS_InventoryCapacityModifierSnapshot(
+                        equipmentService.GetAdditionalInventorySlots(),
+                        equipmentService.GetAdditionalCarryWeight());
+                });
+
+                saveLoadService.RegisterSaveable(inventoryService);
+            }
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                saveLoadService.RegisterSaveable(equipmentService);
+            }
         }
 
         private static void RegisterService<TService>(

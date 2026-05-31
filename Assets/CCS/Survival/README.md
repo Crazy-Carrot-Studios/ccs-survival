@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.6.1 — Save / Load Debug Controls  
+**Milestone:** 0.6.2 — Inventory & Equipment Persistence  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -40,7 +40,7 @@
 
 **Editor menu:** **CCS → Survival → Crafting → Validate Crafting**
 
-## Save / Load (0.6.0 / 0.6.1)
+## Save / Load (0.6.0 / 0.6.1 / 0.6.2)
 
 | Area | Path |
 |------|------|
@@ -50,6 +50,8 @@
 | Module doc | [../Modules/SaveLoad/Documentation/CCS_Save_Load_Module.md](../Modules/SaveLoad/Documentation/CCS_Save_Load_Module.md) |
 
 **Editor menu:** **CCS → Survival → Save Load → Validate Save Load**
+
+**0.6.2:** Inventory and equipment services register as saveables. Bootstrap persistence harness verifies harvest → craft → equip → save → load round-trip.
 
 ## Equipment (0.4.1 / 0.4.1a)
 
@@ -64,6 +66,8 @@
 
 **Editor menu:** **CCS → Survival → Equipment → Validate Equipment**
 
+**0.6.2:** `CCS_PlayerEquipmentService` persists equipped slots via `CCS_EquipmentSaveData` (`saveDataVersion`). Restores after inventory on load.
+
 ## Inventory (0.4.0)
 
 | Area | Path |
@@ -74,6 +78,8 @@
 | Module doc | [../Modules/Inventory/Documentation/CCS_Inventory_Module.md](../Modules/Inventory/Documentation/CCS_Inventory_Module.md) |
 
 **Editor menu:** **CCS → Survival → Inventory → Validate Inventory**
+
+**0.6.2:** `CCS_PlayerInventoryService` persists slot stacks via `CCS_InventorySaveData` (`saveDataVersion`).
 
 ## Interaction (0.3.9)
 

@@ -3,7 +3,8 @@
     "rootNamespace": "CCS.Modules.Inventory",
     "references": [
         "CCS.Core.Runtime",
-        "CCS.Survival.Runtime"
+        "CCS.Survival.Runtime",
+        "CCS.Modules.SaveLoad.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

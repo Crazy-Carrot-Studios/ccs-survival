@@ -72,13 +72,21 @@ namespace CCS.Modules.SaveLoad.Editor
             ValidateRequiredScript(report, "CCS_SaveLoadDebugController", RuntimeRoot + "/Testing/CCS_SaveLoadDebugController.cs");
             ValidateRequiredScript(report, "CCS_SaveLoadDebugPanelPresenter", RuntimeRoot + "/Testing/CCS_SaveLoadDebugPanelPresenter.cs");
             ValidateRequiredScript(report, "CCS_SaveLoadDebugState", RuntimeRoot + "/Testing/CCS_SaveLoadDebugState.cs");
+            ValidateRequiredScript(report, "CCS_SaveLoadSaveableIds", RuntimeRoot + "/Data/CCS_SaveLoadSaveableIds.cs");
+            ValidateRequiredScript(
+                report,
+                "CCS_InventoryEquipmentPersistenceTestHarness",
+                "Assets/CCS/Modules/Equipment/Runtime/Testing/CCS_InventoryEquipmentPersistenceTestHarness.cs");
 
             ValidateDocumentationAsset(report, "Save Load Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateGameplayServiceRegistration(report);
+            ValidateGameplaySaveableRegistration(report);
+            ValidateRestoreOrder(report);
             ValidateBootstrapSaveLoadProfile(report);
             ValidateBootstrapTestSaveable(report);
             ValidateBootstrapDebugControls(report);
+            ValidateBootstrapPersistenceHarness(report);
             ValidateSavePathUtility(report);
 
             if (File.Exists(DefaultProfilePath))
@@ -117,12 +125,93 @@ namespace CCS.Modules.SaveLoad.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Save/load validator completed (0.6.1 debug controls; gameplay module saves deferred).");
+                "Save/load validator completed (0.6.2 inventory and equipment persistence integrated).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateGameplaySaveableRegistration(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(GameplayServiceRegistrationPath))
+            {
+                return;
+            }
+
+            string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
+            if (registrationSource.Contains("RegisterGameplaySaveables")
+                && registrationSource.Contains("RegisterSaveable(inventoryService)")
+                && registrationSource.Contains("RegisterSaveable(equipmentService)"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Gameplay Saveable Registration",
+                    "Gameplay composition registers inventory and equipment saveables.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Gameplay Saveable Registration",
+                "Gameplay composition is missing inventory/equipment saveable registration wiring.");
+        }
+
+        private static void ValidateRestoreOrder(CCS_SurvivalValidationReport report)
+        {
+            const string registryPath = RuntimeRoot + "/Services/CCS_SaveableRegistry.cs";
+            if (!File.Exists(registryPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Save Restore Order",
+                    $"Missing saveable registry script: {registryPath}");
+                return;
+            }
+
+            string registrySource = File.ReadAllText(registryPath);
+            if (registrySource.Contains("CCS_SaveLoadSaveableIds.ModuleRestoreOrder")
+                && registrySource.Contains("RestoreOrderedSaveables"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Save Restore Order",
+                    "Registry restores inventory before equipment using ModuleRestoreOrder.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Save Restore Order",
+                "Saveable registry is missing ordered restore support.");
+        }
+
+        private static void ValidateBootstrapPersistenceHarness(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Persistence Harness",
+                    $"Missing bootstrap scene: {BootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(BootstrapScenePath);
+            if (sceneText.Contains("CCS_InventoryEquipmentPersistenceTestHarness"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Persistence Harness",
+                    "Bootstrap scene includes CCS_InventoryEquipmentPersistenceTestHarness.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Bootstrap Persistence Harness",
+                "Bootstrap scene is missing CCS_InventoryEquipmentPersistenceTestHarness.");
+        }
 
         private static void ValidateSavePathUtility(CCS_SurvivalValidationReport report)
         {

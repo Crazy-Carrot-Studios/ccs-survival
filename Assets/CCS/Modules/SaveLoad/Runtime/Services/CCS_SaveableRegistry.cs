@@ -79,15 +79,73 @@ namespace CCS.Modules.SaveLoad
                 return;
             }
 
-            foreach (KeyValuePair<string, string> pair in moduleData)
+            RestoreOrderedSaveables(moduleData, CCS_SaveLoadSaveableIds.ModuleRestoreOrder);
+            RestoreRemainingSaveables(moduleData, CCS_SaveLoadSaveableIds.ModuleRestoreOrder);
+        }
+
+        private void RestoreOrderedSaveables(
+            IReadOnlyDictionary<string, string> moduleData,
+            string[] orderedSaveableIds)
+        {
+            if (orderedSaveableIds == null)
             {
-                if (!TryGetSaveable(pair.Key, out CCS_ISaveable saveable))
+                return;
+            }
+
+            for (int index = 0; index < orderedSaveableIds.Length; index++)
+            {
+                string saveableId = orderedSaveableIds[index];
+                if (string.IsNullOrWhiteSpace(saveableId)
+                    || !moduleData.TryGetValue(saveableId, out string payload))
                 {
                     continue;
                 }
 
-                saveable.RestoreState(pair.Value ?? string.Empty);
+                RestoreSaveablePayload(saveableId, payload);
             }
+        }
+
+        private void RestoreRemainingSaveables(
+            IReadOnlyDictionary<string, string> moduleData,
+            string[] orderedSaveableIds)
+        {
+            foreach (KeyValuePair<string, string> pair in moduleData)
+            {
+                if (IsSaveableIdInRestoreOrder(pair.Key, orderedSaveableIds))
+                {
+                    continue;
+                }
+
+                RestoreSaveablePayload(pair.Key, pair.Value);
+            }
+        }
+
+        private void RestoreSaveablePayload(string saveableId, string payload)
+        {
+            if (!TryGetSaveable(saveableId, out CCS_ISaveable saveable))
+            {
+                return;
+            }
+
+            saveable.RestoreState(payload ?? string.Empty);
+        }
+
+        private static bool IsSaveableIdInRestoreOrder(string saveableId, string[] orderedSaveableIds)
+        {
+            if (string.IsNullOrWhiteSpace(saveableId) || orderedSaveableIds == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < orderedSaveableIds.Length; index++)
+            {
+                if (string.Equals(orderedSaveableIds[index], saveableId, System.StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public int RegisteredSaveableCount => saveablesById.Count;
