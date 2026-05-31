@@ -1,9 +1,14 @@
 {
-    "name": "CCS.Modules.CharacterController.Runtime",
-    "rootNamespace": "CCS.Modules.CharacterController",
+    "name": "CCS.Survival.Player.Runtime",
+    "rootNamespace": "CCS.Survival.Player",
     "references": [
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.SaveLoad.Runtime",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],

@@ -25,6 +25,8 @@ namespace CCS.Modules.Interaction.Editor
         private const string DefaultProfilePath =
             SurvivalRoot + "/Profiles/Interaction/CCS_DefaultInteractionProfile.asset";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Interaction_Module.md";
+        private const string InteractionBridgeScriptPath = RuntimeRoot + "/Services/CCS_InteractionRuntimeBridge.cs";
+        private const string PlayerInteractionDriverPath = SurvivalRoot + "/Runtime/Player/CCS_InteractionPlayerDriver.cs";
 
         #region Properties
 
@@ -55,6 +57,8 @@ namespace CCS.Modules.Interaction.Editor
             ValidateRequiredScript(report, "CCS_InteractionService", RuntimeRoot + "/Interaction/CCS_InteractionService.cs");
             ValidateRequiredScript(report, "CCS_InteractionScanner", RuntimeRoot + "/Detection/CCS_InteractionScanner.cs");
             ValidateRequiredScript(report, "CCS_InteractionProfile", RuntimeRoot + "/Profiles/CCS_InteractionProfile.cs");
+            ValidateRequiredScript(report, "CCS_InteractionRuntimeBridge", InteractionBridgeScriptPath);
+            ValidateRequiredScript(report, "CCS_InteractionPlayerDriver", PlayerInteractionDriverPath);
 
             ValidateDocumentationAsset(report, "Interaction Module Doc", ModuleDocPath);
 

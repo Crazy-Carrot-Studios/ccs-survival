@@ -34,7 +34,7 @@ namespace CCS.Modules.Building
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness cycles test definitions and places pieces.")]
-        [SerializeField] private bool enableHarness = true;
+        [SerializeField] private bool enableHarness = false;
 
         [Tooltip("Seconds between automated placement attempts.")]
         [SerializeField] private float placementIntervalSeconds = 4f;

@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.5 — Building Shelter Integration  
+**Milestone:** 0.9.0 — Character Controller Gameplay Integration  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

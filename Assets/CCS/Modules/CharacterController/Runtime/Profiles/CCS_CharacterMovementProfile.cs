@@ -50,9 +50,12 @@ namespace CCS.Modules.CharacterController
         [Tooltip("Maximum walkable slope angle in degrees.")]
         [SerializeField] private float slopeLimit = 45f;
 
-        [Header("Survival Core Hook (Placeholder)")]
-        [Tooltip("Placeholder stamina drain per second while sprinting. Does not call Survival Core in 0.3.8.")]
+        [Header("Survival Core Hooks")]
+        [Tooltip("Stamina drain per second while sprinting. Raised via movement events for composition wiring.")]
         [SerializeField] private float staminaDrainPerSecondWhileSprinting = 4f;
+
+        [Tooltip("Stamina cost applied once when a jump succeeds.")]
+        [SerializeField] private float jumpStaminaCost = 5f;
 
         #endregion
 
@@ -79,6 +82,8 @@ namespace CCS.Modules.CharacterController
         public float SlopeLimit => slopeLimit;
 
         public float StaminaDrainPerSecondWhileSprinting => staminaDrainPerSecondWhileSprinting;
+
+        public float JumpStaminaCost => jumpStaminaCost;
 
         #endregion
     }

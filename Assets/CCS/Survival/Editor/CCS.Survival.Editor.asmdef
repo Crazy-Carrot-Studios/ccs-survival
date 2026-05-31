@@ -4,7 +4,10 @@
     "references": [
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
-        "CCS.Survival.Composition"
+        "CCS.Survival.Composition",
+        "CCS.Survival.Player.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"

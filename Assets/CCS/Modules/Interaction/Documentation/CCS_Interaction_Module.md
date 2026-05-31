@@ -1,11 +1,34 @@
 # CCS Survival — Interaction Module
 
-**Milestone:** 0.3.9 — Interaction Module Foundation  
+**Milestone:** 0.9.0 — Interaction Player Path  
 **Module ID:** `ccs.survival.interaction`  
 **Namespace:** `CCS.Modules.Interaction` (editor: `CCS.Modules.Interaction.Editor`)  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-28  
-**Status:** Foundation complete (not wired to bootstrap installer or scene prefab)
+**Date:** 2026-05-31  
+**Status:** Player-driven interaction complete at **0.9.0** (camera scan + Interact input)
+
+---
+
+## 0.9.0 player interaction path
+
+```text
+PF_CCS_Player camera forward
+        ↓
+CCS_InteractionPlayerDriver.TickScan / RequestInteraction
+        ↓
+CCS_InteractionService
+        ↓
+CCS_HudPresentationService interaction prompt (plain text)
+```
+
+| Component | Location |
+|-----------|----------|
+| `CCS_InteractionPlayerDriver` | `Assets/CCS/Survival/Runtime/Player/` |
+| `CCS_InteractionRuntimeBridge` | Interaction module (registry lookup) |
+
+Test harnesses (`CCS_ResourceHarvestingTestHarness`, etc.) remain for regression but default **disabled** when the player path is primary.
+
+**Deferred:** input glyph assets, advanced prompt styling.
 
 ---
 

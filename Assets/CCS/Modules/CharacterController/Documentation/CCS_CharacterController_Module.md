@@ -1,11 +1,27 @@
 # CCS Survival — Character Controller Module
 
-**Milestone:** 0.3.8 — Character Controller Module Foundation  
+**Milestone:** 0.9.0 — Character Controller Gameplay Integration  
 **Module ID:** `ccs.survival.movement`  
 **Namespace:** `CCS.Modules.CharacterController` (editor: `CCS.Modules.CharacterController.Editor`)  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-28  
-**Status:** Foundation complete (not wired to bootstrap installer or scene prefab)
+**Date:** 2026-05-31  
+**Status:** Playable player integration complete at **0.9.0** (input actions, prefab, movement/camera/stamina wiring)
+
+---
+
+## 0.9.0 player integration
+
+| Asset / script | Role |
+|----------------|------|
+| `Assets/CCS/Survival/Input/CCS_Survival_InputActions.inputactions` | New Input System **Gameplay** + **UI** maps |
+| `Assets/CCS/Survival/Prefabs/Player/PF_CCS_Player.prefab` | CharacterController + camera pivot + gameplay camera |
+| `CCS_CharacterInputActionProvider` | Reads input actions → `CCS_CharacterInputSnapshot` |
+| `CCS_PlayerGameplayController` | Composition glue: movement tick, cursor lock, stamina sprint gate |
+| `CCS_SurvivalGameplayServiceRegistration` | Registers `CCS_CharacterMovementService`, stamina bind, updatable tick |
+
+**Flow:** Input Actions → provider → `CCS_CharacterMovementService` → motor/camera. Sprint/jump raise Survival Core stamina hooks through composition (no direct module coupling).
+
+**Deferred:** final character art, animation controller, Cinemachine, input glyphs/rebinding UI.
 
 ---
 

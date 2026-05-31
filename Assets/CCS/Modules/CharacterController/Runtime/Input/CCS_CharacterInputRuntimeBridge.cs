@@ -3,11 +3,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CharacterInputRuntimeBridge
 // CATEGORY: Modules / CharacterController / Runtime / Input
-// PURPOSE: Test/dev input provider with serialized axes until New Input System is wired.
-// PLACEMENT: Owned by scene bootstrap or movement service for 0.3.8 smoke tests.
+// PURPOSE: Manual/test input provider; gameplay uses CCS_CharacterInputActionProvider.
+// PLACEMENT: Owned by movement service default provider or test harnesses.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Not a MonoBehaviour. Set fields from tests or temporary scene wiring.
+// NOTES: Not a MonoBehaviour. Set fields from tests. Gameplay reads Input Actions via provider.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController

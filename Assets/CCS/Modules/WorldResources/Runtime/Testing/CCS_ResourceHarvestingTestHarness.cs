@@ -20,7 +20,7 @@ namespace CCS.Modules.WorldResources
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness scans from the main camera and triggers harvest attempts.")]
-        [SerializeField] private bool enableHarness = true;
+        [SerializeField] private bool enableHarness = false;
 
         [Tooltip("Seconds between automated interaction attempts.")]
         [SerializeField] private float interactIntervalSeconds = 3f;
@@ -29,6 +29,8 @@ namespace CCS.Modules.WorldResources
         [SerializeField] private Camera scanCamera;
 
         private float nextInteractTime;
+        private float nextNoTargetLogTime;
+        private const float NoTargetLogIntervalSeconds = 8f;
 
         #endregion
 
@@ -64,7 +66,12 @@ namespace CCS.Modules.WorldResources
 
             if (!interactionService.HasCurrentTarget)
             {
-                Debug.Log("[CCS_ResourceHarvestingTestHarness] No interactable resource target in scan.");
+                if (Time.time >= nextNoTargetLogTime)
+                {
+                    nextNoTargetLogTime = Time.time + NoTargetLogIntervalSeconds;
+                    Debug.Log("[CCS_ResourceHarvestingTestHarness] No interactable resource target in scan.");
+                }
+
                 return;
             }
 

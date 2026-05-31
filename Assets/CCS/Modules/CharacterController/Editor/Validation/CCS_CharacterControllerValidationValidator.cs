@@ -25,6 +25,12 @@ namespace CCS.Modules.CharacterController.Editor
         private const string DefaultProfilePath =
             SurvivalRoot + "/Profiles/CharacterController/CCS_DefaultCharacterControllerProfile.asset";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_CharacterController_Module.md";
+        private const string InputActionsPath = SurvivalRoot + "/Input/CCS_Survival_InputActions.inputactions";
+        private const string PlayerPrefabPath = SurvivalRoot + "/Prefabs/Player/PF_CCS_Player.prefab";
+        private const string PlayerControllerScriptPath = SurvivalRoot + "/Runtime/Player/CCS_PlayerGameplayController.cs";
+        private const string InputProviderScriptPath = RuntimeRoot + "/Input/CCS_CharacterInputActionProvider.cs";
+        private const string MovementBridgeScriptPath = RuntimeRoot + "/Services/CCS_CharacterMovementRuntimeBridge.cs";
+        private const string BootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
 
         #region Properties
 
@@ -53,6 +59,15 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateRequiredScript(report, "CCS_CharacterControllerMotor", RuntimeRoot + "/Movement/CCS_CharacterControllerMotor.cs");
             ValidateRequiredScript(report, "CCS_CharacterControllerProfile", RuntimeRoot + "/Profiles/CCS_CharacterControllerProfile.cs");
             ValidateRequiredScript(report, "CCS_ICharacterInputProvider", RuntimeRoot + "/Input/CCS_ICharacterInputProvider.cs");
+            ValidateRequiredScript(report, "CCS_CharacterInputActionProvider", InputProviderScriptPath);
+            ValidateRequiredScript(report, "CCS_CharacterMovementRuntimeBridge", MovementBridgeScriptPath);
+            ValidateRequiredScript(report, "CCS_PlayerGameplayController", PlayerControllerScriptPath);
+
+            ValidateRequiredFile(report, "Survival Input Actions", InputActionsPath);
+            ValidatePlayerPrefabRules(report);
+            ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
+            ValidateRuntimeScriptsAvoidUnityEditor(report, SurvivalRoot + "/Runtime/Player");
+            ValidateBootstrapSceneGameplayCamera(report);
 
             ValidateDocumentationAsset(report, "Character Controller Module Doc", ModuleDocPath);
 
@@ -165,6 +180,141 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_SurvivalValidationIssueSeverity.Warning,
                 context,
                 $"Documentation missing: {assetPath}");
+        }
+
+        private static void ValidatePlayerPrefabRules(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(PlayerPrefabPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Prefab",
+                    $"Missing required prefab: {PlayerPrefabPath}");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Player Prefab",
+                $"Asset present: {PlayerPrefabPath}");
+
+            string prefabText = File.ReadAllText(PlayerPrefabPath);
+            if (prefabText.Contains("CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_PlayerGameplayController"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Prefab",
+                    "Player prefab includes CCS_PlayerGameplayController.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Prefab",
+                    "Player prefab is missing CCS_PlayerGameplayController.");
+            }
+
+            if (prefabText.Contains("CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterInputActionProvider"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Prefab",
+                    "Player prefab includes CCS_CharacterInputActionProvider.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Prefab",
+                    "Player prefab is missing CCS_CharacterInputActionProvider.");
+            }
+        }
+
+        private static void ValidateBootstrapSceneGameplayCamera(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Gameplay Camera",
+                    $"Missing bootstrap scene: {BootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(BootstrapScenePath);
+            if (sceneText.Contains("PF_CCS_Player") && sceneText.Contains("m_TagString: MainCamera"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Gameplay Camera",
+                    "Bootstrap scene includes player camera setup.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Gameplay Camera",
+                    "Bootstrap scene is missing player MainCamera setup.");
+            }
+        }
+
+        private static void ValidateRuntimeScriptsAvoidUnityEditor(
+            CCS_SurvivalValidationReport report,
+            string runtimeFolderPath)
+        {
+            if (!Directory.Exists(runtimeFolderPath))
+            {
+                return;
+            }
+
+            bool foundEditorReference = false;
+            string[] scriptPaths = Directory.GetFiles(runtimeFolderPath, "*.cs", SearchOption.AllDirectories);
+            for (int index = 0; index < scriptPaths.Length; index++)
+            {
+                if (ScriptContainsUnityEditorReference(File.ReadAllText(scriptPaths[index])))
+                {
+                    foundEditorReference = true;
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Runtime Script Purity",
+                        $"Runtime script references UnityEditor: {scriptPaths[index]}");
+                }
+            }
+
+            if (!foundEditorReference)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Runtime Script Purity",
+                    $"Runtime scripts under {runtimeFolderPath} avoid UnityEditor.");
+            }
+        }
+
+        private static bool ScriptContainsUnityEditorReference(string contents)
+        {
+            string[] lines = contents.Split('\n');
+            for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+            {
+                string trimmedLine = lines[lineIndex].Trim();
+                if (trimmedLine.StartsWith("//"))
+                {
+                    continue;
+                }
+
+                int commentIndex = trimmedLine.IndexOf("//", System.StringComparison.Ordinal);
+                if (commentIndex >= 0)
+                {
+                    trimmedLine = trimmedLine.Substring(0, commentIndex).Trim();
+                }
+
+                if (trimmedLine.StartsWith("using UnityEditor", System.StringComparison.Ordinal) ||
+                    trimmedLine.Contains("UnityEditor.", System.StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         #endregion

@@ -59,6 +59,7 @@ namespace CCS.Modules.SurvivalCore.Editor
             ValidateRequiredScript(report, "CCS_SurvivalCoreValidationUtility", $"{SurvivalCoreRuntimeRoot}/Validation/CCS_SurvivalCoreValidationUtility.cs");
 
             ValidateEnvironmentIntegration(report);
+            ValidateCharacterStaminaIntegration(report);
 
             ValidateDocumentationAsset(report, "Survival Core Module Doc", SurvivalCoreDocPath);
 
@@ -213,6 +214,54 @@ namespace CCS.Modules.SurvivalCore.Editor
                         CCS_SurvivalValidationIssueSeverity.Error,
                         "Bootstrap Environment Influence HUD",
                         "Bootstrap scene is missing CCS_SurvivalEnvironmentInfluenceHudPresenter.");
+                }
+            }
+        }
+
+        private static void ValidateCharacterStaminaIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string registrationPath = SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
+            const string movementServicePath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Movement/CCS_CharacterMovementService.cs";
+
+            if (File.Exists(registrationPath))
+            {
+                string registrationSource = File.ReadAllText(registrationPath);
+                if (registrationSource.Contains("BindCharacterStaminaIntegration")
+                    && registrationSource.Contains("StaminaDrainActive")
+                    && registrationSource.Contains("CCS_SurvivalStatType.Stamina"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Character Stamina Integration",
+                        "Gameplay composition binds character sprint/jump to survival core stamina safely.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Character Stamina Integration",
+                        "Gameplay composition is missing character stamina integration.");
+                }
+            }
+
+            if (File.Exists(movementServicePath))
+            {
+                string movementSource = File.ReadAllText(movementServicePath);
+                if (movementSource.Contains("StaminaDrainRequested")
+                    && movementSource.Contains("SetSprintAllowed"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Character Stamina Hooks",
+                        "Character movement service exposes stamina drain events and sprint gating.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Character Stamina Hooks",
+                        "Character movement service is missing stamina hook surface.");
                 }
             }
         }

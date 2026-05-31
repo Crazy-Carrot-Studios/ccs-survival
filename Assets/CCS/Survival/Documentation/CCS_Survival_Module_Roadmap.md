@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.8.5 — Building Shelter Integration  
+**Milestone baseline:** 0.9.0 — Character Controller Gameplay Integration  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Building shelter integration **complete** at **0.8.5**. Structural integrity, durability, and advanced enclosure detection deferred.
+**Status:** Playable player path **complete** at **0.9.0**. Glyphs, final animation, and combat deferred.
 
 ---
 
@@ -47,8 +47,9 @@
 | **0.8.1** | Building placement foundation |
 | **0.8.4** | Building persistence restore |
 | **0.8.5** | Building shelter integration |
+| **0.9.0** | Character controller gameplay integration (player prefab, input, interaction, stamina) |
 
-Later milestones continue from **0.8.6+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+Later milestones continue from **0.9.1+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
 
 ---
 

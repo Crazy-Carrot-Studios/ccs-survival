@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterControllerProfile
   profileDisplayName: Default Character Controller
   profileId: ccs.survival.profile.movement.default
-  profileDescription: Default character controller tuning for 0.3.8 foundation.
-  profileVersion: 0.3.8
+  profileDescription: Default character controller tuning for 0.9.0 playable player
+    integration.
+  profileVersion: 0.9.0
   enableDebugLogs: 0
   movement:
     walkSpeed: 4
@@ -29,9 +30,12 @@ MonoBehaviour:
     stepOffset: 0.35
     slopeLimit: 45
     staminaDrainPerSecondWhileSprinting: 4
+    jumpStaminaCost: 5
   camera:
     horizontalSensitivity: 120
     verticalSensitivity: 90
     minPitch: -80
     maxPitch: 80
     followHeightOffset: 1.6
+    pointerLookScale: 0.08
+    pointerLookThreshold: 1

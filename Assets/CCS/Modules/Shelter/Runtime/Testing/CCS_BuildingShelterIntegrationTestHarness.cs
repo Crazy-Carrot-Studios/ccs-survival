@@ -25,7 +25,7 @@ namespace CCS.Modules.Shelter
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness verifies building shelter integration.")]
-        [SerializeField] private bool enableHarness = true;
+        [SerializeField] private bool enableHarness = false;
 
         [Tooltip("Seconds between harness state checks.")]
         [SerializeField] private float checkIntervalSeconds = 2f;

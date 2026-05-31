@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
     public sealed class CCS_SurvivalFoundationValidationValidator : CCS_ISurvivalValidationValidator
     {
         private const string SurvivalRoot = "Assets/CCS/Survival";
-        private const string ExpectedBundleVersion = "0.8.5";
+        private const string ExpectedBundleVersion = "0.9.0";
 
         #region Properties
 
@@ -57,6 +57,7 @@ namespace CCS.Survival.Editor.Development
                 $"{SurvivalRoot}/Documentation/CCS_Survival_Module_Roadmap.md");
 
             ValidateProjectVersion(report);
+            ValidateBootstrapScenePlayerIntegration(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
@@ -154,6 +155,143 @@ namespace CCS.Survival.Editor.Development
                 CCS_SurvivalValidationIssueSeverity.Warning,
                 "Project Version",
                 $"Expected bundleVersion {ExpectedBundleVersion}. Review ProjectSettings/ProjectSettings.asset.");
+        }
+
+        private static void ValidateBootstrapScenePlayerIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string bootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+            const string playerPrefabPath = SurvivalRoot + "/Prefabs/Player/PF_CCS_Player.prefab";
+            const string bootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
+            const string inputActionsPath = SurvivalRoot + "/Input/CCS_Survival_InputActions.inputactions";
+
+            ValidateRequiredAsset(report, "Player Prefab", playerPrefabPath);
+            ValidateRequiredAsset(report, "Survival Input Actions", inputActionsPath);
+
+            if (!File.Exists(bootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Player Integration",
+                    $"Missing bootstrap scene: {bootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(bootstrapScenePath);
+            if (sceneText.Contains("PF_CCS_Player"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene contains PF_CCS_Player instance.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene is missing PF_CCS_Player instance.");
+            }
+
+            if (sceneText.Contains("PF_CCS_Survival_BootstrapRoot")
+                || sceneText.Contains("CCS_SurvivalBootstrap")
+                || sceneText.Contains("CCS_SurvivalGameplayServiceHost")
+                || sceneText.Contains("f1a2b3c4d5e6478990abcdef12345606"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene contains survival bootstrap root.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene is missing survival bootstrap root.");
+            }
+
+            if (sceneText.Contains("PF_CCS_HUD_Root") || sceneText.Contains("CCS_HudRootPresenter"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene contains HUD root.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Player Integration",
+                    "Bootstrap scene is missing HUD root.");
+            }
+
+            if (File.Exists(playerPrefabPath))
+            {
+                string prefabText = File.ReadAllText(playerPrefabPath);
+                if (prefabText.Contains("CharacterController:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Player Prefab Components",
+                        "Player prefab includes Unity CharacterController.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Player Prefab Components",
+                        "Player prefab is missing Unity CharacterController.");
+                }
+
+                if (prefabText.Contains("Rigidbody:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Player Prefab Components",
+                        "Player prefab must not include Rigidbody.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Player Prefab Components",
+                        "Player prefab has no Rigidbody.");
+                }
+
+                if (prefabText.Contains("CameraPivot") && prefabText.Contains("Camera:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Player Prefab Components",
+                        "Player prefab includes camera pivot and camera.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Player Prefab Components",
+                        "Player prefab is missing camera pivot or camera.");
+                }
+            }
+
+            if (File.Exists(bootstrapPrefabPath))
+            {
+                string bootstrapPrefabText = File.ReadAllText(bootstrapPrefabPath);
+                if (bootstrapPrefabText.Contains("characterControllerProfile"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Bootstrap Gameplay Services",
+                        "Bootstrap root assigns character controller profile.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Bootstrap Gameplay Services",
+                        "Bootstrap root is missing character controller profile assignment.");
+                }
+            }
         }
 
         #endregion

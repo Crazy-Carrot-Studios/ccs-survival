@@ -19,7 +19,7 @@ namespace CCS.Modules.Shelter
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness toggles shelter state on an interval.")]
-        [SerializeField] private bool enableHarness = true;
+        [SerializeField] private bool enableHarness = false;
 
         [Tooltip("Seconds between automated shelter enter/exit toggles.")]
         [SerializeField] private float toggleIntervalSeconds = 5f;

@@ -11,6 +11,7 @@ using CCS.Modules.Weather;
 using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
+using CCS.Modules.CharacterController;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalGameplayServiceRegistration
@@ -44,6 +45,7 @@ namespace CCS.Survival.Composition
             CCS_ShelterProfile shelterProfile,
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             CCS_BuildingProfile buildingProfile,
+            CCS_CharacterControllerProfile characterControllerProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -98,6 +100,12 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, placementService, enableDebugLogs);
 
             BindBuildingShelterIntegration(shelterService, buildingService);
+
+            CCS_CharacterMovementService characterMovementService =
+                CreateCharacterMovementService(characterControllerProfile);
+            RegisterService(runtimeHost, characterMovementService, enableDebugLogs);
+            RegisterCharacterMovementUpdatable(runtimeHost, characterMovementService);
+            BindCharacterStaminaIntegration(survivalCoreService, characterMovementService);
 
             BindSurvivalCoreEnvironmentEffects(survivalCoreService, environmentEffectsService);
             RegisterSurvivalCoreUpdatable(runtimeHost, survivalCoreService);
@@ -412,6 +420,59 @@ namespace CCS.Survival.Composition
             }
 
             shelterService.BindBuildingService(buildingService);
+        }
+
+        private static void BindCharacterStaminaIntegration(
+            CCS_SurvivalCoreService survivalCoreService,
+            CCS_CharacterMovementService characterMovementService)
+        {
+            if (survivalCoreService == null
+                || !survivalCoreService.IsInitialized
+                || characterMovementService == null)
+            {
+                return;
+            }
+
+            characterMovementService.SprintStateChanged += isSprinting =>
+            {
+                survivalCoreService.StaminaDrainActive = isSprinting;
+            };
+
+            characterMovementService.Jumped += _ =>
+            {
+                float jumpCost = characterMovementService.ActiveProfile != null
+                    ? characterMovementService.ActiveProfile.Movement.JumpStaminaCost
+                    : 0f;
+
+                if (jumpCost <= 0f)
+                {
+                    return;
+                }
+
+                survivalCoreService.TryApplyModifier(
+                    CCS_SurvivalStatType.Stamina,
+                    CCS_SurvivalStatModifier.Add(-jumpCost));
+            };
+        }
+
+        private static CCS_CharacterMovementService CreateCharacterMovementService(
+            CCS_CharacterControllerProfile profile)
+        {
+            CCS_CharacterMovementService service = new CCS_CharacterMovementService();
+            service.Initialize();
+            return service;
+        }
+
+        private static void RegisterCharacterMovementUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_CharacterMovementService characterMovementService)
+        {
+            if (runtimeHost == null || characterMovementService == null)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(characterMovementService);
         }
 
         private static void BindSurvivalCoreEnvironmentEffects(

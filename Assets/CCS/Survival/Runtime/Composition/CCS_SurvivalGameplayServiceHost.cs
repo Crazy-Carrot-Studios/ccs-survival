@@ -11,6 +11,7 @@ using CCS.Modules.Weather;
 using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
+using CCS.Modules.CharacterController;
 using UnityEngine;
 
 // =============================================================================
@@ -67,6 +68,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default building profile used to register CCS_BuildingService.")]
         [SerializeField] private CCS_BuildingProfile buildingProfile;
 
+        [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
+        [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -107,6 +111,7 @@ namespace CCS.Survival.Composition
                 shelterProfile,
                 environmentEffectsProfile,
                 buildingProfile,
+                characterControllerProfile,
                 enableDebugLogs);
         }
 

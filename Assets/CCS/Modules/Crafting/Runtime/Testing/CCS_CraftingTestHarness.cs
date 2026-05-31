@@ -20,7 +20,7 @@ namespace CCS.Modules.Crafting
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness attempts configured test recipes after harvest resources are available.")]
-        [SerializeField] private bool enableHarness = true;
+        [SerializeField] private bool enableHarness = false;
 
         [Tooltip("Seconds between automated craft attempts.")]
         [SerializeField] private float craftAttemptIntervalSeconds = 5f;

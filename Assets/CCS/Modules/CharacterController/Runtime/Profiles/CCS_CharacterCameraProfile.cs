@@ -35,6 +35,13 @@ namespace CCS.Modules.CharacterController
         [Tooltip("Optional vertical offset for camera follow anchor.")]
         [SerializeField] private float followHeightOffset = 1.6f;
 
+        [Header("Pointer Look")]
+        [Tooltip("Scale applied to mouse/pointer look deltas (not multiplied by deltaTime).")]
+        [SerializeField] private float pointerLookScale = 0.08f;
+
+        [Tooltip("Input magnitude above this value is treated as pointer delta instead of stick input.")]
+        [SerializeField] private float pointerLookThreshold = 1f;
+
         #endregion
 
         #region Properties
@@ -48,6 +55,10 @@ namespace CCS.Modules.CharacterController
         public float MaxPitch => maxPitch;
 
         public float FollowHeightOffset => followHeightOffset;
+
+        public float PointerLookScale => pointerLookScale;
+
+        public float PointerLookThreshold => pointerLookThreshold;
 
         #endregion
     }

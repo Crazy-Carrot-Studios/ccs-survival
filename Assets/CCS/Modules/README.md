@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.8.5  
+**Version:** 0.9.0  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -128,7 +128,7 @@ Assets/CCS/Modules/<ModuleName>/
 | Folder | Milestone |
 |--------|-----------|
 | `SurvivalCore/` | 0.3.7 / 0.3.7a / 0.3.7b |
-| `CharacterController/` | 0.3.8 — **Complete** (foundation) |
+| `CharacterController/` | 0.3.8, **0.9.0** — **Complete** (foundation + playable player integration) |
 | `Interaction/` | 0.3.9 — **Complete** (foundation) |
 | `Inventory/` | 0.4.0 — **Complete** (foundation) |
 | `Equipment/` | 0.4.1 / 0.7.4 — **Foundation + environmental modifiers complete** |

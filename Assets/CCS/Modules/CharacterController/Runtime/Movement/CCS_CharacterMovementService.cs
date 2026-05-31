@@ -1,3 +1,4 @@
+using CCS.Core;
 using CCS.Survival;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ using UnityEngine;
 
 namespace CCS.Modules.CharacterController
 {
-    public sealed class CCS_CharacterMovementService : CCS_ISurvivalService
+    public sealed class CCS_CharacterMovementService : CCS_ISurvivalService, CCS_IUpdatable
     {
         private const string LogPrefix = "[CCS_CharacterMovementService]";
 
@@ -30,6 +31,7 @@ namespace CCS.Modules.CharacterController
         private Transform cameraTransform;
         private CCS_CharacterMovementSnapshot currentSnapshot;
         private bool isInitialized;
+        private bool sprintAllowed = true;
 
         #endregion
 
@@ -126,6 +128,16 @@ namespace CCS.Modules.CharacterController
             inputProvider = provider ?? defaultInputBridge;
         }
 
+        public void SetSprintAllowed(bool allowed)
+        {
+            sprintAllowed = allowed;
+        }
+
+        public void Tick(float deltaTime)
+        {
+            TickMovement(deltaTime);
+        }
+
         public void TickMovement(float deltaTime)
         {
             if (!isInitialized || deltaTime <= 0f)
@@ -164,7 +176,7 @@ namespace CCS.Modules.CharacterController
             return new CCS_CharacterMovementInput(
                 worldPlanar,
                 inputSnapshot.JumpPressed,
-                inputSnapshot.SprintHeld,
+                inputSnapshot.SprintHeld && sprintAllowed,
                 inputSnapshot.CrouchHeld);
         }
 

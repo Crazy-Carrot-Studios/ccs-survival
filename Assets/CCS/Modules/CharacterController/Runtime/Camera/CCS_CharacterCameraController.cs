@@ -45,8 +45,22 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            float yawDelta = input.Look.x * activeProfile.HorizontalSensitivity * deltaTime;
-            float pitchDelta = -input.Look.y * activeProfile.VerticalSensitivity * deltaTime;
+            float lookMagnitude = Mathf.Max(Mathf.Abs(input.Look.x), Mathf.Abs(input.Look.y));
+            bool isPointerLook = lookMagnitude > activeProfile.PointerLookThreshold;
+            float yawDelta = input.Look.x * activeProfile.HorizontalSensitivity;
+            float pitchDelta = -input.Look.y * activeProfile.VerticalSensitivity;
+
+            if (isPointerLook)
+            {
+                yawDelta *= activeProfile.PointerLookScale;
+                pitchDelta *= activeProfile.PointerLookScale;
+            }
+            else
+            {
+                yawDelta *= deltaTime;
+                pitchDelta *= deltaTime;
+            }
+
             lookState.AddLookDelta(yawDelta, pitchDelta, activeProfile.MinPitch, activeProfile.MaxPitch);
 
             ApplyOrientationToTransforms();
