@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d45202cabe481aa4ea38c4749cddfac3, type: 3}
+  m_Name: CCS_TestResource_Tree
+  m_EditorClassIdentifier: CCS.Modules.WorldResources.Runtime::CCS.Modules.WorldResources.CCS_ResourceDefinition
+  resourceId: ccs.survival.resource.test.tree
+  displayName: Test Tree
+  nodeType: 0
+  maxHarvestCount: 3
+  respawnTimeSeconds: 30
+  requiredToolType: 1
+  dropDefinitions:
+  - itemDefinition: {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
+    minQuantity: 1
+    maxQuantity: 2

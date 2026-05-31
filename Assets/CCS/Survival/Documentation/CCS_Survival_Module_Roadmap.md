@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.5.0 — Crafting Module Foundation  
+**Milestone baseline:** 0.5.1 — World Resource Module Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Crafting module foundation **complete** at **0.5.0**. Crafting UI and world stations deferred.
+**Status:** World resource module foundation **complete** at **0.5.1**. Final art, terrain, and save/load deferred.
 
 ---
 
@@ -29,8 +29,9 @@
 | **0.4.2a** | HUD readability and anchor pass |
 | **0.4.3** | HUD runtime wiring pass |
 | **0.5.0** | Crafting module foundation |
+| **0.5.1** | World resource module foundation |
 
-Later milestones continue from **0.5.0+** (Crafting UI, world systems, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.5.1+** (resource UI, save/load, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -67,8 +68,8 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 5 | **0.4.1** | **Equipment** | `ccs.survival.equipment` — **Complete** (foundation) |
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0** | **Crafting** | `ccs.survival.crafting` — **Complete** (foundation) |
-| 8 | 0.5.x | World Resources | `ccs.survival.world.resources` |
-| 9 | 0.4.x | Save / Load | `ccs.survival.save` |
+| 8 | **0.5.1** | **World Resources** | `ccs.survival.world.resources` — **Complete** (foundation) |
+| 9 | 0.5.x | Save / Load | `ccs.survival.save` |
 | 10 | 0.4.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
 | 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
@@ -115,7 +116,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.5.1+ — Crafting service bootstrap wiring and sample recipes**
+**0.5.2+ — Resource harvesting interaction wiring and save/load planning**
+
+---
+
+## 0.5.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| World Resources module under `Assets/CCS/Modules/WorldResources/` | **Complete** |
+| Resource, drop, tool, and node type definitions | **Complete** |
+| Harvest and respawn services + harvestable component | **Complete** |
+| Default world resource profile asset | **Complete** |
+| Bootstrap test tree/rock/plant placeholders | **Complete** |
+| World resource validation registered | **Complete** |
+| No final art / terrain / save / resource UI | **Complete** |
+| Version **0.5.1** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

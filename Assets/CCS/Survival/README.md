@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.5.0 — Crafting Module Foundation  
+**Milestone:** 0.5.1 — World Resource Module Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -17,6 +17,17 @@
 | Doc | Path |
 |-----|------|
 | Build verification | [Documentation/CCS_Survival_Build_Verification.md](Documentation/CCS_Survival_Build_Verification.md) |
+
+## World Resources (0.5.1)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/WorldResources/Runtime/` |
+| Editor validation | `../Modules/WorldResources/Editor/Validation/` |
+| Default profile | `Profiles/WorldResources/CCS_DefaultWorldResourceProfile.asset` |
+| Module doc | [../Modules/WorldResources/Documentation/CCS_World_Resources_Module.md](../Modules/WorldResources/Documentation/CCS_World_Resources_Module.md) |
+
+**Editor menu:** **CCS → Survival → World Resources → Validate World Resources**
 
 ## Crafting (0.5.0)
 
