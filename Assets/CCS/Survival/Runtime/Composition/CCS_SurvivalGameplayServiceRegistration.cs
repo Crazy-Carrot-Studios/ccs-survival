@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
@@ -38,6 +39,7 @@ namespace CCS.Survival.Composition
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
             CCS_WeatherProfile weatherProfile,
+            CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -69,12 +71,20 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, weatherService, enableDebugLogs);
             RegisterWeatherUpdatable(runtimeHost, weatherService);
 
+            CCS_EnvironmentEffectsService environmentEffectsService = CreateEnvironmentEffectsService(
+                environmentEffectsProfile,
+                timeOfDayService,
+                weatherService);
+            RegisterService(runtimeHost, environmentEffectsService, enableDebugLogs);
+            RegisterEnvironmentEffectsUpdatable(runtimeHost, environmentEffectsService);
+
             RegisterGameplaySaveables(
                 saveLoadService,
                 inventoryService,
                 equipmentService,
                 timeOfDayService,
-                weatherService);
+                weatherService,
+                environmentEffectsService);
         }
 
         #endregion
@@ -255,12 +265,52 @@ namespace CCS.Survival.Composition
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(weatherService);
         }
 
+        private static CCS_EnvironmentEffectsService CreateEnvironmentEffectsService(
+            CCS_EnvironmentEffectsProfile profile,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_WeatherService weatherService)
+        {
+            CCS_EnvironmentEffectsService service = new CCS_EnvironmentEffectsService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            if (timeOfDayService != null && timeOfDayService.IsInitialized)
+            {
+                service.BindTimeOfDayService(timeOfDayService);
+            }
+
+            if (weatherService != null && weatherService.IsInitialized)
+            {
+                service.BindWeatherService(weatherService);
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static void RegisterEnvironmentEffectsUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_EnvironmentEffectsService environmentEffectsService)
+        {
+            if (runtimeHost == null || environmentEffectsService == null || !environmentEffectsService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(environmentEffectsService);
+        }
+
         private static void RegisterGameplaySaveables(
             CCS_SaveLoadService saveLoadService,
             CCS_PlayerInventoryService inventoryService,
             CCS_PlayerEquipmentService equipmentService,
             CCS_TimeOfDayService timeOfDayService,
-            CCS_WeatherService weatherService)
+            CCS_WeatherService weatherService,
+            CCS_EnvironmentEffectsService environmentEffectsService)
         {
             if (saveLoadService == null || !saveLoadService.IsInitialized)
             {
@@ -297,6 +347,11 @@ namespace CCS.Survival.Composition
             if (weatherService != null && weatherService.IsInitialized)
             {
                 saveLoadService.RegisterSaveable(weatherService);
+            }
+
+            if (environmentEffectsService != null && environmentEffectsService.IsInitialized)
+            {
+                saveLoadService.RegisterSaveable(environmentEffectsService);
             }
         }
 

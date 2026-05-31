@@ -1,11 +1,11 @@
 # CCS Survival — Save / Load Module
 
-**Milestone:** 0.6.2 — Inventory & Equipment Persistence  
+**Milestone:** 0.7.2 — Environment Effects Persistence  
 **Module ID:** `ccs.survival.saveload`  
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-28  
-**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**.
+**Date:** 2026-05-31  
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**.
 
 ---
 
@@ -74,10 +74,11 @@ Registered at **0.6.2**:
 | `ccs.survival.saveable.equipment.player` | `CCS_PlayerEquipmentService` |
 | `ccs.survival.saveable.timeofday.global` | `CCS_TimeOfDayService` |
 | `ccs.survival.saveable.weather.global` | `CCS_WeatherService` |
+| `ccs.survival.saveable.environment.global` | `CCS_EnvironmentEffectsService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
 
-Load order: inventory → equipment → time of day → weather (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
+Load order: inventory → equipment → time of day → weather → environment (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
 
 ---
 

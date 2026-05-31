@@ -1,8 +1,8 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.1 — Weather Foundation  
+**Milestone:** 0.7.2 — Environment Effects Foundation  
 **Author:** James Schilz  
-**Date:** 2026-05-28
+**Date:** 2026-05-31
 
 ## Folder rules
 
@@ -93,6 +93,19 @@
 **Editor menu:** **CCS → Survival → Weather → Validate Weather**
 
 **0.7.1:** Global weather state with transitions, one-way Time Of Day integration, save/load persistence, and bootstrap HUD weather display. No VFX, lighting, or audio.
+
+## Environment Effects (0.7.2)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/EnvironmentEffects/Runtime/` |
+| Editor validation | `../Modules/EnvironmentEffects/Editor/Validation/` |
+| Default profile | `Profiles/EnvironmentEffects/CCS_DefaultEnvironmentEffectsProfile.asset` |
+| Module doc | [../Modules/EnvironmentEffects/Documentation/CCS_Environment_Effects_Module.md](../Modules/EnvironmentEffects/Documentation/CCS_Environment_Effects_Module.md) |
+
+**Editor menu:** **CCS → Survival → Environment Effects → Validate Environment Effects**
+
+**0.7.2:** Ambient temperature, wetness, and exposure simulation from Time Of Day and Weather snapshots. Save/load persistence and bootstrap HUD environment display. No Survival Core stat mutation, clothing insulation, or damage.
 
 ## Inventory (0.4.0)
 

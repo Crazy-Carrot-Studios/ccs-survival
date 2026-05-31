@@ -24,12 +24,15 @@ namespace CCS.Modules.SaveLoad
 
         public const string GlobalWeather = "ccs.survival.saveable.weather.global";
 
+        public const string GlobalEnvironment = "ccs.survival.saveable.environment.global";
+
         public static readonly string[] ModuleRestoreOrder =
         {
             PlayerInventory,
             PlayerEquipment,
             GlobalTimeOfDay,
-            GlobalWeather
+            GlobalWeather,
+            GlobalEnvironment
         };
 
         #endregion

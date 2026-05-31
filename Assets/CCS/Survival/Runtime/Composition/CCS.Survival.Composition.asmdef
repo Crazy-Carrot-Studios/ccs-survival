@@ -12,7 +12,8 @@
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.TimeOfDay.Runtime",
-        "CCS.Modules.Weather.Runtime"
+        "CCS.Modules.Weather.Runtime",
+        "CCS.Modules.EnvironmentEffects.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -4,6 +4,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
@@ -98,6 +99,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_WeatherService weatherService))
             {
                 presentationService.BindWeatherService(weatherService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_EnvironmentEffectsService environmentEffectsService))
+            {
+                presentationService.BindEnvironmentEffectsService(environmentEffectsService);
                 wiredAnyService = true;
             }
 

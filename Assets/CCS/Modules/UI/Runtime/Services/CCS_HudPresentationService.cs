@@ -4,6 +4,7 @@ using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
@@ -38,6 +39,7 @@ namespace CCS.Modules.UI
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
+        private CCS_EnvironmentEffectsService environmentEffectsService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -50,6 +52,7 @@ namespace CCS.Modules.UI
         private CCS_SurvivalStatSnapshot temperatureSnapshot;
         private CCS_GameTimeSnapshot gameTimeSnapshot;
         private CCS_WeatherSnapshot weatherSnapshot;
+        private CCS_EnvironmentSnapshot environmentSnapshot;
 
         private bool isInitialized;
 
@@ -92,6 +95,8 @@ namespace CCS.Modules.UI
         public CCS_GameTimeSnapshot GameTimeSnapshot => gameTimeSnapshot;
 
         public CCS_WeatherSnapshot WeatherSnapshot => weatherSnapshot;
+
+        public CCS_EnvironmentSnapshot EnvironmentSnapshot => environmentSnapshot;
 
         public int EffectiveInventorySlotCount
         {
@@ -293,6 +298,23 @@ namespace CCS.Modules.UI
             RefreshWeatherSnapshot();
         }
 
+        public void BindEnvironmentEffectsService(CCS_EnvironmentEffectsService service)
+        {
+            UnbindEnvironmentEffectsService();
+            environmentEffectsService = service;
+
+            if (environmentEffectsService == null)
+            {
+                return;
+            }
+
+            environmentEffectsService.EnvironmentChanged += HandleEnvironmentChanged;
+            environmentEffectsService.TemperatureChanged += HandleEnvironmentChanged;
+            environmentEffectsService.WetnessChanged += HandleEnvironmentChanged;
+            environmentEffectsService.ExposureChanged += HandleEnvironmentChanged;
+            RefreshEnvironmentSnapshot();
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -301,6 +323,7 @@ namespace CCS.Modules.UI
             RefreshEquipmentSnapshot();
             RefreshGameTimeSnapshot();
             RefreshWeatherSnapshot();
+            RefreshEnvironmentSnapshot();
             HudDataRefreshed?.Invoke(BuildEventArgs(message));
         }
 
@@ -330,6 +353,7 @@ namespace CCS.Modules.UI
             UnbindCraftingService();
             UnbindTimeOfDayService();
             UnbindWeatherService();
+            UnbindEnvironmentEffectsService();
             isInitialized = false;
         }
 
@@ -781,6 +805,34 @@ namespace CCS.Modules.UI
             weatherService.WeatherTransitionCompleted -= HandleWeatherChanged;
             weatherService = null;
             weatherSnapshot = CCS_WeatherSnapshot.Empty;
+        }
+
+        private void HandleEnvironmentChanged(CCS_EnvironmentEffectsEventArgs eventArgs)
+        {
+            RefreshEnvironmentSnapshot();
+            HudDataRefreshed?.Invoke(BuildEventArgs("Environment changed."));
+        }
+
+        private void RefreshEnvironmentSnapshot()
+        {
+            environmentSnapshot = environmentEffectsService != null && environmentEffectsService.IsInitialized
+                ? environmentEffectsService.GetSnapshot()
+                : CCS_EnvironmentSnapshot.Empty;
+        }
+
+        private void UnbindEnvironmentEffectsService()
+        {
+            if (environmentEffectsService == null)
+            {
+                return;
+            }
+
+            environmentEffectsService.EnvironmentChanged -= HandleEnvironmentChanged;
+            environmentEffectsService.TemperatureChanged -= HandleEnvironmentChanged;
+            environmentEffectsService.WetnessChanged -= HandleEnvironmentChanged;
+            environmentEffectsService.ExposureChanged -= HandleEnvironmentChanged;
+            environmentEffectsService = null;
+            environmentSnapshot = CCS_EnvironmentSnapshot.Empty;
         }
 
         #endregion

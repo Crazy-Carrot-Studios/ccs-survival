@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.7.1 — Weather Foundation  
+**Milestone baseline:** 0.7.2 — Environment Effects Foundation  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-30  
-**Status:** Global weather foundation **complete** at **0.7.1**. VFX, lighting, audio, and environment stat coupling deferred.
+**Date:** 2026-05-31  
+**Status:** Environment effects simulation foundation **complete** at **0.7.2**. Survival Core stat coupling, clothing insulation, and biome modifiers deferred.
 
 ---
 
@@ -37,8 +37,9 @@
 | **0.6.2** | Inventory & equipment persistence |
 | **0.7.0** | Time of day foundation |
 | **0.7.1** | Weather foundation |
+| **0.7.2** | Environment effects foundation |
 
-Later milestones continue from **0.7.2+** (environment effects, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
+Later milestones continue from **0.7.3+** (Survival Core temperature/wetness coupling, clothing insulation, lighting polish, sleep, AI schedules, combat, building, quests, audio, settings finalization).
 
 ---
 
@@ -79,7 +80,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 9 | **0.6.0 – 0.6.2** | **Save / Load** | `ccs.survival.saveload` — **Foundation + inventory/equipment persistence complete** |
 | 10 | **0.7.0** | **Time Of Day** | `ccs.survival.timeofday` — **Foundation complete** |
 | 11 | **0.7.1** | **Weather** | `ccs.survival.weather` — **Foundation complete** |
-| 12 | 0.7.2 | Environment Effects | `ccs.survival.environment` |
+| 12 | **0.7.2** | **Environment Effects** | `ccs.survival.environment` — **Foundation complete** |
 | 13 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 14 | 0.5.x | Combat | `ccs.survival.combat` |
 | 15 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
@@ -124,7 +125,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.7.2 — Environment Effects Foundation** (temperature, wetness, exposure modifiers driven by Time + Weather)
+**0.7.3 — Survival Core Environment Integration** (apply ambient temperature, wetness, and exposure to Survival Core stats)
+
+---
+
+## 0.7.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Environment Effects module under `Assets/CCS/Modules/EnvironmentEffects/` | **Complete** |
+| Global environment service with temperature, wetness, and exposure | **Complete** |
+| Default environment effects profile asset | **Complete** |
+| One-way Time Of Day and Weather integration | **Complete** |
+| Save/load integration via `CCS_ISaveable` | **Complete** |
+| Bootstrap HUD environment display | **Complete** |
+| Validation pipeline registration | **Complete** |
+| Version **0.7.2** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 
@@ -146,13 +164,6 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ---
 
 ## 0.7.0 definition of done
-
-| Criterion | Status |
-|-----------|--------|
-| TimeOfDay module under `Assets/CCS/Modules/TimeOfDay/` | **Complete** |
-| Global game clock service with phases and events | **Complete** |
-| Default time-of-day profile asset | **Complete** |
-| Save/load integration via `CCS_ISaveable` | **Complete** |
 | Bootstrap HUD time display | **Complete** |
 | Validation pipeline registration | **Complete** |
 | Version **0.7.0** | **Complete** |

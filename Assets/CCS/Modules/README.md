@@ -1,8 +1,8 @@
 # CCS Gameplay Modules
 
-**Version:** 0.7.1  
+**Version:** 0.7.2  
 **Author:** James Schilz  
-**Date:** 2026-05-28
+**Date:** 2026-05-31
 
 ## Folder rules
 
@@ -87,6 +87,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.Weather.Editor.CCS_WeatherValidationMenu.ValidateWeather `
   -logFile Logs/CCS_WeatherValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.EnvironmentEffects.Editor.CCS_EnvironmentEffectsValidationMenu.ValidateEnvironmentEffects `
+  -logFile Logs/CCS_EnvironmentEffectsValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -124,5 +128,6 @@ Assets/CCS/Modules/<ModuleName>/
 | `SaveLoad/` | 0.6.0 – 0.6.2 — **Foundation + inventory/equipment persistence complete** |
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
+| `EnvironmentEffects/` | 0.7.2 — **Foundation complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

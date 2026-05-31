@@ -5,6 +5,7 @@ using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
@@ -55,6 +56,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default weather profile used to register CCS_WeatherService.")]
         [SerializeField] private CCS_WeatherProfile weatherProfile;
 
+        [Tooltip("Default environment effects profile used to register CCS_EnvironmentEffectsService.")]
+        [SerializeField] private CCS_EnvironmentEffectsProfile environmentEffectsProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit gameplay service registration logs.")]
         [SerializeField] private bool enableDebugLogs;
@@ -92,6 +96,7 @@ namespace CCS.Survival.Composition
                 saveLoadProfile,
                 timeOfDayProfile,
                 weatherProfile,
+                environmentEffectsProfile,
                 enableDebugLogs);
         }
 

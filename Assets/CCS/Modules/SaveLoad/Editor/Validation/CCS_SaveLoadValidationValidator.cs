@@ -125,7 +125,7 @@ namespace CCS.Modules.SaveLoad.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Save/load validator completed (0.7.1 weather persistence integrated).");
+                "Save/load validator completed (0.7.2 environment persistence integrated).");
         }
 
         #endregion
@@ -144,19 +144,20 @@ namespace CCS.Modules.SaveLoad.Editor
                 && registrationSource.Contains("RegisterSaveable(inventoryService)")
                 && registrationSource.Contains("RegisterSaveable(equipmentService)")
                 && registrationSource.Contains("RegisterSaveable(timeOfDayService)")
-                && registrationSource.Contains("RegisterSaveable(weatherService)"))
+                && registrationSource.Contains("RegisterSaveable(weatherService)")
+                && registrationSource.Contains("RegisterSaveable(environmentEffectsService)"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Gameplay Saveable Registration",
-                    "Gameplay composition registers inventory, equipment, time-of-day, and weather saveables.");
+                    "Gameplay composition registers inventory, equipment, time-of-day, weather, and environment saveables.");
                 return;
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Gameplay Saveable Registration",
-                "Gameplay composition is missing inventory/equipment/time-of-day/weather saveable registration wiring.");
+                "Gameplay composition is missing gameplay saveable registration wiring.");
         }
 
         private static void ValidateRestoreOrder(CCS_SurvivalValidationReport report)
@@ -187,12 +188,13 @@ namespace CCS.Modules.SaveLoad.Editor
                 && registrySource.Contains("RestoreOrderedSaveables")
                 && saveableIdsSource.Contains("GlobalTimeOfDay")
                 && saveableIdsSource.Contains("GlobalWeather")
+                && saveableIdsSource.Contains("GlobalEnvironment")
                 && saveableIdsSource.Contains("ModuleRestoreOrder"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Save Restore Order",
-                    "Registry restores inventory, equipment, time-of-day, and weather using ModuleRestoreOrder.");
+                    "Registry restores inventory, equipment, time-of-day, weather, and environment using ModuleRestoreOrder.");
                 return;
             }
 
