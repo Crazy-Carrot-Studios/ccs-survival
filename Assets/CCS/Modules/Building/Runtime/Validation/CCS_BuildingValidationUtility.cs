@@ -88,7 +88,19 @@ namespace CCS.Modules.Building
             return
                 $"Placement Active: {placementLabel}\n" +
                 $"Selected Piece: {selectedPiece}\n" +
-                $"Placed Count: {placedCount}";
+                $"Placed Count: {placedCount}\n" +
+                $"Snap Target: {FormatSnapTargetLabel(snapshot)}\n" +
+                $"Placement Valid: {(snapshot.IsPlacementValid ? "Yes" : "No")}";
+        }
+
+        public static string FormatSnapTargetLabel(CCS_BuildingPlacementSnapshot snapshot)
+        {
+            if (!snapshot.HasSnapTarget)
+            {
+                return "None";
+            }
+
+            return snapshot.SnapTargetType.ToString();
         }
 
         public static string FormatPieceTypeLabel(CCS_BuildingPieceType pieceType)

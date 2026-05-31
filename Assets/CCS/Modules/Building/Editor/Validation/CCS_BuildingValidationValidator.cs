@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Construction cost and inventory integration checks for 0.8.2.
+// NOTES: Snap foundation and placement snapping checks for 0.8.3.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -68,6 +68,7 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
             ValidateRequiredFolder(report, "Runtime/Placement", RuntimeRoot + "/Placement");
+            ValidateRequiredFolder(report, "Runtime/Snap", RuntimeRoot + "/Snap");
             ValidateRequiredFolder(report, "Runtime/Testing", RuntimeRoot + "/Testing");
             ValidateRequiredFolder(report, "Editor/Validation", EditorRoot + "/Validation");
             ValidateRequiredFolder(report, "Documentation", ModuleRoot + "/Documentation");
@@ -98,12 +99,18 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingPlacementTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPlacementTestHarness.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementFailedEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementFailedEventArgs.cs");
+            ValidateRequiredScript(report, "CCS_BuildingSnapPointType", RuntimeRoot + "/Snap/CCS_BuildingSnapPointType.cs");
+            ValidateRequiredScript(report, "CCS_BuildingSnapPoint", RuntimeRoot + "/Snap/CCS_BuildingSnapPoint.cs");
+            ValidateRequiredScript(report, "CCS_BuildingSnapMatch", RuntimeRoot + "/Snap/CCS_BuildingSnapMatch.cs");
+            ValidateRequiredScript(report, "CCS_BuildingRuntimeSnapPoint", RuntimeRoot + "/Snap/CCS_BuildingRuntimeSnapPoint.cs");
+            ValidateRequiredScript(report, "CCS_BuildingSnapCompatibilityUtility", RuntimeRoot + "/Snap/CCS_BuildingSnapCompatibilityUtility.cs");
 
             ValidateDocumentationAsset(report, "Building Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateDefaultProfile(report);
             ValidateTestDefinitions(report);
             ValidateBuildCostIntegration(report);
+            ValidateSnapIntegration(report);
             ValidateSaveIntegration(report);
             ValidatePlacementIntegration(report);
             ValidateInventoryIntegration(report);
@@ -116,7 +123,7 @@ namespace CCS.Modules.Building.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.2 construction costs and placement validation).");
+                "Building validator completed (0.8.3 snapping foundation).");
         }
 
         #endregion
@@ -251,6 +258,141 @@ namespace CCS.Modules.Building.Editor
                 CCS_SurvivalValidationIssueSeverity.Error,
                 context,
                 $"Definition '{definition.PieceId}' expected {expectedCount} build cost entries, found {count}.");
+        }
+
+        private static void ValidateSnapIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string compatibilityUtilityPath = RuntimeRoot + "/Snap/CCS_BuildingSnapCompatibilityUtility.cs";
+            const string placementServicePath = RuntimeRoot + "/Services/CCS_BuildingPlacementService.cs";
+            const string instancePath = RuntimeRoot + "/Data/CCS_BuildingInstance.cs";
+
+            if (File.Exists(compatibilityUtilityPath))
+            {
+                string utilitySource = File.ReadAllText(compatibilityUtilityPath);
+                if (utilitySource.Contains("FoundationEdge")
+                    && utilitySource.Contains("WallBottom")
+                    && utilitySource.Contains("WallTop")
+                    && utilitySource.Contains("RoofEdge"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Snap Compatibility",
+                        "Snap compatibility utility includes foundation, wall, and roof rules.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Snap Compatibility",
+                        "Snap compatibility utility is missing required snap rules.");
+                }
+            }
+
+            CCS_BuildingPieceDefinition foundation =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestFoundationPath);
+            CCS_BuildingPieceDefinition wall =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestWallPath);
+            CCS_BuildingPieceDefinition roof =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestRoofPath);
+
+            ValidateDefinitionSnapRules(
+                report,
+                "Foundation Snap Rules",
+                foundation,
+                allowsFreePlacement: true,
+                requiresSnapPoint: false,
+                minimumSnapPoints: 1);
+            ValidateDefinitionSnapRules(
+                report,
+                "Wall Snap Rules",
+                wall,
+                allowsFreePlacement: false,
+                requiresSnapPoint: true,
+                minimumSnapPoints: 2);
+            ValidateDefinitionSnapRules(
+                report,
+                "Roof Snap Rules",
+                roof,
+                allowsFreePlacement: false,
+                requiresSnapPoint: true,
+                minimumSnapPoints: 1);
+
+            if (File.Exists(placementServicePath))
+            {
+                string placementSource = File.ReadAllText(placementServicePath);
+                if (placementSource.Contains("FindBestSnapMatch")
+                    && placementSource.Contains("UpdatePreviewWithSnap")
+                    && placementSource.Contains("PlaceCurrentPieceUsingSnap"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Snap Placement Service",
+                        "Placement service exposes snap matching and snap-aware placement methods.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Snap Placement Service",
+                        "Placement service is missing snap matching methods.");
+                }
+            }
+
+            if (File.Exists(instancePath))
+            {
+                string instanceSource = File.ReadAllText(instancePath);
+                if (instanceSource.Contains("InitializeRuntimeSnapPoints")
+                    && instanceSource.Contains("RuntimeSnapPoints")
+                    && instanceSource.Contains("TrySetSnapPointOccupied"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Runtime Snap Points",
+                        "Placed instances initialize runtime snap points with occupancy support.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Runtime Snap Points",
+                        "CCS_BuildingInstance is missing runtime snap point support.");
+                }
+            }
+        }
+
+        private static void ValidateDefinitionSnapRules(
+            CCS_SurvivalValidationReport report,
+            string context,
+            CCS_BuildingPieceDefinition definition,
+            bool allowsFreePlacement,
+            bool requiresSnapPoint,
+            int minimumSnapPoints)
+        {
+            if (definition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Definition asset could not be loaded.");
+                return;
+            }
+
+            int snapPointCount = definition.SnapPoints?.Count ?? 0;
+            if (definition.AllowsFreePlacement != allowsFreePlacement
+                || definition.RequiresSnapPoint != requiresSnapPoint
+                || snapPointCount < minimumSnapPoints)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Definition '{definition.PieceId}' snap rules or snap points are incorrect.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                context,
+                $"Definition '{definition.PieceId}' snap rules validated with {snapPointCount} snap points.");
         }
 
         private static void ValidateInventoryIntegration(CCS_SurvivalValidationReport report)
@@ -455,20 +597,43 @@ namespace CCS.Modules.Building.Editor
             if (File.Exists(harnessPath))
             {
                 string harnessSource = File.ReadAllText(harnessPath);
-                if (harnessSource.Contains("TryPlaceCurrentPiece")
-                    && harnessSource.Contains("TrySeedTestResources"))
+                if (harnessSource.Contains("PlaceCurrentPieceUsingSnap")
+                    && harnessSource.Contains("UpdatePreviewWithSnap")
+                    && harnessSource.Contains("FindBestSnapMatch")
+                    && harnessSource.Contains("TryAdvanceSnapSequence"))
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Info,
                         "Building Placement Test Harness",
-                        "Placement harness uses TryPlaceCurrentPiece and seeds test resources.");
+                        "Placement harness uses snap sequence for foundation, wall, and roof.");
                 }
                 else
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Error,
                         "Building Placement Test Harness",
-                        "Placement harness is missing inventory-aware TryPlaceCurrentPiece flow.");
+                        "Placement harness is missing snap sequence flow.");
+                }
+            }
+
+            if (File.Exists(placementServicePath))
+            {
+                string placementSource = File.ReadAllText(placementServicePath);
+                if (placementSource.Contains("FindBestSnapMatch")
+                    && placementSource.Contains("UpdatePreviewWithSnap")
+                    && placementSource.Contains("PlaceCurrentPieceUsingSnap"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Snap Placement Methods",
+                        "Placement service includes snap matching and snap-aware placement.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Snap Placement Methods",
+                        "Placement service is missing required snapping methods.");
                 }
             }
 
@@ -594,10 +759,21 @@ namespace CCS.Modules.Building.Editor
                 && presenterSource.Contains("FormatPlacementHudLines")
                 && presenterSource.Contains("CCS_BuildingRuntimeBridge"))
             {
+                string utilitySource = File.ReadAllText(BuildingValidationUtilityPath);
+                if (utilitySource.Contains("FormatSnapTargetLabel")
+                    && utilitySource.Contains("Placement Valid:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building HUD Display",
+                        "Environment HUD presenter displays building snap target and placement validity.");
+                    return;
+                }
+
                 report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Info,
+                    CCS_SurvivalValidationIssueSeverity.Error,
                     "Building HUD Display",
-                    "Environment HUD presenter displays building definition and placement debug values.");
+                    "Building validation utility is missing snap target HUD formatting.");
                 return;
             }
 

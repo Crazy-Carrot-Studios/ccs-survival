@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.2 — Building Construction Costs & Placement Validation  
+**Milestone:** 0.8.3 — Building Snapping Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -179,7 +179,16 @@
 | Placement validation | `../Modules/Building/Runtime/Validation/CCS_BuildingPlacementValidationUtility.cs` |
 | Inventory integration | `TryPlaceCurrentPiece()` on `CCS_BuildingPlacementService` |
 
-**0.8.2:** Inventory-validated placement with build costs, consumption rollback, HUD notifications, and harness resource seeding. No snapping yet.
+**0.8.2:** Inventory-validated placement with build costs, consumption rollback, and HUD notifications.
+
+## Building Snapping (0.8.3)
+
+| Area | Path |
+|------|------|
+| Snap types | `../Modules/Building/Runtime/Snap/` |
+| Snap matching | `FindBestSnapMatch()` on `CCS_BuildingPlacementService` |
+
+**0.8.3:** Foundation free-place; wall snaps to foundation edge; roof snaps to wall top. Runtime snap occupancy, preview alignment, and HUD snap target display. No structural integrity yet.
 
 ## Inventory (0.4.0)
 

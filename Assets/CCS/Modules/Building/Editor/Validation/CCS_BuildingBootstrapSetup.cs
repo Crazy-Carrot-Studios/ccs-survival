@@ -14,10 +14,10 @@ using UnityEngine.UI;
 // SCRIPT: CCS_BuildingBootstrapSetup
 // CATEGORY: Modules / Building / Editor / Validation
 // PURPOSE: Creates default profile, test definitions, and bootstrap gameplay wiring.
-// PLACEMENT: Batch entry for 0.8.2 building construction costs milestone.
+// PLACEMENT: Batch entry for 0.8.3 building snapping foundation milestone.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placement costs, inventory integration, and development harness seeding.
+// NOTES: Snap points, placement snapping rules, and harness snap sequence seeding.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -73,6 +73,10 @@ namespace CCS.Modules.Building.Editor
                 (woodItem, 4),
                 (fiberItem, 3));
 
+            ConfigureFoundationSnap(foundation);
+            ConfigureWallSnap(wall);
+            ConfigureRoofSnap(roof);
+
             List<CCS_BuildingPieceDefinition> startupDefinitions = new List<CCS_BuildingPieceDefinition>
             {
                 foundation,
@@ -127,8 +131,8 @@ namespace CCS.Modules.Building.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Building";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.building.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default building rules for 0.8.2 construction costs and placement validation.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.2";
+                "Default building rules for 0.8.3 snapping foundation.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.3";
             serializedProfile.FindProperty("allowPlacement").boolValue = true;
             serializedProfile.FindProperty("allowDemolition").boolValue = false;
             serializedProfile.FindProperty("allowUpgrades").boolValue = false;
@@ -207,6 +211,66 @@ namespace CCS.Modules.Building.Editor
             }
         }
 
+        private static void ConfigureFoundationSnap(CCS_BuildingPieceDefinition definition)
+        {
+            SerializedObject serializedDefinition = new SerializedObject(definition);
+            serializedDefinition.FindProperty("allowsFreePlacement").boolValue = true;
+            serializedDefinition.FindProperty("requiresSnapPoint").boolValue = false;
+            SetSnapPoints(
+                serializedDefinition,
+                ("foundation_edge_top", CCS_BuildingSnapPointType.FoundationEdge, new Vector3(0f, 0.5f, 0f)));
+            serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(definition);
+        }
+
+        private static void ConfigureWallSnap(CCS_BuildingPieceDefinition definition)
+        {
+            SerializedObject serializedDefinition = new SerializedObject(definition);
+            serializedDefinition.FindProperty("allowsFreePlacement").boolValue = false;
+            serializedDefinition.FindProperty("requiresSnapPoint").boolValue = true;
+            SetSnapPoints(
+                serializedDefinition,
+                ("wall_bottom", CCS_BuildingSnapPointType.WallBottom, new Vector3(0f, -0.5f, 0f)),
+                ("wall_top", CCS_BuildingSnapPointType.WallTop, new Vector3(0f, 0.5f, 0f)));
+            serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(definition);
+        }
+
+        private static void ConfigureRoofSnap(CCS_BuildingPieceDefinition definition)
+        {
+            SerializedObject serializedDefinition = new SerializedObject(definition);
+            serializedDefinition.FindProperty("allowsFreePlacement").boolValue = false;
+            serializedDefinition.FindProperty("requiresSnapPoint").boolValue = true;
+            SetSnapPoints(
+                serializedDefinition,
+                ("roof_edge", CCS_BuildingSnapPointType.RoofEdge, new Vector3(0f, -0.5f, 0f)));
+            serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(definition);
+        }
+
+        private static void SetSnapPoints(
+            SerializedObject serializedDefinition,
+            params (string snapPointId, CCS_BuildingSnapPointType snapPointType, Vector3 localPosition)[] snapPoints)
+        {
+            SerializedProperty snapPointList = serializedDefinition.FindProperty("snapPoints");
+            snapPointList.ClearArray();
+
+            if (snapPoints == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < snapPoints.Length; index++)
+            {
+                snapPointList.InsertArrayElementAtIndex(index);
+                SerializedProperty entry = snapPointList.GetArrayElementAtIndex(index);
+                entry.FindPropertyRelative("snapPointId").stringValue = snapPoints[index].snapPointId;
+                entry.FindPropertyRelative("snapPointType").enumValueIndex = (int)snapPoints[index].snapPointType;
+                entry.FindPropertyRelative("localPosition").vector3Value = snapPoints[index].localPosition;
+                entry.FindPropertyRelative("localEulerAngles").vector3Value = Vector3.zero;
+            }
+        }
+
         private static void EnsureBootstrapGameplayServiceHost()
         {
             GameObject prefabRoot = AssetDatabase.LoadAssetAtPath<GameObject>(BootstrapPrefabPath);
@@ -256,7 +320,7 @@ namespace CCS.Modules.Building.Editor
             RectTransform panelRect = existingPanel.GetComponent<RectTransform>();
             if (panelRect != null)
             {
-                panelRect.sizeDelta = new Vector2(190f, 260f);
+                panelRect.sizeDelta = new Vector2(190f, 300f);
             }
 
             Text statusText = existingPanel.Find("StatusText")?.GetComponent<Text>();
@@ -302,6 +366,7 @@ namespace CCS.Modules.Building.Editor
             serializedHarness.FindProperty("seedWoodQuantity").intValue = 50;
             serializedHarness.FindProperty("seedStoneQuantity").intValue = 20;
             serializedHarness.FindProperty("seedFiberQuantity").intValue = 20;
+            serializedHarness.FindProperty("foundationPlacementOffset").vector3Value = new Vector3(0f, 0.5f, 0f);
             serializedHarness.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.MarkSceneDirty(scene);

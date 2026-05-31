@@ -5,11 +5,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_BuildingPlacementTestHarness
 // CATEGORY: Modules / Building / Runtime / Testing
-// PURPOSE: Development-only harness that cycles test definitions and places pieces.
+// PURPOSE: Development-only harness that places foundation, wall, and roof with snapping.
 // PLACEMENT: Bootstrap verification scenes only. Disable for shipping builds.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Validates inventory costs, consumes resources, and logs placement failures.
+// NOTES: Foundation free-place, wall snaps to foundation, roof snaps to wall.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -21,6 +21,14 @@ namespace CCS.Modules.Building
         private const string FoundationPieceId = "ccs.survival.building.test.foundation";
         private const string WallPieceId = "ccs.survival.building.test.wall";
         private const string RoofPieceId = "ccs.survival.building.test.roof";
+
+        private enum HarnessSequenceStep
+        {
+            Foundation = 0,
+            Wall = 1,
+            Roof = 2,
+            Complete = 3
+        }
 
         #region Variables
 
@@ -34,16 +42,8 @@ namespace CCS.Modules.Building
         [Tooltip("World-space anchor for placement offsets.")]
         [SerializeField] private Transform testAreaAnchor;
 
-        [Tooltip("Local offsets used for each automated placement.")]
-        [SerializeField] private Vector3[] placementOffsets =
-        {
-            new Vector3(0f, 0.5f, 0f),
-            new Vector3(2f, 0.5f, 0f),
-            new Vector3(4f, 0.5f, 0f),
-            new Vector3(0f, 0.5f, 2f),
-            new Vector3(2f, 0.5f, 2f),
-            new Vector3(4f, 0.5f, 2f)
-        };
+        [Tooltip("Local offset used for free foundation placement.")]
+        [SerializeField] private Vector3 foundationPlacementOffset = new Vector3(0f, 0.5f, 0f);
 
         [Header("Resource Seeding")]
         [Tooltip("Wood item used to seed the player inventory for automated placement.")]
@@ -64,17 +64,11 @@ namespace CCS.Modules.Building
         [Tooltip("Initial fiber quantity granted to inventory before cycling placements.")]
         [SerializeField] private int seedFiberQuantity = 20;
 
-        private readonly string[] cyclePieceIds =
-        {
-            FoundationPieceId,
-            WallPieceId,
-            RoofPieceId
-        };
-
         private float nextPlacementTime;
-        private int cycleIndex;
-        private int offsetIndex;
+        private HarnessSequenceStep sequenceStep = HarnessSequenceStep.Foundation;
         private bool hasSeededResources;
+        private Vector3 lastFoundationPosition = Vector3.zero;
+        private Vector3 lastWallPosition = Vector3.zero;
 
         #endregion
 
@@ -82,7 +76,7 @@ namespace CCS.Modules.Building
 
         private void Update()
         {
-            if (!enableHarness)
+            if (!enableHarness || sequenceStep == HarnessSequenceStep.Complete)
             {
                 return;
             }
@@ -93,14 +87,14 @@ namespace CCS.Modules.Building
             }
 
             nextPlacementTime = Time.time + placementIntervalSeconds;
-            TryPlaceNextPiece();
+            TryAdvanceSnapSequence();
         }
 
         #endregion
 
         #region Private Methods
 
-        private void TryPlaceNextPiece()
+        private void TryAdvanceSnapSequence()
         {
             if (!CCS_BuildingRuntimeBridge.TryGetBuildingPlacementService(out CCS_BuildingPlacementService placementService)
                 || placementService == null
@@ -121,34 +115,97 @@ namespace CCS.Modules.Building
                 return;
             }
 
-            string pieceId = cyclePieceIds[cycleIndex % cyclePieceIds.Length];
-            cycleIndex++;
+            switch (sequenceStep)
+            {
+                case HarnessSequenceStep.Foundation:
+                    TryPlaceFoundation(placementService, buildingService);
+                    break;
+                case HarnessSequenceStep.Wall:
+                    TryPlaceSnappedPiece(placementService, buildingService, WallPieceId, lastFoundationPosition);
+                    break;
+                case HarnessSequenceStep.Roof:
+                    TryPlaceSnappedPiece(placementService, buildingService, RoofPieceId, lastWallPosition);
+                    break;
+            }
+        }
 
-            if (!buildingService.TryGetDefinition(pieceId, out CCS_BuildingPieceDefinition definition))
+        private void TryPlaceFoundation(
+            CCS_BuildingPlacementService placementService,
+            CCS_BuildingService buildingService)
+        {
+            if (!buildingService.TryGetDefinition(FoundationPieceId, out CCS_BuildingPieceDefinition definition)
+                || !placementService.SetActiveDefinition(definition))
             {
                 return;
             }
 
-            if (!placementService.SetActiveDefinition(definition))
+            Vector3 placementPosition = ResolveFoundationPosition();
+            if (!placementService.UpdatePreviewWithSnap(placementPosition, Quaternion.identity))
             {
+                Debug.Log($"{LogPrefix} Foundation preview invalid at {placementPosition}.");
                 return;
             }
 
-            Vector3 placementPosition = ResolvePlacementPosition();
-            if (!placementService.UpdatePreview(placementPosition, Quaternion.identity))
-            {
-                return;
-            }
-
-            CCS_BuildingPlacementValidationResult result = placementService.TryPlaceCurrentPiece();
+            CCS_BuildingPlacementValidationResult result = placementService.PlaceCurrentPieceUsingSnap();
             if (!result.Success)
             {
-                Debug.Log($"{LogPrefix} Placement failed for '{pieceId}': {result.FailureReason}");
+                Debug.Log($"{LogPrefix} Foundation placement failed: {result.FailureReason}");
                 return;
             }
 
-            SpawnPlacedVisual(definition, placementPosition, Quaternion.identity, testAreaAnchor != null ? testAreaAnchor : transform);
-            offsetIndex = (offsetIndex + 1) % Mathf.Max(1, placementOffsets.Length);
+            lastFoundationPosition = placementService.GetSnapshot().PreviewPosition;
+            SpawnPlacedVisual(definition, lastFoundationPosition, Quaternion.identity);
+            Debug.Log($"{LogPrefix} Foundation placed free at {lastFoundationPosition}.");
+            sequenceStep = HarnessSequenceStep.Wall;
+        }
+
+        private void TryPlaceSnappedPiece(
+            CCS_BuildingPlacementService placementService,
+            CCS_BuildingService buildingService,
+            string pieceId,
+            Vector3 snapHintPosition)
+        {
+            if (!buildingService.TryGetDefinition(pieceId, out CCS_BuildingPieceDefinition definition)
+                || !placementService.SetActiveDefinition(definition))
+            {
+                return;
+            }
+
+            if (!placementService.UpdatePreviewWithSnap(snapHintPosition, Quaternion.identity))
+            {
+                Debug.Log($"{LogPrefix} Snap preview invalid for '{pieceId}' near {snapHintPosition}.");
+                return;
+            }
+
+            if (!placementService.FindBestSnapMatch(snapHintPosition, out CCS_BuildingSnapMatch snapMatch))
+            {
+                Debug.Log($"{LogPrefix} No snap match found for '{pieceId}' near {snapHintPosition}.");
+                return;
+            }
+
+            Debug.Log(
+                $"{LogPrefix} Snap match for '{pieceId}': target={snapMatch.TargetSnapPointType}, source={snapMatch.SourceSnapPointType}, position={snapMatch.SnappedPosition}.");
+
+            Vector3 placedPosition = snapMatch.SnappedPosition;
+            CCS_BuildingPlacementValidationResult result = placementService.PlaceCurrentPieceUsingSnap();
+            if (!result.Success)
+            {
+                Debug.Log($"{LogPrefix} Snapped placement failed for '{pieceId}': {result.FailureReason}");
+                return;
+            }
+
+            SpawnPlacedVisual(definition, placedPosition, snapMatch.SnappedRotation);
+
+            if (pieceId == WallPieceId)
+            {
+                lastWallPosition = placedPosition;
+                sequenceStep = HarnessSequenceStep.Roof;
+                Debug.Log($"{LogPrefix} Wall placed snapped at {lastWallPosition}.");
+                return;
+            }
+
+            Debug.Log($"{LogPrefix} Roof placed snapped at {placedPosition}. Snap sequence complete.");
+            sequenceStep = HarnessSequenceStep.Complete;
         }
 
         private bool TrySeedTestResources()
@@ -192,31 +249,20 @@ namespace CCS.Modules.Building
             inventoryService.AddItem(itemDefinition, quantity);
         }
 
-        private Vector3 ResolvePlacementPosition()
+        private Vector3 ResolveFoundationPosition()
         {
             Vector3 anchorPosition = testAreaAnchor != null ? testAreaAnchor.position : transform.position;
-            if (placementOffsets == null || placementOffsets.Length == 0)
-            {
-                return anchorPosition;
-            }
-
-            return anchorPosition + placementOffsets[offsetIndex % placementOffsets.Length];
+            return anchorPosition + foundationPlacementOffset;
         }
 
         private static void SpawnPlacedVisual(
             CCS_BuildingPieceDefinition definition,
             Vector3 position,
-            Quaternion rotation,
-            Transform parent)
+            Quaternion rotation)
         {
             GameObject placedObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             placedObject.name = $"CCS_Placed_{definition.BuildingPieceType}";
             placedObject.transform.SetPositionAndRotation(position, rotation);
-
-            if (parent != null)
-            {
-                placedObject.transform.SetParent(parent, true);
-            }
         }
 
         #endregion

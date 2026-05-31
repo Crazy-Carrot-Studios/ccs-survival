@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Child of CCS_BuildingTestArea in bootstrap verification scenes.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Cube primitive only. Visible while placement mode is active.
+// NOTES: Shows snapped preview position when a snap match is active.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -17,8 +17,11 @@ namespace CCS.Modules.Building
         #region Variables
 
         [Header("Preview")]
-        [Tooltip("Local scale applied to the preview cube.")]
+        [Tooltip("Local scale applied to the free-placement preview cube.")]
         [SerializeField] private Vector3 previewScale = Vector3.one;
+
+        [Tooltip("Local scale applied when preview is snapped to a target.")]
+        [SerializeField] private Vector3 snappedPreviewScale = new Vector3(1.02f, 1.02f, 1.02f);
 
         private GameObject previewObject;
         private CCS_BuildingPlacementService placementService;
@@ -48,7 +51,7 @@ namespace CCS.Modules.Building
                 return;
             }
 
-            ShowPreview(snapshot.PreviewPosition, snapshot.PreviewRotation);
+            ShowPreview(snapshot.PreviewPosition, snapshot.PreviewRotation, snapshot.IsSnappedPreview);
         }
 
         private void OnDisable()
@@ -97,10 +100,11 @@ namespace CCS.Modules.Building
             }
         }
 
-        private void ShowPreview(Vector3 position, Quaternion rotation)
+        private void ShowPreview(Vector3 position, Quaternion rotation, bool isSnappedPreview)
         {
             EnsurePreviewObject();
             previewObject.SetActive(true);
+            previewObject.transform.localScale = isSnappedPreview ? snappedPreviewScale : previewScale;
             previewObject.transform.SetPositionAndRotation(position, rotation);
         }
 

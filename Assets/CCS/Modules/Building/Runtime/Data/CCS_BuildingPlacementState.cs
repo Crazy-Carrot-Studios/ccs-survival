@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Internal to placement service. Exposed through CCS_BuildingPlacementSnapshot.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: No snapping or inventory consumption in 0.8.1.
+// NOTES: Tracks active snap match and preview validity for 0.8.3 snapping.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -28,6 +28,14 @@ namespace CCS.Modules.Building
 
         public bool IsPlacementValid;
 
+        public bool HasSnapTarget;
+
+        public CCS_BuildingSnapPointType SnapTargetType = CCS_BuildingSnapPointType.Free;
+
+        public bool IsSnappedPreview;
+
+        public CCS_BuildingSnapMatch ActiveSnapMatch = CCS_BuildingSnapMatch.Empty;
+
         #endregion
 
         #region Public Methods
@@ -40,6 +48,10 @@ namespace CCS.Modules.Building
             PreviewPosition = Vector3.zero;
             PreviewRotation = Quaternion.identity;
             IsPlacementValid = false;
+            HasSnapTarget = false;
+            SnapTargetType = CCS_BuildingSnapPointType.Free;
+            IsSnappedPreview = false;
+            ActiveSnapMatch = CCS_BuildingSnapMatch.Empty;
         }
 
         public void ActivatePlacement(string pieceId, CCS_BuildingPieceType pieceType)
@@ -50,6 +62,10 @@ namespace CCS.Modules.Building
             PreviewPosition = Vector3.zero;
             PreviewRotation = Quaternion.identity;
             IsPlacementValid = false;
+            HasSnapTarget = false;
+            SnapTargetType = CCS_BuildingSnapPointType.Free;
+            IsSnappedPreview = false;
+            ActiveSnapMatch = CCS_BuildingSnapMatch.Empty;
         }
 
         public void UpdatePreview(Vector3 position, Quaternion rotation, bool isValid)
@@ -57,6 +73,34 @@ namespace CCS.Modules.Building
             PreviewPosition = position;
             PreviewRotation = rotation;
             IsPlacementValid = isValid;
+            HasSnapTarget = false;
+            SnapTargetType = CCS_BuildingSnapPointType.Free;
+            IsSnappedPreview = false;
+            ActiveSnapMatch = CCS_BuildingSnapMatch.Empty;
+        }
+
+        public void UpdatePreviewWithSnap(
+            Vector3 position,
+            Quaternion rotation,
+            bool isValid,
+            CCS_BuildingSnapMatch snapMatch,
+            bool isSnappedPreview)
+        {
+            PreviewPosition = position;
+            PreviewRotation = rotation;
+            IsPlacementValid = isValid;
+            ActiveSnapMatch = snapMatch;
+            IsSnappedPreview = isSnappedPreview;
+
+            if (snapMatch.HasMatch)
+            {
+                HasSnapTarget = true;
+                SnapTargetType = snapMatch.TargetSnapPointType;
+                return;
+            }
+
+            HasSnapTarget = false;
+            SnapTargetType = CCS_BuildingSnapPointType.Free;
         }
 
         public CCS_BuildingPlacementSnapshot CreateSnapshot()
@@ -67,7 +111,10 @@ namespace CCS.Modules.Building
                 ActivePieceType,
                 PreviewPosition,
                 PreviewRotation,
-                IsPlacementValid);
+                IsPlacementValid,
+                HasSnapTarget,
+                SnapTargetType,
+                IsSnappedPreview);
         }
 
         #endregion

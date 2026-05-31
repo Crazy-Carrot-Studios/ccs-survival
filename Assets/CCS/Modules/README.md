@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.8.2  
+**Version:** 0.8.3  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -138,7 +138,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
 | `Shelter/` | 0.7.5 — **Environmental protection foundation complete** |
-| `Building/` | 0.8.0 / 0.8.1 / 0.8.2 — **Definition catalog, placement foundation, and inventory build costs complete** |
+| `Building/` | 0.8.0–0.8.3 — **Definition catalog, placement, inventory costs, and snap foundation complete** |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

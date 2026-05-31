@@ -21,6 +21,14 @@ MonoBehaviour:
     quantity: 4
   - itemDefinition: {fileID: 11400000, guid: da3e7241a2a884241b94c2e47d92dd24, type: 2}
     quantity: 2
+  snapPoints:
+  - snapPointId: foundation_edge_top
+    snapPointType: 0
+    localPosition: {x: 0, y: 0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  allowsFreePlacement: 1
+  requiresSnapPoint: 0
   prefabReference: {fileID: 0}
   craftingRequirements: []
   contributesToShelter: 0

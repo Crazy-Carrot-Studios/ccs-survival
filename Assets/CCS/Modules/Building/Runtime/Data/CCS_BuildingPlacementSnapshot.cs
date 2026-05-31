@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Produced by CCS_BuildingPlacementService and CCS_BuildingService.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Preview position/rotation placeholders until input systems arrive.
+// NOTES: Includes snap target and validity for 0.8.3 HUD debug display.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -22,7 +22,10 @@ namespace CCS.Modules.Building
             CCS_BuildingPieceType activePieceType,
             Vector3 previewPosition,
             Quaternion previewRotation,
-            bool isPlacementValid)
+            bool isPlacementValid,
+            bool hasSnapTarget,
+            CCS_BuildingSnapPointType snapTargetType,
+            bool isSnappedPreview)
         {
             IsPlacementModeActive = isPlacementModeActive;
             ActivePieceId = activePieceId ?? string.Empty;
@@ -30,6 +33,9 @@ namespace CCS.Modules.Building
             PreviewPosition = previewPosition;
             PreviewRotation = previewRotation;
             IsPlacementValid = isPlacementValid;
+            HasSnapTarget = hasSnapTarget;
+            SnapTargetType = snapTargetType;
+            IsSnappedPreview = isSnappedPreview;
         }
 
         public static CCS_BuildingPlacementSnapshot Empty =>
@@ -39,6 +45,9 @@ namespace CCS.Modules.Building
                 CCS_BuildingPieceType.Custom,
                 Vector3.zero,
                 Quaternion.identity,
+                false,
+                false,
+                CCS_BuildingSnapPointType.Free,
                 false);
 
         #endregion
@@ -56,6 +65,12 @@ namespace CCS.Modules.Building
         public Quaternion PreviewRotation { get; }
 
         public bool IsPlacementValid { get; }
+
+        public bool HasSnapTarget { get; }
+
+        public CCS_BuildingSnapPointType SnapTargetType { get; }
+
+        public bool IsSnappedPreview { get; }
 
         #endregion
     }

@@ -61,7 +61,47 @@ namespace CCS.Modules.Building
                 return CCS_BuildingPlacementValidationResult.Failed("Placement preview is not valid.");
             }
 
+            if (definition.RequiresSnapPoint && !placementState.ActiveSnapMatch.HasMatch)
+            {
+                return CCS_BuildingPlacementValidationResult.Failed("Required snap point is missing.");
+            }
+
+            if (placementState.ActiveSnapMatch.HasMatch
+                && !ValidateSnapMatchAvailable(buildingService, placementState.ActiveSnapMatch))
+            {
+                return CCS_BuildingPlacementValidationResult.Failed("Target snap point is occupied or unavailable.");
+            }
+
             return ValidateInventoryCosts(inventoryService, definition);
+        }
+
+        private static bool ValidateSnapMatchAvailable(
+            CCS_BuildingService buildingService,
+            CCS_BuildingSnapMatch snapMatch)
+        {
+            if (buildingService == null || !snapMatch.HasMatch)
+            {
+                return false;
+            }
+
+            IReadOnlyList<CCS_BuildingInstance> placedInstances = buildingService.GetPlacedInstances();
+            for (int index = 0; index < placedInstances.Count; index++)
+            {
+                CCS_BuildingInstance instance = placedInstances[index];
+                if (instance.InstanceId != snapMatch.TargetInstanceId)
+                {
+                    continue;
+                }
+
+                if (!instance.TryGetRuntimeSnapPoint(snapMatch.TargetSnapPointId, out CCS_BuildingRuntimeSnapPoint targetSnapPoint))
+                {
+                    return false;
+                }
+
+                return !targetSnapPoint.IsOccupied;
+            }
+
+            return false;
         }
 
         public static CCS_BuildingPlacementValidationResult ValidateInventoryCosts(

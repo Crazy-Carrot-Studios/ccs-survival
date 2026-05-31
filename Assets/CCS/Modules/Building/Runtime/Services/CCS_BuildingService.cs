@@ -10,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1.
+// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1. Snap occupancy in 0.8.3.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -205,16 +205,47 @@ namespace CCS.Modules.Building
                 return false;
             }
 
-            if (!TryGetDefinition(instance.PieceId, out _))
+            if (!TryGetDefinition(instance.PieceId, out CCS_BuildingPieceDefinition definition))
             {
                 Debug.LogWarning($"{LogPrefix} TryAddPlacedInstance rejected unknown piece '{instance.PieceId}'.");
                 return false;
             }
 
+            instance.InitializeRuntimeSnapPoints(definition);
             placedInstances.Add(instance);
             BuildingStateChanged?.Invoke(
                 CreateEventArgs($"Placed building instance '{instance.InstanceId}'."));
             return true;
+        }
+
+        public bool TryMarkSnapPointOccupied(string instanceId, string snapPointId, bool occupied)
+        {
+            if (!EnsureInitialized()
+                || string.IsNullOrWhiteSpace(instanceId)
+                || string.IsNullOrWhiteSpace(snapPointId))
+            {
+                return false;
+            }
+
+            for (int index = 0; index < placedInstances.Count; index++)
+            {
+                CCS_BuildingInstance instance = placedInstances[index];
+                if (instance.InstanceId != instanceId)
+                {
+                    continue;
+                }
+
+                if (!instance.TrySetSnapPointOccupied(snapPointId, occupied))
+                {
+                    return false;
+                }
+
+                BuildingStateChanged?.Invoke(
+                    CreateEventArgs($"Updated snap point occupancy on '{instanceId}'."));
+                return true;
+            }
+
+            return false;
         }
 
         public CCS_BuildingPieceSnapshot GetPieceSnapshot(string pieceId)

@@ -19,6 +19,19 @@ MonoBehaviour:
   buildCostEntries:
   - itemDefinition: {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
     quantity: 6
+  snapPoints:
+  - snapPointId: wall_bottom
+    snapPointType: 1
+    localPosition: {x: 0, y: -0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  - snapPointId: wall_top
+    snapPointType: 2
+    localPosition: {x: 0, y: 0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  allowsFreePlacement: 0
+  requiresSnapPoint: 1
   prefabReference: {fileID: 0}
   craftingRequirements: []
   contributesToShelter: 0

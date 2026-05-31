@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Create assets under Assets/CCS/Survival/Content/Building/.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Build costs consumed through inventory integration in 0.8.2.
+// NOTES: Build costs consumed through inventory integration in 0.8.2. Snap data added in 0.8.3.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -37,6 +37,16 @@ namespace CCS.Modules.Building
         [Header("Build Costs")]
         [Tooltip("Inventory items consumed when placing this building piece.")]
         [SerializeField] private List<CCS_BuildingCostEntry> buildCostEntries = new List<CCS_BuildingCostEntry>();
+
+        [Header("Snap Points")]
+        [Tooltip("Authoring snap points exposed by this piece when placed.")]
+        [SerializeField] private List<CCS_BuildingSnapPoint> snapPoints = new List<CCS_BuildingSnapPoint>();
+
+        [Tooltip("When true, the piece may be placed without snapping to another snap point.")]
+        [SerializeField] private bool allowsFreePlacement = true;
+
+        [Tooltip("When true, placement requires a valid compatible snap match.")]
+        [SerializeField] private bool requiresSnapPoint;
 
         [Header("Future Prefab")]
         [Tooltip("Placeholder prefab reference for future placement spawning.")]
@@ -75,6 +85,12 @@ namespace CCS.Modules.Building
         public GameObject PrefabReference => prefabReference;
 
         public IReadOnlyList<CCS_BuildingCostEntry> BuildCostEntries => buildCostEntries;
+
+        public IReadOnlyList<CCS_BuildingSnapPoint> SnapPoints => snapPoints;
+
+        public bool AllowsFreePlacement => allowsFreePlacement;
+
+        public bool RequiresSnapPoint => requiresSnapPoint;
 
         public IReadOnlyList<CCS_CraftingIngredientDefinition> CraftingRequirements => craftingRequirements;
 

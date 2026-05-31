@@ -1235,7 +1235,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -28, y: -232}
-  m_SizeDelta: {x: 190, y: 260}
+  m_SizeDelta: {x: 190, y: 300}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &773195680
 MonoBehaviour:
@@ -1924,13 +1924,7 @@ MonoBehaviour:
   enableHarness: 1
   placementIntervalSeconds: 4
   testAreaAnchor: {fileID: 1135345013}
-  placementOffsets:
-  - {x: 0, y: 0.5, z: 0}
-  - {x: 2, y: 0.5, z: 0}
-  - {x: 4, y: 0.5, z: 0}
-  - {x: 0, y: 0.5, z: 2}
-  - {x: 2, y: 0.5, z: 2}
-  - {x: 4, y: 0.5, z: 2}
+  foundationPlacementOffset: {x: 0, y: 0.5, z: 0}
   seedWoodItem: {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
   seedStoneItem: {fileID: 11400000, guid: da3e7241a2a884241b94c2e47d92dd24, type: 2}
   seedFiberItem: {fileID: 11400000, guid: c4051eea87783a241be1d85d54e4702e, type: 2}
@@ -1950,6 +1944,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPlacementPreview
   previewScale: {x: 1, y: 1, z: 1}
+  snappedPreviewScale: {x: 1.02, y: 1.02, z: 1.02}
 --- !u!4 &1135345013
 Transform:
   m_ObjectHideFlags: 0

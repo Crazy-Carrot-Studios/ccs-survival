@@ -21,6 +21,14 @@ MonoBehaviour:
     quantity: 4
   - itemDefinition: {fileID: 11400000, guid: c4051eea87783a241be1d85d54e4702e, type: 2}
     quantity: 3
+  snapPoints:
+  - snapPointId: roof_edge
+    snapPointType: 3
+    localPosition: {x: 0, y: -0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  allowsFreePlacement: 0
+  requiresSnapPoint: 1
   prefabReference: {fileID: 0}
   craftingRequirements: []
   contributesToShelter: 0

@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.8.2 — Building Construction Costs & Placement Validation  
+**Milestone baseline:** 0.8.3 — Building Snapping Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Building construction costs and placement validation **complete** at **0.8.2**. Snapping, durability, and shelter generation deferred.
+**Status:** Building snapping foundation **complete** at **0.8.3**. Structural integrity, durability, and shelter generation deferred.
 
 ---
 
@@ -42,6 +42,7 @@
 | **0.7.4** | Clothing & equipment environmental modifiers |
 | **0.7.5** | Shelter & environmental protection foundation |
 | **0.8.0** | Building foundation |
+| **0.8.3** | Building snapping foundation |
 | **0.8.2** | Building construction costs and placement validation |
 | **0.8.1** | Building placement foundation |
 
@@ -93,6 +94,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 16 | **0.8.0** | **Building** | `ccs.survival.building` — **Foundation complete** |
 | 17 | **0.8.1** | **Building Placement** | `ccs.survival.building` — **Placement foundation complete** |
 | 18 | **0.8.2** | **Building Construction Costs** | `ccs.survival.building` — **Inventory build costs and validation complete** |
+| 19 | **0.8.3** | **Building Snapping** | `ccs.survival.building` — **Snap foundation complete** |
 | 18 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 19 | 0.5.x | Combat | `ccs.survival.combat` |
 | 20 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
@@ -137,7 +139,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.8.3 — Building Snapping & Grid Rules** (grid alignment and placement constraints)
+**0.8.4 — Building Structural Rules** (support checks and advanced snap constraints)
+
+---
+
+## 0.8.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Snap point types and definition authoring | **Complete** |
+| Runtime snap points with occupancy on placed instances | **Complete** |
+| Snap compatibility utility with explicit rules | **Complete** |
+| `FindBestSnapMatch`, `UpdatePreviewWithSnap`, `PlaceCurrentPieceUsingSnap` | **Complete** |
+| Harness foundation → wall → roof snap sequence | **Complete** |
+| HUD snap target and placement validity lines | **Complete** |
+| Version **0.8.3** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

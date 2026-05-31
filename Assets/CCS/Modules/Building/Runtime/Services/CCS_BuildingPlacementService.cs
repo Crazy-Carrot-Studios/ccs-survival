@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CCS.Modules.Inventory;
 using CCS.Survival;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Inventory cost validation and consumption added in 0.8.2.
+// NOTES: Inventory costs in 0.8.2. Basic snap matching and occupancy in 0.8.3.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -17,6 +18,7 @@ namespace CCS.Modules.Building
     public sealed class CCS_BuildingPlacementService : CCS_ISurvivalService
     {
         private const string LogPrefix = "[CCS_BuildingPlacementService]";
+        private const float DefaultSnapSearchRadius = 8f;
 
         #region Variables
 
@@ -159,17 +161,160 @@ namespace CCS.Modules.Building
 
         public bool UpdatePreview(Vector3 position, Quaternion rotation)
         {
+            return UpdatePreviewWithSnap(position, rotation);
+        }
+
+        public bool FindBestSnapMatch(Vector3 hintPosition, out CCS_BuildingSnapMatch snapMatch)
+        {
+            snapMatch = CCS_BuildingSnapMatch.Empty;
+
+            if (!EnsureReady()
+                || !placementState.IsPlacementModeActive
+                || !buildingService.TryGetDefinition(placementState.ActivePieceId, out CCS_BuildingPieceDefinition definition))
+            {
+                return false;
+            }
+
+            IReadOnlyList<CCS_BuildingSnapPoint> sourceSnapPoints = definition.SnapPoints;
+            if (sourceSnapPoints == null || sourceSnapPoints.Count == 0)
+            {
+                return false;
+            }
+
+            IReadOnlyList<CCS_BuildingInstance> placedInstances = buildingService.GetPlacedInstances();
+            if (placedInstances == null || placedInstances.Count == 0)
+            {
+                return false;
+            }
+
+            float bestDistance = float.MaxValue;
+            CCS_BuildingSnapMatch bestMatch = CCS_BuildingSnapMatch.Empty;
+
+            for (int instanceIndex = 0; instanceIndex < placedInstances.Count; instanceIndex++)
+            {
+                CCS_BuildingInstance placedInstance = placedInstances[instanceIndex];
+                IReadOnlyList<CCS_BuildingRuntimeSnapPoint> targetSnapPoints = placedInstance.RuntimeSnapPoints;
+
+                for (int targetIndex = 0; targetIndex < targetSnapPoints.Count; targetIndex++)
+                {
+                    CCS_BuildingRuntimeSnapPoint targetSnapPoint = targetSnapPoints[targetIndex];
+                    if (targetSnapPoint.IsOccupied)
+                    {
+                        continue;
+                    }
+
+                    for (int sourceIndex = 0; sourceIndex < sourceSnapPoints.Count; sourceIndex++)
+                    {
+                        CCS_BuildingSnapPoint sourceSnapPoint = sourceSnapPoints[sourceIndex];
+                        if (sourceSnapPoint == null)
+                        {
+                            continue;
+                        }
+
+                        if (!CCS_BuildingSnapCompatibilityUtility.CanSnap(
+                                targetSnapPoint.SnapPointType,
+                                sourceSnapPoint.SnapPointType,
+                                sourceSnapPoint.CompatibleTargetTypes))
+                        {
+                            continue;
+                        }
+
+                        ComputeSnappedTransform(
+                            targetSnapPoint.WorldPosition,
+                            targetSnapPoint.WorldRotation,
+                            sourceSnapPoint.LocalPosition,
+                            sourceSnapPoint.LocalRotation,
+                            out Vector3 snappedPosition,
+                            out Quaternion snappedRotation);
+
+                        float distance = Vector3.Distance(hintPosition, snappedPosition);
+                        if (distance > DefaultSnapSearchRadius || distance >= bestDistance)
+                        {
+                            continue;
+                        }
+
+                        bestDistance = distance;
+                        bestMatch = new CCS_BuildingSnapMatch(
+                            true,
+                            placedInstance.InstanceId,
+                            targetSnapPoint.SnapPointId,
+                            targetSnapPoint.SnapPointType,
+                            sourceSnapPoint.SnapPointId,
+                            sourceSnapPoint.SnapPointType,
+                            snappedPosition,
+                            snappedRotation);
+                    }
+                }
+            }
+
+            if (!bestMatch.HasMatch)
+            {
+                return false;
+            }
+
+            snapMatch = bestMatch;
+            return true;
+        }
+
+        public bool UpdatePreviewWithSnap(Vector3 hintPosition, Quaternion hintRotation)
+        {
             if (!EnsureReady() || !placementState.IsPlacementModeActive)
             {
                 return false;
             }
 
-            bool isValid = ValidatePreviewPosition(position);
-            placementState.UpdatePreview(position, rotation, isValid);
-            return isValid;
+            if (!buildingService.TryGetDefinition(placementState.ActivePieceId, out CCS_BuildingPieceDefinition definition))
+            {
+                return false;
+            }
+
+            bool hasSnapMatch = FindBestSnapMatch(hintPosition, out CCS_BuildingSnapMatch snapMatch);
+
+            if (definition.RequiresSnapPoint)
+            {
+                if (!hasSnapMatch)
+                {
+                    placementState.UpdatePreviewWithSnap(hintPosition, hintRotation, false, CCS_BuildingSnapMatch.Empty, false);
+                    return false;
+                }
+
+                placementState.UpdatePreviewWithSnap(
+                    snapMatch.SnappedPosition,
+                    snapMatch.SnappedRotation,
+                    true,
+                    snapMatch,
+                    true);
+                return true;
+            }
+
+            if (hasSnapMatch)
+            {
+                placementState.UpdatePreviewWithSnap(
+                    snapMatch.SnappedPosition,
+                    snapMatch.SnappedRotation,
+                    ValidatePreviewPosition(snapMatch.SnappedPosition),
+                    snapMatch,
+                    true);
+                return placementState.IsPlacementValid;
+            }
+
+            if (definition.AllowsFreePlacement)
+            {
+                bool isValid = ValidatePreviewPosition(hintPosition);
+                placementState.UpdatePreviewWithSnap(hintPosition, hintRotation, isValid, CCS_BuildingSnapMatch.Empty, false);
+                return isValid;
+            }
+
+            placementState.UpdatePreviewWithSnap(hintPosition, hintRotation, false, CCS_BuildingSnapMatch.Empty, false);
+            return false;
         }
 
         public CCS_BuildingPlacementValidationResult TryPlaceCurrentPiece()
+        {
+            return PlaceCurrentPieceUsingSnap();
+        }
+
+        public CCS_BuildingPlacementValidationResult PlaceCurrentPieceUsingSnap()
         {
             CCS_BuildingPlacementValidationResult validation =
                 CCS_BuildingPlacementValidationUtility.ValidatePlacementAttempt(
@@ -202,6 +347,7 @@ namespace CCS.Modules.Building
                 return consumeResult;
             }
 
+            CCS_BuildingSnapMatch consumedSnapMatch = placementState.ActiveSnapMatch;
             string instanceId = GenerateInstanceId();
             CCS_BuildingInstance instance = new CCS_BuildingInstance(
                 instanceId,
@@ -218,6 +364,18 @@ namespace CCS.Modules.Building
                 return validation;
             }
 
+            if (consumedSnapMatch.HasMatch
+                && !buildingService.TryMarkSnapPointOccupied(
+                    consumedSnapMatch.TargetInstanceId,
+                    consumedSnapMatch.TargetSnapPointId,
+                    true))
+            {
+                CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
+                validation = CCS_BuildingPlacementValidationResult.Failed("Failed to mark target snap point occupied.");
+                RaisePlacementFailed(validation);
+                return validation;
+            }
+
             BuildingPlaced?.Invoke(
                 CreateEventArgs(instance, $"Placed building piece '{placementState.ActivePieceId}'."));
             return CCS_BuildingPlacementValidationResult.Passed;
@@ -225,7 +383,7 @@ namespace CCS.Modules.Building
 
         public bool PlaceCurrentPiece()
         {
-            return TryPlaceCurrentPiece().Success;
+            return PlaceCurrentPieceUsingSnap().Success;
         }
 
         public CCS_BuildingPlacementSnapshot GetSnapshot()
@@ -258,6 +416,18 @@ namespace CCS.Modules.Building
             return !float.IsNaN(position.x)
                 && !float.IsNaN(position.y)
                 && !float.IsNaN(position.z);
+        }
+
+        private static void ComputeSnappedTransform(
+            Vector3 targetWorldPosition,
+            Quaternion targetWorldRotation,
+            Vector3 sourceLocalPosition,
+            Quaternion sourceLocalRotation,
+            out Vector3 snappedPosition,
+            out Quaternion snappedRotation)
+        {
+            snappedRotation = targetWorldRotation * Quaternion.Inverse(sourceLocalRotation);
+            snappedPosition = targetWorldPosition - (snappedRotation * sourceLocalPosition);
         }
 
         private string GenerateInstanceId()
