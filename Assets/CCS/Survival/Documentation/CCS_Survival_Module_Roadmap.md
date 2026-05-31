@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.6.0 — Save / Load Foundation  
+**Milestone baseline:** 0.6.1 — Save / Load Debug Controls  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-30  
-**Status:** Save/load persistence framework **complete** at **0.6.0**. Gameplay module saves deferred.
+**Status:** Save/load debug manual controls **complete** at **0.6.1**. Gameplay module persistence deferred.
 
 ---
 
@@ -33,8 +33,9 @@
 | **0.5.2** | Resource harvesting integration |
 | **0.5.3** | Crafting gameplay integration |
 | **0.6.0** | Save / load foundation |
+| **0.6.1** | Save / load debug controls |
 
-Later milestones continue from **0.6.0+** (gameplay module persistence, combat, AI, building, quests, audio, settings finalization).
+Later milestones continue from **0.6.1+** (gameplay module persistence, combat, AI, building, quests, audio, settings finalization).
 
 ---
 
@@ -72,7 +73,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 6 | **0.4.2 / 0.4.2a / 0.4.3** | **UI / HUD** | `ccs.survival.ui` — **Foundation + runtime wiring complete** |
 | 7 | **0.5.0 / 0.5.3** | **Crafting** | `ccs.survival.crafting` — **Foundation + gameplay integration complete** |
 | 8 | **0.5.1 / 0.5.2** | **World Resources** | `ccs.survival.world.resources` — **Foundation + harvest integration complete** |
-| 9 | **0.6.0** | **Save / Load** | `ccs.survival.saveload` — **Foundation complete** |
+| 9 | **0.6.0 / 0.6.1** | **Save / Load** | `ccs.survival.saveload` — **Foundation + debug controls complete** |
 | 10 | 0.6.x | Time of Day | `ccs.survival.time` |
 | 11 | 0.4.x | Weather | `ccs.survival.weather` |
 | 12 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
@@ -119,7 +120,22 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.6.1+ — Gameplay module persistence and final player input planning**
+**0.6.2+ — Gameplay module persistence planning**
+
+---
+
+## 0.6.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Manual save/load/delete debug controller | **Complete** |
+| Minimal bootstrap HUD debug panel | **Complete** |
+| Slot listing and last result display | **Complete** |
+| Save path display via path utility | **Complete** |
+| Validation covers debug components and path utility | **Complete** |
+| Version **0.6.1** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

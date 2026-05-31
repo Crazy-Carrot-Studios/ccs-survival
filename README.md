@@ -23,13 +23,13 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**0.6.0** — Save / Load Foundation
+**0.6.1** — Save / Load Debug Controls
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**.
 
 ### Implemented Modules
 - Character Controller
@@ -47,7 +47,7 @@ HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module 
 - Module validation pipeline
 - Bootstrap scene validation
 - UI validation
-- Windows build verification (0.6.0)
+- Windows build verification (0.6.1)
 
 ---
 
@@ -115,7 +115,7 @@ Assets/
 | UI / HUD | Runtime wiring (0.4.3) |
 | Crafting | Gameplay integration (0.5.3) |
 | World Resources | Harvest integration (0.5.2) |
-| Save / Load | Foundation (0.6.0) |
+| Save / Load | Foundation + debug controls (0.6.1) |
 | Building | Planned |
 | Wildlife | Planned |
 | Combat | Planned |
@@ -156,8 +156,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.6.0
-**Build output:** `Builds/CCS_Survival_0.6.0_Windows/` (gitignored)
+**Latest verified build:** 0.6.1
+**Build output:** `Builds/CCS_Survival_0.6.1_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

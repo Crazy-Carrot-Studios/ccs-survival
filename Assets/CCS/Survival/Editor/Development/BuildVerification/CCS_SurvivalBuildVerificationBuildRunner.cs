@@ -18,7 +18,7 @@ namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBuildVerificationBuildRunner
     {
-        private const string OutputFolder = "Builds/CCS_Survival_0.6.0_Windows";
+        private const string OutputFolder = "Builds/CCS_Survival_0.6.1_Windows";
         private const string OutputExecutable = OutputFolder + "/CCS_Survival.exe";
         private const string LogPrefix = "[CCS_SurvivalBuildVerificationBuildRunner]";
 

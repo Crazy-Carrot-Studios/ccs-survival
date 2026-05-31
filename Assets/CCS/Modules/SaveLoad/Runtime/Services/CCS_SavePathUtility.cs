@@ -60,6 +60,28 @@ namespace CCS.Modules.SaveLoad
             return trimmed;
         }
 
+        public static string GetShortDisplayPath(int maxLength = 52)
+        {
+            string fullPath = GetSaveRootDirectory();
+            if (string.IsNullOrWhiteSpace(fullPath))
+            {
+                return string.Empty;
+            }
+
+            if (fullPath.Length <= maxLength)
+            {
+                return fullPath;
+            }
+
+            int tailLength = maxLength - 3;
+            if (tailLength < 1)
+            {
+                return fullPath;
+            }
+
+            return "..." + fullPath.Substring(fullPath.Length - tailLength);
+        }
+
         #endregion
     }
 }

@@ -58,6 +58,23 @@ namespace CCS.Modules.SaveLoad
             return CCS_SurvivalValidationResult.Pass("Save slot id validated.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateSavePathResolution()
+        {
+            string saveRootDirectory = CCS_SavePathUtility.GetSaveRootDirectory();
+            if (string.IsNullOrWhiteSpace(saveRootDirectory))
+            {
+                return CCS_SurvivalValidationResult.Fail("Save root directory path is empty.");
+            }
+
+            if (saveRootDirectory.IndexOf("CCS_Survival", System.StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return CCS_SurvivalValidationResult.Fail("Save root directory path is missing expected folder segment.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                $"Save path utility resolves expected directory: {CCS_SavePathUtility.GetShortDisplayPath()}");
+        }
+
         #endregion
     }
 }

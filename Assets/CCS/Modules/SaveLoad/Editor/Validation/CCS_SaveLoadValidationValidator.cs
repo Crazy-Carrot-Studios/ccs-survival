@@ -69,12 +69,17 @@ namespace CCS.Modules.SaveLoad.Editor
             ValidateRequiredScript(report, "CCS_SaveLoadProfile", RuntimeRoot + "/Profiles/CCS_SaveLoadProfile.cs");
             ValidateRequiredScript(report, "CCS_SaveLoadValidationUtility", RuntimeRoot + "/Validation/CCS_SaveLoadValidationUtility.cs");
             ValidateRequiredScript(report, "CCS_TestSaveableComponent", RuntimeRoot + "/Testing/CCS_TestSaveableComponent.cs");
+            ValidateRequiredScript(report, "CCS_SaveLoadDebugController", RuntimeRoot + "/Testing/CCS_SaveLoadDebugController.cs");
+            ValidateRequiredScript(report, "CCS_SaveLoadDebugPanelPresenter", RuntimeRoot + "/Testing/CCS_SaveLoadDebugPanelPresenter.cs");
+            ValidateRequiredScript(report, "CCS_SaveLoadDebugState", RuntimeRoot + "/Testing/CCS_SaveLoadDebugState.cs");
 
             ValidateDocumentationAsset(report, "Save Load Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateGameplayServiceRegistration(report);
             ValidateBootstrapSaveLoadProfile(report);
             ValidateBootstrapTestSaveable(report);
+            ValidateBootstrapDebugControls(report);
+            ValidateSavePathUtility(report);
 
             if (File.Exists(DefaultProfilePath))
             {
@@ -112,12 +117,66 @@ namespace CCS.Modules.SaveLoad.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Save/load validator completed (persistence framework only; gameplay module saves deferred).");
+                "Save/load validator completed (0.6.1 debug controls; gameplay module saves deferred).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateSavePathUtility(CCS_SurvivalValidationReport report)
+        {
+            CCS_SurvivalValidationResult pathValidation = CCS_SaveLoadValidationUtility.ValidateSavePathResolution();
+            report.AddIssue(
+                pathValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Save Path Utility",
+                pathValidation.Message);
+        }
+
+        private static void ValidateBootstrapDebugControls(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Save Debug Controls",
+                    $"Missing bootstrap scene: {BootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(BootstrapScenePath);
+            if (sceneText.Contains("CCS_SaveLoadDebugController"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Save Debug Controls",
+                    "Bootstrap scene includes CCS_SaveLoadDebugController.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Save Debug Controls",
+                    "Bootstrap scene is missing CCS_SaveLoadDebugController.");
+            }
+
+            if (sceneText.Contains("CCS_SaveLoadDebugPanelPresenter"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Save Debug Panel",
+                    "Bootstrap scene includes CCS_SaveLoadDebugPanelPresenter.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Save Debug Panel",
+                    "Bootstrap scene is missing CCS_SaveLoadDebugPanelPresenter.");
+            }
+        }
 
         private static void ValidateGameplayServiceRegistration(CCS_SurvivalValidationReport report)
         {

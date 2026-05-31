@@ -1,11 +1,11 @@
 # CCS Survival — Save / Load Module
 
-**Milestone:** 0.6.0 — Save / Load Foundation  
+**Milestone:** 0.6.1 — Save / Load Debug Controls  
 **Module ID:** `ccs.survival.saveload`  
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-28  
-**Status:** Persistence framework complete at **0.6.0**. Gameplay module saves deferred.
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Gameplay module saves deferred.
 
 ---
 
@@ -44,7 +44,7 @@ Assets/CCS/Modules/SaveLoad/
     Profiles/       → CCS_SaveLoadProfile
     Events/         → save/load lifecycle events
     Validation/     → runtime profile validation
-    Testing/        → CCS_TestSaveableComponent (development only)
+    Testing/        → CCS_TestSaveableComponent, debug controller/panel (development only)
   Editor/
     Validation/     → pipeline validator, bootstrap setup, menu
   Documentation/    → this file
@@ -158,6 +158,53 @@ Auto-save execution is deferred until a future milestone.
 Registered with `CCS_SaveLoadService` on bootstrap scene startup. Used only to prove registry capture/restore.
 
 Bootstrap setup batch: `CCS.Modules.SaveLoad.Editor.CCS_SaveLoadBootstrapSetup.ExecuteBatch`
+
+---
+
+## Manual debug save/load workflow (0.6.1)
+
+Bootstrap scene includes developer-only controls:
+
+| Component | Role |
+|-----------|------|
+| `CCS_SaveLoadDebugController` | Manual save/load/delete/list hooks wrapping `CCS_SaveLoadService` |
+| `CCS_SaveLoadDebugPanelPresenter` | Minimal HUD panel with status text and manual trigger buttons |
+
+Panel display:
+
+- Selected slot id
+- Existing save slots (comma-separated summary)
+- Last save/load/delete status (`CCS_SaveLoadResult` message)
+- Shortened save root path from `CCS_SavePathUtility.GetShortDisplayPath()`
+
+Manual methods (callable from UI buttons):
+
+- `ManualSaveSelectedSlot()`
+- `ManualLoadSelectedSlot()`
+- `ManualDeleteSelectedSlot()`
+- `RefreshSaveSlotListing()`
+- `SelectNextSlot()` / `SelectPreviousSlot()`
+
+Panel anchor: upper-left on `PF_CCS_HUD_Root` canvas — does not block center gameplay view.
+
+### What 0.6.1 proves
+
+- Save/load service initializes on bootstrap
+- JSON save files can be created, loaded, listed, and deleted through manual hooks
+- Registered development saveables round-trip through save/load
+- Debug UI can observe slot state and latest operation result
+
+### Intentionally not saved yet
+
+- Inventory contents
+- Equipment state
+- World resource node state
+- Building pieces
+- Combat state
+- Wildlife
+- Weather
+- Quests
+- Final player persistence payload (`playerDataJson` remains empty)
 
 ---
 

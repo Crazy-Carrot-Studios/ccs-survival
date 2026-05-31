@@ -6,7 +6,8 @@
         "CCS.Survival.Runtime",
         "CCS.Survival.Editor",
         "CCS.Survival.Composition",
-        "CCS.Modules.SaveLoad.Runtime"
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.UI.Runtime"
     ],
     "includePlatforms": [
         "Editor"

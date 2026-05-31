@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.6.0 — Save / Load Foundation  
+**Milestone:** 0.6.1 — Save / Load Debug Controls  
 **Author:** James Schilz  
 **Date:** 2026-05-28
 
@@ -40,7 +40,7 @@
 
 **Editor menu:** **CCS → Survival → Crafting → Validate Crafting**
 
-## Save / Load (0.6.0)
+## Save / Load (0.6.0 / 0.6.1)
 
 | Area | Path |
 |------|------|
