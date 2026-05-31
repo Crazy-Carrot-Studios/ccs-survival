@@ -1,11 +1,11 @@
 // =============================================================================
 // SCRIPT: CCS_BuildingEvents
 // CATEGORY: Modules / Building / Runtime / Events
-// PURPOSE: Event delegate definitions for building catalog lifecycle.
-// PLACEMENT: Subscribed by HUD/debug presenters and future placement systems.
+// PURPOSE: Event delegate definitions for building catalog and placement lifecycle.
+// PLACEMENT: Subscribed by HUD/debug presenters and future build mode systems.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Foundation only. No placement or construction events in 0.8.0.
+// NOTES: Placement events added in 0.8.1 foundation.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -18,10 +18,22 @@ namespace CCS.Modules.Building
 
         public const string BuildingStateChanged = "BuildingStateChanged";
 
+        public const string PlacementStarted = "PlacementStarted";
+
+        public const string PlacementCancelled = "PlacementCancelled";
+
+        public const string BuildingPlaced = "BuildingPlaced";
+
         #endregion
     }
 
     public delegate void BuildingDefinitionRegisteredHandler(CCS_BuildingEventArgs eventArgs);
 
     public delegate void BuildingStateChangedHandler(CCS_BuildingEventArgs eventArgs);
+
+    public delegate void PlacementStartedHandler(CCS_BuildingPlacementEventArgs eventArgs);
+
+    public delegate void PlacementCancelledHandler(CCS_BuildingPlacementEventArgs eventArgs);
+
+    public delegate void BuildingPlacedHandler(CCS_BuildingPlacementEventArgs eventArgs);
 }

@@ -1235,7 +1235,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -28, y: -232}
-  m_SizeDelta: {x: 190, y: 225}
+  m_SizeDelta: {x: 190, y: 260}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &773195680
 MonoBehaviour:
@@ -1891,6 +1891,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1127492976}
   m_CullTransparentMesh: 1
+--- !u!1 &1135345010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135345013}
+  - component: {fileID: 1135345012}
+  - component: {fileID: 1135345011}
+  m_Layer: 0
+  m_Name: CCS_BuildingTestArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1135345011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135345010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcb0b07d8c604394d9ac26f19cd01fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPlacementTestHarness
+  enableHarness: 1
+  placementIntervalSeconds: 4
+  testAreaAnchor: {fileID: 1135345013}
+  placementOffsets:
+  - {x: 0, y: 0.5, z: 0}
+  - {x: 2, y: 0.5, z: 0}
+  - {x: 4, y: 0.5, z: 0}
+  - {x: 0, y: 0.5, z: 2}
+  - {x: 2, y: 0.5, z: 2}
+  - {x: 4, y: 0.5, z: 2}
+--- !u!114 &1135345012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135345010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7894b758c9a4ed74d98933d22b31e5f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPlacementPreview
+  previewScale: {x: 1, y: 1, z: 1}
+--- !u!4 &1135345013
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135345010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8, y: 0, z: 4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1163804969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3442,3 +3510,4 @@ SceneRoots:
   - {fileID: 436352417}
   - {fileID: 1163804969}
   - {fileID: 1396833958}
+  - {fileID: 1135345013}

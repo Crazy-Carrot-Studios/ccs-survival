@@ -13,10 +13,10 @@ using UnityEngine.UI;
 // SCRIPT: CCS_BuildingBootstrapSetup
 // CATEGORY: Modules / Building / Editor / Validation
 // PURPOSE: Creates default profile, test definitions, and bootstrap gameplay wiring.
-// PLACEMENT: Batch entry for 0.8.0 building foundation milestone.
+// PLACEMENT: Batch entry for 0.8.1 building placement foundation milestone.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Architecture only. No placement, snapping, holograms, or build mode.
+// NOTES: Placement foundation with test area, preview, and development harness.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -32,6 +32,7 @@ namespace CCS.Modules.Building.Editor
         private const string BootstrapPrefabPath = "Assets/CCS/Survival/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
         private const string BootstrapScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
         private const string EnvironmentHudPanelObjectName = "EnvironmentHudArea";
+        private const string BuildingTestAreaName = "CCS_BuildingTestArea";
         private const string LogPrefix = "[CCS_BuildingBootstrapSetup]";
 
         #region Public Methods
@@ -68,6 +69,7 @@ namespace CCS.Modules.Building.Editor
             EnsureDefaultProfile(startupDefinitions);
             EnsureBootstrapGameplayServiceHost();
             EnsureBootstrapEnvironmentHudPanel();
+            EnsureBootstrapBuildingTestArea();
 
             AssetDatabase.SaveAssets();
             Debug.Log($"{LogPrefix} Building bootstrap setup complete.");
@@ -111,9 +113,9 @@ namespace CCS.Modules.Building.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Building";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.building.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default building rules for 0.8.0 architecture foundation.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.0";
-            serializedProfile.FindProperty("allowPlacement").boolValue = false;
+                "Default building rules for 0.8.1 placement foundation.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.1";
+            serializedProfile.FindProperty("allowPlacement").boolValue = true;
             serializedProfile.FindProperty("allowDemolition").boolValue = false;
             serializedProfile.FindProperty("allowUpgrades").boolValue = false;
 
@@ -205,7 +207,7 @@ namespace CCS.Modules.Building.Editor
             RectTransform panelRect = existingPanel.GetComponent<RectTransform>();
             if (panelRect != null)
             {
-                panelRect.sizeDelta = new Vector2(190f, 225f);
+                panelRect.sizeDelta = new Vector2(190f, 260f);
             }
 
             Text statusText = existingPanel.Find("StatusText")?.GetComponent<Text>();
@@ -213,6 +215,36 @@ namespace CCS.Modules.Building.Editor
             {
                 statusText.fontSize = 11;
             }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        private static void EnsureBootstrapBuildingTestArea()
+        {
+            Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
+            GameObject existingArea = GameObject.Find(BuildingTestAreaName);
+            GameObject testArea = existingArea != null ? existingArea : new GameObject(BuildingTestAreaName);
+            testArea.name = BuildingTestAreaName;
+            testArea.transform.position = new Vector3(8f, 0f, 4f);
+
+            CCS_BuildingPlacementPreview preview = testArea.GetComponent<CCS_BuildingPlacementPreview>();
+            if (preview == null)
+            {
+                preview = testArea.AddComponent<CCS_BuildingPlacementPreview>();
+            }
+
+            CCS_BuildingPlacementTestHarness harness = testArea.GetComponent<CCS_BuildingPlacementTestHarness>();
+            if (harness == null)
+            {
+                harness = testArea.AddComponent<CCS_BuildingPlacementTestHarness>();
+            }
+
+            SerializedObject serializedHarness = new SerializedObject(harness);
+            serializedHarness.FindProperty("enableHarness").boolValue = true;
+            serializedHarness.FindProperty("placementIntervalSeconds").floatValue = 4f;
+            serializedHarness.FindProperty("testAreaAnchor").objectReferenceValue = testArea.transform;
+            serializedHarness.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

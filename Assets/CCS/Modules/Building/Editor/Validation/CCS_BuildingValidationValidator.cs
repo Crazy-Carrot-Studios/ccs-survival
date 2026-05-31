@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Architecture only. No placement, snapping, or build mode requirements.
+// NOTES: Placement foundation checks for 0.8.1.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -38,6 +38,7 @@ namespace CCS.Modules.Building.Editor
             SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceHost.cs";
         private const string SaveableIdsPath =
             "Assets/CCS/Modules/SaveLoad/Runtime/Data/CCS_SaveLoadSaveableIds.cs";
+        private const string BootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
         private const string EnvironmentHudPresenterPath =
             "Assets/CCS/Modules/EnvironmentEffects/Runtime/Presentation/CCS_EnvironmentEffectsHudPresenter.cs";
         private const string BuildingValidationUtilityPath =
@@ -60,6 +61,8 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
+            ValidateRequiredFolder(report, "Runtime/Placement", RuntimeRoot + "/Placement");
+            ValidateRequiredFolder(report, "Runtime/Testing", RuntimeRoot + "/Testing");
             ValidateRequiredFolder(report, "Editor/Validation", EditorRoot + "/Validation");
             ValidateRequiredFolder(report, "Documentation", ModuleRoot + "/Documentation");
 
@@ -77,20 +80,30 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingEvents", RuntimeRoot + "/Events/CCS_BuildingEvents.cs");
             ValidateRequiredScript(report, "CCS_BuildingEventArgs", RuntimeRoot + "/Events/CCS_BuildingEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingValidationUtility", BuildingValidationUtilityPath);
+            ValidateRequiredScript(report, "CCS_BuildingInstance", RuntimeRoot + "/Data/CCS_BuildingInstance.cs");
+            ValidateRequiredScript(report, "CCS_BuildingInstanceSaveRecord", RuntimeRoot + "/Data/CCS_BuildingInstanceSaveRecord.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementState", RuntimeRoot + "/Data/CCS_BuildingPlacementState.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementSnapshot", RuntimeRoot + "/Data/CCS_BuildingPlacementSnapshot.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementService", RuntimeRoot + "/Services/CCS_BuildingPlacementService.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementPreview", RuntimeRoot + "/Placement/CCS_BuildingPlacementPreview.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPlacementTestHarness.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementEventArgs.cs");
 
             ValidateDocumentationAsset(report, "Building Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateDefaultProfile(report);
             ValidateTestDefinitions(report);
             ValidateSaveIntegration(report);
+            ValidatePlacementIntegration(report);
             ValidateServiceRegistration(report);
             ValidateRestoreOrder(report);
             ValidateHudDisplay(report);
+            ValidateBootstrapTestArea(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.0 foundation).");
+                "Building validator completed (0.8.1 placement foundation).");
         }
 
         #endregion
@@ -190,12 +203,13 @@ namespace CCS.Modules.Building.Editor
             if (serviceSource.Contains("CCS_ISaveable")
                 && serviceSource.Contains("CaptureState")
                 && serviceSource.Contains("RestoreState")
-                && serviceSource.Contains("saveDataVersion"))
+                && serviceSource.Contains("saveDataVersion")
+                && serviceSource.Contains("placedInstanceRecords"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Building Save Integration",
-                    "CCS_BuildingService implements CCS_ISaveable with versioned save payloads.");
+                    "CCS_BuildingService implements CCS_ISaveable with definition and placed instance save payloads.");
             }
             else
             {
@@ -203,6 +217,83 @@ namespace CCS.Modules.Building.Editor
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Building Save Integration",
                     "CCS_BuildingService is missing CCS_ISaveable persistence implementation.");
+            }
+
+            const string saveDataPath = RuntimeRoot + "/Data/CCS_BuildingSaveData.cs";
+            if (File.Exists(saveDataPath))
+            {
+                string saveDataSource = File.ReadAllText(saveDataPath);
+                if (saveDataSource.Contains("placedInstanceRecords")
+                    && saveDataSource.Contains("CCS_BuildingInstanceSaveRecord"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Save Model",
+                        "CCS_BuildingSaveData includes placed instance records.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Save Model",
+                        "CCS_BuildingSaveData is missing placed instance records.");
+                }
+            }
+        }
+
+        private static void ValidatePlacementIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string placementServicePath = RuntimeRoot + "/Services/CCS_BuildingPlacementService.cs";
+            const string previewPath = RuntimeRoot + "/Placement/CCS_BuildingPlacementPreview.cs";
+            const string harnessPath = RuntimeRoot + "/Testing/CCS_BuildingPlacementTestHarness.cs";
+            const string instancePath = RuntimeRoot + "/Data/CCS_BuildingInstance.cs";
+            const string buildingServicePath = RuntimeRoot + "/Services/CCS_BuildingService.cs";
+
+            ValidateRequiredScript(report, "CCS_BuildingPlacementService", placementServicePath);
+            ValidateRequiredScript(report, "CCS_BuildingPlacementPreview", previewPath);
+            ValidateRequiredScript(report, "CCS_BuildingPlacementTestHarness", harnessPath);
+            ValidateRequiredScript(report, "CCS_BuildingInstance", instancePath);
+
+            if (File.Exists(buildingServicePath))
+            {
+                string serviceSource = File.ReadAllText(buildingServicePath);
+                if (serviceSource.Contains("GetPlacedInstances")
+                    && serviceSource.Contains("GetPlacementSnapshot")
+                    && serviceSource.Contains("TryAddPlacedInstance"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Placement Integration",
+                        "CCS_BuildingService tracks placed instances and exposes placement snapshots.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Placement Integration",
+                        "CCS_BuildingService is missing placed instance integration.");
+                }
+            }
+
+            if (File.Exists(RuntimeRoot + "/Events/CCS_BuildingEvents.cs"))
+            {
+                string eventsSource = File.ReadAllText(RuntimeRoot + "/Events/CCS_BuildingEvents.cs");
+                if (eventsSource.Contains("PlacementStarted")
+                    && eventsSource.Contains("PlacementCancelled")
+                    && eventsSource.Contains("BuildingPlaced"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Placement Events",
+                        "Building events include placement lifecycle hooks.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Placement Events",
+                        "Building events are missing placement lifecycle hooks.");
+                }
             }
         }
 
@@ -219,12 +310,13 @@ namespace CCS.Modules.Building.Editor
 
             string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
             if (registrationSource.Contains("CreateBuildingService")
+                && registrationSource.Contains("CreateBuildingPlacementService")
                 && registrationSource.Contains("RegisterSaveable(buildingService)"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Building Service Registration",
-                    "Gameplay composition registers and save-registers CCS_BuildingService.");
+                    "Gameplay composition registers, save-registers, and binds building and placement services.");
             }
             else
             {
@@ -301,19 +393,49 @@ namespace CCS.Modules.Building.Editor
 
             string presenterSource = File.ReadAllText(EnvironmentHudPresenterPath);
             if (presenterSource.Contains("FormatBuildingDefinitionCountLine")
+                && presenterSource.Contains("FormatPlacementHudLines")
                 && presenterSource.Contains("CCS_BuildingRuntimeBridge"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Building HUD Display",
-                    "Environment HUD presenter displays registered building definition count.");
+                    "Environment HUD presenter displays building definition and placement debug values.");
                 return;
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Building HUD Display",
-                "Environment HUD presenter is missing building definition count display.");
+                "Environment HUD presenter is missing building placement display.");
+        }
+
+        private static void ValidateBootstrapTestArea(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Building Test Area",
+                    $"Missing bootstrap scene: {BootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(BootstrapScenePath);
+            if (sceneText.Contains("CCS_BuildingTestArea")
+                && sceneText.Contains("CCS_BuildingPlacementTestHarness")
+                && sceneText.Contains("CCS_BuildingPlacementPreview"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Building Test Area",
+                    "Bootstrap scene includes CCS_BuildingTestArea with preview and placement harness.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Bootstrap Building Test Area",
+                "Bootstrap scene is missing CCS_BuildingTestArea test setup.");
         }
 
         private static void ValidateRequiredFolder(

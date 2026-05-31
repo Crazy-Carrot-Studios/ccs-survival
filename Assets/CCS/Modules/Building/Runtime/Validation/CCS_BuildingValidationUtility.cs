@@ -3,8 +3,8 @@ using CCS.Survival;
 // =============================================================================
 // SCRIPT: CCS_BuildingValidationUtility
 // CATEGORY: Modules / Building / Runtime / Validation
-// PURPOSE: Profile and definition validation helpers for runtime and editor checks.
-// PLACEMENT: Used by building service initialization and editor validation pipeline.
+// PURPOSE: Profile, definition, and HUD formatting helpers for runtime and editor checks.
+// PLACEMENT: Used by building services initialization and editor validation pipeline.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
 // NOTES: Returns CCS_SurvivalValidationResult. No UnityEditor references.
@@ -29,10 +29,16 @@ namespace CCS.Modules.Building
                 return baseValidation;
             }
 
-            if (profile.AllowPlacement || profile.AllowDemolition || profile.AllowUpgrades)
+            if (!profile.AllowPlacement)
             {
                 return CCS_SurvivalValidationResult.Fail(
-                    "Building profile feature flags must remain disabled for 0.8.0 architecture milestone.");
+                    "Building profile must enable placement for 0.8.1 placement foundation.");
+            }
+
+            if (profile.AllowDemolition || profile.AllowUpgrades)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Building profile demolition and upgrade flags must remain disabled for 0.8.1.");
             }
 
             return CCS_SurvivalValidationResult.Pass("Building profile validated.");
@@ -63,6 +69,31 @@ namespace CCS.Modules.Building
         {
             int count = registeredDefinitionCount < 0 ? 0 : registeredDefinitionCount;
             return $"Building Definitions: {count}";
+        }
+
+        public static string FormatPlacementHudLines(
+            CCS_BuildingPlacementSnapshot placementSnapshot,
+            int placedInstanceCount)
+        {
+            CCS_BuildingPlacementSnapshot snapshot = placementSnapshot.IsPlacementModeActive
+                ? placementSnapshot
+                : CCS_BuildingPlacementSnapshot.Empty;
+
+            string placementLabel = snapshot.IsPlacementModeActive ? "Yes" : "No";
+            string selectedPiece = snapshot.IsPlacementModeActive
+                ? FormatPieceTypeLabel(snapshot.ActivePieceType)
+                : "None";
+            int placedCount = placedInstanceCount < 0 ? 0 : placedInstanceCount;
+
+            return
+                $"Placement Active: {placementLabel}\n" +
+                $"Selected Piece: {selectedPiece}\n" +
+                $"Placed Count: {placedCount}";
+        }
+
+        public static string FormatPieceTypeLabel(CCS_BuildingPieceType pieceType)
+        {
+            return pieceType.ToString();
         }
 
         #endregion

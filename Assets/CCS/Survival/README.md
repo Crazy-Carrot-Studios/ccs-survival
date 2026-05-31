@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.0 — Building Foundation  
+**Milestone:** 0.8.1 — Building Placement Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -157,6 +157,19 @@
 **Editor menu:** **CCS → Survival → Building → Validate Building**
 
 **0.8.0:** Structure definition catalog and service persistence only. Placement, snapping, holograms, build mode, durability, repair, and demolition deferred.
+
+## Building Placement (0.8.1)
+
+| Area | Path |
+|------|------|
+| Placement service | `../Modules/Building/Runtime/Services/CCS_BuildingPlacementService.cs` |
+| Preview | `../Modules/Building/Runtime/Placement/CCS_BuildingPlacementPreview.cs` |
+| Test harness | `../Modules/Building/Runtime/Testing/CCS_BuildingPlacementTestHarness.cs` |
+| Test area | Bootstrap scene `CCS_BuildingTestArea` |
+
+**Editor menu:** **CCS → Survival → Building → Validate Building**
+
+**0.8.1:** Build mode, placement preview, spawned cube instances, and placed instance save model. Bootstrap harness cycles foundation/wall/roof near the shelter test area. No inventory consumption or snapping yet.
 
 ## Inventory (0.4.0)
 

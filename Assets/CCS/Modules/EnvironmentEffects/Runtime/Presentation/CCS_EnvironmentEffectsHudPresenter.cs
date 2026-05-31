@@ -24,6 +24,7 @@ namespace CCS.Modules.EnvironmentEffects
 
         private CCS_EnvironmentEffectsService environmentService;
         private CCS_BuildingService buildingService;
+        private CCS_BuildingPlacementService placementService;
 
         #endregion
 
@@ -45,6 +46,7 @@ namespace CCS.Modules.EnvironmentEffects
             UnbindServiceEvents();
             environmentService = null;
             buildingService = null;
+            placementService = null;
         }
 
         #endregion
@@ -72,7 +74,7 @@ namespace CCS.Modules.EnvironmentEffects
 
             CCS_EnvironmentSnapshot snapshot = environmentService.GetSnapshot();
             string displayText = CCS_EnvironmentEffectsValidationUtility.FormatEnvironmentDisplay(snapshot);
-            displayText = AppendBuildingDefinitionCount(displayText);
+            displayText = AppendBuildingHudLines(displayText);
             statusText.text = displayText;
         }
 
@@ -83,7 +85,7 @@ namespace CCS.Modules.EnvironmentEffects
         private bool TryBindServices()
         {
             bool environmentReady = TryBindEnvironmentService();
-            TryBindBuildingService();
+            TryBindBuildingServices();
             return environmentReady;
         }
 
@@ -111,6 +113,12 @@ namespace CCS.Modules.EnvironmentEffects
             return true;
         }
 
+        private void TryBindBuildingServices()
+        {
+            TryBindBuildingService();
+            TryBindPlacementService();
+        }
+
         private void TryBindBuildingService()
         {
             if (buildingService != null && buildingService.IsInitialized)
@@ -132,10 +140,33 @@ namespace CCS.Modules.EnvironmentEffects
             buildingService.BuildingStateChanged += HandleBuildingChanged;
         }
 
+        private void TryBindPlacementService()
+        {
+            if (placementService != null && placementService.IsInitialized)
+            {
+                return;
+            }
+
+            UnbindPlacementServiceEvents();
+
+            if (!CCS_BuildingRuntimeBridge.TryGetBuildingPlacementService(out placementService)
+                || placementService == null
+                || !placementService.IsInitialized)
+            {
+                placementService = null;
+                return;
+            }
+
+            placementService.PlacementStarted += HandlePlacementChanged;
+            placementService.PlacementCancelled += HandlePlacementChanged;
+            placementService.BuildingPlaced += HandlePlacementChanged;
+        }
+
         private void UnbindServiceEvents()
         {
             UnbindEnvironmentServiceEvents();
             UnbindBuildingServiceEvents();
+            UnbindPlacementServiceEvents();
         }
 
         private void UnbindEnvironmentServiceEvents()
@@ -162,16 +193,34 @@ namespace CCS.Modules.EnvironmentEffects
             buildingService.BuildingStateChanged -= HandleBuildingChanged;
         }
 
-        private string AppendBuildingDefinitionCount(string displayText)
+        private void UnbindPlacementServiceEvents()
+        {
+            if (placementService == null)
+            {
+                return;
+            }
+
+            placementService.PlacementStarted -= HandlePlacementChanged;
+            placementService.PlacementCancelled -= HandlePlacementChanged;
+            placementService.BuildingPlaced -= HandlePlacementChanged;
+        }
+
+        private string AppendBuildingHudLines(string displayText)
         {
             int definitionCount = 0;
+            int placedCount = 0;
+            CCS_BuildingPlacementSnapshot placementSnapshot = CCS_BuildingPlacementSnapshot.Empty;
+
             if (buildingService != null && buildingService.IsInitialized)
             {
                 definitionCount = buildingService.RegisteredDefinitionCount;
+                placedCount = buildingService.PlacedInstanceCount;
+                placementSnapshot = buildingService.GetPlacementSnapshot();
             }
 
             return displayText + "\n" +
-                   CCS_BuildingValidationUtility.FormatBuildingDefinitionCountLine(definitionCount);
+                   CCS_BuildingValidationUtility.FormatBuildingDefinitionCountLine(definitionCount) + "\n" +
+                   CCS_BuildingValidationUtility.FormatPlacementHudLines(placementSnapshot, placedCount);
         }
 
         private void HandleEnvironmentChanged(CCS_EnvironmentEffectsEventArgs eventArgs)
@@ -180,6 +229,11 @@ namespace CCS.Modules.EnvironmentEffects
         }
 
         private void HandleBuildingChanged(CCS_BuildingEventArgs eventArgs)
+        {
+            RefreshDisplay();
+        }
+
+        private void HandlePlacementChanged(CCS_BuildingPlacementEventArgs eventArgs)
         {
             RefreshDisplay();
         }

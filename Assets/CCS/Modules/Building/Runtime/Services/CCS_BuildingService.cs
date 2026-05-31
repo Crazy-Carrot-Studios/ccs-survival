@@ -6,11 +6,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_BuildingService
 // CATEGORY: Modules / Building / Runtime / Services
-// PURPOSE: Authoritative building definition catalog with events and save/load.
+// PURPOSE: Authoritative building definition catalog and placed instance tracking.
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: No placement, spawning, construction, or destruction in 0.8.0.
+// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -24,9 +24,12 @@ namespace CCS.Modules.Building
         private readonly Dictionary<string, CCS_BuildingPieceDefinition> definitionsById =
             new Dictionary<string, CCS_BuildingPieceDefinition>();
 
+        private readonly List<CCS_BuildingInstance> placedInstances = new List<CCS_BuildingInstance>();
+
         private readonly CCS_BuildingState buildingState = new CCS_BuildingState();
 
         private CCS_BuildingProfile activeProfile;
+        private CCS_BuildingPlacementService placementService;
         private bool isInitialized;
 
         #endregion
@@ -47,6 +50,8 @@ namespace CCS.Modules.Building
         public string SaveableId => CCS_SaveLoadSaveableIds.GlobalBuilding;
 
         public int RegisteredDefinitionCount => buildingState.RegisteredDefinitionCount;
+
+        public int PlacedInstanceCount => placedInstances.Count;
 
         #endregion
 
@@ -80,6 +85,7 @@ namespace CCS.Modules.Building
             activeProfile = profile;
             definitionsById.Clear();
             buildingState.Clear();
+            placedInstances.Clear();
             isInitialized = true;
 
             IReadOnlyList<CCS_BuildingPieceDefinition> startupDefinitions = profile.StartupDefinitions;
@@ -92,6 +98,11 @@ namespace CCS.Modules.Building
             }
 
             RaiseBuildingStateChanged("Building service initialized.");
+        }
+
+        public void BindPlacementService(CCS_BuildingPlacementService service)
+        {
+            placementService = service;
         }
 
         public bool RegisterDefinition(CCS_BuildingPieceDefinition definition, string message = null)
@@ -167,6 +178,45 @@ namespace CCS.Modules.Building
             return definitions;
         }
 
+        public IReadOnlyList<CCS_BuildingInstance> GetPlacedInstances()
+        {
+            if (!EnsureInitialized())
+            {
+                return System.Array.Empty<CCS_BuildingInstance>();
+            }
+
+            return placedInstances;
+        }
+
+        public CCS_BuildingPlacementSnapshot GetPlacementSnapshot()
+        {
+            if (placementService != null && placementService.IsInitialized)
+            {
+                return placementService.GetSnapshot();
+            }
+
+            return CCS_BuildingPlacementSnapshot.Empty;
+        }
+
+        public bool TryAddPlacedInstance(CCS_BuildingInstance instance)
+        {
+            if (!EnsureInitialized() || instance == null)
+            {
+                return false;
+            }
+
+            if (!TryGetDefinition(instance.PieceId, out _))
+            {
+                Debug.LogWarning($"{LogPrefix} TryAddPlacedInstance rejected unknown piece '{instance.PieceId}'.");
+                return false;
+            }
+
+            placedInstances.Add(instance);
+            BuildingStateChanged?.Invoke(
+                CreateEventArgs($"Placed building instance '{instance.InstanceId}'."));
+            return true;
+        }
+
         public CCS_BuildingPieceSnapshot GetPieceSnapshot(string pieceId)
         {
             if (!TryGetDefinition(pieceId, out CCS_BuildingPieceDefinition definition))
@@ -191,7 +241,8 @@ namespace CCS.Modules.Building
             CCS_BuildingSaveData saveData = new CCS_BuildingSaveData
             {
                 saveDataVersion = CCS_BuildingSaveData.CurrentSaveDataVersion,
-                registeredPieceIds = new List<string>(buildingState.RegisteredPieceIds)
+                registeredPieceIds = new List<string>(buildingState.RegisteredPieceIds),
+                placedInstanceRecords = BuildPlacedInstanceRecords()
             };
 
             return JsonUtility.ToJson(saveData);
@@ -208,6 +259,7 @@ namespace CCS.Modules.Building
             if (string.IsNullOrWhiteSpace(stateJson))
             {
                 buildingState.Clear();
+                placedInstances.Clear();
                 RaiseBuildingStateChanged("Building restore cleared catalog state.");
                 return;
             }
@@ -227,6 +279,13 @@ namespace CCS.Modules.Building
 
             buildingState.ReplaceRegisteredPieceIds(saveData.registeredPieceIds);
             PruneDefinitionsMissingFromState();
+
+            if (saveData.placedInstanceRecords != null && saveData.placedInstanceRecords.Count > 0)
+            {
+                Debug.Log(
+                    $"{LogPrefix} RestoreState captured {saveData.placedInstanceRecords.Count} placed instance records. Full restore deferred in 0.8.1.");
+            }
+
             RaiseBuildingStateChanged("Building catalog restored from save.");
         }
 
@@ -243,6 +302,31 @@ namespace CCS.Modules.Building
 
             Debug.LogWarning($"{LogPrefix} Service is not initialized.");
             return false;
+        }
+
+        private List<CCS_BuildingInstanceSaveRecord> BuildPlacedInstanceRecords()
+        {
+            List<CCS_BuildingInstanceSaveRecord> records = new List<CCS_BuildingInstanceSaveRecord>(placedInstances.Count);
+
+            for (int index = 0; index < placedInstances.Count; index++)
+            {
+                CCS_BuildingInstance instance = placedInstances[index];
+                records.Add(new CCS_BuildingInstanceSaveRecord
+                {
+                    instanceId = instance.InstanceId,
+                    pieceId = instance.PieceId,
+                    positionX = instance.Position.x,
+                    positionY = instance.Position.y,
+                    positionZ = instance.Position.z,
+                    rotationX = instance.Rotation.x,
+                    rotationY = instance.Rotation.y,
+                    rotationZ = instance.Rotation.z,
+                    rotationW = instance.Rotation.w,
+                    creationTime = instance.CreationTime
+                });
+            }
+
+            return records;
         }
 
         private void PruneDefinitionsMissingFromState()

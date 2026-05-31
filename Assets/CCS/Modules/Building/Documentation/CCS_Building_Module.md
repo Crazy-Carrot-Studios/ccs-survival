@@ -1,28 +1,30 @@
 # CCS Survival — Building Module
 
-**Milestone:** 0.8.0 — Building Foundation  
+**Milestone:** 0.8.1 — Building Placement Foundation  
 **Module ID:** `ccs.survival.building`  
 **Namespace:** `CCS.Modules.Building` (editor: `CCS.Modules.Building.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Architecture foundation complete (definitions and service only; no placement)
+**Status:** Placement foundation complete (build mode, preview, placed instances; no snapping or inventory consumption)
 
 ---
 
 ## Purpose
 
-Provide the **runtime building architecture** that becomes the authoritative system for structure definitions and future placement.
+Provide the **runtime building architecture** that becomes the authoritative system for structure definitions and placement.
 
 Building owns:
 
-| Concern | 0.8.0 scope |
+| Concern | 0.8.1 scope |
 |---------|-------------|
 | Piece definitions | ScriptableObject metadata and categories |
 | Definition catalog | Register, lookup, and snapshot known pieces |
-| Service persistence | Save/load registered definition IDs |
-| Feature flags | Placement, demolition, upgrades disabled |
+| Build mode | Enter/exit placement mode with active definition |
+| Placed instances | Track spawned structures with instance IDs |
+| Service persistence | Save definition IDs and placed instance records |
+| Feature flags | Placement enabled; demolition/upgrades disabled |
 
-No placement, snapping, holograms, build mode, durability, repair, demolition, or multiplayer networking in 0.8.0.
+No advanced snapping, structural integrity, durability, repair, demolition, inventory consumption, or multiplayer networking in 0.8.1.
 
 ---
 
@@ -31,16 +33,20 @@ No placement, snapping, holograms, build mode, durability, repair, demolition, o
 ```text
 CCS_BuildingPieceDefinition assets
         ↓
-CCS_BuildingService (definition catalog)
+CCS_BuildingService (definitions + placed instances)
         ↓
-CCS_BuildingProfile startup registration
+CCS_BuildingPlacementService (build mode + preview + place)
         ↓
-HUD debug count + save/load persistence
+CCS_BuildingPlacementPreview (development cube preview)
         ↓
-(Future) placement, snapping, shelter volumes from structures
+CCS_BuildingPlacementTestHarness (bootstrap verification)
+        ↓
+HUD debug + save/load placed instance records
+        ↓
+(Future) snapping, durability, shelter volumes from structures
 ```
 
-**Critical rule:** Building exposes definitions and catalog state only. It does **not** spawn transforms, mutate inventory, or construct structures in 0.8.0.
+**Critical rule:** Placement does **not** consume inventory resources in 0.8.1.
 
 ---
 
@@ -50,11 +56,13 @@ HUD debug count + save/load persistence
 Assets/CCS/Modules/Building/
   Runtime/
     Definitions/    → piece types and ScriptableObject definitions
-    Data/           → snapshots, state, save payloads
-    Services/       → CCS_BuildingService and runtime bridge
+    Data/           → instances, placement state/snapshots, save payloads
+    Services/       → CCS_BuildingService, CCS_BuildingPlacementService, bridge
+    Placement/      → CCS_BuildingPlacementPreview
     Profiles/       → CCS_BuildingProfile
-    Events/         → definition registration and state change events
+    Events/         → catalog and placement lifecycle events
     Validation/     → runtime validation helpers
+    Testing/        → CCS_BuildingPlacementTestHarness
   Editor/
     Validation/     → pipeline validator, menu, bootstrap setup
   Documentation/    → this file
@@ -79,23 +87,45 @@ Foundation, Floor, Wall, Doorway, Door, WindowWall, Roof, Stair, Pillar, CampStr
 `CCS_BuildingPieceDefinition` fields:
 
 - Piece ID, display name, description, building piece type
-- Prefab reference placeholder (future spawning)
-- Crafting requirements placeholder (future build mode)
-- Shelter contribution placeholder (future shelter integration from structures)
+- Prefab reference placeholder (future final art spawning)
+- Crafting requirements placeholder (future resource consumption)
+- Shelter contribution placeholder (future shelter integration)
 
 ---
 
-## Service responsibilities
+## Placed instance model
 
-`CCS_BuildingService`:
+`CCS_BuildingInstance`:
 
-- Registers definitions from profile startup list and runtime calls
-- Tracks known piece IDs in `CCS_BuildingState`
-- Provides lookups and piece snapshots (position/rotation placeholders only)
-- Raises `OnBuildingDefinitionRegistered` and `OnBuildingStateChanged`
-- Implements `CCS_ISaveable` with ID `ccs.survival.saveable.building.global`
+- Instance ID
+- Piece ID (definition reference)
+- Position and rotation
+- Creation time
 
-No placement, spawning, construction, or destruction.
+No durability fields in 0.8.1.
+
+---
+
+## Placement service
+
+`CCS_BuildingPlacementService`:
+
+- `EnterPlacementMode()` / `ExitPlacementMode()`
+- `SetActiveDefinition()` / `UpdatePreview()` / `PlaceCurrentPiece()`
+- Tracks placement validity through `CCS_BuildingPlacementState`
+- Events: `OnPlacementStarted`, `OnPlacementCancelled`, `OnBuildingPlaced`
+- Delegates placed instance storage to `CCS_BuildingService`
+
+---
+
+## Preview architecture
+
+`CCS_BuildingPlacementPreview`:
+
+- Development-only cube primitive
+- Visible only while placement mode is active and preview is valid
+- Foundation, wall, and roof all use cube placeholders
+- No hologram shaders or final materials
 
 ---
 
@@ -105,19 +135,32 @@ Restore order (after environment):
 
 **Inventory → Equipment → TimeOfDay → Weather → Shelter → Environment → Building**
 
-Save payload stores registered definition IDs only. No placed structures yet.
+`CCS_BuildingSaveData` (version 2) stores:
+
+- Registered definition IDs
+- Placed instance records (`CCS_BuildingInstanceSaveRecord`)
+
+Full placed instance restore is **deferred** beyond 0.8.1. Capture establishes the serialization model only.
 
 ---
 
-## Future placement system
+## Bootstrap verification
 
-Deferred to later milestones:
+Bootstrap scene includes:
 
-- Build mode and hologram previews
-- Grid snapping and rotation rules
-- Prefab spawning at world transforms
-- Structure durability, repair, and demolition
-- Shelter volume generation from completed structures
+- `CCS_BuildingTestArea` hierarchy root near shelter/resource testing
+- `CCS_BuildingPlacementPreview`
+- `CCS_BuildingPlacementTestHarness` cycling foundation, wall, and roof every few seconds
+
+---
+
+## Deferred
+
+- Advanced snapping and grid rules
+- Structural integrity and support checks
+- Durability, repair, and demolition
+- Shelter volume generation from placed structures
+- Inventory resource consumption during placement
 - Multiplayer authority and replication
 
 ---
@@ -154,4 +197,4 @@ Unity.exe -batchmode -nographics -quit `
 | Inventory | Future material consumption during placement |
 | Shelter | Future shelter contribution from placed structures |
 | Save / Load | Building restores after environment |
-| Environment Effects | HUD displays registered definition count below shelter lines |
+| Environment Effects | HUD displays definition count and placement debug lines |

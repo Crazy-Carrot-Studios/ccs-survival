@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingProfile
   profileDisplayName: Default Building
   profileId: ccs.survival.profile.building.default
-  profileDescription: Default building rules for 0.8.0 architecture foundation.
-  profileVersion: 0.8.0
+  profileDescription: Default building rules for 0.8.1 placement foundation.
+  profileVersion: 0.8.1
   enableDebugLogs: 0
-  allowPlacement: 0
+  allowPlacement: 1
   allowDemolition: 0
   allowUpgrades: 0
   startupDefinitions:

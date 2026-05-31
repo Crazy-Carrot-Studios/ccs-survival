@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.8.0 — Building Foundation  
+**Milestone baseline:** 0.8.1 — Building Placement Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Building definition foundation **complete** at **0.8.0**. Placement, snapping, and structure spawning deferred.
+**Status:** Building placement foundation **complete** at **0.8.1**. Snapping, durability, and shelter generation deferred.
 
 ---
 
@@ -42,8 +42,9 @@
 | **0.7.4** | Clothing & equipment environmental modifiers |
 | **0.7.5** | Shelter & environmental protection foundation |
 | **0.8.0** | Building foundation |
+| **0.8.1** | Building placement foundation |
 
-Later milestones continue from **0.8.1+** (placement, snapping, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+Later milestones continue from **0.8.2+** (snapping, structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
 
 ---
 
@@ -89,13 +90,14 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 14 | **0.7.4** | **Clothing & Equipment Environmental Modifiers** | `ccs.survival.equipment` + `ccs.survival.environment` — **Complete** |
 | 15 | **0.7.5** | **Shelter & Environmental Protection** | `ccs.survival.shelter` — **Complete** |
 | 16 | **0.8.0** | **Building** | `ccs.survival.building` — **Foundation complete** |
-| 17 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
-| 18 | 0.5.x | Combat | `ccs.survival.combat` |
-| 19 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
-| 20 | 0.8.1+ | Building placement & snapping | `ccs.survival.building` |
-| 21 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
-| 22 | 0.5.x | Audio | `ccs.survival.audio` |
-| 23 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
+| 17 | **0.8.1** | **Building Placement** | `ccs.survival.building` — **Placement foundation complete** |
+| 18 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
+| 19 | 0.5.x | Combat | `ccs.survival.combat` |
+| 20 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
+| 21 | 0.8.2+ | Building snapping & structural rules | `ccs.survival.building` |
+| 22 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
+| 23 | 0.5.x | Audio | `ccs.survival.audio` |
+| 24 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
 
 **Rationale:** UI immediately after Inventory lets every subsequent system be validated on-screen as it is built.
 
@@ -134,6 +136,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 ## Next milestone
 
 **0.7.6 — Biome & Regional Environment Modifiers** (regional offsets layered on environment simulation)
+
+---
+
+## 0.8.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_BuildingInstance` placed structure model | **Complete** |
+| `CCS_BuildingPlacementService` with build mode API | **Complete** |
+| `CCS_BuildingPlacementPreview` development preview | **Complete** |
+| `CCS_BuildingPlacementTestHarness` automated placement | **Complete** |
+| Bootstrap `CCS_BuildingTestArea` hierarchy | **Complete** |
+| Placed instance save records in `CCS_BuildingSaveData` | **Complete** |
+| HUD placement debug lines | **Complete** |
+| Version **0.8.1** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 
