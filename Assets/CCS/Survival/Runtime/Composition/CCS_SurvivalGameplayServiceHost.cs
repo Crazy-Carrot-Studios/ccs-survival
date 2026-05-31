@@ -8,6 +8,7 @@ using CCS.Modules.SurvivalCore;
 using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
+using CCS.Modules.Shelter;
 using CCS.Modules.WorldResources;
 using UnityEngine;
 
@@ -56,6 +57,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default weather profile used to register CCS_WeatherService.")]
         [SerializeField] private CCS_WeatherProfile weatherProfile;
 
+        [Tooltip("Default shelter profile used to register CCS_ShelterService.")]
+        [SerializeField] private CCS_ShelterProfile shelterProfile;
+
         [Tooltip("Default environment effects profile used to register CCS_EnvironmentEffectsService.")]
         [SerializeField] private CCS_EnvironmentEffectsProfile environmentEffectsProfile;
 
@@ -96,6 +100,7 @@ namespace CCS.Survival.Composition
                 saveLoadProfile,
                 timeOfDayProfile,
                 weatherProfile,
+                shelterProfile,
                 environmentEffectsProfile,
                 enableDebugLogs);
         }

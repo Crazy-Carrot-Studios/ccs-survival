@@ -8,6 +8,7 @@ using CCS.Modules.SurvivalCore;
 using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
+using CCS.Modules.Shelter;
 using CCS.Modules.WorldResources;
 
 // =============================================================================
@@ -39,6 +40,7 @@ namespace CCS.Survival.Composition
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
             CCS_WeatherProfile weatherProfile,
+            CCS_ShelterProfile shelterProfile,
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             bool enableDebugLogs = false)
         {
@@ -72,10 +74,14 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, weatherService, enableDebugLogs);
             RegisterWeatherUpdatable(runtimeHost, weatherService);
 
+            CCS_ShelterService shelterService = CreateShelterService(shelterProfile);
+            RegisterService(runtimeHost, shelterService, enableDebugLogs);
+
             CCS_EnvironmentEffectsService environmentEffectsService = CreateEnvironmentEffectsService(
                 environmentEffectsProfile,
                 timeOfDayService,
                 weatherService,
+                shelterService,
                 equipmentService);
             RegisterService(runtimeHost, environmentEffectsService, enableDebugLogs);
             RegisterEnvironmentEffectsUpdatable(runtimeHost, environmentEffectsService);
@@ -89,6 +95,7 @@ namespace CCS.Survival.Composition
                 equipmentService,
                 timeOfDayService,
                 weatherService,
+                shelterService,
                 environmentEffectsService);
         }
 
@@ -270,10 +277,25 @@ namespace CCS.Survival.Composition
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(weatherService);
         }
 
+        private static CCS_ShelterService CreateShelterService(CCS_ShelterProfile profile)
+        {
+            CCS_ShelterService service = new CCS_ShelterService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
         private static CCS_EnvironmentEffectsService CreateEnvironmentEffectsService(
             CCS_EnvironmentEffectsProfile profile,
             CCS_TimeOfDayService timeOfDayService,
             CCS_WeatherService weatherService,
+            CCS_ShelterService shelterService,
             CCS_PlayerEquipmentService equipmentService)
         {
             CCS_EnvironmentEffectsService service = new CCS_EnvironmentEffectsService();
@@ -292,6 +314,11 @@ namespace CCS.Survival.Composition
             if (weatherService != null && weatherService.IsInitialized)
             {
                 service.BindWeatherService(weatherService);
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                service.BindShelterService(shelterService);
             }
 
             if (equipmentService != null && equipmentService.IsInitialized)
@@ -348,6 +375,7 @@ namespace CCS.Survival.Composition
             CCS_PlayerEquipmentService equipmentService,
             CCS_TimeOfDayService timeOfDayService,
             CCS_WeatherService weatherService,
+            CCS_ShelterService shelterService,
             CCS_EnvironmentEffectsService environmentEffectsService)
         {
             if (saveLoadService == null || !saveLoadService.IsInitialized)
@@ -385,6 +413,11 @@ namespace CCS.Survival.Composition
             if (weatherService != null && weatherService.IsInitialized)
             {
                 saveLoadService.RegisterSaveable(weatherService);
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                saveLoadService.RegisterSaveable(shelterService);
             }
 
             if (environmentEffectsService != null && environmentEffectsService.IsInitialized)

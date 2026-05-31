@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 466c7656757993d4b8239437aa507422, type: 3}
+  m_Name: CCS_DefaultShelterProfile
+  m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_ShelterProfile
+  profileDisplayName: Default Shelter
+  profileId: ccs.survival.profile.shelter.default
+  profileDescription: Default shelter protection rules for 0.7.5 foundation.
+  profileVersion: 0.7.5
+  enableDebugLogs: 0
+  defaultWetnessProtection: 1
+  defaultExposureProtection: 0.6
+  defaultTemperatureProtection: 1
+  defaultProtectionMultiplier: 1
+  requireTriggerVolume: 1

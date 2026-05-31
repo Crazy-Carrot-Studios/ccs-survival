@@ -1,15 +1,16 @@
 using CCS.Modules.Equipment;
+using CCS.Modules.Shelter;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 
 // =============================================================================
 // SCRIPT: CCS_EnvironmentSnapshot
 // CATEGORY: Modules / EnvironmentEffects / Runtime / Data
-// PURPOSE: Read-only environment snapshot with raw and equipment-adjusted effective values.
+// PURPOSE: Read-only environment snapshot with raw, shelter-adjusted, and effective values.
 // PLACEMENT: Produced by CCS_EnvironmentEffectsService.GetSnapshot().
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Raw values from Time/Weather. Effective values apply equipment resistances.
+// NOTES: Raw from Time/Weather. Shelter then equipment protection applied for effective values.
 // =============================================================================
 
 namespace CCS.Modules.EnvironmentEffects
@@ -25,6 +26,8 @@ namespace CCS.Modules.EnvironmentEffects
             float effectiveTemperature,
             float effectiveWetness,
             float effectiveExposure,
+            bool isSheltered,
+            CCS_ShelterModifierSnapshot shelterModifierSnapshot,
             CCS_EquipmentEnvironmentalModifierSnapshot equipmentModifierSnapshot,
             CCS_WeatherType weatherType,
             CCS_TimeOfDayPhase timePhase)
@@ -35,6 +38,8 @@ namespace CCS.Modules.EnvironmentEffects
             EffectiveTemperature = effectiveTemperature;
             EffectiveWetness = effectiveWetness < 0f ? 0f : effectiveWetness;
             EffectiveExposure = effectiveExposure < 0f ? 0f : effectiveExposure;
+            IsSheltered = isSheltered;
+            ShelterModifierSnapshot = shelterModifierSnapshot;
             EquipmentModifierSnapshot = equipmentModifierSnapshot;
             WeatherType = weatherType;
             TimePhase = timePhase;
@@ -48,6 +53,8 @@ namespace CCS.Modules.EnvironmentEffects
                 0f,
                 0f,
                 0f,
+                false,
+                CCS_ShelterModifierSnapshot.Empty,
                 CCS_EquipmentEnvironmentalModifierSnapshot.Empty,
                 CCS_WeatherType.Clear,
                 CCS_TimeOfDayPhase.Dawn);
@@ -67,6 +74,10 @@ namespace CCS.Modules.EnvironmentEffects
         public float EffectiveWetness { get; }
 
         public float EffectiveExposure { get; }
+
+        public bool IsSheltered { get; }
+
+        public CCS_ShelterModifierSnapshot ShelterModifierSnapshot { get; }
 
         public CCS_EquipmentEnvironmentalModifierSnapshot EquipmentModifierSnapshot { get; }
 

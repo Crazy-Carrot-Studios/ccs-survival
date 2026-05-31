@@ -13,7 +13,8 @@
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.TimeOfDay.Runtime",
         "CCS.Modules.Weather.Runtime",
-        "CCS.Modules.EnvironmentEffects.Runtime"
+        "CCS.Modules.EnvironmentEffects.Runtime",
+        "CCS.Modules.Shelter.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

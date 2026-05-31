@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
+**Milestone:** 0.7.5 — Shelter & Environmental Protection Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -130,6 +130,19 @@
 | Test assets | `Profiles/Equipment/TestItems/CCS_TestEquipment_WarmHat.asset`, `CCS_TestEquipment_HeavyCoat.asset`, `CCS_TestEquipment_WaterproofBoots.asset` |
 
 **0.7.4:** Equipped items aggregate temperature, wetness, and exposure resistance. Environment Effects exposes raw and effective values on snapshots and bootstrap HUD. Survival Core consumes effective values.
+
+## Shelter Environmental Protection (0.7.5)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/Shelter/Runtime/` |
+| Editor validation | `../Modules/Shelter/Editor/Validation/` |
+| Default profile | `Profiles/Shelter/CCS_DefaultShelterProfile.asset` |
+| Module doc | [../Modules/Shelter/Documentation/CCS_Shelter_Module.md](../Modules/Shelter/Documentation/CCS_Shelter_Module.md) |
+
+**Editor menu:** **CCS → Survival → Shelter → Validate Shelter**
+
+**0.7.5:** Trigger-volume shelter protection applied before equipment resistances. Bootstrap includes `CCS_TestShelterVolume` and `CCS_ShelterTestHarness` for development verification.
 
 ## Inventory (0.4.0)
 

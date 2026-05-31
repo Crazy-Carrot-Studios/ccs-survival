@@ -7,7 +7,8 @@
         "CCS.Modules.TimeOfDay.Runtime",
         "CCS.Modules.Weather.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
-        "CCS.Modules.Equipment.Runtime"
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Shelter.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

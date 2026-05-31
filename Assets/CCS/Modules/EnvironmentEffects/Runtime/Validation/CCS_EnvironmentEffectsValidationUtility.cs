@@ -34,10 +34,16 @@ namespace CCS.Modules.EnvironmentEffects
 
         public static string FormatEnvironmentDisplay(CCS_EnvironmentSnapshot snapshot)
         {
+            string shelteredLabel = snapshot.IsSheltered ? "Yes" : "No";
+
             return
                 $"Env Temp: {snapshot.RawTemperature:0.#}\n" +
                 $"Wetness: {snapshot.RawWetness:0.##}\n" +
                 $"Exposure: {snapshot.RawExposure:0.##}\n" +
+                $"Sheltered: {shelteredLabel}\n" +
+                $"Shelter Wet: {snapshot.ShelterModifierSnapshot.WetnessProtection:0.##}\n" +
+                $"Shelter Exp: {snapshot.ShelterModifierSnapshot.ExposureProtection:0.##}\n" +
+                $"Shelter Temp: {snapshot.ShelterModifierSnapshot.TemperatureProtection:0.#}\n" +
                 $"Temp Res: {snapshot.EquipmentModifierSnapshot.TemperatureResistance:0.#}\n" +
                 $"Wet Res: {snapshot.EquipmentModifierSnapshot.WetnessResistance:0.##}\n" +
                 $"Exp Res: {snapshot.EquipmentModifierSnapshot.ExposureResistance:0.##}\n" +

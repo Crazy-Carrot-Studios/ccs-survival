@@ -1,5 +1,6 @@
 using CCS.Core;
 using CCS.Modules.Equipment;
+using CCS.Modules.Shelter;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
@@ -13,7 +14,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Reads Time Of Day and Weather. Applies equipment environmental modifiers at 0.7.4.
+// NOTES: Reads Time Of Day and Weather. Applies shelter and equipment modifiers at 0.7.5.
 // =============================================================================
 
 namespace CCS.Modules.EnvironmentEffects
@@ -30,6 +31,7 @@ namespace CCS.Modules.EnvironmentEffects
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
         private CCS_PlayerEquipmentService playerEquipmentService;
+        private CCS_ShelterService shelterService;
         private CCS_WeatherType lastWeatherType = CCS_WeatherType.Clear;
         private CCS_TimeOfDayPhase lastTimePhase = CCS_TimeOfDayPhase.Dawn;
         private bool isInitialized;
@@ -127,6 +129,21 @@ namespace CCS.Modules.EnvironmentEffects
             }
 
             playerEquipmentService.EquipmentChanged += HandleEquipmentChanged;
+        }
+
+        public void BindShelterService(CCS_ShelterService service)
+        {
+            UnbindShelterService();
+            shelterService = service;
+
+            if (shelterService == null || !shelterService.IsInitialized)
+            {
+                return;
+            }
+
+            shelterService.ShelterEntered += HandleShelterChanged;
+            shelterService.ShelterExited += HandleShelterChanged;
+            shelterService.ShelterChanged += HandleShelterChanged;
         }
 
         public void Tick(float deltaTime)
@@ -233,6 +250,11 @@ namespace CCS.Modules.EnvironmentEffects
             RaiseEnvironmentChanged("Equipment modifiers changed.", true, true, true);
         }
 
+        private void HandleShelterChanged(CCS_ShelterEventArgs eventArgs)
+        {
+            RaiseEnvironmentChanged("Shelter protection changed.", true, true, true);
+        }
+
         private void RecalculateEnvironment(string message, bool forceRaiseAll)
         {
             if (activeProfile == null)
@@ -304,6 +326,10 @@ namespace CCS.Modules.EnvironmentEffects
 
         private CCS_EnvironmentSnapshot BuildSnapshot()
         {
+            CCS_ShelterSnapshot shelterSnapshot = shelterService != null && shelterService.IsInitialized
+                ? shelterService.GetSnapshot()
+                : CCS_ShelterSnapshot.Empty;
+
             CCS_EquipmentEnvironmentalModifierSnapshot equipmentModifiers =
                 playerEquipmentService != null && playerEquipmentService.IsInitialized
                     ? playerEquipmentService.GetEnvironmentalModifiers()
@@ -313,10 +339,12 @@ namespace CCS.Modules.EnvironmentEffects
             float rawWetness = environmentState.Wetness;
             float rawExposure = environmentState.Exposure;
 
-            CCS_EnvironmentEffectiveValueUtility.ApplyEquipmentModifiers(
+            CCS_EnvironmentEffectiveValueUtility.ApplyProtectionChain(
                 rawTemperature,
                 rawWetness,
                 rawExposure,
+                shelterSnapshot.IsSheltered,
+                shelterSnapshot.ToModifierSnapshot(),
                 equipmentModifiers,
                 out float effectiveTemperature,
                 out float effectiveWetness,
@@ -329,6 +357,8 @@ namespace CCS.Modules.EnvironmentEffects
                 effectiveTemperature,
                 effectiveWetness,
                 effectiveExposure,
+                shelterSnapshot.IsSheltered,
+                shelterSnapshot.ToModifierSnapshot(),
                 equipmentModifiers,
                 lastWeatherType,
                 lastTimePhase);
@@ -395,6 +425,19 @@ namespace CCS.Modules.EnvironmentEffects
 
             playerEquipmentService.EquipmentChanged -= HandleEquipmentChanged;
             playerEquipmentService = null;
+        }
+
+        private void UnbindShelterService()
+        {
+            if (shelterService == null)
+            {
+                return;
+            }
+
+            shelterService.ShelterEntered -= HandleShelterChanged;
+            shelterService.ShelterExited -= HandleShelterChanged;
+            shelterService.ShelterChanged -= HandleShelterChanged;
+            shelterService = null;
         }
 
         #endregion

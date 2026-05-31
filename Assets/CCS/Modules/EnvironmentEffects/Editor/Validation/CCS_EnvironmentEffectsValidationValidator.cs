@@ -74,11 +74,12 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             ValidateBootstrapHudPresenter(report);
             ValidateSurvivalCoreIntegration(report);
             ValidateEquipmentModifierIntegration(report);
+            ValidateShelterIntegration(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Environment effects validator completed (0.7.4 equipment modifiers).");
+                "Environment effects validator completed (0.7.5 shelter integration).");
         }
 
         #endregion
@@ -169,7 +170,8 @@ namespace CCS.Modules.EnvironmentEffects.Editor
                 && registrationSource.Contains("RegisterSaveable(environmentEffectsService)")
                 && registrationSource.Contains("BindTimeOfDayService")
                 && registrationSource.Contains("BindWeatherService")
-                && registrationSource.Contains("BindEquipmentService"))
+                && registrationSource.Contains("BindEquipmentService")
+                && registrationSource.Contains("BindShelterService"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
@@ -198,20 +200,26 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             string saveableIdsSource = File.ReadAllText(SaveableIdsPath);
             if (saveableIdsSource.Contains("GlobalEnvironment")
                 && saveableIdsSource.Contains("GlobalWeather")
+                && saveableIdsSource.Contains("GlobalShelter")
                 && saveableIdsSource.Contains("GlobalTimeOfDay")
                 && saveableIdsSource.Contains("ModuleRestoreOrder"))
             {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Info,
-                    "Environment Restore Order",
-                    "Saveable restore order includes environment after weather.");
-                return;
+                int shelterIndex = saveableIdsSource.IndexOf("GlobalShelter", System.StringComparison.Ordinal);
+                int environmentIndex = saveableIdsSource.IndexOf("GlobalEnvironment", System.StringComparison.Ordinal);
+                if (shelterIndex >= 0 && environmentIndex > shelterIndex)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Restore Order",
+                        "Saveable restore order includes environment after shelter.");
+                    return;
+                }
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Environment Restore Order",
-                "Saveable restore order is missing environment after weather.");
+                "Saveable restore order is missing environment after shelter.");
         }
 
         private static void ValidateSurvivalCoreIntegration(CCS_SurvivalValidationReport report)
@@ -341,6 +349,75 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             }
 
             ValidateRequiredFile(report, "Equipment Environment Runtime Bridge", bridgePath);
+        }
+
+        private static void ValidateShelterIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string snapshotPath = RuntimeRoot + "/Data/CCS_EnvironmentSnapshot.cs";
+            const string servicePath = RuntimeRoot + "/Services/CCS_EnvironmentEffectsService.cs";
+            const string displayPath = RuntimeRoot + "/Validation/CCS_EnvironmentEffectsValidationUtility.cs";
+
+            if (File.Exists(snapshotPath))
+            {
+                string snapshotSource = File.ReadAllText(snapshotPath);
+                if (snapshotSource.Contains("IsSheltered")
+                    && snapshotSource.Contains("ShelterModifierSnapshot"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Snapshot Shelter Fields",
+                        "CCS_EnvironmentSnapshot exposes sheltered state and shelter modifier snapshot.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment Snapshot Shelter Fields",
+                        "CCS_EnvironmentSnapshot is missing shelter snapshot fields.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("BindShelterService")
+                    && serviceSource.Contains("CCS_ShelterService"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Shelter Binding",
+                        "CCS_EnvironmentEffectsService binds shelter service safely.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment Shelter Binding",
+                        "CCS_EnvironmentEffectsService is missing shelter integration.");
+                }
+            }
+
+            if (File.Exists(displayPath))
+            {
+                string displaySource = File.ReadAllText(displayPath);
+                if (displaySource.Contains("Sheltered:")
+                    && displaySource.Contains("Shelter Wet:")
+                    && displaySource.Contains("Shelter Exp:")
+                    && displaySource.Contains("Shelter Temp:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Environment Shelter HUD Display",
+                        "Environment display formatting includes shelter protection values.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Environment Shelter HUD Display",
+                        "Environment display formatting is missing shelter protection values.");
+                }
+            }
         }
 
         private static void ValidateRequiredFolder(

@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**.
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**. Shelter persistence at **0.7.5**.
 
 ---
 
@@ -74,11 +74,12 @@ Registered at **0.6.2**:
 | `ccs.survival.saveable.equipment.player` | `CCS_PlayerEquipmentService` |
 | `ccs.survival.saveable.timeofday.global` | `CCS_TimeOfDayService` |
 | `ccs.survival.saveable.weather.global` | `CCS_WeatherService` |
+| `ccs.survival.saveable.shelter.global` | `CCS_ShelterService` |
 | `ccs.survival.saveable.environment.global` | `CCS_EnvironmentEffectsService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
 
-Load order: inventory → equipment → time of day → weather → environment (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
+Load order: inventory → equipment → time of day → weather → shelter → environment (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
 
 ---
 
@@ -238,6 +239,8 @@ Equipment payload persists equipped slot entries (slot type + item ID + durabili
 2. **Equipment second** — equipped items restore after inventory baseline is applied.
 3. **Time of day third** — global clock restores before weather that may read time snapshots.
 4. **Weather fourth** — global weather state restores after time baseline is applied.
+5. **Shelter fifth** — sheltered state restores before environment recomputes effective values.
+6. **Environment sixth** — raw environment simulation restores after weather and shelter baselines are applied.
 
 Missing item or equipment definitions fail safely during restore (slot skipped, warning logged, no corruption of other slots).
 

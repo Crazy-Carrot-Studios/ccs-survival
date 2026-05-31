@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.7.4  
+**Version:** 0.7.5  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -91,6 +91,10 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.EnvironmentEffects.Editor.CCS_EnvironmentEffectsValidationMenu.ValidateEnvironmentEffects `
   -logFile Logs/CCS_EnvironmentEffectsValidation.log
+
+& $unity -batchmode -quit -projectPath $project `
+  -executeMethod CCS.Modules.Shelter.Editor.CCS_ShelterValidationMenu.ValidateShelter `
+  -logFile Logs/CCS_ShelterValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -128,7 +132,8 @@ Assets/CCS/Modules/<ModuleName>/
 | `SaveLoad/` | 0.6.0 – 0.6.2 — **Foundation + inventory/equipment persistence complete** |
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
-| `EnvironmentEffects/` | 0.7.2 / 0.7.4 — **Foundation + equipment modifiers complete** |
-| `SurvivalCore/` | 0.3.7 / 0.7.4 — **Foundation + effective environment integration complete** |
+| `Shelter/` | 0.7.5 — **Environmental protection foundation complete** |
+| `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
+| `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 
 See [Survival Module Roadmap](../Survival/Documentation/CCS_Survival_Module_Roadmap.md).

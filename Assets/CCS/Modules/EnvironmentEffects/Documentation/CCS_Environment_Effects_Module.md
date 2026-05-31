@@ -57,7 +57,7 @@ Weather does **not** depend on Environment Effects.
 
 - Saveable ID: `ccs.survival.saveable.environment.global`
 - Payload: `CCS_EnvironmentSaveData` (`saveDataVersion = 1`)
-- Restore order: inventory → equipment → time of day → weather → **environment**
+- Restore order: inventory → equipment → time of day → weather → **shelter** → **environment**
 
 Persisted fields: ambient temperature, wetness, exposure.
 
@@ -71,6 +71,10 @@ Bootstrap scene includes `EnvironmentHudArea` beneath time and weather panels (u
 Env Temp: 2
 Wetness: 0
 Exposure: 0
+Sheltered: No
+Shelter Wet: 0
+Shelter Exp: 0
+Shelter Temp: 0
 Temp Res: 0
 Wet Res: 0
 Exp Res: 0
@@ -79,9 +83,27 @@ Eff Wet: 0
 Eff Exp: 0
 ```
 
-Raw values come from Time Of Day and Weather. Effective values apply equipped item resistances.
+Raw values come from Time Of Day and Weather. Shelter protection applies before equipment resistances to produce effective values.
 
 Plain text only. No icons or final art.
+
+---
+
+## Shelter Environmental Protection (0.7.5)
+
+`CCS_EnvironmentEffectsService` binds `CCS_ShelterService` and applies shelter protection **before** equipment modifiers.
+
+| Stage | Rule |
+|-------|------|
+| **Raw** | Simulated ambient temperature, wetness, exposure from Time + Weather |
+| **Sheltered wetness** | `max(0, raw wetness − wetness protection × multiplier)` |
+| **Sheltered exposure** | `max(0, raw exposure − exposure protection × multiplier)` |
+| **Sheltered temperature** | Raw temperature + temperature protection × multiplier |
+| **Effective values** | Equipment resistances applied after shelter protection |
+
+`CCS_EnvironmentSnapshot` exposes `IsSheltered` and `ShelterModifierSnapshot`.
+
+Persisted environment save data remains **raw** simulation; shelter state restores through `CCS_ShelterSaveData`.
 
 ---
 

@@ -188,13 +188,14 @@ namespace CCS.Modules.SaveLoad.Editor
                 && registrySource.Contains("RestoreOrderedSaveables")
                 && saveableIdsSource.Contains("GlobalTimeOfDay")
                 && saveableIdsSource.Contains("GlobalWeather")
+                && saveableIdsSource.Contains("GlobalShelter")
                 && saveableIdsSource.Contains("GlobalEnvironment")
                 && saveableIdsSource.Contains("ModuleRestoreOrder"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Save Restore Order",
-                    "Registry restores inventory, equipment, time-of-day, weather, and environment using ModuleRestoreOrder.");
+                    "Registry restores inventory, equipment, time-of-day, weather, shelter, and environment using ModuleRestoreOrder.");
                 return;
             }
 
