@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5765251b45182a148a85e1ec76975b23, type: 3}
+  m_Name: CCS_TestFoundation
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPieceDefinition
+  pieceId: ccs.survival.building.test.foundation
+  displayName: Test Foundation
+  description: Test foundation piece for 0.8.0 building architecture.
+  buildingPieceType: 0
+  prefabReference: {fileID: 0}
+  craftingRequirements: []
+  contributesToShelter: 0
+  shelterWetnessContribution: 0
+  shelterExposureContribution: 0
+  shelterTemperatureContribution: 0

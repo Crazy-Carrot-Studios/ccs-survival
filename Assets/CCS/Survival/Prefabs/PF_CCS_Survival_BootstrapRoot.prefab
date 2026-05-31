@@ -86,4 +86,5 @@ MonoBehaviour:
   weatherProfile: {fileID: 11400000, guid: 4a40a1990b5421b4e84a66ff876fc986, type: 2}
   shelterProfile: {fileID: 11400000, guid: 76327cf869673d64e971ede1693a3796, type: 2}
   environmentEffectsProfile: {fileID: 11400000, guid: f1d4e437c7d6ad34cada10c98cf8f74e, type: 2}
+  buildingProfile: {fileID: 11400000, guid: 804a5d53b77786241ab09d0513527db7, type: 2}
   enableDebugLogs: 0

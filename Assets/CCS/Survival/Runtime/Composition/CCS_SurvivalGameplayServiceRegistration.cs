@@ -9,6 +9,7 @@ using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.Shelter;
+using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 
 // =============================================================================
@@ -42,6 +43,7 @@ namespace CCS.Survival.Composition
             CCS_WeatherProfile weatherProfile,
             CCS_ShelterProfile shelterProfile,
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
+            CCS_BuildingProfile buildingProfile,
             bool enableDebugLogs = false)
         {
             if (runtimeHost == null)
@@ -86,6 +88,9 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, environmentEffectsService, enableDebugLogs);
             RegisterEnvironmentEffectsUpdatable(runtimeHost, environmentEffectsService);
 
+            CCS_BuildingService buildingService = CreateBuildingService(buildingProfile);
+            RegisterService(runtimeHost, buildingService, enableDebugLogs);
+
             BindSurvivalCoreEnvironmentEffects(survivalCoreService, environmentEffectsService);
             RegisterSurvivalCoreUpdatable(runtimeHost, survivalCoreService);
 
@@ -96,7 +101,8 @@ namespace CCS.Survival.Composition
                 timeOfDayService,
                 weatherService,
                 shelterService,
-                environmentEffectsService);
+                environmentEffectsService,
+                buildingService);
         }
 
         #endregion
@@ -291,6 +297,20 @@ namespace CCS.Survival.Composition
             return service;
         }
 
+        private static CCS_BuildingService CreateBuildingService(CCS_BuildingProfile profile)
+        {
+            CCS_BuildingService service = new CCS_BuildingService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
         private static CCS_EnvironmentEffectsService CreateEnvironmentEffectsService(
             CCS_EnvironmentEffectsProfile profile,
             CCS_TimeOfDayService timeOfDayService,
@@ -376,7 +396,8 @@ namespace CCS.Survival.Composition
             CCS_TimeOfDayService timeOfDayService,
             CCS_WeatherService weatherService,
             CCS_ShelterService shelterService,
-            CCS_EnvironmentEffectsService environmentEffectsService)
+            CCS_EnvironmentEffectsService environmentEffectsService,
+            CCS_BuildingService buildingService)
         {
             if (saveLoadService == null || !saveLoadService.IsInitialized)
             {
@@ -423,6 +444,11 @@ namespace CCS.Survival.Composition
             if (environmentEffectsService != null && environmentEffectsService.IsInitialized)
             {
                 saveLoadService.RegisterSaveable(environmentEffectsService);
+            }
+
+            if (buildingService != null && buildingService.IsInitialized)
+            {
+                saveLoadService.RegisterSaveable(buildingService);
             }
         }
 

@@ -14,7 +14,8 @@
         "CCS.Modules.TimeOfDay.Runtime",
         "CCS.Modules.Weather.Runtime",
         "CCS.Modules.EnvironmentEffects.Runtime",
-        "CCS.Modules.Shelter.Runtime"
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Building.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

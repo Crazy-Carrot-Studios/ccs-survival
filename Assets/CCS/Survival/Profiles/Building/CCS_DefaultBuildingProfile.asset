@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d8900aded266234fab864acc734bd82, type: 3}
+  m_Name: CCS_DefaultBuildingProfile
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingProfile
+  profileDisplayName: Default Building
+  profileId: ccs.survival.profile.building.default
+  profileDescription: Default building rules for 0.8.0 architecture foundation.
+  profileVersion: 0.8.0
+  enableDebugLogs: 0
+  allowPlacement: 0
+  allowDemolition: 0
+  allowUpgrades: 0
+  startupDefinitions:
+  - {fileID: 11400000, guid: ba83b6dd5af7f5d4a8cf536df35e4537, type: 2}
+  - {fileID: 11400000, guid: 4a895eb55fadabe4e87d126d6107e0e1, type: 2}
+  - {fileID: 11400000, guid: 235a88bd51a62d24b98b03cc3719aeae, type: 2}

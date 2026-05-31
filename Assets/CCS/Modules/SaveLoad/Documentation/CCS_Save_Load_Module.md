@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**. Shelter persistence at **0.7.5**.
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**. Shelter persistence at **0.7.5**. Building catalog persistence at **0.8.0**.
 
 ---
 
@@ -76,10 +76,11 @@ Registered at **0.6.2**:
 | `ccs.survival.saveable.weather.global` | `CCS_WeatherService` |
 | `ccs.survival.saveable.shelter.global` | `CCS_ShelterService` |
 | `ccs.survival.saveable.environment.global` | `CCS_EnvironmentEffectsService` |
+| `ccs.survival.saveable.building.global` | `CCS_BuildingService` |
 
 Each saveable owns its JSON payload format. The service stores payloads keyed by `SaveableId`.
 
-Load order: inventory → equipment → time of day → weather → shelter → environment (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
+Load order: inventory → equipment → time of day → weather → shelter → environment → building (see `CCS_SaveLoadSaveableIds.ModuleRestoreOrder`).
 
 ---
 
@@ -241,6 +242,7 @@ Equipment payload persists equipped slot entries (slot type + item ID + durabili
 4. **Weather fourth** — global weather state restores after time baseline is applied.
 5. **Shelter fifth** — sheltered state restores before environment recomputes effective values.
 6. **Environment sixth** — raw environment simulation restores after weather and shelter baselines are applied.
+7. **Building seventh** — registered definition catalog restores after environment (no placed structures yet).
 
 Missing item or equipment definitions fail safely during restore (slot skipped, warning logged, no corruption of other slots).
 

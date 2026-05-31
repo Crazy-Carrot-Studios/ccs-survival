@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.7.5  
+**Version:** 0.8.0  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -95,6 +95,11 @@ $project = "<PROJECT_PATH>"
 & $unity -batchmode -quit -projectPath $project `
   -executeMethod CCS.Modules.Shelter.Editor.CCS_ShelterValidationMenu.ValidateShelter `
   -logFile Logs/CCS_ShelterValidation.log
+
+Unity.exe -batchmode -nographics -quit `
+  -projectPath . `
+  -executeMethod CCS.Modules.Building.Editor.CCS_BuildingValidationMenu.ValidateBuilding `
+  -logFile Logs/CCS_BuildingValidation.log
 ```
 
 Exit code **0** required for each run. Do not tag a milestone if validation fails.
@@ -133,6 +138,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
 | `Weather/` | 0.7.1 — **Foundation complete** |
 | `Shelter/` | 0.7.5 — **Environmental protection foundation complete** |
+| `Building/` | 0.8.0 — **Structure definition foundation complete** |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

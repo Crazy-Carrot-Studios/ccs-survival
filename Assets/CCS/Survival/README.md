@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.7.5 — Shelter & Environmental Protection Foundation  
+**Milestone:** 0.8.0 — Building Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -143,6 +143,20 @@
 **Editor menu:** **CCS → Survival → Shelter → Validate Shelter**
 
 **0.7.5:** Trigger-volume shelter protection applied before equipment resistances. Bootstrap includes `CCS_TestShelterVolume` and `CCS_ShelterTestHarness` for development verification.
+
+## Building Foundation (0.8.0)
+
+| Area | Path |
+|------|------|
+| Runtime | `../Modules/Building/Runtime/` |
+| Editor validation | `../Modules/Building/Editor/Validation/` |
+| Default profile | `Profiles/Building/CCS_DefaultBuildingProfile.asset` |
+| Test definitions | `Content/Building/Definitions/CCS_TestFoundation.asset`, `CCS_TestWall.asset`, `CCS_TestRoof.asset` |
+| Module doc | [../Modules/Building/Documentation/CCS_Building_Module.md](../Modules/Building/Documentation/CCS_Building_Module.md) |
+
+**Editor menu:** **CCS → Survival → Building → Validate Building**
+
+**0.8.0:** Structure definition catalog and service persistence only. Placement, snapping, holograms, build mode, durability, repair, and demolition deferred.
 
 ## Inventory (0.4.0)
 

@@ -1,3 +1,4 @@
+using CCS.Modules.Building;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +23,7 @@ namespace CCS.Modules.EnvironmentEffects
         [SerializeField] private Text statusText;
 
         private CCS_EnvironmentEffectsService environmentService;
+        private CCS_BuildingService buildingService;
 
         #endregion
 
@@ -29,7 +31,7 @@ namespace CCS.Modules.EnvironmentEffects
 
         private void OnEnable()
         {
-            TryBindService();
+            TryBindServices();
             RefreshDisplay();
         }
 
@@ -42,6 +44,7 @@ namespace CCS.Modules.EnvironmentEffects
         {
             UnbindServiceEvents();
             environmentService = null;
+            buildingService = null;
         }
 
         #endregion
@@ -61,28 +64,37 @@ namespace CCS.Modules.EnvironmentEffects
                 return;
             }
 
-            if (!TryBindService())
+            if (!TryBindServices())
             {
                 statusText.text = "Environment\nUnavailable";
                 return;
             }
 
             CCS_EnvironmentSnapshot snapshot = environmentService.GetSnapshot();
-            statusText.text = CCS_EnvironmentEffectsValidationUtility.FormatEnvironmentDisplay(snapshot);
+            string displayText = CCS_EnvironmentEffectsValidationUtility.FormatEnvironmentDisplay(snapshot);
+            displayText = AppendBuildingDefinitionCount(displayText);
+            statusText.text = displayText;
         }
 
         #endregion
 
         #region Private Methods
 
-        private bool TryBindService()
+        private bool TryBindServices()
+        {
+            bool environmentReady = TryBindEnvironmentService();
+            TryBindBuildingService();
+            return environmentReady;
+        }
+
+        private bool TryBindEnvironmentService()
         {
             if (environmentService != null && environmentService.IsInitialized)
             {
                 return true;
             }
 
-            UnbindServiceEvents();
+            UnbindEnvironmentServiceEvents();
 
             if (!CCS_EnvironmentEffectsRuntimeBridge.TryGetEnvironmentEffectsService(out environmentService)
                 || environmentService == null
@@ -99,7 +111,34 @@ namespace CCS.Modules.EnvironmentEffects
             return true;
         }
 
+        private void TryBindBuildingService()
+        {
+            if (buildingService != null && buildingService.IsInitialized)
+            {
+                return;
+            }
+
+            UnbindBuildingServiceEvents();
+
+            if (!CCS_BuildingRuntimeBridge.TryGetBuildingService(out buildingService)
+                || buildingService == null
+                || !buildingService.IsInitialized)
+            {
+                buildingService = null;
+                return;
+            }
+
+            buildingService.BuildingDefinitionRegistered += HandleBuildingChanged;
+            buildingService.BuildingStateChanged += HandleBuildingChanged;
+        }
+
         private void UnbindServiceEvents()
+        {
+            UnbindEnvironmentServiceEvents();
+            UnbindBuildingServiceEvents();
+        }
+
+        private void UnbindEnvironmentServiceEvents()
         {
             if (environmentService == null)
             {
@@ -112,7 +151,35 @@ namespace CCS.Modules.EnvironmentEffects
             environmentService.ExposureChanged -= HandleEnvironmentChanged;
         }
 
+        private void UnbindBuildingServiceEvents()
+        {
+            if (buildingService == null)
+            {
+                return;
+            }
+
+            buildingService.BuildingDefinitionRegistered -= HandleBuildingChanged;
+            buildingService.BuildingStateChanged -= HandleBuildingChanged;
+        }
+
+        private string AppendBuildingDefinitionCount(string displayText)
+        {
+            int definitionCount = 0;
+            if (buildingService != null && buildingService.IsInitialized)
+            {
+                definitionCount = buildingService.RegisteredDefinitionCount;
+            }
+
+            return displayText + "\n" +
+                   CCS_BuildingValidationUtility.FormatBuildingDefinitionCountLine(definitionCount);
+        }
+
         private void HandleEnvironmentChanged(CCS_EnvironmentEffectsEventArgs eventArgs)
+        {
+            RefreshDisplay();
+        }
+
+        private void HandleBuildingChanged(CCS_BuildingEventArgs eventArgs)
         {
             RefreshDisplay();
         }
