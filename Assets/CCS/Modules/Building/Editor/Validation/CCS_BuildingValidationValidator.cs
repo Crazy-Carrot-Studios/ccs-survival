@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Persistence restore and snap occupancy checks for 0.8.4.
+// NOTES: Shelter integration and persistence restore checks for 0.8.5.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -100,6 +100,8 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingPersistenceTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPersistenceTestHarness.cs");
             ValidateRequiredScript(report, "CCS_BuildingDefinitionLookup", RuntimeRoot + "/Services/CCS_BuildingDefinitionLookup.cs");
             ValidateRequiredScript(report, "CCS_BuildingInstanceVisualFactory", RuntimeRoot + "/Placement/CCS_BuildingInstanceVisualFactory.cs");
+            ValidateRequiredScript(report, "CCS_BuildingShelterContribution", RuntimeRoot + "/Data/CCS_BuildingShelterContribution.cs");
+            ValidateRequiredScript(report, "CCS_BuildingShelterRuntimeBridge", RuntimeRoot + "/Services/CCS_BuildingShelterRuntimeBridge.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementFailedEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementFailedEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingSnapPointType", RuntimeRoot + "/Snap/CCS_BuildingSnapPointType.cs");
@@ -115,6 +117,7 @@ namespace CCS.Modules.Building.Editor
             ValidateBuildCostIntegration(report);
             ValidateSnapIntegration(report);
             ValidatePersistenceRestore(report);
+            ValidateShelterIntegration(report);
             ValidateSaveIntegration(report);
             ValidatePlacementIntegration(report);
             ValidateInventoryIntegration(report);
@@ -127,7 +130,7 @@ namespace CCS.Modules.Building.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.4 persistence restore).");
+                "Building validator completed (0.8.5 shelter integration).");
         }
 
         #endregion
@@ -666,6 +669,122 @@ namespace CCS.Modules.Building.Editor
             }
         }
 
+        private static void ValidateShelterIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string definitionPath = RuntimeRoot + "/Definitions/CCS_BuildingPieceDefinition.cs";
+            const string servicePath = RuntimeRoot + "/Services/CCS_BuildingService.cs";
+            const string harnessPath =
+                "Assets/CCS/Modules/Shelter/Runtime/Testing/CCS_BuildingShelterIntegrationTestHarness.cs";
+
+            if (File.Exists(definitionPath))
+            {
+                string definitionSource = File.ReadAllText(definitionPath);
+                if (definitionSource.Contains("contributesToShelter")
+                    && definitionSource.Contains("wetnessProtectionContribution")
+                    && definitionSource.Contains("shelterCoverageRadius"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Shelter Definition Fields",
+                        "Building piece definitions include shelter contribution fields.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Shelter Definition Fields",
+                        "CCS_BuildingPieceDefinition is missing shelter contribution fields.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("GetShelterContributions")
+                    && serviceSource.Contains("RecalculateShelterContributions")
+                    && serviceSource.Contains("BuildingShelterContributionsChanged"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Shelter Contribution API",
+                        "CCS_BuildingService exposes shelter contribution recalculation and events.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Shelter Contribution API",
+                        "CCS_BuildingService is missing shelter contribution API.");
+                }
+            }
+
+            CCS_BuildingPieceDefinition foundation =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestFoundationPath);
+            CCS_BuildingPieceDefinition wall =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestWallPath);
+            CCS_BuildingPieceDefinition roof =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestRoofPath);
+
+            ValidateDefinitionShelterValues(report, "Foundation Shelter Values", foundation, false, 0f, 0f);
+            ValidateDefinitionShelterValues(report, "Wall Shelter Values", wall, true, 0f, 0.2f);
+            ValidateDefinitionShelterValues(report, "Roof Shelter Values", roof, true, 1f, 0.4f);
+
+            if (File.Exists(harnessPath))
+            {
+                string harnessSource = File.ReadAllText(harnessPath);
+                if (harnessSource.Contains("RecalculateShelterContributions")
+                    && harnessSource.Contains("SetSubjectPosition")
+                    && harnessSource.Contains("PASS"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Shelter Integration Harness",
+                        "Shelter integration harness verifies building contribution protection.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Shelter Integration Harness",
+                        "CCS_BuildingShelterIntegrationTestHarness is missing verification flow.");
+                }
+            }
+        }
+
+        private static void ValidateDefinitionShelterValues(
+            CCS_SurvivalValidationReport report,
+            string context,
+            CCS_BuildingPieceDefinition definition,
+            bool expectedContributes,
+            float expectedWetness,
+            float expectedExposure)
+        {
+            if (definition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Definition asset could not be loaded.");
+                return;
+            }
+
+            if (definition.ContributesToShelter != expectedContributes
+                || Mathf.Abs(definition.WetnessProtectionContribution - expectedWetness) > 0.001f
+                || Mathf.Abs(definition.ExposureProtectionContribution - expectedExposure) > 0.001f)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Definition '{definition.PieceId}' shelter values are incorrect.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                context,
+                $"Definition '{definition.PieceId}' shelter values validated.");
+        }
+
         private static void ValidateSaveIntegration(CCS_SurvivalValidationReport report)
         {
             const string servicePath = RuntimeRoot + "/Services/CCS_BuildingService.cs";
@@ -834,7 +953,8 @@ namespace CCS.Modules.Building.Editor
             string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
             if (registrationSource.Contains("CreateBuildingService")
                 && registrationSource.Contains("CreateBuildingPlacementService")
-                && registrationSource.Contains("RegisterSaveable(buildingService)"))
+                && registrationSource.Contains("RegisterSaveable(buildingService)")
+                && registrationSource.Contains("BindBuildingShelterIntegration"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
@@ -923,19 +1043,21 @@ namespace CCS.Modules.Building.Editor
                 if (utilitySource.Contains("FormatSnapTargetLabel")
                     && utilitySource.Contains("Placement Valid:")
                     && utilitySource.Contains("Saved Building Records:")
-                    && utilitySource.Contains("Restored Buildings:"))
+                    && utilitySource.Contains("Restored Buildings:")
+                    && utilitySource.Contains("Building Shelter Contributions:")
+                    && utilitySource.Contains("Building Shelter Active:"))
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Info,
                         "Building HUD Display",
-                        "Environment HUD presenter displays building snap target, validity, and restore counts.");
+                        "Environment HUD presenter displays building placement, restore, and shelter lines.");
                     return;
                 }
 
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Building HUD Display",
-                    "Building validation utility is missing persistence restore HUD formatting.");
+                    "Building validation utility is missing shelter integration HUD formatting.");
                 return;
             }
 
@@ -960,12 +1082,13 @@ namespace CCS.Modules.Building.Editor
             if (sceneText.Contains("CCS_BuildingTestArea")
                 && sceneText.Contains("CCS_BuildingPlacementTestHarness")
                 && sceneText.Contains("CCS_BuildingPersistenceTestHarness")
+                && sceneText.Contains("CCS_BuildingShelterIntegrationTestHarness")
                 && sceneText.Contains("CCS_BuildingPlacementPreview"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Bootstrap Building Test Area",
-                    "Bootstrap scene includes CCS_BuildingTestArea with preview, placement, and persistence harnesses.");
+                    "Bootstrap scene includes building test area with placement, persistence, and shelter harnesses.");
                 return;
             }
 

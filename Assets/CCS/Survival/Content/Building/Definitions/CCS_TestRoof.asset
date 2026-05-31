@@ -31,7 +31,8 @@ MonoBehaviour:
   requiresSnapPoint: 1
   prefabReference: {fileID: 0}
   craftingRequirements: []
-  contributesToShelter: 0
-  shelterWetnessContribution: 0
-  shelterExposureContribution: 0
-  shelterTemperatureContribution: 0
+  contributesToShelter: 1
+  wetnessProtectionContribution: 1
+  exposureProtectionContribution: 0.4
+  temperatureProtectionContribution: 0.5
+  shelterCoverageRadius: 3

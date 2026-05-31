@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.Building;
 using CCS.Modules.SaveLoad;
 using CCS.Survival;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: No building placement, weather mutation, or survival stat mutation in 0.7.5.
+// NOTES: Volume shelter plus building contribution coverage in 0.8.5.
 // =============================================================================
 
 namespace CCS.Modules.Shelter
@@ -18,13 +19,22 @@ namespace CCS.Modules.Shelter
     public sealed class CCS_ShelterService : CCS_ISurvivalService, CCS_ISaveable
     {
         private const string LogPrefix = "[CCS_ShelterService]";
+        private const float MaxWetnessProtection = 1f;
+        private const float MaxExposureProtection = 1f;
+        private const float MaxTemperatureProtection = 2f;
 
         #region Variables
 
-        private readonly CCS_ShelterState shelterState = new CCS_ShelterState();
+        private readonly CCS_ShelterState volumeShelterState = new CCS_ShelterState();
+        private readonly CCS_ShelterState buildingShelterState = new CCS_ShelterState();
         private readonly List<CCS_ShelterVolume> registeredVolumes = new List<CCS_ShelterVolume>();
+        private readonly List<CCS_BuildingShelterContribution> buildingContributions =
+            new List<CCS_BuildingShelterContribution>();
 
         private CCS_ShelterProfile activeProfile;
+        private CCS_BuildingService buildingService;
+        private Vector3 subjectPosition;
+        private bool hasSubjectPosition;
         private bool isInitialized;
 
         #endregion
@@ -45,7 +55,11 @@ namespace CCS.Modules.Shelter
 
         public string SaveableId => CCS_SaveLoadSaveableIds.GlobalShelter;
 
-        public bool IsSheltered => shelterState.IsSheltered;
+        public bool IsSheltered => GetSnapshot().IsSheltered;
+
+        public bool IsBuildingShelterActive => buildingShelterState.IsSheltered;
+
+        public int BuildingShelterContributionCount => buildingContributions.Count;
 
         #endregion
 
@@ -77,9 +91,124 @@ namespace CCS.Modules.Shelter
             }
 
             activeProfile = profile;
-            shelterState.Clear();
+            volumeShelterState.Clear();
+            buildingShelterState.Clear();
+            buildingContributions.Clear();
             isInitialized = true;
             RaiseShelterChanged("Shelter service initialized.");
+        }
+
+        public void BindBuildingService(CCS_BuildingService service)
+        {
+            UnbindBuildingService();
+            buildingService = service;
+
+            if (buildingService == null || !buildingService.IsInitialized)
+            {
+                return;
+            }
+
+            buildingService.BuildingShelterContributionsChanged += HandleBuildingContributionsChanged;
+            SyncBuildingContributions();
+        }
+
+        public void SetSubjectPosition(Vector3 position)
+        {
+            subjectPosition = position;
+            hasSubjectPosition = true;
+            RecalculateBuildingShelter();
+        }
+
+        public void SetBuildingContributions(IReadOnlyList<CCS_BuildingShelterContribution> contributions)
+        {
+            buildingContributions.Clear();
+
+            if (contributions != null)
+            {
+                for (int index = 0; index < contributions.Count; index++)
+                {
+                    CCS_BuildingShelterContribution contribution = contributions[index];
+                    if (contribution != null)
+                    {
+                        buildingContributions.Add(contribution);
+                    }
+                }
+            }
+
+            RecalculateBuildingShelter();
+        }
+
+        public void RecalculateBuildingShelter()
+        {
+            if (!EnsureInitialized())
+            {
+                return;
+            }
+
+            bool wasBuildingSheltered = buildingShelterState.IsSheltered;
+            buildingShelterState.Clear();
+
+            if (hasSubjectPosition && buildingContributions.Count > 0)
+            {
+                float bestWetnessProtection = 0f;
+                float bestExposureProtection = 0f;
+                float bestTemperatureProtection = 0f;
+                string bestShelterId = string.Empty;
+
+                for (int index = 0; index < buildingContributions.Count; index++)
+                {
+                    CCS_BuildingShelterContribution contribution = buildingContributions[index];
+                    float coverageRadius = contribution.CoverageRadius;
+                    if (coverageRadius <= 0f)
+                    {
+                        continue;
+                    }
+
+                    float distance = Vector3.Distance(subjectPosition, contribution.WorldPosition);
+                    if (distance > coverageRadius)
+                    {
+                        continue;
+                    }
+
+                    if (contribution.WetnessProtection > bestWetnessProtection)
+                    {
+                        bestWetnessProtection = contribution.WetnessProtection;
+                    }
+
+                    if (contribution.ExposureProtection > bestExposureProtection)
+                    {
+                        bestExposureProtection = contribution.ExposureProtection;
+                    }
+
+                    if (contribution.TemperatureProtection > bestTemperatureProtection)
+                    {
+                        bestTemperatureProtection = contribution.TemperatureProtection;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(bestShelterId))
+                    {
+                        bestShelterId = contribution.BuildingInstanceId;
+                    }
+                }
+
+                if (bestWetnessProtection > 0f
+                    || bestExposureProtection > 0f
+                    || bestTemperatureProtection > 0f)
+                {
+                    buildingShelterState.ApplyShelter(
+                        bestShelterId,
+                        ClampWetnessProtection(bestWetnessProtection),
+                        ClampExposureProtection(bestExposureProtection),
+                        ClampTemperatureProtection(bestTemperatureProtection),
+                        1f);
+                }
+            }
+
+            if (buildingShelterState.IsSheltered != wasBuildingSheltered
+                || buildingContributions.Count > 0)
+            {
+                RaiseShelterChanged("Building shelter protection recalculated.");
+            }
         }
 
         public void RegisterVolume(CCS_ShelterVolume shelterVolume)
@@ -101,8 +230,8 @@ namespace CCS.Modules.Shelter
 
             registeredVolumes.Remove(shelterVolume);
 
-            if (shelterState.IsSheltered
-                && shelterState.ActiveShelterId == shelterVolume.ShelterId)
+            if (volumeShelterState.IsSheltered
+                && volumeShelterState.ActiveShelterId == shelterVolume.ShelterId)
             {
                 ExitShelter("Active shelter volume unregistered.");
             }
@@ -115,7 +244,7 @@ namespace CCS.Modules.Shelter
                 return false;
             }
 
-            return EnterShelter(
+            return EnterVolumeShelter(
                 shelterVolume.ShelterId,
                 shelterVolume.WetnessProtection,
                 shelterVolume.ExposureProtection,
@@ -131,7 +260,7 @@ namespace CCS.Modules.Shelter
                 return false;
             }
 
-            return EnterShelter(
+            return EnterVolumeShelter(
                 shelterId,
                 activeProfile.DefaultWetnessProtection,
                 activeProfile.DefaultExposureProtection,
@@ -147,6 +276,135 @@ namespace CCS.Modules.Shelter
             float temperatureProtection,
             float protectionMultiplier,
             string message = null)
+        {
+            return EnterVolumeShelter(
+                shelterId,
+                wetnessProtection,
+                exposureProtection,
+                temperatureProtection,
+                protectionMultiplier,
+                message);
+        }
+
+        public bool ExitShelter(string message = null)
+        {
+            if (!EnsureInitialized() || !volumeShelterState.IsSheltered)
+            {
+                return false;
+            }
+
+            volumeShelterState.Clear();
+            CCS_ShelterEventArgs eventArgs = CreateEventArgs(message ?? "Exited shelter.");
+            ShelterExited?.Invoke(eventArgs);
+            ShelterChanged?.Invoke(eventArgs);
+            return true;
+        }
+
+        public CCS_ShelterSnapshot GetSnapshot()
+        {
+            if (!EnsureInitialized())
+            {
+                return CCS_ShelterSnapshot.Empty;
+            }
+
+            bool isSheltered = volumeShelterState.IsSheltered || buildingShelterState.IsSheltered;
+            string activeShelterId = volumeShelterState.IsSheltered
+                ? volumeShelterState.ActiveShelterId
+                : buildingShelterState.ActiveShelterId;
+
+            return new CCS_ShelterSnapshot(
+                isSheltered,
+                activeShelterId,
+                Mathf.Max(volumeShelterState.WetnessProtection, buildingShelterState.WetnessProtection),
+                Mathf.Max(volumeShelterState.ExposureProtection, buildingShelterState.ExposureProtection),
+                Mathf.Max(volumeShelterState.TemperatureProtection, buildingShelterState.TemperatureProtection),
+                volumeShelterState.IsSheltered
+                    ? volumeShelterState.ProtectionMultiplier
+                    : buildingShelterState.ProtectionMultiplier,
+                buildingShelterState.IsSheltered,
+                buildingContributions.Count);
+        }
+
+        public string CaptureState()
+        {
+            if (!EnsureInitialized())
+            {
+                return JsonUtility.ToJson(new CCS_ShelterSaveData());
+            }
+
+            CCS_ShelterSaveData saveData = new CCS_ShelterSaveData
+            {
+                saveDataVersion = CCS_ShelterSaveData.CurrentSaveDataVersion,
+                activeShelterId = volumeShelterState.ActiveShelterId,
+                isSheltered = volumeShelterState.IsSheltered,
+                wetnessProtection = volumeShelterState.WetnessProtection,
+                exposureProtection = volumeShelterState.ExposureProtection,
+                temperatureProtection = volumeShelterState.TemperatureProtection,
+                protectionMultiplier = volumeShelterState.ProtectionMultiplier
+            };
+
+            return JsonUtility.ToJson(saveData);
+        }
+
+        public void RestoreState(string stateJson)
+        {
+            if (!EnsureInitialized())
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because service is not initialized.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(stateJson))
+            {
+                volumeShelterState.Clear();
+                RecalculateBuildingShelter();
+                RaiseShelterChanged("Shelter restore cleared state.");
+                return;
+            }
+
+            CCS_ShelterSaveData saveData = JsonUtility.FromJson<CCS_ShelterSaveData>(stateJson);
+            if (saveData == null)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because payload could not be parsed.");
+                return;
+            }
+
+            if (saveData.saveDataVersion <= 0)
+            {
+                Debug.LogWarning($"{LogPrefix} RestoreState skipped because saveDataVersion is missing.");
+                return;
+            }
+
+            volumeShelterState.Clear();
+
+            if (saveData.isSheltered)
+            {
+                EnterVolumeShelter(
+                    saveData.activeShelterId,
+                    saveData.wetnessProtection,
+                    saveData.exposureProtection,
+                    saveData.temperatureProtection,
+                    saveData.protectionMultiplier,
+                    "Shelter restored from save.",
+                    raiseVolumeEnteredEvent: false);
+            }
+
+            SyncBuildingContributions();
+            RecalculateBuildingShelter();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private bool EnterVolumeShelter(
+            string shelterId,
+            float wetnessProtection,
+            float exposureProtection,
+            float temperatureProtection,
+            float protectionMultiplier,
+            string message,
+            bool raiseVolumeEnteredEvent = true)
         {
             if (!EnsureInitialized() || string.IsNullOrWhiteSpace(shelterId))
             {
@@ -164,8 +422,8 @@ namespace CCS.Modules.Shelter
                 return false;
             }
 
-            bool wasSheltered = shelterState.IsSheltered;
-            shelterState.ApplyShelter(
+            bool wasVolumeSheltered = volumeShelterState.IsSheltered;
+            volumeShelterState.ApplyShelter(
                 shelterId,
                 wetnessProtection,
                 exposureProtection,
@@ -174,7 +432,7 @@ namespace CCS.Modules.Shelter
 
             CCS_ShelterEventArgs eventArgs = CreateEventArgs(message ?? $"Entered shelter '{shelterId}'.");
 
-            if (!wasSheltered)
+            if (raiseVolumeEnteredEvent && !wasVolumeSheltered)
             {
                 ShelterEntered?.Invoke(eventArgs);
             }
@@ -183,96 +441,32 @@ namespace CCS.Modules.Shelter
             return true;
         }
 
-        public bool ExitShelter(string message = null)
+        private void SyncBuildingContributions()
         {
-            if (!EnsureInitialized() || !shelterState.IsSheltered)
+            if (buildingService != null && buildingService.IsInitialized)
             {
-                return false;
+                SetBuildingContributions(buildingService.GetShelterContributions());
+                return;
             }
 
-            shelterState.Clear();
-            CCS_ShelterEventArgs eventArgs = CreateEventArgs(message ?? "Exited shelter.");
-            ShelterExited?.Invoke(eventArgs);
-            ShelterChanged?.Invoke(eventArgs);
-            return true;
+            SetBuildingContributions(System.Array.Empty<CCS_BuildingShelterContribution>());
         }
 
-        public CCS_ShelterSnapshot GetSnapshot()
+        private void HandleBuildingContributionsChanged(CCS_BuildingShelterContributionsChangedEventArgs eventArgs)
         {
-            if (!EnsureInitialized())
-            {
-                return CCS_ShelterSnapshot.Empty;
-            }
-
-            return shelterState.CreateSnapshot();
+            SyncBuildingContributions();
         }
 
-        public string CaptureState()
+        private void UnbindBuildingService()
         {
-            if (!EnsureInitialized())
+            if (buildingService == null)
             {
-                return JsonUtility.ToJson(new CCS_ShelterSaveData());
+                return;
             }
 
-            CCS_ShelterSaveData saveData = new CCS_ShelterSaveData
-            {
-                saveDataVersion = CCS_ShelterSaveData.CurrentSaveDataVersion,
-                activeShelterId = shelterState.ActiveShelterId,
-                isSheltered = shelterState.IsSheltered,
-                wetnessProtection = shelterState.WetnessProtection,
-                exposureProtection = shelterState.ExposureProtection,
-                temperatureProtection = shelterState.TemperatureProtection,
-                protectionMultiplier = shelterState.ProtectionMultiplier
-            };
-
-            return JsonUtility.ToJson(saveData);
+            buildingService.BuildingShelterContributionsChanged -= HandleBuildingContributionsChanged;
+            buildingService = null;
         }
-
-        public void RestoreState(string stateJson)
-        {
-            if (!EnsureInitialized())
-            {
-                Debug.LogWarning($"{LogPrefix} RestoreState skipped because service is not initialized.");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(stateJson))
-            {
-                ExitShelter("Shelter restore cleared state.");
-                return;
-            }
-
-            CCS_ShelterSaveData saveData = JsonUtility.FromJson<CCS_ShelterSaveData>(stateJson);
-            if (saveData == null)
-            {
-                Debug.LogWarning($"{LogPrefix} RestoreState skipped because payload could not be parsed.");
-                return;
-            }
-
-            if (saveData.saveDataVersion <= 0)
-            {
-                Debug.LogWarning($"{LogPrefix} RestoreState skipped because saveDataVersion is missing.");
-                return;
-            }
-
-            if (!saveData.isSheltered)
-            {
-                ExitShelter("Shelter restore applied unsheltered state.");
-                return;
-            }
-
-            EnterShelter(
-                saveData.activeShelterId,
-                saveData.wetnessProtection,
-                saveData.exposureProtection,
-                saveData.temperatureProtection,
-                saveData.protectionMultiplier,
-                "Shelter restored from save.");
-        }
-
-        #endregion
-
-        #region Private Methods
 
         private bool EnsureInitialized()
         {
@@ -283,6 +477,21 @@ namespace CCS.Modules.Shelter
 
             Debug.LogWarning($"{LogPrefix} Service is not initialized.");
             return false;
+        }
+
+        private static float ClampWetnessProtection(float value)
+        {
+            return Mathf.Clamp(value, 0f, MaxWetnessProtection);
+        }
+
+        private static float ClampExposureProtection(float value)
+        {
+            return Mathf.Clamp(value, 0f, MaxExposureProtection);
+        }
+
+        private static float ClampTemperatureProtection(float value)
+        {
+            return Mathf.Clamp(value, 0f, MaxTemperatureProtection);
         }
 
         private CCS_ShelterEventArgs CreateEventArgs(string message)

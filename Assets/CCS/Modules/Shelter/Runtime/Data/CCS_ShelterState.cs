@@ -63,7 +63,9 @@ namespace CCS.Modules.Shelter
                 WetnessProtection,
                 ExposureProtection,
                 TemperatureProtection,
-                ProtectionMultiplier);
+                ProtectionMultiplier,
+                false,
+                0);
         }
 
         #endregion

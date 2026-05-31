@@ -10,7 +10,8 @@
         "CCS.Survival.Composition",
         "CCS.Modules.EnvironmentEffects.Runtime",
         "CCS.Modules.UI.Runtime",
-        "CCS.Modules.SaveLoad.Runtime"
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.Shelter.Runtime"
     ],
     "includePlatforms": [
         "Editor"

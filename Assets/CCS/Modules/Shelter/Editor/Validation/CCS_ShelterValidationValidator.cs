@@ -74,6 +74,10 @@ namespace CCS.Modules.Shelter.Editor
             ValidateRequiredScript(report, "CCS_ShelterEventArgs", RuntimeRoot + "/Events/CCS_ShelterEventArgs.cs");
             ValidateRequiredScript(report, "CCS_ShelterValidationUtility", RuntimeRoot + "/Validation/CCS_ShelterValidationUtility.cs");
             ValidateRequiredScript(report, "CCS_ShelterTestHarness", RuntimeRoot + "/Testing/CCS_ShelterTestHarness.cs");
+            ValidateRequiredScript(
+                report,
+                "CCS_BuildingShelterIntegrationTestHarness",
+                RuntimeRoot + "/Testing/CCS_BuildingShelterIntegrationTestHarness.cs");
 
             ValidateDocumentationAsset(report, "Shelter Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
@@ -82,13 +86,14 @@ namespace CCS.Modules.Shelter.Editor
             ValidateServiceRegistration(report);
             ValidateRestoreOrder(report);
             ValidateEnvironmentIntegration(report);
+            ValidateBuildingIntegration(report);
             ValidateHudDisplay(report);
             ValidateBootstrapTestVolume(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Shelter validator completed (0.7.5 environmental protection foundation).");
+                "Shelter validator completed (0.8.5 building shelter integration).");
         }
 
         #endregion
@@ -264,6 +269,101 @@ namespace CCS.Modules.Shelter.Editor
                         CCS_SurvivalValidationIssueSeverity.Error,
                         "Environment Shelter Binding",
                         "CCS_EnvironmentEffectsService is missing shelter integration.");
+                }
+            }
+        }
+
+        private static void ValidateBuildingIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string servicePath = RuntimeRoot + "/Services/CCS_ShelterService.cs";
+            const string bridgePath =
+                "Assets/CCS/Modules/Building/Runtime/Services/CCS_BuildingShelterRuntimeBridge.cs";
+            const string presenterPath =
+                "Assets/CCS/Modules/EnvironmentEffects/Runtime/Presentation/CCS_EnvironmentEffectsHudPresenter.cs";
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("BindBuildingService")
+                    && serviceSource.Contains("SetBuildingContributions")
+                    && serviceSource.Contains("RecalculateBuildingShelter")
+                    && serviceSource.Contains("CCS_BuildingShelterContribution"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Shelter Building Contributions",
+                        "CCS_ShelterService accepts building shelter contributions.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Shelter Building Contributions",
+                        "CCS_ShelterService is missing building contribution integration.");
+                }
+            }
+
+            if (File.Exists(bridgePath))
+            {
+                string bridgeSource = File.ReadAllText(bridgePath);
+                if (bridgeSource.Contains("TryGetBuildingService")
+                    && bridgeSource.Contains("TryGetShelterContributions"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Shelter Runtime Bridge",
+                        "Building shelter bridge resolves building service safely.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Shelter Runtime Bridge",
+                        "CCS_BuildingShelterRuntimeBridge is missing required methods.");
+                }
+            }
+
+            if (File.Exists(GameplayServiceRegistrationPath))
+            {
+                string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
+                if (registrationSource.Contains("BindBuildingShelterIntegration"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Shelter Building Composition Wiring",
+                        "Gameplay composition binds building service to shelter service.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Shelter Building Composition Wiring",
+                        "Gameplay composition is missing building shelter integration binding.");
+                }
+            }
+
+            if (File.Exists(presenterPath))
+            {
+                string presenterSource = File.ReadAllText(presenterPath);
+                string utilityPath =
+                    "Assets/CCS/Modules/Building/Runtime/Validation/CCS_BuildingValidationUtility.cs";
+                string utilitySource = File.Exists(utilityPath) ? File.ReadAllText(utilityPath) : string.Empty;
+
+                if (presenterSource.Contains("FormatBuildingShelterHudLines")
+                    && utilitySource.Contains("Building Shelter Contributions:")
+                    && utilitySource.Contains("Building Shelter Active:"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Shelter Building HUD Lines",
+                        "Environment HUD presenter displays building shelter contribution lines.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Shelter Building HUD Lines",
+                        "Environment HUD presenter is missing building shelter HUD lines.");
                 }
             }
         }

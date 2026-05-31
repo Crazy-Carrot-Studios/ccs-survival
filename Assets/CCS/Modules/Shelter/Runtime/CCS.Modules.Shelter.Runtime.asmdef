@@ -4,7 +4,8 @@
     "references": [
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
-        "CCS.Modules.SaveLoad.Runtime"
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.Building.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

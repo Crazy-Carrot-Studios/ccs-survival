@@ -1,11 +1,17 @@
 # CCS Survival — Building Module
 
-**Milestone:** 0.8.4 — Building Persistence Restore  
+**Milestone:** 0.8.5 — Building Shelter Integration  
 **Module ID:** `ccs.survival.building`  
 **Namespace:** `CCS.Modules.Building` (editor: `CCS.Modules.Building.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Snap matching and placed instance save/load restore complete (primitive visuals; no structural integrity)
+**Status:** Placed instances restore from save and contribute shelter protection through the Shelter service.
+
+---
+
+## Shelter integration (0.8.5)
+
+Building pieces with `contributesToShelter` publish `CCS_BuildingShelterContribution` records. `CCS_ShelterService` applies the **maximum** protection values from contributions whose coverage radius contains the subject position. Environment Effects reads shelter output only.
 
 ---
 

@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Create assets under Assets/CCS/Survival/Content/Building/.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Build costs consumed through inventory integration in 0.8.2. Snap data added in 0.8.3.
+// NOTES: Build costs in 0.8.2. Snap data in 0.8.3. Shelter contribution fields in 0.8.5.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -57,18 +57,21 @@ namespace CCS.Modules.Building
         [SerializeField] private List<CCS_CraftingIngredientDefinition> craftingRequirements =
             new List<CCS_CraftingIngredientDefinition>();
 
-        [Header("Shelter Placeholder")]
-        [Tooltip("When true, placed pieces may contribute to shelter protection in a future milestone.")]
+        [Header("Shelter Contribution")]
+        [Tooltip("When true, placed pieces contribute local shelter protection within coverage radius.")]
         [SerializeField] private bool contributesToShelter;
 
-        [Tooltip("Placeholder wetness protection contribution.")]
-        [SerializeField] private float shelterWetnessContribution;
+        [Tooltip("Wetness protection contributed while subject is within coverage radius.")]
+        [SerializeField] private float wetnessProtectionContribution;
 
-        [Tooltip("Placeholder exposure protection contribution.")]
-        [SerializeField] private float shelterExposureContribution;
+        [Tooltip("Exposure protection contributed while subject is within coverage radius.")]
+        [SerializeField] private float exposureProtectionContribution;
 
-        [Tooltip("Placeholder temperature protection contribution.")]
-        [SerializeField] private float shelterTemperatureContribution;
+        [Tooltip("Temperature protection contributed while subject is within coverage radius.")]
+        [SerializeField] private float temperatureProtectionContribution;
+
+        [Tooltip("World-space coverage radius used for simple shelter contribution matching.")]
+        [SerializeField] private float shelterCoverageRadius = 2.5f;
 
         #endregion
 
@@ -96,11 +99,15 @@ namespace CCS.Modules.Building
 
         public bool ContributesToShelter => contributesToShelter;
 
-        public float ShelterWetnessContribution => shelterWetnessContribution < 0f ? 0f : shelterWetnessContribution;
+        public float WetnessProtectionContribution =>
+            wetnessProtectionContribution < 0f ? 0f : wetnessProtectionContribution;
 
-        public float ShelterExposureContribution => shelterExposureContribution < 0f ? 0f : shelterExposureContribution;
+        public float ExposureProtectionContribution =>
+            exposureProtectionContribution < 0f ? 0f : exposureProtectionContribution;
 
-        public float ShelterTemperatureContribution => shelterTemperatureContribution;
+        public float TemperatureProtectionContribution => temperatureProtectionContribution;
+
+        public float ShelterCoverageRadius => shelterCoverageRadius < 0f ? 0f : shelterCoverageRadius;
 
         #endregion
     }

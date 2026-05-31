@@ -79,7 +79,7 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Environment effects validator completed (0.7.5 shelter integration).");
+                "Environment effects validator completed (0.8.5 building shelter integration).");
         }
 
         #endregion
@@ -381,12 +381,13 @@ namespace CCS.Modules.EnvironmentEffects.Editor
             {
                 string serviceSource = File.ReadAllText(servicePath);
                 if (serviceSource.Contains("BindShelterService")
-                    && serviceSource.Contains("CCS_ShelterService"))
+                    && serviceSource.Contains("CCS_ShelterService")
+                    && !serviceSource.Contains("CCS_BuildingService"))
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Info,
                         "Environment Shelter Binding",
-                        "CCS_EnvironmentEffectsService binds shelter service safely.");
+                        "CCS_EnvironmentEffectsService binds shelter service without direct building dependency.");
                 }
                 else
                 {

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingProfile
   profileDisplayName: Default Building
   profileId: ccs.survival.profile.building.default
-  profileDescription: Default building rules for 0.8.4 persistence restore.
-  profileVersion: 0.8.4
+  profileDescription: Default building rules for 0.8.5 shelter integration.
+  profileVersion: 0.8.5
   enableDebugLogs: 0
   allowPlacement: 1
   allowDemolition: 0

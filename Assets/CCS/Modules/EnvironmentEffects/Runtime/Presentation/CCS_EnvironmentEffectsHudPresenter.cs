@@ -1,4 +1,5 @@
 using CCS.Modules.Building;
+using CCS.Modules.Shelter;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,7 @@ namespace CCS.Modules.EnvironmentEffects
         private CCS_EnvironmentEffectsService environmentService;
         private CCS_BuildingService buildingService;
         private CCS_BuildingPlacementService placementService;
+        private CCS_ShelterService shelterService;
 
         #endregion
 
@@ -47,6 +49,7 @@ namespace CCS.Modules.EnvironmentEffects
             environmentService = null;
             buildingService = null;
             placementService = null;
+            shelterService = null;
         }
 
         #endregion
@@ -117,6 +120,7 @@ namespace CCS.Modules.EnvironmentEffects
         {
             TryBindBuildingService();
             TryBindPlacementService();
+            TryBindShelterService();
         }
 
         private void TryBindBuildingService()
@@ -138,6 +142,29 @@ namespace CCS.Modules.EnvironmentEffects
 
             buildingService.BuildingDefinitionRegistered += HandleBuildingChanged;
             buildingService.BuildingStateChanged += HandleBuildingChanged;
+            buildingService.BuildingShelterContributionsChanged += HandleBuildingShelterChanged;
+        }
+
+        private void TryBindShelterService()
+        {
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                return;
+            }
+
+            UnbindShelterServiceEvents();
+
+            if (!CCS_ShelterRuntimeBridge.TryGetShelterService(out shelterService)
+                || shelterService == null
+                || !shelterService.IsInitialized)
+            {
+                shelterService = null;
+                return;
+            }
+
+            shelterService.ShelterEntered += HandleShelterChanged;
+            shelterService.ShelterExited += HandleShelterChanged;
+            shelterService.ShelterChanged += HandleShelterChanged;
         }
 
         private void TryBindPlacementService()
@@ -167,6 +194,7 @@ namespace CCS.Modules.EnvironmentEffects
             UnbindEnvironmentServiceEvents();
             UnbindBuildingServiceEvents();
             UnbindPlacementServiceEvents();
+            UnbindShelterServiceEvents();
         }
 
         private void UnbindEnvironmentServiceEvents()
@@ -191,6 +219,19 @@ namespace CCS.Modules.EnvironmentEffects
 
             buildingService.BuildingDefinitionRegistered -= HandleBuildingChanged;
             buildingService.BuildingStateChanged -= HandleBuildingChanged;
+            buildingService.BuildingShelterContributionsChanged -= HandleBuildingShelterChanged;
+        }
+
+        private void UnbindShelterServiceEvents()
+        {
+            if (shelterService == null)
+            {
+                return;
+            }
+
+            shelterService.ShelterEntered -= HandleShelterChanged;
+            shelterService.ShelterExited -= HandleShelterChanged;
+            shelterService.ShelterChanged -= HandleShelterChanged;
         }
 
         private void UnbindPlacementServiceEvents()
@@ -211,6 +252,8 @@ namespace CCS.Modules.EnvironmentEffects
             int placedCount = 0;
             int savedRecordCount = 0;
             int restoredCount = 0;
+            int shelterContributionCount = 0;
+            bool isBuildingShelterActive = false;
             CCS_BuildingPlacementSnapshot placementSnapshot = CCS_BuildingPlacementSnapshot.Empty;
 
             if (buildingService != null && buildingService.IsInitialized)
@@ -219,7 +262,18 @@ namespace CCS.Modules.EnvironmentEffects
                 placedCount = buildingService.PlacedInstanceCount;
                 savedRecordCount = buildingService.SavedBuildingRecordCount;
                 restoredCount = buildingService.RestoredBuildingCount;
+                shelterContributionCount = buildingService.ShelterContributionCount;
                 placementSnapshot = buildingService.GetPlacementSnapshot();
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                CCS_ShelterSnapshot shelterSnapshot = shelterService.GetSnapshot();
+                isBuildingShelterActive = shelterSnapshot.IsBuildingShelterActive;
+                if (shelterSnapshot.BuildingShelterContributionCount > shelterContributionCount)
+                {
+                    shelterContributionCount = shelterSnapshot.BuildingShelterContributionCount;
+                }
             }
 
             return displayText + "\n" +
@@ -228,7 +282,20 @@ namespace CCS.Modules.EnvironmentEffects
                        placementSnapshot,
                        placedCount,
                        savedRecordCount,
-                       restoredCount);
+                       restoredCount) + "\n" +
+                   CCS_BuildingValidationUtility.FormatBuildingShelterHudLines(
+                       shelterContributionCount,
+                       isBuildingShelterActive);
+        }
+
+        private void HandleShelterChanged(CCS_ShelterEventArgs eventArgs)
+        {
+            RefreshDisplay();
+        }
+
+        private void HandleBuildingShelterChanged(CCS_BuildingShelterContributionsChangedEventArgs eventArgs)
+        {
+            RefreshDisplay();
         }
 
         private void HandleEnvironmentChanged(CCS_EnvironmentEffectsEventArgs eventArgs)

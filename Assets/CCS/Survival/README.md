@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.4 — Building Persistence Restore  
+**Milestone:** 0.8.5 — Building Shelter Integration  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

@@ -109,6 +109,18 @@ namespace CCS.Modules.Building
             return snapshot.SnapTargetType.ToString();
         }
 
+        public static string FormatBuildingShelterHudLines(
+            int buildingShelterContributionCount,
+            bool isBuildingShelterActive)
+        {
+            int contributionCount = buildingShelterContributionCount < 0 ? 0 : buildingShelterContributionCount;
+            string activeLabel = isBuildingShelterActive ? "Yes" : "No";
+
+            return
+                $"Building Shelter Contributions: {contributionCount}\n" +
+                $"Building Shelter Active: {activeLabel}";
+        }
+
         public static string FormatPieceTypeLabel(CCS_BuildingPieceType pieceType)
         {
             return pieceType.ToString();

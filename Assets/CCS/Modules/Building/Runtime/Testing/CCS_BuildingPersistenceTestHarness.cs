@@ -179,11 +179,14 @@ namespace CCS.Modules.Building
             bool savedRecordCountMatches = buildingService.SavedBuildingRecordCount == expectedSavedCount;
             bool restoredCountMatches = buildingService.RestoredBuildingCount == expectedSavedCount;
             bool snapOccupancyMatches = VerifySnapOccupancy(buildingService);
+            bool shelterContributionsMatch = buildingService.ShelterContributionCount >= 2;
 
-            if (countMatches && savedRecordCountMatches && restoredCountMatches && snapOccupancyMatches)
+            if (countMatches && savedRecordCountMatches && restoredCountMatches && snapOccupancyMatches
+                && shelterContributionsMatch)
             {
                 Debug.Log(
-                    $"{LogPrefix} PASS — restored {buildingService.RestoredBuildingCount} building instances with snap occupancy.");
+                    $"{LogPrefix} PASS — restored {buildingService.RestoredBuildingCount} building instances " +
+                    $"with snap occupancy and {buildingService.ShelterContributionCount} shelter contributions.");
             }
             else
             {
@@ -192,7 +195,8 @@ namespace CCS.Modules.Building
                     $"Placed={buildingService.PlacedInstanceCount} expected {expectedSavedCount}, " +
                     $"SavedRecords={buildingService.SavedBuildingRecordCount}, " +
                     $"Restored={buildingService.RestoredBuildingCount}, " +
-                    $"SnapOccupancy={snapOccupancyMatches}.");
+                    $"SnapOccupancy={snapOccupancyMatches}, " +
+                    $"ShelterContributions={buildingService.ShelterContributionCount}.");
             }
 
             persistenceStep = PersistenceStep.Complete;

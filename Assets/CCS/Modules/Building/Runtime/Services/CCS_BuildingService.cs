@@ -10,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1. Full restore in 0.8.4.
+// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1. Shelter contributions in 0.8.5.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -26,6 +26,9 @@ namespace CCS.Modules.Building
 
         private readonly List<CCS_BuildingInstance> placedInstances = new List<CCS_BuildingInstance>();
 
+        private readonly List<CCS_BuildingShelterContribution> shelterContributions =
+            new List<CCS_BuildingShelterContribution>();
+
         private readonly CCS_BuildingState buildingState = new CCS_BuildingState();
 
         private CCS_BuildingProfile activeProfile;
@@ -38,6 +41,7 @@ namespace CCS.Modules.Building
 
         public event BuildingDefinitionRegisteredHandler BuildingDefinitionRegistered;
         public event BuildingStateChangedHandler BuildingStateChanged;
+        public event BuildingShelterContributionsChangedHandler BuildingShelterContributionsChanged;
 
         #endregion
 
@@ -56,6 +60,8 @@ namespace CCS.Modules.Building
         public int SavedBuildingRecordCount { get; private set; }
 
         public int RestoredBuildingCount { get; private set; }
+
+        public int ShelterContributionCount => shelterContributions.Count;
 
         #endregion
 
@@ -90,6 +96,7 @@ namespace CCS.Modules.Building
             definitionsById.Clear();
             buildingState.Clear();
             placedInstances.Clear();
+            shelterContributions.Clear();
             isInitialized = true;
 
             IReadOnlyList<CCS_BuildingPieceDefinition> startupDefinitions = profile.StartupDefinitions;
@@ -228,9 +235,55 @@ namespace CCS.Modules.Building
 
             placedInstances.Add(instance);
             CCS_BuildingInstanceVisualFactory.SpawnInstanceVisual(definition, instance);
+            RecalculateShelterContributions();
             BuildingStateChanged?.Invoke(
                 CreateEventArgs($"Placed building instance '{instance.InstanceId}'."));
             return true;
+        }
+
+        public IReadOnlyList<CCS_BuildingShelterContribution> GetShelterContributions()
+        {
+            if (!EnsureInitialized())
+            {
+                return System.Array.Empty<CCS_BuildingShelterContribution>();
+            }
+
+            return shelterContributions;
+        }
+
+        public void RecalculateShelterContributions()
+        {
+            if (!EnsureInitialized())
+            {
+                return;
+            }
+
+            shelterContributions.Clear();
+
+            for (int index = 0; index < placedInstances.Count; index++)
+            {
+                CCS_BuildingInstance instance = placedInstances[index];
+                if (instance == null
+                    || !TryGetDefinition(instance.PieceId, out CCS_BuildingPieceDefinition definition)
+                    || !definition.ContributesToShelter)
+                {
+                    continue;
+                }
+
+                shelterContributions.Add(new CCS_BuildingShelterContribution(
+                    instance.InstanceId,
+                    definition.PieceId,
+                    instance.Position,
+                    definition.ShelterCoverageRadius,
+                    definition.WetnessProtectionContribution,
+                    definition.ExposureProtectionContribution,
+                    definition.TemperatureProtectionContribution));
+            }
+
+            BuildingShelterContributionsChanged?.Invoke(
+                new CCS_BuildingShelterContributionsChangedEventArgs(
+                    shelterContributions.Count,
+                    $"Recalculated {shelterContributions.Count} building shelter contributions."));
         }
 
         public void ClearPlacedInstances()
@@ -243,6 +296,7 @@ namespace CCS.Modules.Building
             placedInstances.Clear();
             CCS_BuildingInstanceVisualFactory.DestroyAllVisuals();
             RestoredBuildingCount = 0;
+            RecalculateShelterContributions();
             RaiseBuildingStateChanged("Cleared placed building instances.");
         }
 
@@ -323,6 +377,7 @@ namespace CCS.Modules.Building
             if (string.IsNullOrWhiteSpace(stateJson))
             {
                 buildingState.Clear();
+                RecalculateShelterContributions();
                 RaiseBuildingStateChanged("Building restore cleared catalog state.");
                 return;
             }
@@ -343,6 +398,7 @@ namespace CCS.Modules.Building
             buildingState.ReplaceRegisteredPieceIds(saveData.registeredPieceIds);
             PruneDefinitionsMissingFromState();
             RestorePlacedInstances(saveData);
+            RecalculateShelterContributions();
 
             RaiseBuildingStateChanged(
                 $"Building restore completed with {RestoredBuildingCount} placed instances.");

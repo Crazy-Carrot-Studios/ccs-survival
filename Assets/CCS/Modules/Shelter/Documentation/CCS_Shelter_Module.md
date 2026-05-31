@@ -1,11 +1,24 @@
 # CCS Survival — Shelter Module
 
-**Milestone:** 0.7.5 — Shelter & Environmental Protection Foundation  
+**Milestone:** 0.8.5 — Building Shelter Integration  
 **Module ID:** `ccs.survival.shelter`  
 **Namespace:** `CCS.Modules.Shelter` (editor: `CCS.Modules.Shelter.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Foundation complete (trigger volumes and service only; no building placement)
+**Status:** Trigger volumes plus building contribution coverage (max protection within radius). No enclosure detection yet.
+
+---
+
+## Building shelter contributions (0.8.5)
+
+`CCS_ShelterService` accepts external contributions from `CCS_BuildingService`:
+
+- Contributions include world position, coverage radius, and wetness/exposure/temperature protection values
+- Subject position (test harness or future player anchor) determines active building shelter
+- Effective snapshot merges volume shelter and building shelter using **max per protection channel**
+- `CCS_BuildingShelterRuntimeBridge` resolves building service safely when unavailable
+
+Test harness: `CCS_BuildingShelterIntegrationTestHarness` verifies roof coverage protection after snap placement.
 
 ---
 

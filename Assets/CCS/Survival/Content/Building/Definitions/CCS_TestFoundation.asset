@@ -32,6 +32,7 @@ MonoBehaviour:
   prefabReference: {fileID: 0}
   craftingRequirements: []
   contributesToShelter: 0
-  shelterWetnessContribution: 0
-  shelterExposureContribution: 0
-  shelterTemperatureContribution: 0
+  wetnessProtectionContribution: 0
+  exposureProtectionContribution: 0
+  temperatureProtectionContribution: 0
+  shelterCoverageRadius: 0

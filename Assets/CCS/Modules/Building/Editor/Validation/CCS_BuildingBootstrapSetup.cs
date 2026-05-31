@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.Building;
 using CCS.Modules.Inventory;
+using CCS.Modules.Shelter;
 using CCS.Modules.UI;
 using CCS.Survival.Composition;
 using UnityEditor;
@@ -14,10 +15,10 @@ using UnityEngine.UI;
 // SCRIPT: CCS_BuildingBootstrapSetup
 // CATEGORY: Modules / Building / Editor / Validation
 // PURPOSE: Creates default profile, test definitions, and bootstrap gameplay wiring.
-// PLACEMENT: Batch entry for 0.8.4 building persistence restore milestone.
+// PLACEMENT: Batch entry for 0.8.5 building shelter integration milestone.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Snap points, persistence harness, and restore verification seeding.
+// NOTES: Snap points, shelter contribution values, and harness seeding.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -76,6 +77,9 @@ namespace CCS.Modules.Building.Editor
             ConfigureFoundationSnap(foundation);
             ConfigureWallSnap(wall);
             ConfigureRoofSnap(roof);
+            ConfigureFoundationShelter(foundation);
+            ConfigureWallShelter(wall);
+            ConfigureRoofShelter(roof);
 
             List<CCS_BuildingPieceDefinition> startupDefinitions = new List<CCS_BuildingPieceDefinition>
             {
@@ -131,8 +135,8 @@ namespace CCS.Modules.Building.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Building";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.building.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default building rules for 0.8.4 persistence restore.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.4";
+                "Default building rules for 0.8.5 shelter integration.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.5";
             serializedProfile.FindProperty("allowPlacement").boolValue = true;
             serializedProfile.FindProperty("allowDemolition").boolValue = false;
             serializedProfile.FindProperty("allowUpgrades").boolValue = false;
@@ -244,6 +248,57 @@ namespace CCS.Modules.Building.Editor
             SetSnapPoints(
                 serializedDefinition,
                 ("roof_edge", CCS_BuildingSnapPointType.RoofEdge, new Vector3(0f, -0.5f, 0f)));
+            serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(definition);
+        }
+
+        private static void ConfigureFoundationShelter(CCS_BuildingPieceDefinition definition)
+        {
+            SetShelterContribution(
+                definition,
+                contributesToShelter: false,
+                wetnessProtection: 0f,
+                exposureProtection: 0f,
+                temperatureProtection: 0f,
+                coverageRadius: 0f);
+        }
+
+        private static void ConfigureWallShelter(CCS_BuildingPieceDefinition definition)
+        {
+            SetShelterContribution(
+                definition,
+                contributesToShelter: true,
+                wetnessProtection: 0f,
+                exposureProtection: 0.2f,
+                temperatureProtection: 0f,
+                coverageRadius: 2.5f);
+        }
+
+        private static void ConfigureRoofShelter(CCS_BuildingPieceDefinition definition)
+        {
+            SetShelterContribution(
+                definition,
+                contributesToShelter: true,
+                wetnessProtection: 1f,
+                exposureProtection: 0.4f,
+                temperatureProtection: 0.5f,
+                coverageRadius: 3f);
+        }
+
+        private static void SetShelterContribution(
+            CCS_BuildingPieceDefinition definition,
+            bool contributesToShelter,
+            float wetnessProtection,
+            float exposureProtection,
+            float temperatureProtection,
+            float coverageRadius)
+        {
+            SerializedObject serializedDefinition = new SerializedObject(definition);
+            serializedDefinition.FindProperty("contributesToShelter").boolValue = contributesToShelter;
+            serializedDefinition.FindProperty("wetnessProtectionContribution").floatValue = wetnessProtection;
+            serializedDefinition.FindProperty("exposureProtectionContribution").floatValue = exposureProtection;
+            serializedDefinition.FindProperty("temperatureProtectionContribution").floatValue = temperatureProtection;
+            serializedDefinition.FindProperty("shelterCoverageRadius").floatValue = coverageRadius;
             serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
         }
@@ -381,6 +436,19 @@ namespace CCS.Modules.Building.Editor
             serializedPersistenceHarness.FindProperty("checkIntervalSeconds").floatValue = 2f;
             serializedPersistenceHarness.FindProperty("placementTestHarness").objectReferenceValue = harness;
             serializedPersistenceHarness.ApplyModifiedPropertiesWithoutUndo();
+
+            CCS_BuildingShelterIntegrationTestHarness shelterHarness =
+                testArea.GetComponent<CCS_BuildingShelterIntegrationTestHarness>();
+            if (shelterHarness == null)
+            {
+                shelterHarness = testArea.AddComponent<CCS_BuildingShelterIntegrationTestHarness>();
+            }
+
+            SerializedObject serializedShelterHarness = new SerializedObject(shelterHarness);
+            serializedShelterHarness.FindProperty("enableHarness").boolValue = true;
+            serializedShelterHarness.FindProperty("checkIntervalSeconds").floatValue = 2f;
+            serializedShelterHarness.FindProperty("placementTestHarness").objectReferenceValue = harness;
+            serializedShelterHarness.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

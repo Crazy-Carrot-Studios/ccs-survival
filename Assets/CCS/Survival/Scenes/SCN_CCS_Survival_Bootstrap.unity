@@ -1903,6 +1903,7 @@ GameObject:
   - component: {fileID: 1135345012}
   - component: {fileID: 1135345011}
   - component: {fileID: 1135345014}
+  - component: {fileID: 1135345015}
   m_Layer: 0
   m_Name: CCS_BuildingTestArea
   m_TagString: Untagged
@@ -1977,6 +1978,21 @@ MonoBehaviour:
   checkIntervalSeconds: 2
   placementTestHarness: {fileID: 1135345011}
   saveLoadDebugController: {fileID: 0}
+--- !u!114 &1135345015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135345010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01194352c598f7849b87a949c603f875, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_BuildingShelterIntegrationTestHarness
+  enableHarness: 1
+  checkIntervalSeconds: 2
+  placementTestHarness: {fileID: 1135345011}
 --- !u!1001 &1163804969
 PrefabInstance:
   m_ObjectHideFlags: 0

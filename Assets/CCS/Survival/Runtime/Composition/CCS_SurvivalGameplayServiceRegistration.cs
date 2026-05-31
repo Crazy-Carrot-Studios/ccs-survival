@@ -97,6 +97,8 @@ namespace CCS.Survival.Composition
                 inventoryService);
             RegisterService(runtimeHost, placementService, enableDebugLogs);
 
+            BindBuildingShelterIntegration(shelterService, buildingService);
+
             BindSurvivalCoreEnvironmentEffects(survivalCoreService, environmentEffectsService);
             RegisterSurvivalCoreUpdatable(runtimeHost, survivalCoreService);
 
@@ -395,6 +397,21 @@ namespace CCS.Survival.Composition
             }
 
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(environmentEffectsService);
+        }
+
+        private static void BindBuildingShelterIntegration(
+            CCS_ShelterService shelterService,
+            CCS_BuildingService buildingService)
+        {
+            if (shelterService == null
+                || !shelterService.IsInitialized
+                || buildingService == null
+                || !buildingService.IsInitialized)
+            {
+                return;
+            }
+
+            shelterService.BindBuildingService(buildingService);
         }
 
         private static void BindSurvivalCoreEnvironmentEffects(

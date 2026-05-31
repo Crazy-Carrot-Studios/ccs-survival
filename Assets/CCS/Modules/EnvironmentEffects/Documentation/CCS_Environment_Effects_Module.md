@@ -105,6 +105,16 @@ Plain text only. No icons or final art.
 
 Persisted environment save data remains **raw** simulation; shelter state restores through `CCS_ShelterSaveData`.
 
+## Building shelter contributions (0.8.5)
+
+Building pieces contribute local protection through `CCS_ShelterService` only. Environment Effects does **not** reference `CCS_BuildingService` directly.
+
+```text
+CCS_BuildingService → CCS_ShelterService → CCS_EnvironmentEffectsService
+```
+
+Shelter merges volume protection and building contribution protection (max per channel) before equipment modifiers are applied.
+
 ---
 
 ## Equipment Environmental Modifiers (0.7.4)
