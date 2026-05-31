@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.SaveLoad` (editor: `CCS.Modules.SaveLoad.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**. Shelter persistence at **0.7.5**. Building catalog persistence at **0.8.0**.
+**Status:** Persistence framework complete at **0.6.0**. Debug manual controls complete at **0.6.1**. Inventory and equipment persistence complete at **0.6.2**. Time of day persistence at **0.7.0**. Weather persistence at **0.7.1**. Environment effects persistence at **0.7.2**. Shelter persistence at **0.7.5**. Building catalog persistence at **0.8.0**. Building placed instance restore at **0.8.4**.
 
 ---
 
@@ -212,7 +212,7 @@ Panel anchor: upper-left on `PF_CCS_HUD_Root` canvas — does not block center g
 
 - World resource node state
 - Crafting queues
-- Building pieces
+- Building placed instances (restored at **0.8.4**)
 - Combat state
 - Wildlife
 - Weather
@@ -242,7 +242,19 @@ Equipment payload persists equipped slot entries (slot type + item ID + durabili
 4. **Weather fourth** — global weather state restores after time baseline is applied.
 5. **Shelter fifth** — sheltered state restores before environment recomputes effective values.
 6. **Environment sixth** — raw environment simulation restores after weather and shelter baselines are applied.
-7. **Building seventh** — registered definition catalog restores after environment (no placed structures yet).
+7. **Building seventh** — registered definition catalog and placed instance records restore after environment.
+
+### Building persistence restore (0.8.4)
+
+| Saveable | Payload | Version field |
+|----------|---------|---------------|
+| `CCS_BuildingService` | `CCS_BuildingSaveData` | `saveDataVersion` (current: **3**) |
+
+Building payload persists registered piece IDs and placed instance records including world transform, placement order, occupied snap point IDs, and optional target snap metadata.
+
+Restore recreates runtime instances, rebuilds snap points, reapplies occupancy, and spawns primitive cube visuals through `CCS_BuildingInstanceVisualFactory`. Missing definitions or invalid records are skipped with warnings.
+
+Persistence verification harness: `CCS_BuildingPersistenceTestHarness` saves to slot `building_persistence_test`, clears instances, loads, and verifies restored count plus snap occupancy.
 
 Missing item or equipment definitions fail safely during restore (slot skipped, warning logged, no corruption of other slots).
 
@@ -277,7 +289,7 @@ Bootstrap setup batch: `CCS.Modules.SaveLoad.Editor.CCS_SaveLoadBootstrapSetup.E
 4. Deserialize and apply in `RestoreState(string stateJson)`.
 5. Unregister on shutdown if the saveable is destroyed.
 
-Deferred gameplay persistence: world resources, building pieces, combat, wildlife, weather, quests, crafting queues.
+Deferred gameplay persistence: world resources, combat, wildlife, weather, quests, crafting queues.
 
 ---
 

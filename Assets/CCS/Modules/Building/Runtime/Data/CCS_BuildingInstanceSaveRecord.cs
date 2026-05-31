@@ -1,11 +1,13 @@
+using System.Collections.Generic;
+
 // =============================================================================
 // SCRIPT: CCS_BuildingInstanceSaveRecord
 // CATEGORY: Modules / Building / Runtime / Data
-// PURPOSE: Serializable placed instance record for future building persistence.
+// PURPOSE: Serializable placed instance record for building persistence restore.
 // PLACEMENT: Stored in CCS_BuildingSaveData.placedInstanceRecords.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Serialization model only. Full restore deferred beyond 0.8.1.
+// NOTES: Snap occupancy and placement order persisted in 0.8.4.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -34,6 +36,14 @@ namespace CCS.Modules.Building
         public float rotationW = 1f;
 
         public float creationTime;
+
+        public int placedOrderIndex;
+
+        public List<string> occupiedSnapPointIds = new List<string>();
+
+        public string targetSnapInstanceId = string.Empty;
+
+        public string targetSnapPointId = string.Empty;
 
         #endregion
     }

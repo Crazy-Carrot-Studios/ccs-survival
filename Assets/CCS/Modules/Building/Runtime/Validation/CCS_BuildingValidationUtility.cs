@@ -73,7 +73,9 @@ namespace CCS.Modules.Building
 
         public static string FormatPlacementHudLines(
             CCS_BuildingPlacementSnapshot placementSnapshot,
-            int placedInstanceCount)
+            int placedInstanceCount,
+            int savedBuildingRecordCount,
+            int restoredBuildingCount)
         {
             CCS_BuildingPlacementSnapshot snapshot = placementSnapshot.IsPlacementModeActive
                 ? placementSnapshot
@@ -84,13 +86,17 @@ namespace CCS.Modules.Building
                 ? FormatPieceTypeLabel(snapshot.ActivePieceType)
                 : "None";
             int placedCount = placedInstanceCount < 0 ? 0 : placedInstanceCount;
+            int savedCount = savedBuildingRecordCount < 0 ? 0 : savedBuildingRecordCount;
+            int restoredCount = restoredBuildingCount < 0 ? 0 : restoredBuildingCount;
 
             return
                 $"Placement Active: {placementLabel}\n" +
                 $"Selected Piece: {selectedPiece}\n" +
                 $"Placed Count: {placedCount}\n" +
                 $"Snap Target: {FormatSnapTargetLabel(snapshot)}\n" +
-                $"Placement Valid: {(snapshot.IsPlacementValid ? "Yes" : "No")}";
+                $"Placement Valid: {(snapshot.IsPlacementValid ? "Yes" : "No")}\n" +
+                $"Saved Building Records: {savedCount}\n" +
+                $"Restored Buildings: {restoredCount}";
         }
 
         public static string FormatSnapTargetLabel(CCS_BuildingPlacementSnapshot snapshot)

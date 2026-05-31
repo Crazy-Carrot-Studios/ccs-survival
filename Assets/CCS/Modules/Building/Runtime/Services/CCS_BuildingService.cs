@@ -10,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1. Snap occupancy in 0.8.3.
+// NOTES: Placement orchestration delegated to CCS_BuildingPlacementService in 0.8.1. Full restore in 0.8.4.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -52,6 +52,10 @@ namespace CCS.Modules.Building
         public int RegisteredDefinitionCount => buildingState.RegisteredDefinitionCount;
 
         public int PlacedInstanceCount => placedInstances.Count;
+
+        public int SavedBuildingRecordCount { get; private set; }
+
+        public int RestoredBuildingCount { get; private set; }
 
         #endregion
 
@@ -198,7 +202,9 @@ namespace CCS.Modules.Building
             return CCS_BuildingPlacementSnapshot.Empty;
         }
 
-        public bool TryAddPlacedInstance(CCS_BuildingInstance instance)
+        public bool TryAddPlacedInstance(
+            CCS_BuildingInstance instance,
+            CCS_BuildingSnapMatch snapMatch = default)
         {
             if (!EnsureInitialized() || instance == null)
             {
@@ -212,10 +218,32 @@ namespace CCS.Modules.Building
             }
 
             instance.InitializeRuntimeSnapPoints(definition);
+
+            if (snapMatch.HasMatch)
+            {
+                instance.SetTargetSnapConnection(
+                    snapMatch.TargetInstanceId,
+                    snapMatch.TargetSnapPointId);
+            }
+
             placedInstances.Add(instance);
+            CCS_BuildingInstanceVisualFactory.SpawnInstanceVisual(definition, instance);
             BuildingStateChanged?.Invoke(
                 CreateEventArgs($"Placed building instance '{instance.InstanceId}'."));
             return true;
+        }
+
+        public void ClearPlacedInstances()
+        {
+            if (!EnsureInitialized())
+            {
+                return;
+            }
+
+            placedInstances.Clear();
+            CCS_BuildingInstanceVisualFactory.DestroyAllVisuals();
+            RestoredBuildingCount = 0;
+            RaiseBuildingStateChanged("Cleared placed building instances.");
         }
 
         public bool TryMarkSnapPointOccupied(string instanceId, string snapPointId, bool occupied)
@@ -287,10 +315,14 @@ namespace CCS.Modules.Building
                 return;
             }
 
+            placedInstances.Clear();
+            CCS_BuildingInstanceVisualFactory.DestroyAllVisuals();
+            RestoredBuildingCount = 0;
+            SavedBuildingRecordCount = 0;
+
             if (string.IsNullOrWhiteSpace(stateJson))
             {
                 buildingState.Clear();
-                placedInstances.Clear();
                 RaiseBuildingStateChanged("Building restore cleared catalog state.");
                 return;
             }
@@ -310,14 +342,10 @@ namespace CCS.Modules.Building
 
             buildingState.ReplaceRegisteredPieceIds(saveData.registeredPieceIds);
             PruneDefinitionsMissingFromState();
+            RestorePlacedInstances(saveData);
 
-            if (saveData.placedInstanceRecords != null && saveData.placedInstanceRecords.Count > 0)
-            {
-                Debug.Log(
-                    $"{LogPrefix} RestoreState captured {saveData.placedInstanceRecords.Count} placed instance records. Full restore deferred in 0.8.1.");
-            }
-
-            RaiseBuildingStateChanged("Building catalog restored from save.");
+            RaiseBuildingStateChanged(
+                $"Building restore completed with {RestoredBuildingCount} placed instances.");
         }
 
         #endregion
@@ -342,6 +370,7 @@ namespace CCS.Modules.Building
             for (int index = 0; index < placedInstances.Count; index++)
             {
                 CCS_BuildingInstance instance = placedInstances[index];
+                List<string> occupiedSnapPointIds = instance.CollectOccupiedSnapPointIds();
                 records.Add(new CCS_BuildingInstanceSaveRecord
                 {
                     instanceId = instance.InstanceId,
@@ -353,11 +382,115 @@ namespace CCS.Modules.Building
                     rotationY = instance.Rotation.y,
                     rotationZ = instance.Rotation.z,
                     rotationW = instance.Rotation.w,
-                    creationTime = instance.CreationTime
+                    creationTime = instance.CreationTime,
+                    placedOrderIndex = index,
+                    occupiedSnapPointIds = occupiedSnapPointIds,
+                    targetSnapInstanceId = instance.TargetSnapInstanceId,
+                    targetSnapPointId = instance.TargetSnapPointId
                 });
             }
 
             return records;
+        }
+
+        private void RestorePlacedInstances(CCS_BuildingSaveData saveData)
+        {
+            if (saveData.placedInstanceRecords == null || saveData.placedInstanceRecords.Count == 0)
+            {
+                SavedBuildingRecordCount = 0;
+                return;
+            }
+
+            SavedBuildingRecordCount = saveData.placedInstanceRecords.Count;
+            List<CCS_BuildingInstanceSaveRecord> records =
+                new List<CCS_BuildingInstanceSaveRecord>(saveData.placedInstanceRecords);
+            records.Sort(ComparePlacedInstanceRecords);
+
+            CCS_BuildingDefinitionLookup definitionLookup =
+                new CCS_BuildingDefinitionLookup(activeProfile, definitionsById);
+
+            for (int index = 0; index < records.Count; index++)
+            {
+                CCS_BuildingInstanceSaveRecord record = records[index];
+                if (record == null)
+                {
+                    Debug.LogWarning($"{LogPrefix} RestoreState skipped null placed instance record.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(record.instanceId) || string.IsNullOrWhiteSpace(record.pieceId))
+                {
+                    Debug.LogWarning($"{LogPrefix} RestoreState skipped record with missing identity.");
+                    continue;
+                }
+
+                if (!definitionLookup.TryResolveDefinition(record.pieceId, out CCS_BuildingPieceDefinition definition))
+                {
+                    Debug.LogWarning(
+                        $"{LogPrefix} RestoreState skipped unknown piece '{record.pieceId}' for instance '{record.instanceId}'.");
+                    continue;
+                }
+
+                Vector3 position = new Vector3(record.positionX, record.positionY, record.positionZ);
+                Quaternion rotation = new Quaternion(
+                    record.rotationX,
+                    record.rotationY,
+                    record.rotationZ,
+                    record.rotationW);
+
+                if (rotation == default)
+                {
+                    rotation = Quaternion.identity;
+                }
+
+                CCS_BuildingInstance instance = new CCS_BuildingInstance(
+                    record.instanceId,
+                    record.pieceId,
+                    position,
+                    rotation,
+                    record.creationTime);
+
+                instance.InitializeRuntimeSnapPoints(definition);
+
+                if (!string.IsNullOrWhiteSpace(record.targetSnapInstanceId)
+                    && !string.IsNullOrWhiteSpace(record.targetSnapPointId))
+                {
+                    instance.SetTargetSnapConnection(record.targetSnapInstanceId, record.targetSnapPointId);
+                }
+
+                if (record.occupiedSnapPointIds != null && record.occupiedSnapPointIds.Count > 0)
+                {
+                    instance.ApplyOccupiedSnapPoints(record.occupiedSnapPointIds);
+                }
+
+                placedInstances.Add(instance);
+                CCS_BuildingInstanceVisualFactory.SpawnInstanceVisual(definition, instance);
+                RestoredBuildingCount++;
+            }
+
+            placementService?.SyncNextInstanceSequenceFromRestoredInstances(placedInstances);
+        }
+
+        private static int ComparePlacedInstanceRecords(
+            CCS_BuildingInstanceSaveRecord left,
+            CCS_BuildingInstanceSaveRecord right)
+        {
+            if (left == null && right == null)
+            {
+                return 0;
+            }
+
+            if (left == null)
+            {
+                return 1;
+            }
+
+            if (right == null)
+            {
+                return -1;
+            }
+
+            return left.placedOrderIndex.CompareTo(right.placedOrderIndex);
         }
 
         private void PruneDefinitionsMissingFromState()

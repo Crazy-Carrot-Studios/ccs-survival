@@ -57,7 +57,7 @@ namespace CCS.Modules.WorldResources
 
         private void Awake()
         {
-            nodeKey = gameObject.name + "_" + GetInstanceID();
+            nodeKey = gameObject.name + "_" + GetEntityId();
             ResetNode();
         }
 

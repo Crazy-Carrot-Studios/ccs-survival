@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Snap foundation and placement snapping checks for 0.8.3.
+// NOTES: Persistence restore and snap occupancy checks for 0.8.4.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -97,6 +97,9 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingPlacementService", RuntimeRoot + "/Services/CCS_BuildingPlacementService.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementPreview", RuntimeRoot + "/Placement/CCS_BuildingPlacementPreview.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPlacementTestHarness.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPersistenceTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPersistenceTestHarness.cs");
+            ValidateRequiredScript(report, "CCS_BuildingDefinitionLookup", RuntimeRoot + "/Services/CCS_BuildingDefinitionLookup.cs");
+            ValidateRequiredScript(report, "CCS_BuildingInstanceVisualFactory", RuntimeRoot + "/Placement/CCS_BuildingInstanceVisualFactory.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementFailedEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementFailedEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingSnapPointType", RuntimeRoot + "/Snap/CCS_BuildingSnapPointType.cs");
@@ -111,6 +114,7 @@ namespace CCS.Modules.Building.Editor
             ValidateTestDefinitions(report);
             ValidateBuildCostIntegration(report);
             ValidateSnapIntegration(report);
+            ValidatePersistenceRestore(report);
             ValidateSaveIntegration(report);
             ValidatePlacementIntegration(report);
             ValidateInventoryIntegration(report);
@@ -123,7 +127,7 @@ namespace CCS.Modules.Building.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.3 snapping foundation).");
+                "Building validator completed (0.8.4 persistence restore).");
         }
 
         #endregion
@@ -506,6 +510,162 @@ namespace CCS.Modules.Building.Editor
                 "HUD presentation is missing building placement notification wiring.");
         }
 
+        private static void ValidatePersistenceRestore(CCS_SurvivalValidationReport report)
+        {
+            const string servicePath = RuntimeRoot + "/Services/CCS_BuildingService.cs";
+            const string instanceRecordPath = RuntimeRoot + "/Data/CCS_BuildingInstanceSaveRecord.cs";
+            const string saveDataPath = RuntimeRoot + "/Data/CCS_BuildingSaveData.cs";
+            const string lookupPath = RuntimeRoot + "/Services/CCS_BuildingDefinitionLookup.cs";
+            const string visualFactoryPath = RuntimeRoot + "/Placement/CCS_BuildingInstanceVisualFactory.cs";
+            const string harnessPath = RuntimeRoot + "/Testing/CCS_BuildingPersistenceTestHarness.cs";
+            const string instancePath = RuntimeRoot + "/Data/CCS_BuildingInstance.cs";
+
+            if (File.Exists(saveDataPath))
+            {
+                string saveDataSource = File.ReadAllText(saveDataPath);
+                if (saveDataSource.Contains("CurrentSaveDataVersion = 3"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Save Data Version",
+                        "CCS_BuildingSaveData uses version 3 for persistence restore.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Save Data Version",
+                        "CCS_BuildingSaveData is not at the expected save data version.");
+                }
+            }
+
+            if (File.Exists(instanceRecordPath))
+            {
+                string recordSource = File.ReadAllText(instanceRecordPath);
+                if (recordSource.Contains("placedOrderIndex")
+                    && recordSource.Contains("occupiedSnapPointIds")
+                    && recordSource.Contains("targetSnapInstanceId")
+                    && recordSource.Contains("targetSnapPointId"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Instance Save Record",
+                        "Placed instance records include order, occupancy, and target snap metadata.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Instance Save Record",
+                        "CCS_BuildingInstanceSaveRecord is missing persistence restore fields.");
+                }
+            }
+
+            if (File.Exists(lookupPath))
+            {
+                string lookupSource = File.ReadAllText(lookupPath);
+                if (lookupSource.Contains("TryResolveDefinition"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Definition Lookup",
+                        "Definition lookup resolves piece IDs for restore.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Definition Lookup",
+                        "CCS_BuildingDefinitionLookup is missing TryResolveDefinition.");
+                }
+            }
+
+            if (File.Exists(visualFactoryPath))
+            {
+                string factorySource = File.ReadAllText(visualFactoryPath);
+                if (factorySource.Contains("SpawnInstanceVisual")
+                    && factorySource.Contains("DestroyAllVisuals"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Visual Factory",
+                        "Visual factory spawns primitive visuals for restored instances.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Visual Factory",
+                        "CCS_BuildingInstanceVisualFactory is missing required restore methods.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("RestorePlacedInstances")
+                    && serviceSource.Contains("ClearPlacedInstances")
+                    && serviceSource.Contains("CCS_BuildingDefinitionLookup")
+                    && serviceSource.Contains("CCS_BuildingInstanceVisualFactory")
+                    && !serviceSource.Contains("Full restore deferred"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Restore State",
+                        "CCS_BuildingService.RestoreState recreates placed instances and visuals.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Restore State",
+                        "CCS_BuildingService.RestoreState does not fully restore placed instances.");
+                }
+            }
+
+            if (File.Exists(instancePath))
+            {
+                string instanceSource = File.ReadAllText(instancePath);
+                if (instanceSource.Contains("ApplyOccupiedSnapPoints")
+                    && instanceSource.Contains("CollectOccupiedSnapPointIds"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Snap Occupancy Restore",
+                        "Placed instances support snap occupancy capture and restore.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Snap Occupancy Restore",
+                        "CCS_BuildingInstance is missing snap occupancy persistence helpers.");
+                }
+            }
+
+            if (File.Exists(harnessPath))
+            {
+                string harnessSource = File.ReadAllText(harnessPath);
+                if (harnessSource.Contains("building_persistence_test")
+                    && harnessSource.Contains("ClearPlacedInstances")
+                    && harnessSource.Contains("PASS")
+                    && harnessSource.Contains("FAIL"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Persistence Test Harness",
+                        "Persistence harness saves, clears, loads, and verifies building restore.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Persistence Test Harness",
+                        "CCS_BuildingPersistenceTestHarness is missing required verification flow.");
+                }
+            }
+        }
+
         private static void ValidateSaveIntegration(CCS_SurvivalValidationReport report)
         {
             const string servicePath = RuntimeRoot + "/Services/CCS_BuildingService.cs";
@@ -761,19 +921,21 @@ namespace CCS.Modules.Building.Editor
             {
                 string utilitySource = File.ReadAllText(BuildingValidationUtilityPath);
                 if (utilitySource.Contains("FormatSnapTargetLabel")
-                    && utilitySource.Contains("Placement Valid:"))
+                    && utilitySource.Contains("Placement Valid:")
+                    && utilitySource.Contains("Saved Building Records:")
+                    && utilitySource.Contains("Restored Buildings:"))
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Info,
                         "Building HUD Display",
-                        "Environment HUD presenter displays building snap target and placement validity.");
+                        "Environment HUD presenter displays building snap target, validity, and restore counts.");
                     return;
                 }
 
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Building HUD Display",
-                    "Building validation utility is missing snap target HUD formatting.");
+                    "Building validation utility is missing persistence restore HUD formatting.");
                 return;
             }
 
@@ -797,12 +959,13 @@ namespace CCS.Modules.Building.Editor
             string sceneText = File.ReadAllText(BootstrapScenePath);
             if (sceneText.Contains("CCS_BuildingTestArea")
                 && sceneText.Contains("CCS_BuildingPlacementTestHarness")
+                && sceneText.Contains("CCS_BuildingPersistenceTestHarness")
                 && sceneText.Contains("CCS_BuildingPlacementPreview"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Bootstrap Building Test Area",
-                    "Bootstrap scene includes CCS_BuildingTestArea with preview and placement harness.");
+                    "Bootstrap scene includes CCS_BuildingTestArea with preview, placement, and persistence harnesses.");
                 return;
             }
 

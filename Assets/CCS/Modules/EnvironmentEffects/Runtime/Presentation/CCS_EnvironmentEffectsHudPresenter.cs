@@ -209,18 +209,26 @@ namespace CCS.Modules.EnvironmentEffects
         {
             int definitionCount = 0;
             int placedCount = 0;
+            int savedRecordCount = 0;
+            int restoredCount = 0;
             CCS_BuildingPlacementSnapshot placementSnapshot = CCS_BuildingPlacementSnapshot.Empty;
 
             if (buildingService != null && buildingService.IsInitialized)
             {
                 definitionCount = buildingService.RegisteredDefinitionCount;
                 placedCount = buildingService.PlacedInstanceCount;
+                savedRecordCount = buildingService.SavedBuildingRecordCount;
+                restoredCount = buildingService.RestoredBuildingCount;
                 placementSnapshot = buildingService.GetPlacementSnapshot();
             }
 
             return displayText + "\n" +
                    CCS_BuildingValidationUtility.FormatBuildingDefinitionCountLine(definitionCount) + "\n" +
-                   CCS_BuildingValidationUtility.FormatPlacementHudLines(placementSnapshot, placedCount);
+                   CCS_BuildingValidationUtility.FormatPlacementHudLines(
+                       placementSnapshot,
+                       placedCount,
+                       savedRecordCount,
+                       restoredCount);
         }
 
         private void HandleEnvironmentChanged(CCS_EnvironmentEffectsEventArgs eventArgs)

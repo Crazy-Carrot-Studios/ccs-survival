@@ -1,30 +1,103 @@
 # CCS Survival — Building Module
 
-**Milestone:** 0.8.3 — Building Snapping Foundation  
+**Milestone:** 0.8.4 — Building Persistence Restore  
 **Module ID:** `ccs.survival.building`  
 **Namespace:** `CCS.Modules.Building` (editor: `CCS.Modules.Building.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Basic snap matching complete (free foundation placement, wall/roof required snapping, occupancy; no structural integrity)
+**Status:** Snap matching and placed instance save/load restore complete (primitive visuals; no structural integrity)
 
 ---
 
 ## Purpose
 
-Provide the **runtime building architecture** for structure definitions, inventory-backed placement, and basic snap alignment.
+Provide the **runtime building architecture** for structure definitions, inventory-backed placement, basic snap alignment, and **persistence restore** of placed instances.
 
 Building owns:
 
-| Concern | 0.8.3 scope |
+| Concern | 0.8.4 scope |
 |---------|-------------|
 | Piece definitions | Metadata, build costs, and authored snap points |
 | Snap matching | Compatible snap search and preview alignment |
 | Inventory costs | Validate and consume resources before placement |
 | Placed instances | Track structures with runtime snap point occupancy |
-| Service persistence | Save definition IDs and placed instance records |
+| Service persistence | Save and restore definition IDs and placed instance records |
+| Visual restore | Cube placeholders via shared visual factory |
 | Feature flags | Placement enabled; demolition/upgrades disabled |
 
-No advanced grid snapping, structural integrity, durability, repair, demolition, or multiplayer networking in 0.8.3.
+No advanced grid snapping, structural integrity, durability, repair, demolition, or multiplayer networking in 0.8.4.
+
+---
+
+## Save payload (`CCS_BuildingSaveData` v3)
+
+| Field | Purpose |
+|-------|---------|
+| `saveDataVersion` | Format version (current: **3**) |
+| `registeredPieceIds` | Catalog of registered definition IDs |
+| `placedInstanceRecords` | Serializable placed structures |
+
+Each `CCS_BuildingInstanceSaveRecord` persists:
+
+- `instanceId` — stable logical ID (not Unity instance ID)
+- `pieceId` — definition ID
+- World position and rotation (`positionX/Y/Z`, `rotationX/Y/Z/W`)
+- `creationTime`
+- `placedOrderIndex` — restore order
+- `occupiedSnapPointIds` — snap points marked occupied on this instance
+- `targetSnapInstanceId` / `targetSnapPointId` — optional parent snap metadata
+
+Version 2 saves restore with default order index and empty occupancy metadata.
+
+---
+
+## Restore flow
+
+```text
+CCS_SaveLoadService load
+        ↓
+CCS_BuildingService.RestoreState(json)
+        ↓
+Clear runtime placed instances + destroy visuals
+        ↓
+Restore registered definition catalog
+        ↓
+CCS_BuildingDefinitionLookup.TryResolveDefinition(pieceId)
+        ↓
+Recreate CCS_BuildingInstance (sorted by placedOrderIndex)
+        ↓
+InitializeRuntimeSnapPoints + ApplyOccupiedSnapPoints
+        ↓
+CCS_BuildingInstanceVisualFactory.SpawnInstanceVisual()
+        ↓
+OnBuildingStateChanged (SavedBuildingRecordCount / RestoredBuildingCount updated)
+```
+
+Invalid records are skipped with warning logs. Missing definitions fail safely without corrupting valid instances.
+
+---
+
+## Definition lookup
+
+`CCS_BuildingDefinitionLookup` resolves `pieceId` → `CCS_BuildingPieceDefinition` using:
+
+1. Profile `StartupDefinitions`
+2. Registered runtime catalog entries
+
+Used during restore only; placement continues to use `CCS_BuildingService.TryGetDefinition`.
+
+---
+
+## Visual restore
+
+`CCS_BuildingInstanceVisualFactory` spawns **cube placeholders** for Foundation, Wall, and Roof when prefabs are not assigned.
+
+- Shared by placement (`TryAddPlacedInstance`) and restore
+- Parents under `CCS_BuildingTestArea` when present
+- Creates `CCS_BuildingRuntimeVisualRoot` at runtime when test area is missing
+- No final art or prefab requirement yet
+
+Final prefab spawning, hologram previews, and art-driven visuals are deferred.
 
 ---
 
@@ -44,19 +117,7 @@ CCS_BuildingPlacementService.FindBestSnapMatch()
 UpdatePreviewWithSnap() → PlaceCurrentPieceUsingSnap()
 ```
 
-**Snap point types:** `FoundationEdge`, `WallBottom`, `WallTop`, `RoofEdge`, `Free`
-
-**Definition fields:**
-
-- `SnapPoints` — authored local snap points per piece
-- `AllowsFreePlacement` — foundation may free-place
-- `RequiresSnapPoint` — wall and roof must snap before placement
-
-**Runtime fields (`CCS_BuildingRuntimeSnapPoint`):**
-
-- Instance ID, snap point ID, type
-- World position and rotation (updated from instance transform)
-- Occupied flag (set when another piece snaps to this point)
+**Snap occupancy persistence:** occupied snap IDs are captured per instance on save and reapplied on restore so future wall/roof placement cannot reuse occupied points.
 
 ---
 
@@ -67,29 +128,6 @@ UpdatePreviewWithSnap() → PlaceCurrentPieceUsingSnap()
 | `FoundationEdge` | `WallBottom` |
 | `WallTop` | `RoofEdge` |
 | `Free` | `Free` |
-
-Rules are explicit in `CCS_BuildingSnapCompatibilityUtility`. No angle validation or structural support checks yet.
-
----
-
-## Free placement vs required snapping
-
-| Piece | Allows free | Requires snap |
-|-------|-------------|---------------|
-| Foundation | Yes | No |
-| Wall | No | Yes (to foundation edge) |
-| Roof | No | Yes (to wall top) |
-
-If a required snap is missing or occupied, preview becomes invalid and placement fails safely without consuming inventory.
-
----
-
-## Placement flow
-
-1. `UpdatePreviewWithSnap(hintPosition)` searches nearby placed instances for compatible unoccupied snap pairs
-2. Required pieces fail preview when no valid snap exists
-3. `PlaceCurrentPieceUsingSnap()` validates inventory, consumes costs, registers instance, and marks target snap occupied
-4. Partial consumption or registration failure rolls back inventory costs
 
 ---
 
@@ -105,14 +143,28 @@ Harness sequence: foundation free-place → wall snap to foundation → roof sna
 
 ---
 
+## Persistence test harness
+
+`CCS_BuildingPersistenceTestHarness` (bootstrap only):
+
+1. Waits for placement harness to place foundation, wall, and roof
+2. Saves to slot `building_persistence_test`
+3. Clears placed instances
+4. Loads slot
+5. Verifies restored count and snap occupancy (`foundation_edge_top`, `wall_top`)
+6. Logs `PASS` or `FAIL`
+
+---
+
 ## HUD debug display
 
 Environment panel shows:
 
 - Building definition count
 - Placement active / selected piece / placed count
-- **Snap Target:** `None` or snap type name
-- **Placement Valid:** `Yes` / `No`
+- Snap target and placement validity
+- **Saved Building Records:** count from last restore payload
+- **Restored Buildings:** count of successfully recreated instances
 
 ---
 
@@ -122,7 +174,6 @@ Environment panel shows:
 - Structural integrity and support validation
 - Durability, repair, and demolition
 - Final prefab spawning and hologram previews
-- Full placed instance restore from save
 - Multiplayer authority and replication
 
 ---
@@ -130,4 +181,5 @@ Environment panel shows:
 ## Related documentation
 
 - [Survival Module Roadmap](../../Survival/Documentation/CCS_Survival_Module_Roadmap.md)
+- [Save/Load Module](../../SaveLoad/Documentation/CCS_Save_Load_Module.md)
 - [Inventory Module](../../Inventory/Documentation/CCS_Inventory_Module.md)

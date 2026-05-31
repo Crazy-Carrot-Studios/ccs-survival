@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: Owned by CCS_BuildingService placed instance catalog.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Runtime snap points derived from definition in 0.8.3.
+// NOTES: Runtime snap points and occupancy persistence in 0.8.3–0.8.4.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -119,6 +119,51 @@ namespace CCS.Modules.Building
             return false;
         }
 
+        public void SetTargetSnapConnection(string targetInstanceId, string targetSnapPointId)
+        {
+            TargetSnapInstanceId = targetInstanceId ?? string.Empty;
+            TargetSnapPointId = targetSnapPointId ?? string.Empty;
+        }
+
+        public void ApplyOccupiedSnapPoints(IReadOnlyList<string> occupiedSnapPointIds)
+        {
+            if (occupiedSnapPointIds == null || occupiedSnapPointIds.Count == 0)
+            {
+                return;
+            }
+
+            for (int index = 0; index < occupiedSnapPointIds.Count; index++)
+            {
+                TrySetSnapPointOccupied(occupiedSnapPointIds[index], true);
+            }
+        }
+
+        public List<string> CollectOccupiedSnapPointIds()
+        {
+            List<string> occupiedSnapPointIds = new List<string>();
+
+            for (int index = 0; index < runtimeSnapPoints.Count; index++)
+            {
+                CCS_BuildingRuntimeSnapPoint runtimeSnapPoint = runtimeSnapPoints[index];
+                if (runtimeSnapPoint.IsOccupied)
+                {
+                    occupiedSnapPointIds.Add(runtimeSnapPoint.SnapPointId);
+                }
+            }
+
+            return occupiedSnapPointIds;
+        }
+
+        public bool HasOccupiedSnapPoint(string snapPointId)
+        {
+            if (!TryGetRuntimeSnapPoint(snapPointId, out CCS_BuildingRuntimeSnapPoint runtimeSnapPoint))
+            {
+                return false;
+            }
+
+            return runtimeSnapPoint.IsOccupied;
+        }
+
         #endregion
 
         #region Properties
@@ -132,6 +177,10 @@ namespace CCS.Modules.Building
         public Quaternion Rotation { get; }
 
         public float CreationTime { get; }
+
+        public string TargetSnapInstanceId { get; private set; } = string.Empty;
+
+        public string TargetSnapPointId { get; private set; } = string.Empty;
 
         public IReadOnlyList<CCS_BuildingRuntimeSnapPoint> RuntimeSnapPoints => runtimeSnapPoints;
 

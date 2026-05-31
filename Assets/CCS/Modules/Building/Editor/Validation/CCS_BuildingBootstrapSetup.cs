@@ -14,10 +14,10 @@ using UnityEngine.UI;
 // SCRIPT: CCS_BuildingBootstrapSetup
 // CATEGORY: Modules / Building / Editor / Validation
 // PURPOSE: Creates default profile, test definitions, and bootstrap gameplay wiring.
-// PLACEMENT: Batch entry for 0.8.3 building snapping foundation milestone.
+// PLACEMENT: Batch entry for 0.8.4 building persistence restore milestone.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Snap points, placement snapping rules, and harness snap sequence seeding.
+// NOTES: Snap points, persistence harness, and restore verification seeding.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -131,8 +131,8 @@ namespace CCS.Modules.Building.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Building";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.building.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default building rules for 0.8.3 snapping foundation.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.3";
+                "Default building rules for 0.8.4 persistence restore.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.8.4";
             serializedProfile.FindProperty("allowPlacement").boolValue = true;
             serializedProfile.FindProperty("allowDemolition").boolValue = false;
             serializedProfile.FindProperty("allowUpgrades").boolValue = false;
@@ -368,6 +368,19 @@ namespace CCS.Modules.Building.Editor
             serializedHarness.FindProperty("seedFiberQuantity").intValue = 20;
             serializedHarness.FindProperty("foundationPlacementOffset").vector3Value = new Vector3(0f, 0.5f, 0f);
             serializedHarness.ApplyModifiedPropertiesWithoutUndo();
+
+            CCS_BuildingPersistenceTestHarness persistenceHarness =
+                testArea.GetComponent<CCS_BuildingPersistenceTestHarness>();
+            if (persistenceHarness == null)
+            {
+                persistenceHarness = testArea.AddComponent<CCS_BuildingPersistenceTestHarness>();
+            }
+
+            SerializedObject serializedPersistenceHarness = new SerializedObject(persistenceHarness);
+            serializedPersistenceHarness.FindProperty("enableHarness").boolValue = true;
+            serializedPersistenceHarness.FindProperty("checkIntervalSeconds").floatValue = 2f;
+            serializedPersistenceHarness.FindProperty("placementTestHarness").objectReferenceValue = harness;
+            serializedPersistenceHarness.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

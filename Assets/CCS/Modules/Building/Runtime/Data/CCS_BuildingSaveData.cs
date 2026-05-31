@@ -7,7 +7,7 @@ using System.Collections.Generic;
 // PLACEMENT: Serialized by CCS_BuildingService.CaptureState().
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placed instance records serialized in 0.8.1. Full restore deferred.
+// NOTES: Version 3 adds snap occupancy and restore support in 0.8.4.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -17,7 +17,7 @@ namespace CCS.Modules.Building
     {
         #region Variables
 
-        public const int CurrentSaveDataVersion = 2;
+        public const int CurrentSaveDataVersion = 3;
 
         public int saveDataVersion = CurrentSaveDataVersion;
 

@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.8.3 — Building Snapping Foundation  
+**Milestone baseline:** 0.8.4 — Building Persistence Restore  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Building snapping foundation **complete** at **0.8.3**. Structural integrity, durability, and shelter generation deferred.
+**Status:** Building persistence restore **complete** at **0.8.4**. Structural integrity, durability, and shelter generation deferred.
 
 ---
 
@@ -45,8 +45,9 @@
 | **0.8.3** | Building snapping foundation |
 | **0.8.2** | Building construction costs and placement validation |
 | **0.8.1** | Building placement foundation |
+| **0.8.4** | Building persistence restore |
 
-Later milestones continue from **0.8.2+** (snapping, structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+Later milestones continue from **0.8.5+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
 
 ---
 
@@ -95,10 +96,11 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 17 | **0.8.1** | **Building Placement** | `ccs.survival.building` — **Placement foundation complete** |
 | 18 | **0.8.2** | **Building Construction Costs** | `ccs.survival.building` — **Inventory build costs and validation complete** |
 | 19 | **0.8.3** | **Building Snapping** | `ccs.survival.building` — **Snap foundation complete** |
+| 20 | **0.8.4** | **Building Persistence Restore** | `ccs.survival.building` — **Placed instance save/load restore complete** |
 | 18 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 19 | 0.5.x | Combat | `ccs.survival.combat` |
 | 20 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
-| 21 | 0.8.2+ | Building snapping & structural rules | `ccs.survival.building` |
+| 21 | 0.8.5+ | Building structural rules | `ccs.survival.building` |
 | 22 | 0.5.x | Quests / Objectives | `ccs.survival.quests` |
 | 23 | 0.5.x | Audio | `ccs.survival.audio` |
 | 24 | 0.5.x | Settings finalization | `ccs.survival.settings` (player-facing preferences UI) |
@@ -139,7 +141,24 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.8.4 — Building Structural Rules** (support checks and advanced snap constraints)
+**0.8.5 — Building Structural Rules** (support checks and advanced snap constraints)
+
+---
+
+## 0.8.4 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_BuildingSaveData` v3 with placed instance records | **Complete** |
+| Snap occupancy and placement order persistence | **Complete** |
+| `CCS_BuildingDefinitionLookup` for restore | **Complete** |
+| `RestoreState()` recreates instances, snap points, and visuals | **Complete** |
+| `CCS_BuildingInstanceVisualFactory` shared by placement and restore | **Complete** |
+| `CCS_BuildingPersistenceTestHarness` save/clear/load verification | **Complete** |
+| HUD saved/restored building count lines | **Complete** |
+| Version **0.8.4** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

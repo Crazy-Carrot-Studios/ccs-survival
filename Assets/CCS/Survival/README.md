@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.3 — Building Snapping Foundation  
+**Milestone:** 0.8.4 — Building Persistence Restore  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -189,6 +189,17 @@
 | Snap matching | `FindBestSnapMatch()` on `CCS_BuildingPlacementService` |
 
 **0.8.3:** Foundation free-place; wall snaps to foundation edge; roof snaps to wall top. Runtime snap occupancy, preview alignment, and HUD snap target display. No structural integrity yet.
+
+## Building Persistence Restore (0.8.4)
+
+| Area | Path |
+|------|------|
+| Save payload | `../Modules/Building/Runtime/Data/CCS_BuildingSaveData.cs` |
+| Restore flow | `RestoreState()` on `CCS_BuildingService` |
+| Visual factory | `../Modules/Building/Runtime/Placement/CCS_BuildingInstanceVisualFactory.cs` |
+| Persistence harness | `../Modules/Building/Runtime/Testing/CCS_BuildingPersistenceTestHarness.cs` |
+
+**0.8.4:** Placed foundation, wall, and roof instances persist definition ID, transform, snap occupancy, and restore with cube placeholders. No final art or structural integrity yet.
 
 ## Inventory (0.4.0)
 

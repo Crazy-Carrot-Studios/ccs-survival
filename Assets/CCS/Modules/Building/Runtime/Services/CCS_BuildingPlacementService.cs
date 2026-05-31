@@ -356,7 +356,7 @@ namespace CCS.Modules.Building
                 placementState.PreviewRotation,
                 Time.time);
 
-            if (!buildingService.TryAddPlacedInstance(instance))
+            if (!buildingService.TryAddPlacedInstance(instance, consumedSnapMatch))
             {
                 CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
                 validation = CCS_BuildingPlacementValidationResult.Failed("Failed to register placed building instance.");
@@ -394,6 +394,35 @@ namespace CCS.Modules.Building
             }
 
             return placementState.CreateSnapshot();
+        }
+
+        public void SyncNextInstanceSequenceFromRestoredInstances(IReadOnlyList<CCS_BuildingInstance> instances)
+        {
+            if (instances == null || instances.Count == 0)
+            {
+                return;
+            }
+
+            const string instanceIdPrefix = "ccs.survival.building.instance.";
+            int maxSequence = nextInstanceSequence;
+
+            for (int index = 0; index < instances.Count; index++)
+            {
+                string instanceId = instances[index]?.InstanceId;
+                if (string.IsNullOrWhiteSpace(instanceId)
+                    || !instanceId.StartsWith(instanceIdPrefix, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                string sequenceText = instanceId.Substring(instanceIdPrefix.Length);
+                if (int.TryParse(sequenceText, out int parsedSequence) && parsedSequence > maxSequence)
+                {
+                    maxSequence = parsedSequence;
+                }
+            }
+
+            nextInstanceSequence = maxSequence;
         }
 
         #endregion

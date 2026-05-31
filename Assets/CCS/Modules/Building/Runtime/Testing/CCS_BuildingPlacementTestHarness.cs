@@ -72,6 +72,12 @@ namespace CCS.Modules.Building
 
         #endregion
 
+        #region Properties
+
+        public bool IsSnapSequenceComplete => sequenceStep == HarnessSequenceStep.Complete;
+
+        #endregion
+
         #region Unity Callbacks
 
         private void Update()
@@ -154,7 +160,6 @@ namespace CCS.Modules.Building
             }
 
             lastFoundationPosition = placementService.GetSnapshot().PreviewPosition;
-            SpawnPlacedVisual(definition, lastFoundationPosition, Quaternion.identity);
             Debug.Log($"{LogPrefix} Foundation placed free at {lastFoundationPosition}.");
             sequenceStep = HarnessSequenceStep.Wall;
         }
@@ -193,8 +198,6 @@ namespace CCS.Modules.Building
                 Debug.Log($"{LogPrefix} Snapped placement failed for '{pieceId}': {result.FailureReason}");
                 return;
             }
-
-            SpawnPlacedVisual(definition, placedPosition, snapMatch.SnappedRotation);
 
             if (pieceId == WallPieceId)
             {
@@ -253,16 +256,6 @@ namespace CCS.Modules.Building
         {
             Vector3 anchorPosition = testAreaAnchor != null ? testAreaAnchor.position : transform.position;
             return anchorPosition + foundationPlacementOffset;
-        }
-
-        private static void SpawnPlacedVisual(
-            CCS_BuildingPieceDefinition definition,
-            Vector3 position,
-            Quaternion rotation)
-        {
-            GameObject placedObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            placedObject.name = $"CCS_Placed_{definition.BuildingPieceType}";
-            placedObject.transform.SetPositionAndRotation(position, rotation);
         }
 
         #endregion

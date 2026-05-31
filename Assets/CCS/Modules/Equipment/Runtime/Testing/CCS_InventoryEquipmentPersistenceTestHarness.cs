@@ -190,7 +190,7 @@ namespace CCS.Modules.Equipment
 
             if (debugController == null)
             {
-                debugController = Object.FindFirstObjectByType<CCS_SaveLoadDebugController>();
+                debugController = Object.FindAnyObjectByType<CCS_SaveLoadDebugController>();
                 saveLoadDebugController = debugController;
             }
 
