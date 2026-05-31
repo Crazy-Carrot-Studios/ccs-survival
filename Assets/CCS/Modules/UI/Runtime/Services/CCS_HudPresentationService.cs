@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Building;
 using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
@@ -40,6 +41,7 @@ namespace CCS.Modules.UI
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
         private CCS_EnvironmentEffectsService environmentEffectsService;
+        private CCS_BuildingPlacementService buildingPlacementService;
 
         private string currentInteractionPrompt = string.Empty;
         private CCS_InventorySnapshot inventorySnapshot;
@@ -315,6 +317,20 @@ namespace CCS.Modules.UI
             RefreshEnvironmentSnapshot();
         }
 
+        public void BindBuildingPlacementService(CCS_BuildingPlacementService service)
+        {
+            UnbindBuildingPlacementService();
+            buildingPlacementService = service;
+
+            if (buildingPlacementService == null)
+            {
+                return;
+            }
+
+            buildingPlacementService.BuildingPlaced += HandleBuildingPlaced;
+            buildingPlacementService.PlacementFailed += HandleBuildingPlacementFailed;
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -431,6 +447,37 @@ namespace CCS.Modules.UI
             RefreshInventorySnapshot();
             QueueNotification(BuildCraftingCompletedNotification(eventArgs));
             HudDataRefreshed?.Invoke(BuildEventArgs("Crafting completed."));
+        }
+
+        private void HandleBuildingPlaced(CCS_BuildingPlacementEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueNotification(BuildBuildingPlacedNotification(eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Building piece placed."));
+        }
+
+        private void HandleBuildingPlacementFailed(CCS_BuildingPlacementFailedEventArgs eventArgs)
+        {
+            string notification = eventArgs != null
+                ? CCS_BuildingPlacementValidationUtility.BuildMissingItemNotification(eventArgs.ValidationResult)
+                : string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(notification))
+            {
+                QueueNotification(notification);
+            }
+
+            HudDataRefreshed?.Invoke(BuildEventArgs("Building placement failed."));
+        }
+
+        private static string BuildBuildingPlacedNotification(CCS_BuildingPlacementEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return "Placed Structure";
+            }
+
+            return $"Placed {CCS_BuildingValidationUtility.FormatPieceTypeLabel(eventArgs.PlacementSnapshot.ActivePieceType)}";
         }
 
         private void HandleCraftingFailed(CCS_CraftingEventArgs eventArgs)
@@ -752,6 +799,18 @@ namespace CCS.Modules.UI
             craftingService.CraftingFailed -= HandleCraftingFailed;
             craftingService.RecipeUnlocked -= HandleRecipeUnlocked;
             craftingService = null;
+        }
+
+        private void UnbindBuildingPlacementService()
+        {
+            if (buildingPlacementService == null)
+            {
+                return;
+            }
+
+            buildingPlacementService.BuildingPlaced -= HandleBuildingPlaced;
+            buildingPlacementService.PlacementFailed -= HandleBuildingPlacementFailed;
+            buildingPlacementService = null;
         }
 
         private void HandleTimeOfDayChanged(CCS_TimeOfDayEventArgs eventArgs)

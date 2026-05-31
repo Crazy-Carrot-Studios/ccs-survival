@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.8.1 — Building Placement Foundation  
+**Milestone:** 0.8.2 — Building Construction Costs & Placement Validation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -169,7 +169,17 @@
 
 **Editor menu:** **CCS → Survival → Building → Validate Building**
 
-**0.8.1:** Build mode, placement preview, spawned cube instances, and placed instance save model. Bootstrap harness cycles foundation/wall/roof near the shelter test area. No inventory consumption or snapping yet.
+**0.8.1:** Build mode, placement preview, spawned cube instances, and placed instance save model. Bootstrap harness cycles foundation/wall/roof near the shelter test area.
+
+## Building Construction Costs (0.8.2)
+
+| Area | Path |
+|------|------|
+| Build cost entries | `../Modules/Building/Runtime/Definitions/CCS_BuildingCostEntry.cs` |
+| Placement validation | `../Modules/Building/Runtime/Validation/CCS_BuildingPlacementValidationUtility.cs` |
+| Inventory integration | `TryPlaceCurrentPiece()` on `CCS_BuildingPlacementService` |
+
+**0.8.2:** Inventory-validated placement with build costs, consumption rollback, HUD notifications, and harness resource seeding. No snapping yet.
 
 ## Inventory (0.4.0)
 

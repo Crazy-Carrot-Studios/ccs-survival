@@ -24,6 +24,8 @@ namespace CCS.Modules.Building
 
         public const string BuildingPlaced = "BuildingPlaced";
 
+        public const string PlacementFailed = "PlacementFailed";
+
         #endregion
     }
 
@@ -36,4 +38,6 @@ namespace CCS.Modules.Building
     public delegate void PlacementCancelledHandler(CCS_BuildingPlacementEventArgs eventArgs);
 
     public delegate void BuildingPlacedHandler(CCS_BuildingPlacementEventArgs eventArgs);
+
+    public delegate void PlacementFailedHandler(CCS_BuildingPlacementFailedEventArgs eventArgs);
 }

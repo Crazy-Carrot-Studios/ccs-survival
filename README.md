@@ -23,13 +23,15 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**0.8.2** — Building Construction Costs & Placement Validation
+
 **0.8.1** — Building Placement Foundation
 
 **Unity:** Unity 6
 
 ### Status
 
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**. Environment effects foundation delivered at **0.7.2**. Survival Core environment integration delivered at **0.7.3**. Equipment environmental modifiers delivered at **0.7.4**. Shelter environmental protection foundation delivered at **0.7.5**. Building foundation delivered at **0.8.0**. Building placement foundation delivered at **0.8.1**.
+HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**. Environment effects foundation delivered at **0.7.2**. Survival Core environment integration delivered at **0.7.3**. Equipment environmental modifiers delivered at **0.7.4**. Shelter environmental protection foundation delivered at **0.7.5**. Building foundation delivered at **0.8.0**. Building placement foundation delivered at **0.8.1**. Building construction costs and placement validation delivered at **0.8.2**.
 
 ### Implemented Modules
 - Character Controller
@@ -124,7 +126,7 @@ Assets/
 | Environment Effects | Raw/effective simulation with shelter and equipment modifiers (0.7.5) |
 | Shelter | Trigger-volume environmental protection foundation (0.7.5) |
 | Survival Core | Effective environment pressure — temperature, fatigue, thirst (0.7.3+) |
-| Building | Structure definition catalog and placement foundation (0.8.0 / 0.8.1) |
+| Building | Structure definition catalog, placement foundation, and inventory build costs (0.8.0 / 0.8.1 / 0.8.2) |
 | Wildlife | Planned |
 | Combat | Planned |
 
@@ -170,8 +172,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.8.1
-**Build output:** `Builds/CCS_Survival_0.8.1_Windows/` (gitignored)
+**Latest verified build:** 0.8.2
+**Build output:** `Builds/CCS_Survival_0.8.2_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

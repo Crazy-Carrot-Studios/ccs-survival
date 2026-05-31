@@ -1931,6 +1931,12 @@ MonoBehaviour:
   - {x: 0, y: 0.5, z: 2}
   - {x: 2, y: 0.5, z: 2}
   - {x: 4, y: 0.5, z: 2}
+  seedWoodItem: {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
+  seedStoneItem: {fileID: 11400000, guid: da3e7241a2a884241b94c2e47d92dd24, type: 2}
+  seedFiberItem: {fileID: 11400000, guid: c4051eea87783a241be1d85d54e4702e, type: 2}
+  seedWoodQuantity: 50
+  seedStoneQuantity: 20
+  seedFiberQuantity: 20
 --- !u!114 &1135345012
 MonoBehaviour:
   m_ObjectHideFlags: 0

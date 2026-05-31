@@ -7,6 +7,7 @@ using CCS.Modules.SurvivalCore;
 using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
+using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
@@ -105,6 +106,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_EnvironmentEffectsService environmentEffectsService))
             {
                 presentationService.BindEnvironmentEffectsService(environmentEffectsService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_BuildingPlacementService buildingPlacementService))
+            {
+                presentationService.BindBuildingPlacementService(buildingPlacementService);
                 wiredAnyService = true;
             }
 

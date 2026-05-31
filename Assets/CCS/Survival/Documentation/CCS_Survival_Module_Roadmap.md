@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.8.1 — Building Placement Foundation  
+**Milestone baseline:** 0.8.2 — Building Construction Costs & Placement Validation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Building placement foundation **complete** at **0.8.1**. Snapping, durability, and shelter generation deferred.
+**Status:** Building construction costs and placement validation **complete** at **0.8.2**. Snapping, durability, and shelter generation deferred.
 
 ---
 
@@ -42,6 +42,7 @@
 | **0.7.4** | Clothing & equipment environmental modifiers |
 | **0.7.5** | Shelter & environmental protection foundation |
 | **0.8.0** | Building foundation |
+| **0.8.2** | Building construction costs and placement validation |
 | **0.8.1** | Building placement foundation |
 
 Later milestones continue from **0.8.2+** (snapping, structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
@@ -91,6 +92,7 @@ Do **not** add gameplay modules under `Assets/CCS/Survival/Runtime/<ModuleName>/
 | 15 | **0.7.5** | **Shelter & Environmental Protection** | `ccs.survival.shelter` — **Complete** |
 | 16 | **0.8.0** | **Building** | `ccs.survival.building` — **Foundation complete** |
 | 17 | **0.8.1** | **Building Placement** | `ccs.survival.building` — **Placement foundation complete** |
+| 18 | **0.8.2** | **Building Construction Costs** | `ccs.survival.building` — **Inventory build costs and validation complete** |
 | 18 | 0.4.x | Loot / Spawn | `ccs.survival.loot` |
 | 19 | 0.5.x | Combat | `ccs.survival.combat` |
 | 20 | 0.5.x | AI / Wildlife | `ccs.survival.ai` |
@@ -135,7 +137,23 @@ Controlled by `CCS_SurvivalTestToggleProfile` and `CCS_SurvivalTestRuntimeFlags`
 
 ## Next milestone
 
-**0.7.6 — Biome & Regional Environment Modifiers** (regional offsets layered on environment simulation)
+**0.8.3 — Building Snapping & Grid Rules** (grid alignment and placement constraints)
+
+---
+
+## 0.8.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_BuildingCostEntry` on piece definitions | **Complete** |
+| `CCS_BuildingPlacementValidationUtility` validate + consume + rollback | **Complete** |
+| `TryPlaceCurrentPiece()` inventory-aware placement flow | **Complete** |
+| HUD placement success/failure notifications | **Complete** |
+| Harness resource seeding and `TryPlaceCurrentPiece()` cycling | **Complete** |
+| Bootstrap definition build costs (Wood/Stone/Fiber) | **Complete** |
+| Version **0.8.2** | **Complete** |
+| Batch validations 0 warnings / 0 errors | **Verify** |
+| Windows build verification | **Verify** |
 
 ---
 

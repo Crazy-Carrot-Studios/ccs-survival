@@ -1,3 +1,4 @@
+using CCS.Modules.Inventory;
 using CCS.Survival;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Registered as CCS_ISurvivalService by survival gameplay composition wiring.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: No inventory consumption, snapping, or durability in 0.8.1.
+// NOTES: Inventory cost validation and consumption added in 0.8.2.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -23,6 +24,7 @@ namespace CCS.Modules.Building
 
         private CCS_BuildingProfile activeProfile;
         private CCS_BuildingService buildingService;
+        private CCS_PlayerInventoryService inventoryService;
         private int nextInstanceSequence;
         private bool isInitialized;
 
@@ -33,6 +35,7 @@ namespace CCS.Modules.Building
         public event PlacementStartedHandler PlacementStarted;
         public event PlacementCancelledHandler PlacementCancelled;
         public event BuildingPlacedHandler BuildingPlaced;
+        public event PlacementFailedHandler PlacementFailed;
 
         #endregion
 
@@ -78,6 +81,11 @@ namespace CCS.Modules.Building
         public void BindBuildingService(CCS_BuildingService service)
         {
             buildingService = service;
+        }
+
+        public void BindInventoryService(CCS_PlayerInventoryService service)
+        {
+            inventoryService = service;
         }
 
         public bool EnterPlacementMode(string message = null)
@@ -161,14 +169,37 @@ namespace CCS.Modules.Building
             return isValid;
         }
 
-        public bool PlaceCurrentPiece()
+        public CCS_BuildingPlacementValidationResult TryPlaceCurrentPiece()
         {
-            if (!EnsureReady()
-                || !placementState.IsPlacementModeActive
-                || !placementState.IsPlacementValid
-                || string.IsNullOrWhiteSpace(placementState.ActivePieceId))
+            CCS_BuildingPlacementValidationResult validation =
+                CCS_BuildingPlacementValidationUtility.ValidatePlacementAttempt(
+                    this,
+                    buildingService,
+                    inventoryService,
+                    placementState);
+
+            if (!validation.Success)
             {
-                return false;
+                RaisePlacementFailed(validation);
+                return validation;
+            }
+
+            if (!buildingService.TryGetDefinition(
+                    placementState.ActivePieceId,
+                    out CCS_BuildingPieceDefinition definition))
+            {
+                validation = CCS_BuildingPlacementValidationResult.Failed("Building definition was not found.");
+                RaisePlacementFailed(validation);
+                return validation;
+            }
+
+            if (!CCS_BuildingPlacementValidationUtility.TryConsumeBuildCosts(
+                    inventoryService,
+                    definition,
+                    out CCS_BuildingPlacementValidationResult consumeResult))
+            {
+                RaisePlacementFailed(consumeResult);
+                return consumeResult;
             }
 
             string instanceId = GenerateInstanceId();
@@ -181,12 +212,20 @@ namespace CCS.Modules.Building
 
             if (!buildingService.TryAddPlacedInstance(instance))
             {
-                return false;
+                CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
+                validation = CCS_BuildingPlacementValidationResult.Failed("Failed to register placed building instance.");
+                RaisePlacementFailed(validation);
+                return validation;
             }
 
             BuildingPlaced?.Invoke(
                 CreateEventArgs(instance, $"Placed building piece '{placementState.ActivePieceId}'."));
-            return true;
+            return CCS_BuildingPlacementValidationResult.Passed;
+        }
+
+        public bool PlaceCurrentPiece()
+        {
+            return TryPlaceCurrentPiece().Success;
         }
 
         public CCS_BuildingPlacementSnapshot GetSnapshot()
@@ -225,6 +264,12 @@ namespace CCS.Modules.Building
         {
             nextInstanceSequence++;
             return $"ccs.survival.building.instance.{nextInstanceSequence}";
+        }
+
+        private void RaisePlacementFailed(CCS_BuildingPlacementValidationResult validation)
+        {
+            PlacementFailed?.Invoke(
+                new CCS_BuildingPlacementFailedEventArgs(placementState.CreateSnapshot(), validation));
         }
 
         private CCS_BuildingPlacementEventArgs CreateEventArgs(

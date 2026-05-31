@@ -16,6 +16,9 @@ MonoBehaviour:
   displayName: Test Wall
   description: Test wall piece for 0.8.0 building architecture.
   buildingPieceType: 2
+  buildCostEntries:
+  - itemDefinition: {fileID: 11400000, guid: 10789ff86d517cf44a571d15fad1f2db, type: 2}
+    quantity: 6
   prefabReference: {fileID: 0}
   craftingRequirements: []
   contributesToShelter: 0

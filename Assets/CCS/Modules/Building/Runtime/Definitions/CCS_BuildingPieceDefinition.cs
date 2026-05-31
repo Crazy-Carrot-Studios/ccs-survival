@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Create assets under Assets/CCS/Survival/Content/Building/.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: No placement logic. Prefab and crafting fields are placeholders for future milestones.
+// NOTES: Build costs consumed through inventory integration in 0.8.2.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -34,12 +34,16 @@ namespace CCS.Modules.Building
         [Tooltip("Building piece category.")]
         [SerializeField] private CCS_BuildingPieceType buildingPieceType = CCS_BuildingPieceType.Custom;
 
+        [Header("Build Costs")]
+        [Tooltip("Inventory items consumed when placing this building piece.")]
+        [SerializeField] private List<CCS_BuildingCostEntry> buildCostEntries = new List<CCS_BuildingCostEntry>();
+
         [Header("Future Prefab")]
         [Tooltip("Placeholder prefab reference for future placement spawning.")]
         [SerializeField] private GameObject prefabReference;
 
-        [Header("Crafting Placeholder")]
-        [Tooltip("Placeholder crafting requirements for future build mode.")]
+        [Header("Legacy Crafting Placeholder")]
+        [Tooltip("Placeholder crafting requirements retained from earlier milestones.")]
         [SerializeField] private List<CCS_CraftingIngredientDefinition> craftingRequirements =
             new List<CCS_CraftingIngredientDefinition>();
 
@@ -69,6 +73,8 @@ namespace CCS.Modules.Building
         public CCS_BuildingPieceType BuildingPieceType => buildingPieceType;
 
         public GameObject PrefabReference => prefabReference;
+
+        public IReadOnlyList<CCS_BuildingCostEntry> BuildCostEntries => buildCostEntries;
 
         public IReadOnlyList<CCS_CraftingIngredientDefinition> CraftingRequirements => craftingRequirements;
 

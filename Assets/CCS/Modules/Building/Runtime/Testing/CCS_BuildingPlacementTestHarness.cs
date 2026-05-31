@@ -1,3 +1,5 @@
+using CCS.Core;
+using CCS.Modules.Inventory;
 using UnityEngine;
 
 // =============================================================================
@@ -7,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap verification scenes only. Disable for shipping builds.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Automatically places foundation, wall, and roof around the test area.
+// NOTES: Validates inventory costs, consumes resources, and logs placement failures.
 // =============================================================================
 
 namespace CCS.Modules.Building
@@ -15,6 +17,7 @@ namespace CCS.Modules.Building
     [DefaultExecutionOrder(270)]
     public sealed class CCS_BuildingPlacementTestHarness : MonoBehaviour
     {
+        private const string LogPrefix = "[CCS_BuildingPlacementTestHarness]";
         private const string FoundationPieceId = "ccs.survival.building.test.foundation";
         private const string WallPieceId = "ccs.survival.building.test.wall";
         private const string RoofPieceId = "ccs.survival.building.test.roof";
@@ -42,6 +45,25 @@ namespace CCS.Modules.Building
             new Vector3(4f, 0.5f, 2f)
         };
 
+        [Header("Resource Seeding")]
+        [Tooltip("Wood item used to seed the player inventory for automated placement.")]
+        [SerializeField] private CCS_ItemDefinition seedWoodItem;
+
+        [Tooltip("Stone item used to seed the player inventory for automated placement.")]
+        [SerializeField] private CCS_ItemDefinition seedStoneItem;
+
+        [Tooltip("Fiber item used to seed the player inventory for automated placement.")]
+        [SerializeField] private CCS_ItemDefinition seedFiberItem;
+
+        [Tooltip("Initial wood quantity granted to inventory before cycling placements.")]
+        [SerializeField] private int seedWoodQuantity = 50;
+
+        [Tooltip("Initial stone quantity granted to inventory before cycling placements.")]
+        [SerializeField] private int seedStoneQuantity = 20;
+
+        [Tooltip("Initial fiber quantity granted to inventory before cycling placements.")]
+        [SerializeField] private int seedFiberQuantity = 20;
+
         private readonly string[] cyclePieceIds =
         {
             FoundationPieceId,
@@ -52,6 +74,7 @@ namespace CCS.Modules.Building
         private float nextPlacementTime;
         private int cycleIndex;
         private int offsetIndex;
+        private bool hasSeededResources;
 
         #endregion
 
@@ -93,6 +116,11 @@ namespace CCS.Modules.Building
                 return;
             }
 
+            if (!TrySeedTestResources())
+            {
+                return;
+            }
+
             string pieceId = cyclePieceIds[cycleIndex % cyclePieceIds.Length];
             cycleIndex++;
 
@@ -112,13 +140,56 @@ namespace CCS.Modules.Building
                 return;
             }
 
-            if (!placementService.PlaceCurrentPiece())
+            CCS_BuildingPlacementValidationResult result = placementService.TryPlaceCurrentPiece();
+            if (!result.Success)
             {
+                Debug.Log($"{LogPrefix} Placement failed for '{pieceId}': {result.FailureReason}");
                 return;
             }
 
             SpawnPlacedVisual(definition, placementPosition, Quaternion.identity, testAreaAnchor != null ? testAreaAnchor : transform);
             offsetIndex = (offsetIndex + 1) % Mathf.Max(1, placementOffsets.Length);
+        }
+
+        private bool TrySeedTestResources()
+        {
+            if (hasSeededResources)
+            {
+                return true;
+            }
+
+            if (!CCS_BuildingRuntimeBridge.TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost)
+                || runtimeHost == null
+                || runtimeHost.ServiceRegistry == null)
+            {
+                return false;
+            }
+
+            if (!runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            AddSeedItem(inventoryService, seedWoodItem, seedWoodQuantity);
+            AddSeedItem(inventoryService, seedStoneItem, seedStoneQuantity);
+            AddSeedItem(inventoryService, seedFiberItem, seedFiberQuantity);
+            hasSeededResources = true;
+            return true;
+        }
+
+        private static void AddSeedItem(
+            CCS_PlayerInventoryService inventoryService,
+            CCS_ItemDefinition itemDefinition,
+            int quantity)
+        {
+            if (inventoryService == null || itemDefinition == null || quantity <= 0)
+            {
+                return;
+            }
+
+            inventoryService.AddItem(itemDefinition, quantity);
         }
 
         private Vector3 ResolvePlacementPosition()

@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-31
-// NOTES: Placement foundation checks for 0.8.1.
+// NOTES: Construction cost and inventory integration checks for 0.8.2.
 // =============================================================================
 
 namespace CCS.Modules.Building.Editor
@@ -43,6 +43,12 @@ namespace CCS.Modules.Building.Editor
             "Assets/CCS/Modules/EnvironmentEffects/Runtime/Presentation/CCS_EnvironmentEffectsHudPresenter.cs";
         private const string BuildingValidationUtilityPath =
             RuntimeRoot + "/Validation/CCS_BuildingValidationUtility.cs";
+        private const string PlacementValidationUtilityPath =
+            RuntimeRoot + "/Validation/CCS_BuildingPlacementValidationUtility.cs";
+        private const string HudPresentationServicePath =
+            "Assets/CCS/Modules/UI/Runtime/Services/CCS_HudPresentationService.cs";
+        private const string HudWiringPath =
+            "Assets/CCS/Modules/UI/Runtime/Services/CCS_HudGameplayServiceWiring.cs";
 
         #region Properties
 
@@ -71,6 +77,7 @@ namespace CCS.Modules.Building.Editor
 
             ValidateRequiredScript(report, "CCS_BuildingPieceType", RuntimeRoot + "/Definitions/CCS_BuildingPieceType.cs");
             ValidateRequiredScript(report, "CCS_BuildingPieceDefinition", RuntimeRoot + "/Definitions/CCS_BuildingPieceDefinition.cs");
+            ValidateRequiredScript(report, "CCS_BuildingCostEntry", RuntimeRoot + "/Definitions/CCS_BuildingCostEntry.cs");
             ValidateRequiredScript(report, "CCS_BuildingPieceSnapshot", RuntimeRoot + "/Data/CCS_BuildingPieceSnapshot.cs");
             ValidateRequiredScript(report, "CCS_BuildingState", RuntimeRoot + "/Data/CCS_BuildingState.cs");
             ValidateRequiredScript(report, "CCS_BuildingSaveData", RuntimeRoot + "/Data/CCS_BuildingSaveData.cs");
@@ -80,6 +87,8 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingEvents", RuntimeRoot + "/Events/CCS_BuildingEvents.cs");
             ValidateRequiredScript(report, "CCS_BuildingEventArgs", RuntimeRoot + "/Events/CCS_BuildingEventArgs.cs");
             ValidateRequiredScript(report, "CCS_BuildingValidationUtility", BuildingValidationUtilityPath);
+            ValidateRequiredScript(report, "CCS_BuildingPlacementValidationResult", RuntimeRoot + "/Validation/CCS_BuildingPlacementValidationResult.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementValidationUtility", PlacementValidationUtilityPath);
             ValidateRequiredScript(report, "CCS_BuildingInstance", RuntimeRoot + "/Data/CCS_BuildingInstance.cs");
             ValidateRequiredScript(report, "CCS_BuildingInstanceSaveRecord", RuntimeRoot + "/Data/CCS_BuildingInstanceSaveRecord.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementState", RuntimeRoot + "/Data/CCS_BuildingPlacementState.cs");
@@ -88,22 +97,26 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingPlacementPreview", RuntimeRoot + "/Placement/CCS_BuildingPlacementPreview.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementTestHarness", RuntimeRoot + "/Testing/CCS_BuildingPlacementTestHarness.cs");
             ValidateRequiredScript(report, "CCS_BuildingPlacementEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementEventArgs.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPlacementFailedEventArgs", RuntimeRoot + "/Events/CCS_BuildingPlacementFailedEventArgs.cs");
 
             ValidateDocumentationAsset(report, "Building Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateDefaultProfile(report);
             ValidateTestDefinitions(report);
+            ValidateBuildCostIntegration(report);
             ValidateSaveIntegration(report);
             ValidatePlacementIntegration(report);
+            ValidateInventoryIntegration(report);
             ValidateServiceRegistration(report);
             ValidateRestoreOrder(report);
             ValidateHudDisplay(report);
+            ValidateBuildingNotifications(report);
             ValidateBootstrapTestArea(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.1 placement foundation).");
+                "Building validator completed (0.8.2 construction costs and placement validation).");
         }
 
         #endregion
@@ -185,6 +198,170 @@ namespace CCS.Modules.Building.Editor
                     : CCS_SurvivalValidationIssueSeverity.Error,
                 context,
                 validation.Message);
+
+            if (definition.BuildCostEntries == null || definition.BuildCostEntries.Count == 0)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    $"Definition '{definition.PieceId}' is missing build cost entries.");
+            }
+        }
+
+        private static void ValidateBuildCostIntegration(CCS_SurvivalValidationReport report)
+        {
+            CCS_BuildingPieceDefinition foundation =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestFoundationPath);
+            CCS_BuildingPieceDefinition wall =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestWallPath);
+            CCS_BuildingPieceDefinition roof =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(TestRoofPath);
+
+            ValidateDefinitionCostCount(report, "Foundation Costs", foundation, 2);
+            ValidateDefinitionCostCount(report, "Wall Costs", wall, 1);
+            ValidateDefinitionCostCount(report, "Roof Costs", roof, 2);
+        }
+
+        private static void ValidateDefinitionCostCount(
+            CCS_SurvivalValidationReport report,
+            string context,
+            CCS_BuildingPieceDefinition definition,
+            int expectedCount)
+        {
+            if (definition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    context,
+                    "Definition asset could not be loaded.");
+                return;
+            }
+
+            int count = definition.BuildCostEntries?.Count ?? 0;
+            if (count == expectedCount)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    context,
+                    $"Definition '{definition.PieceId}' has {count} build cost entries.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                context,
+                $"Definition '{definition.PieceId}' expected {expectedCount} build cost entries, found {count}.");
+        }
+
+        private static void ValidateInventoryIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string placementServicePath = RuntimeRoot + "/Services/CCS_BuildingPlacementService.cs";
+            if (!File.Exists(placementServicePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Inventory Integration",
+                    $"Missing placement service script: {placementServicePath}");
+                return;
+            }
+
+            string placementSource = File.ReadAllText(placementServicePath);
+            if (placementSource.Contains("BindInventoryService")
+                && placementSource.Contains("TryPlaceCurrentPiece")
+                && placementSource.Contains("CCS_BuildingPlacementValidationResult"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Building Inventory Integration",
+                    "CCS_BuildingPlacementService validates inventory costs through TryPlaceCurrentPiece.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Inventory Integration",
+                    "CCS_BuildingPlacementService is missing inventory-aware TryPlaceCurrentPiece flow.");
+            }
+
+            if (!File.Exists(PlacementValidationUtilityPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Inventory Integration",
+                    $"Missing placement validation utility: {PlacementValidationUtilityPath}");
+                return;
+            }
+
+            string utilitySource = File.ReadAllText(PlacementValidationUtilityPath);
+            if (utilitySource.Contains("ValidateInventoryCosts")
+                && utilitySource.Contains("TryConsumeBuildCosts")
+                && utilitySource.Contains("RestoreConsumedEntries")
+                && utilitySource.Contains("RestoreBuildCosts"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Building Cost Rollback",
+                    "Placement validation utility restores consumed items on partial failure.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Cost Rollback",
+                    "Placement validation utility is missing rollback protection.");
+            }
+
+            if (!File.Exists(GameplayServiceRegistrationPath))
+            {
+                return;
+            }
+
+            string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
+            if (registrationSource.Contains("BindInventoryService(inventoryService)"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Building Inventory Wiring",
+                    "Gameplay composition binds inventory service to building placement.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Inventory Wiring",
+                    "Gameplay composition is missing inventory binding for building placement.");
+            }
+        }
+
+        private static void ValidateBuildingNotifications(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(HudPresentationServicePath) || !File.Exists(HudWiringPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building HUD Notifications",
+                    "HUD presentation or wiring scripts are missing.");
+                return;
+            }
+
+            string presentationSource = File.ReadAllText(HudPresentationServicePath);
+            string wiringSource = File.ReadAllText(HudWiringPath);
+            if (presentationSource.Contains("BindBuildingPlacementService")
+                && presentationSource.Contains("HandleBuildingPlaced")
+                && presentationSource.Contains("HandleBuildingPlacementFailed")
+                && wiringSource.Contains("BindBuildingPlacementService"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Building HUD Notifications",
+                    "HUD presentation subscribes to building placement success and failure events.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Building HUD Notifications",
+                "HUD presentation is missing building placement notification wiring.");
         }
 
         private static void ValidateSaveIntegration(CCS_SurvivalValidationReport report)
@@ -275,17 +452,38 @@ namespace CCS.Modules.Building.Editor
                 }
             }
 
+            if (File.Exists(harnessPath))
+            {
+                string harnessSource = File.ReadAllText(harnessPath);
+                if (harnessSource.Contains("TryPlaceCurrentPiece")
+                    && harnessSource.Contains("TrySeedTestResources"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Placement Test Harness",
+                        "Placement harness uses TryPlaceCurrentPiece and seeds test resources.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Placement Test Harness",
+                        "Placement harness is missing inventory-aware TryPlaceCurrentPiece flow.");
+                }
+            }
+
             if (File.Exists(RuntimeRoot + "/Events/CCS_BuildingEvents.cs"))
             {
                 string eventsSource = File.ReadAllText(RuntimeRoot + "/Events/CCS_BuildingEvents.cs");
                 if (eventsSource.Contains("PlacementStarted")
                     && eventsSource.Contains("PlacementCancelled")
-                    && eventsSource.Contains("BuildingPlaced"))
+                    && eventsSource.Contains("BuildingPlaced")
+                    && eventsSource.Contains("PlacementFailed"))
                 {
                     report.AddIssue(
                         CCS_SurvivalValidationIssueSeverity.Info,
                         "Building Placement Events",
-                        "Building events include placement lifecycle hooks.");
+                        "Building events include placement lifecycle and failure hooks.");
                 }
                 else
                 {

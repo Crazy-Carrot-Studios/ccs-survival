@@ -5,6 +5,7 @@
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
         "CCS.Modules.Building.Runtime",
+        "CCS.Modules.Inventory.Runtime",
         "CCS.Survival.Editor",
         "CCS.Survival.Composition",
         "CCS.Modules.EnvironmentEffects.Runtime",

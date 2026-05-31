@@ -93,7 +93,8 @@ namespace CCS.Survival.Composition
 
             CCS_BuildingPlacementService placementService = CreateBuildingPlacementService(
                 buildingProfile,
-                buildingService);
+                buildingService,
+                inventoryService);
             RegisterService(runtimeHost, placementService, enableDebugLogs);
 
             BindSurvivalCoreEnvironmentEffects(survivalCoreService, environmentEffectsService);
@@ -318,7 +319,8 @@ namespace CCS.Survival.Composition
 
         private static CCS_BuildingPlacementService CreateBuildingPlacementService(
             CCS_BuildingProfile profile,
-            CCS_BuildingService buildingService)
+            CCS_BuildingService buildingService,
+            CCS_PlayerInventoryService inventoryService)
         {
             CCS_BuildingPlacementService service = new CCS_BuildingPlacementService();
             service.Initialize();
@@ -334,6 +336,11 @@ namespace CCS.Survival.Composition
             {
                 service.BindBuildingService(buildingService);
                 buildingService.BindPlacementService(service);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
             }
 
             return service;
