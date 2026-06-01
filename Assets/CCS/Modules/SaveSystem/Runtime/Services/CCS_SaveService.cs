@@ -3,6 +3,7 @@ using System.IO;
 using CCS.Core;
 using CCS.Modules.Building;
 using CCS.Modules.Cooking;
+using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
@@ -34,6 +35,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_GatheringService gatheringService;
         private CCS_BuildingService buildingService;
         private CCS_StorageService storageService;
+        private CCS_SleepService sleepService;
         private Transform playerTransform;
         private float autoSaveTimer;
         private bool isInitialized;
@@ -98,6 +100,7 @@ namespace CCS.Modules.SaveSystem
             CCS_GatheringService gathering,
             CCS_BuildingService building,
             CCS_StorageService storage,
+            CCS_SleepService sleep,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -105,6 +108,7 @@ namespace CCS.Modules.SaveSystem
             gatheringService = gathering;
             buildingService = building;
             storageService = storage;
+            sleepService = sleep;
             playerTransform = playerRoot;
         }
 
@@ -259,6 +263,7 @@ namespace CCS.Modules.SaveSystem
             CaptureCooking(saveData.cooking);
             CaptureBuilding(saveData.building);
             CaptureStorage(saveData.storage);
+            CaptureSleep(saveData.sleep);
             return saveData;
         }
 
@@ -522,6 +527,7 @@ namespace CCS.Modules.SaveSystem
             ApplyNeeds(saveData.needs);
             ApplyBuilding(saveData.building);
             ApplyStorage(saveData.storage);
+            ApplySleep(saveData.sleep);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -600,6 +606,105 @@ namespace CCS.Modules.SaveSystem
             }
 
             storageService.RestoreWorldState(saveStates);
+        }
+
+        private void CaptureSleep(CCS_SaveSleepWorldData sleepData)
+        {
+            if (sleepData == null || sleepService == null || !sleepService.IsInitialized)
+            {
+                return;
+            }
+
+            sleepData.assignedRespawnSpotId = sleepService.AssignedRespawnSpawnId ?? string.Empty;
+            CCS_SleepSpotSaveState[] spotStates = sleepService.CaptureWorldState();
+            if (spotStates == null || spotStates.Length == 0)
+            {
+                sleepData.sleepSpots = Array.Empty<CCS_SaveSleepSpotData>();
+                return;
+            }
+
+            CCS_SaveSleepSpotData[] records = new CCS_SaveSleepSpotData[spotStates.Length];
+            for (int index = 0; index < spotStates.Length; index++)
+            {
+                records[index] = ConvertSleepSaveState(spotStates[index]);
+            }
+
+            sleepData.sleepSpots = records;
+        }
+
+        private static CCS_SaveSleepSpotData ConvertSleepSaveState(CCS_SleepSpotSaveState source)
+        {
+            if (source == null)
+            {
+                return new CCS_SaveSleepSpotData();
+            }
+
+            return new CCS_SaveSleepSpotData
+            {
+                sleepSpotDefinitionId = source.sleepSpotDefinitionId ?? string.Empty,
+                instanceId = source.instanceId ?? string.Empty,
+                displayName = source.displayName ?? string.Empty,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationX = source.rotationX,
+                rotationY = source.rotationY,
+                rotationZ = source.rotationZ,
+                rotationW = source.rotationW,
+                assignedRespawnSpotId = source.assignedRespawnSpotId ?? string.Empty,
+                isAssignedRespawn = source.isAssignedRespawn
+            };
+        }
+
+        private static CCS_SleepSpotSaveState ConvertSleepSaveRecord(CCS_SaveSleepSpotData source)
+        {
+            if (source == null)
+            {
+                return new CCS_SleepSpotSaveState();
+            }
+
+            return new CCS_SleepSpotSaveState
+            {
+                sleepSpotDefinitionId = source.sleepSpotDefinitionId ?? string.Empty,
+                instanceId = source.instanceId ?? string.Empty,
+                displayName = source.displayName ?? string.Empty,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationX = source.rotationX,
+                rotationY = source.rotationY,
+                rotationZ = source.rotationZ,
+                rotationW = source.rotationW,
+                assignedRespawnSpotId = source.assignedRespawnSpotId ?? string.Empty,
+                isAssignedRespawn = source.isAssignedRespawn
+            };
+        }
+
+        private void ApplySleep(CCS_SaveSleepWorldData sleepData)
+        {
+            if (sleepService == null || !sleepService.IsInitialized)
+            {
+                return;
+            }
+
+            if (sleepData?.sleepSpots == null || sleepData.sleepSpots.Length == 0)
+            {
+                sleepService.RestoreWorldState(Array.Empty<CCS_SleepSpotSaveState>());
+                return;
+            }
+
+            CCS_SleepSpotSaveState[] saveStates = new CCS_SleepSpotSaveState[sleepData.sleepSpots.Length];
+            for (int index = 0; index < sleepData.sleepSpots.Length; index++)
+            {
+                saveStates[index] = ConvertSleepSaveRecord(sleepData.sleepSpots[index]);
+            }
+
+            sleepService.RestoreWorldState(saveStates);
+
+            if (!string.IsNullOrWhiteSpace(sleepData.assignedRespawnSpotId))
+            {
+                sleepService.ApplySavedAssignedRespawn(sleepData.assignedRespawnSpotId);
+            }
         }
 
         private void ApplyGathering(CCS_SaveGatheringWorldData gatheringData)

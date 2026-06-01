@@ -41,6 +41,7 @@ namespace CCS.Modules.Playtesting.Editor
             CCS_PlaytestStepType.BuildShelter,
             CCS_PlaytestStepType.CraftAtWorkbench,
             CCS_PlaytestStepType.UseStorageCrate,
+            CCS_PlaytestStepType.PlaceAndSleepAtBedroll,
             CCS_PlaytestStepType.SaveGame,
             CCS_PlaytestStepType.LoadGame,
             CCS_PlaytestStepType.TriggerDeath,

@@ -72,6 +72,23 @@ namespace CCS.Modules.Sleep
                 return CCS_SurvivalValidationResult.Fail("Bedroll item definition is required when requireBedroll is enabled.");
             }
 
+            if (profile.DefaultSleepSpotDefinition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Default sleep spot definition is required for 1.1.3.");
+            }
+
+            if (profile.SleepDurationSeconds <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Sleep duration seconds must be greater than zero.");
+            }
+
+            if (profile.HungerRecoveryAmount < 0f
+                || profile.ThirstRecoveryAmount < 0f
+                || profile.StaminaRecoveryAmount < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Sleep recovery amounts must be non-negative.");
+            }
+
             return CCS_SurvivalValidationResult.Pass("Sleep profile validated.");
         }
 

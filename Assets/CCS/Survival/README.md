@@ -1,6 +1,10 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 1.1.1 — Crafting Progression + Workstation Foundation
+**Milestone:** 1.1.3 — Sleep + Bedroll Foundation
+
+**1.1.2** — Storage Container Foundation
+
+**1.1.1** — Crafting Progression + Workstation Foundation
 
 **1.1.0** — Building Progression Foundation
 

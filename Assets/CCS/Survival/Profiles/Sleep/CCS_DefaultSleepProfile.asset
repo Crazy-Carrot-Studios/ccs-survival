@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Sleep.Runtime::CCS.Modules.Sleep.CCS_SleepProfile
   profileDisplayName: Default Sleep
   profileId: ccs.survival.profile.sleep.default
-  profileDescription: Default sleep and bedroll rules for 0.9.6 foundation.
-  profileVersion: 0.9.6
+  profileDescription: Sleep and placeable bedroll foundation for milestone 1.1.3.
+  profileVersion: 1.1.3
   enableDebugLogs: 0
   defaultSleepHours: 6
   minimumSleepHours: 1
@@ -26,6 +26,13 @@ MonoBehaviour:
   unshelteredFatigueRestoreMultiplier: 0.5
   hungerDrainDuringSleepMultiplier: 1
   thirstDrainDuringSleepMultiplier: 1
+  defaultSleepSpotDefinition: {fileID: 11400000, guid: 1021bcd281659b8479d496c58b6ca4a7, type: 2}
+  sleepDurationSeconds: 30
+  hungerRecoveryAmount: 20
+  thirstRecoveryAmount: 20
+  staminaRecoveryAmount: 100
+  assignRespawnPointOnSleep: 1
+  enableDebugLogging: 0
   bedrollItemDefinition: {fileID: 11400000, guid: 926c0f9b08e45a44ebf3657f330e7872, type: 2}
   bedrollEquipmentDefinition: {fileID: 11400000, guid: 2cda2714ce172f44f984e358a8eebfc5, type: 2}
   bedrollRecipeDefinition: {fileID: 11400000, guid: efd9d740d73badd48bae0b9e7af9f683, type: 2}

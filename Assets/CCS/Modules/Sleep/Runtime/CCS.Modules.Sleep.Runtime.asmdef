@@ -11,7 +11,9 @@
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Crafting.Runtime",
-        "CCS.Modules.SaveLoad.Runtime"
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.PlayerDeath.Runtime",
+        "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

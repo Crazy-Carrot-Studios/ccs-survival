@@ -65,8 +65,24 @@
 | **1.1.0** | Building progression foundation (tier-1 primitive shelter, recipes, placement rules, shelter playtest step) |
 | **1.1.1** | Crafting progression + workstation foundation (hand / campfire / workbench recipes, test workbench, playtest step) |
 | **1.1.2** | Storage container foundation (primitive crate, container inventory, unified save, playtest step) |
+| **1.1.3** | Sleep + bedroll foundation (placeable primitive bedroll, needs recovery, respawn assignment, save restore) |
 
-Later milestones continue from **1.1.3+** (durability, ranged weapons, predators).
+Later milestones continue from **1.1.4+** (durability, ranged weapons, predators).
+
+---
+
+## 1.1.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_SleepService` + `CCS_SleepSpot` + `CCS_SleepSpotInteractable` | **Complete** |
+| `PF_CCS_PrimitiveBedroll` + `CCS_TestBedroll` | **Pending batch** |
+| Unified save `sleep.sleepSpots[]` + `assignedRespawnSpotId` | **Complete** |
+| Player death bedroll respawn override | **Complete** |
+| Playtest **Place and sleep at bedroll** (Shift+F2 / F5 / F9) | **Complete** |
+| Validation 0 warnings / 0 errors | **Pending batch** |
+| Version **1.1.3** build | **Pending batch** |
+| Production sleep UI / item-use placement | **Deferred** |
 
 ---
 

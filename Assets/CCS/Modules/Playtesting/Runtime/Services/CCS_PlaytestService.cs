@@ -9,6 +9,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.SaveSystem;
+using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Wildlife;
@@ -63,11 +64,16 @@ namespace CCS.Modules.Playtesting
         private CCS_BuildingPlacementService boundBuildingPlacementService;
         private CCS_CraftingRecipeService boundCraftingRecipeService;
         private CCS_StorageService boundStorageService;
+        private CCS_SleepService boundSleepService;
         private CCS_PlayerEquipmentService boundEquipmentService;
         private bool playtestStorageCrateExists;
         private bool playtestStorageCrateOpened;
         private bool playtestStorageItemDeposited;
         private bool playtestStorageRestoredAfterLoad;
+        private bool playtestBedrollExists;
+        private bool playtestSleepCompleted;
+        private bool playtestBedrollRespawnAssigned;
+        private bool playtestBedrollRestoredAfterLoad;
 
         #endregion
 
@@ -131,6 +137,7 @@ namespace CCS.Modules.Playtesting
             CCS_PlayerEquipmentService equipmentService,
             CCS_CraftingRecipeService craftingRecipeService,
             CCS_StorageService storageService,
+            CCS_SleepService sleepService,
             CCS_SurvivalCoreService survivalCore)
         {
             UnbindEventListeners();
@@ -151,6 +158,7 @@ namespace CCS.Modules.Playtesting
             boundBuildingPlacementService = buildingPlacementService;
             boundCraftingRecipeService = craftingRecipeService;
             boundStorageService = storageService;
+            boundSleepService = sleepService;
             boundEquipmentService = equipmentService;
 
             if (boundGatheringService != null)
@@ -210,6 +218,13 @@ namespace CCS.Modules.Playtesting
                 boundStorageService.StorageContainerOpened += HandleStorageContainerOpened;
                 boundStorageService.StorageItemAdded += HandleStorageItemAdded;
                 boundStorageService.StorageStateRestored += HandleStorageStateRestored;
+            }
+
+            if (boundSleepService != null)
+            {
+                boundSleepService.SleepCompleted += HandleSleepCompleted;
+                boundSleepService.SleepRespawnPointAssigned += HandleSleepRespawnPointAssigned;
+                boundSleepService.SleepStateRestored += HandleSleepStateRestored;
             }
 
             eventsBound = true;
@@ -288,6 +303,13 @@ namespace CCS.Modules.Playtesting
                 boundStorageService.StorageStateRestored -= HandleStorageStateRestored;
             }
 
+            if (boundSleepService != null)
+            {
+                boundSleepService.SleepCompleted -= HandleSleepCompleted;
+                boundSleepService.SleepRespawnPointAssigned -= HandleSleepRespawnPointAssigned;
+                boundSleepService.SleepStateRestored -= HandleSleepStateRestored;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -298,6 +320,7 @@ namespace CCS.Modules.Playtesting
             boundBuildingPlacementService = null;
             boundCraftingRecipeService = null;
             boundStorageService = null;
+            boundSleepService = null;
             boundEquipmentService = null;
             eventsBound = false;
         }
@@ -305,6 +328,7 @@ namespace CCS.Modules.Playtesting
         public void ResetSteps()
         {
             ResetStoragePlaytestFlags();
+            ResetBedrollPlaytestFlags();
 
             for (int index = 0; index < stepStates.Count; index++)
             {
@@ -598,6 +622,7 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.LoadGame, "Load completed.");
                 EvaluateStorageCrateStepAfterLoad();
+                EvaluateBedrollStepAfterLoad();
             }
         }
 
@@ -635,6 +660,41 @@ namespace CCS.Modules.Playtesting
             playtestStorageCrateExists = boundStorageService != null && boundStorageService.RegisteredContainerCount > 0;
             playtestStorageRestoredAfterLoad = true;
             TryEvaluateStorageCrateStepCompletion();
+        }
+
+        private void HandleSleepCompleted(CCS_SleepEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.Success)
+            {
+                return;
+            }
+
+            playtestBedrollExists = true;
+            playtestSleepCompleted = true;
+            TryEvaluateBedrollStepCompletion();
+        }
+
+        private void HandleSleepRespawnPointAssigned(CCS_SleepEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.Success)
+            {
+                return;
+            }
+
+            playtestBedrollRespawnAssigned = true;
+            TryEvaluateBedrollStepCompletion();
+        }
+
+        private void HandleSleepStateRestored(CCS_SleepEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.Success)
+            {
+                return;
+            }
+
+            playtestBedrollExists = boundSleepService != null && boundSleepService.RegisteredSleepSpotCount > 0;
+            playtestBedrollRestoredAfterLoad = true;
+            TryEvaluateBedrollStepCompletion();
         }
 
         private void HandlePlayerDied(CCS_PlayerDeathEventArgs eventArgs)
@@ -790,6 +850,37 @@ namespace CCS.Modules.Playtesting
             {
                 playtestStorageCrateExists = true;
                 LogDebug("Placed primitive storage crate near player (F2).");
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryPlaceOrSleepBedrollNearPlayer()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            CCS_SleepService sleepService = ResolveSleepService();
+            if (sleepService == null)
+            {
+                return false;
+            }
+
+            if (sleepService.RegisteredSleepSpotCount > 0 && sleepService.TrySleepAtNearestSpot())
+            {
+                playtestBedrollExists = true;
+                LogDebug("Sleep attempted at nearest bedroll (Shift+F2).");
+                return true;
+            }
+
+            CCS_SleepSpot placedSpot = sleepService.TryPlaceDefaultSleepSpotNearPlayer();
+            if (placedSpot != null)
+            {
+                playtestBedrollExists = true;
+                LogDebug("Placed primitive bedroll near player (Shift+F2).");
                 return true;
             }
 
@@ -1132,6 +1223,54 @@ namespace CCS.Modules.Playtesting
             playtestStorageRestoredAfterLoad = false;
         }
 
+        private void EvaluateBedrollStepAfterLoad()
+        {
+            if (boundSleepService != null && boundSleepService.RegisteredSleepSpotCount > 0)
+            {
+                playtestBedrollExists = true;
+            }
+
+            for (int index = 0; index < stepStates.Count; index++)
+            {
+                if (stepStates[index].Definition.StepType != CCS_PlaytestStepType.PlaceAndSleepAtBedroll)
+                {
+                    continue;
+                }
+
+                if (stepStates[index].Status == CCS_PlaytestStepStatus.Passed)
+                {
+                    playtestBedrollRestoredAfterLoad = true;
+                }
+
+                break;
+            }
+
+            TryEvaluateBedrollStepCompletion();
+        }
+
+        private void TryEvaluateBedrollStepCompletion()
+        {
+            if (!playtestBedrollExists
+                || !playtestSleepCompleted
+                || !playtestBedrollRespawnAssigned
+                || !playtestBedrollRestoredAfterLoad)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.PlaceAndSleepAtBedroll,
+                "Bedroll placed, sleep completed, respawn assigned, and restored after save/load.");
+        }
+
+        private void ResetBedrollPlaytestFlags()
+        {
+            playtestBedrollExists = false;
+            playtestSleepCompleted = false;
+            playtestBedrollRespawnAssigned = false;
+            playtestBedrollRestoredAfterLoad = false;
+        }
+
         private CCS_StorageService ResolveStorageService()
         {
             if (boundStorageService != null && boundStorageService.IsInitialized)
@@ -1144,6 +1283,23 @@ namespace CCS.Modules.Playtesting
                 && storageService.IsInitialized)
             {
                 return storageService;
+            }
+
+            return null;
+        }
+
+        private CCS_SleepService ResolveSleepService()
+        {
+            if (boundSleepService != null && boundSleepService.IsInitialized)
+            {
+                return boundSleepService;
+            }
+
+            if (CCS_SleepRuntimeBridge.TryGetSleepService(out CCS_SleepService sleepService)
+                && sleepService != null
+                && sleepService.IsInitialized)
+            {
+                return sleepService;
             }
 
             return null;

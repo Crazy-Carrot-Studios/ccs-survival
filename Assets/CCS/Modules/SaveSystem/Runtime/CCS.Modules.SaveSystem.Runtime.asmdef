@@ -9,6 +9,7 @@
         "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Cooking.Runtime",
         "CCS.Modules.CharacterController.Runtime",

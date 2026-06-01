@@ -23,6 +23,8 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**1.1.3** — Sleep + Bedroll Foundation
+
 **1.1.2** — Storage Container Foundation
 
 **1.1.1** — Crafting Progression + Workstation Foundation
@@ -212,8 +214,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 1.1.2
-**Build output:** `Builds/CCS_Survival_1.1.2_Windows/` (gitignored)
+**Latest verified build:** 1.1.3
+**Build output:** `Builds/CCS_Survival_1.1.3_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

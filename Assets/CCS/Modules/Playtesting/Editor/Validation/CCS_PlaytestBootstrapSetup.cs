@@ -86,8 +86,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.1.2.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.2";
+                "Bootstrap manual playtest checklist for milestone 1.1.3.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.3";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -163,6 +163,12 @@ namespace CCS.Modules.Playtesting.Editor
                 "Use storage crate",
                 CCS_PlaytestStepType.UseStorageCrate,
                 "F2 place/open crate near player; F1 deposit item; F5 save; F9 load to verify persistence.");
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.bedroll",
+                "Place and sleep at bedroll",
+                CCS_PlaytestStepType.PlaceAndSleepAtBedroll,
+                "Shift+F2 place/sleep at bedroll; interact to sleep; F5 save; F9 load to verify bedroll restore.");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.save",
@@ -327,7 +333,7 @@ namespace CCS.Modules.Playtesting.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.1.2");
+                "bundleVersion: 1.1.3");
             File.WriteAllText(projectSettingsPath, text);
         }
 

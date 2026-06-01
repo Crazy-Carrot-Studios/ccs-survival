@@ -1,7 +1,4 @@
 using System.IO;
-using CCS.Modules.Crafting;
-using CCS.Modules.Equipment;
-using CCS.Modules.Inventory;
 using CCS.Modules.Sleep;
 using CCS.Survival;
 using CCS.Survival.Composition;
@@ -12,11 +9,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_SleepValidationValidator
 // CATEGORY: Modules / Sleep / Editor / Validation
-// PURPOSE: Validates sleep module folders, asmdefs, profile assets, and bootstrap content.
+// PURPOSE: Validates sleep module folders, 1.1.3 bedroll foundation, save, and respawn wiring.
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
-// AUTHOR: James Schilz
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: Validates bootstrap sleep test area in SCN_CCS_Survival_Bootstrap.
+// NOTES: Milestone 1.1.3 sleep and bedroll foundation.
 // =============================================================================
 
 namespace CCS.Modules.Sleep.Editor
@@ -29,23 +26,26 @@ namespace CCS.Modules.Sleep.Editor
         private const string SurvivalRoot = "Assets/CCS/Survival";
         private const string DefaultProfilePath = SurvivalRoot + "/Profiles/Sleep/CCS_DefaultSleepProfile.asset";
         private const string BedrollItemPath = SurvivalRoot + "/Content/Items/Starter/CCS_Item_Bedroll.asset";
-        private const string FiberItemPath = SurvivalRoot + "/Content/Items/Resources/Primitive/CCS_Item_Fiber.asset";
-        private const string BedrollEquipmentPath =
-            SurvivalRoot + "/Content/Equipment/Primitive/CCS_Equipment_Bedroll.asset";
-        private const string BedrollRecipePath =
-            SurvivalRoot + "/Profiles/Crafting/PrimitiveRecipes/CCS_Recipe_Bedroll.asset";
+        private const string BedrollPrefabPath =
+            SurvivalRoot + "/Content/Sleep/Primitive/Prefabs/PF_CCS_PrimitiveBedroll.prefab";
+        private const string BedrollDefinitionPath =
+            SurvivalRoot + "/Content/Sleep/Primitive/CCS_PrimitiveBedrollSleepSpotDefinition.asset";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Sleep_Module.md";
         private const string BootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
         private const string BootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
         private const string CompositionRegistrationPath =
             SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
-        private const string HudPresentationPath = "Assets/CCS/Modules/UI/Runtime/Services/CCS_HudPresentationService.cs";
-        private const string HudWiringPath = "Assets/CCS/Modules/UI/Runtime/Services/CCS_HudGameplayServiceWiring.cs";
+        private const string SaveDataPath = "Assets/CCS/Modules/SaveSystem/Runtime/Data/CCS_SaveData.cs";
+        private const string SaveServicePath = "Assets/CCS/Modules/SaveSystem/Runtime/Services/CCS_SaveService.cs";
+        private const string PlayerDeathServicePath =
+            "Assets/CCS/Modules/PlayerDeath/Runtime/Services/CCS_PlayerDeathService.cs";
+        private const string PlaytestServicePath =
+            "Assets/CCS/Modules/Playtesting/Runtime/Services/CCS_PlaytestService.cs";
 
         private static readonly string[] RequiredTestObjectNames =
         {
             "CCS_SleepTestArea",
-            "CCS_TestBedrollRestPoint"
+            "CCS_TestBedroll"
         };
 
         #region Properties
@@ -59,10 +59,13 @@ namespace CCS.Modules.Sleep.Editor
         public void Validate(CCS_SurvivalValidationReport report)
         {
             ValidateRequiredFolder(report, "Modules/Sleep", ModuleRoot);
+            ValidateRequiredFolder(report, "Runtime/Components", RuntimeRoot + "/Components");
+            ValidateRequiredFolder(report, "Runtime/Definitions", RuntimeRoot + "/Definitions");
             ValidateRequiredFolder(report, "Runtime/Data", RuntimeRoot + "/Data");
             ValidateRequiredFolder(report, "Runtime/Services", RuntimeRoot + "/Services");
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
+            ValidateRequiredFolder(report, "Runtime/Interactables", RuntimeRoot + "/Interactables");
             ValidateRequiredFolder(report, "Runtime/Interaction", RuntimeRoot + "/Interaction");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
             ValidateRequiredFolder(report, "Runtime/Testing", RuntimeRoot + "/Testing");
@@ -73,28 +76,30 @@ namespace CCS.Modules.Sleep.Editor
             ValidateRequiredFile(report, "Editor asmdef", EditorRoot + "/CCS.Modules.Sleep.Editor.asmdef");
 
             ValidateRequiredScript(report, "CCS_SleepProfile", RuntimeRoot + "/Profiles/CCS_SleepProfile.cs");
+            ValidateRequiredScript(report, "CCS_SleepSpotDefinition", RuntimeRoot + "/Definitions/CCS_SleepSpotDefinition.cs");
+            ValidateRequiredScript(report, "CCS_SleepSpot", RuntimeRoot + "/Components/CCS_SleepSpot.cs");
+            ValidateRequiredScript(report, "CCS_SleepSpotInteractable", RuntimeRoot + "/Interactables/CCS_SleepSpotInteractable.cs");
             ValidateRequiredScript(report, "CCS_SleepService", RuntimeRoot + "/Services/CCS_SleepService.cs");
             ValidateRequiredScript(report, "CCS_SleepRuntimeBridge", RuntimeRoot + "/Services/CCS_SleepRuntimeBridge.cs");
-            ValidateRequiredScript(report, "CCS_SleepRequest", RuntimeRoot + "/Data/CCS_SleepRequest.cs");
-            ValidateRequiredScript(report, "CCS_SleepResult", RuntimeRoot + "/Data/CCS_SleepResult.cs");
-            ValidateRequiredScript(report, "CCS_SleepSnapshot", RuntimeRoot + "/Data/CCS_SleepSnapshot.cs");
-            ValidateRequiredScript(report, "CCS_SleepFailureReason", RuntimeRoot + "/Data/CCS_SleepFailureReason.cs");
+            ValidateRequiredScript(report, "CCS_SleepEventArgs", RuntimeRoot + "/Events/CCS_SleepEventArgs.cs");
+            ValidateRequiredScript(report, "CCS_SleepEvents", RuntimeRoot + "/Events/CCS_SleepEvents.cs");
+            ValidateRequiredScript(report, "CCS_SleepSpotSaveState", RuntimeRoot + "/Data/CCS_SleepSpotSaveState.cs");
             ValidateRequiredScript(report, "CCS_SleepValidationUtility", RuntimeRoot + "/Validation/CCS_SleepValidationUtility.cs");
             ValidateRequiredScript(report, "CCS_BedrollSleepInteractable", RuntimeRoot + "/Interaction/CCS_BedrollSleepInteractable.cs");
-            ValidateRequiredScript(report, "CCS_SleepTestHarness", RuntimeRoot + "/Testing/CCS_SleepTestHarness.cs");
 
             ValidateDocumentationAsset(report, "Sleep Module Doc", ModuleDocPath);
             ValidateRequiredAsset(report, "Default Sleep Profile", DefaultProfilePath);
             ValidateRequiredAsset(report, "Bedroll Item", BedrollItemPath);
-            ValidateRequiredAsset(report, "Fiber Item", FiberItemPath);
-            ValidateRequiredAsset(report, "Bedroll Equipment", BedrollEquipmentPath);
-            ValidateRequiredAsset(report, "Bedroll Recipe", BedrollRecipePath);
+            ValidateRequiredAsset(report, "Primitive Bedroll Prefab", BedrollPrefabPath);
+            ValidateRequiredAsset(report, "Primitive Bedroll Definition", BedrollDefinitionPath);
 
             ValidateSleepProfileAsset(report);
             ValidateCompositionRegistration(report);
             ValidateBootstrapGameplayServiceHost(report);
             ValidateBootstrapTestObjects(report);
-            ValidateHudIntegration(report);
+            ValidateSaveIntegration(report);
+            ValidatePlayerDeathIntegration(report);
+            ValidatePlaytestIntegration(report);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
         }
 
@@ -118,12 +123,20 @@ namespace CCS.Modules.Sleep.Editor
                 "Default Sleep Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "0.9.6")
+            if (profile.ProfileVersion != "1.1.3")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Sleep Profile Version",
-                    $"Expected profileVersion 0.9.6 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.1.3 but found '{profile.ProfileVersion}'.");
+            }
+
+            if (profile.DefaultSleepSpotDefinition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Default Sleep Spot Definition",
+                    "Run CCS_SleepBedrollFoundationBootstrapSetup.ExecuteBatch.");
             }
         }
 
@@ -131,10 +144,6 @@ namespace CCS.Modules.Sleep.Editor
         {
             if (!File.Exists(CompositionRegistrationPath))
             {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Error,
-                    "Sleep Service Registration",
-                    $"Missing script: {CompositionRegistrationPath}");
                 return;
             }
 
@@ -162,17 +171,10 @@ namespace CCS.Modules.Sleep.Editor
             }
 
             CCS_SurvivalGameplayServiceHost host = prefabRoot.GetComponent<CCS_SurvivalGameplayServiceHost>();
-            if (host == null)
-            {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Error,
-                    "Bootstrap Sleep Profile Wiring",
-                    "PF_CCS_Survival_BootstrapRoot is missing CCS_SurvivalGameplayServiceHost.");
-                return;
-            }
-
-            SerializedObject serializedHost = new SerializedObject(host);
-            Object sleepProfile = serializedHost.FindProperty("sleepProfile").objectReferenceValue;
+            SerializedObject serializedHost = host != null ? new SerializedObject(host) : null;
+            Object sleepProfile = serializedHost != null
+                ? serializedHost.FindProperty("sleepProfile").objectReferenceValue
+                : null;
             report.AddIssue(
                 sleepProfile != null
                     ? CCS_SurvivalValidationIssueSeverity.Info
@@ -208,39 +210,85 @@ namespace CCS.Modules.Sleep.Editor
                         : $"Bootstrap scene is missing {objectName}.");
             }
 
+            bool hasTestBedroll = sceneText.Contains("CCS_TestBedroll");
             report.AddIssue(
-                sceneText.Contains("CCS_BedrollSleepInteractable")
+                hasTestBedroll
                     ? CCS_SurvivalValidationIssueSeverity.Info
                     : CCS_SurvivalValidationIssueSeverity.Error,
-                "Bootstrap Sleep Interactable",
-                "Bootstrap scene includes CCS_BedrollSleepInteractable for sleep verification.");
+                "Bootstrap Test Bedroll",
+                hasTestBedroll
+                    ? "Bootstrap scene contains CCS_TestBedroll with placeable sleep spot."
+                    : "Bootstrap scene is missing CCS_TestBedroll. Run CCS_SleepBedrollFoundationBootstrapSetup.ExecuteBatch.");
         }
 
-        private static void ValidateHudIntegration(CCS_SurvivalValidationReport report)
+        private static void ValidateSaveIntegration(CCS_SurvivalValidationReport report)
         {
-            if (!File.Exists(HudPresentationPath) || !File.Exists(HudWiringPath))
+            if (!File.Exists(SaveDataPath))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
-                    "HUD Sleep Integration",
-                    "HUD presentation or wiring scripts are missing.");
+                    "Sleep Save Data",
+                    $"Missing {SaveDataPath}");
                 return;
             }
 
-            string presentationSource = File.ReadAllText(HudPresentationPath);
-            string wiringSource = File.ReadAllText(HudWiringPath);
-
+            string saveDataSource = File.ReadAllText(SaveDataPath);
             report.AddIssue(
-                presentationSource.Contains("BindSleepService")
-                    && presentationSource.Contains("Sleep failed: Missing Bedroll")
-                    && presentationSource.Contains("Sleep failed: Unsafe Conditions")
-                    && presentationSource.Contains("Slept ")
-                    && presentationSource.Contains("Sleep Ready:")
-                    && wiringSource.Contains("BindSleepService")
+                saveDataSource.Contains("CCS_SaveSleepWorldData")
+                    && saveDataSource.Contains("CCS_SaveSleepSpotData")
                     ? CCS_SurvivalValidationIssueSeverity.Info
                     : CCS_SurvivalValidationIssueSeverity.Error,
-                "HUD Sleep Notifications",
-                "HUD binds sleep service and queues sleep success/failure notifications.");
+                "Sleep Save Data",
+                "CCS_SaveData includes sleep world snapshots.");
+
+            if (!File.Exists(SaveServicePath))
+            {
+                return;
+            }
+
+            string saveServiceSource = File.ReadAllText(SaveServicePath);
+            report.AddIssue(
+                saveServiceSource.Contains("CaptureSleep")
+                    && saveServiceSource.Contains("ApplySleep")
+                    && saveServiceSource.Contains("CCS_SleepService")
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Sleep Save Service Wiring",
+                "CCS_SaveService captures and restores sleep spot world state.");
+        }
+
+        private static void ValidatePlayerDeathIntegration(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(PlayerDeathServicePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(PlayerDeathServicePath);
+            report.AddIssue(
+                source.Contains("BindAssignedRespawnSpawnIdProvider")
+                    && source.Contains("ResolveRespawnSpawnId")
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Bedroll Respawn Override",
+                "CCS_PlayerDeathService supports assigned bedroll respawn before bootstrap fallback.");
+        }
+
+        private static void ValidatePlaytestIntegration(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(PlaytestServicePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(PlaytestServicePath);
+            report.AddIssue(
+                source.Contains("PlaceAndSleepAtBedroll")
+                    && source.Contains("TryPlaceOrSleepBedrollNearPlayer")
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Playtest Sleep Step",
+                "Playtest service includes place and sleep at bedroll step and dev helper.");
         }
 
         private static void ValidateRequiredFolder(
@@ -294,7 +342,7 @@ namespace CCS.Modules.Sleep.Editor
                 label,
                 asset != null
                     ? $"Asset exists: {assetPath}"
-                    : $"Missing asset: {assetPath}");
+                    : $"Missing asset: {assetPath}. Run CCS_SleepBedrollFoundationBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateDocumentationAsset(

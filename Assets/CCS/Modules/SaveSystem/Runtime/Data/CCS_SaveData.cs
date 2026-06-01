@@ -37,6 +37,8 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveStorageWorldData storage = new CCS_SaveStorageWorldData();
 
+        public CCS_SaveSleepWorldData sleep = new CCS_SaveSleepWorldData();
+
         #endregion
     }
 
@@ -138,5 +140,36 @@ namespace CCS.Modules.SaveSystem
     {
         public string itemId = string.Empty;
         public int quantity;
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveSleepWorldData
+    {
+        public string assignedRespawnSpotId = string.Empty;
+
+        public CCS_SaveSleepSpotData[] sleepSpots = Array.Empty<CCS_SaveSleepSpotData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveSleepSpotData
+    {
+        public string sleepSpotDefinitionId = string.Empty;
+
+        public string instanceId = string.Empty;
+
+        public string displayName = string.Empty;
+
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+
+        public float rotationX;
+        public float rotationY;
+        public float rotationZ;
+        public float rotationW = 1f;
+
+        public string assignedRespawnSpotId = string.Empty;
+
+        public bool isAssignedRespawn;
     }
 }

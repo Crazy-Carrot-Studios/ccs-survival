@@ -26,6 +26,7 @@ namespace CCS.Modules.Playtesting
         Respawn = 11,
         BuildShelter = 12,
         CraftAtWorkbench = 13,
-        UseStorageCrate = 14
+        UseStorageCrate = 14,
+        PlaceAndSleepAtBedroll = 15
     }
 }

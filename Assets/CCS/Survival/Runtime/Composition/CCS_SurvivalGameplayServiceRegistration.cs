@@ -212,6 +212,7 @@ namespace CCS.Survival.Composition
                 gatheringService,
                 buildingService,
                 storageService,
+                sleepService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -220,6 +221,10 @@ namespace CCS.Survival.Composition
                 survivalCoreService,
                 characterMovementService,
                 null);
+            playerDeathService.BindAssignedRespawnSpawnIdProvider(
+                () => sleepService != null && sleepService.IsInitialized
+                    ? sleepService.AssignedRespawnSpawnId
+                    : string.Empty);
             RegisterService(runtimeHost, playerDeathService, enableDebugLogs);
             RegisterPlayerDeathUpdatable(runtimeHost, playerDeathService);
 
@@ -239,6 +244,7 @@ namespace CCS.Survival.Composition
                     equipmentService,
                     craftingRecipeService,
                     storageService,
+                    sleepService,
                     survivalCoreService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }

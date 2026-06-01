@@ -1,3 +1,4 @@
+using System;
 using CCS.Core;
 using CCS.Modules.CharacterController;
 using CCS.Modules.SurvivalCore;
@@ -26,6 +27,7 @@ namespace CCS.Modules.PlayerDeath
         private CCS_SurvivalCoreService survivalCoreService;
         private CCS_CharacterMovementService movementService;
         private Transform playerTransform;
+        private Func<string> assignedRespawnSpawnIdProvider;
         private bool isInitialized;
         private bool isPlayerDead;
 
@@ -76,6 +78,11 @@ namespace CCS.Modules.PlayerDeath
             movementService = movement;
             playerTransform = playerRoot;
             BindSurvivalCore();
+        }
+
+        public void BindAssignedRespawnSpawnIdProvider(Func<string> provider)
+        {
+            assignedRespawnSpawnIdProvider = provider;
         }
 
         public void Tick(float deltaTime)
@@ -194,7 +201,7 @@ namespace CCS.Modules.PlayerDeath
 
         private void PerformRespawn(string causeMessage)
         {
-            string spawnId = activeProfile != null ? activeProfile.DefaultSpawnId : string.Empty;
+            string spawnId = ResolveRespawnSpawnId();
             CCS_PlayerRespawnPoint respawnPoint = ResolveRespawnPoint(spawnId);
             Vector3 spawnPosition = respawnPoint != null
                 ? respawnPoint.SpawnPosition
@@ -249,6 +256,20 @@ namespace CCS.Modules.PlayerDeath
             {
                 controller.enabled = true;
             }
+        }
+
+        private string ResolveRespawnSpawnId()
+        {
+            string assignedSpawnId = assignedRespawnSpawnIdProvider != null
+                ? assignedRespawnSpawnIdProvider.Invoke()
+                : string.Empty;
+            if (!string.IsNullOrWhiteSpace(assignedSpawnId)
+                && ResolveRespawnPoint(assignedSpawnId) != null)
+            {
+                return assignedSpawnId;
+            }
+
+            return activeProfile != null ? activeProfile.DefaultSpawnId : string.Empty;
         }
 
         private CCS_PlayerRespawnPoint ResolveRespawnPoint(string spawnId)

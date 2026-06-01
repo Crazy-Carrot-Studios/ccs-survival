@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 1.1.2  
+**Version:** 1.1.3  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -146,8 +146,9 @@ Assets/CCS/Modules/<ModuleName>/
 | `Cooking/` | 0.9.5 — **Consumables & hunger usage complete** (passive drain, F consume, HUD feedback) |
 | `SaveSystem/` | 1.0.1 — **Unified save file complete** (F5/F9 debug save/load) |
 | `PlayerDeath/` | 1.0.1 — **Death and respawn complete** (starvation/dehydration, bootstrap spawn) |
+| `Sleep/` | **1.1.3** — **Placeable bedroll** (sleep spot service, needs recovery, respawn assignment, save restore) |
 | `Storage/` | **1.1.2** — **Primitive storage crates** (container service, save persistence, F1/F2 dev transfer) |
-| `Playtesting/` | **1.1.2** — **Use storage crate** checklist step (F2 place/open, F1 deposit, F5/F9 persistence) |
+| `Playtesting/` | **1.1.3** — **Place and sleep at bedroll** step (Shift+F2, F5/F9 persistence) |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

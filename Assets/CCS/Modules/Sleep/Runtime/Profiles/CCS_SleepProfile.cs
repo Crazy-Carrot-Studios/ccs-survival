@@ -11,7 +11,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Profiles/Sleep/ (project shell configuration).
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: No dreams, death, enemy interruption, or sleep UI in 0.9.6 foundation.
+// NOTES: Milestone 1.1.3 adds placeable bedroll spot recovery and respawn assignment.
 // =============================================================================
 
 namespace CCS.Modules.Sleep
@@ -54,6 +54,28 @@ namespace CCS.Modules.Sleep
         [Tooltip("Multiplier applied to thirst drain simulated across slept game hours.")]
         [SerializeField] private float thirstDrainDuringSleepMultiplier = 1f;
 
+        [Header("Placeable Bedroll (1.1.3)")]
+        [Tooltip("Default primitive sleep spot spawned when placing a bedroll in the world.")]
+        [SerializeField] private CCS_SleepSpotDefinition defaultSleepSpotDefinition;
+
+        [Tooltip("Real-time sleep duration foundation in seconds (logged; time skip uses defaultSleepHours).")]
+        [SerializeField] private float sleepDurationSeconds = 30f;
+
+        [Tooltip("Hunger restored when sleeping at a placed bedroll spot.")]
+        [SerializeField] private float hungerRecoveryAmount = 20f;
+
+        [Tooltip("Thirst restored when sleeping at a placed bedroll spot.")]
+        [SerializeField] private float thirstRecoveryAmount = 20f;
+
+        [Tooltip("Stamina value applied when sleeping at a placed bedroll spot.")]
+        [SerializeField] private float staminaRecoveryAmount = 100f;
+
+        [Tooltip("When enabled, sleeping at a placed bedroll assigns it as the player respawn point.")]
+        [SerializeField] private bool assignRespawnPointOnSleep = true;
+
+        [Tooltip("Emit sleep service debug logs.")]
+        [SerializeField] private bool enableDebugLogging;
+
         [Header("Bedroll Content")]
         [Tooltip("Inventory item that satisfies the bedroll requirement.")]
         [SerializeField] private CCS_ItemDefinition bedrollItemDefinition;
@@ -91,6 +113,20 @@ namespace CCS.Modules.Sleep
         public CCS_EquipmentItemDefinition BedrollEquipmentDefinition => bedrollEquipmentDefinition;
 
         public CCS_CraftingRecipeDefinition BedrollRecipeDefinition => bedrollRecipeDefinition;
+
+        public CCS_SleepSpotDefinition DefaultSleepSpotDefinition => defaultSleepSpotDefinition;
+
+        public float SleepDurationSeconds => sleepDurationSeconds;
+
+        public float HungerRecoveryAmount => hungerRecoveryAmount;
+
+        public float ThirstRecoveryAmount => thirstRecoveryAmount;
+
+        public float StaminaRecoveryAmount => staminaRecoveryAmount;
+
+        public bool AssignRespawnPointOnSleep => assignRespawnPointOnSleep;
+
+        public bool EnableDebugLogging => enableDebugLogging;
 
         #endregion
     }

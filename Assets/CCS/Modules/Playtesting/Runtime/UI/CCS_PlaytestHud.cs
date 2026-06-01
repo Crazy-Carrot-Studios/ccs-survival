@@ -110,7 +110,14 @@ namespace CCS.Modules.Playtesting
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
-                playtestService.TryPlaceOrOpenStorageCrateNearPlayer();
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    playtestService.TryPlaceOrSleepBedrollNearPlayer();
+                }
+                else
+                {
+                    playtestService.TryPlaceOrOpenStorageCrateNearPlayer();
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.F1))
@@ -156,9 +163,9 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.1.2)");
+            GUILayout.Label("CCS Manual Playtest Harness (1.1.3)");
             GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | B Build | F4/F3 Bench");
-            GUILayout.Label("F2 place/open crate | F1 deposit | Shift+F1 withdraw | F5 save | F9 load");
+            GUILayout.Label("F2 crate | Shift+F2 bedroll/sleep | F1 deposit | Shift+F1 withdraw | F5 save | F9 load");
             GUILayout.Label("Interact gather/cook | Primary hunt | F eat");
             GUILayout.Space(6f);
 

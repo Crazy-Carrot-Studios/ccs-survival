@@ -16,6 +16,7 @@
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.Equipment.Runtime",
         "CCS.Survival.Player.Runtime"
     ],

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.2.
-  profileVersion: 1.1.2
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.3.
+  profileVersion: 1.1.3
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -102,8 +102,17 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.storage
     displayName: Use storage crate
     stepType: 14
-    instructionText: F2 place/open crate near player; F1 deposit item; F5 save; F9 load
-      to verify persistence.
+    instructionText: F2 place/open crate near player; F1 deposit item; F5 save; F9
+      load to verify persistence.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.bedroll
+    displayName: Place and sleep at bedroll
+    stepType: 15
+    instructionText: Shift+F2 place/sleep at bedroll; interact to sleep; F5 save;
+      F9 load to verify bedroll restore.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

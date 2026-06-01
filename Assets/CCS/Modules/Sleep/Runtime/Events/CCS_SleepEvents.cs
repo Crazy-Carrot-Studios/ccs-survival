@@ -1,22 +1,22 @@
 // =============================================================================
 // SCRIPT: CCS_SleepEvents
 // CATEGORY: Modules / Sleep / Runtime / Events
-// PURPOSE: Event name constants and delegate contracts for sleep systems.
-// PLACEMENT: Instance events on CCS_SleepService document contracts here.
-// AUTHOR: James Schilz
+// PURPOSE: Event handler delegates for sleep spot lifecycle notifications.
+// PLACEMENT: Subscribed by playtest harness, HUD wiring, and diagnostics.
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: Subscribers react to sleep flow without UI coupling.
+// NOTES: Milestone 1.1.3 sleep and bedroll foundation.
 // =============================================================================
 
 namespace CCS.Modules.Sleep
 {
-    public static class CCS_SleepEvents
-    {
-        public const string SleepCompletedEventName = "Sleep.Completed";
-        public const string SleepFailedEventName = "Sleep.Failed";
-    }
+    public delegate void SleepStartedHandler(CCS_SleepEventArgs eventArgs);
 
     public delegate void SleepCompletedHandler(CCS_SleepEventArgs eventArgs);
 
     public delegate void SleepFailedHandler(CCS_SleepEventArgs eventArgs);
+
+    public delegate void SleepRespawnPointAssignedHandler(CCS_SleepEventArgs eventArgs);
+
+    public delegate void SleepStateRestoredHandler(CCS_SleepEventArgs eventArgs);
 }

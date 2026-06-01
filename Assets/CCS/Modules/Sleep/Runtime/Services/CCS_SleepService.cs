@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CCS.Core;
 using CCS.Modules.Crafting;
 using CCS.Modules.Equipment;
@@ -6,6 +8,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.TimeOfDay;
 using CCS.Survival;
+using CCS.Survival.Player;
 using UnityEngine;
 
 // =============================================================================
@@ -15,7 +18,7 @@ using UnityEngine;
 // PLACEMENT: Registered by CCS_SurvivalGameplayServiceRegistration from sleep profile.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: No dreams, death, enemy interruption, or sleep UI in 0.9.6 foundation.
+// NOTES: Milestone 1.1.3 adds placeable bedroll sleep spots, save restore, and respawn assignment.
 // =============================================================================
 
 namespace CCS.Modules.Sleep
@@ -34,18 +37,27 @@ namespace CCS.Modules.Sleep
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_CraftingService craftingService;
 
+        private readonly Dictionary<string, CCS_SleepSpot> registeredSleepSpots =
+            new Dictionary<string, CCS_SleepSpot>(StringComparer.Ordinal);
+
+        private readonly List<CCS_SleepSpot> dynamicallySpawnedSleepSpots = new List<CCS_SleepSpot>();
+
         private float lastHoursSlept;
         private float lastFatigueRestored;
         private CCS_SleepFailureReason lastFailureReason = CCS_SleepFailureReason.None;
         private string lastMessage = string.Empty;
+        private string assignedRespawnSpawnId = string.Empty;
         private bool isInitialized;
 
         #endregion
 
         #region Events
 
+        public event SleepStartedHandler SleepStarted;
         public event SleepCompletedHandler SleepCompleted;
         public event SleepFailedHandler SleepFailed;
+        public event SleepRespawnPointAssignedHandler SleepRespawnPointAssigned;
+        public event SleepStateRestoredHandler SleepStateRestored;
 
         #endregion
 
@@ -54,6 +66,10 @@ namespace CCS.Modules.Sleep
         public bool IsInitialized => isInitialized;
 
         public CCS_SleepProfile ActiveProfile => activeProfile;
+
+        public string AssignedRespawnSpawnId => assignedRespawnSpawnId ?? string.Empty;
+
+        public int RegisteredSleepSpotCount => registeredSleepSpots.Count;
 
         #endregion
 
@@ -214,6 +230,280 @@ namespace CCS.Modules.Sleep
                 lastMessage);
             RaiseSleepCompleted(result);
             return result;
+        }
+
+        public void RegisterSleepSpot(CCS_SleepSpot sleepSpot)
+        {
+            if (sleepSpot == null || string.IsNullOrWhiteSpace(sleepSpot.InstanceId))
+            {
+                return;
+            }
+
+            registeredSleepSpots[sleepSpot.InstanceId] = sleepSpot;
+            LogDebug($"Registered sleep spot {sleepSpot.InstanceId}.");
+        }
+
+        public void UnregisterSleepSpot(CCS_SleepSpot sleepSpot)
+        {
+            if (sleepSpot == null || string.IsNullOrWhiteSpace(sleepSpot.InstanceId))
+            {
+                return;
+            }
+
+            registeredSleepSpots.Remove(sleepSpot.InstanceId);
+            dynamicallySpawnedSleepSpots.Remove(sleepSpot);
+            LogDebug($"Unregistered sleep spot {sleepSpot.InstanceId}.");
+        }
+
+        public bool TrySleep(CCS_SleepSpot sleepSpot)
+        {
+            if (sleepSpot == null)
+            {
+                return FailSpotSleep(null, "Sleep spot is missing.");
+            }
+
+            if (!EnsureInitialized() || activeProfile == null)
+            {
+                return FailSpotSleep(sleepSpot, "Sleep profile is unavailable.");
+            }
+
+            if (!sleepSpot.CanSleep())
+            {
+                return FailSpotSleep(sleepSpot, "Cannot sleep at this bedroll right now.");
+            }
+
+            if (survivalCoreService == null || !survivalCoreService.IsInitialized)
+            {
+                return FailSpotSleep(sleepSpot, "Survival core service is unavailable.");
+            }
+
+            RaiseSleepStarted(sleepSpot);
+            sleepSpot.SetSleepingState(true);
+
+            float sleepHours = activeProfile.DefaultSleepHours;
+            if (timeOfDayService != null && timeOfDayService.IsInitialized && sleepHours > 0f)
+            {
+                timeOfDayService.AdvanceTimeByHours(sleepHours);
+            }
+
+            ApplySpotNeedsRecovery();
+            ApplySpotFatigueRecovery(sleepHours);
+
+            lastHoursSlept = sleepHours;
+            lastFatigueRestored = activeProfile.FatigueRestorePerHour * sleepHours;
+            lastFailureReason = CCS_SleepFailureReason.None;
+            lastMessage = BuildSpotSuccessMessage(sleepSpot, sleepHours);
+
+            bool respawnAssigned = false;
+            if (activeProfile.AssignRespawnPointOnSleep)
+            {
+                respawnAssigned = TryAssignRespawnPoint(sleepSpot);
+            }
+
+            sleepSpot.SetSleepingState(false);
+            RaiseSpotSleepCompleted(sleepSpot, respawnAssigned);
+            LogDebug(
+                $"Sleep completed at '{sleepSpot.DisplayName}' ({sleepSpot.InstanceId}) "
+                + $"duration foundation {activeProfile.SleepDurationSeconds:0}s.");
+            return true;
+        }
+
+        public CCS_SleepSpotSaveState[] CaptureWorldState()
+        {
+            if (registeredSleepSpots.Count == 0)
+            {
+                return Array.Empty<CCS_SleepSpotSaveState>();
+            }
+
+            List<CCS_SleepSpotSaveState> records = new List<CCS_SleepSpotSaveState>(registeredSleepSpots.Count);
+            foreach (KeyValuePair<string, CCS_SleepSpot> entry in registeredSleepSpots)
+            {
+                CCS_SleepSpot sleepSpot = entry.Value;
+                if (sleepSpot == null || !dynamicallySpawnedSleepSpots.Contains(sleepSpot))
+                {
+                    continue;
+                }
+
+                records.Add(sleepSpot.CaptureState());
+            }
+
+            return records.ToArray();
+        }
+
+        public void RestoreWorldState(CCS_SleepSpotSaveState[] saveStates)
+        {
+            ClearDynamicallySpawnedSleepSpots();
+
+            if (saveStates == null || saveStates.Length == 0)
+            {
+                RaiseSleepStateRestored(null, true, "No sleep spots to restore.");
+                return;
+            }
+
+            int restoredCount = 0;
+            for (int index = 0; index < saveStates.Length; index++)
+            {
+                CCS_SleepSpotSaveState saveState = saveStates[index];
+                if (saveState == null || string.IsNullOrWhiteSpace(saveState.instanceId))
+                {
+                    continue;
+                }
+
+                if (TryFindRegisteredSleepSpot(saveState.instanceId, out CCS_SleepSpot existingSpot))
+                {
+                    existingSpot.RestoreState(saveState);
+                    if (saveState.isAssignedRespawn)
+                    {
+                        TryAssignRespawnPoint(existingSpot);
+                    }
+
+                    restoredCount++;
+                    continue;
+                }
+
+                CCS_SleepSpotDefinition definition = ResolveSleepSpotDefinition(saveState.sleepSpotDefinitionId);
+                if (definition == null || definition.PrefabReference == null)
+                {
+                    continue;
+                }
+
+                Vector3 position = new Vector3(saveState.positionX, saveState.positionY, saveState.positionZ);
+                Quaternion rotation = new Quaternion(
+                    saveState.rotationX,
+                    saveState.rotationY,
+                    saveState.rotationZ,
+                    saveState.rotationW);
+
+                CCS_SleepSpot spawnedSpot = SpawnSleepSpot(
+                    definition,
+                    position,
+                    rotation,
+                    saveState.instanceId,
+                    markDynamicSpawn: true);
+                if (spawnedSpot == null)
+                {
+                    continue;
+                }
+
+                spawnedSpot.RestoreState(saveState);
+                if (saveState.isAssignedRespawn)
+                {
+                    TryAssignRespawnPoint(spawnedSpot);
+                }
+
+                restoredCount++;
+            }
+
+            RaiseSleepStateRestored(null, restoredCount > 0, $"Restored {restoredCount} sleep spot(s).");
+        }
+
+        public CCS_SleepSpot TryPlaceDefaultSleepSpotNearPlayer()
+        {
+            if (!EnsureInitialized() || activeProfile?.DefaultSleepSpotDefinition == null)
+            {
+                return null;
+            }
+
+            if (!TryResolvePlayerPosition(out Vector3 playerPosition, out Vector3 playerForward))
+            {
+                return null;
+            }
+
+            Vector3 spawnPosition = playerPosition + playerForward * 2f + Vector3.up * 0.1f;
+            Quaternion spawnRotation = Quaternion.LookRotation(playerForward, Vector3.up);
+            return SpawnSleepSpot(
+                activeProfile.DefaultSleepSpotDefinition,
+                spawnPosition,
+                spawnRotation,
+                null,
+                markDynamicSpawn: true);
+        }
+
+        public bool TrySleepAtNearestSpot()
+        {
+            if (!TryResolvePlayerPosition(out Vector3 playerPosition, out _))
+            {
+                return false;
+            }
+
+            CCS_SleepSpot nearest = null;
+            float nearestDistance = float.MaxValue;
+            foreach (KeyValuePair<string, CCS_SleepSpot> entry in registeredSleepSpots)
+            {
+                CCS_SleepSpot sleepSpot = entry.Value;
+                if (sleepSpot == null || !sleepSpot.CanSleep())
+                {
+                    continue;
+                }
+
+                float distance = Vector3.Distance(playerPosition, sleepSpot.transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearest = sleepSpot;
+                }
+            }
+
+            return nearest != null && TrySleep(nearest);
+        }
+
+        public void ApplySavedAssignedRespawn(string spawnId)
+        {
+            if (string.IsNullOrWhiteSpace(spawnId))
+            {
+                return;
+            }
+
+            assignedRespawnSpawnId = spawnId;
+            foreach (KeyValuePair<string, CCS_SleepSpot> entry in registeredSleepSpots)
+            {
+                CCS_SleepSpot sleepSpot = entry.Value;
+                if (sleepSpot != null && sleepSpot.RespawnSpawnId == spawnId)
+                {
+                    sleepSpot.SetAssignedRespawn(true);
+                }
+            }
+        }
+
+        public CCS_SleepSpot SpawnSleepSpot(
+            CCS_SleepSpotDefinition definition,
+            Vector3 position,
+            Quaternion rotation,
+            string instanceId,
+            bool markDynamicSpawn)
+        {
+            if (!EnsureInitialized() || definition == null || definition.PrefabReference == null)
+            {
+                return null;
+            }
+
+            GameObject instance = UnityEngine.Object.Instantiate(definition.PrefabReference, position, rotation);
+            if (instance == null)
+            {
+                return null;
+            }
+
+            CCS_SleepSpot sleepSpot = instance.GetComponent<CCS_SleepSpot>();
+            if (sleepSpot == null)
+            {
+                sleepSpot = instance.AddComponent<CCS_SleepSpot>();
+            }
+
+            if (instance.GetComponent<CCS_SleepSpotInteractable>() == null)
+            {
+                instance.AddComponent<CCS_SleepSpotInteractable>();
+            }
+
+            sleepSpot.ConfigureFromDefinition(definition, instanceId);
+            RegisterSleepSpot(sleepSpot);
+
+            if (markDynamicSpawn && !dynamicallySpawnedSleepSpots.Contains(sleepSpot))
+            {
+                dynamicallySpawnedSleepSpots.Add(sleepSpot);
+            }
+
+            LogDebug($"Spawned sleep spot '{definition.DisplayName}' at {position}.");
+            return sleepSpot;
         }
 
         #endregion
@@ -435,6 +725,187 @@ namespace CCS.Modules.Sleep
         private void RaiseSleepFailed(CCS_SleepResult result)
         {
             SleepFailed?.Invoke(new CCS_SleepEventArgs(result, CreateSnapshot(), result.Message));
+        }
+
+        private bool FailSpotSleep(CCS_SleepSpot sleepSpot, string message)
+        {
+            lastFailureReason = CCS_SleepFailureReason.UnsafeConditions;
+            lastMessage = message ?? string.Empty;
+            SleepFailed?.Invoke(new CCS_SleepEventArgs(sleepSpot, false, lastMessage));
+            LogDebug(lastMessage);
+            return false;
+        }
+
+        private void ApplySpotNeedsRecovery()
+        {
+            if (survivalCoreService == null || activeProfile == null)
+            {
+                return;
+            }
+
+            float hunger = activeProfile.HungerRecoveryAmount;
+            float thirst = activeProfile.ThirstRecoveryAmount;
+            if (survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Hunger, out CCS_SurvivalStatSnapshot hungerSnapshot))
+            {
+                hunger = Mathf.Min(
+                    hungerSnapshot.MaxValue,
+                    hungerSnapshot.CurrentValue + activeProfile.HungerRecoveryAmount);
+            }
+
+            if (survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Thirst, out CCS_SurvivalStatSnapshot thirstSnapshot))
+            {
+                thirst = Mathf.Min(
+                    thirstSnapshot.MaxValue,
+                    thirstSnapshot.CurrentValue + activeProfile.ThirstRecoveryAmount);
+            }
+
+            survivalCoreService.TryRestoreSavedNeeds(
+                hunger,
+                thirst,
+                activeProfile.StaminaRecoveryAmount);
+        }
+
+        private void ApplySpotFatigueRecovery(float sleepHours)
+        {
+            if (survivalCoreService == null || activeProfile == null || sleepHours <= 0f)
+            {
+                return;
+            }
+
+            float fatigueRestored = activeProfile.FatigueRestorePerHour * sleepHours;
+            if (fatigueRestored > 0f)
+            {
+                survivalCoreService.TryApplyModifier(
+                    CCS_SurvivalStatType.Fatigue,
+                    CCS_SurvivalStatModifier.Add(-fatigueRestored));
+            }
+        }
+
+        private bool TryAssignRespawnPoint(CCS_SleepSpot sleepSpot)
+        {
+            if (sleepSpot == null)
+            {
+                return false;
+            }
+
+            sleepSpot.SetAssignedRespawn(true);
+            assignedRespawnSpawnId = sleepSpot.RespawnSpawnId;
+            RaiseSleepRespawnPointAssigned(sleepSpot);
+            LogDebug($"Assigned respawn point '{assignedRespawnSpawnId}'.");
+            return true;
+        }
+
+        private void ClearDynamicallySpawnedSleepSpots()
+        {
+            for (int index = dynamicallySpawnedSleepSpots.Count - 1; index >= 0; index--)
+            {
+                CCS_SleepSpot sleepSpot = dynamicallySpawnedSleepSpots[index];
+                if (sleepSpot == null)
+                {
+                    dynamicallySpawnedSleepSpots.RemoveAt(index);
+                    continue;
+                }
+
+                UnregisterSleepSpot(sleepSpot);
+                UnityEngine.Object.Destroy(sleepSpot.gameObject);
+            }
+
+            dynamicallySpawnedSleepSpots.Clear();
+        }
+
+        private bool TryFindRegisteredSleepSpot(string instanceId, out CCS_SleepSpot sleepSpot)
+        {
+            sleepSpot = null;
+            if (string.IsNullOrWhiteSpace(instanceId))
+            {
+                return false;
+            }
+
+            return registeredSleepSpots.TryGetValue(instanceId, out sleepSpot) && sleepSpot != null;
+        }
+
+        private CCS_SleepSpotDefinition ResolveSleepSpotDefinition(string sleepSpotDefinitionId)
+        {
+            if (activeProfile?.DefaultSleepSpotDefinition != null
+                && activeProfile.DefaultSleepSpotDefinition.SleepSpotId == sleepSpotDefinitionId)
+            {
+                return activeProfile.DefaultSleepSpotDefinition;
+            }
+
+            return activeProfile?.DefaultSleepSpotDefinition;
+        }
+
+        private static bool TryResolvePlayerPosition(out Vector3 position, out Vector3 forward)
+        {
+            position = Vector3.zero;
+            forward = Vector3.forward;
+
+            CCS_PlayerGameplayController[] players =
+                CCS_SurvivalSceneQueryUtility.FindActiveObjectsByType<CCS_PlayerGameplayController>();
+            if (players == null || players.Length == 0 || players[0] == null)
+            {
+                return false;
+            }
+
+            Transform playerTransform = players[0].transform;
+            position = playerTransform.position;
+            forward = playerTransform.forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude < 0.001f)
+            {
+                forward = Vector3.forward;
+            }
+            else
+            {
+                forward.Normalize();
+            }
+
+            return true;
+        }
+
+        private static string BuildSpotSuccessMessage(CCS_SleepSpot sleepSpot, float sleepHours)
+        {
+            string label = sleepSpot != null ? sleepSpot.DisplayName : "Bedroll";
+            return $"Slept at {label} for {sleepHours:0} hours. Needs recovered.";
+        }
+
+        private void RaiseSleepStarted(CCS_SleepSpot sleepSpot)
+        {
+            SleepStarted?.Invoke(new CCS_SleepEventArgs(sleepSpot, true, "Sleep started."));
+        }
+
+        private void RaiseSpotSleepCompleted(CCS_SleepSpot sleepSpot, bool respawnAssigned)
+        {
+            CCS_SleepResult result = CCS_SleepResult.Success(
+                lastHoursSlept,
+                lastFatigueRestored,
+                false,
+                lastMessage);
+            SleepCompleted?.Invoke(
+                new CCS_SleepEventArgs(sleepSpot, true, lastMessage, result, CreateSnapshot()));
+            if (respawnAssigned)
+            {
+                RaiseSleepRespawnPointAssigned(sleepSpot);
+            }
+        }
+
+        private void RaiseSleepRespawnPointAssigned(CCS_SleepSpot sleepSpot)
+        {
+            SleepRespawnPointAssigned?.Invoke(
+                new CCS_SleepEventArgs(sleepSpot, true, $"Respawn point assigned: {assignedRespawnSpawnId}."));
+        }
+
+        private void RaiseSleepStateRestored(CCS_SleepSpot sleepSpot, bool success, string message)
+        {
+            SleepStateRestored?.Invoke(new CCS_SleepEventArgs(sleepSpot, success, message));
+        }
+
+        private void LogDebug(string message)
+        {
+            if (activeProfile != null && activeProfile.EnableDebugLogging)
+            {
+                Debug.Log($"{LogPrefix} {message}");
+            }
         }
 
         #endregion
