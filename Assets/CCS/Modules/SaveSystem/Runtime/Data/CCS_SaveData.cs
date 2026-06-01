@@ -35,6 +35,8 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveBuildingWorldData building = new CCS_SaveBuildingWorldData();
 
+        public CCS_SaveStorageWorldData storage = new CCS_SaveStorageWorldData();
+
         #endregion
     }
 
@@ -102,5 +104,39 @@ namespace CCS.Modules.SaveSystem
     public sealed class CCS_SaveBuildingWorldData
     {
         public string buildingStateJson = string.Empty;
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveStorageWorldData
+    {
+        public CCS_SaveStorageContainerData[] containers = System.Array.Empty<CCS_SaveStorageContainerData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveStorageContainerData
+    {
+        public string containerDefinitionId = string.Empty;
+
+        public string instanceId = string.Empty;
+
+        public string displayName = string.Empty;
+
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+
+        public float rotationX;
+        public float rotationY;
+        public float rotationZ;
+        public float rotationW = 1f;
+
+        public CCS_SaveStorageContainerSlotData[] slots = System.Array.Empty<CCS_SaveStorageContainerSlotData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveStorageContainerSlotData
+    {
+        public string itemId = string.Empty;
+        public int quantity;
     }
 }

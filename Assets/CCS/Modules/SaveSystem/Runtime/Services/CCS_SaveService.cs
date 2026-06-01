@@ -3,6 +3,7 @@ using System.IO;
 using CCS.Core;
 using CCS.Modules.Building;
 using CCS.Modules.Cooking;
+using CCS.Modules.Storage;
 using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
@@ -32,6 +33,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_SurvivalCoreService survivalCoreService;
         private CCS_GatheringService gatheringService;
         private CCS_BuildingService buildingService;
+        private CCS_StorageService storageService;
         private Transform playerTransform;
         private float autoSaveTimer;
         private bool isInitialized;
@@ -95,12 +97,14 @@ namespace CCS.Modules.SaveSystem
             CCS_SurvivalCoreService survivalCore,
             CCS_GatheringService gathering,
             CCS_BuildingService building,
+            CCS_StorageService storage,
             Transform playerRoot)
         {
             inventoryService = inventory;
             survivalCoreService = survivalCore;
             gatheringService = gathering;
             buildingService = building;
+            storageService = storage;
             playerTransform = playerRoot;
         }
 
@@ -254,6 +258,7 @@ namespace CCS.Modules.SaveSystem
             CaptureGathering(saveData.gathering);
             CaptureCooking(saveData.cooking);
             CaptureBuilding(saveData.building);
+            CaptureStorage(saveData.storage);
             return saveData;
         }
 
@@ -401,11 +406,122 @@ namespace CCS.Modules.SaveSystem
             buildingData.buildingStateJson = buildingService.CaptureState();
         }
 
+        private void CaptureStorage(CCS_SaveStorageWorldData storageData)
+        {
+            if (storageData == null || storageService == null || !storageService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_StorageContainerSaveState[] containerStates = storageService.CaptureWorldState();
+            if (containerStates == null || containerStates.Length == 0)
+            {
+                storageData.containers = Array.Empty<CCS_SaveStorageContainerData>();
+                return;
+            }
+
+            CCS_SaveStorageContainerData[] records = new CCS_SaveStorageContainerData[containerStates.Length];
+            for (int index = 0; index < containerStates.Length; index++)
+            {
+                CCS_StorageContainerSaveState source = containerStates[index];
+                records[index] = ConvertStorageSaveState(source);
+            }
+
+            storageData.containers = records;
+        }
+
+        private static CCS_SaveStorageContainerData ConvertStorageSaveState(CCS_StorageContainerSaveState source)
+        {
+            if (source == null)
+            {
+                return new CCS_SaveStorageContainerData();
+            }
+
+            CCS_SaveStorageContainerData record = new CCS_SaveStorageContainerData
+            {
+                containerDefinitionId = source.containerDefinitionId,
+                instanceId = source.instanceId,
+                displayName = source.displayName,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationX = source.rotationX,
+                rotationY = source.rotationY,
+                rotationZ = source.rotationZ,
+                rotationW = source.rotationW
+            };
+
+            if (source.slots == null || source.slots.Length == 0)
+            {
+                record.slots = Array.Empty<CCS_SaveStorageContainerSlotData>();
+                return record;
+            }
+
+            CCS_SaveStorageContainerSlotData[] slotRecords =
+                new CCS_SaveStorageContainerSlotData[source.slots.Length];
+            for (int slotIndex = 0; slotIndex < source.slots.Length; slotIndex++)
+            {
+                CCS_StorageContainerSlotSaveState slotSource = source.slots[slotIndex];
+                slotRecords[slotIndex] = new CCS_SaveStorageContainerSlotData
+                {
+                    itemId = slotSource != null ? slotSource.itemId ?? string.Empty : string.Empty,
+                    quantity = slotSource != null ? slotSource.quantity : 0
+                };
+            }
+
+            record.slots = slotRecords;
+            return record;
+        }
+
+        private static CCS_StorageContainerSaveState ConvertStorageSaveRecord(CCS_SaveStorageContainerData source)
+        {
+            if (source == null)
+            {
+                return new CCS_StorageContainerSaveState();
+            }
+
+            CCS_StorageContainerSaveState saveState = new CCS_StorageContainerSaveState
+            {
+                containerDefinitionId = source.containerDefinitionId,
+                instanceId = source.instanceId,
+                displayName = source.displayName,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationX = source.rotationX,
+                rotationY = source.rotationY,
+                rotationZ = source.rotationZ,
+                rotationW = source.rotationW
+            };
+
+            if (source.slots == null || source.slots.Length == 0)
+            {
+                saveState.slots = Array.Empty<CCS_StorageContainerSlotSaveState>();
+                return saveState;
+            }
+
+            CCS_StorageContainerSlotSaveState[] slotStates =
+                new CCS_StorageContainerSlotSaveState[source.slots.Length];
+            for (int slotIndex = 0; slotIndex < source.slots.Length; slotIndex++)
+            {
+                CCS_SaveStorageContainerSlotData slotSource = source.slots[slotIndex];
+                slotStates[slotIndex] = new CCS_StorageContainerSlotSaveState
+                {
+                    itemId = slotSource != null ? slotSource.itemId ?? string.Empty : string.Empty,
+                    quantity = slotSource != null ? slotSource.quantity : 0
+                };
+            }
+
+            saveState.slots = slotStates;
+            return saveState;
+        }
+
         private void ApplySaveData(CCS_SaveData saveData)
         {
             ApplyInventory(saveData.inventory);
             ApplyNeeds(saveData.needs);
             ApplyBuilding(saveData.building);
+            ApplyStorage(saveData.storage);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -459,6 +575,31 @@ namespace CCS.Modules.SaveSystem
             }
 
             buildingService.RestoreState(buildingData.buildingStateJson);
+        }
+
+        private void ApplyStorage(CCS_SaveStorageWorldData storageData)
+        {
+            if (storageService == null || !storageService.IsInitialized)
+            {
+                return;
+            }
+
+            storageService.CloseContainer();
+
+            if (storageData?.containers == null || storageData.containers.Length == 0)
+            {
+                storageService.RestoreWorldState(Array.Empty<CCS_StorageContainerSaveState>());
+                return;
+            }
+
+            CCS_StorageContainerSaveState[] saveStates =
+                new CCS_StorageContainerSaveState[storageData.containers.Length];
+            for (int index = 0; index < storageData.containers.Length; index++)
+            {
+                saveStates[index] = ConvertStorageSaveRecord(storageData.containers[index]);
+            }
+
+            storageService.RestoreWorldState(saveStates);
         }
 
         private void ApplyGathering(CCS_SaveGatheringWorldData gatheringData)

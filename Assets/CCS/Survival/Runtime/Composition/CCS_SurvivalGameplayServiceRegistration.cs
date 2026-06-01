@@ -20,6 +20,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.SaveSystem;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.Playtesting;
+using CCS.Modules.Storage;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -65,6 +66,7 @@ namespace CCS.Survival.Composition
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             CCS_BuildingProfile buildingProfile,
             CCS_BuildingProgressionProfile buildingProgressionProfile,
+            CCS_StorageProfile storageProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -199,6 +201,9 @@ namespace CCS.Survival.Composition
                 environmentEffectsService,
                 buildingService);
 
+            CCS_StorageService storageService = CreateStorageService(storageProfile, inventoryService);
+            RegisterService(runtimeHost, storageService, enableDebugLogs);
+
             CCS_SaveService saveService = CreateSaveService(saveProfile);
             RegisterService(runtimeHost, saveService, enableDebugLogs);
             saveService.BindGameplayServices(
@@ -206,6 +211,7 @@ namespace CCS.Survival.Composition
                 survivalCoreService,
                 gatheringService,
                 buildingService,
+                storageService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -232,6 +238,7 @@ namespace CCS.Survival.Composition
                     placementService,
                     equipmentService,
                     craftingRecipeService,
+                    storageService,
                     survivalCoreService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
@@ -804,6 +811,26 @@ namespace CCS.Survival.Composition
 
             service.InitializeFromProfile(profile);
             service.RegisterPrimitiveRecipes(craftingService);
+            return service;
+        }
+
+        private static CCS_StorageService CreateStorageService(
+            CCS_StorageProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_StorageService service = new CCS_StorageService();
+            service.Initialize();
+
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized && inventoryService != null)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
             return service;
         }
 

@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 1.1.1  
+**Version:** 1.1.2  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -146,7 +146,8 @@ Assets/CCS/Modules/<ModuleName>/
 | `Cooking/` | 0.9.5 — **Consumables & hunger usage complete** (passive drain, F consume, HUD feedback) |
 | `SaveSystem/` | 1.0.1 — **Unified save file complete** (F5/F9 debug save/load) |
 | `PlayerDeath/` | 1.0.1 — **Death and respawn complete** (starvation/dehydration, bootstrap spawn) |
-| `Playtesting/` | **1.1.1** — **Craft at workbench** checklist step (F4 seed / F3 dev craft) |
+| `Storage/` | **1.1.2** — **Primitive storage crates** (container service, save persistence, F1/F2 dev transfer) |
+| `Playtesting/` | **1.1.2** — **Use storage crate** checklist step (F2 place/open, F1 deposit, F5/F9 persistence) |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

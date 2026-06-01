@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4931d962d6399424db9a9db046b5af36, type: 3}
+  m_Name: CCS_PrimitiveStorageCrateDefinition
+  m_EditorClassIdentifier: CCS.Modules.Storage.Runtime::CCS.Modules.Storage.CCS_StorageContainerDefinition
+  containerId: ccs.survival.storage.primitive.crate
+  displayName: Storage Crate
+  slotCount: 8
+  maxWeight: 0
+  prefabReference: {fileID: 5382898908699836051, guid: 7f4e8c2a1b9d6e3f0a5c8b7d6e5f4a31, type: 3}
+  enableDebugLogging: 1

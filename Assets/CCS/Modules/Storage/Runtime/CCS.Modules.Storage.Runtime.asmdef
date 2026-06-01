@@ -1,0 +1,21 @@
+{
+    "name": "CCS.Modules.Storage.Runtime",
+    "rootNamespace": "CCS.Modules.Storage",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Survival.Player.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

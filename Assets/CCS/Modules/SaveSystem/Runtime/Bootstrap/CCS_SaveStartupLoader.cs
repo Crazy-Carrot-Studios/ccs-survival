@@ -1,6 +1,7 @@
 using CCS.Core;
 using CCS.Modules.Building;
 using CCS.Modules.CharacterController;
+using CCS.Modules.Storage;
 using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
@@ -47,6 +48,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_SurvivalCoreService survivalCoreService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_GatheringService gatheringService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_BuildingService buildingService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_StorageService storageService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
 
             Transform playerTransform = ResolvePlayerTransform();
@@ -55,6 +57,7 @@ namespace CCS.Modules.SaveSystem
                 survivalCoreService,
                 gatheringService,
                 buildingService,
+                storageService,
                 playerTransform);
 
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)

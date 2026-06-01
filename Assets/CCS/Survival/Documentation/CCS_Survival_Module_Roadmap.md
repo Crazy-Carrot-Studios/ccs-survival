@@ -64,8 +64,23 @@
 | **1.0.3** | Manual playtest pass + fixes (bootstrap route verified, gather/death/equip/build blockers resolved) |
 | **1.1.0** | Building progression foundation (tier-1 primitive shelter, recipes, placement rules, shelter playtest step) |
 | **1.1.1** | Crafting progression + workstation foundation (hand / campfire / workbench recipes, test workbench, playtest step) |
+| **1.1.2** | Storage container foundation (primitive crate, container inventory, unified save, playtest step) |
 
-Later milestones continue from **1.1.2+** (durability, ranged weapons, predators).
+Later milestones continue from **1.1.3+** (durability, ranged weapons, predators).
+
+---
+
+## 1.1.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_StorageService` + `CCS_StorageContainer` + interactable | **Complete** |
+| `PF_CCS_PrimitiveStorageCrate` + `CCS_TestStorageCrate` | **Complete** |
+| Unified save `storage.containers[]` persistence | **Complete** |
+| Playtest **Use storage crate** step (F2 / F1 / F5 / F9) | **Complete** |
+| Validation 0 warnings / 0 errors | **Pending batch** |
+| Version **1.1.2** build | **Pending batch** |
+| Production storage UI | **Deferred** |
 
 ---
 
@@ -77,8 +92,8 @@ Later milestones continue from **1.1.2+** (durability, ranged weapons, predators
 | `CCS_CraftingRecipeService` with progression events | **Complete** |
 | `CCS_TestWorkbench` + campfire station interactables | **Complete** |
 | Playtest **Craft at workbench** step | **Complete** |
-| Validation 0 warnings / 0 errors | **Pending batch** |
-| Version **1.1.1** build | **Pending batch** |
+| Validation 0 warnings / 0 errors | **Complete** |
+| Version **1.1.1** build | **Complete** |
 | Production crafting UI | **Deferred** |
 
 ---

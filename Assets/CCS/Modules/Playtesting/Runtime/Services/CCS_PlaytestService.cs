@@ -9,6 +9,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.SaveSystem;
+using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -61,7 +62,12 @@ namespace CCS.Modules.Playtesting
         private CCS_PlayerDeathService boundPlayerDeathService;
         private CCS_BuildingPlacementService boundBuildingPlacementService;
         private CCS_CraftingRecipeService boundCraftingRecipeService;
+        private CCS_StorageService boundStorageService;
         private CCS_PlayerEquipmentService boundEquipmentService;
+        private bool playtestStorageCrateExists;
+        private bool playtestStorageCrateOpened;
+        private bool playtestStorageItemDeposited;
+        private bool playtestStorageRestoredAfterLoad;
 
         #endregion
 
@@ -124,6 +130,7 @@ namespace CCS.Modules.Playtesting
             CCS_BuildingPlacementService buildingPlacementService,
             CCS_PlayerEquipmentService equipmentService,
             CCS_CraftingRecipeService craftingRecipeService,
+            CCS_StorageService storageService,
             CCS_SurvivalCoreService survivalCore)
         {
             UnbindEventListeners();
@@ -143,6 +150,7 @@ namespace CCS.Modules.Playtesting
             boundPlayerDeathService = playerDeathService;
             boundBuildingPlacementService = buildingPlacementService;
             boundCraftingRecipeService = craftingRecipeService;
+            boundStorageService = storageService;
             boundEquipmentService = equipmentService;
 
             if (boundGatheringService != null)
@@ -195,6 +203,13 @@ namespace CCS.Modules.Playtesting
             if (boundEquipmentService != null)
             {
                 boundEquipmentService.ItemEquipped += HandleItemEquipped;
+            }
+
+            if (boundStorageService != null)
+            {
+                boundStorageService.StorageContainerOpened += HandleStorageContainerOpened;
+                boundStorageService.StorageItemAdded += HandleStorageItemAdded;
+                boundStorageService.StorageStateRestored += HandleStorageStateRestored;
             }
 
             eventsBound = true;
@@ -266,6 +281,13 @@ namespace CCS.Modules.Playtesting
                 boundEquipmentService.ItemEquipped -= HandleItemEquipped;
             }
 
+            if (boundStorageService != null)
+            {
+                boundStorageService.StorageContainerOpened -= HandleStorageContainerOpened;
+                boundStorageService.StorageItemAdded -= HandleStorageItemAdded;
+                boundStorageService.StorageStateRestored -= HandleStorageStateRestored;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -275,12 +297,15 @@ namespace CCS.Modules.Playtesting
             boundPlayerDeathService = null;
             boundBuildingPlacementService = null;
             boundCraftingRecipeService = null;
+            boundStorageService = null;
             boundEquipmentService = null;
             eventsBound = false;
         }
 
         public void ResetSteps()
         {
+            ResetStoragePlaytestFlags();
+
             for (int index = 0; index < stepStates.Count; index++)
             {
                 stepStates[index].Reset();
@@ -572,7 +597,44 @@ namespace CCS.Modules.Playtesting
             if (eventArgs != null && eventArgs.IsSuccess)
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.LoadGame, "Load completed.");
+                EvaluateStorageCrateStepAfterLoad();
             }
+        }
+
+        private void HandleStorageContainerOpened(CCS_StorageEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.IsSuccess)
+            {
+                return;
+            }
+
+            playtestStorageCrateExists = true;
+            playtestStorageCrateOpened = true;
+            TryEvaluateStorageCrateStepCompletion();
+        }
+
+        private void HandleStorageItemAdded(CCS_StorageEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.IsSuccess)
+            {
+                return;
+            }
+
+            playtestStorageCrateExists = true;
+            playtestStorageItemDeposited = true;
+            TryEvaluateStorageCrateStepCompletion();
+        }
+
+        private void HandleStorageStateRestored(CCS_StorageEventArgs eventArgs)
+        {
+            if (eventArgs == null || !eventArgs.IsSuccess)
+            {
+                return;
+            }
+
+            playtestStorageCrateExists = boundStorageService != null && boundStorageService.RegisteredContainerCount > 0;
+            playtestStorageRestoredAfterLoad = true;
+            TryEvaluateStorageCrateStepCompletion();
         }
 
         private void HandlePlayerDied(CCS_PlayerDeathEventArgs eventArgs)
@@ -696,6 +758,98 @@ namespace CCS.Modules.Playtesting
             }
 
             return result.IsSuccess;
+        }
+
+        public bool TryPlaceOrOpenStorageCrateNearPlayer()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            CCS_StorageService storageService = ResolveStorageService();
+            if (storageService == null)
+            {
+                return false;
+            }
+
+            if (storageService.ActiveContainer != null)
+            {
+                storageService.CloseContainer();
+                return true;
+            }
+
+            if (storageService.RegisteredContainerCount > 0 && storageService.TryOpenNearestContainer())
+            {
+                playtestStorageCrateExists = true;
+                return true;
+            }
+
+            CCS_StorageContainer placedContainer = storageService.TryPlaceDefaultContainerNearPlayer();
+            if (placedContainer != null)
+            {
+                playtestStorageCrateExists = true;
+                LogDebug("Placed primitive storage crate near player (F2).");
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryMoveFirstPlayerItemToActiveStorageCrate()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            CCS_StorageService storageService = ResolveStorageService();
+            if (storageService == null)
+            {
+                return false;
+            }
+
+            if (storageService.ActiveContainer == null && !storageService.TryOpenNearestContainer())
+            {
+                LogDebug("No active storage crate for F1 transfer.");
+                return false;
+            }
+
+            bool moved = storageService.TryMovePlayerItemToContainer();
+            if (moved)
+            {
+                LogDebug("Moved first player item into active storage crate (F1).");
+            }
+
+            return moved;
+        }
+
+        public bool TryMoveFirstStorageItemToPlayer()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            CCS_StorageService storageService = ResolveStorageService();
+            if (storageService == null)
+            {
+                return false;
+            }
+
+            if (storageService.ActiveContainer == null && !storageService.TryOpenNearestContainer())
+            {
+                LogDebug("No active storage crate for Shift+F1 transfer.");
+                return false;
+            }
+
+            bool moved = storageService.TryMoveContainerItemToPlayer();
+            if (moved)
+            {
+                LogDebug("Moved first storage crate item to player (Shift+F1).");
+            }
+
+            return moved;
         }
 
         private void HandleItemEquipped(CCS_EquipmentEventArgs eventArgs)
@@ -925,6 +1079,71 @@ namespace CCS.Modules.Playtesting
                 {
                     return definition;
                 }
+            }
+
+            return null;
+        }
+
+        private void EvaluateStorageCrateStepAfterLoad()
+        {
+            if (boundStorageService != null && boundStorageService.RegisteredContainerCount > 0)
+            {
+                playtestStorageCrateExists = true;
+            }
+
+            for (int index = 0; index < stepStates.Count; index++)
+            {
+                if (stepStates[index].Definition.StepType != CCS_PlaytestStepType.UseStorageCrate)
+                {
+                    continue;
+                }
+
+                if (stepStates[index].Status == CCS_PlaytestStepStatus.Passed)
+                {
+                    playtestStorageRestoredAfterLoad = true;
+                }
+
+                break;
+            }
+
+            TryEvaluateStorageCrateStepCompletion();
+        }
+
+        private void TryEvaluateStorageCrateStepCompletion()
+        {
+            if (!playtestStorageCrateExists
+                || !playtestStorageCrateOpened
+                || !playtestStorageItemDeposited
+                || !playtestStorageRestoredAfterLoad)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.UseStorageCrate,
+                "Storage crate placed, opened, item deposited, and restored after save/load.");
+        }
+
+        private void ResetStoragePlaytestFlags()
+        {
+            playtestStorageCrateExists = false;
+            playtestStorageCrateOpened = false;
+            playtestStorageItemDeposited = false;
+            playtestStorageRestoredAfterLoad = false;
+        }
+
+        private CCS_StorageService ResolveStorageService()
+        {
+            if (boundStorageService != null && boundStorageService.IsInitialized)
+            {
+                return boundStorageService;
+            }
+
+            if (CCS_StorageRuntimeBridge.TryGetStorageService(out CCS_StorageService storageService)
+                && storageService != null
+                && storageService.IsInitialized)
+            {
+                return storageService;
             }
 
             return null;

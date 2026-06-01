@@ -21,6 +21,7 @@
         "CCS.Modules.EnvironmentEffects.Runtime",
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.Building.Runtime",
+        "CCS.Modules.Storage.Runtime",
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.SaveSystem.Runtime",
         "CCS.Modules.PlayerDeath.Runtime",

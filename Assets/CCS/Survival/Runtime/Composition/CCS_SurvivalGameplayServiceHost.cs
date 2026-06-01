@@ -20,6 +20,7 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Gathering;
 using CCS.Modules.CharacterController;
+using CCS.Modules.Storage;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -110,6 +111,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default building progression profile used to register CCS_BuildingRecipeService.")]
         [SerializeField] private CCS_BuildingProgressionProfile buildingProgressionProfile;
 
+        [Tooltip("Default storage profile used to register CCS_StorageService.")]
+        [SerializeField] private CCS_StorageProfile storageProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -167,6 +171,7 @@ namespace CCS.Survival.Composition
                 environmentEffectsProfile,
                 buildingProfile,
                 buildingProgressionProfile,
+                storageProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.1.
-  profileVersion: 1.1.1
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.2.
+  profileVersion: 1.1.2
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -95,6 +95,15 @@ MonoBehaviour:
     stepType: 13
     instructionText: Interact with CCS_TestWorkbench; F4 seeds mats; F3 crafts storage
       crate.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.storage
+    displayName: Use storage crate
+    stepType: 14
+    instructionText: F2 place/open crate near player; F1 deposit item; F5 save; F9 load
+      to verify persistence.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
