@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073e3cf7aa6346e43816468ee0fe42c7, type: 3}
+  m_Name: CCS_DefaultPlaytestProfile
+  m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
+  profileDisplayName: Default Playtest Harness
+  profileId: ccs.survival.profile.playtesting.default
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.0.2.
+  profileVersion: 1.0.2
+  enableDebugLogs: 0
+  enableHarness: 1
+  showDebugLogs: 1
+  resetStepStateOnPlayStart: 1
+  stepDefinitions:
+  - stepId: ccs.survival.playtest.spawn
+    displayName: Spawn into bootstrap
+    stepType: 0
+    instructionText: Enter play mode in SCN_CCS_Survival_Bootstrap and confirm the
+      player spawns.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.gather
+    displayName: Gather sticks or wood
+    stepType: 1
+    instructionText: Gather from a small tree or bush node.
+    targetItemId: ccs.survival.item.resource.stick
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.equip
+    displayName: Equip spear
+    stepType: 2
+    instructionText: Equip the starter spear from inventory.
+    targetItemId: ccs.survival.item.starter.spear
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.hunt
+    displayName: Hunt wildlife
+    stepType: 3
+    instructionText: Kill a rabbit or deer with the spear.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.harvest
+    displayName: Harvest carcass
+    stepType: 4
+    instructionText: Harvest meat from the wildlife carcass.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cook
+    displayName: Cook meat at campfire
+    stepType: 5
+    instructionText: Cook raw meat at the test campfire station.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.eat
+    displayName: Eat cooked meat
+    stepType: 6
+    instructionText: Consume cooked rabbit or venison from inventory.
+    targetItemId: ccs.survival.item.food.cookedrabbitmeat
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.build
+    displayName: Place primitive building
+    stepType: 7
+    instructionText: Place one test foundation building piece.
+    targetItemId: 
+    targetObjectId: ccs.survival.building.test.foundation
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.save
+    displayName: Save game
+    stepType: 8
+    instructionText: Press F5 to save the unified survival file.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.load
+    displayName: Load game
+    stepType: 9
+    instructionText: Press F9 to load the unified survival file.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.death
+    displayName: Trigger death
+    stepType: 10
+    instructionText: Press F7 to drain needs or die from starvation/dehydration.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.respawn
+    displayName: Respawn
+    stepType: 11
+    instructionText: Confirm respawn at the bootstrap respawn point.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

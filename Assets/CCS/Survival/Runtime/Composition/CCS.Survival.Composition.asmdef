@@ -24,6 +24,7 @@
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.SaveSystem.Runtime",
         "CCS.Modules.PlayerDeath.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

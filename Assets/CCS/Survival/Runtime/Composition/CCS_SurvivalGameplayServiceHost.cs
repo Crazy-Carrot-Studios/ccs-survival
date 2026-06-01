@@ -6,6 +6,7 @@ using CCS.Modules.Inventory;
 using CCS.Modules.SaveLoad;
 using CCS.Modules.SaveSystem;
 using CCS.Modules.PlayerDeath;
+using CCS.Modules.Playtesting;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
@@ -85,6 +86,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default player death profile used to register CCS_PlayerDeathService.")]
         [SerializeField] private CCS_PlayerDeathProfile playerDeathProfile;
 
+        [Tooltip("Default manual playtest profile used to register CCS_PlaytestService.")]
+        [SerializeField] private CCS_PlaytestProfile playtestProfile;
+
         [Tooltip("Default time-of-day profile used to register CCS_TimeOfDayService.")]
         [SerializeField] private CCS_TimeOfDayProfile timeOfDayProfile;
 
@@ -149,6 +153,7 @@ namespace CCS.Survival.Composition
                 saveLoadProfile,
                 saveProfile,
                 playerDeathProfile,
+                playtestProfile,
                 timeOfDayProfile,
                 weatherProfile,
                 shelterProfile,

@@ -19,6 +19,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.CharacterController;
 using CCS.Modules.SaveSystem;
 using CCS.Modules.PlayerDeath;
+using CCS.Modules.Playtesting;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -56,6 +57,7 @@ namespace CCS.Survival.Composition
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_SaveProfile saveProfile,
             CCS_PlayerDeathProfile playerDeathProfile,
+            CCS_PlaytestProfile playtestProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
             CCS_WeatherProfile weatherProfile,
             CCS_ShelterProfile shelterProfile,
@@ -82,7 +84,8 @@ namespace CCS.Survival.Composition
 
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
-            RegisterService(runtimeHost, CreateWildlifeHarvestService(wildlifeProfile), enableDebugLogs);
+            CCS_WildlifeHarvestService wildlifeHarvestService = CreateWildlifeHarvestService(wildlifeProfile);
+            RegisterService(runtimeHost, wildlifeHarvestService, enableDebugLogs);
             RegisterService(runtimeHost, CreateWildlifeAiService(wildlifeAiProfile), enableDebugLogs);
 
             CCS_CraftingService craftingService = CreateCraftingService(craftingProfile, inventoryService);
@@ -194,6 +197,24 @@ namespace CCS.Survival.Composition
                 null);
             RegisterService(runtimeHost, playerDeathService, enableDebugLogs);
             RegisterPlayerDeathUpdatable(runtimeHost, playerDeathService);
+
+            CCS_PlaytestService playtestService = CreatePlaytestService(playtestProfile);
+            RegisterService(runtimeHost, playtestService, enableDebugLogs);
+            if (playtestService.HarnessEnabled)
+            {
+                playtestService.BindEventListeners(
+                    gatheringService,
+                    combatService,
+                    wildlifeHarvestService,
+                    cookingService,
+                    consumableFoodService,
+                    saveService,
+                    playerDeathService,
+                    placementService,
+                    equipmentService,
+                    survivalCoreService);
+                RegisterPlaytestUpdatable(runtimeHost, playtestService);
+            }
         }
 
         #endregion
@@ -784,6 +805,32 @@ namespace CCS.Survival.Composition
             }
 
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(playerDeathService);
+        }
+
+        private static CCS_PlaytestService CreatePlaytestService(CCS_PlaytestProfile profile)
+        {
+            CCS_PlaytestService service = new CCS_PlaytestService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static void RegisterPlaytestUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_PlaytestService playtestService)
+        {
+            if (runtimeHost == null || playtestService == null || !playtestService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(playtestService);
         }
 
         private static void BindCharacterStaminaIntegration(

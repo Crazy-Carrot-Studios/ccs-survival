@@ -60,8 +60,23 @@
 | **0.9.9** | Resource gathering foundation (SmallTree/Rock/Bush nodes, stick/stone/wood/fiber rewards) |
 | **1.0.0** | Campfire + cooking foundation (fuel-backed rabbit/venison recipes, full gather-hunt-cook-eat loop) |
 | **1.0.1** | Death, respawn & save foundation (unified save file, starvation/dehydration death, respawn point) |
+| **1.0.2** | Manual playtest harness (bootstrap checklist HUD, event-driven step completion, F7/F10/F11/F12) |
 
-Later milestones continue from **1.0.2+** (durability, ranged weapons, predators).
+Later milestones continue from **1.0.3+** (durability, ranged weapons, predators).
+
+---
+
+## 1.0.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Playtesting module under `Assets/CCS/Modules/Playtesting/` | **Complete** |
+| `CCS_PlaytestService` with bootstrap checklist and module event hooks | **Complete** |
+| `CCS_PlaytestHud` on bootstrap prefab/scene (F10/F11/F12, F7 test death) | **Complete** |
+| Default profile with all required step types | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **1.0.2** | **Complete** |
+| Automated gameplay bot, production UI polish | **Deferred** |
 
 ---
 

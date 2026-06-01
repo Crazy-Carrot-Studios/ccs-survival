@@ -1,0 +1,28 @@
+{
+    "name": "CCS.Modules.Playtesting.Runtime",
+    "rootNamespace": "CCS.Modules.Playtesting",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Combat.Runtime",
+        "CCS.Modules.Wildlife.Runtime",
+        "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.SaveSystem.Runtime",
+        "CCS.Modules.PlayerDeath.Runtime",
+        "CCS.Modules.Building.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Survival.Player.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -34,6 +34,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6372343458864942890}
+  - {fileID: 8431377062790706759}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &973492003
@@ -92,6 +93,7 @@ MonoBehaviour:
   saveLoadProfile: {fileID: 11400000, guid: c76ec8514d859824fbdb8e015a7223e4, type: 2}
   saveProfile: {fileID: 11400000, guid: 81c542aa1514a5b4f914d83804673384, type: 2}
   playerDeathProfile: {fileID: 11400000, guid: 24497ad4af9b33840975bd274919cef5, type: 2}
+  playtestProfile: {fileID: 11400000, guid: e221f3dc559a80b4fbf8958a63b1401c, type: 2}
   timeOfDayProfile: {fileID: 11400000, guid: 0263a6837d876f4428a53d5a3974a047, type: 2}
   weatherProfile: {fileID: 11400000, guid: 4a40a1990b5421b4e84a66ff876fc986, type: 2}
   shelterProfile: {fileID: 11400000, guid: 76327cf869673d64e971ede1693a3796, type: 2}
@@ -112,6 +114,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06783316f827e1e4c86745470835abd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.SaveSystem.Runtime::CCS.Modules.SaveSystem.CCS_SaveStartupLoader
+--- !u!1 &300060755112896706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8431377062790706759}
+  - component: {fileID: 4595778122361968856}
+  m_Layer: 0
+  m_Name: PlaytestHarness
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8431377062790706759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300060755112896706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 973492002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4595778122361968856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300060755112896706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bd4dc24cd80a074c92dd6e331acd66e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestHud
+  enableHud: 1
 --- !u!1 &3550345483088636088
 GameObject:
   m_ObjectHideFlags: 0
