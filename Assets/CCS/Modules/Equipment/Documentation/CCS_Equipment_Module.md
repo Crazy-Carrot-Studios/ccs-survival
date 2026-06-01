@@ -1,6 +1,6 @@
 # CCS Survival — Equipment Module
 
-**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
+**Milestone:** 1.2.0 — Primitive Equipment Visual Foundation  
 **Module ID:** `ccs.survival.equipment`  
 **Namespace:** `CCS.Modules.Equipment` (editor: `CCS.Modules.Equipment.Editor`)  
 **Author:** James Schilz (Developer)  
@@ -11,7 +11,14 @@
 
 ## Purpose
 
-Provide the **runtime equipment architecture** that sits on top of Inventory and will later support clothing, armor, weapons, tools, stat bonuses, durability, and character visuals — without implementing UI, combat, weapon functionality, or visuals in 0.4.1.
+Provide the **runtime equipment architecture** that sits on top of Inventory and supports clothing, armor, weapons, tools, stat bonuses, durability, and **placeholder equipped visuals** driven by the equipment service.
+
+**1.2.0 visual foundation notes:**
+
+- Equipped visuals are **primitive Unity placeholder meshes** (cylinders/cubes/capsules), not final art.
+- Attachment uses **transform sockets** on `PF_CCS_Player` (`EquipmentRig` / `Socket_*`). Humanoid bone sockets and IK are planned later.
+- **Equipment state remains service-driven** via `CCS_PlayerEquipmentService`; visuals mirror equip/unequip/save-restore only.
+- No full combat animation, aim poses, or IK in this milestone (future flags exist on visual definitions).
 
 The module answers:
 
@@ -55,12 +62,42 @@ Assets/CCS/Modules/Equipment/
     Events/         → event args + contracts
     Profiles/       → CCS_EquipmentProfile
     Validation/     → runtime profile/definition validation
+    Visuals/        → socket rig, visual definitions, visual controller
   Editor/
     Validation/     → pipeline validator + menu
   Documentation/    → this file
 
 Assets/CCS/Survival/Profiles/Equipment/
   CCS_DefaultEquipmentProfile.asset
+  CCS_DefaultEquipmentVisualProfile.asset
+
+Assets/CCS/Survival/Prefabs/Equipment/Visuals/
+  PF_CCS_Visual_* placeholder prefabs
+
+Assets/CCS/Survival/Content/Equipment/Visuals/
+  CCS_EquipmentVisual_* definition assets
+```
+
+---
+
+## Visual equipment flow (1.2.0)
+
+```text
+CCS_PlayerEquipmentService (equip / unequip / restore)
+        ↓ events + bulk restore resync
+CCS_PlayerEquipmentVisualBinder (PF_CCS_Player)
+        ↓
+CCS_EquipmentVisualController
+        ↓ lookup by item ID
+CCS_EquipmentVisualProfile / CCS_EquipmentVisualDefinition
+        ↓ spawn prefab at socket
+CCS_EquipmentAttachmentRig → CCS_EquipmentAttachmentSocket
+```
+
+Bootstrap batch:
+
+```text
+CCS.Survival.Editor.Development.CCS_EquipmentVisualFoundationBootstrapSetup.ExecuteBatch
 ```
 
 ---

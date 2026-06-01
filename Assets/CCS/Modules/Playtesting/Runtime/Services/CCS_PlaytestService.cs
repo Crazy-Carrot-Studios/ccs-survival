@@ -233,6 +233,9 @@ namespace CCS.Modules.Playtesting
                 boundEquipmentService.ItemEquipped += HandleItemEquipped;
             }
 
+            CCS_EquipmentVisualRuntimeBridge.VisualSpawned += HandleEquipmentVisualSpawned;
+            CCS_EquipmentVisualRuntimeBridge.VisualRemoved += HandleEquipmentVisualRemoved;
+
             if (boundStorageService != null)
             {
                 boundStorageService.StorageContainerOpened += HandleStorageContainerOpened;
@@ -315,6 +318,9 @@ namespace CCS.Modules.Playtesting
             {
                 boundEquipmentService.ItemEquipped -= HandleItemEquipped;
             }
+
+            CCS_EquipmentVisualRuntimeBridge.VisualSpawned -= HandleEquipmentVisualSpawned;
+            CCS_EquipmentVisualRuntimeBridge.VisualRemoved -= HandleEquipmentVisualRemoved;
 
             if (boundStorageService != null)
             {
@@ -472,6 +478,14 @@ namespace CCS.Modules.Playtesting
                 boundEquipmentService.GetEquippedItem(CCS_EquipmentSlotType.MainHand);
             if (equippedMainHand?.ItemDefinition?.ItemId == SpearItemId)
             {
+                int visualStepIndex = FindActiveStepIndexOfType(CCS_PlaytestStepType.ConfirmEquipmentVisual);
+                if (visualStepIndex >= 0 && stepStates[visualStepIndex].ProgressCount >= 1)
+                {
+                    boundEquipmentService.UnequipItem(CCS_EquipmentSlotType.MainHand);
+                    LogDebug("Unequipped starter spear for equipment visual playtest (F6).");
+                    return true;
+                }
+
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear already equipped.");
                 return true;
             }
@@ -999,6 +1013,16 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear equipped.");
             }
+        }
+
+        private void HandleEquipmentVisualSpawned(string itemId)
+        {
+            IncrementActiveStepOfType(CCS_PlaytestStepType.ConfirmEquipmentVisual, itemId);
+        }
+
+        private void HandleEquipmentVisualRemoved(string itemId)
+        {
+            IncrementActiveStepOfType(CCS_PlaytestStepType.ConfirmEquipmentVisual, itemId);
         }
 
         private void IncrementActiveStepOfType(CCS_PlaytestStepType stepType, string itemId)

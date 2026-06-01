@@ -45,6 +45,7 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
+            ValidateRequiredFolder(report, "Runtime/Visuals", RuntimeRoot + "/Visuals");
             ValidateRequiredFolder(report, "Editor/Validation", EditorRoot + "/Validation");
             ValidateRequiredFolder(report, "Documentation", ModuleRoot + "/Documentation");
 
@@ -70,6 +71,14 @@ namespace CCS.Modules.Equipment.Editor
             ValidateRequiredScript(report, "CCS_EquipmentItemDefinitionLookup", RuntimeRoot + "/Definitions/CCS_EquipmentItemDefinitionLookup.cs");
             ValidateRequiredScript(report, "CCS_EquipmentRuntimeBridge", RuntimeRoot + "/Services/CCS_EquipmentRuntimeBridge.cs");
             ValidateRequiredScript(report, "CCS_EquipmentEnvironmentRuntimeBridge", RuntimeRoot + "/Services/CCS_EquipmentEnvironmentRuntimeBridge.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentAttachmentSocketType", RuntimeRoot + "/Visuals/CCS_EquipmentAttachmentSocketType.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentAttachmentSocket", RuntimeRoot + "/Visuals/CCS_EquipmentAttachmentSocket.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentAttachmentRig", RuntimeRoot + "/Visuals/CCS_EquipmentAttachmentRig.cs");
+            ValidateRequiredScript(report, "CCS_EquippedVisualInstance", RuntimeRoot + "/Visuals/CCS_EquippedVisualInstance.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentVisualDefinition", RuntimeRoot + "/Visuals/CCS_EquipmentVisualDefinition.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentVisualProfile", RuntimeRoot + "/Visuals/CCS_EquipmentVisualProfile.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentVisualController", RuntimeRoot + "/Visuals/CCS_EquipmentVisualController.cs");
+            ValidateRequiredScript(report, "CCS_EquipmentVisualValidationUtility", RuntimeRoot + "/Validation/CCS_EquipmentVisualValidationUtility.cs");
             ValidateRequiredScript(
                 report,
                 "CCS_InventoryEquipmentPersistenceTestHarness",
@@ -141,10 +150,12 @@ namespace CCS.Modules.Equipment.Editor
                     $"Missing required asset: {DefaultProfilePath}");
             }
 
+            ValidateEquipmentVisualFoundation(report);
+
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Equipment validator completed (0.7.4 environmental modifiers).");
+                "Equipment validator completed (1.2.0 primitive equipment visuals).");
         }
 
         #endregion
@@ -379,6 +390,60 @@ namespace CCS.Modules.Equipment.Editor
                 CCS_SurvivalValidationIssueSeverity.Info,
                 context,
                 $"Asset present with expected environmental modifiers: {assetPath}");
+        }
+
+        private static void ValidateEquipmentVisualFoundation(CCS_SurvivalValidationReport report)
+        {
+            CCS_SurvivalValidationResult folderValidation =
+                CCS_EquipmentVisualValidationUtility.ValidateVisualFoundationFolders();
+            report.AddIssue(
+                folderValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Equipment Visual Folders",
+                folderValidation.Message);
+
+            CCS_SurvivalValidationResult socketEnumValidation =
+                CCS_EquipmentVisualValidationUtility.ValidateSocketEnum();
+            report.AddIssue(
+                socketEnumValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Equipment Attachment Socket Enum",
+                socketEnumValidation.Message);
+
+            GameObject playerPrefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    CCS_EquipmentVisualValidationUtility.PlayerPrefabAssetPath);
+            if (playerPrefab == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Equipment Visual Rig",
+                    $"Missing player prefab: {CCS_EquipmentVisualValidationUtility.PlayerPrefabAssetPath}");
+            }
+            else
+            {
+                CCS_SurvivalValidationResult rigValidation =
+                    CCS_EquipmentVisualValidationUtility.ValidatePlayerAttachmentRig(playerPrefab);
+                report.AddIssue(
+                    rigValidation.IsSuccess
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Equipment Visual Rig",
+                    rigValidation.Message);
+            }
+
+            CCS_EquipmentVisualProfile visualProfile = AssetDatabase.LoadAssetAtPath<CCS_EquipmentVisualProfile>(
+                CCS_EquipmentVisualValidationUtility.DefaultVisualProfileAssetPath);
+            CCS_SurvivalValidationResult profileValidation =
+                CCS_EquipmentVisualValidationUtility.ValidateVisualProfile(visualProfile);
+            report.AddIssue(
+                profileValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Equipment Visual Profile",
+                profileValidation.Message);
         }
 
         private static void ValidateRequiredFolder(

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2c2d3b1d4b62f42ac913d3b44c1815, type: 3}
+  m_Name: CCS_DefaultEquipmentVisualProfile
+  m_EditorClassIdentifier: CCS.Modules.Equipment.Runtime::CCS.Modules.Equipment.CCS_EquipmentVisualProfile
+  profileId: ccs.survival.profile.equipment.visual.default
+  visualDefinitions:
+  - {fileID: 11400000, guid: 17ad9f2bc97df604aa48a1dd9d9325a1, type: 2}
+  - {fileID: 11400000, guid: 5eb4d446b6084f0448e248baa38b748e, type: 2}
+  - {fileID: 11400000, guid: b23e55f61c8579c4492b40473583b9d4, type: 2}
+  - {fileID: 11400000, guid: e438c37ad22261249baafa0a03337a07, type: 2}
+  - {fileID: 11400000, guid: d9393fb329a02c94e982bfb2363b6a56, type: 2}
+  - {fileID: 11400000, guid: 67ad0e1d7e02f9347adc15bb7ccb3712, type: 2}
+  - {fileID: 11400000, guid: 83d365e5a37ddb04bb52385128d360e5, type: 2}
+  - {fileID: 11400000, guid: 4733360e96bd6b547be4e337615533ec, type: 2}
+  - {fileID: 11400000, guid: 1cd22731d2202d64195771b7e51a367e, type: 2}

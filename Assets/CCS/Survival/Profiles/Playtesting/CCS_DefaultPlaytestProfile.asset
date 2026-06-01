@@ -58,6 +58,15 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.equipment.visual
+    displayName: Confirm equipment visual
+    stepType: 17
+    instructionText: After equipping the spear, confirm a placeholder visual appears
+      on the player. Press F6 again to unequip and confirm the visual is removed.
+    targetItemId: ccs.survival.item.starter.spear
+    targetObjectId: 
+    requiredCount: 2
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.hunt
     displayName: Hunt wildlife
     stepType: 3

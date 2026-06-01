@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.1.3-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -25,7 +25,7 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**1.1.3** — Sleep + Bedroll Foundation
+**1.2.0** — Primitive Equipment Visual Foundation
 
 ---
 
@@ -44,7 +44,7 @@ Playable modular survival prototype foundation.
 | Character Controller | Third-person Cinemachine 3.1 + CharacterController locomotion |
 | Interaction | Forward-ray interactables |
 | Inventory | Stack-based inventory foundation |
-| Equipment | Wearable modifiers |
+| Equipment | Wearable modifiers + primitive equipped visuals (socket rig) |
 | Crafting | Recipes + workstation progression |
 | World Resources / Gathering | Harvestable world nodes |
 | Building | Placement, snapping, persistence |
@@ -66,6 +66,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.2.0** | Primitive Equipment Visual Foundation |
 | **1.1.5** | AAA Third-Person Controller Feel Polish |
 | **1.1.4** | Third-Person Controller Feel + README Polish |
 | **1.1.3** | Sleep + Bedroll Foundation |

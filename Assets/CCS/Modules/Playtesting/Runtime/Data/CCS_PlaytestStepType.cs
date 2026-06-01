@@ -28,6 +28,7 @@ namespace CCS.Modules.Playtesting
         CraftAtWorkbench = 13,
         UseStorageCrate = 14,
         PlaceAndSleepAtBedroll = 15,
-        VerifyControllerPolish = 16
+        VerifyControllerPolish = 16,
+        ConfirmEquipmentVisual = 17
     }
 }

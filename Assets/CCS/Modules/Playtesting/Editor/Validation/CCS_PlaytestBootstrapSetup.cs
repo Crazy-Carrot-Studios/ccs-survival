@@ -130,6 +130,15 @@ namespace CCS.Modules.Playtesting.Editor
                 SpearItemId);
             AddStep(
                 stepListProperty,
+                "ccs.survival.playtest.equipment.visual",
+                "Confirm equipment visual",
+                CCS_PlaytestStepType.ConfirmEquipmentVisual,
+                "After equipping the spear, confirm a placeholder visual appears on the player. "
+                + "Press F6 again to unequip and confirm the visual is removed.",
+                SpearItemId,
+                requiredCount: 2);
+            AddStep(
+                stepListProperty,
                 "ccs.survival.playtest.hunt",
                 "Hunt wildlife",
                 CCS_PlaytestStepType.HuntWildlife,
