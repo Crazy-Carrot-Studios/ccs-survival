@@ -1,6 +1,6 @@
 # CCS Survival — Hotbar / Active Item Module
 
-**Milestone:** 1.2.3 — Primitive Tool Use Routing Foundation  
+**Milestone:** 1.2.5 — Fishing Foundation (active item routing extended)  
 **Module ID:** `ccs.survival.hotbar`  
 **Namespace:** `CCS.Modules.Hotbar` (editor: `CCS.Modules.Hotbar.Editor`)  
 **Author:** James Schilz  
@@ -25,6 +25,7 @@ CCS_ActiveItemService
         ↓ behavior routing
 CCS_CombatService (weapons)
 CCS_GatheringService (hatchet/axe → tree/bush, pick → rock)
+CCS_FishingService (fishing pole → fishable water spots)
 CCS_HarvestableResource + inventory (world resource harvest)
         ↓
 Equipment visuals (unchanged — no duplicate spawn)
@@ -43,10 +44,12 @@ Equipment visuals (unchanged — no duplicate spawn)
 
 ---
 
-## Result types (1.2.3)
+## Result types (1.2.5)
 
 | Type | Meaning |
 |------|---------|
+| `FishingSuccess` / `FishingFailed` | Fishing attempt (catch, nothing, or failure) |
+| `FishingNoBait` / `FishingNoWater` / `FishingTargetUnavailable` | Fishing validation outcomes |
 | `GatheringSuccess` / `GatheringFailed` | Gathering node attempt |
 | `ResourceHarvestSuccess` / `ResourceHarvestFailed` | World resource harvest attempt |
 | `WrongTool` | Tool metadata does not match target |
@@ -89,7 +92,7 @@ CCS.Modules.Playtesting.Editor.CCS_PlaytestBootstrapSetup.ExecuteBatch
 | Key | Action |
 |-----|--------|
 | **F6** | Equip starter spear |
-| **Shift+F6** | Equip bone hatchet (or pick when pick step active) |
+| **Shift+F6** | Equip bone hatchet, pick, or fishing pole (depends on active playtest step) |
 | **Alpha1** | Select active item from main hand |
 | **Alpha2** | Select active item from tool slot |
 | **Primary (LMB)** | Use active item (combat, gather, or safe failure) |

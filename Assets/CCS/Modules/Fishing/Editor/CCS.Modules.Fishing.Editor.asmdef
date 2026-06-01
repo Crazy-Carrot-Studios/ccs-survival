@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.Fishing.Editor",
+    "rootNamespace": "CCS.Modules.Fishing.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Composition",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Fishing.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Resources.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Equipment.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -43,6 +43,7 @@ namespace CCS.Modules.Playtesting
         private const string SpearItemId = "ccs.survival.item.starter.spear";
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
+        private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -575,6 +576,11 @@ namespace CCS.Modules.Playtesting
             return TryEquipToolForPlaytest(BonePickItemId, "bone pick");
         }
 
+        public bool TryEquipFishingPole()
+        {
+            return TryEquipToolForPlaytest(FishingPoleItemId, "fishing pole");
+        }
+
         public bool TryPlacePlaytestFoundation()
         {
             if (!harnessEnabled)
@@ -1076,6 +1082,11 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear equipped.");
             }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.EquipFishingPole, itemId))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipFishingPole, "Fishing pole equipped.");
+            }
         }
 
         private void HandleEquipmentVisualSpawned(string itemId)
@@ -1137,6 +1148,13 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.UseWrongToolOnGatherTarget,
                     useResult.Message);
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.UseFishingPoleOnSpot, useResult.ActiveItemId)
+                && (useResult.ResultType == CCS_ActiveItemUseResultType.FishingSuccess
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.FishingFailed))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.UseFishingPoleOnSpot, useResult.Message);
             }
         }
 

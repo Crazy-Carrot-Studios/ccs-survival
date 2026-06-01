@@ -52,7 +52,7 @@ namespace CCS.Modules.Resources.Editor
                 ModuleRoot + "/Runtime/Utilities/CCS_HarvestMethodToolRulesUtility.cs");
             ValidateDocumentation(report);
 
-            CCS_SurvivalValidationResult fishReserved = ValidateFishNotImplemented();
+            CCS_SurvivalValidationResult fishReserved = ValidateFishFoundationRouting();
             report.AddIssue(
                 fishReserved.IsSuccess
                     ? CCS_SurvivalValidationIssueSeverity.Info
@@ -66,17 +66,26 @@ namespace CCS.Modules.Resources.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Resource framework validator completed (1.2.4 frontier audit).");
+                "Resource framework validator completed (1.2.5 fishing foundation).");
         }
 
-        private static CCS_SurvivalValidationResult ValidateFishNotImplemented()
+        private static CCS_SurvivalValidationResult ValidateFishFoundationRouting()
         {
-            if (CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplemented(CCS_HarvestMethodType.Fish))
+            if (!CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplemented(CCS_HarvestMethodType.Fish))
             {
-                return CCS_SurvivalValidationResult.Fail("Fish harvest method must remain unimplemented in 1.2.4.");
+                return CCS_SurvivalValidationResult.Fail(
+                    "Fish harvest method must be implemented for fishing foundation (1.2.5).");
             }
 
-            return CCS_SurvivalValidationResult.Pass("Fish harvest method is reserved for future implementation.");
+            if (CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplementedForGatheringRouting(
+                    CCS_HarvestMethodType.Fish))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Fish must not route through generic gathering harvest (use CCS_FishingService).");
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                "Fish harvest method routes through fishing foundation, not gathering harvest.");
         }
 
         private static void ValidateGatheringProfileMetadata(CCS_SurvivalValidationReport report)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CCS.Modules.Combat;
 using CCS.Modules.Equipment;
+using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
@@ -30,6 +31,7 @@ namespace CCS.Modules.Hotbar
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_CombatService combatService;
         private CCS_GatheringService gatheringService;
+        private CCS_FishingService fishingService;
         private CCS_InteractionService interactionService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
@@ -110,6 +112,11 @@ namespace CCS.Modules.Hotbar
         public void BindGatheringService(CCS_GatheringService service)
         {
             gatheringService = service;
+        }
+
+        public void BindFishingService(CCS_FishingService service)
+        {
+            fishingService = service;
         }
 
         public void BindInteractionService(CCS_InteractionService service)
@@ -434,6 +441,11 @@ namespace CCS.Modules.Hotbar
                     state.ActiveItemId);
             }
 
+            if (CCS_ItemGameplayUtility.IsFishingPoleItem(state.ItemDefinition))
+            {
+                return TryUseFishingPole(state, request);
+            }
+
             if (!CCS_ActiveItemTargetResolver.TryResolveFromInteraction(
                     interactionService,
                     request.UseOrigin,
@@ -463,10 +475,174 @@ namespace CCS.Modules.Hotbar
                     return TryUseToolOnGatheringNode(state, targetContext);
                 case CCS_ActiveItemTargetKind.HarvestableResource:
                     return TryUseToolOnHarvestableResource(state, targetContext);
+                case CCS_ActiveItemTargetKind.FishingSpot:
+                    return TryUseFishingPoleOnSpot(state, targetContext);
                 default:
                     return new CCS_ActiveItemUseResult(
                         CCS_ActiveItemUseResultType.NoBehaviorRegistered,
                         "Active tool has no behavior for the current target.",
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+            }
+        }
+
+        private CCS_ActiveItemUseResult TryUseFishingPole(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (!CCS_ActiveItemTargetResolver.TryResolveFromInteraction(
+                    interactionService,
+                    request.UseOrigin,
+                    out CCS_ActiveItemTargetContext targetContext))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoTarget,
+                    "No fishing spot in range. Look at a river edge, pond, lake, or stream.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (targetContext.IsOutOfRange)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetOutOfRange,
+                    "Fishing spot is out of range.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (targetContext.TargetKind != CCS_ActiveItemTargetKind.FishingSpot)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WrongTool,
+                    "Fishing pole can only be used on fishable water sources.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            return TryUseFishingPoleOnSpot(state, targetContext);
+        }
+
+        private CCS_ActiveItemUseResult TryUseFishingPoleOnSpot(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemTargetContext targetContext)
+        {
+            if (activeProfile == null || !activeProfile.EnableFishingRouting)
+            {
+                return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
+            }
+
+            if (fishingService == null || !fishingService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Fishing service is unavailable.",
+                    false,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_FishingSpot fishingSpot = targetContext.FishingSpot;
+            if (fishingSpot == null || !fishingSpot.CanFish())
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.FishingTargetUnavailable,
+                    "Fishing spot is unavailable.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (fishingSpot.SpotDefinition != null && !fishingSpot.SpotDefinition.SupportsFishing)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.FishingNoWater,
+                    "Target does not support fishing.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_FishingResult fishingResult =
+                fishingService.TryFish(new CCS_FishingRequest(fishingSpot, state.ItemDefinition));
+
+            return MapFishingResult(state, targetContext, fishingResult);
+        }
+
+        private static CCS_ActiveItemUseResult MapFishingResult(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemTargetContext targetContext,
+            CCS_FishingResult fishingResult)
+        {
+            if (fishingResult == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.FishingFailed,
+                    "Fishing result was unavailable.",
+                    false,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            switch (fishingResult.ResultType)
+            {
+                case CCS_FishingResultType.FishCaught:
+                case CCS_FishingResultType.SmallFishCaught:
+                case CCS_FishingResultType.JunkCaught:
+                case CCS_FishingResultType.NothingCaught:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FishingSuccess,
+                        fishingResult.Message,
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+                case CCS_FishingResultType.NoBait:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FishingNoBait,
+                        fishingResult.Message,
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+                case CCS_FishingResultType.NoWater:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FishingNoWater,
+                        fishingResult.Message,
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+                case CCS_FishingResultType.TargetUnavailable:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FishingTargetUnavailable,
+                        fishingResult.Message,
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+                case CCS_FishingResultType.ServiceUnavailable:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                        fishingResult.Message,
+                        false,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+                default:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FishingFailed,
+                        fishingResult.Message,
                         true,
                         state.ActiveItemId,
                         targetContext.DisplayName,

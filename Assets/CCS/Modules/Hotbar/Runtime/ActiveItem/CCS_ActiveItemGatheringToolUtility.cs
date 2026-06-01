@@ -19,7 +19,7 @@ namespace CCS.Modules.Hotbar
     {
         public static bool IsHarvestMethodImplementedForActiveUse(CCS_HarvestMethodType harvestMethod)
         {
-            return CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplemented(harvestMethod);
+            return CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplementedForGatheringRouting(harvestMethod);
         }
 
         public static bool ActiveToolMatchesGatheringNode(

@@ -16,6 +16,11 @@ namespace CCS.Modules.Resources
     {
         public static bool IsHarvestMethodImplemented(CCS_HarvestMethodType harvestMethod)
         {
+            return harvestMethod != CCS_HarvestMethodType.None;
+        }
+
+        public static bool IsHarvestMethodImplementedForGatheringRouting(CCS_HarvestMethodType harvestMethod)
+        {
             return harvestMethod != CCS_HarvestMethodType.Fish
                 && harvestMethod != CCS_HarvestMethodType.None;
         }
@@ -38,6 +43,7 @@ namespace CCS.Modules.Resources
                 case CCS_HarvestMethodType.Dig:
                     return CCS_ItemToolType.Shovel;
                 case CCS_HarvestMethodType.Fish:
+                    return CCS_ItemToolType.FishingPole;
                 case CCS_HarvestMethodType.Other:
                 case CCS_HarvestMethodType.None:
                 default:
@@ -50,11 +56,6 @@ namespace CCS.Modules.Resources
             CCS_HarvestMethodType harvestMethod,
             CCS_ItemToolType explicitRequiredTool)
         {
-            if (harvestMethod == CCS_HarvestMethodType.Fish)
-            {
-                return false;
-            }
-
             if (harvestMethod == CCS_HarvestMethodType.None)
             {
                 return false;

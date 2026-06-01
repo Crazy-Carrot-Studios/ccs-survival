@@ -1,3 +1,4 @@
+using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.WorldResources;
 
@@ -21,7 +22,8 @@ namespace CCS.Modules.Hotbar
             string targetTypeLabel,
             bool isOutOfRange,
             CCS_GatheringNode gatheringNode,
-            CCS_HarvestableResource harvestableResource)
+            CCS_HarvestableResource harvestableResource,
+            CCS_FishingSpot fishingSpot = null)
         {
             TargetKind = targetKind;
             DisplayName = displayName ?? string.Empty;
@@ -29,6 +31,7 @@ namespace CCS.Modules.Hotbar
             IsOutOfRange = isOutOfRange;
             GatheringNode = gatheringNode;
             HarvestableResource = harvestableResource;
+            FishingSpot = fishingSpot;
         }
 
         public CCS_ActiveItemTargetKind TargetKind { get; }
@@ -43,15 +46,20 @@ namespace CCS.Modules.Hotbar
 
         public CCS_HarvestableResource HarvestableResource { get; }
 
+        public CCS_FishingSpot FishingSpot { get; }
+
         public bool HasHarvestTarget =>
             TargetKind == CCS_ActiveItemTargetKind.GatheringNode
             || TargetKind == CCS_ActiveItemTargetKind.HarvestableResource;
+
+        public bool HasFishingTarget => TargetKind == CCS_ActiveItemTargetKind.FishingSpot;
 
         public static CCS_ActiveItemTargetContext None { get; } = new CCS_ActiveItemTargetContext(
             CCS_ActiveItemTargetKind.None,
             string.Empty,
             string.Empty,
             false,
+            null,
             null,
             null);
     }

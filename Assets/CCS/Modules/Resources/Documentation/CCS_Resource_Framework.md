@@ -41,7 +41,7 @@ Legacy bootstrap nodes (`SmallTree`, `Rock`, `Bush`) remain for regression tests
 | Dig | Shovel | Supported |
 | Salvage | None | Supported |
 | Skin / Butcher | Knife | Metadata only (wildlife later) |
-| Fish | — | **Not implemented** (future) |
+| Fish | FishingPole | **Fishing module (1.2.5)** via `CCS_FishingService` (not gathering harvest) |
 
 Explicit `requiredToolType` on definitions overrides defaults.
 
@@ -62,7 +62,7 @@ No schema changes were required for 1.2.4; both systems already support multiple
 
 - **Gathering:** `CCS_GatheringNodeRewardSettings` carries `resourceSourceType`, `harvestMethod`, `requiredToolType`.
 - **WorldResources:** `CCS_ResourceDefinition` carries `resourceSourceType`, `harvestMethod`.
-- **Active item (1.2.3):** `CCS_ActiveItemGatheringToolUtility` reads harvest metadata; `Fish` → `NoBehaviorRegistered`.
+- **Active item (1.2.5):** `Fish` routes through `CCS_FishingService` when the active tool is a fishing pole; generic gathering harvest excludes `Fish`.
 
 ---
 
@@ -79,5 +79,5 @@ Creates frontier item definitions, gathering profile entries, and world resource
 ## Deferred
 
 - Terrain spawning and biome placement
-- Fishing gameplay
+- Fishing minigame, casting animation, line simulation (foundation in `CCS.Modules.Fishing` — see `CCS_Fishing_Module.md`)
 - Western-specific hard-coded logic in generic systems

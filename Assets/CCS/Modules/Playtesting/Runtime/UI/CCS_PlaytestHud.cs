@@ -104,6 +104,12 @@ namespace CCS.Modules.Playtesting
                 {
                     CCS_PlaytestStepState activeStep = GetActiveStepState();
                     if (activeStep != null
+                        && (activeStep.Definition.StepType == CCS_PlaytestStepType.EquipFishingPole
+                            || activeStep.Definition.StepType == CCS_PlaytestStepType.UseFishingPoleOnSpot))
+                    {
+                        playtestService.TryEquipFishingPole();
+                    }
+                    else if (activeStep != null
                         && activeStep.Definition.StepType == CCS_PlaytestStepType.UsePickOnRock)
                     {
                         playtestService.TryEquipBonePick();

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.2.4-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.2.5-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -25,7 +25,7 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**1.2.4** — Frontier Resource Framework Audit
+**1.2.5** — Fishing Foundation
 
 ---
 
@@ -45,7 +45,8 @@ Playable modular survival prototype foundation.
 | Interaction | Forward-ray interactables |
 | Inventory | Stack-based inventory foundation |
 | Equipment | Wearable modifiers + primitive equipped visuals (socket rig) |
-| Active Item | Service-driven select/use; weapons → combat, tools → gathering/harvest |
+| Active Item | Service-driven select/use; weapons → combat, tools → gathering/harvest, fishing pole → fishing |
+| Fishing | Service-driven water spots, catch tables, inventory rewards (no minigame yet) |
 | Crafting | Recipes + workstation progression |
 | World Resources / Gathering | Practical source types, harvest methods, multi-drop yields |
 | Building | Placement, snapping, persistence |
@@ -67,6 +68,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.2.5** | Fishing Foundation |
 | **1.2.4** | Frontier Resource Framework Audit |
 | **1.2.3** | Primitive Tool Use Routing Foundation |
 | **1.2.2** | Active Item Slot + Use Flow Foundation |

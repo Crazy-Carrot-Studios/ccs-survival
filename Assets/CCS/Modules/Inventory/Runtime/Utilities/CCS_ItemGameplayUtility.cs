@@ -65,9 +65,16 @@ namespace CCS.Modules.Inventory
                     return CCS_ItemToolType.Pickaxe;
                 case CCS_ToolArchetype.Shovel:
                     return CCS_ItemToolType.Shovel;
+                case CCS_ToolArchetype.FishingPole:
+                    return CCS_ItemToolType.FishingPole;
                 default:
                     return CCS_ItemToolType.None;
             }
+        }
+
+        public static bool IsFishingPoleItem(CCS_ItemDefinition itemDefinition)
+        {
+            return ResolveHarvestToolType(itemDefinition) == CCS_ItemToolType.FishingPole;
         }
 
         public static bool ItemSatisfiesHarvestTool(

@@ -38,6 +38,9 @@ namespace CCS.Modules.Hotbar
         [Tooltip("When enabled, active tools route to harvestable world resources.")]
         [SerializeField] private bool enableResourceHarvestRouting = true;
 
+        [Tooltip("When enabled, fishing poles route to CCS_FishingService for fishing spots.")]
+        [SerializeField] private bool enableFishingRouting = true;
+
         #endregion
 
         #region Properties
@@ -51,6 +54,8 @@ namespace CCS.Modules.Hotbar
         public bool EnableGatheringRouting => enableGatheringRouting;
 
         public bool EnableResourceHarvestRouting => enableResourceHarvestRouting;
+
+        public bool EnableFishingRouting => enableFishingRouting;
 
         #endregion
     }

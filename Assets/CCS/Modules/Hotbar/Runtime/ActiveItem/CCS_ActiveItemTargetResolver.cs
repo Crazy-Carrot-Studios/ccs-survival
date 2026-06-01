@@ -1,3 +1,4 @@
+using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
 using CCS.Modules.WorldResources;
@@ -79,6 +80,24 @@ namespace CCS.Modules.Hotbar
                     false,
                     gatheringNode,
                     null);
+                return true;
+            }
+
+            CCS_FishingSpot fishingSpot = component.GetComponent<CCS_FishingSpot>();
+            if (fishingSpot != null && fishingSpot.CanFish())
+            {
+                string spotLabel = fishingSpot.SpotDefinition != null
+                    ? fishingSpot.SpotDefinition.DisplayName
+                    : interactable.GetInteractionDisplayName();
+
+                targetContext = new CCS_ActiveItemTargetContext(
+                    CCS_ActiveItemTargetKind.FishingSpot,
+                    spotLabel,
+                    "FishingSpot",
+                    false,
+                    null,
+                    null,
+                    fishingSpot);
                 return true;
             }
 

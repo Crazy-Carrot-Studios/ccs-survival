@@ -34,6 +34,8 @@ namespace CCS.Modules.Playtesting
         UseActiveItem = 19,
         UseHatchetOnTree = 20,
         UsePickOnRock = 21,
-        UseWrongToolOnGatherTarget = 22
+        UseWrongToolOnGatherTarget = 22,
+        EquipFishingPole = 23,
+        UseFishingPoleOnSpot = 24
     }
 }

@@ -90,6 +90,7 @@ MonoBehaviour:
   combatProfile: {fileID: 11400000, guid: 2a1fe868c20f35344bb4d6977bb3ceb0, type: 2}
   activeItemProfile: {fileID: 11400000, guid: c9f0d38e94acd3e4cb14c12e51ff28bb, type: 2}
   gatheringProfile: {fileID: 11400000, guid: 6874fac0473fa6d4eb31c25289aa1239, type: 2}
+  fishingProfile: {fileID: 11400000, guid: e320e5d931a7dd247a39fa04a925601d, type: 2}
   craftingProfile: {fileID: 11400000, guid: 7a454d0b9860c0c44ad990feaba001bf, type: 2}
   craftingProgressionProfile: {fileID: 11400000, guid: 63802e7200fdc3740af2222409f2510e, type: 2}
   saveLoadProfile: {fileID: 11400000, guid: c76ec8514d859824fbdb8e015a7223e4, type: 2}

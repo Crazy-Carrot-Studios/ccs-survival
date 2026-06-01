@@ -112,6 +112,24 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.fishing.equip
+    displayName: Equip fishing pole
+    stepType: 23
+    instructionText: Shift+F6 while this step is active equips the primitive fishing
+      pole.
+    targetItemId: ccs.survival.item.tool.fishingpole
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.fishing.use
+    displayName: Use fishing pole on spot
+    stepType: 24
+    instructionText: Face CCS_TestFishingSpot, Alpha2 select active pole, primary
+      use. Catch fish or a valid nothing result.
+    targetItemId: ccs.survival.item.tool.fishingpole
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.hunt
     displayName: Hunt wildlife
     stepType: 3

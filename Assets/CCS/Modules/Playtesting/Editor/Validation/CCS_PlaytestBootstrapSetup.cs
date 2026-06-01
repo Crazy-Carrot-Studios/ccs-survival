@@ -32,6 +32,7 @@ namespace CCS.Modules.Playtesting.Editor
         private const string SpearItemId = "ccs.survival.item.starter.spear";
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
+        private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
 
@@ -173,6 +174,20 @@ namespace CCS.Modules.Playtesting.Editor
                 "Wrong tool on gather target",
                 CCS_PlaytestStepType.UseWrongToolOnGatherTarget,
                 "Use pick on tree or hatchet on rock and confirm a safe WrongTool result (no error spam).");
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.fishing.equip",
+                "Equip fishing pole",
+                CCS_PlaytestStepType.EquipFishingPole,
+                "Shift+F6 while this step is active equips the primitive fishing pole.",
+                FishingPoleItemId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.fishing.use",
+                "Use fishing pole on spot",
+                CCS_PlaytestStepType.UseFishingPoleOnSpot,
+                "Face CCS_TestFishingSpot, Alpha2 select active pole, primary use. Catch fish or a valid nothing result.",
+                FishingPoleItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.hunt",

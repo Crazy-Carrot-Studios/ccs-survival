@@ -15,6 +15,7 @@ using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
+using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
@@ -56,6 +57,7 @@ namespace CCS.Survival.Composition
             CCS_CombatProfile combatProfile,
             CCS_ActiveItemProfile activeItemProfile,
             CCS_GatheringProfile gatheringProfile,
+            CCS_FishingProfile fishingProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_CraftingProgressionProfile craftingProgressionProfile,
             CCS_SaveLoadProfile saveLoadProfile,
@@ -194,9 +196,13 @@ namespace CCS.Survival.Composition
             CCS_GatheringService gatheringService = CreateGatheringService(gatheringProfile, inventoryService);
             RegisterService(runtimeHost, gatheringService, enableDebugLogs);
 
+            CCS_FishingService fishingService = CreateFishingService(fishingProfile, inventoryService);
+            RegisterService(runtimeHost, fishingService, enableDebugLogs);
+
             if (activeItemService != null && activeItemService.IsInitialized)
             {
                 activeItemService.BindGatheringService(gatheringService);
+                activeItemService.BindFishingService(fishingService);
                 activeItemService.BindInteractionService(interactionService);
                 activeItemService.BindInventoryService(inventoryService);
             }
@@ -521,6 +527,28 @@ namespace CCS.Survival.Composition
             CCS_PlayerInventoryService inventoryService)
         {
             CCS_GatheringService service = new CCS_GatheringService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            return service;
+        }
+
+        private static CCS_FishingService CreateFishingService(
+            CCS_FishingProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_FishingService service = new CCS_FishingService();
             service.Initialize();
 
             if (profile == null)

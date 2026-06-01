@@ -16,6 +16,7 @@ namespace CCS.Modules.Inventory
         Axe = 1,
         Pickaxe = 2,
         Knife = 3,
-        Shovel = 4
+        Shovel = 4,
+        FishingPole = 5
     }
 }

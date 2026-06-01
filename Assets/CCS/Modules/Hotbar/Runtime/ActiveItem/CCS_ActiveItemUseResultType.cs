@@ -29,6 +29,11 @@ namespace CCS.Modules.Hotbar
         WrongTool = 14,
         TargetOutOfRange = 15,
         TargetUnavailable = 16,
-        ToolNotEquipped = 17
+        ToolNotEquipped = 17,
+        FishingSuccess = 18,
+        FishingFailed = 19,
+        FishingNoBait = 20,
+        FishingNoWater = 21,
+        FishingTargetUnavailable = 22
     }
 }
