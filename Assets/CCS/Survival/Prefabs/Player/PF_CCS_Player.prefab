@@ -730,6 +730,7 @@ GameObject:
   - component: {fileID: 7803436177386225918}
   - component: {fileID: 709822437764461629}
   - component: {fileID: 6803912229166448175}
+  - component: {fileID: 4858040328399657742}
   m_Layer: 0
   m_Name: PF_CCS_Player
   m_TagString: Untagged
@@ -898,6 +899,20 @@ MonoBehaviour:
   attachmentRig: {fileID: 2475548644215929369}
   equipmentVisualProfile: {fileID: 11400000, guid: fae52ba9b3e62ea40b3a3dbc5e9a0cf8, type: 2}
   enableDebugLogs: 0
+--- !u!114 &4858040328399657742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103026273400016382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f14de1bb01cd1743a15a310bcb768f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_PlayerActiveItemDriver
+  useCamera: {fileID: 0}
+  enableCycleHotkey: 1
 --- !u!1 &8248299155261922594
 GameObject:
   m_ObjectHideFlags: 0

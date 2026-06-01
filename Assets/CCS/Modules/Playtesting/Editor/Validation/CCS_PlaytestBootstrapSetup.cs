@@ -139,6 +139,20 @@ namespace CCS.Modules.Playtesting.Editor
                 requiredCount: 2);
             AddStep(
                 stepListProperty,
+                "ccs.survival.playtest.active.select",
+                "Select active item",
+                CCS_PlaytestStepType.SelectActiveItem,
+                "Press F6 to equip spear, then Alpha1 to select active item from main hand.",
+                SpearItemId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.active.use",
+                "Use active item",
+                CCS_PlaytestStepType.UseActiveItem,
+                "Primary attack (left mouse) routes through active item. Hit wildlife or receive a safe no-target result.",
+                SpearItemId);
+            AddStep(
+                stepListProperty,
                 "ccs.survival.playtest.hunt",
                 "Hunt wildlife",
                 CCS_PlaytestStepType.HuntWildlife,

@@ -27,6 +27,11 @@ Provide the **runtime equipment architecture** that sits on top of Inventory and
 - Runtime visual controller duplicate/stale-instance guards were hardened; save/load resync remains duplicate-safe.
 - Batch: `CCS_EquipmentVisualPoseCleanupBootstrapSetup.ExecuteBatch`
 
+**1.2.2 active item sync:**
+
+- `CCS_ActiveItemService` does **not** spawn separate active visuals; it tracks the active item ID that should match existing equipment visuals on hand sockets.
+- Clearing equipment clears active item state on bulk restore/clear events.
+
 The module answers:
 
 | Question | Owner |

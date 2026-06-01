@@ -19,6 +19,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Gathering;
+using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Storage;
 using CCS.Survival.Player.Loadout;
@@ -71,6 +72,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default combat profile used to register CCS_CombatService.")]
         [SerializeField] private CCS_CombatProfile combatProfile;
+
+        [Tooltip("Default active item profile used to register CCS_ActiveItemService.")]
+        [SerializeField] private CCS_ActiveItemProfile activeItemProfile;
 
         [Tooltip("Default gathering profile used to register CCS_GatheringService.")]
         [SerializeField] private CCS_GatheringProfile gatheringProfile;
@@ -158,6 +162,7 @@ namespace CCS.Survival.Composition
                 cookingProfile,
                 sleepProfile,
                 combatProfile,
+                activeItemProfile,
                 gatheringProfile,
                 craftingProfile,
                 craftingProgressionProfile,

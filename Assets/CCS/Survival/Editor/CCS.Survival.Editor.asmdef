@@ -10,6 +10,7 @@
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Hotbar.Runtime",
         "CCS.Modules.WorldResources.Runtime",
         "Unity.Cinemachine",
         "Unity.InputSystem"

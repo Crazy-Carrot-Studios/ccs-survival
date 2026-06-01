@@ -67,6 +67,24 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 2
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.select
+    displayName: Select active item
+    stepType: 18
+    instructionText: Press F6 to equip spear, then Alpha1 to select active item from
+      main hand.
+    targetItemId: ccs.survival.item.starter.spear
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.use
+    displayName: Use active item
+    stepType: 19
+    instructionText: Primary attack (left mouse) routes through active item. Hit
+      wildlife or receive a safe no-target result.
+    targetItemId: ccs.survival.item.starter.spear
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.hunt
     displayName: Hunt wildlife
     stepType: 3

@@ -1,0 +1,23 @@
+{
+    "name": "CCS.Modules.Hotbar.Editor",
+    "rootNamespace": "CCS.Modules.Hotbar.Editor",
+    "references": [
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Hotbar.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Survival.Composition",
+        "CCS.Survival.Player.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

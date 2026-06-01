@@ -26,6 +26,7 @@
         "CCS.Modules.SaveSystem.Runtime",
         "CCS.Modules.PlayerDeath.Runtime",
         "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Hotbar.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

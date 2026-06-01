@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap scene or PF_CCS_Survival_BootstrapRoot (PlaytestHarness child).
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: F10 HUD, F11 advance, F12 reset, F7 death, F6 equip, B build, F4/F3 bench, F2/F1 storage crate.
+// NOTES: F10 HUD, F11 advance, F12 reset, F7 death, F6 equip, Alpha1 active select, B build, F4/F3 bench, F2/F1 storage.
 // =============================================================================
 
 namespace CCS.Modules.Playtesting
@@ -98,6 +98,21 @@ namespace CCS.Modules.Playtesting
                 playtestService.ForceTestDeathCondition();
             }
 
+            if (Input.GetKeyDown(KeyCode.F6))
+            {
+                playtestService.TryEquipStarterSpear();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                playtestService.TrySelectActiveFromMainHand();
+            }
+
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                playtestService.TryPlacePlaytestFoundation();
+            }
+
             if (Input.GetKeyDown(KeyCode.F4))
             {
                 playtestService.TrySeedWorkbenchCraftingResources();
@@ -163,10 +178,19 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.1.3)");
-            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | B Build | F4/F3 Bench");
+            GUILayout.Label("CCS Manual Playtest Harness (1.2.2)");
+            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | Alpha1 Active | B Build");
             GUILayout.Label("F2 crate | Shift+F2 bedroll/sleep | F1 deposit | Shift+F1 withdraw | F5 save | F9 load");
-            GUILayout.Label("Interact gather/cook | Primary hunt | F eat");
+            GUILayout.Label("Interact gather/cook | Primary active use | F eat");
+
+            if (CCS.Modules.Hotbar.CCS_ActiveItemRuntimeBridge.TryGetActiveItemService(
+                    out CCS.Modules.Hotbar.CCS_ActiveItemService activeItemService)
+                && activeItemService.IsInitialized
+                && activeItemService.ActiveState.HasActiveItem)
+            {
+                GUILayout.Label(
+                    $"Active: {activeItemService.ActiveState.ActiveItemId} ({activeItemService.ActiveState.BehaviorType})");
+            }
             GUILayout.Space(6f);
 
             CCS_PlaytestStepState activeState = GetActiveStepState();

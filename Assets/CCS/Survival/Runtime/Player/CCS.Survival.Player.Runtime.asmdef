@@ -15,6 +15,7 @@
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Hotbar.Runtime",
         "Unity.Cinemachine",
         "Unity.InputSystem"
     ],

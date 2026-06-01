@@ -29,6 +29,8 @@ namespace CCS.Modules.Playtesting
         UseStorageCrate = 14,
         PlaceAndSleepAtBedroll = 15,
         VerifyControllerPolish = 16,
-        ConfirmEquipmentVisual = 17
+        ConfirmEquipmentVisual = 17,
+        SelectActiveItem = 18,
+        UseActiveItem = 19
     }
 }

@@ -1,5 +1,6 @@
 using CCS.Modules.CharacterController;
 using CCS.Modules.Combat;
+using CCS.Modules.Hotbar;
 using UnityEngine;
 
 // =============================================================================
@@ -9,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_Player alongside CCS_InteractionPlayerDriver.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Uses Gameplay/PrimaryAction input. No crosshair or world damage numbers.
+// NOTES: Legacy fallback when ActiveItemService is unavailable. Primary use prefers CCS_PlayerActiveItemDriver.
 // =============================================================================
 
 namespace CCS.Survival.Player
@@ -56,6 +57,13 @@ namespace CCS.Survival.Player
             }
 
             if (!inputProvider.PrimaryActionPressedThisFrame)
+            {
+                return;
+            }
+
+            if (CCS_ActiveItemRuntimeBridge.TryGetActiveItemService(out CCS_ActiveItemService activeItemService)
+                && activeItemService != null
+                && activeItemService.IsInitialized)
             {
                 return;
             }

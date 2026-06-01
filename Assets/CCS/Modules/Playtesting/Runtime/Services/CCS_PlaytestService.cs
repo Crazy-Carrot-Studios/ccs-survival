@@ -7,6 +7,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Equipment;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Gathering;
+using CCS.Modules.Hotbar;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
@@ -68,6 +69,7 @@ namespace CCS.Modules.Playtesting
         private CCS_StorageService boundStorageService;
         private CCS_SleepService boundSleepService;
         private CCS_PlayerEquipmentService boundEquipmentService;
+        private CCS_ActiveItemService boundActiveItemService;
         private bool playtestStorageCrateExists;
         private bool playtestStorageCrateOpened;
         private bool playtestStorageItemDeposited;
@@ -148,6 +150,7 @@ namespace CCS.Modules.Playtesting
             CCS_PlayerDeathService playerDeathService,
             CCS_BuildingPlacementService buildingPlacementService,
             CCS_PlayerEquipmentService equipmentService,
+            CCS_ActiveItemService activeItemService,
             CCS_CraftingRecipeService craftingRecipeService,
             CCS_StorageService storageService,
             CCS_SleepService sleepService,
@@ -174,6 +177,7 @@ namespace CCS.Modules.Playtesting
             boundStorageService = storageService;
             boundSleepService = sleepService;
             boundEquipmentService = equipmentService;
+            boundActiveItemService = activeItemService;
             boundInteractionService = interactionService;
 
             if (boundInteractionService != null)
@@ -235,6 +239,12 @@ namespace CCS.Modules.Playtesting
 
             CCS_EquipmentVisualRuntimeBridge.VisualSpawned += HandleEquipmentVisualSpawned;
             CCS_EquipmentVisualRuntimeBridge.VisualRemoved += HandleEquipmentVisualRemoved;
+
+            if (boundActiveItemService != null)
+            {
+                boundActiveItemService.ActiveItemChanged += HandleActiveItemChanged;
+                boundActiveItemService.ActiveItemUsed += HandleActiveItemUsed;
+            }
 
             if (boundStorageService != null)
             {
@@ -322,6 +332,12 @@ namespace CCS.Modules.Playtesting
             CCS_EquipmentVisualRuntimeBridge.VisualSpawned -= HandleEquipmentVisualSpawned;
             CCS_EquipmentVisualRuntimeBridge.VisualRemoved -= HandleEquipmentVisualRemoved;
 
+            if (boundActiveItemService != null)
+            {
+                boundActiveItemService.ActiveItemChanged -= HandleActiveItemChanged;
+                boundActiveItemService.ActiveItemUsed -= HandleActiveItemUsed;
+            }
+
             if (boundStorageService != null)
             {
                 boundStorageService.StorageContainerOpened -= HandleStorageContainerOpened;
@@ -348,6 +364,7 @@ namespace CCS.Modules.Playtesting
             boundStorageService = null;
             boundSleepService = null;
             boundEquipmentService = null;
+            boundActiveItemService = null;
 
             if (boundInteractionService != null)
             {
@@ -509,6 +526,23 @@ namespace CCS.Modules.Playtesting
             }
 
             LogDebug("Equipped starter spear for playtest (F6).");
+            return true;
+        }
+
+        public bool TrySelectActiveFromMainHand()
+        {
+            if (!harnessEnabled || boundActiveItemService == null || !boundActiveItemService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!boundActiveItemService.SelectActiveFromEquipped(CCS_EquipmentSlotType.MainHand))
+            {
+                LogDebug("Failed to select active item from main hand.");
+                return false;
+            }
+
+            LogDebug("Selected active item from main hand (Alpha1).");
             return true;
         }
 
@@ -1023,6 +1057,46 @@ namespace CCS.Modules.Playtesting
         private void HandleEquipmentVisualRemoved(string itemId)
         {
             IncrementActiveStepOfType(CCS_PlaytestStepType.ConfirmEquipmentVisual, itemId);
+        }
+
+        private void HandleActiveItemChanged(CCS_ActiveItemState previousState, CCS_ActiveItemState newState)
+        {
+            if (!newState.HasActiveItem)
+            {
+                return;
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.SelectActiveItem, newState.ActiveItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SelectActiveItem,
+                    $"Active item selected: {newState.ActiveItemId}.");
+            }
+        }
+
+        private void HandleActiveItemUsed(CCS_ActiveItemUseResult useResult)
+        {
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.NoActiveItem)
+            {
+                return;
+            }
+
+            if (!MatchesTargetItem(CCS_PlaytestStepType.UseActiveItem, useResult.ActiveItemId)
+                && !string.IsNullOrWhiteSpace(useResult.ActiveItemId))
+            {
+                return;
+            }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.CombatHit
+                || useResult.ResultType == CCS_ActiveItemUseResultType.NoTarget
+                || useResult.ResultType == CCS_ActiveItemUseResultType.NoBehaviorRegistered
+                || useResult.ResultType == CCS_ActiveItemUseResultType.WeaponNotEquipped
+                || useResult.ResultType == CCS_ActiveItemUseResultType.OnCooldown)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.UseActiveItem,
+                    useResult.Message);
+            }
         }
 
         private void IncrementActiveStepOfType(CCS_PlaytestStepType stepType, string itemId)

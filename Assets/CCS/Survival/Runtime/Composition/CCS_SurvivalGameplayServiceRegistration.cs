@@ -16,6 +16,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Gathering;
+using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
 using CCS.Modules.SaveSystem;
 using CCS.Modules.PlayerDeath;
@@ -53,6 +54,7 @@ namespace CCS.Survival.Composition
             CCS_CookingProfile cookingProfile,
             CCS_SleepProfile sleepProfile,
             CCS_CombatProfile combatProfile,
+            CCS_ActiveItemProfile activeItemProfile,
             CCS_GatheringProfile gatheringProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_CraftingProgressionProfile craftingProgressionProfile,
@@ -86,6 +88,10 @@ namespace CCS.Survival.Composition
 
             CCS_PlayerEquipmentService equipmentService = CreateEquipmentService(equipmentProfile);
             RegisterService(runtimeHost, equipmentService, enableDebugLogs);
+
+            CCS_ActiveItemService activeItemService =
+                CreateActiveItemService(activeItemProfile, equipmentService);
+            RegisterService(runtimeHost, activeItemService, enableDebugLogs);
 
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
@@ -180,6 +186,11 @@ namespace CCS.Survival.Composition
             CCS_CombatService combatService = CreateCombatService(combatProfile, equipmentService);
             RegisterService(runtimeHost, combatService, enableDebugLogs);
 
+            if (activeItemService != null && activeItemService.IsInitialized)
+            {
+                activeItemService.BindCombatService(combatService);
+            }
+
             CCS_GatheringService gatheringService = CreateGatheringService(gatheringProfile, inventoryService);
             RegisterService(runtimeHost, gatheringService, enableDebugLogs);
 
@@ -243,6 +254,7 @@ namespace CCS.Survival.Composition
                     playerDeathService,
                     placementService,
                     equipmentService,
+                    activeItemService,
                     craftingRecipeService,
                     storageService,
                     sleepService,
@@ -448,6 +460,28 @@ namespace CCS.Survival.Composition
             if (survivalCoreService != null && survivalCoreService.IsInitialized)
             {
                 service.BindSurvivalCoreService(survivalCoreService);
+            }
+
+            return service;
+        }
+
+        private static CCS_ActiveItemService CreateActiveItemService(
+            CCS_ActiveItemProfile profile,
+            CCS_PlayerEquipmentService equipmentService)
+        {
+            CCS_ActiveItemService service = new CCS_ActiveItemService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                service.BindEquipmentService(equipmentService);
             }
 
             return service;
