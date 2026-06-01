@@ -15,6 +15,7 @@ using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
+using CCS.Modules.Gathering;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
@@ -66,6 +67,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default combat profile used to register CCS_CombatService.")]
         [SerializeField] private CCS_CombatProfile combatProfile;
+
+        [Tooltip("Default gathering profile used to register CCS_GatheringService.")]
+        [SerializeField] private CCS_GatheringProfile gatheringProfile;
 
         [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
         [SerializeField] private CCS_CraftingProfile craftingProfile;
@@ -132,6 +136,7 @@ namespace CCS.Survival.Composition
                 cookingProfile,
                 sleepProfile,
                 combatProfile,
+                gatheringProfile,
                 craftingProfile,
                 saveLoadProfile,
                 timeOfDayProfile,

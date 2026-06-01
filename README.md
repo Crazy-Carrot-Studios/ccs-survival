@@ -23,6 +23,8 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**0.9.9** — Resource Gathering Foundation
+
 **0.9.8** — Primitive Combat Foundation
 
 **0.9.7** — Passive Wildlife AI Foundation
@@ -196,8 +198,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.9.8
-**Build output:** `Builds/CCS_Survival_0.9.8_Windows/` (gitignored)
+**Latest verified build:** 0.9.9
+**Build output:** `Builds/CCS_Survival_0.9.9_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 

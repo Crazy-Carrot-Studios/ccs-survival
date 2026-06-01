@@ -57,8 +57,24 @@
 | **0.9.6** | Sleep & bedroll foundation (time advance, fatigue restore, shelter modifier) |
 | **0.9.7** | Passive wildlife AI (wander, idle, flee; living rabbit/deer placeholders) |
 | **0.9.8** | Primitive combat foundation (melee hunting, wildlife health, carcass spawn on kill) |
+| **0.9.9** | Resource gathering foundation (SmallTree/Rock/Bush nodes, stick/stone/wood/fiber rewards) |
 
-Later milestones continue from **0.9.9+** (durability, ranged weapons, predators).
+Later milestones continue from **0.9.10+** (durability, ranged weapons, predators).
+
+---
+
+## 0.9.9 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Gathering module under `Assets/CCS/Modules/Gathering/` | **Complete** |
+| `CCS_GatheringService` registers nodes and grants inventory rewards | **Complete** |
+| SmallTree, Rock, and Bush bootstrap nodes with configured rewards | **Complete** |
+| `CCS_GatheringInteractable` uses existing interaction input | **Complete** |
+| Optional node respawn after depletion | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.9** | **Complete** |
+| Tool requirements, gather UI, biome spawning | **Deferred** |
 
 ---
 

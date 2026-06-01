@@ -1,0 +1,24 @@
+{
+    "name": "CCS.Modules.Gathering.Editor",
+    "rootNamespace": "CCS.Modules.Gathering.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Interaction.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

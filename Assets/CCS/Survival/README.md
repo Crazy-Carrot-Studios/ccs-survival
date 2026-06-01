@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.8 — Primitive Combat Foundation  
+**Milestone:** 0.9.9 — Resource Gathering Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

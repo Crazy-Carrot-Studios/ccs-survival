@@ -13,6 +13,7 @@
         "CCS.Modules.Cooking.Runtime",
         "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.Combat.Runtime",
+        "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.TimeOfDay.Runtime",

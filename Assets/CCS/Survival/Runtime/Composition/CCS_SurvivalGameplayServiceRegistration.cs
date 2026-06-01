@@ -15,6 +15,7 @@ using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
+using CCS.Modules.Gathering;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 
@@ -48,6 +49,7 @@ namespace CCS.Survival.Composition
             CCS_CookingProfile cookingProfile,
             CCS_SleepProfile sleepProfile,
             CCS_CombatProfile combatProfile,
+            CCS_GatheringProfile gatheringProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
@@ -148,6 +150,9 @@ namespace CCS.Survival.Composition
 
             CCS_CombatService combatService = CreateCombatService(combatProfile, equipmentService);
             RegisterService(runtimeHost, combatService, enableDebugLogs);
+
+            CCS_GatheringService gatheringService = CreateGatheringService(gatheringProfile, inventoryService);
+            RegisterService(runtimeHost, gatheringService, enableDebugLogs);
 
             CCS_CharacterMovementService characterMovementService =
                 CreateCharacterMovementService(characterControllerProfile);
@@ -387,6 +392,28 @@ namespace CCS.Survival.Composition
             if (equipmentService != null && equipmentService.IsInitialized)
             {
                 service.BindEquipmentService(equipmentService);
+            }
+
+            return service;
+        }
+
+        private static CCS_GatheringService CreateGatheringService(
+            CCS_GatheringProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_GatheringService service = new CCS_GatheringService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
             }
 
             return service;
