@@ -171,6 +171,55 @@ namespace CCS.Modules.Gathering
             GatheringNodeRespawned?.Invoke(new CCS_GatheringEventArgs(respawnResult));
         }
 
+        public CCS_GatheringNodeSaveState[] CaptureNodeStates()
+        {
+            if (registeredNodes.Count == 0)
+            {
+                return System.Array.Empty<CCS_GatheringNodeSaveState>();
+            }
+
+            System.Collections.Generic.List<CCS_GatheringNodeSaveState> captured =
+                new System.Collections.Generic.List<CCS_GatheringNodeSaveState>(registeredNodes.Count);
+
+            foreach (CCS_GatheringNode node in registeredNodes)
+            {
+                if (node == null || string.IsNullOrWhiteSpace(node.SaveNodeId))
+                {
+                    continue;
+                }
+
+                captured.Add(node.CaptureSaveState());
+            }
+
+            return captured.ToArray();
+        }
+
+        public void ApplyNodeStates(CCS_GatheringNodeSaveState[] nodeStates)
+        {
+            if (nodeStates == null || nodeStates.Length == 0)
+            {
+                return;
+            }
+
+            for (int index = 0; index < nodeStates.Length; index++)
+            {
+                CCS_GatheringNodeSaveState record = nodeStates[index];
+                if (record == null || string.IsNullOrWhiteSpace(record.nodeId))
+                {
+                    continue;
+                }
+
+                foreach (CCS_GatheringNode node in registeredNodes)
+                {
+                    if (node != null && node.MatchesSaveNodeId(record.nodeId))
+                    {
+                        node.ApplySaveState(record.isAvailable, record.respawnTimer);
+                        break;
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Private Methods

@@ -17,6 +17,8 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Gathering;
 using CCS.Modules.CharacterController;
+using CCS.Modules.SaveSystem;
+using CCS.Modules.PlayerDeath;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -52,6 +54,8 @@ namespace CCS.Survival.Composition
             CCS_GatheringProfile gatheringProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
+            CCS_SaveProfile saveProfile,
+            CCS_PlayerDeathProfile playerDeathProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
             CCS_WeatherProfile weatherProfile,
             CCS_ShelterProfile shelterProfile,
@@ -172,6 +176,24 @@ namespace CCS.Survival.Composition
                 shelterService,
                 environmentEffectsService,
                 buildingService);
+
+            CCS_SaveService saveService = CreateSaveService(saveProfile);
+            RegisterService(runtimeHost, saveService, enableDebugLogs);
+            saveService.BindGameplayServices(
+                inventoryService,
+                survivalCoreService,
+                gatheringService,
+                buildingService,
+                null);
+            RegisterSaveSystemUpdatable(runtimeHost, saveService);
+
+            CCS_PlayerDeathService playerDeathService = CreatePlayerDeathService(playerDeathProfile);
+            playerDeathService.BindGameplayServices(
+                survivalCoreService,
+                characterMovementService,
+                null);
+            RegisterService(runtimeHost, playerDeathService, enableDebugLogs);
+            RegisterPlayerDeathUpdatable(runtimeHost, playerDeathService);
         }
 
         #endregion
@@ -711,8 +733,57 @@ namespace CCS.Survival.Composition
 
             service.InitializeFromProfile(profile);
             service.RegisterPrimitiveRecipes(craftingService);
-            service.TryApplyStarterLoadout(inventoryService);
             return service;
+        }
+
+        private static CCS_SaveService CreateSaveService(CCS_SaveProfile profile)
+        {
+            CCS_SaveService service = new CCS_SaveService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_PlayerDeathService CreatePlayerDeathService(CCS_PlayerDeathProfile profile)
+        {
+            CCS_PlayerDeathService service = new CCS_PlayerDeathService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static void RegisterSaveSystemUpdatable(CCS_RuntimeHost runtimeHost, CCS_SaveService saveService)
+        {
+            if (runtimeHost == null || saveService == null || !saveService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(saveService);
+        }
+
+        private static void RegisterPlayerDeathUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_PlayerDeathService playerDeathService)
+        {
+            if (runtimeHost == null || playerDeathService == null || !playerDeathService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(playerDeathService);
         }
 
         private static void BindCharacterStaminaIntegration(

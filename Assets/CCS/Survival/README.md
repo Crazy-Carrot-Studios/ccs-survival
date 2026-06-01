@@ -1,6 +1,8 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 1.0.0 — Campfire + Cooking Foundation  
+**Milestone:** 1.0.1 — Death, Respawn & Save Foundation
+
+**1.0.0** — Campfire + Cooking Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

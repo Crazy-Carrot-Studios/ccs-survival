@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 973492003}
   - component: {fileID: 973492004}
   - component: {fileID: 5461470704683266837}
+  - component: {fileID: 9215587391345507876}
   m_Layer: 0
   m_Name: PF_CCS_Survival_BootstrapRoot
   m_TagString: Untagged
@@ -31,7 +32,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6372343458864942890}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &973492003
@@ -88,6 +90,8 @@ MonoBehaviour:
   gatheringProfile: {fileID: 11400000, guid: 6874fac0473fa6d4eb31c25289aa1239, type: 2}
   craftingProfile: {fileID: 11400000, guid: 7a454d0b9860c0c44ad990feaba001bf, type: 2}
   saveLoadProfile: {fileID: 11400000, guid: c76ec8514d859824fbdb8e015a7223e4, type: 2}
+  saveProfile: {fileID: 11400000, guid: 81c542aa1514a5b4f914d83804673384, type: 2}
+  playerDeathProfile: {fileID: 11400000, guid: 24497ad4af9b33840975bd274919cef5, type: 2}
   timeOfDayProfile: {fileID: 11400000, guid: 0263a6837d876f4428a53d5a3974a047, type: 2}
   weatherProfile: {fileID: 11400000, guid: 4a40a1990b5421b4e84a66ff876fc986, type: 2}
   shelterProfile: {fileID: 11400000, guid: 76327cf869673d64e971ede1693a3796, type: 2}
@@ -96,3 +100,60 @@ MonoBehaviour:
   characterControllerProfile: {fileID: 11400000, guid: 5edc05f571b3c6a48b6eeba09502dd60, type: 2}
   starterLoadoutProfile: {fileID: 11400000, guid: f8a19f9b3ce49a942aaf52a9dd1912e8, type: 2}
   enableDebugLogs: 0
+--- !u!114 &9215587391345507876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973492001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06783316f827e1e4c86745470835abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.SaveSystem.Runtime::CCS.Modules.SaveSystem.CCS_SaveStartupLoader
+--- !u!1 &3550345483088636088
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6372343458864942890}
+  - component: {fileID: 563080603301360249}
+  m_Layer: 0
+  m_Name: SaveSystemDebugArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6372343458864942890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3550345483088636088}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 973492002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &563080603301360249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3550345483088636088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bba8d2c1cbe0b954cbb9e595ed41c3e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.SaveSystem.Runtime::CCS.Modules.SaveSystem.CCS_SaveDebugController
+  debugControlsEnabled: 1

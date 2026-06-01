@@ -1,0 +1,99 @@
+using CCS.Core;
+using CCS.Modules.Building;
+using CCS.Modules.CharacterController;
+using CCS.Modules.Gathering;
+using CCS.Modules.Inventory;
+using CCS.Modules.PlayerDeath;
+using CCS.Modules.SurvivalCore;
+using CCS.Survival.Player;
+using CCS.Survival.Player.Loadout;
+using UnityEngine;
+
+// =============================================================================
+// SCRIPT: CCS_SaveStartupLoader
+// CATEGORY: Modules / SaveSystem / Runtime / Bootstrap
+// PURPOSE: Binds player transform and applies unified save or starter loadout on play start.
+// PLACEMENT: PF_CCS_Survival_BootstrapRoot or bootstrap scene service host object.
+// AUTHOR: James Schilz (Developer)
+// CREATED: 2026-06-01
+// NOTES: Runs after gameplay services register in Awake.
+// =============================================================================
+
+namespace CCS.Modules.SaveSystem
+{
+    [DefaultExecutionOrder(250)]
+    public sealed class CCS_SaveStartupLoader : MonoBehaviour
+    {
+        private const string LogPrefix = "[CCS_SaveStartupLoader]";
+
+        #region Unity Callbacks
+
+        private void Start()
+        {
+            if (!CCS_SaveRuntimeBridge.TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost)
+                || runtimeHost.ServiceRegistry == null)
+            {
+                return;
+            }
+
+            if (!runtimeHost.ServiceRegistry.TryGetService(out CCS_SaveService saveService)
+                || saveService == null
+                || !saveService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerInventoryService inventoryService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_SurvivalCoreService survivalCoreService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_GatheringService gatheringService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_BuildingService buildingService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
+
+            Transform playerTransform = ResolvePlayerTransform();
+            saveService.BindGameplayServices(
+                inventoryService,
+                survivalCoreService,
+                gatheringService,
+                buildingService,
+                playerTransform);
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)
+                && runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService))
+            {
+                playerDeathService.BindGameplayServices(
+                    survivalCoreService,
+                    movementService,
+                    playerTransform);
+            }
+
+            if (saveService.TryLoadOnStartup())
+            {
+                Debug.Log($"{LogPrefix} Unified save loaded from {saveService.SaveFilePath}.");
+                return;
+            }
+
+            if (starterLoadoutService != null && inventoryService != null)
+            {
+                starterLoadoutService.TryApplyStarterLoadout(inventoryService);
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static Transform ResolvePlayerTransform()
+        {
+            CCS_PlayerGameplayController[] controllers =
+                Object.FindObjectsByType<CCS_PlayerGameplayController>(FindObjectsSortMode.None);
+            if (controllers == null || controllers.Length == 0)
+            {
+                return null;
+            }
+
+            return controllers[0].transform;
+        }
+
+        #endregion
+    }
+}

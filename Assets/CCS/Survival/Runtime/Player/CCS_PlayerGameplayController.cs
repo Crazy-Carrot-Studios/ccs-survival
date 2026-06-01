@@ -44,6 +44,7 @@ namespace CCS.Survival.Player
         private CCS_ShelterService shelterService;
         private bool cursorLocked;
         private bool servicesBound;
+        private bool gameplayFrozen;
 
         #endregion
 
@@ -92,6 +93,17 @@ namespace CCS.Survival.Player
             cursorLocked = locked;
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
+        }
+
+        public void SetGameplayFrozen(bool frozen)
+        {
+            gameplayFrozen = frozen;
+            movementService?.SetMovementLocked(frozen);
+
+            if (inputProvider != null)
+            {
+                inputProvider.InputEnabled = !frozen;
+            }
         }
 
         #endregion

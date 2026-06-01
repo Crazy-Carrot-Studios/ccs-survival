@@ -22,6 +22,8 @@
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.SaveSystem.Runtime",
+        "CCS.Modules.PlayerDeath.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

@@ -200,9 +200,28 @@ namespace CCS.Modules.SurvivalCore
             return CCS_Result.Success();
         }
 
+        public void TryRestoreSavedNeeds(float hunger, float thirst, float stamina)
+        {
+            TryRestoreStatValue(CCS_SurvivalStatType.Hunger, hunger);
+            TryRestoreStatValue(CCS_SurvivalStatType.Thirst, thirst);
+            TryRestoreStatValue(CCS_SurvivalStatType.Stamina, stamina);
+        }
+
         #endregion
 
         #region Private Methods
+
+        private void TryRestoreStatValue(CCS_SurvivalStatType statType, float value)
+        {
+            if (!statStates.TryGetValue(statType, out CCS_SurvivalStatState state))
+            {
+                return;
+            }
+
+            CCS_SurvivalStatSnapshot previous = state.ToSnapshot();
+            state.SetCurrent(value);
+            NotifyStatChanged(previous, state);
+        }
 
         private void HandleEnvironmentEffectsChanged(CCS_EnvironmentEffectsEventArgs eventArgs)
         {

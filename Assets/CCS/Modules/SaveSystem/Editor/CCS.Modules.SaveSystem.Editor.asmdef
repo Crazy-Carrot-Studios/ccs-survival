@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.SaveSystem.Editor",
+    "rootNamespace": "CCS.Modules.SaveSystem.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Survival.Player.Runtime",
+        "CCS.Modules.SaveSystem.Runtime",
+        "CCS.Modules.PlayerDeath.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Cooking.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

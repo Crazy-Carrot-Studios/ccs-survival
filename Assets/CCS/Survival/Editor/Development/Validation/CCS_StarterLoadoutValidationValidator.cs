@@ -315,14 +315,19 @@ namespace CCS.Survival.Editor.Development
             }
 
             string registrationSource = File.ReadAllText(RegistrationPath);
+            const string saveStartupLoaderPath =
+                "Assets/CCS/Modules/SaveSystem/Runtime/Bootstrap/CCS_SaveStartupLoader.cs";
+            bool saveStartupAppliesLoadout = File.Exists(saveStartupLoaderPath)
+                && File.ReadAllText(saveStartupLoaderPath).Contains("TryApplyStarterLoadout");
+
             if (registrationSource.Contains("CCS_StarterLoadoutService")
-                && registrationSource.Contains("TryApplyStarterLoadout")
-                && registrationSource.Contains("RegisterPrimitiveRecipes"))
+                && registrationSource.Contains("RegisterPrimitiveRecipes")
+                && (registrationSource.Contains("TryApplyStarterLoadout") || saveStartupAppliesLoadout))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Starter Loadout Composition",
-                    "Gameplay composition registers and applies starter loadout safely.");
+                    "Gameplay composition registers starter loadout; unified save startup applies it when no save exists.");
                 return;
             }
 

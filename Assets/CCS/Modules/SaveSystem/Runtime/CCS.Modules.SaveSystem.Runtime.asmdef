@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.SaveSystem.Runtime",
+    "rootNamespace": "CCS.Modules.SaveSystem",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Building.Runtime",
+        "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.PlayerDeath.Runtime",
+        "CCS.Survival.Player.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

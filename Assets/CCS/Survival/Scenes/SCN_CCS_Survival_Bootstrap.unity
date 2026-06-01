@@ -548,6 +548,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 436352417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &380762874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 380762875}
+  - component: {fileID: 380762876}
+  m_Layer: 0
+  m_Name: CCS_PlayerRespawnPoint_Bootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &380762875
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380762874}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 436352417}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &380762876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380762874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fe0bebc49c947249881d2b496345f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.PlayerDeath.Runtime::CCS.Modules.PlayerDeath.CCS_PlayerRespawnPoint
+  spawnId: ccs.survival.spawn.bootstrap
 --- !u!1 &404268484
 GameObject:
   m_ObjectHideFlags: 0
@@ -837,6 +882,7 @@ Transform:
   - {fileID: 2055951634}
   - {fileID: 1212898534}
   - {fileID: 936323962}
+  - {fileID: 380762875}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &453362437
@@ -1469,6 +1515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: febec6a8ff7744a43a790250c5d1b921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Gathering.Runtime::CCS.Modules.Gathering.CCS_GatheringNode
+  saveNodeId: 
   nodeType: 2
   isAvailable: 1
   gatherPoint: {fileID: 0}
@@ -1612,6 +1659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: febec6a8ff7744a43a790250c5d1b921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Gathering.Runtime::CCS.Modules.Gathering.CCS_GatheringNode
+  saveNodeId: 
   nodeType: 3
   isAvailable: 1
   gatherPoint: {fileID: 0}
@@ -1902,6 +1950,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: febec6a8ff7744a43a790250c5d1b921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Gathering.Runtime::CCS.Modules.Gathering.CCS_GatheringNode
+  saveNodeId: 
   nodeType: 1
   isAvailable: 1
   gatherPoint: {fileID: 0}
@@ -4632,6 +4681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdaf29a844a564e409731bb3a47b35fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Cooking.Runtime::CCS.Modules.Cooking.CCS_CookingStation
+  saveStationId: ccs.survival.cooking.station.testcampfire
   stationType: 1
   isStationActive: 1
   currentRecipeId: 

@@ -17,6 +17,9 @@ namespace CCS.Modules.Cooking
         #region Variables
 
         [Header("Station Identity")]
+        [Tooltip("Stable save id used by CCS_SaveService for campfire persistence.")]
+        [SerializeField] private string saveStationId = string.Empty;
+
         [Tooltip("Cooking station archetype used for profile validation.")]
         [SerializeField] private CCS_CookingStationType stationType = CCS_CookingStationType.Campfire;
 
@@ -39,6 +42,8 @@ namespace CCS.Modules.Cooking
         #region Properties
 
         public CCS_CookingStationType StationType => stationType;
+
+        public string SaveStationId => saveStationId;
 
         public bool IsStationActive => isStationActive;
 
@@ -135,6 +140,45 @@ namespace CCS.Modules.Cooking
             currentRecipeId = string.Empty;
             isCooking = false;
             hasFuelLoaded = false;
+        }
+
+        public void ConfigureSaveStationId(string configuredSaveStationId)
+        {
+            if (!string.IsNullOrWhiteSpace(configuredSaveStationId))
+            {
+                saveStationId = configuredSaveStationId;
+            }
+        }
+
+        public bool MatchesSaveId(string stationId)
+        {
+            return !string.IsNullOrWhiteSpace(saveStationId)
+                && saveStationId == stationId;
+        }
+
+        public CCS_CookingStationSaveState CaptureSaveState()
+        {
+            return new CCS_CookingStationSaveState
+            {
+                stationId = saveStationId,
+                isStationActive = isStationActive,
+                isCooking = isCooking,
+                currentRecipeId = currentRecipeId,
+                hasFuelLoaded = hasFuelLoaded
+            };
+        }
+
+        public void ApplySaveState(CCS_CookingStationSaveState saveState)
+        {
+            if (saveState == null)
+            {
+                return;
+            }
+
+            isStationActive = saveState.isStationActive;
+            isCooking = saveState.isCooking;
+            currentRecipeId = saveState.currentRecipeId ?? string.Empty;
+            hasFuelLoaded = saveState.hasFuelLoaded;
         }
 
         #endregion

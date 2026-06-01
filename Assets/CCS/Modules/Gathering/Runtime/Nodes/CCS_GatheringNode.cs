@@ -17,6 +17,9 @@ namespace CCS.Modules.Gathering
         #region Variables
 
         [Header("Node Identity")]
+        [Tooltip("Stable save id used by CCS_SaveService for node depletion persistence.")]
+        [SerializeField] private string saveNodeId = string.Empty;
+
         [Tooltip("Gathering node archetype used to resolve profile rewards.")]
         [SerializeField] private CCS_GatheringNodeType nodeType = CCS_GatheringNodeType.SmallTree;
 
@@ -38,7 +41,11 @@ namespace CCS.Modules.Gathering
 
         public CCS_GatheringNodeType NodeType => nodeType;
 
+        public string SaveNodeId => saveNodeId;
+
         public bool IsAvailable => isAvailable;
+
+        public float RespawnTimer => respawnTimer;
 
         public Transform GatherPoint => gatherPoint != null ? gatherPoint : transform;
 
@@ -75,6 +82,36 @@ namespace CCS.Modules.Gathering
             nodeType = configuredNodeType;
             isAvailable = true;
             respawnTimer = 0f;
+        }
+
+        public void ConfigureSaveNodeId(string configuredSaveNodeId)
+        {
+            if (!string.IsNullOrWhiteSpace(configuredSaveNodeId))
+            {
+                saveNodeId = configuredSaveNodeId;
+            }
+        }
+
+        public bool MatchesSaveNodeId(string nodeId)
+        {
+            return !string.IsNullOrWhiteSpace(saveNodeId)
+                && saveNodeId == nodeId;
+        }
+
+        public CCS_GatheringNodeSaveState CaptureSaveState()
+        {
+            return new CCS_GatheringNodeSaveState
+            {
+                nodeId = saveNodeId,
+                isAvailable = isAvailable,
+                respawnTimer = respawnTimer
+            };
+        }
+
+        public void ApplySaveState(bool available, float savedRespawnTimer)
+        {
+            isAvailable = available;
+            respawnTimer = savedRespawnTimer;
         }
 
         public bool CanGather()

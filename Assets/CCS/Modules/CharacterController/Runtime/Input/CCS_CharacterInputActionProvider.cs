@@ -39,10 +39,17 @@ namespace CCS.Modules.CharacterController
         private bool primaryActionPressed;
         private bool pausePressed;
         private bool sprintAllowed = true;
+        private bool inputEnabled = true;
 
         #endregion
 
         #region Properties
+
+        public bool InputEnabled
+        {
+            get => inputEnabled;
+            set => inputEnabled = value;
+        }
 
         public bool InteractPressedThisFrame => interactPressed;
 
@@ -107,6 +114,11 @@ namespace CCS.Modules.CharacterController
 
         public CCS_CharacterInputSnapshot GetInputSnapshot()
         {
+            if (!inputEnabled)
+            {
+                return CCS_CharacterInputSnapshot.Empty;
+            }
+
             Vector2 move = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
             Vector2 look = lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
 

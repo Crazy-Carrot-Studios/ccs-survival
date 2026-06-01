@@ -32,6 +32,7 @@ namespace CCS.Modules.CharacterController
         private CCS_CharacterMovementSnapshot currentSnapshot;
         private bool isInitialized;
         private bool sprintAllowed = true;
+        private bool movementLocked;
 
         #endregion
 
@@ -133,6 +134,11 @@ namespace CCS.Modules.CharacterController
             sprintAllowed = allowed;
         }
 
+        public void SetMovementLocked(bool locked)
+        {
+            movementLocked = locked;
+        }
+
         public void Tick(float deltaTime)
         {
             TickMovement(deltaTime);
@@ -140,7 +146,7 @@ namespace CCS.Modules.CharacterController
 
         public void TickMovement(float deltaTime)
         {
-            if (!isInitialized || deltaTime <= 0f)
+            if (!isInitialized || deltaTime <= 0f || movementLocked)
             {
                 return;
             }

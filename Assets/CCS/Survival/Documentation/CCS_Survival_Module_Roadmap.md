@@ -59,8 +59,24 @@
 | **0.9.8** | Primitive combat foundation (melee hunting, wildlife health, carcass spawn on kill) |
 | **0.9.9** | Resource gathering foundation (SmallTree/Rock/Bush nodes, stick/stone/wood/fiber rewards) |
 | **1.0.0** | Campfire + cooking foundation (fuel-backed rabbit/venison recipes, full gather-hunt-cook-eat loop) |
+| **1.0.1** | Death, respawn & save foundation (unified save file, starvation/dehydration death, respawn point) |
 
-Later milestones continue from **1.0.1+** (durability, ranged weapons, predators).
+Later milestones continue from **1.0.2+** (durability, ranged weapons, predators).
+
+---
+
+## 1.0.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| SaveSystem module under `Assets/CCS/Modules/SaveSystem/` | **Complete** |
+| `CCS_SaveService` writes `CCS_Survival_Save.json` with player, needs, inventory, world state | **Complete** |
+| PlayerDeath module under `Assets/CCS/Modules/PlayerDeath/` | **Complete** |
+| Hunger/thirst depletion triggers respawn at bootstrap spawn point | **Complete** |
+| `CCS_SaveStartupLoader` loads save on play or applies starter loadout | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **1.0.1** | **Complete** |
+| Death UI, multiple save slots, cloud save | **Deferred** |
 
 ---
 

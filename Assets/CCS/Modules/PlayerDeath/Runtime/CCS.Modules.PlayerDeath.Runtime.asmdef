@@ -1,0 +1,19 @@
+{
+    "name": "CCS.Modules.PlayerDeath.Runtime",
+    "rootNamespace": "CCS.Modules.PlayerDeath",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.CharacterController.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
