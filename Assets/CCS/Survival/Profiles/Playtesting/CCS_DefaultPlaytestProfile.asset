@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.0.
-  profileVersion: 1.1.0
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.1.
+  profileVersion: 1.1.1
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -86,6 +86,15 @@ MonoBehaviour:
     stepType: 12
     instructionText: Place primitive foundation, at least one wall, and one roof
       (B places foundation; snap wall/roof).
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.workbench
+    displayName: Craft item at workbench
+    stepType: 13
+    instructionText: Interact with CCS_TestWorkbench; F4 seeds mats; F3 crafts storage
+      crate.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

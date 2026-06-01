@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CCS.Core;
 using CCS.Modules.Building;
+using CCS.Modules.Crafting;
 using CCS.Modules.Combat;
 using CCS.Modules.Cooking;
 using CCS.Modules.Equipment;
@@ -32,7 +33,10 @@ namespace CCS.Modules.Playtesting
 
         private const string StickItemId = "ccs.survival.item.resource.stick";
         private const string WoodItemId = "ccs.survival.item.resource.wood";
+        private const string StoneItemId = "ccs.survival.item.resource.stone";
+        private const string FiberItemId = "ccs.survival.item.resource.fiber";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
@@ -56,6 +60,7 @@ namespace CCS.Modules.Playtesting
         private CCS_SaveService boundSaveService;
         private CCS_PlayerDeathService boundPlayerDeathService;
         private CCS_BuildingPlacementService boundBuildingPlacementService;
+        private CCS_CraftingRecipeService boundCraftingRecipeService;
         private CCS_PlayerEquipmentService boundEquipmentService;
 
         #endregion
@@ -118,6 +123,7 @@ namespace CCS.Modules.Playtesting
             CCS_PlayerDeathService playerDeathService,
             CCS_BuildingPlacementService buildingPlacementService,
             CCS_PlayerEquipmentService equipmentService,
+            CCS_CraftingRecipeService craftingRecipeService,
             CCS_SurvivalCoreService survivalCore)
         {
             UnbindEventListeners();
@@ -136,6 +142,7 @@ namespace CCS.Modules.Playtesting
             boundSaveService = saveService;
             boundPlayerDeathService = playerDeathService;
             boundBuildingPlacementService = buildingPlacementService;
+            boundCraftingRecipeService = craftingRecipeService;
             boundEquipmentService = equipmentService;
 
             if (boundGatheringService != null)
@@ -178,6 +185,11 @@ namespace CCS.Modules.Playtesting
             if (boundBuildingPlacementService != null)
             {
                 boundBuildingPlacementService.BuildingPlaced += HandleBuildingPlaced;
+            }
+
+            if (boundCraftingRecipeService != null)
+            {
+                boundCraftingRecipeService.CraftingCompleted += HandleCraftingProgressionCompleted;
             }
 
             if (boundEquipmentService != null)
@@ -244,6 +256,11 @@ namespace CCS.Modules.Playtesting
                 boundBuildingPlacementService.BuildingPlaced -= HandleBuildingPlaced;
             }
 
+            if (boundCraftingRecipeService != null)
+            {
+                boundCraftingRecipeService.CraftingCompleted -= HandleCraftingProgressionCompleted;
+            }
+
             if (boundEquipmentService != null)
             {
                 boundEquipmentService.ItemEquipped -= HandleItemEquipped;
@@ -257,6 +274,7 @@ namespace CCS.Modules.Playtesting
             boundSaveService = null;
             boundPlayerDeathService = null;
             boundBuildingPlacementService = null;
+            boundCraftingRecipeService = null;
             boundEquipmentService = null;
             eventsBound = false;
         }
@@ -596,6 +614,90 @@ namespace CCS.Modules.Playtesting
                 "Minimum shelter reached (foundation, wall, roof).");
         }
 
+        private void HandleCraftingProgressionCompleted(CCS_CraftingProgressionEventArgs eventArgs)
+        {
+            if (eventArgs == null || boundCraftingRecipeService == null)
+            {
+                return;
+            }
+
+            if (eventArgs.StationType != CCS_CraftingStationType.Workbench)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.CraftAtWorkbench,
+                "Workbench crafting completed.");
+        }
+
+        public bool TrySeedWorkbenchCraftingResources()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            bool seeded = false;
+            seeded |= TryAddInventoryItemById(inventoryService, WoodItemId, 12);
+            seeded |= TryAddInventoryItemById(inventoryService, StickItemId, 6);
+            seeded |= TryAddInventoryItemById(inventoryService, StoneItemId, 6);
+            seeded |= TryAddInventoryItemById(inventoryService, FiberItemId, 8);
+            seeded |= TryAddInventoryItemById(inventoryService, SpearItemId, 1);
+
+            if (seeded)
+            {
+                LogDebug("Seeded workbench crafting resources (F4).");
+            }
+
+            return seeded;
+        }
+
+        public bool TryCraftWorkbenchPlaytestItem()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            CCS_CraftingRecipeService recipeService = boundCraftingRecipeService;
+            if (recipeService == null || !recipeService.IsInitialized)
+            {
+                if (!CCS_CraftingRuntimeBridge.TryGetCraftingRecipeService(out recipeService)
+                    || recipeService == null
+                    || !recipeService.IsInitialized)
+                {
+                    return false;
+                }
+            }
+
+            if (!recipeService.TryGetRecipeById(StorageCrateRecipeId, out CCS_CraftingRecipeDefinition recipe))
+            {
+                LogDebug("Storage crate progression recipe was not found.");
+                return false;
+            }
+
+            CCS_CraftingStationContext workbenchContext = new CCS_CraftingStationContext(
+                CCS_CraftingStationType.Workbench,
+                "Test Workbench",
+                "ccs.survival.station.test.workbench");
+
+            recipeService.ApplyActiveStationContext(workbenchContext);
+            CCS_CraftingResult result = recipeService.TryCraftProgressionRecipe(recipe, workbenchContext, 1);
+            if (result.IsSuccess)
+            {
+                LogDebug("Crafted storage crate at workbench for playtest (F3).");
+            }
+            else
+            {
+                LogDebug($"Workbench craft failed: {result.Message}");
+            }
+
+            return result.IsSuccess;
+        }
+
         private void HandleItemEquipped(CCS_EquipmentEventArgs eventArgs)
         {
             string itemId = eventArgs?.EquipmentDefinition?.ItemDefinition != null
@@ -826,6 +928,37 @@ namespace CCS.Modules.Playtesting
             }
 
             return null;
+        }
+
+        private static bool TryAddInventoryItemById(
+            CCS_PlayerInventoryService inventoryService,
+            string itemId,
+            int quantity)
+        {
+            if (inventoryService == null
+                || !inventoryService.IsInitialized
+                || string.IsNullOrWhiteSpace(itemId)
+                || quantity <= 0)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition[] definitions = inventoryService.ActiveProfile?.SaveRestoreItemDefinitions;
+            if (definitions == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_ItemDefinition definition = definitions[index];
+                if (definition != null && definition.ItemId == itemId)
+                {
+                    return inventoryService.AddItem(definition, quantity) > 0;
+                }
+            }
+
+            return false;
         }
 
         private bool TrySeedBuildingPlacementResources(CCS_BuildingPieceDefinition definition)

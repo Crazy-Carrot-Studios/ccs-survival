@@ -86,8 +86,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.1.0.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.0";
+                "Bootstrap manual playtest checklist for milestone 1.1.1.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.1";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -151,6 +151,12 @@ namespace CCS.Modules.Playtesting.Editor
                 "Build shelter",
                 CCS_PlaytestStepType.BuildShelter,
                 "Place primitive foundation, at least one wall, and one roof (B places foundation; snap wall/roof).");
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.workbench",
+                "Craft item at workbench",
+                CCS_PlaytestStepType.CraftAtWorkbench,
+                "Interact with CCS_TestWorkbench; F4 seeds mats; F3 crafts storage crate.");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.save",
@@ -315,7 +321,7 @@ namespace CCS.Modules.Playtesting.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.1.0");
+                "bundleVersion: 1.1.1");
             File.WriteAllText(projectSettingsPath, text);
         }
 

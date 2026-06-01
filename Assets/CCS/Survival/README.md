@@ -1,6 +1,8 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 1.1.0 — Building Progression Foundation
+**Milestone:** 1.1.1 — Crafting Progression + Workstation Foundation
+
+**1.1.0** — Building Progression Foundation
 
 **1.0.3** — Manual Playtest Pass + Fixes
 

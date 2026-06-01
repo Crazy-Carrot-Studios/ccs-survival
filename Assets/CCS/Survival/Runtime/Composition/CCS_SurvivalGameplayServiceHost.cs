@@ -77,6 +77,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
         [SerializeField] private CCS_CraftingProfile craftingProfile;
 
+        [Tooltip("Default crafting progression profile used to register CCS_CraftingRecipeService.")]
+        [SerializeField] private CCS_CraftingProgressionProfile craftingProgressionProfile;
+
         [Tooltip("Default save/load profile used to register CCS_SaveLoadService.")]
         [SerializeField] private CCS_SaveLoadProfile saveLoadProfile;
 
@@ -153,6 +156,7 @@ namespace CCS.Survival.Composition
                 combatProfile,
                 gatheringProfile,
                 craftingProfile,
+                craftingProgressionProfile,
                 saveLoadProfile,
                 saveProfile,
                 playerDeathProfile,

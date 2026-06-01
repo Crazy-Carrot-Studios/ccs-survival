@@ -63,8 +63,23 @@
 | **1.0.2** | Manual playtest harness (bootstrap checklist HUD, event-driven step completion, F7/F10/F11/F12) |
 | **1.0.3** | Manual playtest pass + fixes (bootstrap route verified, gather/death/equip/build blockers resolved) |
 | **1.1.0** | Building progression foundation (tier-1 primitive shelter, recipes, placement rules, shelter playtest step) |
+| **1.1.1** | Crafting progression + workstation foundation (hand / campfire / workbench recipes, test workbench, playtest step) |
 
-Later milestones continue from **1.1.1+** (durability, ranged weapons, predators).
+Later milestones continue from **1.1.2+** (durability, ranged weapons, predators).
+
+---
+
+## 1.1.1 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_CraftingProgressionProfile` with hand, FirePit, and workbench recipes | **Complete** |
+| `CCS_CraftingRecipeService` with progression events | **Complete** |
+| `CCS_TestWorkbench` + campfire station interactables | **Complete** |
+| Playtest **Craft at workbench** step | **Complete** |
+| Validation 0 warnings / 0 errors | **Pending batch** |
+| Version **1.1.1** build | **Pending batch** |
+| Production crafting UI | **Deferred** |
 
 ---
 

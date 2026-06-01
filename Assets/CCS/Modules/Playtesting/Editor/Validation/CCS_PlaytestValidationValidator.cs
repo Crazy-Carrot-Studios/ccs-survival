@@ -39,6 +39,7 @@ namespace CCS.Modules.Playtesting.Editor
             CCS_PlaytestStepType.CookFood,
             CCS_PlaytestStepType.EatFood,
             CCS_PlaytestStepType.BuildShelter,
+            CCS_PlaytestStepType.CraftAtWorkbench,
             CCS_PlaytestStepType.SaveGame,
             CCS_PlaytestStepType.LoadGame,
             CCS_PlaytestStepType.TriggerDeath,
@@ -100,12 +101,12 @@ namespace CCS.Modules.Playtesting.Editor
                     "Default playtest profile has harness disabled.");
             }
 
-            if (profile.ProfileVersion != "1.1.0")
+            if (profile.ProfileVersion != "1.1.1")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Warning,
                     "Playtesting Profile",
-                    $"Expected profileVersion 1.1.0 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.1.1 but found '{profile.ProfileVersion}'.");
             }
 
             ValidateRequiredStepTypes(report, profile);

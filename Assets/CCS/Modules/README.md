@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 1.1.0  
+**Version:** 1.1.1  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -132,7 +132,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `Interaction/` | 0.3.9 — **Complete** (foundation) |
 | `Inventory/` | 0.4.0 — **Complete** (foundation) |
 | `Equipment/` | 0.4.1 / 0.7.4 — **Foundation + environmental modifiers complete** |
-| `Crafting/` | 0.5.0 / 0.5.3 — **Foundation + gameplay integration complete** |
+| `Crafting/` | **1.1.1** — **Crafting progression** (hand / campfire / workbench recipes, station interactables) |
 | `WorldResources/` | 0.5.1 / 0.5.2 — **Foundation + harvest integration complete** |
 | `SaveLoad/` | 0.6.0 – 0.6.2 — **Foundation + inventory/equipment persistence complete** |
 | `TimeOfDay/` | 0.7.0 — **Foundation complete** |
@@ -146,7 +146,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `Cooking/` | 0.9.5 — **Consumables & hunger usage complete** (passive drain, F consume, HUD feedback) |
 | `SaveSystem/` | 1.0.1 — **Unified save file complete** (F5/F9 debug save/load) |
 | `PlayerDeath/` | 1.0.1 — **Death and respawn complete** (starvation/dehydration, bootstrap spawn) |
-| `Playtesting/` | **1.1.0** — **Build shelter** checklist step (foundation + wall + roof minimum) |
+| `Playtesting/` | **1.1.1** — **Craft at workbench** checklist step (F4 seed / F3 dev craft) |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

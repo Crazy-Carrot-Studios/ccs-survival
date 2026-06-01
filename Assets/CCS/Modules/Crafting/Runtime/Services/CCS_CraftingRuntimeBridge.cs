@@ -53,6 +53,17 @@ namespace CCS.Modules.Crafting
             return runtimeHost.ServiceRegistry.TryGetService(out inventoryService);
         }
 
+        public static bool TryGetCraftingRecipeService(out CCS_CraftingRecipeService recipeService)
+        {
+            recipeService = null;
+            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            {
+                return false;
+            }
+
+            return runtimeHost.ServiceRegistry.TryGetService(out recipeService);
+        }
+
         #endregion
     }
 }

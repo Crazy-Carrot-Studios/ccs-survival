@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9580f4fa601173b4f8496335df283d42, type: 3}
+  m_Name: CCS_ProgressionCharcoalRecipe
+  m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingRecipeDefinition
+  recipeId: ccs.survival.recipe.progression.charcoal
+  displayName: Charcoal
+  description: Milestone 1.1.1 progression recipe (tier 1).
+  requiredStationType: 1
+  ingredients:
+  - itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+    quantity: 1
+  results:
+  - itemDefinition: {fileID: 11400000, guid: feb20b147b28d7c4f86abca9094e6b18, type: 2}
+    quantity: 1
+  craftTimeSeconds: 3
+  isUnlockedByDefault: 1

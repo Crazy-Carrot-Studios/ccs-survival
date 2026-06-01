@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1a9004a5f0b0f748ad755e1057a2822, type: 3}
+  m_Name: CCS_DefaultCraftingProgressionProfile
+  m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingProgressionProfile
+  profileDisplayName: Default Crafting Progression
+  profileId: ccs.survival.profile.crafting.progression.default
+  profileDescription: Primitive hand, campfire, and workbench crafting progression
+    for milestone 1.1.1.
+  profileVersion: 1.1.1
+  enableDebugLogs: 0
+  progressionEnabled: 1
+  enableDebugLogging: 1
+  progressionRecipes:
+  - recipeDefinition: {fileID: 11400000, guid: 02ab9addbc77f1149b92824391caef96, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: f21316c16c85f544fb528c1eceaff310, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 0e33c16108752dc41810dfaa770b7972, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 2a82fae7b71f93c45a8d9f04d6aaf8ed, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 41f06ae696ec0b5408d8cf5aa2cc2b62, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 1b975a70d55a0aa409e4a5c351ea045d, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: f8c0dbdeef9dd084ea5844b1f2191651, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: f51f7b1b561909148b83dd430fa264d2, type: 2}
+    unlockTier: 2
+  - recipeDefinition: {fileID: 11400000, guid: c39246084b3d6fe4c9864b3862ddb3f0, type: 2}
+    unlockTier: 2
+  - recipeDefinition: {fileID: 11400000, guid: ddba1859fa2e3d843903de01d178ea2b, type: 2}
+    unlockTier: 2
+  workbenchPlaytestRecipeId: ccs.survival.recipe.progression.storagecrate

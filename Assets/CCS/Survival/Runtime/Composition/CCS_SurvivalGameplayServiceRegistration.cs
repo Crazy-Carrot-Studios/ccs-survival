@@ -54,6 +54,7 @@ namespace CCS.Survival.Composition
             CCS_CombatProfile combatProfile,
             CCS_GatheringProfile gatheringProfile,
             CCS_CraftingProfile craftingProfile,
+            CCS_CraftingProgressionProfile craftingProgressionProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_SaveProfile saveProfile,
             CCS_PlayerDeathProfile playerDeathProfile,
@@ -91,6 +92,14 @@ namespace CCS.Survival.Composition
 
             CCS_CraftingService craftingService = CreateCraftingService(craftingProfile, inventoryService);
             RegisterService(runtimeHost, craftingService, enableDebugLogs);
+
+            CCS_CraftingRecipeService craftingRecipeService =
+                CreateCraftingRecipeService(craftingProgressionProfile, craftingService);
+            RegisterService(runtimeHost, craftingRecipeService, enableDebugLogs);
+            if (craftingRecipeService.IsInitialized)
+            {
+                craftingRecipeService.BindCraftingService(craftingService);
+            }
 
             CCS_StarterLoadoutService starterLoadoutService =
                 CreateStarterLoadoutService(starterLoadoutProfile, inventoryService, craftingService);
@@ -222,6 +231,7 @@ namespace CCS.Survival.Composition
                     playerDeathService,
                     placementService,
                     equipmentService,
+                    craftingRecipeService,
                     survivalCoreService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
@@ -549,6 +559,22 @@ namespace CCS.Survival.Composition
             }
 
             service.InitializeFromProfile(profile, inventoryService);
+            return service;
+        }
+
+        private static CCS_CraftingRecipeService CreateCraftingRecipeService(
+            CCS_CraftingProgressionProfile profile,
+            CCS_CraftingService craftingService)
+        {
+            CCS_CraftingRecipeService service = new CCS_CraftingRecipeService();
+            service.Initialize();
+
+            if (profile == null || craftingService == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile, craftingService);
             return service;
         }
 

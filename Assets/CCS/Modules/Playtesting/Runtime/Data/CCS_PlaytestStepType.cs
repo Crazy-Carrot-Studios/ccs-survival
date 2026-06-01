@@ -24,6 +24,7 @@ namespace CCS.Modules.Playtesting
         LoadGame = 9,
         TriggerDeath = 10,
         Respawn = 11,
-        BuildShelter = 12
+        BuildShelter = 12,
+        CraftAtWorkbench = 13
     }
 }

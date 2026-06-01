@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.Crafting;
+using CCS.Modules.Inventory;
+using CCS.Modules.Playtesting;
 using CCS.Survival;
 using CCS.Survival.Editor.Development;
 using UnityEditor;
@@ -31,6 +34,16 @@ namespace CCS.Modules.Crafting.Editor
         private const string GameplayServiceRegistrationPath =
             SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Crafting_Module.md";
+        private const string ProgressionDocPath = ModuleRoot + "/Documentation/CCS_Crafting_Progression.md";
+        private const string ProgressionProfilePath =
+            SurvivalRoot + "/Profiles/Crafting/CCS_DefaultCraftingProgressionProfile.asset";
+        private const string ProgressionItemsRoot = SurvivalRoot + "/Content/Items/Progression";
+        private const string ProgressionRecipesRoot = SurvivalRoot + "/Profiles/Crafting/ProgressionRecipes";
+        private const string BootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+        private const string DefaultPlaytestProfilePath =
+            SurvivalRoot + "/Profiles/Playtesting/CCS_DefaultPlaytestProfile.asset";
+        private const string SpearItemPath = SurvivalRoot + "/Content/Items/Starter/CCS_Item_Spear.asset";
+        private const string ReinforcedSpearItemPath = ProgressionItemsRoot + "/CCS_Item_ReinforcedSpear.asset";
 
         private const string TestCampfireRecipePath = TestRecipesRoot + "/CCS_TestCampfireRecipe.asset";
         private const string TestBandageRecipePath = TestRecipesRoot + "/CCS_TestBandageRecipe.asset";
@@ -78,8 +91,15 @@ namespace CCS.Modules.Crafting.Editor
             ValidateRequiredScript(report, "CCS_CraftingEvents", RuntimeRoot + "/Events/CCS_CraftingEvents.cs");
             ValidateRequiredScript(report, "CCS_CraftingProfile", RuntimeRoot + "/Profiles/CCS_CraftingProfile.cs");
             ValidateRequiredScript(report, "CCS_CraftingValidationUtility", RuntimeRoot + "/Validation/CCS_CraftingValidationUtility.cs");
+            ValidateRequiredScript(report, "CCS_CraftingProgressionRecipeEntry", RuntimeRoot + "/Data/CCS_CraftingProgressionRecipeEntry.cs");
+            ValidateRequiredScript(report, "CCS_CraftingProgressionProfile", RuntimeRoot + "/Profiles/CCS_CraftingProgressionProfile.cs");
+            ValidateRequiredScript(report, "CCS_CraftingRecipeService", RuntimeRoot + "/Services/CCS_CraftingRecipeService.cs");
+            ValidateRequiredScript(report, "CCS_CraftingStationInteractable", RuntimeRoot + "/Interactables/CCS_CraftingStationInteractable.cs");
+            ValidateRequiredScript(report, "CCS_CraftingProgressionEventArgs", RuntimeRoot + "/Events/CCS_CraftingProgressionEventArgs.cs");
+            ValidateRequiredScript(report, "CCS_CraftingProgressionEvents", RuntimeRoot + "/Events/CCS_CraftingProgressionEvents.cs");
 
             ValidateDocumentationAsset(report, "Crafting Module Doc", ModuleDocPath);
+            ValidateDocumentationAsset(report, "Crafting Progression Doc", ProgressionDocPath);
 
             CCS_SurvivalValidationResult stationValidation =
                 CCS_CraftingValidationUtility.ValidateRequiredStationTypes();
@@ -129,10 +149,12 @@ namespace CCS.Modules.Crafting.Editor
                     $"Missing required asset: {DefaultProfilePath}");
             }
 
+            ValidateCraftingProgressionFoundation(report);
+
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Crafting validator completed (gameplay integration at 0.5.3; crafting UI and world stations deferred).");
+                "Crafting validator completed (1.1.1 crafting progression foundation).");
         }
 
         #endregion
@@ -152,19 +174,21 @@ namespace CCS.Modules.Crafting.Editor
 
             string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
             if (registrationSource.Contains("CreateCraftingService")
-                && registrationSource.Contains("CCS_CraftingProfile"))
+                && registrationSource.Contains("CreateCraftingRecipeService")
+                && registrationSource.Contains("CCS_CraftingProfile")
+                && registrationSource.Contains("craftingProgressionProfile"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Crafting Service Registration",
-                    "CCS_SurvivalGameplayServiceRegistration registers CCS_CraftingService.");
+                    "Gameplay composition registers crafting and progression recipe services.");
                 return;
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Error,
                 "Crafting Service Registration",
-                "CCS_SurvivalGameplayServiceRegistration is missing crafting service registration.");
+                "Gameplay composition is missing crafting progression service registration wiring.");
         }
 
         private static void ValidateBootstrapCraftingProfile(CCS_SurvivalValidationReport report)
@@ -477,6 +501,238 @@ namespace CCS.Modules.Crafting.Editor
                 CCS_SurvivalValidationIssueSeverity.Warning,
                 context,
                 $"Documentation missing: {assetPath}");
+        }
+
+        private static void ValidateCraftingProgressionFoundation(CCS_SurvivalValidationReport report)
+        {
+            ValidateProgressionProfileAsset(report);
+            ValidateProgressionRecipesByStation(report);
+            ValidateProgressionItems(report);
+            ValidateReinforcedSpearStats(report);
+            ValidateBootstrapWorkbench(report);
+            ValidatePlaytestWorkbenchStep(report);
+        }
+
+        private static void ValidateProgressionProfileAsset(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(ProgressionProfilePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Crafting Progression Profile",
+                    $"Missing asset: {ProgressionProfilePath}. Run CCS_CraftingProgressionBootstrapSetup.ExecuteBatch.");
+                return;
+            }
+
+            CCS_CraftingProgressionProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_CraftingProgressionProfile>(ProgressionProfilePath);
+            if (profile == null || !profile.ProgressionEnabled)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Crafting Progression Profile",
+                    "Default crafting progression profile is missing or disabled.");
+                return;
+            }
+
+            if (profile.ProfileVersion != "1.1.1")
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Crafting Progression Profile",
+                    $"Expected profileVersion 1.1.1 but found '{profile.ProfileVersion}'.");
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Crafting Progression Profile",
+                $"Progression profile validated ({profile.ProgressionRecipes.Count} recipes).");
+        }
+
+        private static void ValidateProgressionRecipesByStation(CCS_SurvivalValidationReport report)
+        {
+            int handCount = CountRecipesForStation(CCS_CraftingStationType.Hand);
+            int firePitCount = CountRecipesForStation(CCS_CraftingStationType.FirePit);
+            int workbenchCount = CountRecipesForStation(CCS_CraftingStationType.Workbench);
+
+            if (handCount < 3)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Hand Crafting Recipes",
+                    $"Expected at least 3 hand recipes but found {handCount}.");
+            }
+
+            if (firePitCount < 3)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Campfire Crafting Recipes",
+                    $"Expected at least 3 FirePit recipes but found {firePitCount}.");
+            }
+
+            if (workbenchCount < 3)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Workbench Crafting Recipes",
+                    $"Expected at least 3 workbench recipes but found {workbenchCount}.");
+            }
+        }
+
+        private static int CountRecipesForStation(CCS_CraftingStationType stationType)
+        {
+            if (!Directory.Exists(ProgressionRecipesRoot))
+            {
+                return 0;
+            }
+
+            string[] recipePaths = Directory.GetFiles(ProgressionRecipesRoot, "*.asset", SearchOption.TopDirectoryOnly);
+            int count = 0;
+            for (int index = 0; index < recipePaths.Length; index++)
+            {
+                CCS_CraftingRecipeDefinition recipe =
+                    AssetDatabase.LoadAssetAtPath<CCS_CraftingRecipeDefinition>(recipePaths[index]);
+                if (recipe != null && recipe.RequiredStationType == stationType)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static void ValidateProgressionItems(CCS_SurvivalValidationReport report)
+        {
+            ValidateProgressionItemAsset(report, "Basic Bandage", ProgressionItemsRoot + "/CCS_Item_BasicBandage.asset");
+            ValidateProgressionItemAsset(report, "Primitive Torch", ProgressionItemsRoot + "/CCS_Item_PrimitiveTorch.asset");
+            ValidateProgressionItemAsset(report, "Charcoal", ProgressionItemsRoot + "/CCS_Item_Charcoal.asset");
+            ValidateProgressionItemAsset(report, "Ash", ProgressionItemsRoot + "/CCS_Item_Ash.asset");
+            ValidateProgressionItemAsset(report, "Dried Meat", ProgressionItemsRoot + "/CCS_Item_DriedMeat.asset");
+            ValidateProgressionItemAsset(report, "Reinforced Spear", ReinforcedSpearItemPath);
+            ValidateProgressionItemAsset(report, "Storage Crate", ProgressionItemsRoot + "/CCS_Item_StorageCrate.asset");
+        }
+
+        private static void ValidateProgressionItemAsset(
+            CCS_SurvivalValidationReport report,
+            string label,
+            string assetPath)
+        {
+            if (!File.Exists(assetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Crafting Progression Items",
+                    $"Missing {label} at {assetPath}.");
+            }
+        }
+
+        private static void ValidateReinforcedSpearStats(CCS_SurvivalValidationReport report)
+        {
+            CCS_ItemDefinition spear = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(SpearItemPath);
+            CCS_ItemDefinition reinforcedSpear =
+                AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(ReinforcedSpearItemPath);
+            if (spear == null || reinforcedSpear == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Reinforced Spear Stats",
+                    "Spear or reinforced spear item definition is missing.");
+                return;
+            }
+
+            if (!reinforcedSpear.HasWeaponIdentity)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Reinforced Spear Stats",
+                    "Reinforced spear must have weapon identity enabled.");
+            }
+
+            if (reinforcedSpear.MeleeDamage <= spear.MeleeDamage)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Reinforced Spear Stats",
+                    "Reinforced spear melee damage must exceed starter spear damage.");
+            }
+
+            if (reinforcedSpear.MeleeRange < spear.MeleeRange)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Reinforced Spear Stats",
+                    "Reinforced spear melee range must be equal or higher than starter spear.");
+            }
+        }
+
+        private static void ValidateBootstrapWorkbench(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(BootstrapScenePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Workbench",
+                    $"Missing bootstrap scene: {BootstrapScenePath}");
+                return;
+            }
+
+            string sceneText = File.ReadAllText(BootstrapScenePath);
+            if (!sceneText.Contains("CCS_TestWorkbench"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Bootstrap Workbench",
+                    "Bootstrap scene is missing CCS_TestWorkbench.");
+                return;
+            }
+
+            if (!sceneText.Contains("CCS_CraftingStationInteractable"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Workbench",
+                    "Bootstrap scene may be missing CCS_CraftingStationInteractable on workbench.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Workbench",
+                    "CCS_TestWorkbench is present in bootstrap scene.");
+            }
+        }
+
+        private static void ValidatePlaytestWorkbenchStep(CCS_SurvivalValidationReport report)
+        {
+            CCS_PlaytestProfile profile = AssetDatabase.LoadAssetAtPath<CCS_PlaytestProfile>(DefaultPlaytestProfilePath);
+            if (profile == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Playtest Workbench Step",
+                    $"Missing playtest profile at {DefaultPlaytestProfilePath}.");
+                return;
+            }
+
+            IReadOnlyList<CCS_PlaytestStepDefinition> steps = profile.StepDefinitions;
+            for (int index = 0; index < steps.Count; index++)
+            {
+                CCS_PlaytestStepDefinition step = steps[index];
+                if (step != null && step.StepType == CCS_PlaytestStepType.CraftAtWorkbench)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Playtest Workbench Step",
+                        "Default playtest profile includes CraftAtWorkbench step.");
+                    return;
+                }
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Playtest Workbench Step",
+                "Default playtest profile is missing CraftAtWorkbench step.");
         }
 
         #endregion

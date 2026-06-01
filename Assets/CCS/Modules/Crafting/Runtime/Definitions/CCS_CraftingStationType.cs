@@ -5,7 +5,7 @@
 // PLACEMENT: Referenced by recipe definitions and CCS_CraftingStationContext.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: World station objects deferred. Hand crafting uses Hand station type.
+// NOTES: FirePit is the campfire station type (Campfire crafting). Hand = inventory crafting.
 // =============================================================================
 
 namespace CCS.Modules.Crafting
