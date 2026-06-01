@@ -85,6 +85,33 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.hatchet.tree
+    displayName: Use hatchet on tree
+    stepType: 20
+    instructionText: Equip bone hatchet (Shift+F6), face CCS_TestGatheringSmallTree,
+      Alpha2 active select, primary use.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.pick.rock
+    displayName: Use pick on rock
+    stepType: 21
+    instructionText: Equip bone pick (Shift+F6), face CCS_TestGatheringRock, Alpha2
+      active select, primary use.
+    targetItemId: ccs.survival.item.tool.pick.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.wrong.tool
+    displayName: Wrong tool on gather target
+    stepType: 22
+    instructionText: Use pick on tree or hatchet on rock and confirm a safe WrongTool
+      result (no error spam).
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.hunt
     displayName: Hunt wildlife
     stepType: 3

@@ -1,5 +1,6 @@
 using System.IO;
 using CCS.Modules.Hotbar;
+using CCS.Modules.Inventory;
 using CCS.Survival;
 using CCS.Survival.Composition;
 using CCS.Survival.Editor.Development;
@@ -14,7 +15,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Milestone 1.2.2 active item foundation only. No final hotbar UI validation.
+// NOTES: Milestone 1.2.3 primitive tool use routing foundation.
 // =============================================================================
 
 namespace CCS.Modules.Hotbar.Editor
@@ -31,6 +32,7 @@ namespace CCS.Modules.Hotbar.Editor
         private const string CompositionRegistrationPath =
             SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Hotbar_Module.md";
+        private const string InventoryContentRoot = "Assets/CCS/Survival/Content/Inventory";
 
         public string ValidatorId => "ccs.survival.validation.hotbar";
 
@@ -52,6 +54,11 @@ namespace CCS.Modules.Hotbar.Editor
             ValidateRequiredScript(report, "CCS_ActiveItemUseRequest", ActiveItemRoot + "/CCS_ActiveItemUseRequest.cs");
             ValidateRequiredScript(report, "CCS_ActiveItemUseResult", ActiveItemRoot + "/CCS_ActiveItemUseResult.cs");
             ValidateRequiredScript(report, "CCS_ActiveItemService", ActiveItemRoot + "/CCS_ActiveItemService.cs");
+            ValidateRequiredScript(report, "CCS_ActiveItemTargetResolver", ActiveItemRoot + "/CCS_ActiveItemTargetResolver.cs");
+            ValidateRequiredScript(
+                report,
+                "CCS_ActiveItemGatheringToolUtility",
+                ActiveItemRoot + "/CCS_ActiveItemGatheringToolUtility.cs");
             ValidateRequiredScript(report, "CCS_ActiveItemRuntimeBridge", ActiveItemRoot + "/CCS_ActiveItemRuntimeBridge.cs");
             ValidateRequiredScript(report, "CCS_ActiveItemValidationUtility", RuntimeRoot + "/Validation/CCS_ActiveItemValidationUtility.cs");
             ValidateRequiredScript(report, "CCS_ActiveItemProfile", RuntimeRoot + "/Profiles/CCS_ActiveItemProfile.cs");
@@ -61,6 +68,7 @@ namespace CCS.Modules.Hotbar.Editor
             ValidateProfileAsset(report);
             ValidateCompositionRegistration(report);
             ValidatePlayerDriver(report);
+            ValidatePrimitiveItemClassifications(report);
 
             CCS_SurvivalValidationResult folderValidation = CCS_ActiveItemValidationUtility.ValidateModuleFolders();
             report.AddIssue(
@@ -70,10 +78,19 @@ namespace CCS.Modules.Hotbar.Editor
                 "Active Item Module Folders",
                 folderValidation.Message);
 
+            CCS_SurvivalValidationResult routingScriptValidation =
+                CCS_ActiveItemValidationUtility.ValidateToolRoutingScriptsPresent();
+            report.AddIssue(
+                routingScriptValidation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Active Item Tool Routing Scripts",
+                routingScriptValidation.Message);
+
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Hotbar validator completed (1.2.2 active item foundation).");
+                "Hotbar validator completed (1.2.3 primitive tool use routing).");
         }
 
         private static void ValidateProfileAsset(CCS_SurvivalValidationReport report)
@@ -111,19 +128,21 @@ namespace CCS.Modules.Hotbar.Editor
             string source = File.ReadAllText(CompositionRegistrationPath);
             if (source.Contains("CreateActiveItemService")
                 && source.Contains("CCS_ActiveItemService")
-                && source.Contains("BindCombatService"))
+                && source.Contains("BindCombatService")
+                && source.Contains("BindGatheringService")
+                && source.Contains("BindInteractionService"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Active Item Service Registration",
-                    "CCS_SurvivalGameplayServiceRegistration registers and binds CCS_ActiveItemService.");
+                    "Gameplay registration binds combat, gathering, and interaction for active item routing.");
             }
             else
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Active Item Service Registration",
-                    "Gameplay service registration is missing active item service wiring.");
+                    "Gameplay service registration is missing active item tool routing bindings.");
             }
         }
 
@@ -153,6 +172,37 @@ namespace CCS.Modules.Hotbar.Editor
                     "Player Active Item Driver",
                     "PF_CCS_Player is missing CCS_PlayerActiveItemDriver.");
             }
+        }
+
+        private static void ValidatePrimitiveItemClassifications(CCS_SurvivalValidationReport report)
+        {
+            CCS_ItemDefinition[] definitions = LoadInventoryItemDefinitions();
+            CCS_SurvivalValidationResult validation =
+                CCS_ActiveItemValidationUtility.ValidatePrimitiveItemClassifications(definitions);
+            report.AddIssue(
+                validation.IsSuccess
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Primitive Active Item Classifications",
+                validation.Message);
+        }
+
+        private static CCS_ItemDefinition[] LoadInventoryItemDefinitions()
+        {
+            if (!Directory.Exists(InventoryContentRoot))
+            {
+                return System.Array.Empty<CCS_ItemDefinition>();
+            }
+
+            string[] guids = AssetDatabase.FindAssets("t:CCS_ItemDefinition", new[] { InventoryContentRoot });
+            CCS_ItemDefinition[] definitions = new CCS_ItemDefinition[guids.Length];
+            for (int index = 0; index < guids.Length; index++)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[index]);
+                definitions[index] = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(path);
+            }
+
+            return definitions;
         }
 
         private static void ValidateRequiredFolder(CCS_SurvivalValidationReport report, string context, string folderPath)

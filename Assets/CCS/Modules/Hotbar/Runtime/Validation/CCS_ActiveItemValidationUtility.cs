@@ -1,3 +1,4 @@
+using CCS.Modules.Inventory;
 using CCS.Survival;
 
 // =============================================================================
@@ -17,6 +18,24 @@ namespace CCS.Modules.Hotbar
         private const string ModuleRoot = "Assets/CCS/Modules/Hotbar";
         private const string ActiveItemRoot = ModuleRoot + "/Runtime/ActiveItem";
         private const string DefaultProfilePath = "Assets/CCS/Survival/Profiles/Hotbar/CCS_DefaultActiveItemProfile.asset";
+
+        private static readonly string[] RequiredRoutingScriptNames =
+        {
+            "CCS_ActiveItemTargetResolver",
+            "CCS_ActiveItemGatheringToolUtility",
+            "CCS_ActiveItemTargetContext"
+        };
+
+        private static readonly string[] PrimitiveWeaponItemIds =
+        {
+            "ccs.survival.item.starter.spear"
+        };
+
+        private static readonly string[] PrimitiveToolItemIds =
+        {
+            "ccs.survival.item.tool.hatchet.bone",
+            "ccs.survival.item.tool.pick.bone"
+        };
 
         public static CCS_SurvivalValidationResult ValidateModuleFolders()
         {
@@ -48,6 +67,82 @@ namespace CCS.Modules.Hotbar
             return CCS_SurvivalValidationResult.Pass("Active item profile validated.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateToolRoutingScriptsPresent()
+        {
+            for (int index = 0; index < RequiredRoutingScriptNames.Length; index++)
+            {
+                string scriptPath = ActiveItemRoot + "/" + RequiredRoutingScriptNames[index] + ".cs";
+                if (!System.IO.File.Exists(scriptPath))
+                {
+                    return CCS_SurvivalValidationResult.Fail($"Missing active item routing script: {scriptPath}");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Active item tool routing scripts are present.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidatePrimitiveItemClassifications(
+            CCS_ItemDefinition[] itemDefinitions)
+        {
+            if (itemDefinitions == null || itemDefinitions.Length == 0)
+            {
+                return CCS_SurvivalValidationResult.Pass(
+                    "Primitive item classification check skipped (no definitions supplied).");
+            }
+
+            for (int index = 0; index < PrimitiveWeaponItemIds.Length; index++)
+            {
+                string weaponItemId = PrimitiveWeaponItemIds[index];
+                CCS_ItemDefinition weaponDefinition = FindItemDefinition(itemDefinitions, weaponItemId);
+                if (weaponDefinition == null)
+                {
+                    continue;
+                }
+
+                if (!CCS_ItemGameplayUtility.IsWeaponItem(weaponDefinition))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Primitive weapon item is not classified as weapon: {weaponItemId}");
+                }
+            }
+
+            for (int index = 0; index < PrimitiveToolItemIds.Length; index++)
+            {
+                string toolItemId = PrimitiveToolItemIds[index];
+                CCS_ItemDefinition toolDefinition = FindItemDefinition(itemDefinitions, toolItemId);
+                if (toolDefinition == null)
+                {
+                    continue;
+                }
+
+                if (!CCS_ItemGameplayUtility.IsToolItem(toolDefinition))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Primitive tool item is not classified as tool: {toolItemId}");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Primitive active item classifications validated.");
+        }
+
         public static string DefaultProfileAssetPath => DefaultProfilePath;
+
+        public static string[] PrimitiveWeaponItemIdsForValidation => PrimitiveWeaponItemIds;
+
+        public static string[] PrimitiveToolItemIdsForValidation => PrimitiveToolItemIds;
+
+        private static CCS_ItemDefinition FindItemDefinition(CCS_ItemDefinition[] definitions, string itemId)
+        {
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_ItemDefinition definition = definitions[index];
+                if (definition != null && definition.ItemId == itemId)
+                {
+                    return definition;
+                }
+            }
+
+            return null;
+        }
     }
 }

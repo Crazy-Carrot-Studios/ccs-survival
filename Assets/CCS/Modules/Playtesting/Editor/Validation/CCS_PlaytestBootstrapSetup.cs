@@ -30,6 +30,8 @@ namespace CCS.Modules.Playtesting.Editor
 
         private const string StickItemId = "ccs.survival.item.resource.stick";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
+        private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
 
@@ -151,6 +153,26 @@ namespace CCS.Modules.Playtesting.Editor
                 CCS_PlaytestStepType.UseActiveItem,
                 "Primary attack (left mouse) routes through active item. Hit wildlife or receive a safe no-target result.",
                 SpearItemId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.active.hatchet.tree",
+                "Use hatchet on tree",
+                CCS_PlaytestStepType.UseHatchetOnTree,
+                "Equip bone hatchet (Shift+F6), face CCS_TestGatheringSmallTree, Alpha2 active select, primary use.",
+                BoneHatchetItemId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.active.pick.rock",
+                "Use pick on rock",
+                CCS_PlaytestStepType.UsePickOnRock,
+                "Equip bone pick (Shift+F6), face CCS_TestGatheringRock, Alpha2 active select, primary use.",
+                BonePickItemId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.active.wrong.tool",
+                "Wrong tool on gather target",
+                CCS_PlaytestStepType.UseWrongToolOnGatherTarget,
+                "Use pick on tree or hatchet on rock and confirm a safe WrongTool result (no error spam).");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.hunt",

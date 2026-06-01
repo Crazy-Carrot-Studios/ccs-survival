@@ -6,7 +6,10 @@
         "CCS.Survival.Runtime",
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Equipment.Runtime",
-        "CCS.Modules.Combat.Runtime"
+        "CCS.Modules.Combat.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.WorldResources.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -49,6 +49,16 @@ Adds primitive world gathering nodes for sticks, stone, wood, and plant fiber wi
 - `CCS_TestGatheringRock`
 - `CCS_TestGatheringBush`
 
+## Active item routing (1.2.3)
+
+When the player uses an active tool from third-person:
+
+1. `CCS_ActiveItemTargetResolver` reads `CCS_InteractionService.CurrentTarget`.
+2. `CCS_ActiveItemGatheringToolUtility` maps node type → required tool (tree/bush → axe, rock → pickaxe).
+3. On match, `CCS_GatheringService.TryGatherNode()` grants rewards through existing inventory integration.
+
+Interact (F) and active tool use (primary) both reach gathering through their respective entry points; active use adds tool validation before gather.
+
 ## Validation
 
 Menu: **CCS → Survival → Gathering → Validate Gathering**

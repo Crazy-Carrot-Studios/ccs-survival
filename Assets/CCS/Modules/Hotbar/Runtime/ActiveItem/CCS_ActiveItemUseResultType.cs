@@ -21,6 +21,14 @@ namespace CCS.Modules.Hotbar
         NoTarget = 6,
         WeaponNotEquipped = 7,
         CombatHit = 8,
-        CombatMiss = 9
+        CombatMiss = 9,
+        GatheringSuccess = 10,
+        GatheringFailed = 11,
+        ResourceHarvestSuccess = 12,
+        ResourceHarvestFailed = 13,
+        WrongTool = 14,
+        TargetOutOfRange = 15,
+        TargetUnavailable = 16,
+        ToolNotEquipped = 17
     }
 }

@@ -31,6 +31,13 @@ namespace CCS.Modules.Hotbar
         [Tooltip("When enabled, cycle active item across occupied equipment slots.")]
         [SerializeField] private bool enableEquipmentSlotCycling = true;
 
+        [Header("Tool Routing")]
+        [Tooltip("When enabled, active tools route to CCS_GatheringService for gathering nodes.")]
+        [SerializeField] private bool enableGatheringRouting = true;
+
+        [Tooltip("When enabled, active tools route to harvestable world resources.")]
+        [SerializeField] private bool enableResourceHarvestRouting = true;
+
         #endregion
 
         #region Properties
@@ -40,6 +47,10 @@ namespace CCS.Modules.Hotbar
         public bool AutoSelectMainHandOnEquip => autoSelectMainHandOnEquip;
 
         public bool EnableEquipmentSlotCycling => enableEquipmentSlotCycling;
+
+        public bool EnableGatheringRouting => enableGatheringRouting;
+
+        public bool EnableResourceHarvestRouting => enableResourceHarvestRouting;
 
         #endregion
     }

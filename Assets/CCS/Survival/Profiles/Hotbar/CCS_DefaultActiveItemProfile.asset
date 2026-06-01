@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Hotbar.Runtime::CCS.Modules.Hotbar.CCS_ActiveItemProfile
   profileDisplayName: Default Active Item
   profileId: ccs.survival.profile.activeitem.default
-  profileDescription: Active item selection and use flow foundation for milestone
-    1.2.2.
-  profileVersion: 1.2.2
+  profileDescription: Active item selection and primitive tool use routing for milestone
+    1.2.3.
+  profileVersion: 1.2.3
   enableDebugLogs: 0
   useCooldownSeconds: 0
   autoSelectMainHandOnEquip: 1
   enableEquipmentSlotCycling: 1
-  enableDebugLogs: 0
+  enableGatheringRouting: 1
+  enableResourceHarvestRouting: 1

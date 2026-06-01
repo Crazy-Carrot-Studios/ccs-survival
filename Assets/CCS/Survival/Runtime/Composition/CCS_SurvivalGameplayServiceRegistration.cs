@@ -194,6 +194,13 @@ namespace CCS.Survival.Composition
             CCS_GatheringService gatheringService = CreateGatheringService(gatheringProfile, inventoryService);
             RegisterService(runtimeHost, gatheringService, enableDebugLogs);
 
+            if (activeItemService != null && activeItemService.IsInitialized)
+            {
+                activeItemService.BindGatheringService(gatheringService);
+                activeItemService.BindInteractionService(interactionService);
+                activeItemService.BindInventoryService(inventoryService);
+            }
+
             CCS_CharacterMovementService characterMovementService =
                 CreateCharacterMovementService(characterControllerProfile);
             RegisterService(runtimeHost, characterMovementService, enableDebugLogs);

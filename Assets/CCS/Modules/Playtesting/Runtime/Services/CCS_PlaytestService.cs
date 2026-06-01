@@ -41,6 +41,8 @@ namespace CCS.Modules.Playtesting
         private const string StoneItemId = "ccs.survival.item.resource.stone";
         private const string FiberItemId = "ccs.survival.item.resource.fiber";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
+        private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -544,6 +546,33 @@ namespace CCS.Modules.Playtesting
 
             LogDebug("Selected active item from main hand (Alpha1).");
             return true;
+        }
+
+        public bool TrySelectActiveFromToolSlot()
+        {
+            if (!harnessEnabled || boundActiveItemService == null || !boundActiveItemService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!boundActiveItemService.SelectActiveFromEquipped(CCS_EquipmentSlotType.Tool))
+            {
+                LogDebug("Failed to select active item from tool slot.");
+                return false;
+            }
+
+            LogDebug("Selected active item from tool slot (Alpha2).");
+            return true;
+        }
+
+        public bool TryEquipBoneHatchet()
+        {
+            return TryEquipToolForPlaytest(BoneHatchetItemId, "bone hatchet");
+        }
+
+        public bool TryEquipBonePick()
+        {
+            return TryEquipToolForPlaytest(BonePickItemId, "bone pick");
         }
 
         public bool TryPlacePlaytestFoundation()
@@ -1081,20 +1110,32 @@ namespace CCS.Modules.Playtesting
                 return;
             }
 
-            if (!MatchesTargetItem(CCS_PlaytestStepType.UseActiveItem, useResult.ActiveItemId)
-                && !string.IsNullOrWhiteSpace(useResult.ActiveItemId))
+            if (MatchesTargetItem(CCS_PlaytestStepType.UseActiveItem, useResult.ActiveItemId)
+                && (useResult.ResultType == CCS_ActiveItemUseResultType.CombatHit
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.NoTarget
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.NoBehaviorRegistered
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.WeaponNotEquipped
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.OnCooldown))
             {
-                return;
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.UseActiveItem, useResult.Message);
             }
 
-            if (useResult.ResultType == CCS_ActiveItemUseResultType.CombatHit
-                || useResult.ResultType == CCS_ActiveItemUseResultType.NoTarget
-                || useResult.ResultType == CCS_ActiveItemUseResultType.NoBehaviorRegistered
-                || useResult.ResultType == CCS_ActiveItemUseResultType.WeaponNotEquipped
-                || useResult.ResultType == CCS_ActiveItemUseResultType.OnCooldown)
+            if (MatchesTargetItem(CCS_PlaytestStepType.UseHatchetOnTree, useResult.ActiveItemId)
+                && useResult.ResultType == CCS_ActiveItemUseResultType.GatheringSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.UseHatchetOnTree, useResult.Message);
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.UsePickOnRock, useResult.ActiveItemId)
+                && useResult.ResultType == CCS_ActiveItemUseResultType.GatheringSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.UsePickOnRock, useResult.Message);
+            }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.WrongTool)
             {
                 TryCompleteActiveStepOfType(
-                    CCS_PlaytestStepType.UseActiveItem,
+                    CCS_PlaytestStepType.UseWrongToolOnGatherTarget,
                     useResult.Message);
             }
         }
@@ -1317,6 +1358,40 @@ namespace CCS.Modules.Playtesting
             }
 
             return null;
+        }
+
+        private bool TryEquipToolForPlaytest(string toolItemId, string displayLabel)
+        {
+            if (!harnessEnabled || boundEquipmentService == null || !boundEquipmentService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_EquipmentItemDefinition toolDefinition = FindEquipmentDefinitionForItemId(toolItemId);
+            if (toolDefinition == null)
+            {
+                LogDebug($"{displayLabel} equipment definition was not found in the active equipment profile.");
+                return false;
+            }
+
+            if (boundEquipmentService.IsSlotOccupied(CCS_EquipmentSlotType.Tool))
+            {
+                boundEquipmentService.UnequipItem(CCS_EquipmentSlotType.Tool);
+            }
+
+            if (!boundEquipmentService.EquipItem(toolDefinition))
+            {
+                LogDebug($"Failed to equip {displayLabel} for playtest.");
+                return false;
+            }
+
+            if (boundActiveItemService != null && boundActiveItemService.IsInitialized)
+            {
+                boundActiveItemService.SelectActiveFromEquipped(CCS_EquipmentSlotType.Tool);
+            }
+
+            LogDebug($"Equipped {displayLabel} in tool slot for playtest.");
+            return true;
         }
 
         private void EvaluateStorageCrateStepAfterLoad()

@@ -31,6 +31,9 @@ namespace CCS.Modules.Playtesting
         VerifyControllerPolish = 16,
         ConfirmEquipmentVisual = 17,
         SelectActiveItem = 18,
-        UseActiveItem = 19
+        UseActiveItem = 19,
+        UseHatchetOnTree = 20,
+        UsePickOnRock = 21,
+        UseWrongToolOnGatherTarget = 22
     }
 }

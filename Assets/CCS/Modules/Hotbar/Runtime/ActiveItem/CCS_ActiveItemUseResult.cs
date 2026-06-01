@@ -16,12 +16,16 @@ namespace CCS.Modules.Hotbar
             CCS_ActiveItemUseResultType resultType,
             string message,
             bool isSuccess,
-            string activeItemId = "")
+            string activeItemId = "",
+            string targetDisplayName = "",
+            string targetTypeLabel = "")
         {
             ResultType = resultType;
             Message = message ?? string.Empty;
             IsSuccess = isSuccess;
             ActiveItemId = activeItemId ?? string.Empty;
+            TargetDisplayName = targetDisplayName ?? string.Empty;
+            TargetTypeLabel = targetTypeLabel ?? string.Empty;
         }
 
         public CCS_ActiveItemUseResultType ResultType { get; }
@@ -31,6 +35,10 @@ namespace CCS.Modules.Hotbar
         public bool IsSuccess { get; }
 
         public string ActiveItemId { get; }
+
+        public string TargetDisplayName { get; }
+
+        public string TargetTypeLabel { get; }
 
         public static CCS_ActiveItemUseResult NoActiveItem()
         {

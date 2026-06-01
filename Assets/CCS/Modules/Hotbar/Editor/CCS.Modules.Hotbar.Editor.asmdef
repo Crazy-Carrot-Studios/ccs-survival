@@ -6,6 +6,7 @@
         "CCS.Survival.Editor",
         "CCS.Modules.Hotbar.Runtime",
         "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Inventory.Runtime",
         "CCS.Survival.Composition",
         "CCS.Survival.Player.Runtime"
     ],

@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap scene or PF_CCS_Survival_BootstrapRoot (PlaytestHarness child).
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: F10 HUD, F11 advance, F12 reset, F7 death, F6 equip, Alpha1 active select, B build, F4/F3 bench, F2/F1 storage.
+// NOTES: F10 HUD, F11 advance, F12 reset, F7 death, F6 equip, Shift+F6 tool, Alpha1/Alpha2 active, B build, F4/F3 bench, F2/F1 storage.
 // =============================================================================
 
 namespace CCS.Modules.Playtesting
@@ -100,12 +100,33 @@ namespace CCS.Modules.Playtesting
 
             if (Input.GetKeyDown(KeyCode.F6))
             {
-                playtestService.TryEquipStarterSpear();
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    CCS_PlaytestStepState activeStep = GetActiveStepState();
+                    if (activeStep != null
+                        && activeStep.Definition.StepType == CCS_PlaytestStepType.UsePickOnRock)
+                    {
+                        playtestService.TryEquipBonePick();
+                    }
+                    else
+                    {
+                        playtestService.TryEquipBoneHatchet();
+                    }
+                }
+                else
+                {
+                    playtestService.TryEquipStarterSpear();
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 playtestService.TrySelectActiveFromMainHand();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                playtestService.TrySelectActiveFromToolSlot();
             }
 
             if (Input.GetKeyDown(KeyCode.B))
@@ -178,18 +199,29 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.2.2)");
-            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | Alpha1 Active | B Build");
+            GUILayout.Label("CCS Manual Playtest Harness (1.2.3)");
+            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Spear | Shift+F6 Tool | Alpha1/Alpha2 Active | B Build");
             GUILayout.Label("F2 crate | Shift+F2 bedroll/sleep | F1 deposit | Shift+F1 withdraw | F5 save | F9 load");
             GUILayout.Label("Interact gather/cook | Primary active use | F eat");
 
             if (CCS.Modules.Hotbar.CCS_ActiveItemRuntimeBridge.TryGetActiveItemService(
                     out CCS.Modules.Hotbar.CCS_ActiveItemService activeItemService)
-                && activeItemService.IsInitialized
-                && activeItemService.ActiveState.HasActiveItem)
+                && activeItemService.IsInitialized)
             {
-                GUILayout.Label(
-                    $"Active: {activeItemService.ActiveState.ActiveItemId} ({activeItemService.ActiveState.BehaviorType})");
+                if (activeItemService.ActiveState.HasActiveItem)
+                {
+                    GUILayout.Label(
+                        $"Active: {activeItemService.ActiveState.ActiveItemId} ({activeItemService.ActiveState.BehaviorType})");
+                }
+
+                CCS.Modules.Hotbar.CCS_ActiveItemUseResult lastUse = activeItemService.LastUseResult;
+                if (lastUse.ResultType != CCS.Modules.Hotbar.CCS_ActiveItemUseResultType.None)
+                {
+                    string targetSuffix = string.IsNullOrWhiteSpace(lastUse.TargetDisplayName)
+                        ? string.Empty
+                        : $" | Target: {lastUse.TargetDisplayName} ({lastUse.TargetTypeLabel})";
+                    GUILayout.Label($"Last use: {lastUse.ResultType} — {lastUse.Message}{targetSuffix}");
+                }
             }
             GUILayout.Space(6f);
 

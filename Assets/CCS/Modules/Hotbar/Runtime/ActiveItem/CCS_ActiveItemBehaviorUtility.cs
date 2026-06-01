@@ -41,7 +41,8 @@ namespace CCS.Modules.Hotbar
 
         public static bool CanUseBehavior(CCS_ActiveItemBehaviorType behaviorType)
         {
-            return behaviorType == CCS_ActiveItemBehaviorType.Weapon;
+            return behaviorType == CCS_ActiveItemBehaviorType.Weapon
+                || behaviorType == CCS_ActiveItemBehaviorType.Tool;
         }
     }
 }

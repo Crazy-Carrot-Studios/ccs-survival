@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using CCS.Modules.Combat;
 using CCS.Modules.Equipment;
+using CCS.Modules.Gathering;
+using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
+using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
 
@@ -26,6 +29,9 @@ namespace CCS.Modules.Hotbar
         private CCS_ActiveItemProfile activeProfile;
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_CombatService combatService;
+        private CCS_GatheringService gatheringService;
+        private CCS_InteractionService interactionService;
+        private CCS_PlayerInventoryService inventoryService;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -99,6 +105,21 @@ namespace CCS.Modules.Hotbar
         public void BindCombatService(CCS_CombatService service)
         {
             combatService = service;
+        }
+
+        public void BindGatheringService(CCS_GatheringService service)
+        {
+            gatheringService = service;
+        }
+
+        public void BindInteractionService(CCS_InteractionService service)
+        {
+            interactionService = service;
+        }
+
+        public void BindInventoryService(CCS_PlayerInventoryService service)
+        {
+            inventoryService = service;
         }
 
         public void UnbindEquipmentService()
@@ -332,8 +353,10 @@ namespace CCS.Modules.Hotbar
                 case CCS_ActiveItemBehaviorType.Weapon:
                     return TryUseWeapon(state, request);
                 case CCS_ActiveItemBehaviorType.Tool:
+                    return TryUseTool(state, request);
                 case CCS_ActiveItemBehaviorType.Consumable:
                 case CCS_ActiveItemBehaviorType.Placeable:
+                    return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
                 case CCS_ActiveItemBehaviorType.Generic:
                 default:
                     return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
@@ -400,6 +423,212 @@ namespace CCS.Modules.Hotbar
                 state.ActiveItemId);
         }
 
+        private CCS_ActiveItemUseResult TryUseTool(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
+        {
+            if (!IsActiveToolEquipped(state))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ToolNotEquipped,
+                    "Active tool must be equipped in main hand or tool slot to use.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (!CCS_ActiveItemTargetResolver.TryResolveFromInteraction(
+                    interactionService,
+                    request.UseOrigin,
+                    out CCS_ActiveItemTargetContext targetContext))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoTarget,
+                    "No harvest target in range. Look at a tree, rock, or resource node.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (targetContext.IsOutOfRange)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetOutOfRange,
+                    "Target is out of range.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            switch (targetContext.TargetKind)
+            {
+                case CCS_ActiveItemTargetKind.GatheringNode:
+                    return TryUseToolOnGatheringNode(state, targetContext);
+                case CCS_ActiveItemTargetKind.HarvestableResource:
+                    return TryUseToolOnHarvestableResource(state, targetContext);
+                default:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                        "Active tool has no behavior for the current target.",
+                        true,
+                        state.ActiveItemId,
+                        targetContext.DisplayName,
+                        targetContext.TargetTypeLabel);
+            }
+        }
+
+        private CCS_ActiveItemUseResult TryUseToolOnGatheringNode(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemTargetContext targetContext)
+        {
+            if (activeProfile == null || !activeProfile.EnableGatheringRouting)
+            {
+                return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
+            }
+
+            if (gatheringService == null || !gatheringService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Gathering service is unavailable.",
+                    false,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_GatheringNode gatheringNode = targetContext.GatheringNode;
+            if (gatheringNode == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetUnavailable,
+                    "Gathering node is unavailable.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (!gatheringNode.CanGather())
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetUnavailable,
+                    "Gathering node is depleted or unavailable.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (!CCS_ActiveItemGatheringToolUtility.ActiveToolMatchesGatheringNode(
+                    state.ItemDefinition,
+                    gatheringNode.NodeType))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WrongTool,
+                    $"Wrong tool for {gatheringNode.NodeType}.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_GatheringResult gatheringResult = gatheringService.TryGatherNode(gatheringNode);
+            if (gatheringResult != null && gatheringResult.DidGather)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.GatheringSuccess,
+                    gatheringResult.Message,
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            string failureMessage = gatheringResult != null && !string.IsNullOrWhiteSpace(gatheringResult.Message)
+                ? gatheringResult.Message
+                : "Gathering failed.";
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.GatheringFailed,
+                failureMessage,
+                true,
+                state.ActiveItemId,
+                targetContext.DisplayName,
+                targetContext.TargetTypeLabel);
+        }
+
+        private CCS_ActiveItemUseResult TryUseToolOnHarvestableResource(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemTargetContext targetContext)
+        {
+            if (activeProfile == null || !activeProfile.EnableResourceHarvestRouting)
+            {
+                return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
+            }
+
+            CCS_HarvestableResource harvestableResource = targetContext.HarvestableResource;
+            if (harvestableResource == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetUnavailable,
+                    "Harvestable resource is unavailable.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_ResourceDefinition resourceDefinition = harvestableResource.ResourceDefinition;
+            if (!CCS_ActiveItemGatheringToolUtility.ActiveToolMatchesHarvestableResource(
+                    state.ItemDefinition,
+                    resourceDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WrongTool,
+                    "Wrong tool for this resource.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (inventoryService == null || !inventoryService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Inventory service is unavailable for resource harvest.",
+                    false,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_RequiredToolType equippedToolType =
+                CCS_ActiveItemGatheringToolUtility.ResolveEquippedToolType(state.ItemDefinition);
+
+            CCS_HarvestResult harvestResult = harvestableResource.Harvest(equippedToolType, inventoryService);
+            if (harvestResult != null && harvestResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ResourceHarvestSuccess,
+                    harvestResult.Message,
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            string failureMessage = harvestResult != null && !string.IsNullOrWhiteSpace(harvestResult.Message)
+                ? harvestResult.Message
+                : "Resource harvest failed.";
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.ResourceHarvestFailed,
+                failureMessage,
+                true,
+                state.ActiveItemId,
+                targetContext.DisplayName,
+                targetContext.TargetTypeLabel);
+        }
+
         private bool IsActiveWeaponEquippedInMainHand(CCS_ActiveItemState state)
         {
             if (equipmentService == null || !equipmentService.IsInitialized)
@@ -410,6 +639,29 @@ namespace CCS.Modules.Hotbar
             CCS_EquippedItem mainHand = equipmentService.GetEquippedItem(CCS_EquipmentSlotType.MainHand);
             return mainHand?.ItemDefinition != null
                 && mainHand.ItemDefinition.ItemId == state.ActiveItemId;
+        }
+
+        private bool IsActiveToolEquipped(CCS_ActiveItemState state)
+        {
+            if (equipmentService == null || !equipmentService.IsInitialized)
+            {
+                return state.SourceSlotType == CCS_ActiveItemSlotType.TestHarness;
+            }
+
+            if (IsItemEquippedInSlot(state.ActiveItemId, CCS_EquipmentSlotType.MainHand)
+                || IsItemEquippedInSlot(state.ActiveItemId, CCS_EquipmentSlotType.Tool)
+                || IsItemEquippedInSlot(state.ActiveItemId, CCS_EquipmentSlotType.OffHand))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsItemEquippedInSlot(string itemId, CCS_EquipmentSlotType slotType)
+        {
+            CCS_EquippedItem equippedItem = equipmentService.GetEquippedItem(slotType);
+            return equippedItem?.ItemDefinition != null && equippedItem.ItemDefinition.ItemId == itemId;
         }
 
         private void BuildOccupiedEquipmentSlots()
