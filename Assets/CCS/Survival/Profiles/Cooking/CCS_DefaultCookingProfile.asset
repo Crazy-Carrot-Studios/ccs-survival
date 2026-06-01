@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Cooking.Runtime::CCS.Modules.Cooking.CCS_CookingProfile
   profileDisplayName: Default Cooking
   profileId: ccs.survival.profile.cooking.default
-  profileDescription: Default campfire cooking and consumable food rules for 0.9.4
-    foundation.
-  profileVersion: 0.9.4
+  profileDescription: Default campfire cooking and consumable food rules for 0.9.5
+    hunger usage.
+  profileVersion: 0.9.5
   enableDebugLogs: 0
   enableCooking: 1
   defaultCookTimeSeconds: 5
@@ -26,7 +26,11 @@ MonoBehaviour:
   rawMeatItemDefinition: {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
   cookedMeatItemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
   consumableFoodDefinitions:
-  - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
-    hungerRestoreAmount: 15
   - itemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
     hungerRestoreAmount: 40
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Cooked Meat
+  - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
+    hungerRestoreAmount: 15
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Basic Food

@@ -44,6 +44,19 @@ namespace CCS.Modules.SurvivalCore
         [Tooltip("Placeholder stamina drain per second when exertion rule is active.")]
         [SerializeField] private float staminaDrainPerSecond = 4f;
 
+        [Header("Hunger Usage (0.9.5)")]
+        [Tooltip("Passive hunger drain per second. No health damage at low hunger.")]
+        [SerializeField] private float hungerDrainPerSecond = 0.01f;
+
+        [Tooltip("Hunger value at or below which the player is considered hungry.")]
+        [SerializeField] private float hungerLowThreshold = 30f;
+
+        [Tooltip("Hunger value at or below which the player is critically hungry.")]
+        [SerializeField] private float hungerCriticalThreshold = 10f;
+
+        [Tooltip("Minimum seconds between consumable food uses.")]
+        [SerializeField] private float hungerConsumeCooldownSeconds = 1f;
+
         [Header("Environment Integration (0.7.3)")]
         [Tooltip("Per-second temperature gain scale when ambient temperature is above neutral.")]
         [SerializeField] private float temperatureRecoveryRate = 0.15f;
@@ -78,6 +91,14 @@ namespace CCS.Modules.SurvivalCore
         public float StaminaRecoveryPerSecond => staminaRecoveryPerSecond;
 
         public float StaminaDrainPerSecond => staminaDrainPerSecond;
+
+        public float HungerDrainPerSecond => hungerDrainPerSecond;
+
+        public float HungerLowThreshold => hungerLowThreshold;
+
+        public float HungerCriticalThreshold => hungerCriticalThreshold;
+
+        public float HungerConsumeCooldownSeconds => hungerConsumeCooldownSeconds;
 
         public float TemperatureRecoveryRate => temperatureRecoveryRate;
 

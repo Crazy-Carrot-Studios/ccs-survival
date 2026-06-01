@@ -103,8 +103,8 @@ namespace CCS.Modules.Cooking.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Cooking";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.cooking.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default campfire cooking and consumable food rules for 0.9.4 foundation.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.9.4";
+                "Default campfire cooking and consumable food rules for 0.9.5 hunger usage.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "0.9.5";
             serializedProfile.FindProperty("enableCooking").boolValue = true;
             serializedProfile.FindProperty("defaultCookTimeSeconds").floatValue = 5f;
             serializedProfile.FindProperty("autoLightCampfiresOnPlacement").boolValue = true;
@@ -117,8 +117,8 @@ namespace CCS.Modules.Cooking.Editor
                 serializedProfile.FindProperty("consumableFoodDefinitions");
             consumableDefinitions.arraySize = 2;
 
-            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(0), basicFoodItem, 15f);
-            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(1), cookedMeatItem, 40f);
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(0), cookedMeatItem, 40f, "Cooked Meat");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(1), basicFoodItem, 15f, "Basic Food");
 
             serializedProfile.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(profile);
@@ -128,10 +128,13 @@ namespace CCS.Modules.Cooking.Editor
         private static void SetConsumableDefinition(
             SerializedProperty entry,
             CCS_ItemDefinition itemDefinition,
-            float hungerRestoreAmount)
+            float hungerRestoreAmount,
+            string notificationDisplayName)
         {
             entry.FindPropertyRelative("itemDefinition").objectReferenceValue = itemDefinition;
             entry.FindPropertyRelative("hungerRestoreAmount").floatValue = hungerRestoreAmount;
+            entry.FindPropertyRelative("consumeCooldownSeconds").floatValue = 0f;
+            entry.FindPropertyRelative("notificationDisplayName").stringValue = notificationDisplayName;
         }
 
         private static CCS_CampfireDefinition EnsureCampfireDefinition()

@@ -127,6 +127,27 @@ namespace CCS.Modules.SurvivalCore
                     "Minimum temperature clamp must be <= maximum temperature clamp.");
             }
 
+            if (profile.HungerDrainPerSecond < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Hunger drain per second must be non-negative.");
+            }
+
+            if (profile.HungerConsumeCooldownSeconds < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Hunger consume cooldown seconds must be non-negative.");
+            }
+
+            if (profile.HungerCriticalThreshold < 0f || profile.HungerLowThreshold < 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Hunger thresholds must be non-negative.");
+            }
+
+            if (profile.HungerCriticalThreshold >= profile.HungerLowThreshold)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Hunger critical threshold must be less than low threshold.");
+            }
+
             return CCS_SurvivalValidationResult.Pass("Survival core profile validated.");
         }
 

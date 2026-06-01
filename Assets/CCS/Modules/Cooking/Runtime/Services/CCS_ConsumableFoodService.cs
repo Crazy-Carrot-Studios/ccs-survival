@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered by CCS_SurvivalGameplayServiceRegistration from cooking profile.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: No health restore or buffs in 0.9.4 foundation.
+// NOTES: Cooldown, fullness checks, and hunger pacing in 0.9.5. No health restore.
 // =============================================================================
 
 namespace CCS.Modules.Cooking
@@ -26,6 +26,7 @@ namespace CCS.Modules.Cooking
         private CCS_CookingProfile activeProfile;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_SurvivalCoreService survivalCoreService;
+        private float lastConsumeTime = float.NegativeInfinity;
         private bool isInitialized;
 
         #endregion
@@ -33,6 +34,7 @@ namespace CCS.Modules.Cooking
         #region Events
 
         public event FoodConsumedHandler FoodConsumed;
+        public event FoodConsumeFailedHandler FoodConsumeFailed;
 
         #endregion
 
@@ -41,6 +43,8 @@ namespace CCS.Modules.Cooking
         public bool IsInitialized => isInitialized;
 
         public CCS_CookingProfile ActiveProfile => activeProfile;
+
+        public float LastConsumeTime => lastConsumeTime;
 
         #endregion
 
@@ -87,78 +91,55 @@ namespace CCS.Modules.Cooking
 
         public bool CanConsume(CCS_ItemDefinition itemDefinition)
         {
-            return ValidateConsumption(itemDefinition).IsSuccess;
+            return ValidateConsumption(itemDefinition, raiseFailureEvent: false).IsSuccess;
         }
 
         public CCS_ConsumableFoodResult TryConsumeFood(CCS_ItemDefinition itemDefinition)
         {
-            if (!EnsureInitialized())
-            {
-                return CCS_ConsumableFoodResult.Failure("Consumable food service is not initialized.");
-            }
-
-            CCS_SurvivalValidationResult validation = ValidateConsumption(itemDefinition);
-            if (!validation.IsSuccess)
-            {
-                return CCS_ConsumableFoodResult.Failure(validation.Message);
-            }
-
-            float hungerRestoreAmount = ResolveHungerRestoreAmount(itemDefinition);
-            if (inventoryService.RemoveItem(itemDefinition, 1) < 1)
-            {
-                return CCS_ConsumableFoodResult.Failure("Failed to remove food item from inventory.");
-            }
-
-            CCS_Result modifierResult = survivalCoreService.TryApplyModifier(
-                CCS_SurvivalStatType.Hunger,
-                CCS_SurvivalStatModifier.Add(hungerRestoreAmount));
-
-            if (!modifierResult.IsSuccess)
-            {
-                inventoryService.AddItem(itemDefinition, 1);
-                return CCS_ConsumableFoodResult.Failure("Failed to restore hunger.");
-            }
-
-            RaiseFoodConsumed(itemDefinition, hungerRestoreAmount);
-            return CCS_ConsumableFoodResult.Success(
-                itemDefinition,
-                hungerRestoreAmount,
-                "Food consumed.");
+            return TryConsumeFood(itemDefinition, raiseFailureEvent: true);
         }
 
         public CCS_ConsumableFoodResult TryConsumeFirstAvailableFood()
         {
             if (!EnsureInitialized() || activeProfile == null)
             {
-                return CCS_ConsumableFoodResult.Failure("Consumable food service is not initialized.");
+                return FailConsume(null, "Consumable food service is not initialized.", raiseFailureEvent: true);
             }
 
-            IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = activeProfile.ConsumableFoodDefinitions;
-            if (consumableDefinitions == null || consumableDefinitions.Count == 0)
+            CCS_SurvivalValidationResult readinessValidation = ValidateConsumeReadiness(raiseFailureEvent: true);
+            if (!readinessValidation.IsSuccess)
             {
-                return CCS_ConsumableFoodResult.Failure("No consumable food definitions configured.");
+                return CCS_ConsumableFoodResult.Failure(readinessValidation.Message);
             }
 
-            for (int index = 0; index < consumableDefinitions.Count; index++)
+            List<CCS_ConsumableFoodDefinition> prioritizedDefinitions = BuildPrioritizedDefinitions();
+            if (prioritizedDefinitions.Count == 0)
             {
-                CCS_ConsumableFoodDefinition consumableDefinition = consumableDefinitions[index];
+                return FailConsume(null, "No consumable food available in inventory.", raiseFailureEvent: true);
+            }
+
+            for (int index = 0; index < prioritizedDefinitions.Count; index++)
+            {
+                CCS_ConsumableFoodDefinition consumableDefinition = prioritizedDefinitions[index];
                 CCS_ItemDefinition itemDefinition = consumableDefinition?.ItemDefinition;
                 if (itemDefinition == null)
                 {
                     continue;
                 }
 
-                if (inventoryService == null
-                    || !inventoryService.IsInitialized
-                    || inventoryService.GetQuantity(itemDefinition) <= 0)
+                if (inventoryService.GetQuantity(itemDefinition) <= 0)
                 {
                     continue;
                 }
 
-                return TryConsumeFood(itemDefinition);
+                CCS_ConsumableFoodResult result = TryConsumeFood(itemDefinition, raiseFailureEvent: false);
+                if (result.IsSuccess)
+                {
+                    return result;
+                }
             }
 
-            return CCS_ConsumableFoodResult.Failure("No consumable food available in inventory.");
+            return FailConsume(null, "No consumable food available in inventory.", raiseFailureEvent: true);
         }
 
         public float ResolveHungerRestoreAmount(CCS_ItemDefinition itemDefinition)
@@ -168,22 +149,62 @@ namespace CCS.Modules.Cooking
                 return 0f;
             }
 
-            IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = activeProfile.ConsumableFoodDefinitions;
-            if (consumableDefinitions == null)
+            if (TryGetConsumableDefinition(itemDefinition, out CCS_ConsumableFoodDefinition consumableDefinition))
             {
-                return 0f;
-            }
-
-            for (int index = 0; index < consumableDefinitions.Count; index++)
-            {
-                CCS_ConsumableFoodDefinition consumableDefinition = consumableDefinitions[index];
-                if (consumableDefinition?.ItemDefinition == itemDefinition)
-                {
-                    return consumableDefinition.HungerRestoreAmount;
-                }
+                return consumableDefinition.HungerRestoreAmount;
             }
 
             return 0f;
+        }
+
+        public string ResolveNotificationDisplayName(CCS_ItemDefinition itemDefinition)
+        {
+            if (itemDefinition != null
+                && TryGetConsumableDefinition(itemDefinition, out CCS_ConsumableFoodDefinition consumableDefinition))
+            {
+                return consumableDefinition.ResolveNotificationDisplayName();
+            }
+
+            return itemDefinition != null ? itemDefinition.DisplayName : "Food";
+        }
+
+        private CCS_ConsumableFoodResult TryConsumeFood(
+            CCS_ItemDefinition itemDefinition,
+            bool raiseFailureEvent)
+        {
+            if (!EnsureInitialized())
+            {
+                return FailConsume(null, "Consumable food service is not initialized.", raiseFailureEvent);
+            }
+
+            CCS_SurvivalValidationResult validation = ValidateConsumption(itemDefinition, raiseFailureEvent);
+            if (!validation.IsSuccess)
+            {
+                return CCS_ConsumableFoodResult.Failure(validation.Message);
+            }
+
+            float hungerRestoreAmount = ResolveHungerRestoreAmount(itemDefinition);
+            if (inventoryService.RemoveItem(itemDefinition, 1) < 1)
+            {
+                return FailConsume(itemDefinition, "Failed to remove food item from inventory.", raiseFailureEvent);
+            }
+
+            CCS_Result modifierResult = survivalCoreService.TryApplyModifier(
+                CCS_SurvivalStatType.Hunger,
+                CCS_SurvivalStatModifier.Add(hungerRestoreAmount));
+
+            if (!modifierResult.IsSuccess)
+            {
+                inventoryService.AddItem(itemDefinition, 1);
+                return FailConsume(itemDefinition, "Failed to restore hunger.", raiseFailureEvent);
+            }
+
+            lastConsumeTime = Time.time;
+            RaiseFoodConsumed(itemDefinition, hungerRestoreAmount);
+            return CCS_ConsumableFoodResult.Success(
+                itemDefinition,
+                hungerRestoreAmount,
+                "Food consumed.");
         }
 
         #endregion
@@ -195,43 +216,197 @@ namespace CCS.Modules.Cooking
             return isInitialized;
         }
 
-        private CCS_SurvivalValidationResult ValidateConsumption(CCS_ItemDefinition itemDefinition)
+        private CCS_SurvivalValidationResult ValidateConsumeReadiness(bool raiseFailureEvent)
         {
-            if (itemDefinition == null)
-            {
-                return CCS_SurvivalValidationResult.Fail("Food item definition is null.");
-            }
-
             if (inventoryService == null || !inventoryService.IsInitialized)
             {
-                return CCS_SurvivalValidationResult.Fail("Inventory service is not initialized.");
+                return FailValidation(null, "Inventory service is not initialized.", raiseFailureEvent);
             }
 
             if (survivalCoreService == null || !survivalCoreService.IsInitialized)
             {
-                return CCS_SurvivalValidationResult.Fail("Survival core service is not initialized.");
+                return FailValidation(null, "Survival core service is not initialized.", raiseFailureEvent);
+            }
+
+            if (IsConsumeCooldownActive())
+            {
+                return FailValidation(null, "Food consume cooldown is active.", raiseFailureEvent);
+            }
+
+            if (!survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Hunger, out CCS_SurvivalStatSnapshot hungerSnapshot))
+            {
+                return FailValidation(null, "Hunger snapshot is unavailable.", raiseFailureEvent);
+            }
+
+            if (CCS_HungerStateUtility.IsHungerFull(hungerSnapshot))
+            {
+                return FailValidation(null, "Hunger Full", raiseFailureEvent);
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Consume readiness validated.");
+        }
+
+        private CCS_SurvivalValidationResult ValidateConsumption(
+            CCS_ItemDefinition itemDefinition,
+            bool raiseFailureEvent)
+        {
+            if (itemDefinition == null)
+            {
+                return FailValidation(null, "Food item definition is null.", raiseFailureEvent);
+            }
+
+            CCS_SurvivalValidationResult readinessValidation = ValidateConsumeReadiness(raiseFailureEvent);
+            if (!readinessValidation.IsSuccess)
+            {
+                return readinessValidation;
             }
 
             if (inventoryService.GetQuantity(itemDefinition) <= 0)
             {
-                return CCS_SurvivalValidationResult.Fail("Food item is not available in inventory.");
+                return FailValidation(itemDefinition, "Food item is not available in inventory.", raiseFailureEvent);
             }
 
             float hungerRestoreAmount = ResolveHungerRestoreAmount(itemDefinition);
             if (hungerRestoreAmount <= 0f)
             {
-                return CCS_SurvivalValidationResult.Fail("Food item is not configured as consumable.");
+                return FailValidation(itemDefinition, "Food item is not configured as consumable.", raiseFailureEvent);
+            }
+
+            if (!survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Hunger, out CCS_SurvivalStatSnapshot hungerSnapshot))
+            {
+                return FailValidation(itemDefinition, "Hunger snapshot is unavailable.", raiseFailureEvent);
+            }
+
+            if (!CCS_HungerStateUtility.HasRoomForRestore(hungerSnapshot, hungerRestoreAmount))
+            {
+                return FailValidation(itemDefinition, "Hunger Full", raiseFailureEvent);
             }
 
             return CCS_SurvivalValidationResult.Pass("Food consumption validated.");
         }
 
+        private List<CCS_ConsumableFoodDefinition> BuildPrioritizedDefinitions()
+        {
+            List<CCS_ConsumableFoodDefinition> prioritizedDefinitions = new List<CCS_ConsumableFoodDefinition>();
+            IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = activeProfile.ConsumableFoodDefinitions;
+            if (consumableDefinitions == null)
+            {
+                return prioritizedDefinitions;
+            }
+
+            for (int index = 0; index < consumableDefinitions.Count; index++)
+            {
+                CCS_ConsumableFoodDefinition consumableDefinition = consumableDefinitions[index];
+                if (consumableDefinition?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                prioritizedDefinitions.Add(consumableDefinition);
+            }
+
+            prioritizedDefinitions.Sort((left, right) =>
+                right.HungerRestoreAmount.CompareTo(left.HungerRestoreAmount));
+
+            return prioritizedDefinitions;
+        }
+
+        private bool TryGetConsumableDefinition(
+            CCS_ItemDefinition itemDefinition,
+            out CCS_ConsumableFoodDefinition consumableDefinition)
+        {
+            consumableDefinition = null;
+            if (itemDefinition == null || activeProfile == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = activeProfile.ConsumableFoodDefinitions;
+            if (consumableDefinitions == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < consumableDefinitions.Count; index++)
+            {
+                CCS_ConsumableFoodDefinition candidate = consumableDefinitions[index];
+                if (candidate?.ItemDefinition == itemDefinition)
+                {
+                    consumableDefinition = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsConsumeCooldownActive()
+        {
+            float cooldownSeconds = ResolveConsumeCooldownSeconds(null);
+            if (cooldownSeconds <= 0f)
+            {
+                return false;
+            }
+
+            return Time.time - lastConsumeTime < cooldownSeconds;
+        }
+
+        private float ResolveConsumeCooldownSeconds(CCS_ConsumableFoodDefinition consumableDefinition)
+        {
+            if (consumableDefinition != null && consumableDefinition.ConsumeCooldownSeconds > 0f)
+            {
+                return consumableDefinition.ConsumeCooldownSeconds;
+            }
+
+            if (survivalCoreService?.ActiveProfile != null)
+            {
+                return survivalCoreService.ActiveProfile.HungerConsumeCooldownSeconds;
+            }
+
+            return 1f;
+        }
+
+        private CCS_SurvivalValidationResult FailValidation(
+            CCS_ItemDefinition itemDefinition,
+            string message,
+            bool raiseFailureEvent)
+        {
+            if (raiseFailureEvent)
+            {
+                RaiseFoodConsumeFailed(itemDefinition, message);
+            }
+
+            return CCS_SurvivalValidationResult.Fail(message);
+        }
+
+        private CCS_ConsumableFoodResult FailConsume(
+            CCS_ItemDefinition itemDefinition,
+            string message,
+            bool raiseFailureEvent)
+        {
+            if (raiseFailureEvent)
+            {
+                RaiseFoodConsumeFailed(itemDefinition, message);
+            }
+
+            return CCS_ConsumableFoodResult.Failure(message);
+        }
+
         private void RaiseFoodConsumed(CCS_ItemDefinition itemDefinition, float hungerRestored)
         {
+            string displayName = ResolveNotificationDisplayName(itemDefinition);
             FoodConsumed?.Invoke(
                 new CCS_CookingEventArgs(
                     itemDefinition: itemDefinition,
-                    message: $"Ate {itemDefinition.DisplayName} (+{hungerRestored:0} hunger)."));
+                    message: $"Ate {displayName} (+{hungerRestored:0} Hunger)."));
+        }
+
+        private void RaiseFoodConsumeFailed(CCS_ItemDefinition itemDefinition, string message)
+        {
+            FoodConsumeFailed?.Invoke(
+                new CCS_CookingEventArgs(
+                    itemDefinition: itemDefinition,
+                    message: message ?? string.Empty));
         }
 
         #endregion

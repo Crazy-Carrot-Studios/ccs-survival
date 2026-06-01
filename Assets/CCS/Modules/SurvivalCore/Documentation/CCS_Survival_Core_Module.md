@@ -1,11 +1,11 @@
 # CCS Survival — Survival Core Module
 
-**Milestone:** 0.7.4 — Clothing & Equipment Environmental Modifiers  
+**Milestone:** 0.9.5 — Consumables & Hunger Usage  
 **Module ID:** `ccs.survival.core`  
 **Namespace:** `CCS.Modules.SurvivalCore` (editor: `CCS.Modules.SurvivalCore.Editor`)  
 **Author:** James Schilz (Developer)  
-**Date:** 2026-05-31  
-**Status:** Foundation complete at **0.3.7b**. Environment integration complete at **0.7.3**. Equipment effective environment values consumed at **0.7.4**.
+**Date:** 2026-06-01  
+**Status:** Foundation complete at **0.3.7b**. Environment integration complete at **0.7.3**. Passive hunger drain and warning states at **0.9.5**.
 
 ---
 
@@ -21,7 +21,7 @@ Provide a **data-driven survival stat foundation** for Health, Stamina, Hunger, 
 |------|----------------|
 | **Health** | Vitality pool; passive heal/damage placeholders on profile |
 | **Stamina** | Exertion pool; recovery/drain placeholders via service flag |
-| **Hunger** | Pressure stat with gentle decay placeholder |
+| **Hunger** | Pressure stat with passive profile drain (0.9.5); low/critical warning thresholds |
 | **Thirst** | Pressure stat with gentle decay placeholder |
 | **Temperature** | Exposure comfort drift toward profile target (default 50/100) |
 | **Fatigue** | Sleep pressure; gains over time from zero |
@@ -129,6 +129,19 @@ Event name constants: `CCS_SurvivalCoreEvents`.
 | `wetnessThirstMultiplier` | Thirst drain per wetness unit |
 | `minimumTemperatureClamp` / `maximumTemperatureClamp` | Clamp applied during environment temperature influence |
 
+**Hunger usage tuning (0.9.5) on `CCS_SurvivalCoreProfile`:**
+
+| Field | Default | Role |
+|-------|---------|------|
+| `hungerDrainPerSecond` | 0.01 | Passive hunger drain each tick |
+| `hungerLowThreshold` | 30 | HUD/notification “You are hungry” |
+| `hungerCriticalThreshold` | 10 | HUD/notification “You are starving soon” |
+| `hungerConsumeCooldownSeconds` | 1.0 | Minimum seconds between food consumes |
+
+`CCS_HungerStateUtility` resolves **Normal**, **Low**, **Critical**, and **Empty** from the current hunger snapshot and profile thresholds. **No health damage** or death at empty hunger in 0.9.5 — starvation consequences deferred.
+
+Hunger stat persistence follows the existing Survival Core runtime state only; dedicated Save/Load stat persistence remains deferred unless already wired elsewhere.
+
 **Default asset path:** `Assets/CCS/Survival/Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset` (committed project configuration; do not move into Modules)
 
 Default starting values:
@@ -152,7 +165,7 @@ Default starting values:
 | `CCS_SurvivalCoreValidationValidator` | Registered on `CCS_SurvivalValidationPipeline` |
 | Menu | **CCS → Survival → Survival Core → Validate Survival Core** |
 
-Checks: folders, scripts, profile completeness, min/max/start validity, non-negative decay rates.
+Checks: folders, scripts, profile completeness, min/max/start validity, non-negative decay rates, hunger drain/threshold ordering, and default profile version **0.9.5**.
 
 ---
 

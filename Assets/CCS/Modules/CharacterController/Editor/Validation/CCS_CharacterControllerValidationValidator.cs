@@ -64,6 +64,7 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateRequiredScript(report, "CCS_PlayerGameplayController", PlayerControllerScriptPath);
 
             ValidateRequiredFile(report, "Survival Input Actions", InputActionsPath);
+            ValidateConsumeInputBinding(report);
             ValidatePlayerPrefabRules(report);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateRuntimeScriptsAvoidUnityEditor(report, SurvivalRoot + "/Runtime/Player");
@@ -181,6 +182,34 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_SurvivalValidationIssueSeverity.Warning,
                 context,
                 $"Documentation missing: {assetPath}");
+        }
+
+        private static void ValidateConsumeInputBinding(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(InputActionsPath))
+            {
+                return;
+            }
+
+            string inputActionsSource = File.ReadAllText(InputActionsPath);
+            report.AddIssue(
+                inputActionsSource.Contains("\"Consume\"")
+                    && inputActionsSource.Contains("<Keyboard>/f")
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Consume Input Binding",
+                "Gameplay Consume action is bound to keyboard F (temporary developer binding).");
+
+            if (File.Exists(InputProviderScriptPath))
+            {
+                string providerSource = File.ReadAllText(InputProviderScriptPath);
+                report.AddIssue(
+                    providerSource.Contains("ConsumePressedThisFrame")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "Consume Input Provider",
+                    "CCS_CharacterInputActionProvider exposes ConsumePressedThisFrame.");
+            }
         }
 
         private static void ValidatePlayerPrefabRules(CCS_SurvivalValidationReport report)

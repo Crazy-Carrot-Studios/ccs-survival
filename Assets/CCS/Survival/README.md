@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.4 — Campfire & Cooking Foundation  
+**Milestone:** 0.9.5 — Consumables & Hunger Usage  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

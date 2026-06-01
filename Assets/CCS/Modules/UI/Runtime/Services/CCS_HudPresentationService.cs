@@ -61,6 +61,9 @@ namespace CCS.Modules.UI
         private CCS_GameTimeSnapshot gameTimeSnapshot;
         private CCS_WeatherSnapshot weatherSnapshot;
         private CCS_EnvironmentSnapshot environmentSnapshot;
+        private CCS_HungerState currentHungerState = CCS_HungerState.Normal;
+        private CCS_HungerState trackedHungerState = CCS_HungerState.Normal;
+        private bool hasTrackedHungerState;
 
         private bool isInitialized;
 
@@ -93,6 +96,8 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot StaminaSnapshot => staminaSnapshot;
 
         public CCS_SurvivalStatSnapshot HungerSnapshot => hungerSnapshot;
+
+        public CCS_HungerState CurrentHungerState => currentHungerState;
 
         public CCS_SurvivalStatSnapshot ThirstSnapshot => thirstSnapshot;
 
@@ -391,6 +396,7 @@ namespace CCS.Modules.UI
             }
 
             consumableFoodService.FoodConsumed += HandleFoodConsumed;
+            consumableFoodService.FoodConsumeFailed += HandleFoodConsumeFailed;
         }
 
         public void RefreshCachedData(string message)
@@ -561,15 +567,40 @@ namespace CCS.Modules.UI
             HudDataRefreshed?.Invoke(BuildEventArgs("Food consumed."));
         }
 
+        private void HandleFoodConsumeFailed(CCS_CookingEventArgs eventArgs)
+        {
+            string notification = BuildFoodConsumeFailedNotification(eventArgs);
+            if (!string.IsNullOrWhiteSpace(notification))
+            {
+                QueueNotification(notification);
+            }
+        }
+
         private static string BuildFoodConsumedNotification(CCS_CookingEventArgs eventArgs)
         {
-            if (eventArgs?.ItemDefinition != null
-                && !string.IsNullOrWhiteSpace(eventArgs.ItemDefinition.DisplayName))
+            if (eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message))
             {
-                return $"Ate {eventArgs.ItemDefinition.DisplayName}";
+                return eventArgs.Message;
             }
 
-            return "Ate Cooked Meat";
+            return "Ate Cooked Meat (+40 Hunger)";
+        }
+
+        private static string BuildFoodConsumeFailedNotification(CCS_CookingEventArgs eventArgs)
+        {
+            string message = eventArgs?.Message ?? string.Empty;
+            if (message.IndexOf("Hunger Full", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "Cannot eat: Hunger Full";
+            }
+
+            if (message.IndexOf("No consumable food", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || message.IndexOf("No food", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "Cannot eat: No Food";
+            }
+
+            return string.Empty;
         }
 
         private void HandleResourceRespawned(CCS_ResourceEventArgs eventArgs)
@@ -764,6 +795,7 @@ namespace CCS.Modules.UI
                 thirstSnapshot = default;
                 fatigueSnapshot = default;
                 temperatureSnapshot = default;
+                currentHungerState = CCS_HungerState.Normal;
                 return;
             }
 
@@ -773,6 +805,33 @@ namespace CCS.Modules.UI
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Thirst, out thirstSnapshot);
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Fatigue, out fatigueSnapshot);
             survivalCoreService.TryGetSnapshot(CCS_SurvivalStatType.Temperature, out temperatureSnapshot);
+            EvaluateHungerStateNotifications();
+        }
+
+        private void EvaluateHungerStateNotifications()
+        {
+            CCS_SurvivalCoreProfile profile = survivalCoreService != null
+                ? survivalCoreService.ActiveProfile
+                : null;
+            CCS_HungerState newState = CCS_HungerStateUtility.ResolveState(hungerSnapshot, profile);
+            CCS_HungerState previousState = hasTrackedHungerState ? trackedHungerState : newState;
+
+            if (hasTrackedHungerState && newState != previousState)
+            {
+                if (newState >= CCS_HungerState.Low && previousState == CCS_HungerState.Normal)
+                {
+                    QueueNotification("You are hungry");
+                }
+
+                if (newState >= CCS_HungerState.Critical && previousState < CCS_HungerState.Critical)
+                {
+                    QueueNotification("You are starving soon");
+                }
+            }
+
+            trackedHungerState = newState;
+            currentHungerState = newState;
+            hasTrackedHungerState = true;
         }
 
         private void RefreshInteractionPrompt()
@@ -1016,6 +1075,7 @@ namespace CCS.Modules.UI
             }
 
             consumableFoodService.FoodConsumed -= HandleFoodConsumed;
+            consumableFoodService.FoodConsumeFailed -= HandleFoodConsumeFailed;
             consumableFoodService = null;
         }
 

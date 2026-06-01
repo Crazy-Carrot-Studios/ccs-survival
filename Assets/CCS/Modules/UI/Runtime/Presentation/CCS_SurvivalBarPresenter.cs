@@ -86,7 +86,7 @@ namespace CCS.Modules.UI
         {
             UpdateBar(healthLabel, healthFill, "Health", CCS_SurvivalStatType.Health, useDecimalValues: false);
             UpdateBar(staminaLabel, staminaFill, "Stamina", CCS_SurvivalStatType.Stamina, useDecimalValues: false);
-            UpdateBar(hungerLabel, hungerFill, "Hunger", CCS_SurvivalStatType.Hunger, useDecimalValues: false);
+            UpdateHungerBar();
             UpdateBar(thirstLabel, thirstFill, "Thirst", CCS_SurvivalStatType.Thirst, useDecimalValues: false);
             UpdateBar(fatigueLabel, fatigueFill, "Fatigue", CCS_SurvivalStatType.Fatigue, useDecimalValues: false);
             UpdateBar(temperatureLabel, temperatureFill, "Temp", CCS_SurvivalStatType.Temperature, useDecimalValues: true);
@@ -106,6 +106,35 @@ namespace CCS.Modules.UI
             CCS_HudLayoutApplicator.ApplyTypography(thirstLabel, fontSize);
             CCS_HudLayoutApplicator.ApplyTypography(fatigueLabel, fontSize);
             CCS_HudLayoutApplicator.ApplyTypography(temperatureLabel, fontSize);
+        }
+
+        private void UpdateHungerBar()
+        {
+            if (hungerLabel == null)
+            {
+                return;
+            }
+
+            if (presentationService == null ||
+                !presentationService.TryGetStatSnapshot(CCS_SurvivalStatType.Hunger, out CCS_SurvivalStatSnapshot snapshot))
+            {
+                hungerLabel.text = "Hunger: --";
+                if (hungerFill != null)
+                {
+                    hungerFill.fillAmount = 0f;
+                }
+
+                return;
+            }
+
+            string stateLabel = CCS_HungerStateUtility.GetDisplayLabel(presentationService.CurrentHungerState);
+            hungerLabel.text =
+                $"Hunger: {snapshot.CurrentValue:0}/{snapshot.MaxValue:0} ({stateLabel})";
+
+            if (hungerFill != null)
+            {
+                hungerFill.fillAmount = snapshot.NormalizedValue;
+            }
         }
 
         private void UpdateBar(

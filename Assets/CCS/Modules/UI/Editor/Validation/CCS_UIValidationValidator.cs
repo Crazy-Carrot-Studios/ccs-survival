@@ -69,6 +69,8 @@ namespace CCS.Modules.UI.Editor
             ValidateRequiredScript(report, "CCS_HudEventArgs", RuntimeRoot + "/Events/CCS_HudEventArgs.cs");
             ValidateRequiredScript(report, "CCS_UIValidationUtility", RuntimeRoot + "/Validation/CCS_UIValidationUtility.cs");
 
+            ValidateRequiredScript(report, "CCS_HungerStateUtility", "Assets/CCS/Modules/SurvivalCore/Runtime/Stats/CCS_HungerStateUtility.cs");
+
             ValidateDocumentationAsset(report, "UI HUD Module Doc", ModuleDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
 
@@ -131,11 +133,57 @@ namespace CCS.Modules.UI.Editor
 
             ValidateBootstrapSceneHudInstance(report);
             ValidateBootstrapGameplayServiceProfiles(report);
+            ValidateHungerHudIntegration(report);
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateHungerHudIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string presentationServicePath = RuntimeRoot + "/Services/CCS_HudPresentationService.cs";
+            const string survivalBarPresenterPath = RuntimeRoot + "/Presentation/CCS_SurvivalBarPresenter.cs";
+
+            if (File.Exists(presentationServicePath))
+            {
+                string presentationSource = File.ReadAllText(presentationServicePath);
+                report.AddIssue(
+                    presentationSource.Contains("CurrentHungerState")
+                        && presentationSource.Contains("HandleFoodConsumeFailed")
+                        && presentationSource.Contains("EvaluateHungerStateNotifications")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Hunger State Wiring",
+                    "HUD presentation service exposes hunger state and consume/threshold notifications.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Hunger State Wiring",
+                    $"Missing script: {presentationServicePath}");
+            }
+
+            if (File.Exists(survivalBarPresenterPath))
+            {
+                string presenterSource = File.ReadAllText(survivalBarPresenterPath);
+                report.AddIssue(
+                    presenterSource.Contains("UpdateHungerBar")
+                        && presenterSource.Contains("CCS_HungerStateUtility.GetDisplayLabel")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Hunger State Display",
+                    "Survival bar presenter shows hunger state label.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Hunger State Display",
+                    $"Missing script: {survivalBarPresenterPath}");
+            }
+        }
 
         private static void ValidateHudPrefabPresenters(CCS_SurvivalValidationReport report, GameObject prefabRoot)
         {

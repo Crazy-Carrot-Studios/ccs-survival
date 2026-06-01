@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.Building;
 using CCS.Modules.Interaction;
@@ -154,13 +155,64 @@ namespace CCS.Modules.Cooking.Editor
                 "Default Cooking Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "0.9.4")
+            if (profile.ProfileVersion != "0.9.5")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Cooking Profile Version",
-                    $"Expected profileVersion 0.9.4 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 0.9.5 but found '{profile.ProfileVersion}'.");
             }
+
+            ValidateConsumableFoodDefinitions(report, profile);
+        }
+
+        private static void ValidateConsumableFoodDefinitions(
+            CCS_SurvivalValidationReport report,
+            CCS_CookingProfile profile)
+        {
+            bool hasBasicFood = false;
+            bool hasCookedMeat = false;
+
+            IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = profile.ConsumableFoodDefinitions;
+            for (int index = 0; index < consumableDefinitions.Count; index++)
+            {
+                CCS_ConsumableFoodDefinition consumableDefinition = consumableDefinitions[index];
+                if (consumableDefinition?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                string displayName = consumableDefinition.ResolveNotificationDisplayName();
+                if (displayName.IndexOf("Basic Food", System.StringComparison.OrdinalIgnoreCase) >= 0
+                    && Mathf.Approximately(consumableDefinition.HungerRestoreAmount, 15f))
+                {
+                    hasBasicFood = true;
+                }
+
+                if (displayName.IndexOf("Cooked Meat", System.StringComparison.OrdinalIgnoreCase) >= 0
+                    && Mathf.Approximately(consumableDefinition.HungerRestoreAmount, 40f))
+                {
+                    hasCookedMeat = true;
+                }
+            }
+
+            report.AddIssue(
+                hasBasicFood
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Basic Food Restore",
+                hasBasicFood
+                    ? "Basic Food restores +15 hunger."
+                    : "Basic Food restore amount is missing or invalid.");
+
+            report.AddIssue(
+                hasCookedMeat
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Cooked Meat Restore",
+                hasCookedMeat
+                    ? "Cooked Meat restores +40 hunger."
+                    : "Cooked Meat restore amount is missing or invalid.");
         }
 
         private static void ValidateBootstrapGameplayServiceHost(CCS_SurvivalValidationReport report)
@@ -297,7 +349,11 @@ namespace CCS.Modules.Cooking.Editor
             report.AddIssue(
                 presentationSource.Contains("BindCookingService")
                     && presentationSource.Contains("BindCampfireService")
-                    && presentationSource.Contains("BindConsumableFoodService")
+                    &&                 presentationSource.Contains("BindConsumableFoodService")
+                    && presentationSource.Contains("FoodConsumeFailed")
+                    && presentationSource.Contains("Cannot eat: Hunger Full")
+                    && presentationSource.Contains("Cannot eat: No Food")
+                    && presentationSource.Contains("You are hungry")
                     && presentationSource.Contains("Campfire Lit")
                     && presentationSource.Contains("Cooking Started")
                     && presentationSource.Contains("Cooking Complete")

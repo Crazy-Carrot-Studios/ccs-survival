@@ -17,6 +17,7 @@ namespace CCS.Modules.Cooking
         public const string CookingCompletedEventName = "Cooking.Completed";
         public const string CookingFailedEventName = "Cooking.Failed";
         public const string FoodConsumedEventName = "Cooking.FoodConsumed";
+        public const string FoodConsumeFailedEventName = "Cooking.FoodConsumeFailed";
     }
 
     public delegate void CampfireLitHandler(CCS_CookingEventArgs eventArgs);
@@ -28,4 +29,6 @@ namespace CCS.Modules.Cooking
     public delegate void CookingFailedHandler(CCS_CookingEventArgs eventArgs);
 
     public delegate void FoodConsumedHandler(CCS_CookingEventArgs eventArgs);
+
+    public delegate void FoodConsumeFailedHandler(CCS_CookingEventArgs eventArgs);
 }

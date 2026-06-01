@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.SurvivalCore.Runtime::CCS.Modules.SurvivalCore.CCS_SurvivalCoreProfile
   profileDisplayName: Default Survival Core
   profileId: ccs.survival.profile.core.default
-  profileDescription: Default survival core stat tuning with environment integration
-    for 0.7.3.
-  profileVersion: 0.7.3
+  profileDescription: Default survival core stat tuning with passive hunger drain for
+    0.9.5.
+  profileVersion: 0.9.5
   enableDebugLogs: 0
   statDefinitions:
   - statType: 0
@@ -74,3 +74,7 @@ MonoBehaviour:
   wetnessThirstMultiplier: 0.01
   minimumTemperatureClamp: 0
   maximumTemperatureClamp: 100
+  hungerDrainPerSecond: 0.01
+  hungerLowThreshold: 30
+  hungerCriticalThreshold: 10
+  hungerConsumeCooldownSeconds: 1

@@ -153,6 +153,7 @@ namespace CCS.Modules.SurvivalCore
             }
 
             ApplyDecayDefinitions(deltaTime);
+            ApplyProfileHungerDrain(deltaTime);
             RefreshEnvironmentInfluence(true);
             ApplyEnvironmentInfluence(deltaTime);
             ApplyHealthPlaceholders(deltaTime);
@@ -323,6 +324,26 @@ namespace CCS.Modules.SurvivalCore
             NotifyStatChanged(previous, state);
         }
 
+        private void ApplyProfileHungerDrain(float deltaTime)
+        {
+            if (activeProfile == null
+                || activeProfile.HungerDrainPerSecond <= 0f
+                || !statStates.TryGetValue(CCS_SurvivalStatType.Hunger, out CCS_SurvivalStatState state))
+            {
+                return;
+            }
+
+            float delta = activeProfile.HungerDrainPerSecond * deltaTime;
+            if (delta <= CCS_SurvivalStatUtility.DepletionEpsilon)
+            {
+                return;
+            }
+
+            CCS_SurvivalStatSnapshot previous = state.ToSnapshot();
+            state.ApplyDelta(-delta);
+            NotifyStatChanged(previous, state);
+        }
+
         private void ApplyDecayDefinitions(float deltaTime)
         {
             if (activeProfile.DecayDefinitions == null)
@@ -333,6 +354,11 @@ namespace CCS.Modules.SurvivalCore
             for (int index = 0; index < activeProfile.DecayDefinitions.Count; index++)
             {
                 CCS_SurvivalStatDecayDefinition decayDefinition = activeProfile.DecayDefinitions[index];
+                if (decayDefinition.StatType == CCS_SurvivalStatType.Hunger)
+                {
+                    continue;
+                }
+
                 if (!statStates.TryGetValue(decayDefinition.StatType, out CCS_SurvivalStatState state))
                 {
                     continue;

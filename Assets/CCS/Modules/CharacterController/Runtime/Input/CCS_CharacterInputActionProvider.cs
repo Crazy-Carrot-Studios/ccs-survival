@@ -27,12 +27,14 @@ namespace CCS.Modules.CharacterController
         private InputAction sprintAction;
         private InputAction crouchAction;
         private InputAction interactAction;
+        private InputAction consumeAction;
         private InputAction pauseAction;
 
         private bool sprintHeld;
         private bool crouchHeld;
         private bool jumpPressed;
         private bool interactPressed;
+        private bool consumePressed;
         private bool pausePressed;
         private bool sprintAllowed = true;
 
@@ -41,6 +43,8 @@ namespace CCS.Modules.CharacterController
         #region Properties
 
         public bool InteractPressedThisFrame => interactPressed;
+
+        public bool ConsumePressedThisFrame => consumePressed;
 
         public bool PausePressedThisFrame => pausePressed;
 
@@ -78,6 +82,7 @@ namespace CCS.Modules.CharacterController
 
             jumpPressed = jumpAction != null && jumpAction.WasPressedThisFrame();
             interactPressed = interactAction != null && interactAction.WasPressedThisFrame();
+            consumePressed = consumeAction != null && consumeAction.WasPressedThisFrame();
             pausePressed = pauseAction != null && pauseAction.WasPressedThisFrame();
             sprintHeld = sprintAllowed && sprintAction != null && sprintAction.IsPressed();
             crouchHeld = crouchAction != null && crouchAction.IsPressed();
@@ -116,6 +121,7 @@ namespace CCS.Modules.CharacterController
             sprintAction?.Enable();
             crouchAction?.Enable();
             interactAction?.Enable();
+            consumeAction?.Enable();
             pauseAction?.Enable();
         }
 
@@ -127,6 +133,7 @@ namespace CCS.Modules.CharacterController
             sprintAction?.Disable();
             crouchAction?.Disable();
             interactAction?.Disable();
+            consumeAction?.Disable();
             pauseAction?.Disable();
         }
 
@@ -142,6 +149,7 @@ namespace CCS.Modules.CharacterController
             sprintAction = null;
             crouchAction = null;
             interactAction = null;
+            consumeAction = null;
             pauseAction = null;
 
             if (inputActions == null)
@@ -162,6 +170,7 @@ namespace CCS.Modules.CharacterController
             sprintAction = gameplayMap.FindAction("Sprint", throwIfNotFound: false);
             crouchAction = gameplayMap.FindAction("Crouch", throwIfNotFound: false);
             interactAction = gameplayMap.FindAction("Interact", throwIfNotFound: false);
+            consumeAction = gameplayMap.FindAction("Consume", throwIfNotFound: false);
             pauseAction = gameplayMap.FindAction("Pause", throwIfNotFound: false);
         }
 

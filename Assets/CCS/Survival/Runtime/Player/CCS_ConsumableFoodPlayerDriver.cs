@@ -1,6 +1,6 @@
+using CCS.Modules.CharacterController;
 using CCS.Modules.Cooking;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 // =============================================================================
 // SCRIPT: CCS_ConsumableFoodPlayerDriver
@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 // PLACEMENT: PF_CCS_Player alongside CCS_InteractionPlayerDriver.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Uses F to consume the first available configured food item.
+// NOTES: Temporary developer binding: Consume action on F / gamepad D-Pad Down.
 // =============================================================================
 
 namespace CCS.Survival.Player
@@ -19,12 +19,18 @@ namespace CCS.Survival.Player
     {
         #region Variables
 
+        private CCS_CharacterInputActionProvider inputProvider;
         private CCS_ConsumableFoodService consumableFoodService;
         private bool serviceResolved;
 
         #endregion
 
         #region Unity Callbacks
+
+        private void Awake()
+        {
+            inputProvider = GetComponent<CCS_CharacterInputActionProvider>();
+        }
 
         private void Update()
         {
@@ -33,7 +39,7 @@ namespace CCS.Survival.Player
                 return;
             }
 
-            if (Keyboard.current == null || !Keyboard.current.fKey.wasPressedThisFrame)
+            if (inputProvider == null || !inputProvider.ConsumePressedThisFrame)
             {
                 return;
             }

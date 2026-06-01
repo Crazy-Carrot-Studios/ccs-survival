@@ -53,8 +53,26 @@
 | **0.9.2a** | Bootstrap ground collider hotfix (playable floor in bootstrap test scene) |
 | **0.9.3** | Wildlife resource foundation (carcass harvesting, Bone/Hide/Sinew/Raw Meat drops) |
 | **0.9.4** | Campfire & cooking foundation (campfire placement, Raw Meat → Cooked Meat, hunger restore) |
+| **0.9.5** | Consumables & hunger usage (passive drain, thresholds, F consume, HUD feedback) |
 
-Later milestones continue from **0.9.5+** (consumables usage, sleep, wildlife AI, combat).
+Later milestones continue from **0.9.6+** (sleep, wildlife AI, combat).
+
+---
+
+## 0.9.5 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Passive hunger drain via `hungerDrainPerSecond` on Survival Core profile | **Complete** |
+| Hunger states Normal / Low / Critical / Empty via `CCS_HungerStateUtility` | **Complete** |
+| Basic Food (+15) and Cooked Meat (+40) consumable restore values | **Complete** |
+| `CCS_ConsumableFoodService` cooldown, fullness checks, Cooked Meat priority | **Complete** |
+| F key consume binding (temporary developer gameplay binding) | **Complete** |
+| HUD hunger state label and threshold/consume notifications | **Complete** |
+| No starvation health damage or death | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.5** | **Complete** |
+| Starvation damage, buffs, cooking UI, spoilage | **Deferred** |
 
 ---
 

@@ -54,6 +54,8 @@ Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_Sur
 | `CCS_ResourceHarvestService` | Harvest/depletion notifications |
 | `CCS_ResourceRespawnService` | Respawn notifications |
 | `CCS_CraftingService` | Crafting completed/failed/unlock notifications |
+| `CCS_ConsumableFoodService` | Food consumed / consume failed notifications |
+| `CCS_SurvivalCoreService` (hunger thresholds) | Low/critical hunger threshold notifications |
 
 `CCS_HudPresentationService` subscribes to gameplay events and raises read-only HUD notifications:
 
@@ -70,6 +72,13 @@ Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_Sur
 | Crafting completed | Crafting Completed: {RecipeName} |
 | Crafting failed | Crafting Failed: {Reason} |
 | Recipe unlocked | Recipe Unlocked: {RecipeName} |
+| Hunger crossed low threshold | You are hungry |
+| Hunger crossed critical threshold | You are starving soon |
+| Food consumed | Ate {FoodName} (+N Hunger) |
+| Food consume failed (full) | Cannot eat: Hunger Full |
+| Food consume failed (no food) | Cannot eat: No Food |
+
+Survival bar hunger row shows `Hunger: current/max (Normal|Low|Critical|Empty)` from `CCS_SurvivalBarPresenter`.
 
 `CCS_NotificationQueue` displays notifications from `CCS_HudPresentationService.NotificationQueued` using profile lifetime and max visible count.
 

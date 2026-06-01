@@ -57,8 +57,11 @@ namespace CCS.Modules.SurvivalCore.Editor
             ValidateRequiredScript(report, "CCS_SurvivalEnvironmentInfluenceHudPresenter", $"{SurvivalCoreRuntimeRoot}/Presentation/CCS_SurvivalEnvironmentInfluenceHudPresenter.cs");
             ValidateRequiredScript(report, "CCS_SurvivalCoreRuntimeBridge", $"{SurvivalCoreRuntimeRoot}/Services/CCS_SurvivalCoreRuntimeBridge.cs");
             ValidateRequiredScript(report, "CCS_SurvivalCoreValidationUtility", $"{SurvivalCoreRuntimeRoot}/Validation/CCS_SurvivalCoreValidationUtility.cs");
+            ValidateRequiredScript(report, "CCS_HungerState", $"{SurvivalCoreRuntimeRoot}/Stats/CCS_HungerState.cs");
+            ValidateRequiredScript(report, "CCS_HungerStateUtility", $"{SurvivalCoreRuntimeRoot}/Stats/CCS_HungerStateUtility.cs");
 
             ValidateEnvironmentIntegration(report);
+            ValidateHungerUsageIntegration(report);
             ValidateCharacterStaminaIntegration(report);
 
             ValidateDocumentationAsset(report, "Survival Core Module Doc", SurvivalCoreDocPath);
@@ -100,12 +103,81 @@ namespace CCS.Modules.SurvivalCore.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Survival core validator completed (0.7.3 environment integration).");
+                "Survival core validator completed (0.9.5 hunger usage integration).");
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateHungerUsageIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string profilePath = SurvivalCoreRuntimeRoot + "/Profiles/CCS_SurvivalCoreProfile.cs";
+            const string servicePath = SurvivalCoreRuntimeRoot + "/Runtime/CCS_SurvivalCoreService.cs";
+
+            if (File.Exists(profilePath))
+            {
+                string profileSource = File.ReadAllText(profilePath);
+                if (profileSource.Contains("hungerDrainPerSecond")
+                    && profileSource.Contains("hungerLowThreshold")
+                    && profileSource.Contains("hungerCriticalThreshold")
+                    && profileSource.Contains("hungerConsumeCooldownSeconds"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Hunger Profile",
+                        "CCS_SurvivalCoreProfile exposes hunger drain, thresholds, and consume cooldown.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Hunger Profile",
+                        "CCS_SurvivalCoreProfile is missing hunger usage tuning fields.");
+                }
+            }
+
+            if (File.Exists(servicePath))
+            {
+                string serviceSource = File.ReadAllText(servicePath);
+                if (serviceSource.Contains("ApplyProfileHungerDrain"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Survival Core Hunger Drain",
+                        "CCS_SurvivalCoreService applies profile hunger drain without health damage.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Survival Core Hunger Drain",
+                        "CCS_SurvivalCoreService is missing ApplyProfileHungerDrain.");
+                }
+            }
+
+            string defaultProfilePath =
+                $"{SurvivalRoot}/Profiles/SurvivalCore/CCS_DefaultSurvivalCoreProfile.asset";
+            if (File.Exists(defaultProfilePath))
+            {
+                CCS_SurvivalCoreProfile profile =
+                    AssetDatabase.LoadAssetAtPath<CCS_SurvivalCoreProfile>(defaultProfilePath);
+                if (profile != null && profile.ProfileVersion == "0.9.5")
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Default Survival Core Profile Version",
+                        "Default survival core profile version is 0.9.5.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Default Survival Core Profile Version",
+                        $"Expected profileVersion 0.9.5 but found '{profile?.ProfileVersion}'.");
+                }
+            }
+        }
 
         private static void ValidateEnvironmentIntegration(CCS_SurvivalValidationReport report)
         {
