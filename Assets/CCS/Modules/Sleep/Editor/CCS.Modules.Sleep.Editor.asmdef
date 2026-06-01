@@ -1,0 +1,29 @@
+{
+    "name": "CCS.Modules.Sleep.Editor",
+    "rootNamespace": "CCS.Modules.Sleep.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Sleep.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.TimeOfDay.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

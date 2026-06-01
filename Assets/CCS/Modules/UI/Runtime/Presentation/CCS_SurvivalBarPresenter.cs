@@ -30,6 +30,7 @@ namespace CCS.Modules.UI
         [SerializeField] private Image fatigueFill;
         [SerializeField] private Text temperatureLabel;
         [SerializeField] private Image temperatureFill;
+        [SerializeField] private Text sleepStatusLabel;
 
         private CCS_HudPresentationService presentationService;
 
@@ -90,6 +91,7 @@ namespace CCS.Modules.UI
             UpdateBar(thirstLabel, thirstFill, "Thirst", CCS_SurvivalStatType.Thirst, useDecimalValues: false);
             UpdateBar(fatigueLabel, fatigueFill, "Fatigue", CCS_SurvivalStatType.Fatigue, useDecimalValues: false);
             UpdateBar(temperatureLabel, temperatureFill, "Temp", CCS_SurvivalStatType.Temperature, useDecimalValues: true);
+            UpdateSleepStatusLabel();
         }
 
         private void ApplyTypography(CCS_HudProfile profile)
@@ -106,6 +108,23 @@ namespace CCS.Modules.UI
             CCS_HudLayoutApplicator.ApplyTypography(thirstLabel, fontSize);
             CCS_HudLayoutApplicator.ApplyTypography(fatigueLabel, fontSize);
             CCS_HudLayoutApplicator.ApplyTypography(temperatureLabel, fontSize);
+            CCS_HudLayoutApplicator.ApplyTypography(sleepStatusLabel, fontSize);
+        }
+
+        private void UpdateSleepStatusLabel()
+        {
+            if (sleepStatusLabel == null)
+            {
+                return;
+            }
+
+            if (presentationService == null)
+            {
+                sleepStatusLabel.text = "Sleep Ready: --";
+                return;
+            }
+
+            sleepStatusLabel.text = presentationService.SleepReadyLabel;
         }
 
         private void UpdateHungerBar()

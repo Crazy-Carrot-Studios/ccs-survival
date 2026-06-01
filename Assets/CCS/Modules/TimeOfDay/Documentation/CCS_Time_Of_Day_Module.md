@@ -109,6 +109,7 @@ Payload: `CCS_TimeOfDayEventArgs` with `CCS_GameTimeSnapshot`.
 | `Tick` | Advances clock using delta time and time scale |
 | `PauseTime` / `ResumeTime` | Pause/resume ticking |
 | `SetTime` | Set day/hour/minute manually |
+| `AdvanceTimeByHours` | Instantly advance clock by slept/rest hours (0.9.6 sleep integration) |
 | `SetTimeScale` | Multiply tick rate |
 | `CreateSnapshot` | Read-only clock state |
 

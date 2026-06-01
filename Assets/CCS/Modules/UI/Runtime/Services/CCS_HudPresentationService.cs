@@ -11,6 +11,7 @@ using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
+using CCS.Modules.Sleep;
 using CCS.Survival;
 using UnityEngine;
 
@@ -43,6 +44,7 @@ namespace CCS.Modules.UI
         private CCS_CookingService cookingService;
         private CCS_CampfireService campfireService;
         private CCS_ConsumableFoodService consumableFoodService;
+        private CCS_SleepService sleepService;
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
@@ -64,6 +66,7 @@ namespace CCS.Modules.UI
         private CCS_HungerState currentHungerState = CCS_HungerState.Normal;
         private CCS_HungerState trackedHungerState = CCS_HungerState.Normal;
         private bool hasTrackedHungerState;
+        private CCS_SleepSnapshot sleepSnapshot = CCS_SleepSnapshot.Empty;
 
         private bool isInitialized;
 
@@ -98,6 +101,11 @@ namespace CCS.Modules.UI
         public CCS_SurvivalStatSnapshot HungerSnapshot => hungerSnapshot;
 
         public CCS_HungerState CurrentHungerState => currentHungerState;
+
+        public CCS_SleepSnapshot SleepSnapshot => sleepSnapshot;
+
+        public string SleepReadyLabel =>
+            sleepSnapshot.SleepReady ? "Sleep Ready: Yes" : "Sleep Ready: No";
 
         public CCS_SurvivalStatSnapshot ThirstSnapshot => thirstSnapshot;
 
@@ -399,6 +407,22 @@ namespace CCS.Modules.UI
             consumableFoodService.FoodConsumeFailed += HandleFoodConsumeFailed;
         }
 
+        public void BindSleepService(CCS_SleepService service)
+        {
+            UnbindSleepService();
+            sleepService = service;
+
+            if (sleepService == null)
+            {
+                sleepSnapshot = CCS_SleepSnapshot.Empty;
+                return;
+            }
+
+            sleepService.SleepCompleted += HandleSleepCompleted;
+            sleepService.SleepFailed += HandleSleepFailed;
+            RefreshSleepSnapshot();
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -438,6 +462,7 @@ namespace CCS.Modules.UI
             UnbindCookingService();
             UnbindCampfireService();
             UnbindConsumableFoodService();
+            UnbindSleepService();
             UnbindCraftingService();
             UnbindTimeOfDayService();
             UnbindWeatherService();
@@ -601,6 +626,73 @@ namespace CCS.Modules.UI
             }
 
             return string.Empty;
+        }
+
+        private void HandleSleepCompleted(CCS_SleepEventArgs eventArgs)
+        {
+            RefreshSleepSnapshot();
+            RefreshSurvivalSnapshots();
+            QueueNotification(BuildSleepCompletedNotification(eventArgs));
+            if (eventArgs?.Result != null && eventArgs.Result.UsedPoorShelterPenalty)
+            {
+                QueueNotification("Rested, but shelter was poor");
+            }
+
+            if (eventArgs?.Result != null && eventArgs.Result.FatigueRestored > 0f)
+            {
+                QueueNotification($"Fatigue Restored (+{eventArgs.Result.FatigueRestored:0})");
+            }
+
+            HudDataRefreshed?.Invoke(BuildEventArgs("Sleep completed."));
+        }
+
+        private void HandleSleepFailed(CCS_SleepEventArgs eventArgs)
+        {
+            RefreshSleepSnapshot();
+            string notification = BuildSleepFailedNotification(eventArgs);
+            if (!string.IsNullOrWhiteSpace(notification))
+            {
+                QueueNotification(notification);
+            }
+        }
+
+        private static string BuildSleepCompletedNotification(CCS_SleepEventArgs eventArgs)
+        {
+            if (eventArgs?.Result != null && eventArgs.Result.HoursSlept > 0f)
+            {
+                return $"Slept {eventArgs.Result.HoursSlept:0} hours";
+            }
+
+            return "Slept 6 hours";
+        }
+
+        private static string BuildSleepFailedNotification(CCS_SleepEventArgs eventArgs)
+        {
+            if (eventArgs?.Result == null)
+            {
+                return string.Empty;
+            }
+
+            switch (eventArgs.Result.FailureReason)
+            {
+                case CCS_SleepFailureReason.MissingBedroll:
+                    return "Sleep failed: Missing Bedroll";
+                case CCS_SleepFailureReason.UnsafeConditions:
+                    return "Sleep failed: Unsafe Conditions";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private void RefreshSleepSnapshot()
+        {
+            if (sleepService == null || !sleepService.IsInitialized)
+            {
+                sleepSnapshot = CCS_SleepSnapshot.Empty;
+                return;
+            }
+
+            sleepSnapshot = sleepService.CreateSnapshot();
         }
 
         private void HandleResourceRespawned(CCS_ResourceEventArgs eventArgs)
@@ -1077,6 +1169,19 @@ namespace CCS.Modules.UI
             consumableFoodService.FoodConsumed -= HandleFoodConsumed;
             consumableFoodService.FoodConsumeFailed -= HandleFoodConsumeFailed;
             consumableFoodService = null;
+        }
+
+        private void UnbindSleepService()
+        {
+            if (sleepService == null)
+            {
+                return;
+            }
+
+            sleepService.SleepCompleted -= HandleSleepCompleted;
+            sleepService.SleepFailed -= HandleSleepFailed;
+            sleepService = null;
+            sleepSnapshot = CCS_SleepSnapshot.Empty;
         }
 
         private void UnbindBuildingPlacementService()

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 944511ca71993be4ea031c3319de3635, type: 3}
+  m_Name: CCS_DefaultSleepProfile
+  m_EditorClassIdentifier: CCS.Modules.Sleep.Runtime::CCS.Modules.Sleep.CCS_SleepProfile
+  profileDisplayName: Default Sleep
+  profileId: ccs.survival.profile.sleep.default
+  profileDescription: Default sleep and bedroll rules for 0.9.6 foundation.
+  profileVersion: 0.9.6
+  enableDebugLogs: 0
+  defaultSleepHours: 6
+  minimumSleepHours: 1
+  maximumSleepHours: 10
+  fatigueRestorePerHour: 12
+  requireBedroll: 1
+  requireShelter: 0
+  unshelteredFatigueRestoreMultiplier: 0.5
+  hungerDrainDuringSleepMultiplier: 1
+  thirstDrainDuringSleepMultiplier: 1
+  bedrollItemDefinition: {fileID: 11400000, guid: 926c0f9b08e45a44ebf3657f330e7872, type: 2}
+  bedrollEquipmentDefinition: {fileID: 11400000, guid: 2cda2714ce172f44f984e358a8eebfc5, type: 2}
+  bedrollRecipeDefinition: {fileID: 11400000, guid: efd9d740d73badd48bae0b9e7af9f683, type: 2}

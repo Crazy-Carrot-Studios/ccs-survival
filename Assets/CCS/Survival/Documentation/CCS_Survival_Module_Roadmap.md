@@ -54,8 +54,25 @@
 | **0.9.3** | Wildlife resource foundation (carcass harvesting, Bone/Hide/Sinew/Raw Meat drops) |
 | **0.9.4** | Campfire & cooking foundation (campfire placement, Raw Meat → Cooked Meat, hunger restore) |
 | **0.9.5** | Consumables & hunger usage (passive drain, thresholds, F consume, HUD feedback) |
+| **0.9.6** | Sleep & bedroll foundation (time advance, fatigue restore, shelter modifier) |
 
-Later milestones continue from **0.9.6+** (sleep, wildlife AI, combat).
+Later milestones continue from **0.9.7+** (wildlife AI, combat).
+
+---
+
+## 0.9.6 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Sleep module under `Assets/CCS/Modules/Sleep/` | **Complete** |
+| `CCS_SleepService` advances time and restores fatigue | **Complete** |
+| Bedroll item, equipment, and Hide/Fiber hand recipe | **Complete** |
+| Bedroll required for sleep; shelter penalty when unsheltered | **Complete** |
+| Bootstrap `CCS_SleepTestArea` with rest point interactable | **Complete** |
+| HUD notifications for sleep success/failure | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.6** | **Complete** |
+| Dreams, enemy interruption, death, sleep UI | **Deferred** |
 
 ---
 

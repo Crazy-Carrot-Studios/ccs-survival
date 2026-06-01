@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 0.9.5  
+**Version:** 0.9.6  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -140,6 +140,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `Shelter/` | 0.7.5 — **Environmental protection foundation complete** |
 | `Building/` | 0.8.0–0.8.5 — **Definition catalog, placement, persistence restore, and shelter integration complete** |
 | `Wildlife/` | 0.9.3 — **Wildlife resource foundation complete** (carcass harvesting; no AI/combat) |
+| `Sleep/` | 0.9.6 — **Sleep & bedroll foundation complete** (time advance, fatigue restore, shelter modifier) |
 | `Cooking/` | 0.9.5 — **Consumables & hunger usage complete** (passive drain, F consume, HUD feedback) |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |

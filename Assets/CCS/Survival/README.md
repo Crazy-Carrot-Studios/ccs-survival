@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.5 — Consumables & Hunger Usage  
+**Milestone:** 0.9.6 — Sleep & Bedroll Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

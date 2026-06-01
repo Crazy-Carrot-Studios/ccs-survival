@@ -134,11 +134,44 @@ namespace CCS.Modules.UI.Editor
             ValidateBootstrapSceneHudInstance(report);
             ValidateBootstrapGameplayServiceProfiles(report);
             ValidateHungerHudIntegration(report);
+            ValidateSleepHudIntegration(report);
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void ValidateSleepHudIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string presentationServicePath = RuntimeRoot + "/Services/CCS_HudPresentationService.cs";
+            const string survivalBarPresenterPath = RuntimeRoot + "/Presentation/CCS_SurvivalBarPresenter.cs";
+
+            if (File.Exists(presentationServicePath))
+            {
+                string presentationSource = File.ReadAllText(presentationServicePath);
+                report.AddIssue(
+                    presentationSource.Contains("BindSleepService")
+                        && presentationSource.Contains("SleepReadyLabel")
+                        && presentationSource.Contains("HandleSleepCompleted")
+                        && presentationSource.Contains("HandleSleepFailed")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Sleep Wiring",
+                    "HUD presentation service exposes sleep notifications and readiness label.");
+            }
+
+            if (File.Exists(survivalBarPresenterPath))
+            {
+                string presenterSource = File.ReadAllText(survivalBarPresenterPath);
+                report.AddIssue(
+                    presenterSource.Contains("UpdateSleepStatusLabel")
+                        && presenterSource.Contains("Sleep Ready:")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Sleep Ready Display",
+                    "Survival bar presenter shows optional Sleep Ready debug label.");
+            }
+        }
 
         private static void ValidateHungerHudIntegration(CCS_SurvivalValidationReport report)
         {

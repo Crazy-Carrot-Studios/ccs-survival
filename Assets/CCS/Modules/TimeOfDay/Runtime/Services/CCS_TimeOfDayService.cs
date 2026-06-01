@@ -201,6 +201,47 @@ namespace CCS.Modules.TimeOfDay
             RaiseTimeChanged("Time scale updated.");
         }
 
+        public void AdvanceTimeByHours(float hours)
+        {
+            if (!EnsureInitialized() || hours <= 0f)
+            {
+                return;
+            }
+
+            float minutesToAdvance = hours * 60f;
+            int previousTrackedDay = clockState.DayNumber;
+            int previousTrackedHour = GetHourFromMinutes(clockState.MinutesIntoDay);
+            CCS_TimeOfDayPhase previousTrackedPhase = clockState.CurrentPhase;
+
+            clockState.MinutesIntoDay += minutesToAdvance;
+
+            while (clockState.MinutesIntoDay >= CCS_GameClockState.MinutesPerDay)
+            {
+                clockState.MinutesIntoDay -= CCS_GameClockState.MinutesPerDay;
+                clockState.DayNumber++;
+            }
+
+            int currentHour = GetHourFromMinutes(clockState.MinutesIntoDay);
+            clockState.CurrentPhase = CCS_TimeOfDayValidationUtility.ResolvePhase(currentHour, activeProfile);
+
+            RaiseTimeChanged($"Time advanced by {hours:0.#} hour(s).");
+
+            if (currentHour != previousTrackedHour)
+            {
+                RaiseHourChanged();
+            }
+
+            if (clockState.DayNumber != previousTrackedDay)
+            {
+                RaiseDayChanged();
+            }
+
+            if (clockState.CurrentPhase != previousTrackedPhase)
+            {
+                RaisePhaseChanged();
+            }
+        }
+
         public CCS_GameTimeSnapshot CreateSnapshot()
         {
             if (!EnsureInitialized())

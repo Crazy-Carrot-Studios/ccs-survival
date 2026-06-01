@@ -13,6 +13,7 @@ using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
+using CCS.Modules.Sleep;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 
@@ -43,6 +44,7 @@ namespace CCS.Survival.Composition
             CCS_WorldResourceProfile worldResourceProfile,
             CCS_WildlifeProfile wildlifeProfile,
             CCS_CookingProfile cookingProfile,
+            CCS_SleepProfile sleepProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
@@ -129,6 +131,16 @@ namespace CCS.Survival.Composition
             CCS_ConsumableFoodService consumableFoodService =
                 CreateConsumableFoodService(cookingProfile, inventoryService, survivalCoreService);
             RegisterService(runtimeHost, consumableFoodService, enableDebugLogs);
+
+            CCS_SleepService sleepService = CreateSleepService(
+                sleepProfile,
+                survivalCoreService,
+                timeOfDayService,
+                shelterService,
+                inventoryService,
+                equipmentService,
+                craftingService);
+            RegisterService(runtimeHost, sleepService, enableDebugLogs);
 
             CCS_CharacterMovementService characterMovementService =
                 CreateCharacterMovementService(characterControllerProfile);
@@ -332,6 +344,58 @@ namespace CCS.Survival.Composition
             if (survivalCoreService != null && survivalCoreService.IsInitialized)
             {
                 service.BindSurvivalCoreService(survivalCoreService);
+            }
+
+            return service;
+        }
+
+        private static CCS_SleepService CreateSleepService(
+            CCS_SleepProfile profile,
+            CCS_SurvivalCoreService survivalCoreService,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_ShelterService shelterService,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_PlayerEquipmentService equipmentService,
+            CCS_CraftingService craftingService)
+        {
+            CCS_SleepService service = new CCS_SleepService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (survivalCoreService != null && survivalCoreService.IsInitialized)
+            {
+                service.BindSurvivalCoreService(survivalCoreService);
+            }
+
+            if (timeOfDayService != null && timeOfDayService.IsInitialized)
+            {
+                service.BindTimeOfDayService(timeOfDayService);
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                service.BindShelterService(shelterService);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                service.BindEquipmentService(equipmentService);
+            }
+
+            if (craftingService != null && craftingService.IsInitialized)
+            {
+                service.BindCraftingService(craftingService);
             }
 
             return service;

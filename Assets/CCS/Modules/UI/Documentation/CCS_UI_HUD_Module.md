@@ -77,8 +77,13 @@ Gameplay services register on `CCS_RuntimeHost.ServiceRegistry` through `CCS_Sur
 | Food consumed | Ate {FoodName} (+N Hunger) |
 | Food consume failed (full) | Cannot eat: Hunger Full |
 | Food consume failed (no food) | Cannot eat: No Food |
+| Sleep completed | Slept N hours / Fatigue Restored |
+| Sleep failed (missing bedroll) | Sleep failed: Missing Bedroll |
+| Sleep failed (unsafe) | Sleep failed: Unsafe Conditions |
+| Poor shelter sleep | Rested, but shelter was poor |
 
 Survival bar hunger row shows `Hunger: current/max (Normal|Low|Critical|Empty)` from `CCS_SurvivalBarPresenter`.
+Optional debug line shows `Sleep Ready: Yes/No` when sleep service is wired.
 
 `CCS_NotificationQueue` displays notifications from `CCS_HudPresentationService.NotificationQueued` using profile lifetime and max visible count.
 

@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Modules.Sleep.Runtime",
+    "rootNamespace": "CCS.Modules.Sleep",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.TimeOfDay.Runtime",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.SaveLoad.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
