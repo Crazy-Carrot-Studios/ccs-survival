@@ -136,6 +136,7 @@ namespace CCS.Modules.UI.Editor
             ValidateHungerHudIntegration(report);
             ValidateSleepHudIntegration(report);
             ValidateWildlifeAiHudIntegration(report);
+            ValidateCombatHudIntegration(report);
         }
 
         #endregion
@@ -171,6 +172,37 @@ namespace CCS.Modules.UI.Editor
                         : CCS_SurvivalValidationIssueSeverity.Error,
                     "HUD Sleep Ready Display",
                     "Survival bar presenter shows optional Sleep Ready debug label.");
+            }
+        }
+
+        private static void ValidateCombatHudIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string presentationServicePath = RuntimeRoot + "/Services/CCS_HudPresentationService.cs";
+            const string wiringPath = RuntimeRoot + "/Services/CCS_HudGameplayServiceWiring.cs";
+
+            if (File.Exists(presentationServicePath))
+            {
+                string presentationSource = File.ReadAllText(presentationServicePath);
+                report.AddIssue(
+                    presentationSource.Contains("BindCombatService")
+                        && presentationSource.Contains("HandleWildlifeDamaged")
+                        && presentationSource.Contains("HandleWildlifeKilled")
+                        && presentationSource.Contains("Hit ")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Combat Wiring",
+                    "HUD presentation service exposes combat hit and kill notifications.");
+            }
+
+            if (File.Exists(wiringPath))
+            {
+                string wiringSource = File.ReadAllText(wiringPath);
+                report.AddIssue(
+                    wiringSource.Contains("BindCombatService")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Combat Service Binding",
+                    "HUD gameplay wiring binds CCS_CombatService at runtime.");
             }
         }
 

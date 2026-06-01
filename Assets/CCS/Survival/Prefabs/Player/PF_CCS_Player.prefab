@@ -229,6 +229,7 @@ GameObject:
   - component: {fileID: 2387630387498075848}
   - component: {fileID: 8941113909631287232}
   - component: {fileID: 8834316706215039670}
+  - component: {fileID: 7803436177386225918}
   m_Layer: 0
   m_Name: PF_CCS_Player
   m_TagString: Untagged
@@ -349,3 +350,16 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 4294967291
+--- !u!114 &7803436177386225918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103026273400016382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 473e7e056439ab340bfabed5fb4c1adf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_PlayerCombatDriver
+  combatCamera: {fileID: 0}

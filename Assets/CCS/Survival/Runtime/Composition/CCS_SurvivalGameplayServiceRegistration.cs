@@ -14,6 +14,7 @@ using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
+using CCS.Modules.Combat;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 
@@ -46,6 +47,7 @@ namespace CCS.Survival.Composition
             CCS_WildlifeAiProfile wildlifeAiProfile,
             CCS_CookingProfile cookingProfile,
             CCS_SleepProfile sleepProfile,
+            CCS_CombatProfile combatProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
@@ -143,6 +145,9 @@ namespace CCS.Survival.Composition
                 equipmentService,
                 craftingService);
             RegisterService(runtimeHost, sleepService, enableDebugLogs);
+
+            CCS_CombatService combatService = CreateCombatService(combatProfile, equipmentService);
+            RegisterService(runtimeHost, combatService, enableDebugLogs);
 
             CCS_CharacterMovementService characterMovementService =
                 CreateCharacterMovementService(characterControllerProfile);
@@ -360,6 +365,28 @@ namespace CCS.Survival.Composition
             if (survivalCoreService != null && survivalCoreService.IsInitialized)
             {
                 service.BindSurvivalCoreService(survivalCoreService);
+            }
+
+            return service;
+        }
+
+        private static CCS_CombatService CreateCombatService(
+            CCS_CombatProfile profile,
+            CCS_PlayerEquipmentService equipmentService)
+        {
+            CCS_CombatService service = new CCS_CombatService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                service.BindEquipmentService(equipmentService);
             }
 
             return service;

@@ -56,8 +56,27 @@
 | **0.9.5** | Consumables & hunger usage (passive drain, thresholds, F consume, HUD feedback) |
 | **0.9.6** | Sleep & bedroll foundation (time advance, fatigue restore, shelter modifier) |
 | **0.9.7** | Passive wildlife AI (wander, idle, flee; living rabbit/deer placeholders) |
+| **0.9.8** | Primitive combat foundation (melee hunting, wildlife health, carcass spawn on kill) |
 
-Later milestones continue from **0.9.8+** (primitive combat, hunting loop).
+Later milestones continue from **0.9.9+** (durability, ranged weapons, predators).
+
+---
+
+## 0.9.8 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Combat module under `Assets/CCS/Modules/Combat/` | **Complete** |
+| `CCS_CombatService` camera-forward SphereCast melee | **Complete** |
+| Knife (10 dmg / 2 m) and spear (20 dmg / 3 m) on items | **Complete** |
+| `CCS_WildlifeDamageable` on living rabbit (20 HP) and deer (50 HP) | **Complete** |
+| Kill spawns carcass; living agent removed; harvest retained | **Complete** |
+| `CCS_PlayerCombatDriver` on PrimaryAction input | **Complete** |
+| HUD hit/kill notifications | **Complete** |
+| Bootstrap spear → rabbit hunt path | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.8** | **Complete** |
+| Humanoid enemies, predators, animations, multiplayer combat | **Deferred** |
 
 ---
 

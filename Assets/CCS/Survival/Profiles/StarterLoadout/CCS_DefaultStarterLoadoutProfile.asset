@@ -23,6 +23,8 @@ MonoBehaviour:
     quantity: 1
   - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
     quantity: 2
+  - itemDefinition: {fileID: 11400000, guid: f92602b1d1bfea94e98f84a27b1914c8, type: 2}
+    quantity: 1
   currencyItemDefinition: {fileID: 11400000, guid: f79e92daebd51ba4eb8a49b557d23f91, type: 2}
   startingCurrencyAmount: 10
   applyWhenInventoryEmpty: 1

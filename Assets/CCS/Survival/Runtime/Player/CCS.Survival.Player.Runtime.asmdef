@@ -13,6 +13,7 @@
         "CCS.Modules.SurvivalCore.Runtime",
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
+        "CCS.Modules.Combat.Runtime",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],

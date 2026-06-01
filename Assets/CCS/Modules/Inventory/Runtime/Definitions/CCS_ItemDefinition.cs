@@ -76,6 +76,13 @@ namespace CCS.Modules.Inventory
         [Tooltip("Engagement range placeholder.")]
         [SerializeField] private CCS_RangeType rangeType = CCS_RangeType.None;
 
+        [Header("Melee Combat (0.9.8)")]
+        [Tooltip("Melee damage dealt per primary attack when this weapon is used.")]
+        [SerializeField] private float meleeDamage;
+
+        [Tooltip("Melee attack reach in meters from the camera origin.")]
+        [SerializeField] private float meleeRange = 2f;
+
         [Header("Presentation (Placeholder)")]
         [Tooltip("Optional icon sprite reference for future UI.")]
         [SerializeField] private Sprite icon;
@@ -117,6 +124,10 @@ namespace CCS.Modules.Inventory
         public CCS_DamageType DamageType => damageType;
 
         public CCS_RangeType RangeType => rangeType;
+
+        public float MeleeDamage => meleeDamage;
+
+        public float MeleeRange => meleeRange;
 
         public Sprite Icon => icon;
 

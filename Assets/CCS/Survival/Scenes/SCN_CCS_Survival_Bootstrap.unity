@@ -1763,6 +1763,7 @@ GameObject:
   - component: {fileID: 1058849403}
   - component: {fileID: 1058849402}
   - component: {fileID: 1058849401}
+  - component: {fileID: 1058849405}
   m_Layer: 0
   m_Name: CCS_TestRabbit
   m_TagString: Untagged
@@ -1879,6 +1880,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1058849399}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1058849405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1058849399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 814f3aa6f4e7ea6449f4352ecc86d9f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeDamageable
+  displayName: Rabbit
+  species: 0
+  maxHealth: 20
 --- !u!1 &1078464425
 GameObject:
   m_ObjectHideFlags: 0
@@ -3953,6 +3969,7 @@ GameObject:
   - component: {fileID: 1885307528}
   - component: {fileID: 1885307527}
   - component: {fileID: 1885307526}
+  - component: {fileID: 1885307530}
   m_Layer: 0
   m_Name: CCS_TestDeer
   m_TagString: Untagged
@@ -4071,6 +4088,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1885307524}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1885307530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885307524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 814f3aa6f4e7ea6449f4352ecc86d9f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeDamageable
+  displayName: Deer
+  species: 1
+  maxHealth: 50
 --- !u!1 &1905824881
 GameObject:
   m_ObjectHideFlags: 0

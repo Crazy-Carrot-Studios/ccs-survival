@@ -12,6 +12,7 @@ using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
+using CCS.Modules.Combat;
 using CCS.Survival;
 using UnityEngine;
 
@@ -46,6 +47,7 @@ namespace CCS.Modules.UI
         private CCS_CampfireService campfireService;
         private CCS_ConsumableFoodService consumableFoodService;
         private CCS_SleepService sleepService;
+        private CCS_CombatService combatService;
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
@@ -429,6 +431,20 @@ namespace CCS.Modules.UI
             RefreshSleepSnapshot();
         }
 
+        public void BindCombatService(CCS_CombatService service)
+        {
+            UnbindCombatService();
+            combatService = service;
+
+            if (combatService == null)
+            {
+                return;
+            }
+
+            combatService.WildlifeDamaged += HandleWildlifeDamaged;
+            combatService.WildlifeKilled += HandleWildlifeKilled;
+        }
+
         public void BindWildlifeAiService(CCS_WildlifeAiService service)
         {
             UnbindWildlifeAiService();
@@ -484,6 +500,7 @@ namespace CCS.Modules.UI
             UnbindCampfireService();
             UnbindConsumableFoodService();
             UnbindSleepService();
+            UnbindCombatService();
             UnbindCraftingService();
             UnbindTimeOfDayService();
             UnbindWeatherService();
@@ -675,6 +692,46 @@ namespace CCS.Modules.UI
             {
                 QueueNotification(notification);
             }
+        }
+
+        private void HandleWildlifeDamaged(CCS_CombatEventArgs eventArgs)
+        {
+            string notification = BuildWildlifeDamagedNotification(eventArgs);
+            if (!string.IsNullOrWhiteSpace(notification))
+            {
+                QueueNotification(notification);
+            }
+        }
+
+        private void HandleWildlifeKilled(CCS_CombatEventArgs eventArgs)
+        {
+            string notification = BuildWildlifeKilledNotification(eventArgs);
+            if (!string.IsNullOrWhiteSpace(notification))
+            {
+                QueueNotification(notification);
+            }
+        }
+
+        private static string BuildWildlifeDamagedNotification(CCS_CombatEventArgs eventArgs)
+        {
+            CCS_CombatHitResult result = eventArgs?.HitResult;
+            if (result == null || !result.DidHitWildlife || result.TargetKilled)
+            {
+                return string.Empty;
+            }
+
+            return $"Hit {result.TargetDisplayName} ({result.DamageDealt:0})";
+        }
+
+        private static string BuildWildlifeKilledNotification(CCS_CombatEventArgs eventArgs)
+        {
+            CCS_CombatHitResult result = eventArgs?.HitResult;
+            if (result == null || !result.TargetKilled)
+            {
+                return string.Empty;
+            }
+
+            return $"{result.TargetDisplayName} Killed";
         }
 
         private static string BuildSleepCompletedNotification(CCS_SleepEventArgs eventArgs)
@@ -1219,6 +1276,18 @@ namespace CCS.Modules.UI
             sleepService.SleepFailed -= HandleSleepFailed;
             sleepService = null;
             sleepSnapshot = CCS_SleepSnapshot.Empty;
+        }
+
+        private void UnbindCombatService()
+        {
+            if (combatService == null)
+            {
+                return;
+            }
+
+            combatService.WildlifeDamaged -= HandleWildlifeDamaged;
+            combatService.WildlifeKilled -= HandleWildlifeKilled;
+            combatService = null;
         }
 
         private void UnbindBuildingPlacementService()

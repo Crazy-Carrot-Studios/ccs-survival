@@ -29,4 +29,6 @@ MonoBehaviour:
   weaponType: 1
   damageType: 2
   rangeType: 1
+  meleeDamage: 20
+  meleeRange: 3
   icon: {fileID: 0}

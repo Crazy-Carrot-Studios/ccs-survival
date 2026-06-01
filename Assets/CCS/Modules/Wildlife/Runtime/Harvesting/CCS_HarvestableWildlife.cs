@@ -69,6 +69,13 @@ namespace CCS.Modules.Wildlife
 
         #region Public Methods
 
+        public void ConfigureCarcass(CCS_WildlifeDefinition definition, CCS_WildlifeProfile profile)
+        {
+            wildlifeDefinition = definition;
+            wildlifeProfile = profile;
+            ResetWildlifeState();
+        }
+
         public string GetInteractionDisplayName()
         {
             if (wildlifeDefinition == null || string.IsNullOrWhiteSpace(wildlifeDefinition.DisplayName))

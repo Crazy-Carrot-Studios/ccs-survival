@@ -12,6 +12,7 @@ using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
+using CCS.Modules.Combat;
 using CCS.Survival;
 using UnityEngine;
 
@@ -121,6 +122,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_SleepService sleepService))
             {
                 presentationService.BindSleepService(sleepService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_CombatService combatService))
+            {
+                presentationService.BindCombatService(combatService);
                 wiredAnyService = true;
             }
 

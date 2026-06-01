@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Combat.Editor",
+    "rootNamespace": "CCS.Modules.Combat.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Combat.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Wildlife.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Survival.Player.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
