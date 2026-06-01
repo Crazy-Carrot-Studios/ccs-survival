@@ -227,6 +227,8 @@ GameObject:
   - component: {fileID: 5138751996635319614}
   - component: {fileID: 562019787567068159}
   - component: {fileID: 2387630387498075848}
+  - component: {fileID: 8941113909631287232}
+  - component: {fileID: 8834316706215039670}
   m_Layer: 0
   m_Name: PF_CCS_Player
   m_TagString: Untagged
@@ -318,3 +320,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_InteractionPlayerDriver
   interactionCamera: {fileID: 7181608214347970206}
+--- !u!114 &8941113909631287232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103026273400016382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 566a0e2207c53b646a3581f1f9603915, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_ConsumableFoodPlayerDriver
+--- !u!114 &8834316706215039670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103026273400016382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d3fb512f12054f4cbb5b9872fbe310d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_CampfireBuildingPlayerDriver
+  placementCamera: {fileID: 0}
+  placementRayDistance: 8
+  placementLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967291

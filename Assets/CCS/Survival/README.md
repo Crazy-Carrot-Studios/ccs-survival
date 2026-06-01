@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.3 — Wildlife Resource Foundation  
+**Milestone:** 0.9.4 — Campfire & Cooking Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

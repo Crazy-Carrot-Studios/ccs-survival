@@ -10,6 +10,7 @@ using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
+using CCS.Modules.Cooking;
 using CCS.Survival;
 using UnityEngine;
 
@@ -39,6 +40,9 @@ namespace CCS.Modules.UI
         private CCS_ResourceHarvestService resourceHarvestService;
         private CCS_ResourceRespawnService resourceRespawnService;
         private CCS_WildlifeHarvestService wildlifeHarvestService;
+        private CCS_CookingService cookingService;
+        private CCS_CampfireService campfireService;
+        private CCS_ConsumableFoodService consumableFoodService;
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
@@ -348,6 +352,47 @@ namespace CCS.Modules.UI
             buildingPlacementService.PlacementFailed += HandleBuildingPlacementFailed;
         }
 
+        public void BindCookingService(CCS_CookingService service)
+        {
+            UnbindCookingService();
+            cookingService = service;
+
+            if (cookingService == null)
+            {
+                return;
+            }
+
+            cookingService.CookingStarted += HandleCookingStarted;
+            cookingService.CookingCompleted += HandleCookingCompleted;
+            cookingService.CookingFailed += HandleCookingFailed;
+        }
+
+        public void BindCampfireService(CCS_CampfireService service)
+        {
+            UnbindCampfireService();
+            campfireService = service;
+
+            if (campfireService == null)
+            {
+                return;
+            }
+
+            campfireService.CampfireLit += HandleCampfireLit;
+        }
+
+        public void BindConsumableFoodService(CCS_ConsumableFoodService service)
+        {
+            UnbindConsumableFoodService();
+            consumableFoodService = service;
+
+            if (consumableFoodService == null)
+            {
+                return;
+            }
+
+            consumableFoodService.FoodConsumed += HandleFoodConsumed;
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -384,10 +429,14 @@ namespace CCS.Modules.UI
             UnbindResourceHarvestService();
             UnbindResourceRespawnService();
             UnbindWildlifeHarvestService();
+            UnbindCookingService();
+            UnbindCampfireService();
+            UnbindConsumableFoodService();
             UnbindCraftingService();
             UnbindTimeOfDayService();
             UnbindWeatherService();
             UnbindEnvironmentEffectsService();
+            UnbindBuildingPlacementService();
             isInitialized = false;
         }
 
@@ -474,6 +523,53 @@ namespace CCS.Modules.UI
         {
             QueueNotification("Wildlife depleted");
             HudDataRefreshed?.Invoke(BuildEventArgs("Wildlife depleted."));
+        }
+
+        private void HandleCookingStarted(CCS_CookingEventArgs eventArgs)
+        {
+            QueueNotification("Cooking Started");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Cooking started."));
+        }
+
+        private void HandleCookingCompleted(CCS_CookingEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueNotification("Cooking Complete");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Cooking completed."));
+        }
+
+        private void HandleCookingFailed(CCS_CookingEventArgs eventArgs)
+        {
+            string message = eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message)
+                ? eventArgs.Message
+                : "Cooking failed.";
+
+            QueueNotification($"Cooking Failed: {message}");
+        }
+
+        private void HandleCampfireLit(CCS_CookingEventArgs eventArgs)
+        {
+            QueueNotification("Campfire Lit");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Campfire lit."));
+        }
+
+        private void HandleFoodConsumed(CCS_CookingEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            RefreshSurvivalSnapshots();
+            QueueNotification(BuildFoodConsumedNotification(eventArgs));
+            HudDataRefreshed?.Invoke(BuildEventArgs("Food consumed."));
+        }
+
+        private static string BuildFoodConsumedNotification(CCS_CookingEventArgs eventArgs)
+        {
+            if (eventArgs?.ItemDefinition != null
+                && !string.IsNullOrWhiteSpace(eventArgs.ItemDefinition.DisplayName))
+            {
+                return $"Ate {eventArgs.ItemDefinition.DisplayName}";
+            }
+
+            return "Ate Cooked Meat";
         }
 
         private void HandleResourceRespawned(CCS_ResourceEventArgs eventArgs)
@@ -886,6 +982,41 @@ namespace CCS.Modules.UI
             craftingService.CraftingFailed -= HandleCraftingFailed;
             craftingService.RecipeUnlocked -= HandleRecipeUnlocked;
             craftingService = null;
+        }
+
+        private void UnbindCookingService()
+        {
+            if (cookingService == null)
+            {
+                return;
+            }
+
+            cookingService.CookingStarted -= HandleCookingStarted;
+            cookingService.CookingCompleted -= HandleCookingCompleted;
+            cookingService.CookingFailed -= HandleCookingFailed;
+            cookingService = null;
+        }
+
+        private void UnbindCampfireService()
+        {
+            if (campfireService == null)
+            {
+                return;
+            }
+
+            campfireService.CampfireLit -= HandleCampfireLit;
+            campfireService = null;
+        }
+
+        private void UnbindConsumableFoodService()
+        {
+            if (consumableFoodService == null)
+            {
+                return;
+            }
+
+            consumableFoodService.FoodConsumed -= HandleFoodConsumed;
+            consumableFoodService = null;
         }
 
         private void UnbindBuildingPlacementService()

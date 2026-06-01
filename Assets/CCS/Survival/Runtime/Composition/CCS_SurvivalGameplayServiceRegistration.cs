@@ -12,6 +12,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
+using CCS.Modules.Cooking;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 
@@ -41,6 +42,7 @@ namespace CCS.Survival.Composition
             CCS_EquipmentProfile equipmentProfile,
             CCS_WorldResourceProfile worldResourceProfile,
             CCS_WildlifeProfile wildlifeProfile,
+            CCS_CookingProfile cookingProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
@@ -111,6 +113,22 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, placementService, enableDebugLogs);
 
             BindBuildingShelterIntegration(shelterService, buildingService);
+
+            CCS_CookingService cookingService = CreateCookingService(cookingProfile, inventoryService);
+            RegisterService(runtimeHost, cookingService, enableDebugLogs);
+            RegisterCookingUpdatable(runtimeHost, cookingService);
+
+            CCS_CampfireService campfireService = CreateCampfireService(
+                cookingProfile,
+                buildingService,
+                placementService,
+                cookingService,
+                inventoryService);
+            RegisterService(runtimeHost, campfireService, enableDebugLogs);
+
+            CCS_ConsumableFoodService consumableFoodService =
+                CreateConsumableFoodService(cookingProfile, inventoryService, survivalCoreService);
+            RegisterService(runtimeHost, consumableFoodService, enableDebugLogs);
 
             CCS_CharacterMovementService characterMovementService =
                 CreateCharacterMovementService(characterControllerProfile);
@@ -232,6 +250,103 @@ namespace CCS.Survival.Composition
 
             service.InitializeFromProfile(profile);
             return service;
+        }
+
+        private static CCS_CookingService CreateCookingService(
+            CCS_CookingProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_CookingService service = new CCS_CookingService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile, inventoryService);
+            return service;
+        }
+
+        private static CCS_CampfireService CreateCampfireService(
+            CCS_CookingProfile profile,
+            CCS_BuildingService buildingService,
+            CCS_BuildingPlacementService placementService,
+            CCS_CookingService cookingService,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_CampfireService service = new CCS_CampfireService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (buildingService != null && buildingService.IsInitialized)
+            {
+                service.BindBuildingService(buildingService);
+            }
+
+            if (placementService != null && placementService.IsInitialized)
+            {
+                service.BindPlacementService(placementService);
+            }
+
+            if (cookingService != null && cookingService.IsInitialized)
+            {
+                service.BindCookingService(cookingService);
+                cookingService.BindCampfireService(service);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            return service;
+        }
+
+        private static CCS_ConsumableFoodService CreateConsumableFoodService(
+            CCS_CookingProfile profile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_SurvivalCoreService survivalCoreService)
+        {
+            CCS_ConsumableFoodService service = new CCS_ConsumableFoodService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (survivalCoreService != null && survivalCoreService.IsInitialized)
+            {
+                service.BindSurvivalCoreService(survivalCoreService);
+            }
+
+            return service;
+        }
+
+        private static void RegisterCookingUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_CookingService cookingService)
+        {
+            if (runtimeHost == null || cookingService == null || !cookingService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(cookingService);
         }
 
         private static CCS_CraftingService CreateCraftingService(

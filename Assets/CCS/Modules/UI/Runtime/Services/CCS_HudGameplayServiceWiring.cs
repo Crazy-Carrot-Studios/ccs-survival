@@ -10,6 +10,7 @@ using CCS.Modules.Weather;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
+using CCS.Modules.Cooking;
 using CCS.Survival;
 using UnityEngine;
 
@@ -89,6 +90,24 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_WildlifeHarvestService wildlifeHarvestService))
             {
                 presentationService.BindWildlifeHarvestService(wildlifeHarvestService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_CookingService cookingService))
+            {
+                presentationService.BindCookingService(cookingService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_CampfireService campfireService))
+            {
+                presentationService.BindCampfireService(campfireService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_ConsumableFoodService consumableFoodService))
+            {
+                presentationService.BindConsumableFoodService(consumableFoodService);
                 wiredAnyService = true;
             }
 

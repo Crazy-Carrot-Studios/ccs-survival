@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3357c9d88d0e38c4590773f43491d7b8, type: 3}
+  m_Name: CCS_DefaultCookingProfile
+  m_EditorClassIdentifier: CCS.Modules.Cooking.Runtime::CCS.Modules.Cooking.CCS_CookingProfile
+  profileDisplayName: Default Cooking
+  profileId: ccs.survival.profile.cooking.default
+  profileDescription: Default campfire cooking and consumable food rules for 0.9.4
+    foundation.
+  profileVersion: 0.9.4
+  enableDebugLogs: 0
+  enableCooking: 1
+  defaultCookTimeSeconds: 5
+  autoLightCampfiresOnPlacement: 1
+  defaultCampfireDefinition: {fileID: 11400000, guid: 7e89ea6e2854197459fc064da11adc22, type: 2}
+  campfireBuildingPiece: {fileID: 11400000, guid: fb8eab80ab1b82643a4f00950ef3fa0e, type: 2}
+  rawMeatItemDefinition: {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
+  cookedMeatItemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
+  consumableFoodDefinitions:
+  - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
+    hungerRestoreAmount: 15
+  - itemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
+    hungerRestoreAmount: 40

@@ -52,8 +52,26 @@
 | **0.9.2** | Primitive tool and weapon foundation (archetypes, tiers, bone tools, equipment verification) |
 | **0.9.2a** | Bootstrap ground collider hotfix (playable floor in bootstrap test scene) |
 | **0.9.3** | Wildlife resource foundation (carcass harvesting, Bone/Hide/Sinew/Raw Meat drops) |
+| **0.9.4** | Campfire & cooking foundation (campfire placement, Raw Meat → Cooked Meat, hunger restore) |
 
-Later milestones continue from **0.9.4+** (structural integrity, combat, vendors, audio).
+Later milestones continue from **0.9.5+** (consumables usage, sleep, wildlife AI, combat).
+
+---
+
+## 0.9.4 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Cooking module under `Assets/CCS/Modules/Cooking/` | **Complete** |
+| Campfire placement via Building framework (Campfire Kit → Campfire) | **Complete** |
+| `CCS_CampfireInteractable` light + cook interactions | **Complete** |
+| Raw Meat → Cooked Meat cooking loop (5s default) | **Complete** |
+| Basic Food + Cooked Meat hunger restore via Survival Core | **Complete** |
+| Bootstrap `CCS_CampfireTestArea` near wildlife test area | **Complete** |
+| HUD notifications: Campfire Lit, Cooking Started/Complete, Ate Cooked Meat | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.4** | **Complete** |
+| Fuel systems, cooking UI, health restore | **Deferred** |
 
 ---
 

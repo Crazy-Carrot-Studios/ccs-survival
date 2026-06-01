@@ -12,6 +12,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
 using CCS.Modules.Wildlife;
+using CCS.Modules.Cooking;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
@@ -51,6 +52,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default wildlife profile used to register CCS_WildlifeHarvestService.")]
         [SerializeField] private CCS_WildlifeProfile wildlifeProfile;
+
+        [Tooltip("Default cooking profile used to register cooking and campfire services.")]
+        [SerializeField] private CCS_CookingProfile cookingProfile;
 
         [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
         [SerializeField] private CCS_CraftingProfile craftingProfile;
@@ -113,6 +117,7 @@ namespace CCS.Survival.Composition
                 equipmentProfile,
                 worldResourceProfile,
                 wildlifeProfile,
+                cookingProfile,
                 craftingProfile,
                 saveLoadProfile,
                 timeOfDayProfile,

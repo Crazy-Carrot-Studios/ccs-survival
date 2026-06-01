@@ -1,0 +1,28 @@
+{
+    "name": "CCS.Modules.Cooking.Editor",
+    "rootNamespace": "CCS.Modules.Cooking.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Survival.Player.Runtime",
+        "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Building.Runtime",
+        "CCS.Modules.SurvivalCore.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

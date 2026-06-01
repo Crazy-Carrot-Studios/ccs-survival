@@ -8,6 +8,8 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.Building.Runtime",
         "CCS.Modules.SurvivalCore.Runtime",
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.SaveLoad.Runtime",

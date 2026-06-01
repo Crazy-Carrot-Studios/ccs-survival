@@ -23,6 +23,8 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**0.9.4** — Campfire & Cooking Foundation
+
 **0.9.3** — Wildlife Resource Foundation
 
 **0.9.2a** — Bootstrap Ground Collider Hotfix
@@ -186,8 +188,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.9.3
-**Build output:** `Builds/CCS_Survival_0.9.3_Windows/` (gitignored)
+**Latest verified build:** 0.9.4
+**Build output:** `Builds/CCS_Survival_0.9.4_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
