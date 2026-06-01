@@ -8,7 +8,7 @@
 
 Development-only bootstrap checklist and on-screen HUD for manually verifying the core survival loop:
 
-spawn → gather → equip → hunt → harvest → cook → eat → build → save → load → death → respawn.
+spawn → **controller polish** → gather → equip → hunt → harvest → cook → eat → shelter → workbench → storage → bedroll → save → load → death → respawn.
 
 This is not production UI and does not automate gameplay.
 
@@ -19,7 +19,8 @@ This is not production UI and does not automate gameplay.
 1. Enter Play Mode.
 2. Press **F10** to show the harness HUD.
 3. Confirm **Spawn** passes when the player exists.
-4. Interact with **CCS_TestGatheringSmallTree** or **CCS_TestGatheringBush** (sticks or wood).
+4. Complete **Third-person controller polish** (walk, sprint, camera, interact, gather, building preview, storage, bedroll).
+5. Interact with **CCS_TestGatheringSmallTree** or **CCS_TestGatheringBush** (sticks or wood).
 5. Press **F6** to equip the starter spear (required for melee hunt).
 6. Primary attack **CCS_TestRabbit** or **CCS_TestDeer**.
 7. Harvest the carcass (interact).

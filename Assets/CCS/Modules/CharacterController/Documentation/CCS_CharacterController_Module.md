@@ -92,32 +92,42 @@ Grounding: `Grounded` / `Airborne` from `CharacterController.isGrounded`.
 
 ---
 
-## Camera — third-person (1.1.4)
+## Camera — profile-driven third-person (1.1.5)
 
 | Type | Role |
 |------|------|
-| `CCS_CharacterLookState` | Yaw (movement facing) and pitch |
-| `CCS_CharacterCameraController` | Applies mouse/gamepad look to yaw pivot + look target |
-| `CCS_CharacterCameraProfile` | Sensitivity, pitch clamp, Cinemachine follow tuning |
-| `CCS_PlayerCinemachineCameraDriver` | Survival composition — wires Cinemachine 3.1 ThirdPersonFollow |
+| `CCS_CharacterCameraMode` | Planned mode enum (only `ThirdPersonSurvival` is active) |
+| `CCS_CharacterLookState` | Yaw (camera facing) and pitch |
+| `CCS_CharacterCameraController` | Smoothed mouse/gamepad look to yaw pivot + look target |
+| `CCS_CharacterCameraProfile` | Mode, sensitivity, follow tuning, future placeholders |
+| `CCS_PlayerCinemachineCameraDriver` | Survival composition — Cinemachine 3.1 ThirdPersonFollow |
 
-**Default feel:** AAA survival/MMO-style third-person prototype.
+**Active default mode:** `ThirdPersonSurvival` (modern AAA survival/MMO third-person prototype).
+
+**Planned profile modes (not implemented):** `FirstPerson`, `TopDown`, `AimOverShoulder`, `Vehicle`, `Horse`.
 
 - **Cinemachine 3.1** `CinemachineThirdPersonFollow` on `CM_GameplayCamera`
-- **CameraPivot** (yaw) + **CameraLookTarget** (pitch) on `PF_CCS_Player`
-- **Main Camera** at player root with `CinemachineBrain` (not inside the capsule)
-- **Mouse look** uses reduced `mouseSensitivityX/Y` (calm, readable)
-- **Gamepad look** uses `gamepadSensitivityX/Y` with delta time
-- **Pitch** clamped (`minPitch` / `maxPitch`) to prevent flip/over-rotation
-- **Interaction / combat / placement** raycasts use the gameplay `Camera` forward
+- **Look smoothing** via `lookSmoothing` on pointer/stick input
+- **Obstacle avoidance** via `AvoidObstacles` when enabled on profile
+- **Future fields:** `zoomDistanceMin/Max`, `aimTransitionSpeed` (reserved)
+- **Interaction / combat / placement** raycasts use gameplay `Camera` forward
+
+## Movement polish (1.1.5)
+
+| Setting | Purpose |
+|---------|---------|
+| `acceleration` / `deceleration` | Weighted start/stop on ground |
+| `sprintAcceleration` | Responsive sprint without arcade snap |
+| `rotationSmoothing` | Body rotates smoothly toward move direction |
+| `airControl` | Reduced planar control while airborne |
+
+Locomotion remains **CharacterController-based**. Animator root motion **OFF**.
 
 Prefab batch setup:
 
 ```text
 CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.ExecuteBatch
 ```
-
-**Deferred:** camera collision / obstacle avoidance polish.
 
 ---
 
@@ -167,7 +177,7 @@ Registered on `CCS_SurvivalValidationPipeline` at editor load.
 | Bootstrap installer + registry | Manual install plan |
 | New Input System actions | Replace runtime bridge |
 | Scene player prefab | PF_CCS_Player + bootstrap wiring |
-| Camera collision / obstacle avoidance | Polish milestone |
+| Alternate camera mode implementations | FirstPerson, TopDown, AimOverShoulder, Vehicle, Horse |
 | Combat, interaction, inventory, UI | Separate modules |
 
 ---

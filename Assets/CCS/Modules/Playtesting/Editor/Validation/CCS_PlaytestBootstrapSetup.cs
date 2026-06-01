@@ -86,8 +86,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.1.3.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.3";
+                "Bootstrap manual playtest checklist for milestone 1.1.5.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.5";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -106,6 +106,13 @@ namespace CCS.Modules.Playtesting.Editor
                 "Spawn into bootstrap",
                 CCS_PlaytestStepType.Spawn,
                 "Enter play mode in SCN_CCS_Survival_Bootstrap and confirm the player spawns.");
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.controller",
+                "Third-person controller polish",
+                CCS_PlaytestStepType.VerifyControllerPolish,
+                "Walk, sprint (Shift), rotate camera, interact (F), gather, press B for building preview, "
+                + "open storage (F2), and place/sleep at bedroll (Shift+F2). Step auto-completes when all are verified.");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.gather",

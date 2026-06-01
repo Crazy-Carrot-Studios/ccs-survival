@@ -3,7 +3,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CharacterCameraController
 // CATEGORY: Modules / CharacterController / Runtime / Camera
-// PURPOSE: Applies look input to yaw/pitch targets for third-person Cinemachine follow.
+// PURPOSE: Applies smoothed look input to yaw/pitch targets for third-person Cinemachine follow.
 // PLACEMENT: Used by CCS_CharacterMovementService.TickMovement.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
@@ -20,6 +20,8 @@ namespace CCS.Modules.CharacterController
         private Transform yawPivot;
         private Transform lookTarget;
         private CCS_CharacterCameraProfile activeProfile;
+        private Vector2 smoothedLookInput;
+        private float lastLookInputMagnitude;
 
         #endregion
 
@@ -35,6 +37,8 @@ namespace CCS.Modules.CharacterController
             yawPivot = yawPivotTransform;
             lookTarget = lookTargetTransform != null ? lookTargetTransform : yawPivotTransform;
             activeProfile = profile;
+            smoothedLookInput = Vector2.zero;
+            lastLookInputMagnitude = 0f;
             lookState.SetOrientation(initialYawDegrees, initialPitchDegrees);
             ApplyOrientationToTransforms();
         }
@@ -46,20 +50,37 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            float lookMagnitude = Mathf.Max(Mathf.Abs(input.Look.x), Mathf.Abs(input.Look.y));
-            bool isPointerLook = lookMagnitude > activeProfile.PointerLookThreshold;
+            if (!activeProfile.IsThirdPersonSurvivalActive)
+            {
+                return;
+            }
+
+            Vector2 rawLook = input.Look;
+            float lookSmoothing = Mathf.Max(0f, activeProfile.LookSmoothing);
+            if (lookSmoothing > 0f)
+            {
+                float blend = 1f - Mathf.Exp(-lookSmoothing * deltaTime);
+                smoothedLookInput = Vector2.Lerp(smoothedLookInput, rawLook, blend);
+            }
+            else
+            {
+                smoothedLookInput = rawLook;
+            }
+
+            lastLookInputMagnitude = Mathf.Max(Mathf.Abs(smoothedLookInput.x), Mathf.Abs(smoothedLookInput.y));
+            bool isPointerLook = lastLookInputMagnitude > activeProfile.PointerLookThreshold;
 
             float yawDelta;
             float pitchDelta;
             if (isPointerLook)
             {
-                yawDelta = input.Look.x * activeProfile.MouseSensitivityX;
-                pitchDelta = -input.Look.y * activeProfile.MouseSensitivityY;
+                yawDelta = smoothedLookInput.x * activeProfile.MouseSensitivityX;
+                pitchDelta = -smoothedLookInput.y * activeProfile.MouseSensitivityY;
             }
             else
             {
-                yawDelta = input.Look.x * activeProfile.GamepadSensitivityX * deltaTime;
-                pitchDelta = -input.Look.y * activeProfile.GamepadSensitivityY * deltaTime;
+                yawDelta = smoothedLookInput.x * activeProfile.GamepadSensitivityX * deltaTime;
+                pitchDelta = -smoothedLookInput.y * activeProfile.GamepadSensitivityY * deltaTime;
             }
 
             lookState.AddLookDelta(yawDelta, pitchDelta, activeProfile.MinPitch, activeProfile.MaxPitch);
@@ -88,6 +109,8 @@ namespace CCS.Modules.CharacterController
         public float YawDegrees => lookState.YawDegrees;
 
         public Transform LookTarget => lookTarget;
+
+        public float LastLookInputMagnitude => lastLookInputMagnitude;
 
         #endregion
     }

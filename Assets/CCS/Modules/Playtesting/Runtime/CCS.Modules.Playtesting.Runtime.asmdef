@@ -18,6 +18,8 @@
         "CCS.Modules.Storage.Runtime",
         "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Interaction.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

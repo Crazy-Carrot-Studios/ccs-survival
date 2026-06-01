@@ -58,6 +58,8 @@ namespace CCS.Modules.CharacterController
 
         public CCS_CharacterLookState LookState => cameraController.LookState;
 
+        public float LastLookInputMagnitude => cameraController.LastLookInputMagnitude;
+
         public CCS_ICharacterInputProvider InputProvider => inputProvider;
 
         public CCS_CharacterInputRuntimeBridge DefaultInputBridge => defaultInputBridge;
@@ -157,6 +159,7 @@ namespace CCS.Modules.CharacterController
                 : CCS_CharacterInputSnapshot.Empty;
 
             cameraController.TickLook(inputSnapshot, deltaTime);
+            motor.SetReferenceYaw(cameraController.YawDegrees);
 
             CCS_CharacterMovementInput movementInput = BuildMovementInput(inputSnapshot);
 

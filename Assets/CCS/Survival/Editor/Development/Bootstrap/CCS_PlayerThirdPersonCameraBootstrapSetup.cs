@@ -64,26 +64,42 @@ namespace CCS.Survival.Editor.Development
         private static void UpdateDefaultProfile(CCS_CharacterControllerProfile profile)
         {
             SerializedObject serializedProfile = new SerializedObject(profile);
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.4";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.5";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default third-person survival camera tuning for 1.1.4 Cinemachine integration.";
+                "AAA third-person survival camera and movement polish for 1.1.5.";
             serializedProfile.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedProperty cameraProperty = serializedProfile.FindProperty("camera");
-            SetCameraProperty(cameraProperty, "mouseSensitivityX", 0.12f);
-            SetCameraProperty(cameraProperty, "mouseSensitivityY", 0.1f);
-            SetCameraProperty(cameraProperty, "gamepadSensitivityX", 90f);
-            SetCameraProperty(cameraProperty, "gamepadSensitivityY", 70f);
+            SetCameraEnumProperty(cameraProperty, "activeCameraMode", 0);
+            SetCameraProperty(cameraProperty, "mouseSensitivityX", 0.1f);
+            SetCameraProperty(cameraProperty, "mouseSensitivityY", 0.085f);
+            SetCameraProperty(cameraProperty, "gamepadSensitivityX", 85f);
+            SetCameraProperty(cameraProperty, "gamepadSensitivityY", 65f);
+            SetCameraProperty(cameraProperty, "lookSmoothing", 14f);
             SetCameraProperty(cameraProperty, "minPitch", -35f);
-            SetCameraProperty(cameraProperty, "maxPitch", 60f);
+            SetCameraProperty(cameraProperty, "maxPitch", 55f);
             SetCameraProperty(cameraProperty, "pivotHeight", 1.35f);
             SetCameraProperty(cameraProperty, "lookTargetHeight", 0.25f);
-            SetCameraProperty(cameraProperty, "cameraDistance", 4.5f);
-            SetCameraProperty(cameraProperty, "shoulderOffset", new Vector3(0.55f, 0.1f, 0f));
-            SetCameraProperty(cameraProperty, "verticalArmLength", 0.4f);
+            SetCameraProperty(cameraProperty, "cameraDistance", 4.75f);
+            SetCameraProperty(cameraProperty, "shoulderOffset", new Vector3(0.5f, 0.12f, 0f));
+            SetCameraProperty(cameraProperty, "verticalArmLength", 0.42f);
             SetCameraProperty(cameraProperty, "cameraSide", 1f);
-            SetCameraProperty(cameraProperty, "followDamping", new Vector3(0.2f, 0.25f, 0.2f));
+            SetCameraProperty(cameraProperty, "followDamping", new Vector3(0.28f, 0.32f, 0.28f));
+            SetCameraProperty(cameraProperty, "zoomDistanceMin", 2.5f);
+            SetCameraProperty(cameraProperty, "zoomDistanceMax", 8f);
+            SetCameraProperty(cameraProperty, "aimTransitionSpeed", 6f);
+            SetCameraBoolProperty(cameraProperty, "enableObstacleAvoidance", true);
+            SetCameraProperty(cameraProperty, "obstacleCameraRadius", 0.25f);
+            SetCameraProperty(cameraProperty, "obstacleDampingIntoCollision", 0.35f);
+            SetCameraProperty(cameraProperty, "obstacleDampingFromCollision", 0.55f);
             SetCameraProperty(cameraProperty, "pointerLookThreshold", 1f);
+
+            SerializedProperty movementProperty = serializedProfile.FindProperty("movement");
+            SetCameraProperty(movementProperty, "acceleration", 14f);
+            SetCameraProperty(movementProperty, "deceleration", 18f);
+            SetCameraProperty(movementProperty, "sprintAcceleration", 11f);
+            SetCameraProperty(movementProperty, "airControl", 0.35f);
+            SetCameraProperty(movementProperty, "rotationSmoothing", 540f);
             serializedProfile.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(profile);
         }
@@ -109,6 +125,30 @@ namespace CCS.Survival.Editor.Development
             if (property != null)
             {
                 property.vector3Value = value;
+            }
+        }
+
+        private static void SetCameraBoolProperty(
+            SerializedProperty cameraProperty,
+            string propertyName,
+            bool value)
+        {
+            SerializedProperty property = cameraProperty.FindPropertyRelative(propertyName);
+            if (property != null)
+            {
+                property.boolValue = value;
+            }
+        }
+
+        private static void SetCameraEnumProperty(
+            SerializedProperty cameraProperty,
+            string propertyName,
+            int enumIndex)
+        {
+            SerializedProperty property = cameraProperty.FindPropertyRelative(propertyName);
+            if (property != null)
+            {
+                property.enumValueIndex = enumIndex;
             }
         }
 

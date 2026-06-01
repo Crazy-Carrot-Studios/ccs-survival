@@ -5,11 +5,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_PlayerCinemachineCameraDriver
 // CATEGORY: Survival / Runtime / Player
-// PURPOSE: Wires Cinemachine 3.1 third-person follow to character look targets and profile tuning.
+// PURPOSE: Wires Cinemachine 3.1 third-person follow to profile-driven camera modes and tuning.
 // PLACEMENT: PF_CCS_Player alongside CCS_PlayerGameplayController.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Main Camera uses CinemachineBrain; look yaw/pitch driven by movement service.
+// NOTES: Only ThirdPersonSurvival is active. Other modes are profile placeholders.
 // =============================================================================
 
 namespace CCS.Survival.Player
@@ -30,7 +30,7 @@ namespace CCS.Survival.Player
         [SerializeField] private Transform cameraLookTarget;
 
         [Header("Profile")]
-        [Tooltip("Character controller profile supplying third-person camera tuning.")]
+        [Tooltip("Character controller profile supplying camera mode and tuning.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
         private CinemachineThirdPersonFollow thirdPersonFollow;
@@ -83,13 +83,13 @@ namespace CCS.Survival.Player
 
         public void ApplyProfileToCinemachine()
         {
-            if (characterControllerProfile == null || thirdPersonFollow == null)
+            if (characterControllerProfile == null || thirdPersonFollow == null || gameplayCamera == null)
             {
                 return;
             }
 
             CCS_CharacterCameraProfile cameraProfile = characterControllerProfile.Camera;
-            if (cameraProfile == null)
+            if (cameraProfile == null || !cameraProfile.IsThirdPersonSurvivalActive)
             {
                 return;
             }
@@ -99,6 +99,19 @@ namespace CCS.Survival.Player
             thirdPersonFollow.VerticalArmLength = cameraProfile.VerticalArmLength;
             thirdPersonFollow.CameraSide = cameraProfile.CameraSide;
             thirdPersonFollow.Damping = cameraProfile.FollowDamping;
+
+#if CINEMACHINE_PHYSICS
+            CinemachineThirdPersonFollow.ObstacleSettings obstacleSettings = thirdPersonFollow.AvoidObstacles;
+            obstacleSettings.Enabled = cameraProfile.EnableObstacleAvoidance;
+            obstacleSettings.CameraRadius = cameraProfile.ObstacleCameraRadius;
+            obstacleSettings.CollisionFilter = cameraProfile.ObstacleLayerMask;
+            obstacleSettings.IgnoreTag = cameraProfile.ObstacleIgnoreTag ?? string.Empty;
+            obstacleSettings.DampingIntoCollision = cameraProfile.ObstacleDampingIntoCollision;
+            obstacleSettings.DampingFromCollision = cameraProfile.ObstacleDampingFromCollision;
+            thirdPersonFollow.AvoidObstacles = obstacleSettings;
+#endif
+
+            gameplayCamera.enabled = true;
             profileApplied = true;
         }
 
@@ -120,7 +133,10 @@ namespace CCS.Survival.Player
         public bool IsConfigured => gameplayCamera != null
             && thirdPersonFollow != null
             && cameraLookTarget != null
-            && profileApplied;
+            && profileApplied
+            && characterControllerProfile != null
+            && characterControllerProfile.Camera != null
+            && characterControllerProfile.Camera.IsThirdPersonSurvivalActive;
 
         #endregion
     }

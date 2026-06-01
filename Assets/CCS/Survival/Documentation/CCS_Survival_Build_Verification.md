@@ -70,7 +70,7 @@ Not final environment art.
 Windows development build output (gitignored):
 
 ```text
-Builds/CCS_Survival_1.1.4_Windows/
+Builds/CCS_Survival_1.1.5_Windows/
   CCS_Survival.exe
 ```
 
@@ -137,7 +137,7 @@ $project = "<PROJECT_PATH>"
 | Feature | Status |
 |---------|--------|
 | UI / HUD | Deferred to next milestone |
-| Third-person Cinemachine camera | **1.1.4** |
+| Third-person Cinemachine camera | **1.1.5** (profile modes + obstacle avoidance) |
 | Final player prefab wiring | Deferred |
 | Save/load | Deferred |
 | Crafting / storage world objects | Deferred |

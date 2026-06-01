@@ -20,6 +20,8 @@ namespace CCS.Modules.CharacterController
         private CCS_CharacterMovementProfile movementProfile;
         private float verticalVelocity;
         private bool wasGroundedLastFrame;
+        private Vector3 currentPlanarVelocity;
+        private float referenceYawDegrees;
 
         #endregion
 
@@ -31,11 +33,18 @@ namespace CCS.Modules.CharacterController
             movementProfile = profile;
             verticalVelocity = 0f;
             wasGroundedLastFrame = false;
+            currentPlanarVelocity = Vector3.zero;
+            referenceYawDegrees = controller != null ? controller.transform.eulerAngles.y : 0f;
 
             if (characterController != null && movementProfile != null)
             {
                 ApplyCapsuleSettings();
             }
+        }
+
+        public void SetReferenceYaw(float yawDegrees)
+        {
+            referenceYawDegrees = yawDegrees;
         }
 
         public CCS_CharacterMovementSnapshot Tick(
@@ -69,13 +78,28 @@ namespace CCS.Modules.CharacterController
             bool isSprinting = input.SprintHeld && !isCrouching && input.HasPlanarInput;
             float targetSpeed = ResolveTargetSpeed(isCrouching, isSprinting, input.HasPlanarInput);
 
-            Vector3 planarVelocity = input.WorldPlanarMove;
-            if (planarVelocity.sqrMagnitude > 1f)
+            Vector3 desiredPlanarVelocity = Vector3.zero;
+            if (input.HasPlanarInput)
             {
-                planarVelocity.Normalize();
+                desiredPlanarVelocity = input.WorldPlanarMove;
+                if (desiredPlanarVelocity.sqrMagnitude > 1f)
+                {
+                    desiredPlanarVelocity.Normalize();
+                }
+
+                desiredPlanarVelocity *= targetSpeed;
             }
 
-            planarVelocity *= targetSpeed;
+            float planarAcceleration = ResolvePlanarAcceleration(
+                isGrounded,
+                input.HasPlanarInput,
+                isSprinting);
+            currentPlanarVelocity = Vector3.MoveTowards(
+                currentPlanarVelocity,
+                desiredPlanarVelocity,
+                planarAcceleration * deltaTime);
+
+            ApplyBodyRotation(input, deltaTime);
 
             if (isGrounded)
             {
@@ -94,7 +118,7 @@ namespace CCS.Modules.CharacterController
                 verticalVelocity += movementProfile.Gravity * deltaTime;
             }
 
-            Vector3 displacement = (planarVelocity + Vector3.up * verticalVelocity) * deltaTime;
+            Vector3 displacement = (currentPlanarVelocity + Vector3.up * verticalVelocity) * deltaTime;
             characterController.Move(displacement);
 
             isGrounded = characterController.isGrounded;
@@ -104,20 +128,21 @@ namespace CCS.Modules.CharacterController
                 ? CCS_CharacterGroundingState.Grounded
                 : CCS_CharacterGroundingState.Airborne;
 
+            float planarSpeed = new Vector3(currentPlanarVelocity.x, 0f, currentPlanarVelocity.z).magnitude;
             CCS_CharacterMovementState movementState = ResolveMovementState(
                 input,
                 isGrounded,
                 isCrouching,
                 isSprinting,
                 jumpedThisFrame,
-                planarVelocity.magnitude);
+                planarSpeed);
 
             Vector3 worldVelocity = displacement / deltaTime;
             return new CCS_CharacterMovementSnapshot(
                 movementState,
                 groundingState,
                 worldVelocity,
-                planarVelocity.magnitude,
+                planarSpeed,
                 isSprinting,
                 isCrouching,
                 jumpedThisFrame);
@@ -139,6 +164,45 @@ namespace CCS.Modules.CharacterController
         #endregion
 
         #region Private Methods
+
+        private void ApplyBodyRotation(CCS_CharacterMovementInput input, float deltaTime)
+        {
+            if (characterController == null || movementProfile == null)
+            {
+                return;
+            }
+
+            Transform bodyTransform = characterController.transform;
+            float targetYaw = referenceYawDegrees;
+            if (input.HasPlanarInput)
+            {
+                Vector3 planarMove = input.WorldPlanarMove;
+                planarMove.y = 0f;
+                if (planarMove.sqrMagnitude > 0.0001f)
+                {
+                    targetYaw = Mathf.Atan2(planarMove.x, planarMove.z) * Mathf.Rad2Deg;
+                }
+            }
+
+            Quaternion targetRotation = Quaternion.Euler(0f, targetYaw, 0f);
+            float maxDegrees = movementProfile.RotationSmoothing * deltaTime;
+            bodyTransform.rotation = Quaternion.RotateTowards(bodyTransform.rotation, targetRotation, maxDegrees);
+        }
+
+        private float ResolvePlanarAcceleration(bool isGrounded, bool hasPlanarInput, bool isSprinting)
+        {
+            if (!hasPlanarInput)
+            {
+                return movementProfile.Deceleration;
+            }
+
+            if (!isGrounded)
+            {
+                return movementProfile.Acceleration * movementProfile.AirControl;
+            }
+
+            return isSprinting ? movementProfile.SprintAcceleration : movementProfile.Acceleration;
+        }
 
         private float ResolveTargetSpeed(bool isCrouching, bool isSprinting, bool hasPlanarInput)
         {
@@ -197,6 +261,8 @@ namespace CCS.Modules.CharacterController
         public bool IsGrounded => characterController != null && characterController.isGrounded;
 
         public float VerticalVelocity => verticalVelocity;
+
+        public Vector3 CurrentPlanarVelocity => currentPlanarVelocity;
 
         #endregion
     }

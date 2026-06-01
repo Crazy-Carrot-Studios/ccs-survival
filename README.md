@@ -66,6 +66,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.1.5** | AAA Third-Person Controller Feel Polish |
 | **1.1.4** | Third-Person Controller Feel + README Polish |
 | **1.1.3** | Sleep + Bedroll Foundation |
 | **1.1.2** | Storage Container Foundation |
@@ -143,8 +144,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **1.1.4** |
-| Output | `Builds/CCS_Survival_1.1.4_Windows/` (gitignored) |
+| Version | **1.1.5** |
+| Output | `Builds/CCS_Survival_1.1.5_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

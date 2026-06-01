@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.3.
-  profileVersion: 1.1.3
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.5.
+  profileVersion: 1.1.5
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -26,6 +26,26 @@ MonoBehaviour:
     stepType: 0
     instructionText: Enter play mode in SCN_CCS_Survival_Bootstrap and confirm the
       player spawns.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.controller
+    displayName: Third-person controller polish
+    stepType: 16
+    instructionText: Walk, sprint (Shift), rotate camera, interact (F), gather, press
+      B for building preview, open storage (F2), and place/sleep at bedroll (Shift+F2).
+      Step auto-completes when all are verified.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.controller
+    displayName: Third-person controller polish
+    stepType: 16
+    instructionText: Walk, sprint (Shift), rotate camera, interact (F), gather, press B for
+      building preview, open storage (F2), and place/sleep at bedroll (Shift+F2).
+      Step auto-completes when all are verified.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

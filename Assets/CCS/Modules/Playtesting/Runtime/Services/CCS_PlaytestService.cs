@@ -5,7 +5,9 @@ using CCS.Modules.Crafting;
 using CCS.Modules.Combat;
 using CCS.Modules.Cooking;
 using CCS.Modules.Equipment;
+using CCS.Modules.CharacterController;
 using CCS.Modules.Gathering;
+using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.SaveSystem;
@@ -74,6 +76,17 @@ namespace CCS.Modules.Playtesting
         private bool playtestSleepCompleted;
         private bool playtestBedrollRespawnAssigned;
         private bool playtestBedrollRestoredAfterLoad;
+        private bool controllerPolishWalkDone;
+        private bool controllerPolishSprintDone;
+        private bool controllerPolishCameraRotateDone;
+        private bool controllerPolishInteractDone;
+        private bool controllerPolishGatherDone;
+        private bool controllerPolishBuildingPreviewDone;
+        private bool controllerPolishStorageDone;
+        private bool controllerPolishBedrollDone;
+        private float controllerPolishPreviousYaw;
+        private bool controllerPolishYawInitialized;
+        private CCS_InteractionService boundInteractionService;
 
         #endregion
 
@@ -138,7 +151,8 @@ namespace CCS.Modules.Playtesting
             CCS_CraftingRecipeService craftingRecipeService,
             CCS_StorageService storageService,
             CCS_SleepService sleepService,
-            CCS_SurvivalCoreService survivalCore)
+            CCS_SurvivalCoreService survivalCore,
+            CCS_InteractionService interactionService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -160,6 +174,12 @@ namespace CCS.Modules.Playtesting
             boundStorageService = storageService;
             boundSleepService = sleepService;
             boundEquipmentService = equipmentService;
+            boundInteractionService = interactionService;
+
+            if (boundInteractionService != null)
+            {
+                boundInteractionService.InteractionSucceeded += HandleInteractionSucceeded;
+            }
 
             if (boundGatheringService != null)
             {
@@ -322,6 +342,13 @@ namespace CCS.Modules.Playtesting
             boundStorageService = null;
             boundSleepService = null;
             boundEquipmentService = null;
+
+            if (boundInteractionService != null)
+            {
+                boundInteractionService.InteractionSucceeded -= HandleInteractionSucceeded;
+            }
+
+            boundInteractionService = null;
             eventsBound = false;
         }
 
@@ -329,6 +356,7 @@ namespace CCS.Modules.Playtesting
         {
             ResetStoragePlaytestFlags();
             ResetBedrollPlaytestFlags();
+            ResetControllerPolishFlags();
 
             for (int index = 0; index < stepStates.Count; index++)
             {
@@ -534,6 +562,11 @@ namespace CCS.Modules.Playtesting
 
             CCS_PlaytestStepState activeState = stepStates[activeStepIndex];
             activeState.TickActive(deltaTime);
+            if (activeState.Definition.StepType == CCS_PlaytestStepType.VerifyControllerPolish)
+            {
+                UpdateControllerPolishTracking(deltaTime);
+            }
+
             if (activeState.HasTimedOut)
             {
                 MarkStepFailed(activeState.Definition.StepId, "Step timed out.");
@@ -564,8 +597,17 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void HandleInteractionSucceeded(CCS_InteractionEventArgs eventArgs)
+        {
+            controllerPolishInteractDone = true;
+            TryEvaluateControllerPolishCompletion();
+        }
+
         private void HandleGatheringNodeGathered(CCS_GatheringEventArgs eventArgs)
         {
+            controllerPolishGatherDone = true;
+            TryEvaluateControllerPolishCompletion();
+
             if (eventArgs?.Rewards == null)
             {
                 return;
@@ -635,6 +677,8 @@ namespace CCS.Modules.Playtesting
 
             playtestStorageCrateExists = true;
             playtestStorageCrateOpened = true;
+            controllerPolishStorageDone = true;
+            TryEvaluateControllerPolishCompletion();
             TryEvaluateStorageCrateStepCompletion();
         }
 
@@ -671,6 +715,8 @@ namespace CCS.Modules.Playtesting
 
             playtestBedrollExists = true;
             playtestSleepCompleted = true;
+            controllerPolishBedrollDone = true;
+            TryEvaluateControllerPolishCompletion();
             TryEvaluateBedrollStepCompletion();
         }
 
@@ -1221,6 +1267,84 @@ namespace CCS.Modules.Playtesting
             playtestStorageCrateOpened = false;
             playtestStorageItemDeposited = false;
             playtestStorageRestoredAfterLoad = false;
+        }
+
+        private void ResetControllerPolishFlags()
+        {
+            controllerPolishWalkDone = false;
+            controllerPolishSprintDone = false;
+            controllerPolishCameraRotateDone = false;
+            controllerPolishInteractDone = false;
+            controllerPolishGatherDone = false;
+            controllerPolishBuildingPreviewDone = false;
+            controllerPolishStorageDone = false;
+            controllerPolishBedrollDone = false;
+            controllerPolishPreviousYaw = 0f;
+            controllerPolishYawInitialized = false;
+        }
+
+        private void UpdateControllerPolishTracking(float deltaTime)
+        {
+            if (!CCS_CharacterMovementRuntimeBridge.TryGetCharacterMovementService(
+                    out CCS_CharacterMovementService movementService)
+                || movementService == null
+                || !movementService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_CharacterMovementSnapshot snapshot = movementService.CurrentSnapshot;
+            if (snapshot.MovementState == CCS_CharacterMovementState.Walking
+                || snapshot.MovementState == CCS_CharacterMovementState.Running)
+            {
+                controllerPolishWalkDone = true;
+            }
+
+            if (snapshot.IsSprinting)
+            {
+                controllerPolishSprintDone = true;
+            }
+
+            float yaw = movementService.LookState.YawDegrees;
+            if (!controllerPolishYawInitialized)
+            {
+                controllerPolishPreviousYaw = yaw;
+                controllerPolishYawInitialized = true;
+            }
+            else if (Mathf.Abs(Mathf.DeltaAngle(controllerPolishPreviousYaw, yaw)) > 2f
+                || movementService.LastLookInputMagnitude > 0.05f)
+            {
+                controllerPolishCameraRotateDone = true;
+            }
+
+            controllerPolishPreviousYaw = yaw;
+
+            if (boundBuildingPlacementService != null
+                && boundBuildingPlacementService.IsPlacementModeActive)
+            {
+                controllerPolishBuildingPreviewDone = true;
+            }
+
+            TryEvaluateControllerPolishCompletion();
+        }
+
+        private void TryEvaluateControllerPolishCompletion()
+        {
+            if (!controllerPolishWalkDone
+                || !controllerPolishSprintDone
+                || !controllerPolishCameraRotateDone
+                || !controllerPolishInteractDone
+                || !controllerPolishGatherDone
+                || !controllerPolishBuildingPreviewDone
+                || !controllerPolishStorageDone
+                || !controllerPolishBedrollDone)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.VerifyControllerPolish,
+                "Third-person controller polish checklist completed.");
         }
 
         private void EvaluateBedrollStepAfterLoad()

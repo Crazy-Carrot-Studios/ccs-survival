@@ -14,14 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterControllerProfile
   profileDisplayName: Default Character Controller
   profileId: ccs.survival.profile.movement.default
-  profileDescription: Default third-person survival camera tuning for 1.1.4 Cinemachine
-    integration.
-  profileVersion: 1.1.4
+  profileDescription: AAA third-person survival camera and movement polish for 1.1.5.
+  profileVersion: 1.1.5
   enableDebugLogs: 0
   movement:
     walkSpeed: 4
     runSpeed: 7
     crouchSpeed: 2
+    acceleration: 14
+    deceleration: 18
+    sprintAcceleration: 11
+    airControl: 0.35
+    rotationSmoothing: 540
     jumpHeight: 1.2
     gravity: -20
     groundedStickForce: -2
@@ -32,17 +36,30 @@ MonoBehaviour:
     staminaDrainPerSecondWhileSprinting: 4
     jumpStaminaCost: 5
   camera:
-    mouseSensitivityX: 0.12
-    mouseSensitivityY: 0.1
-    gamepadSensitivityX: 90
-    gamepadSensitivityY: 70
+    activeCameraMode: 0
+    mouseSensitivityX: 0.1
+    mouseSensitivityY: 0.085
+    gamepadSensitivityX: 85
+    gamepadSensitivityY: 65
+    lookSmoothing: 14
     minPitch: -35
-    maxPitch: 60
+    maxPitch: 55
     pivotHeight: 1.35
     lookTargetHeight: 0.25
-    cameraDistance: 4.5
-    shoulderOffset: {x: 0.55, y: 0.1, z: 0}
-    verticalArmLength: 0.4
+    cameraDistance: 4.75
+    shoulderOffset: {x: 0.5, y: 0.12, z: 0}
+    verticalArmLength: 0.42
     cameraSide: 1
-    followDamping: {x: 0.2, y: 0.25, z: 0.2}
+    followDamping: {x: 0.28, y: 0.32, z: 0.28}
+    zoomDistanceMin: 2.5
+    zoomDistanceMax: 8
+    aimTransitionSpeed: 6
+    enableObstacleAvoidance: 1
+    obstacleCameraRadius: 0.25
+    obstacleLayerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    obstacleIgnoreTag: Player
+    obstacleDampingIntoCollision: 0.35
+    obstacleDampingFromCollision: 0.55
     pointerLookThreshold: 1

@@ -106,6 +106,31 @@ namespace CCS.Modules.CharacterController
                 return CCS_SurvivalValidationResult.Fail("Sprint stamina drain cannot be negative.");
             }
 
+            if (movement.Acceleration <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Acceleration must be greater than zero.");
+            }
+
+            if (movement.Deceleration <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Deceleration must be greater than zero.");
+            }
+
+            if (movement.SprintAcceleration <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Sprint acceleration must be greater than zero.");
+            }
+
+            if (movement.RotationSmoothing <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Rotation smoothing must be greater than zero.");
+            }
+
+            if (movement.AirControl < 0f || movement.AirControl > 1f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Air control must be between 0 and 1.");
+            }
+
             return CCS_SurvivalValidationResult.Pass();
         }
 
@@ -114,6 +139,12 @@ namespace CCS.Modules.CharacterController
             if (camera == null)
             {
                 return CCS_SurvivalValidationResult.Fail("Camera profile section is null.");
+            }
+
+            if (camera.ActiveCameraMode != CCS_CharacterCameraMode.ThirdPersonSurvival)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Unsupported active camera mode '{camera.ActiveCameraMode}'. Default profile must use ThirdPersonSurvival.");
             }
 
             if (camera.MouseSensitivityX <= 0f)
@@ -154,6 +185,26 @@ namespace CCS.Modules.CharacterController
             if (camera.PivotHeight <= 0f)
             {
                 return CCS_SurvivalValidationResult.Fail("Camera pivot height must be greater than zero.");
+            }
+
+            if (camera.ZoomDistanceMin <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Zoom distance min must be greater than zero.");
+            }
+
+            if (camera.ZoomDistanceMax < camera.ZoomDistanceMin)
+            {
+                return CCS_SurvivalValidationResult.Fail("Zoom distance max must be greater than or equal to zoom distance min.");
+            }
+
+            if (camera.AimTransitionSpeed <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Aim transition speed must be greater than zero.");
+            }
+
+            if (camera.EnableObstacleAvoidance && camera.ObstacleCameraRadius <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Obstacle camera radius must be greater than zero when avoidance is enabled.");
             }
 
             return CCS_SurvivalValidationResult.Pass();

@@ -27,6 +27,23 @@ namespace CCS.Modules.CharacterController
         [Tooltip("Meters per second while crouching.")]
         [SerializeField] private float crouchSpeed = 2f;
 
+        [Header("Acceleration")]
+        [Tooltip("Ground acceleration toward target planar speed (m/s²).")]
+        [SerializeField] private float acceleration = 14f;
+
+        [Tooltip("Ground deceleration when input is released (m/s²).")]
+        [SerializeField] private float deceleration = 18f;
+
+        [Tooltip("Sprint acceleration toward run speed (m/s²).")]
+        [SerializeField] private float sprintAcceleration = 11f;
+
+        [Tooltip("Air control multiplier applied to planar acceleration while airborne.")]
+        [SerializeField] private float airControl = 0.35f;
+
+        [Header("Rotation")]
+        [Tooltip("Maximum body rotation speed in degrees per second toward facing.")]
+        [SerializeField] private float rotationSmoothing = 540f;
+
         [Header("Jump And Gravity")]
         [Tooltip("Desired jump apex height in meters.")]
         [SerializeField] private float jumpHeight = 1.2f;
@@ -66,6 +83,16 @@ namespace CCS.Modules.CharacterController
         public float RunSpeed => runSpeed;
 
         public float CrouchSpeed => crouchSpeed;
+
+        public float Acceleration => acceleration;
+
+        public float Deceleration => deceleration;
+
+        public float SprintAcceleration => sprintAcceleration;
+
+        public float AirControl => airControl;
+
+        public float RotationSmoothing => rotationSmoothing;
 
         public float JumpHeight => jumpHeight;
 

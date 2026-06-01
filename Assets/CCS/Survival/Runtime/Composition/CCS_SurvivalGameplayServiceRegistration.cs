@@ -78,7 +78,8 @@ namespace CCS.Survival.Composition
 
             CCS_SurvivalCoreService survivalCoreService = CreateSurvivalCoreService(survivalCoreProfile);
             RegisterService(runtimeHost, survivalCoreService, enableDebugLogs);
-            RegisterService(runtimeHost, CreateInteractionService(interactionProfile), enableDebugLogs);
+            CCS_InteractionService interactionService = CreateInteractionService(interactionProfile);
+            RegisterService(runtimeHost, interactionService, enableDebugLogs);
 
             CCS_PlayerInventoryService inventoryService = CreateInventoryService(inventoryProfile);
             RegisterService(runtimeHost, inventoryService, enableDebugLogs);
@@ -245,7 +246,8 @@ namespace CCS.Survival.Composition
                     craftingRecipeService,
                     storageService,
                     sleepService,
-                    survivalCoreService);
+                    survivalCoreService,
+                    interactionService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }

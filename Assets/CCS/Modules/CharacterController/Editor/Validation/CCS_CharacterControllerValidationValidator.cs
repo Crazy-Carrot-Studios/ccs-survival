@@ -260,6 +260,65 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             ValidateThirdPersonCameraPrefabRules(report, prefabText);
+            ValidatePlayerGameplayRaySources(report, prefabText);
+        }
+
+        private static void ValidatePlayerGameplayRaySources(
+            CCS_SurvivalValidationReport report,
+            string prefabText)
+        {
+            if (prefabText.Contains("interactionCamera: {fileID: 0}"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Gameplay Rays",
+                    "Interaction camera is not assigned on PF_CCS_Player.");
+            }
+            else if (prefabText.Contains("interactionCamera:"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Gameplay Rays",
+                    "Interaction camera is assigned on PF_CCS_Player.");
+            }
+
+            if (prefabText.Contains("combatCamera: {fileID: 0}"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Gameplay Rays",
+                    "Combat camera is not assigned on PF_CCS_Player.");
+            }
+            else if (prefabText.Contains("combatCamera:"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Gameplay Rays",
+                    "Combat camera is assigned on PF_CCS_Player.");
+            }
+
+            if (prefabText.Contains("placementCamera: {fileID: 0}"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Gameplay Rays",
+                    "Building placement camera is not assigned on PF_CCS_Player.");
+            }
+            else if (prefabText.Contains("placementCamera:"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Gameplay Rays",
+                    "Building placement camera is assigned on PF_CCS_Player.");
+            }
+
+            if (prefabText.Contains("activeCameraMode: 0"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Camera Mode",
+                    "Default profile uses ThirdPersonSurvival camera mode.");
+            }
         }
 
         private static void ValidateThirdPersonCameraPrefabRules(

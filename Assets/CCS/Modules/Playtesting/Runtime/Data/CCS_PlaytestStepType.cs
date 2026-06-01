@@ -27,6 +27,7 @@ namespace CCS.Modules.Playtesting
         BuildShelter = 12,
         CraftAtWorkbench = 13,
         UseStorageCrate = 14,
-        PlaceAndSleepAtBedroll = 15
+        PlaceAndSleepAtBedroll = 15,
+        VerifyControllerPolish = 16
     }
 }
