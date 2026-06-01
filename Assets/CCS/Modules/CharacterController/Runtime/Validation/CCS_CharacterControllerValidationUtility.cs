@@ -116,19 +116,44 @@ namespace CCS.Modules.CharacterController
                 return CCS_SurvivalValidationResult.Fail("Camera profile section is null.");
             }
 
-            if (camera.HorizontalSensitivity <= 0f)
+            if (camera.MouseSensitivityX <= 0f)
             {
-                return CCS_SurvivalValidationResult.Fail("Horizontal look sensitivity must be greater than zero.");
+                return CCS_SurvivalValidationResult.Fail("Mouse sensitivity X must be greater than zero.");
             }
 
-            if (camera.VerticalSensitivity <= 0f)
+            if (camera.MouseSensitivityY <= 0f)
             {
-                return CCS_SurvivalValidationResult.Fail("Vertical look sensitivity must be greater than zero.");
+                return CCS_SurvivalValidationResult.Fail("Mouse sensitivity Y must be greater than zero.");
+            }
+
+            if (camera.GamepadSensitivityX <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Gamepad sensitivity X must be greater than zero.");
+            }
+
+            if (camera.GamepadSensitivityY <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Gamepad sensitivity Y must be greater than zero.");
             }
 
             if (camera.MinPitch >= camera.MaxPitch)
             {
                 return CCS_SurvivalValidationResult.Fail("Camera min pitch must be less than max pitch.");
+            }
+
+            if (camera.MinPitch < -89f || camera.MaxPitch > 89f)
+            {
+                return CCS_SurvivalValidationResult.Warn("Camera pitch limits are outside the safe -89 to 89 range.");
+            }
+
+            if (camera.CameraDistance <= 0.5f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Third-person camera distance must be greater than 0.5.");
+            }
+
+            if (camera.PivotHeight <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Camera pivot height must be greater than zero.");
             }
 
             return CCS_SurvivalValidationResult.Pass();

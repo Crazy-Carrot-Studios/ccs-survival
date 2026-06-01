@@ -1,19 +1,21 @@
 # CCS Survival
 
-Modular survival gameplay framework for Unity, built by Crazy Carrot Studios.
+[![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
+[![Version](https://img.shields.io/badge/Version-1.1.3-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
+
+Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
 
 **Repository:** https://github.com/Crazy-Carrot-Studios/ccs-survival  
 **Upstream Core:** [ccs-framework](https://github.com/Crazy-Carrot-Studios/ccs-framework) (vendored under `Assets/CCS/Framework/`)
 
 ---
 
-## Unity Package Manager Install
+## Description
 
-Use Unity Package Manager:
+**CCS Survival** is a production-oriented, module-driven survival framework. It ships playable bootstrap integration, validation tooling, persistence, and a manual playtest harness — without locking the codebase to a single commercial title.
 
-**Window → Package Manager → + → Add package from git URL**
-
-Copy/paste URL:
+Install via Unity Package Manager (**Add package from git URL**):
 
 ```text
 https://github.com/Crazy-Carrot-Studios/ccs-survival.git
@@ -25,241 +27,154 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 **1.1.3** — Sleep + Bedroll Foundation
 
-**1.1.2** — Storage Container Foundation
+---
 
-**1.1.1** — Crafting Progression + Workstation Foundation
+## Project Status
 
-**1.1.0** — Building Progression Foundation
+Playable modular survival prototype foundation.
 
-**1.0.3** — Manual Playtest Pass + Fixes
-
-**1.0.2** — Manual Playtest Harness
-
-**1.0.1** — Death, Respawn & Save Foundation
-
-**1.0.0** — Campfire + Cooking Foundation
-
-**0.9.9** — Resource Gathering Foundation
-
-**0.9.8** — Primitive Combat Foundation
-
-**0.9.7** — Passive Wildlife AI Foundation
-
-**0.9.6** — Sleep & Bedroll Foundation
-
-**0.9.5** — Consumables & Hunger Usage
-
-**0.9.4** — Campfire & Cooking Foundation
-
-**0.9.3** — Wildlife Resource Foundation
-
-**0.9.2a** — Bootstrap Ground Collider Hotfix
-
-**0.9.2** — Primitive Tool & Weapon Foundation
-
-**0.9.1** — Starter Loadout & Primitive Progression Foundation
-
-**0.9.0** — Character Controller Gameplay Integration
-
-**0.8.4** — Building Persistence Restore
-
-**0.8.3** — Building Snapping Foundation
-
-**0.8.2** — Building Construction Costs & Placement Validation
-
-**0.8.1** — Building Placement Foundation
-
-**Unity:** Unity 6
-
-### Status
-
-HUD runtime wiring to gameplay services delivered at **0.4.3**. Crafting module foundation delivered at **0.5.0**. World resource module foundation delivered at **0.5.1**. Resource harvesting integration delivered at **0.5.2**. Crafting gameplay integration delivered at **0.5.3**. Save/load foundation delivered at **0.6.0**. Save/load debug manual controls delivered at **0.6.1**. Inventory and equipment persistence delivered at **0.6.2**. Time of day foundation delivered at **0.7.0**. Weather foundation delivered at **0.7.1**. Environment effects foundation delivered at **0.7.2**. Survival Core environment integration delivered at **0.7.3**. Equipment environmental modifiers delivered at **0.7.4**. Shelter environmental protection foundation delivered at **0.7.5**. Building foundation delivered at **0.8.0**. Building placement foundation delivered at **0.8.1**. Building construction costs and placement validation delivered at **0.8.2**. Building snapping foundation delivered at **0.8.3**. Building shelter integration delivered at **0.8.5**. Playable character controller integration delivered at **0.9.0**. Starter loadout and primitive progression foundation delivered at **0.9.1**. Primitive tool and weapon foundation delivered at **0.9.2**.
-
-### Implemented Modules
-- Character Controller
-- Interaction
-- Inventory
-- Equipment
-- Crafting
-- World Resources
-- Save / Load (persistence foundation)
-- Time Of Day (global game clock foundation)
-- Weather (global weather state foundation)
-- Environment Effects (ambient temperature, wetness, exposure simulation)
-- UI / HUD (presentation foundation)
-
-### Validated
-
-- Batch compilation
-- Module validation pipeline
-- Bootstrap scene validation
-- UI validation
-- Windows build verification (0.6.1)
+**Current focus:** prototype gameplay systems, validation, persistence, and playtest harness.
 
 ---
 
-## Overview
+## Core Features
 
-**CCS Survival** is a modular, AAA-quality survival gameplay framework built on top of **CCS Core**. It provides reusable survival systems, explicit module composition, validation tooling, and a bootstrap scene for integration testing — without tying the repository to a single game product.
+| System | Status |
+|--------|--------|
+| Character Controller | Third-person Cinemachine 3.1 + CharacterController locomotion |
+| Interaction | Forward-ray interactables |
+| Inventory | Stack-based inventory foundation |
+| Equipment | Wearable modifiers |
+| Crafting | Recipes + workstation progression |
+| World Resources / Gathering | Harvestable world nodes |
+| Building | Placement, snapping, persistence |
+| Cooking / Campfire | Campfire cooking foundation |
+| Combat | Primitive combat foundation |
+| Passive Wildlife | Passive wildlife AI foundation |
+| Sleep / Bedroll | Sleep spots + bedroll flow |
+| Storage | Container storage foundation |
+| Save / Load | World + player persistence |
+| Time of Day | Global game clock |
+| Weather | Global weather state |
+| Environment Effects | Temperature, wetness, exposure |
+| Shelter | Environmental protection volumes |
+| HUD / Playtest Harness | Runtime HUD + guided playtest steps |
 
-Gameplay modules live under `Assets/CCS/Modules/`. Project composition, scenes, profiles, and bootstrap configuration live under `Assets/CCS/Survival/`. The reusable platform lives under `Assets/CCS/Framework/Core/`.
+---
+
+## Latest Milestones
+
+| Version | Milestone |
+|---------|-----------|
+| **1.1.4** | Third-Person Controller Feel + README Polish |
+| **1.1.3** | Sleep + Bedroll Foundation |
+| **1.1.2** | Storage Container Foundation |
+| **1.1.1** | Crafting Progression + Workstation Foundation |
+| **1.1.0** | Building Progression Foundation |
+| **1.0.3** | Manual Playtest Pass + Fixes |
 
 ---
 
 ## Architecture
 
-| Layer | Role |
-|-------|------|
-| **Framework/Core** | Reusable CCS platform systems |
-| **Modules** | Gameplay systems reusable across survival projects |
-| **Survival** | Project-specific composition, profiles, scenes, validation, and bootstrap configuration |
-
-Dependency direction:
-
 ```text
 Survival → Modules → Core
 ```
 
-Core must never reference survival or gameplay modules.
+| Layer | Role |
+|-------|------|
+| **Framework/Core** | Reusable CCS platform (runtime host, services, events) |
+| **Modules** | Gameplay systems (`ccs.survival.*` module IDs) |
+| **Survival** | Project composition — scenes, prefabs, profiles, validation |
+
+**Rule:** Core must never reference survival or gameplay modules.
 
 ---
 
-## Folder Layout
+## Repository Layout
 
 ```text
-Assets/
-└── CCS/
-    ├── Framework/
-    │   └── Core/
-    │
-    ├── Modules/
-    │   ├── SurvivalCore/
-    │   ├── CharacterController/
-    │   ├── Interaction/
-    │   ├── Inventory/
-    │   ├── Equipment/
-    │   └── UI/
-    │
-    └── Survival/
-        ├── Scenes/
-        ├── Prefabs/
-        ├── Profiles/
-        ├── Runtime/
-        └── Documentation/
+Assets/CCS/
+├── Framework/Core/          # Upstream-aligned platform
+├── Modules/                 # Gameplay feature modules
+│   ├── CharacterController/
+│   ├── Interaction/
+│   ├── Inventory/
+│   ├── Crafting/
+│   ├── Building/
+│   ├── Combat/
+│   ├── Wildlife/
+│   ├── Sleep/
+│   ├── Storage/
+│   └── …
+└── Survival/                # Project shell
+    ├── Scenes/              # SCN_CCS_Survival_Bootstrap.unity
+    ├── Prefabs/Player/      # PF_CCS_Player
+    ├── Profiles/
+    ├── Runtime/
+    └── Documentation/
 ```
 
 ---
 
-## Modules
-
-| Module | Status |
-|--------|--------|
-| Survival Core | Complete |
-| Character Controller | Complete |
-| Interaction | Complete |
-| Inventory | Complete |
-| Equipment | Environmental modifiers — temperature, wetness, exposure resistance (0.7.4) |
-| UI / HUD | Runtime wiring (0.4.3) |
-| Crafting | Gameplay integration (0.5.3) |
-| World Resources | Harvest integration (0.5.2) |
-| Save / Load | Foundation + inventory/equipment persistence (0.6.2) |
-| Time Of Day | Global game clock foundation (0.7.0) |
-| Weather | Global weather state foundation (0.7.1) |
-| Environment Effects | Raw/effective simulation with shelter and equipment modifiers (0.7.5) |
-| Shelter | Trigger-volume environmental protection foundation (0.7.5) |
-| Survival Core | Effective environment pressure — temperature, fatigue, thirst (0.7.3+) |
-| Building | Structure catalog, placement, snap foundation, persistence restore, and shelter integration (0.8.0–0.8.5) |
-| Wildlife | Planned |
-| Combat | Planned |
-
-Module IDs use reverse-DNS style (for example `ccs.survival.inventory`). Modules register manually through the survival bootstrap install pipeline — no auto-discovery or scene scanning.
-
----
-
-## Validation
-
-Every milestone must pass:
-
-- Batch compile
-- Survival validation
-- Survival Core validation
-- Character Controller validation
-- Interaction validation
-- Inventory validation
-- Equipment validation
-- UI validation
-- Crafting validation
-- World Resources validation
-- Save/load validation
-- Time Of Day validation
-- Weather validation
-- Environment Effects validation
-- Building validation
-- Bootstrap scene validation
+## Validation & Quality Gate
 
 **Policy:** zero warnings, zero errors.
 
-Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md](Assets/CCS/Modules/README.md).
+| Check | Entry |
+|-------|--------|
+| Batch compile | Unity opens project without compile errors |
+| Survival validation | `CCS.Survival.Editor.Development.CCS_SurvivalValidationMenu.RunSurvivalValidation` |
+| Module validators | Per-module `Validate*` batch methods |
+| Bootstrap scene | Scene bootstrap validation utility |
+| Windows build | `CCS_SurvivalBuildVerificationBuildRunner.ExecuteBatch` |
+
+Batch commands and log paths: [Assets/CCS/Modules/README.md](Assets/CCS/Modules/README.md)
+
+Third-person camera prefab setup (1.1.4+):
+
+```text
+CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.ExecuteBatch
+```
 
 ---
 
-## Build Verification
+## Latest Verified Build
 
-**Bootstrap scene:** `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+| Item | Value |
+|------|--------|
+| Version | **1.1.4** |
+| Output | `Builds/CCS_Survival_1.1.4_Windows/` (gitignored) |
+| Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
-**Verified at 0.4.1b:**
-
-- Main Camera
-- Bootstrap root (`PF_CCS_Survival_BootstrapRoot`)
-- Validation pipeline
-- Windows development build
-
-**Latest verified build:** 1.1.3
-**Build output:** `Builds/CCS_Survival_1.1.3_Windows/` (gitignored)
-
-Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
+Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
 ---
 
-## Documentation
+## Development Notes
 
-| Document | Purpose |
-|----------|---------|
-| [Survival documentation index](Assets/CCS/Survival/Documentation/README.md) | In-project survival docs |
-| [Module roadmap](Assets/CCS/Survival/Documentation/CCS_Survival_Module_Roadmap.md) | Milestone sequence and module order |
-| [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md) | Scene, camera, and build requirements |
-| [Modules README](Assets/CCS/Modules/README.md) | Module layout and batch validation commands |
-| [Core Platform Architecture](Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md) | Upstream Core reference |
-
----
-
-## What Belongs Here
-
-- Survival gameplay modules and installers
-- Bootstrap scenes, prefabs, and profiles
-- Validation and build verification tooling
-- Survival architecture and milestone documentation
-
-## What Belongs Upstream
-
-Changes that benefit every CCS game belong in **ccs-framework**:
-
-- Runtime host, bootstrap runner, service registry, event dispatcher
-- Module registry contracts, lifecycle, diagnostics
-- Core smoke tests and framework bootstrap scene
-
-See [CCS Upstream Workflow](Assets/CCS/Framework/Core/Documentation/CCS_Upstream_Workflow.md).
-
----
-
-## Next Milestone
-
-**0.7.2+** — Environment Effects Foundation (temperature, wetness, exposure driven by Time + Weather)
+| Topic | Detail |
+|-------|--------|
+| Unity | Unity 6 |
+| Camera | **Cinemachine 3.1** third-person follow (default) |
+| Locomotion | `CharacterController` (animator root motion **OFF**) |
+| Look | Reduced mouse sensitivity; safe pitch clamp |
+| Architecture | Modular service-driven composition via bootstrap host |
 
 ---
 
 ## Git Hygiene
 
-Do not commit local Unity churn (`Library/`, `UserSettings/`, `Builds/`, or incidental `ProjectSettings` edits unless intentional). See `.gitignore`.
+Do not commit local Unity churn:
 
-**Author:** James Schilz
+- `Library/`, `Temp/`, `Logs/`, `UserSettings/`
+- `Builds/` (development build output)
+- Incidental `ProjectSettings` edits unless intentional
+
+See `.gitignore`.
+
+---
+
+## Author / Studio
+
+**James Schilz** — Crazy Carrot Studios

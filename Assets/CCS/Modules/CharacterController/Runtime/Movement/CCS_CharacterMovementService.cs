@@ -79,14 +79,14 @@ namespace CCS.Modules.CharacterController
         public void InitializeFromScene(
             UnityEngine.CharacterController controller,
             CCS_CharacterControllerProfile profile,
-            Transform followTarget = null,
-            Transform cameraTarget = null,
+            Transform yawPivot = null,
+            Transform lookTarget = null,
             CCS_ICharacterInputProvider provider = null)
         {
             characterController = controller;
             activeProfile = profile;
-            followTransform = followTarget != null ? followTarget : controller != null ? controller.transform : null;
-            cameraTransform = cameraTarget;
+            followTransform = yawPivot != null ? yawPivot : controller != null ? controller.transform : null;
+            cameraTransform = lookTarget;
             inputProvider = provider ?? defaultInputBridge;
 
             if (profile == null)
@@ -105,11 +105,12 @@ namespace CCS.Modules.CharacterController
             }
 
             motor.Initialize(controller, profile.Movement);
+            float initialYaw = followTransform != null ? followTransform.eulerAngles.y : 0f;
             cameraController.Initialize(
                 followTransform,
-                cameraTransform,
+                cameraTransform != null ? cameraTransform : followTransform,
                 profile.Camera,
-                followTransform != null ? followTransform.eulerAngles.y : 0f,
+                initialYaw,
                 0f);
 
             currentSnapshot = new CCS_CharacterMovementSnapshot(

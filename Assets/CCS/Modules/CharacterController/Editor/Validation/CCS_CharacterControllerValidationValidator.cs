@@ -258,6 +258,89 @@ namespace CCS.Modules.CharacterController.Editor
                     "Player Prefab",
                     "Player prefab is missing CCS_CharacterInputActionProvider.");
             }
+
+            ValidateThirdPersonCameraPrefabRules(report, prefabText);
+        }
+
+        private static void ValidateThirdPersonCameraPrefabRules(
+            CCS_SurvivalValidationReport report,
+            string prefabText)
+        {
+            if (prefabText.Contains("m_Name: CameraLookTarget"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Camera Targets",
+                    "Player prefab includes CameraLookTarget for Cinemachine follow.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Camera Targets",
+                    "Player prefab is missing CameraLookTarget. Run CCS_PlayerThirdPersonCameraBootstrapSetup.ExecuteBatch.");
+            }
+
+            if (prefabText.Contains("CM_GameplayCamera")
+                && prefabText.Contains("Unity.Cinemachine.CinemachineCamera"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Cinemachine Camera",
+                    "Player prefab includes CM_GameplayCamera with CinemachineCamera.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Cinemachine Camera",
+                    "Player prefab is missing CM_GameplayCamera Cinemachine setup.");
+            }
+
+            if (prefabText.Contains("Unity.Cinemachine.CinemachineThirdPersonFollow"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Cinemachine Camera",
+                    "Player prefab includes CinemachineThirdPersonFollow.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Cinemachine Camera",
+                    "Player prefab is missing CinemachineThirdPersonFollow.");
+            }
+
+            if (prefabText.Contains("Unity.Cinemachine.CinemachineBrain"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Cinemachine Camera",
+                    "Main Camera includes CinemachineBrain.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Cinemachine Camera",
+                    "Main Camera is missing CinemachineBrain.");
+            }
+
+            if (prefabText.Contains("CCS.Survival.Player.Runtime::CCS.Survival.Player.CCS_PlayerCinemachineCameraDriver"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Player Cinemachine Camera",
+                    "Player prefab includes CCS_PlayerCinemachineCameraDriver.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Player Cinemachine Camera",
+                    "Player prefab is missing CCS_PlayerCinemachineCameraDriver.");
+            }
         }
 
         private static void ValidateBootstrapSceneGameplayCamera(CCS_SurvivalValidationReport report)

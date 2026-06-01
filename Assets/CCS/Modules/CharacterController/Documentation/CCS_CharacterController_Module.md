@@ -21,7 +21,7 @@
 
 **Flow:** Input Actions → provider → `CCS_CharacterMovementService` → motor/camera. Sprint/jump raise Survival Core stamina hooks through composition (no direct module coupling).
 
-**Deferred:** final character art, animation controller, Cinemachine, input glyphs/rebinding UI.
+**Deferred:** final character art, animation controller, input glyphs/rebinding UI.
 
 ---
 
@@ -92,15 +92,32 @@ Grounding: `Grounded` / `Airborne` from `CharacterController.isGrounded`.
 
 ---
 
-## Camera-look foundation
+## Camera — third-person (1.1.4)
 
 | Type | Role |
 |------|------|
-| `CCS_CharacterLookState` | Yaw (facing) and pitch |
-| `CCS_CharacterCameraController` | Applies look input; follow/look hooks |
-| `CCS_CharacterCameraProfile` | Sensitivity and pitch clamp |
+| `CCS_CharacterLookState` | Yaw (movement facing) and pitch |
+| `CCS_CharacterCameraController` | Applies mouse/gamepad look to yaw pivot + look target |
+| `CCS_CharacterCameraProfile` | Sensitivity, pitch clamp, Cinemachine follow tuning |
+| `CCS_PlayerCinemachineCameraDriver` | Survival composition — wires Cinemachine 3.1 ThirdPersonFollow |
 
-**Deferred:** Camera collision, Cinemachine, final polish.
+**Default feel:** AAA survival/MMO-style third-person prototype.
+
+- **Cinemachine 3.1** `CinemachineThirdPersonFollow` on `CM_GameplayCamera`
+- **CameraPivot** (yaw) + **CameraLookTarget** (pitch) on `PF_CCS_Player`
+- **Main Camera** at player root with `CinemachineBrain` (not inside the capsule)
+- **Mouse look** uses reduced `mouseSensitivityX/Y` (calm, readable)
+- **Gamepad look** uses `gamepadSensitivityX/Y` with delta time
+- **Pitch** clamped (`minPitch` / `maxPitch`) to prevent flip/over-rotation
+- **Interaction / combat / placement** raycasts use the gameplay `Camera` forward
+
+Prefab batch setup:
+
+```text
+CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.ExecuteBatch
+```
+
+**Deferred:** camera collision / obstacle avoidance polish.
 
 ---
 
@@ -150,7 +167,7 @@ Registered on `CCS_SurvivalValidationPipeline` at editor load.
 | Bootstrap installer + registry | Manual install plan |
 | New Input System actions | Replace runtime bridge |
 | Scene player prefab | PF_CCS_Player + bootstrap wiring |
-| Camera collision / Cinemachine | Polish milestone |
+| Camera collision / obstacle avoidance | Polish milestone |
 | Combat, interaction, inventory, UI | Separate modules |
 
 ---

@@ -11,6 +11,7 @@
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.WorldResources.Runtime",
+        "Unity.Cinemachine",
         "Unity.InputSystem"
     ],
     "includePlatforms": [

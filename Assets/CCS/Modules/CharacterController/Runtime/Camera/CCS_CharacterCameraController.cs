@@ -3,11 +3,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CharacterCameraController
 // CATEGORY: Modules / CharacterController / Runtime / Camera
-// PURPOSE: Applies look input to yaw/pitch and provides follow/look hooks for a camera transform.
-// PLACEMENT: Used by CCS_CharacterMovementService.TickMovement or dedicated look tick.
+// PURPOSE: Applies look input to yaw/pitch targets for third-person Cinemachine follow.
+// PLACEMENT: Used by CCS_CharacterMovementService.TickMovement.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No collision, Cinemachine, or final polish in 0.3.8.
+// NOTES: Does not position the gameplay camera; Cinemachine drives final framing.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -17,8 +17,8 @@ namespace CCS.Modules.CharacterController
         #region Variables
 
         private readonly CCS_CharacterLookState lookState = new CCS_CharacterLookState();
-        private Transform followTarget;
-        private Transform cameraTransform;
+        private Transform yawPivot;
+        private Transform lookTarget;
         private CCS_CharacterCameraProfile activeProfile;
 
         #endregion
@@ -26,16 +26,17 @@ namespace CCS.Modules.CharacterController
         #region Public Methods
 
         public void Initialize(
-            Transform follow,
-            Transform camera,
+            Transform yawPivotTransform,
+            Transform lookTargetTransform,
             CCS_CharacterCameraProfile profile,
             float initialYawDegrees = 0f,
             float initialPitchDegrees = 0f)
         {
-            followTarget = follow;
-            cameraTransform = camera;
+            yawPivot = yawPivotTransform;
+            lookTarget = lookTargetTransform != null ? lookTargetTransform : yawPivotTransform;
             activeProfile = profile;
             lookState.SetOrientation(initialYawDegrees, initialPitchDegrees);
+            ApplyOrientationToTransforms();
         }
 
         public void TickLook(CCS_CharacterInputSnapshot input, float deltaTime)
@@ -47,42 +48,34 @@ namespace CCS.Modules.CharacterController
 
             float lookMagnitude = Mathf.Max(Mathf.Abs(input.Look.x), Mathf.Abs(input.Look.y));
             bool isPointerLook = lookMagnitude > activeProfile.PointerLookThreshold;
-            float yawDelta = input.Look.x * activeProfile.HorizontalSensitivity;
-            float pitchDelta = -input.Look.y * activeProfile.VerticalSensitivity;
 
+            float yawDelta;
+            float pitchDelta;
             if (isPointerLook)
             {
-                yawDelta *= activeProfile.PointerLookScale;
-                pitchDelta *= activeProfile.PointerLookScale;
+                yawDelta = input.Look.x * activeProfile.MouseSensitivityX;
+                pitchDelta = -input.Look.y * activeProfile.MouseSensitivityY;
             }
             else
             {
-                yawDelta *= deltaTime;
-                pitchDelta *= deltaTime;
+                yawDelta = input.Look.x * activeProfile.GamepadSensitivityX * deltaTime;
+                pitchDelta = -input.Look.y * activeProfile.GamepadSensitivityY * deltaTime;
             }
 
             lookState.AddLookDelta(yawDelta, pitchDelta, activeProfile.MinPitch, activeProfile.MaxPitch);
-
             ApplyOrientationToTransforms();
         }
 
         public void ApplyOrientationToTransforms()
         {
-            if (followTarget != null)
+            if (yawPivot != null)
             {
-                followTarget.rotation = Quaternion.Euler(0f, lookState.YawDegrees, 0f);
+                yawPivot.rotation = Quaternion.Euler(0f, lookState.YawDegrees, 0f);
             }
 
-            if (cameraTransform != null)
+            if (lookTarget != null)
             {
-                cameraTransform.rotation = Quaternion.Euler(lookState.PitchDegrees, lookState.YawDegrees, 0f);
-
-                if (followTarget != null)
-                {
-                    Vector3 anchor = followTarget.position
-                        + Vector3.up * (activeProfile != null ? activeProfile.FollowHeightOffset : 0f);
-                    cameraTransform.position = anchor;
-                }
+                lookTarget.localRotation = Quaternion.Euler(lookState.PitchDegrees, 0f, 0f);
             }
         }
 
@@ -93,6 +86,8 @@ namespace CCS.Modules.CharacterController
         public CCS_CharacterLookState LookState => lookState;
 
         public float YawDegrees => lookState.YawDegrees;
+
+        public Transform LookTarget => lookTarget;
 
         #endregion
     }

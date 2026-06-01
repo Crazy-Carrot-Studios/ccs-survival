@@ -11,7 +11,7 @@
 
 Verify that the survival bootstrap prototype scene compiles, validates, and produces a runnable Windows development build **before** UI/HUD work begins.
 
-This milestone intentionally excludes gameplay UI, final player prefab wiring, Cinemachine, and gameplay camera controllers.
+Bootstrap build verification includes the playable player prefab with **Cinemachine 3.1 third-person** gameplay camera.
 
 ---
 
@@ -34,13 +34,11 @@ The bootstrap scene must contain **exactly one** active Main Camera:
 | Tag | `MainCamera` |
 | Audio Listener | Present on Main Camera only |
 | Duplicate MainCamera tags | None |
-| Gameplay camera controller | **Not included** |
-| Cinemachine | **Not included** |
+| Gameplay camera | Player `Main Camera` + `CinemachineBrain` |
+| Cinemachine | `CM_GameplayCamera` with `CinemachineThirdPersonFollow` |
+| Camera targets | `CameraPivot` + `CameraLookTarget` on `PF_CCS_Player` |
 
-Default verification camera transform:
-
-- Position: `(0, 4, -8)`
-- Rotation: `(20, 0, 0)` — forward/down view of scene root content
+Scene `Main Camera` (non-player) remains disabled when `PF_CCS_Player` is present.
 
 ---
 
@@ -72,7 +70,7 @@ Not final environment art.
 Windows development build output (gitignored):
 
 ```text
-Builds/CCS_Survival_0.4.1b_Windows/
+Builds/CCS_Survival_1.1.4_Windows/
   CCS_Survival.exe
 ```
 
@@ -139,8 +137,7 @@ $project = "<PROJECT_PATH>"
 | Feature | Status |
 |---------|--------|
 | UI / HUD | Deferred to next milestone |
-| Gameplay camera controller | Deferred |
-| Cinemachine | Deferred |
+| Third-person Cinemachine camera | **1.1.4** |
 | Final player prefab wiring | Deferred |
 | Save/load | Deferred |
 | Crafting / storage world objects | Deferred |

@@ -27,10 +27,13 @@ namespace CCS.Survival.Player
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
         [Header("Camera")]
-        [Tooltip("Pivot transform used for yaw rotation and camera follow anchor.")]
+        [Tooltip("Pivot transform used for yaw rotation and movement facing.")]
         [SerializeField] private Transform cameraPivot;
 
-        [Tooltip("Gameplay camera on the player prefab.")]
+        [Tooltip("Look target tracked by Cinemachine third-person follow.")]
+        [SerializeField] private Transform cameraLookTarget;
+
+        [Tooltip("Gameplay camera on the player prefab (CinemachineBrain output).")]
         [SerializeField] private Camera playerCamera;
 
         [Header("Cursor")]
@@ -57,7 +60,14 @@ namespace CCS.Survival.Player
 
             if (cameraPivot == null)
             {
-                cameraPivot = transform;
+                Transform pivot = transform.Find("CameraPivot");
+                cameraPivot = pivot != null ? pivot : transform;
+            }
+
+            if (cameraLookTarget == null && cameraPivot != null)
+            {
+                Transform look = cameraPivot.Find("CameraLookTarget");
+                cameraLookTarget = look != null ? look : cameraPivot;
             }
 
             if (playerCamera == null)
@@ -136,11 +146,15 @@ namespace CCS.Survival.Player
                 ? inputProvider
                 : movementService.DefaultInputBridge;
 
+            Transform lookTarget = cameraLookTarget != null
+                ? cameraLookTarget
+                : cameraPivot != null ? cameraPivot : transform;
+
             movementService.InitializeFromScene(
                 characterController,
                 characterControllerProfile,
                 cameraPivot != null ? cameraPivot : transform,
-                playerCamera != null ? playerCamera.transform : null,
+                lookTarget,
                 provider);
 
             servicesBound = movementService.IsInitialized;
