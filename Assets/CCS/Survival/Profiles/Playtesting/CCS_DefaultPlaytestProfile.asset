@@ -40,16 +40,6 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.controller
-    displayName: Third-person controller polish
-    stepType: 16
-    instructionText: Walk, sprint (Shift), rotate camera, interact (F), gather, press B for
-      building preview, open storage (F2), and place/sleep at bedroll (Shift+F2).
-      Step auto-completes when all are verified.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.gather
     displayName: Gather sticks or wood
     stepType: 1
