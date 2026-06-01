@@ -103,12 +103,12 @@ namespace CCS.Modules.Gathering.Editor
                 "Default Gathering Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "0.9.9")
+            if (profile.ProfileVersion != "1.2.4" && profile.ProfileVersion != "0.9.9")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Gathering Profile Version",
-                    $"Expected profileVersion 0.9.9 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.2.4 but found '{profile.ProfileVersion}'.");
             }
         }
 

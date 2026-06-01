@@ -517,9 +517,29 @@ namespace CCS.Modules.Hotbar
                     targetContext.TargetTypeLabel);
             }
 
+            CCS_GatheringProfile gatheringProfile =
+                gatheringService != null ? gatheringService.ActiveProfile : null;
+
+            if (gatheringProfile != null
+                && gatheringProfile.TryGetNodeRewardSettings(
+                    gatheringNode.NodeType,
+                    out CCS_GatheringNodeRewardSettings nodeSettings)
+                && !CCS_ActiveItemGatheringToolUtility.IsHarvestMethodImplementedForActiveUse(
+                    nodeSettings.harvestMethod))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    $"Harvest method {nodeSettings.harvestMethod} is not implemented for active use.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
             if (!CCS_ActiveItemGatheringToolUtility.ActiveToolMatchesGatheringNode(
                     state.ItemDefinition,
-                    gatheringNode.NodeType))
+                    gatheringNode.NodeType,
+                    gatheringProfile))
             {
                 return new CCS_ActiveItemUseResult(
                     CCS_ActiveItemUseResultType.WrongTool,
@@ -577,6 +597,19 @@ namespace CCS.Modules.Hotbar
             }
 
             CCS_ResourceDefinition resourceDefinition = harvestableResource.ResourceDefinition;
+            if (resourceDefinition != null
+                && !CCS_ActiveItemGatheringToolUtility.IsHarvestMethodImplementedForActiveUse(
+                    resourceDefinition.HarvestMethod))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    $"Harvest method {resourceDefinition.HarvestMethod} is not implemented for active use.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
             if (!CCS_ActiveItemGatheringToolUtility.ActiveToolMatchesHarvestableResource(
                     state.ItemDefinition,
                     resourceDefinition))

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8490a90abcdef1234560d, type: 3}
+  m_Name: CCS_Item_Sapling
+  m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
+  itemId: ccs.survival.item.resource.sapling
+  displayName: Sapling
+  description: Frontier resource material for practical source harvesting.
+  category: 0
+  maxStackSize: 99
+  isStackable: 1
+  weight: 0
+  gameplayKind: 0
+  hasToolIdentity: 0
+  toolType: 0
+  toolArchetype: 0
+  toolTier: 0
+  hasWeaponIdentity: 0
+  weaponArchetype: 0
+  weaponType: 0
+  damageType: 0
+  rangeType: 0
+  meleeDamage: 0
+  meleeRange: 2
+  icon: {fileID: 0}

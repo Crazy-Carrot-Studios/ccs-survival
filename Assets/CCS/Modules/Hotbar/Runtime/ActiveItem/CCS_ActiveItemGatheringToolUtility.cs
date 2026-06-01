@@ -1,46 +1,42 @@
 using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using CCS.Modules.WorldResources;
 
 // =============================================================================
 // SCRIPT: CCS_ActiveItemGatheringToolUtility
 // CATEGORY: Modules / Hotbar / Runtime / ActiveItem
-// PURPOSE: Maps gathering nodes and resources to required harvest tool metadata.
+// PURPOSE: Maps gathering nodes and resources to harvest method and tool metadata.
 // PLACEMENT: Used by CCS_ActiveItemService for tool requirement validation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Reuses CCS_ItemGameplayUtility; does not hard-code item IDs.
+// NOTES: Uses profile metadata when available. Fish returns not-implemented for routing.
 // =============================================================================
 
 namespace CCS.Modules.Hotbar
 {
     public static class CCS_ActiveItemGatheringToolUtility
     {
-        public static CCS_ItemToolType GetRequiredToolForGatheringNode(CCS_GatheringNodeType nodeType)
+        public static bool IsHarvestMethodImplementedForActiveUse(CCS_HarvestMethodType harvestMethod)
         {
-            switch (nodeType)
-            {
-                case CCS_GatheringNodeType.SmallTree:
-                case CCS_GatheringNodeType.Bush:
-                    return CCS_ItemToolType.Axe;
-                case CCS_GatheringNodeType.Rock:
-                    return CCS_ItemToolType.Pickaxe;
-                default:
-                    return CCS_ItemToolType.None;
-            }
+            return CCS_HarvestMethodToolRulesUtility.IsHarvestMethodImplemented(harvestMethod);
         }
 
         public static bool ActiveToolMatchesGatheringNode(
             CCS_ItemDefinition activeToolDefinition,
-            CCS_GatheringNodeType nodeType)
+            CCS_GatheringNodeType nodeType,
+            CCS_GatheringProfile gatheringProfile = null)
         {
-            CCS_ItemToolType requiredTool = GetRequiredToolForGatheringNode(nodeType);
-            if (requiredTool == CCS_ItemToolType.None)
+            if (gatheringProfile != null
+                && gatheringProfile.TryGetNodeRewardSettings(nodeType, out CCS_GatheringNodeRewardSettings settings))
             {
-                return false;
+                return ActiveToolMatchesHarvestMetadata(
+                    activeToolDefinition,
+                    settings.harvestMethod,
+                    settings.requiredToolType);
             }
 
-            return CCS_ItemGameplayUtility.ItemSatisfiesHarvestTool(activeToolDefinition, requiredTool);
+            return ActiveToolMatchesLegacyGatheringNode(activeToolDefinition, nodeType);
         }
 
         public static bool ActiveToolMatchesHarvestableResource(
@@ -52,14 +48,32 @@ namespace CCS.Modules.Hotbar
                 return false;
             }
 
-            CCS_RequiredToolType requiredTool = resourceDefinition.RequiredToolType;
-            if (requiredTool == CCS_RequiredToolType.None)
+            if (!IsHarvestMethodImplementedForActiveUse(resourceDefinition.HarvestMethod))
             {
-                return true;
+                return false;
             }
 
-            CCS_ItemToolType requiredItemTool = (CCS_ItemToolType)(int)requiredTool;
-            return CCS_ItemGameplayUtility.ItemSatisfiesHarvestTool(activeToolDefinition, requiredItemTool);
+            CCS_ItemToolType explicitTool = (CCS_ItemToolType)(int)resourceDefinition.RequiredToolType;
+            return ActiveToolMatchesHarvestMetadata(
+                activeToolDefinition,
+                resourceDefinition.HarvestMethod,
+                explicitTool);
+        }
+
+        public static bool ActiveToolMatchesHarvestMetadata(
+            CCS_ItemDefinition activeToolDefinition,
+            CCS_HarvestMethodType harvestMethod,
+            CCS_ItemToolType explicitRequiredTool)
+        {
+            if (!IsHarvestMethodImplementedForActiveUse(harvestMethod))
+            {
+                return false;
+            }
+
+            return CCS_HarvestMethodToolRulesUtility.ToolSatisfiesHarvestMethod(
+                activeToolDefinition,
+                harvestMethod,
+                explicitRequiredTool);
         }
 
         public static CCS_RequiredToolType ResolveEquippedToolType(CCS_ItemDefinition activeToolDefinition)
@@ -71,6 +85,55 @@ namespace CCS.Modules.Hotbar
             }
 
             return (CCS_RequiredToolType)(int)itemToolType;
+        }
+
+        private static bool ActiveToolMatchesLegacyGatheringNode(
+            CCS_ItemDefinition activeToolDefinition,
+            CCS_GatheringNodeType nodeType)
+        {
+            CCS_HarvestMethodType harvestMethod;
+            CCS_ItemToolType requiredTool;
+
+            switch (nodeType)
+            {
+                case CCS_GatheringNodeType.SmallTree:
+                case CCS_GatheringNodeType.Tree:
+                    harvestMethod = CCS_HarvestMethodType.Chop;
+                    requiredTool = CCS_ItemToolType.Axe;
+                    break;
+                case CCS_GatheringNodeType.Rock:
+                case CCS_GatheringNodeType.StoneOutcrop:
+                case CCS_GatheringNodeType.OreVein:
+                case CCS_GatheringNodeType.CoalVein:
+                    harvestMethod = CCS_HarvestMethodType.Mine;
+                    requiredTool = CCS_ItemToolType.Pickaxe;
+                    break;
+                case CCS_GatheringNodeType.Bush:
+                case CCS_GatheringNodeType.FiberPlant:
+                case CCS_GatheringNodeType.WaterSource:
+                    harvestMethod = CCS_HarvestMethodType.Gather;
+                    requiredTool = CCS_ItemToolType.None;
+                    break;
+                case CCS_GatheringNodeType.DeadfallLog:
+                    harvestMethod = CCS_HarvestMethodType.Chop;
+                    requiredTool = CCS_ItemToolType.Axe;
+                    break;
+                case CCS_GatheringNodeType.ClayDeposit:
+                    harvestMethod = CCS_HarvestMethodType.Dig;
+                    requiredTool = CCS_ItemToolType.Shovel;
+                    break;
+                case CCS_GatheringNodeType.SalvageAbandonedWagon:
+                case CCS_GatheringNodeType.SalvageCampRemains:
+                case CCS_GatheringNodeType.SalvageHomesteadRuins:
+                case CCS_GatheringNodeType.SalvageMineDebris:
+                    harvestMethod = CCS_HarvestMethodType.Salvage;
+                    requiredTool = CCS_ItemToolType.None;
+                    break;
+                default:
+                    return false;
+            }
+
+            return ActiveToolMatchesHarvestMetadata(activeToolDefinition, harvestMethod, requiredTool);
         }
     }
 }

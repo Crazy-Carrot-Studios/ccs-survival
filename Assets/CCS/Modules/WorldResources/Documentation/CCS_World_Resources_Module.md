@@ -26,6 +26,24 @@ The module answers:
 
 ---
 
+## Resource framework metadata (1.2.4)
+
+`CCS_ResourceDefinition` now includes:
+
+| Field | Purpose |
+|-------|---------|
+| `resourceSourceType` | `CCS_ResourceSourceType` |
+| `harvestMethod` | `CCS_HarvestMethodType` |
+| `dropDefinitions` | **Multi-drop** list with min/max quantities per item |
+
+**Design rule:** CCS Survival uses practical resource sources (trees, outcrops, deadfall, fiber plants, water, ore/coal veins, salvage sites) rather than cluttering terrain with random pickup rocks and sticks.
+
+Frontier prepared definitions live under `Assets/CCS/Survival/Profiles/WorldResources/Frontier/`.
+
+`CCS_HarvestMethodType.Fish` is defined for future systems and is **not** implemented in 1.2.4 active use routing.
+
+---
+
 ## Architecture flow
 
 ```text

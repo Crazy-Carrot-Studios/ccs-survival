@@ -7,6 +7,7 @@
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Resources.Runtime",
         "CCS.Modules.SaveLoad.Runtime"
     ],
     "includePlatforms": [],

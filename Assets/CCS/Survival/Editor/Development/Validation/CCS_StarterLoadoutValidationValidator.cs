@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.Crafting;
 using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using CCS.Survival.Composition;
@@ -251,7 +252,7 @@ namespace CCS.Survival.Editor.Development
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
-                    "Tree Knife Harvest",
+                    "Tree Harvest Foundation",
                     $"Missing tree resource definition: {TreeResourcePath}");
                 return;
             }
@@ -262,45 +263,52 @@ namespace CCS.Survival.Editor.Development
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
-                    "Tree Knife Harvest",
+                    "Tree Harvest Foundation",
                     "Could not load test tree resource definition.");
                 return;
             }
 
-            if (treeDefinition.RequiredToolType != CCS_RequiredToolType.Knife)
+            if (treeDefinition.HarvestMethod != CCS_HarvestMethodType.Chop
+                || treeDefinition.RequiredToolType != CCS_RequiredToolType.Axe)
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
-                    "Tree Knife Harvest",
-                    "Test tree resource must require Knife for early-game harvesting.");
+                    "Tree Harvest Foundation",
+                    "Test tree resource must use Chop harvest with an axe-compatible tool.");
                 return;
             }
 
-            bool dropsBranch = false;
+            bool dropsWoodMaterial = false;
             for (int index = 0; index < treeDefinition.DropDefinitions.Count; index++)
             {
                 CCS_ResourceDropDefinition drop = treeDefinition.DropDefinitions[index];
-                if (drop?.ItemDefinition != null
-                    && drop.ItemDefinition.ItemId.Contains("branch", System.StringComparison.OrdinalIgnoreCase))
+                if (drop?.ItemDefinition == null)
                 {
-                    dropsBranch = true;
+                    continue;
+                }
+
+                string itemId = drop.ItemDefinition.ItemId;
+                if (itemId.Contains("wood", System.StringComparison.OrdinalIgnoreCase)
+                    || itemId.Contains("branch", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    dropsWoodMaterial = true;
                     break;
                 }
             }
 
-            if (!dropsBranch)
+            if (!dropsWoodMaterial)
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
-                    "Tree Knife Harvest",
-                    "Test tree resource must drop Branch items for primitive progression.");
+                    "Tree Harvest Foundation",
+                    "Test tree resource must drop wood or branch materials for primitive progression.");
                 return;
             }
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
-                "Tree Knife Harvest",
-                "Test tree resource uses Knife harvest and Branch drops.");
+                "Tree Harvest Foundation",
+                "Test tree resource uses Chop harvest with axe-compatible tools and wood/branch drops.");
         }
 
         private static void ValidateCompositionWiring(CCS_SurvivalValidationReport report)

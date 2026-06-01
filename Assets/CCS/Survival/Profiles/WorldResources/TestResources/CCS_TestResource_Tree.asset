@@ -15,9 +15,11 @@ MonoBehaviour:
   resourceId: ccs.survival.resource.test.tree
   displayName: Test Tree
   nodeType: 0
+  resourceSourceType: 1
+  harvestMethod: 2
   maxHarvestCount: 3
   respawnTimeSeconds: 30
-  requiredToolType: 3
+  requiredToolType: 1
   dropDefinitions:
   - itemDefinition: {fileID: 11400000, guid: 090cecb34d27e5b46b0c7330837d54f7, type: 2}
     minQuantity: 2

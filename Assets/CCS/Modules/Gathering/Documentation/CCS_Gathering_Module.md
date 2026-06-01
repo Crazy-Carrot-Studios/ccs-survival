@@ -49,6 +49,19 @@ Adds primitive world gathering nodes for sticks, stone, wood, and plant fiber wi
 - `CCS_TestGatheringRock`
 - `CCS_TestGatheringBush`
 
+## Resource framework metadata (1.2.4)
+
+Each `CCS_GatheringNodeRewardSettings` entry includes:
+
+| Field | Purpose |
+|-------|---------|
+| `resourceSourceType` | `CCS_ResourceSourceType` (Natural, Salvage, Mining, Water, …) |
+| `harvestMethod` | `CCS_HarvestMethodType` (Gather, Chop, Mine, Salvage, …) |
+| `requiredToolType` | `CCS_ItemToolType` override (None uses method defaults) |
+| `rewards[]` | **Multi-drop** fixed yields per gather |
+
+**Design rule:** Practical sources (trees, outcrops, fiber, water, veins, salvage) replace clutter pickups of random rocks/sticks for progression.
+
 ## Active item routing (1.2.3)
 
 When the player uses an active tool from third-person:

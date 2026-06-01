@@ -5,7 +5,8 @@
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
         "CCS.Modules.Inventory.Runtime",
-        "CCS.Modules.Interaction.Runtime"
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Resources.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

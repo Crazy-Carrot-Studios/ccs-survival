@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.Gathering;
 using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using CCS.Survival.Composition;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -252,7 +253,8 @@ namespace CCS.Modules.Gathering.Editor
             CCS_GatheringNodeType nodeType,
             CCS_GatheringReward[] rewards)
         {
-            settingsProperty.FindPropertyRelative("nodeType").enumValueIndex = (int)nodeType;
+            settingsProperty.FindPropertyRelative("nodeType").intValue = (int)nodeType;
+            ApplyLegacyMetadata(settingsProperty, nodeType);
             SerializedProperty rewardsProperty = settingsProperty.FindPropertyRelative("rewards");
             rewardsProperty.arraySize = rewards.Length;
             for (int index = 0; index < rewards.Length; index++)
@@ -261,6 +263,37 @@ namespace CCS.Modules.Gathering.Editor
                 rewardProperty.FindPropertyRelative("resourceType").enumValueIndex = (int)rewards[index].resourceType;
                 rewardProperty.FindPropertyRelative("itemDefinitionId").stringValue = rewards[index].itemDefinitionId;
                 rewardProperty.FindPropertyRelative("amount").intValue = rewards[index].amount;
+            }
+        }
+
+        private static void ApplyLegacyMetadata(SerializedProperty settingsProperty, CCS_GatheringNodeType nodeType)
+        {
+            switch (nodeType)
+            {
+                case CCS_GatheringNodeType.SmallTree:
+                    settingsProperty.FindPropertyRelative("resourceSourceType").intValue =
+                        (int)CCS_ResourceSourceType.Natural;
+                    settingsProperty.FindPropertyRelative("harvestMethod").intValue =
+                        (int)CCS_HarvestMethodType.Chop;
+                    settingsProperty.FindPropertyRelative("requiredToolType").intValue =
+                        (int)CCS_ItemToolType.Axe;
+                    break;
+                case CCS_GatheringNodeType.Rock:
+                    settingsProperty.FindPropertyRelative("resourceSourceType").intValue =
+                        (int)CCS_ResourceSourceType.Natural;
+                    settingsProperty.FindPropertyRelative("harvestMethod").intValue =
+                        (int)CCS_HarvestMethodType.Mine;
+                    settingsProperty.FindPropertyRelative("requiredToolType").intValue =
+                        (int)CCS_ItemToolType.Pickaxe;
+                    break;
+                case CCS_GatheringNodeType.Bush:
+                    settingsProperty.FindPropertyRelative("resourceSourceType").intValue =
+                        (int)CCS_ResourceSourceType.Natural;
+                    settingsProperty.FindPropertyRelative("harvestMethod").intValue =
+                        (int)CCS_HarvestMethodType.Gather;
+                    settingsProperty.FindPropertyRelative("requiredToolType").intValue =
+                        (int)CCS_ItemToolType.None;
+                    break;
             }
         }
 

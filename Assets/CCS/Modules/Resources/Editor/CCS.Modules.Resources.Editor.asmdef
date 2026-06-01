@@ -1,0 +1,23 @@
+{
+    "name": "CCS.Modules.Resources.Editor",
+    "rootNamespace": "CCS.Modules.Resources.Editor",
+    "references": [
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Resources.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Inventory.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

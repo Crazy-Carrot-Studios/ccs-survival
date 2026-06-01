@@ -8,7 +8,8 @@
         "CCS.Survival.Composition",
         "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.Inventory.Runtime",
-        "CCS.Modules.Interaction.Runtime"
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Resources.Runtime"
     ],
     "includePlatforms": [
         "Editor"

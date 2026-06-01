@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using CCS.Survival;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Profiles/Gathering/ (project shell configuration).
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: No tool requirements or animation systems in 0.9.9 foundation.
+// NOTES: Multi-drop rewards per node type. Harvest metadata drives validation and active item routing.
 // =============================================================================
 
 namespace CCS.Modules.Gathering
@@ -47,6 +48,9 @@ namespace CCS.Modules.Gathering
             new CCS_GatheringNodeRewardSettings
             {
                 nodeType = CCS_GatheringNodeType.SmallTree,
+                resourceSourceType = CCS_ResourceSourceType.Natural,
+                harvestMethod = CCS_HarvestMethodType.Chop,
+                requiredToolType = CCS_ItemToolType.Axe,
                 rewards = new[]
                 {
                     new CCS_GatheringReward
@@ -66,6 +70,9 @@ namespace CCS.Modules.Gathering
             new CCS_GatheringNodeRewardSettings
             {
                 nodeType = CCS_GatheringNodeType.Rock,
+                resourceSourceType = CCS_ResourceSourceType.Natural,
+                harvestMethod = CCS_HarvestMethodType.Mine,
+                requiredToolType = CCS_ItemToolType.Pickaxe,
                 rewards = new[]
                 {
                     new CCS_GatheringReward
@@ -79,6 +86,9 @@ namespace CCS.Modules.Gathering
             new CCS_GatheringNodeRewardSettings
             {
                 nodeType = CCS_GatheringNodeType.Bush,
+                resourceSourceType = CCS_ResourceSourceType.Natural,
+                harvestMethod = CCS_HarvestMethodType.Gather,
+                requiredToolType = CCS_ItemToolType.None,
                 rewards = new[]
                 {
                     new CCS_GatheringReward
@@ -137,11 +147,11 @@ namespace CCS.Modules.Gathering
             }
         }
 
-        public bool TryGetRewards(
+        public bool TryGetNodeRewardSettings(
             CCS_GatheringNodeType nodeType,
-            out CCS_GatheringReward[] rewards)
+            out CCS_GatheringNodeRewardSettings rewardSettings)
         {
-            rewards = null;
+            rewardSettings = default;
             if (nodeRewardSettings == null)
             {
                 return false;
@@ -155,11 +165,25 @@ namespace CCS.Modules.Gathering
                     continue;
                 }
 
-                rewards = settings.rewards;
-                return rewards != null && rewards.Length > 0;
+                rewardSettings = settings;
+                return true;
             }
 
             return false;
+        }
+
+        public bool TryGetRewards(
+            CCS_GatheringNodeType nodeType,
+            out CCS_GatheringReward[] rewards)
+        {
+            rewards = null;
+            if (!TryGetNodeRewardSettings(nodeType, out CCS_GatheringNodeRewardSettings settings))
+            {
+                return false;
+            }
+
+            rewards = settings.rewards;
+            return rewards != null && rewards.Length > 0;
         }
 
         public bool TryResolveItemDefinition(string itemDefinitionId, out CCS_ItemDefinition itemDefinition)
@@ -189,7 +213,16 @@ namespace CCS.Modules.Gathering
         [Tooltip("Gathering node type that uses this reward table.")]
         public CCS_GatheringNodeType nodeType;
 
-        [Tooltip("Rewards granted when this node type is gathered.")]
+        [Tooltip("Generic source category for this node archetype.")]
+        public CCS_ResourceSourceType resourceSourceType;
+
+        [Tooltip("Generic harvest method for this node archetype.")]
+        public CCS_HarvestMethodType harvestMethod;
+
+        [Tooltip("Explicit tool requirement. None uses harvest-method defaults.")]
+        public CCS_ItemToolType requiredToolType;
+
+        [Tooltip("Rewards granted when this node type is gathered. Multiple entries support multi-yield sources.")]
         public CCS_GatheringReward[] rewards;
     }
 }

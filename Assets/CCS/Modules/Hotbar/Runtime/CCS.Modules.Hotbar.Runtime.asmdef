@@ -9,7 +9,8 @@
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Gathering.Runtime",
-        "CCS.Modules.WorldResources.Runtime"
+        "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Resources.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

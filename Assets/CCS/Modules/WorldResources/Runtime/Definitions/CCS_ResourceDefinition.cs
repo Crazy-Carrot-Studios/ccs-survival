@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.Resources;
 using UnityEngine;
 
 // =============================================================================
@@ -8,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Create assets under project content folders.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No final art, terrain, save, or UI references in 0.5.1 foundation.
+// NOTES: Supports multi-drop yields via dropDefinitions list.
 // =============================================================================
 
 namespace CCS.Modules.WorldResources
@@ -31,6 +32,12 @@ namespace CCS.Modules.WorldResources
         [Tooltip("High-level node classification.")]
         [SerializeField] private CCS_ResourceNodeType nodeType = CCS_ResourceNodeType.Gatherable;
 
+        [Tooltip("Generic source category for framework validation and future spawning.")]
+        [SerializeField] private CCS_ResourceSourceType resourceSourceType = CCS_ResourceSourceType.Natural;
+
+        [Tooltip("Generic harvest interaction method.")]
+        [SerializeField] private CCS_HarvestMethodType harvestMethod = CCS_HarvestMethodType.Gather;
+
         [Header("Harvest Rules")]
         [Tooltip("Number of successful harvests before the node is depleted.")]
         [SerializeField] private int maxHarvestCount = 1;
@@ -42,7 +49,7 @@ namespace CCS.Modules.WorldResources
         [SerializeField] private CCS_RequiredToolType requiredToolType = CCS_RequiredToolType.None;
 
         [Header("Drops")]
-        [Tooltip("Items granted when a harvest succeeds.")]
+        [Tooltip("Items granted when a harvest succeeds. Multiple entries support multi-yield sources.")]
         [SerializeField] private List<CCS_ResourceDropDefinition> dropDefinitions =
             new List<CCS_ResourceDropDefinition>();
 
@@ -55,6 +62,10 @@ namespace CCS.Modules.WorldResources
         public string DisplayName => displayName;
 
         public CCS_ResourceNodeType NodeType => nodeType;
+
+        public CCS_ResourceSourceType ResourceSourceType => resourceSourceType;
+
+        public CCS_HarvestMethodType HarvestMethod => harvestMethod;
 
         public int MaxHarvestCount => maxHarvestCount;
 

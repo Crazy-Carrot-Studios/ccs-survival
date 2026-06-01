@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Gathering.Runtime::CCS.Modules.Gathering.CCS_GatheringProfile
   profileDisplayName: Default Gathering
   profileId: ccs.survival.profile.gathering.default
-  profileDescription: Default primitive gathering rules for 0.9.9 resource foundation.
-  profileVersion: 0.9.9
+  profileDescription: Gathering profile with frontier resource source and harvest
+    metadata (1.2.4).
+  profileVersion: 1.2.4
   enableDebugLogs: 0
   nodeInteractionDistance: 3
   gatherDurationSeconds: 0
@@ -26,8 +27,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ffd321b6155eec741ae4126b2140a970, type: 2}
   - {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
   - {fileID: 11400000, guid: 489bdc439317404468da43c743a19c52, type: 2}
+  - {fileID: 11400000, guid: d55942a4034a39f4d90509f5164fe8d6, type: 2}
+  - {fileID: 11400000, guid: 4f1c248a799aa09488681fae43dfcae7, type: 2}
+  - {fileID: 11400000, guid: 0206614a35a241e4a8ad3f1a30966dee, type: 2}
+  - {fileID: 11400000, guid: 6d38429fbf980b24c8fb69ccb0d0bc0d, type: 2}
+  - {fileID: 11400000, guid: 6642fc5134b17144988256e62fc4be02, type: 2}
+  - {fileID: 11400000, guid: b56c237b5ee8ed84e87fce6012e593c4, type: 2}
+  - {fileID: 11400000, guid: 598be62d0a274ea42a16ee17efa2a302, type: 2}
+  - {fileID: 11400000, guid: 6b0bd9a86a495b9419a1324e99898531, type: 2}
+  - {fileID: 11400000, guid: 2ea5ca54045c15345973e8740eb7727d, type: 2}
+  - {fileID: 11400000, guid: 36c29508615c46248ab77d6f19027729, type: 2}
   nodeRewardSettings:
   - nodeType: 1
+    resourceSourceType: 1
+    harvestMethod: 2
+    requiredToolType: 1
     rewards:
     - resourceType: 1
       itemDefinitionId: ccs.survival.item.resource.stick
@@ -36,15 +50,141 @@ MonoBehaviour:
       itemDefinitionId: ccs.survival.item.resource.wood
       amount: 1
   - nodeType: 2
+    resourceSourceType: 1
+    harvestMethod: 3
+    requiredToolType: 2
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.stone
       amount: 2
   - nodeType: 3
+    resourceSourceType: 1
+    harvestMethod: 1
+    requiredToolType: 0
     rewards:
     - resourceType: 4
       itemDefinitionId: ccs.survival.item.resource.fiber
       amount: 2
     - resourceType: 1
       itemDefinitionId: ccs.survival.item.resource.stick
+      amount: 1
+  - nodeType: 10
+    resourceSourceType: 1
+    harvestMethod: 2
+    requiredToolType: 1
+    rewards:
+    - resourceType: 3
+      itemDefinitionId: ccs.survival.item.resource.wood
+      amount: 2
+    - resourceType: 3
+      itemDefinitionId: ccs.survival.item.resource.bark
+      amount: 1
+    - resourceType: 1
+      itemDefinitionId: ccs.survival.item.resource.sapling
+      amount: 1
+  - nodeType: 11
+    resourceSourceType: 1
+    harvestMethod: 2
+    requiredToolType: 1
+    rewards:
+    - resourceType: 3
+      itemDefinitionId: ccs.survival.item.resource.wood
+      amount: 2
+  - nodeType: 12
+    resourceSourceType: 1
+    harvestMethod: 1
+    requiredToolType: 0
+    rewards:
+    - resourceType: 4
+      itemDefinitionId: ccs.survival.item.resource.fiber
+      amount: 2
+  - nodeType: 13
+    resourceSourceType: 1
+    harvestMethod: 3
+    requiredToolType: 2
+    rewards:
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.stone
+      amount: 2
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.flint
+      amount: 1
+  - nodeType: 14
+    resourceSourceType: 1
+    harvestMethod: 8
+    requiredToolType: 4
+    rewards:
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.clay
+      amount: 2
+  - nodeType: 15
+    resourceSourceType: 5
+    harvestMethod: 7
+    requiredToolType: 0
+    rewards:
+    - resourceType: 0
+      itemDefinitionId: ccs.survival.item.resource.water
+      amount: 1
+  - nodeType: 16
+    resourceSourceType: 4
+    harvestMethod: 3
+    requiredToolType: 2
+    rewards:
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.ore
+      amount: 2
+  - nodeType: 17
+    resourceSourceType: 4
+    harvestMethod: 3
+    requiredToolType: 2
+    rewards:
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.coal
+      amount: 2
+  - nodeType: 18
+    resourceSourceType: 3
+    harvestMethod: 6
+    requiredToolType: 0
+    rewards:
+    - resourceType: 0
+      itemDefinitionId: ccs.survival.item.resource.scrapiron
+      amount: 1
+    - resourceType: 0
+      itemDefinitionId: ccs.survival.item.resource.nails
+      amount: 2
+    - resourceType: 3
+      itemDefinitionId: ccs.survival.item.resource.wood
+      amount: 1
+    - resourceType: 0
+      itemDefinitionId: ccs.survival.item.resource.canvas
+      amount: 1
+  - nodeType: 19
+    resourceSourceType: 3
+    harvestMethod: 6
+    requiredToolType: 0
+    rewards:
+    - resourceType: 1
+      itemDefinitionId: ccs.survival.item.resource.stick
+      amount: 1
+  - nodeType: 20
+    resourceSourceType: 3
+    harvestMethod: 6
+    requiredToolType: 0
+    rewards:
+    - resourceType: 3
+      itemDefinitionId: ccs.survival.item.resource.wood
+      amount: 2
+    - resourceType: 0
+      itemDefinitionId: ccs.survival.item.resource.nails
+      amount: 1
+  - nodeType: 21
+    resourceSourceType: 3
+    harvestMethod: 6
+    requiredToolType: 0
+    rewards:
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.scrapiron
+      amount: 2
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.coal
       amount: 1

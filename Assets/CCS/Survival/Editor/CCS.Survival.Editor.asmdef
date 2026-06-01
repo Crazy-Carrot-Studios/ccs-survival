@@ -12,6 +12,7 @@
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.Hotbar.Runtime",
         "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Resources.Runtime",
         "Unity.Cinemachine",
         "Unity.InputSystem"
     ],

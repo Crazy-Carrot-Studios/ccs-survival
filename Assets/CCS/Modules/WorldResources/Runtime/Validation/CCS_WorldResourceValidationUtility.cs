@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using CCS.Survival;
 
 // =============================================================================
@@ -84,6 +86,37 @@ namespace CCS.Modules.WorldResources
                 {
                     return CCS_SurvivalValidationResult.Fail("Resource drop quantities must be greater than zero.");
                 }
+
+                if (dropDefinition.MaxQuantity < dropDefinition.MinQuantity)
+                {
+                    return CCS_SurvivalValidationResult.Fail("Resource drop max quantity cannot be less than min quantity.");
+                }
+            }
+
+            CCS_SurvivalValidationResult sourceValidation =
+                CCS_ResourceFrameworkValidationUtility.ValidateSourceTypeAssigned(
+                    resourceDefinition.ResourceSourceType);
+            if (!sourceValidation.IsSuccess)
+            {
+                return sourceValidation;
+            }
+
+            CCS_SurvivalValidationResult methodValidation =
+                CCS_ResourceFrameworkValidationUtility.ValidateHarvestMethodAssigned(
+                    resourceDefinition.HarvestMethod);
+            if (!methodValidation.IsSuccess)
+            {
+                return methodValidation;
+            }
+
+            CCS_ItemToolType explicitTool = (CCS_ItemToolType)(int)resourceDefinition.RequiredToolType;
+            CCS_SurvivalValidationResult toolRulesValidation =
+                CCS_ResourceFrameworkValidationUtility.ValidateHarvestMethodToolRules(
+                    resourceDefinition.HarvestMethod,
+                    explicitTool);
+            if (!toolRulesValidation.IsSuccess)
+            {
+                return toolRulesValidation;
             }
 
             return CCS_SurvivalValidationResult.Pass("Resource definition validated.");
