@@ -187,6 +187,22 @@ Future clothing progression will expand slot coverage, tiered gear, and crafting
 
 ---
 
+## Primitive tool equipment (0.9.2)
+
+Equipment definitions for primitive tools live under `Assets/CCS/Survival/Content/Equipment/Primitive/`:
+
+| Equipment | Slot | Item |
+|-----------|------|------|
+| `CCS_Equipment_Knife` | MainHand | Starter Knife |
+| `CCS_Equipment_BoneHatchet` | Tool | Bone Hatchet |
+| `CCS_Equipment_BonePick` | Tool | Bone Pick |
+| `CCS_Equipment_BoneKnife` | Tool | Bone Knife |
+| `CCS_Equipment_BoneShovel` | Tool | Bone Shovel |
+
+`CCS_PrimitiveToolEquipTestHarness` verifies equip paths, HUD refresh, inventory capacity integrity, and knife save/load persistence. Disabled by default.
+
+---
+
 ## Durability system (foundation)
 
 `CCS_DurabilityState`:

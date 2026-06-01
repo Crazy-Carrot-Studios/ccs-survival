@@ -1,3 +1,4 @@
+using CCS.Modules.Equipment;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Attach to primitive placeholder nodes in bootstrap verification scenes.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Integrates Interaction and Inventory services through the runtime registry in 0.5.2.
+// NOTES: Inventory and equipped tool resolution for harvest validation at 0.9.2.
 // =============================================================================
 
 namespace CCS.Modules.WorldResources
@@ -36,6 +37,7 @@ namespace CCS.Modules.WorldResources
         private CCS_ResourceHarvestService harvestService;
         private CCS_ResourceRespawnService respawnService;
         private CCS_PlayerInventoryService inventoryService;
+        private CCS_PlayerEquipmentService equipmentService;
         private string nodeKey;
         private bool respawnRegistered;
 
@@ -229,6 +231,7 @@ namespace CCS.Modules.WorldResources
             }
 
             CCS_WorldResourceRuntimeBridge.TryGetInventoryService(out inventoryService);
+            CCS_EquipmentRuntimeBridge.TryGetEquipmentService(out equipmentService);
         }
 
         private CCS_RequiredToolType ResolveEquippedToolType()
@@ -249,16 +252,46 @@ namespace CCS.Modules.WorldResources
                 return CCS_RequiredToolType.None;
             }
 
-            if (inventoryService != null
-                && inventoryService.IsInitialized
-                && CCS_InventoryToolUtility.InventoryContainsTool(
-                    inventoryService,
-                    (CCS_ItemToolType)(int)requiredTool))
+            CCS_ItemToolType requiredItemTool = (CCS_ItemToolType)(int)requiredTool;
+            if (PlayerHasRequiredTool(requiredItemTool))
             {
                 return requiredTool;
             }
 
             return CCS_RequiredToolType.None;
+        }
+
+        private bool PlayerHasRequiredTool(CCS_ItemToolType requiredItemTool)
+        {
+            if (inventoryService != null
+                && inventoryService.IsInitialized
+                && CCS_InventoryToolUtility.InventoryContainsTool(inventoryService, requiredItemTool))
+            {
+                return true;
+            }
+
+            if (equipmentService == null || !equipmentService.IsInitialized)
+            {
+                return false;
+            }
+
+            return EquippedSlotSatisfiesTool(CCS_EquipmentSlotType.MainHand, requiredItemTool)
+                || EquippedSlotSatisfiesTool(CCS_EquipmentSlotType.Tool, requiredItemTool);
+        }
+
+        private bool EquippedSlotSatisfiesTool(
+            CCS_EquipmentSlotType slotType,
+            CCS_ItemToolType requiredItemTool)
+        {
+            CCS_EquippedItem equippedItem = equipmentService.GetEquippedItem(slotType);
+            if (equippedItem?.ItemDefinition == null)
+            {
+                return false;
+            }
+
+            return CCS_InventoryToolUtility.EquippedItemSatisfiesTool(
+                equippedItem.ItemDefinition,
+                requiredItemTool);
         }
 
         private void ResetNodeFromRespawn(CCS_ResourceNodeState _)

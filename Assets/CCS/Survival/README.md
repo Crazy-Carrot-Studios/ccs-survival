@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.1 — Starter Loadout & Primitive Progression Foundation  
+**Milestone:** 0.9.2 — Primitive Tool & Weapon Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

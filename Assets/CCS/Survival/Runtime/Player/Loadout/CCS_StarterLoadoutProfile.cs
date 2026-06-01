@@ -41,6 +41,10 @@ namespace CCS.Survival.Player.Loadout
         [SerializeField] private CCS_CraftingRecipeDefinition[] primitiveRecipes =
             System.Array.Empty<CCS_CraftingRecipeDefinition>();
 
+        [Tooltip("Bone tool recipes unlocked at startup for primitive equipment progression.")]
+        [SerializeField] private CCS_CraftingRecipeDefinition[] boneToolRecipes =
+            System.Array.Empty<CCS_CraftingRecipeDefinition>();
+
         #endregion
 
         #region Properties
@@ -54,6 +58,8 @@ namespace CCS.Survival.Player.Loadout
         public bool ApplyWhenInventoryEmpty => applyWhenInventoryEmpty;
 
         public CCS_CraftingRecipeDefinition[] PrimitiveRecipes => primitiveRecipes;
+
+        public CCS_CraftingRecipeDefinition[] BoneToolRecipes => boneToolRecipes;
 
         #endregion
     }

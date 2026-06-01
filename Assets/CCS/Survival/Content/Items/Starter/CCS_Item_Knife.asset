@@ -14,11 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
   itemId: ccs.survival.item.starter.knife
   displayName: Knife
-  description: Primitive cutting tool for early harvesting.
+  description: Primitive cutting tool and melee weapon foundation.
   category: 3
   maxStackSize: 1
   isStackable: 0
   weight: 0.5
+  gameplayKind: 3
   hasToolIdentity: 1
   toolType: 3
+  toolArchetype: 1
+  toolTier: 1
+  hasWeaponIdentity: 1
+  weaponArchetype: 1
+  weaponType: 1
+  damageType: 1
+  rangeType: 1
   icon: {fileID: 0}

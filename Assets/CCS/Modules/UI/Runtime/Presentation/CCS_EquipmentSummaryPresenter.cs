@@ -90,11 +90,30 @@ namespace CCS.Modules.UI
                 return;
             }
 
-            string bonusLine = snapshot.TotalAdditionalInventorySlots > 0
-                ? $"\n+{snapshot.TotalAdditionalInventorySlots} Inventory Slots"
-                : string.Empty;
+            System.Text.StringBuilder builder = new System.Text.StringBuilder(256);
+            builder.AppendLine("Equipment");
+            builder.AppendLine($"{snapshot.OccupiedSlotCount} Equipped");
 
-            summaryText.text = $"Equipment\n{snapshot.OccupiedSlotCount} Equipped{bonusLine}";
+            int linesAdded = 0;
+            const int maxEquippedLines = 4;
+            for (int index = 0; index < snapshot.EquippedItems.Count && linesAdded < maxEquippedLines; index++)
+            {
+                CCS.Modules.Equipment.CCS_EquippedItem equippedItem = snapshot.EquippedItems[index];
+                if (equippedItem?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                builder.AppendLine(equippedItem.ItemDefinition.DisplayName);
+                linesAdded++;
+            }
+
+            if (snapshot.TotalAdditionalInventorySlots > 0)
+            {
+                builder.AppendLine($"+{snapshot.TotalAdditionalInventorySlots} Inventory Slots");
+            }
+
+            summaryText.text = builder.ToString().TrimEnd();
         }
 
         private void ApplyTypography(CCS_HudProfile profile)

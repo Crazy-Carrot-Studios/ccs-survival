@@ -68,7 +68,19 @@ namespace CCS.Survival.Player.Loadout
                 return;
             }
 
-            CCS_CraftingRecipeDefinition[] recipes = activeProfile.PrimitiveRecipes;
+            RegisterRecipeList(craftingService, activeProfile.PrimitiveRecipes);
+            RegisterRecipeList(craftingService, activeProfile.BoneToolRecipes);
+        }
+
+        private static void RegisterRecipeList(
+            CCS_CraftingService craftingService,
+            CCS_CraftingRecipeDefinition[] recipes)
+        {
+            if (recipes == null)
+            {
+                return;
+            }
+
             for (int index = 0; index < recipes.Length; index++)
             {
                 craftingService.RegisterDefaultUnlockedRecipe(recipes[index]);

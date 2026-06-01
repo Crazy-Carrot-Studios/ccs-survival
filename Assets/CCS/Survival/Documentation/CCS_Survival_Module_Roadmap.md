@@ -1,9 +1,9 @@
 # CCS Survival — Module Roadmap
 
-**Milestone baseline:** 0.9.1 — Starter Loadout & Primitive Progression Foundation  
+**Milestone baseline:** 0.9.2 — Primitive Tool & Weapon Foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Early-game survival loop **defined** at **0.9.1**. Combat, vendors, final economy, and rock systems deferred.
+**Status:** Item/tool/weapon classifications **defined** at **0.9.2**. Combat, wildlife, and durability deferred.
 
 ---
 
@@ -49,8 +49,26 @@
 | **0.8.5** | Building shelter integration |
 | **0.9.0** | Character controller gameplay integration (player prefab, input, interaction, stamina) |
 | **0.9.1** | Starter loadout and primitive progression (knife, branches, hand crafting placeholders) |
+| **0.9.2** | Primitive tool and weapon foundation (archetypes, tiers, bone tools, equipment verification) |
 
-Later milestones continue from **0.9.2+** (structural integrity, biome modifiers, damage systems, lighting polish, sleep, AI schedules, combat, quests, audio, settings finalization).
+Later milestones continue from **0.9.3+** (wildlife resource foundation, structural integrity, combat, vendors, audio).
+
+---
+
+## 0.9.2 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Tool archetypes: Knife, Hatchet, Pick, Shovel (+ Bone variants) | **Complete** |
+| Weapon archetypes: Knife, Spear (+ Bow/Club enum placeholders) | **Complete** |
+| Tool tier system: Primitive → Bone → Stone → Iron → Steel | **Complete** |
+| Resource placeholders: Bone, Sinew, Hide | **Complete** |
+| Bone + Branch crafting recipes for bone tools | **Complete** |
+| Equipment definitions and equip verification harness | **Complete** |
+| Harvest resolves equipped tools (MainHand + Tool slots) | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.2** | **Complete** |
+| Combat, wildlife, durability loss | **Deferred** |
 
 ---
 

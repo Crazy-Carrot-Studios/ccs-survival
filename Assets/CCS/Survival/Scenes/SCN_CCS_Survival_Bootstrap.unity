@@ -3373,6 +3373,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921397083}
   m_CullTransparentMesh: 1
+--- !u!1 &1936404992
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1936404994}
+  - component: {fileID: 1936404993}
+  m_Layer: 0
+  m_Name: CCS_PrimitiveToolEquipTestHarness
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1936404993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936404992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f9c296f05f70874f8659505a5bcc745, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Equipment.Runtime::CCS.Modules.Equipment.CCS_PrimitiveToolEquipTestHarness
+  enableHarness: 0
+  checkIntervalSeconds: 2
+  knifeEquipment: {fileID: 11400000, guid: 97c457d8043770c40aac9c7f9e09b5c6, type: 2}
+  boneHatchetEquipment: {fileID: 11400000, guid: 775ed0d1e50ab6d45833e352a3652de8, type: 2}
+  bonePickEquipment: {fileID: 11400000, guid: c29b1e50f2024d247b83797dfb3c68c6, type: 2}
+  saveLoadDebugController: {fileID: 0}
+--- !u!4 &1936404994
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936404992}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1996093381
 GameObject:
   m_ObjectHideFlags: 0
@@ -3607,3 +3657,4 @@ SceneRoots:
   - {fileID: 1396833958}
   - {fileID: 1135345013}
   - {fileID: 1278245265}
+  - {fileID: 1936404994}

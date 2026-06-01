@@ -14,11 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
   itemId: ccs.survival.item.starter.spear
   displayName: Spear
-  description: Primitive spear placeholder.
+  description: Primitive spear weapon placeholder.
   category: 3
   maxStackSize: 1
   isStackable: 0
   weight: 1.5
+  gameplayKind: 2
   hasToolIdentity: 0
   toolType: 0
+  toolArchetype: 0
+  toolTier: 0
+  hasWeaponIdentity: 1
+  weaponArchetype: 2
+  weaponType: 1
+  damageType: 2
+  rangeType: 1
   icon: {fileID: 0}

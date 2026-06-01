@@ -9,6 +9,7 @@
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.WorldResources.Runtime",
         "Unity.InputSystem"
     ],

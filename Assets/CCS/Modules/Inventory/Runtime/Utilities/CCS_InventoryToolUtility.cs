@@ -3,11 +3,11 @@ using System.Collections.Generic;
 // =============================================================================
 // SCRIPT: CCS_InventoryToolUtility
 // CATEGORY: Modules / Inventory / Runtime / Utilities
-// PURPOSE: Resolves whether inventory contains items that satisfy harvest tool requirements.
-// PLACEMENT: Used by world resource harvesting and future equipment integration.
+// PURPOSE: Resolves whether inventory or equipped items satisfy harvest tool requirements.
+// PLACEMENT: Used by world resource harvesting and equipment integration.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-31
-// NOTES: No durability or equipped-slot logic in 0.9.1 foundation.
+// NOTES: Equipped tool checks added at 0.9.2. No durability logic yet.
 // =============================================================================
 
 namespace CCS.Modules.Inventory
@@ -16,7 +16,9 @@ namespace CCS.Modules.Inventory
     {
         #region Public Methods
 
-        public static bool InventoryContainsTool(CCS_PlayerInventoryService inventoryService, CCS_ItemToolType requiredTool)
+        public static bool InventoryContainsTool(
+            CCS_PlayerInventoryService inventoryService,
+            CCS_ItemToolType requiredTool)
         {
             if (inventoryService == null || !inventoryService.IsInitialized || requiredTool == CCS_ItemToolType.None)
             {
@@ -24,7 +26,18 @@ namespace CCS.Modules.Inventory
             }
 
             CCS_InventorySnapshot snapshot = inventoryService.CreateSnapshot();
-            IReadOnlyList<CCS_ItemStack> stacks = snapshot.SlotStacks;
+            return ContainsToolInStacks(snapshot.SlotStacks, requiredTool);
+        }
+
+        public static bool ContainsToolInStacks(
+            IReadOnlyList<CCS_ItemStack> stacks,
+            CCS_ItemToolType requiredTool)
+        {
+            if (stacks == null || requiredTool == CCS_ItemToolType.None)
+            {
+                return requiredTool == CCS_ItemToolType.None;
+            }
+
             for (int index = 0; index < stacks.Count; index++)
             {
                 CCS_ItemStack stack = stacks[index];
@@ -33,14 +46,20 @@ namespace CCS.Modules.Inventory
                     continue;
                 }
 
-                CCS_ItemDefinition definition = stack.ItemDefinition;
-                if (definition.HasToolIdentity && definition.ToolType == requiredTool)
+                if (CCS_ItemGameplayUtility.ItemSatisfiesHarvestTool(stack.ItemDefinition, requiredTool))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        public static bool EquippedItemSatisfiesTool(
+            CCS_ItemDefinition equippedItemDefinition,
+            CCS_ItemToolType requiredTool)
+        {
+            return CCS_ItemGameplayUtility.ItemSatisfiesHarvestTool(equippedItemDefinition, requiredTool);
         }
 
         #endregion

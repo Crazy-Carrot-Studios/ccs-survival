@@ -114,6 +114,22 @@ Starter content lives under `Assets/CCS/Survival/Content/Items/Starter/`:
 
 ---
 
+## Tool and weapon classifications (0.9.2)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Gameplay Kind | `CCS_ItemGameplayKind` | Generic, Tool, Weapon, ToolAndWeapon |
+| Tool Archetype | `CCS_ToolArchetype` | Knife, Hatchet, Pick, Shovel |
+| Tool Tier | `CCS_ToolTier` | Primitive, Bone, Stone, Iron, Steel |
+| Weapon Archetype | `CCS_WeaponArchetype` | Knife, Spear, Bow, Club |
+| Weapon Type | `CCS_WeaponType` | Melee, Ranged, Thrown placeholder |
+| Damage Type | `CCS_DamageType` | Slash, Pierce, Blunt placeholder |
+| Range Type | `CCS_RangeType` | Melee, ShortRanged, LongRanged placeholder |
+
+Resource placeholders: Bone, Sinew, Hide under `Content/Items/Resources/Primitive/`. Bone tools under `Content/Items/Tools/Bone/`. `CCS_ItemGameplayUtility` maps archetypes to harvest tool types. Equipped tools in MainHand/Tool slots also satisfy harvest checks at 0.9.2.
+
+---
+
 ## Stacks and slots
 
 | Type | Role |

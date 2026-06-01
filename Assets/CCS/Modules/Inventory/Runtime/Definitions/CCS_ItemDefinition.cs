@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Create assets under project content folders. Referenced by item stacks.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: No equipment stats, crafting recipes, or UI in 0.4.0 foundation.
+// NOTES: Tool and weapon gameplay classifications added at 0.9.2 foundation.
 // =============================================================================
 
 namespace CCS.Modules.Inventory
@@ -43,12 +43,38 @@ namespace CCS.Modules.Inventory
         [Tooltip("Item weight for future encumbrance systems.")]
         [SerializeField] private float weight = 0f;
 
-        [Header("Tool Identity (Placeholder)")]
-        [Tooltip("When enabled, this item satisfies matching harvest tool requirements from inventory.")]
+        [Header("Gameplay Classification (0.9.2)")]
+        [Tooltip("High-level gameplay role used by tool, weapon, and progression systems.")]
+        [SerializeField] private CCS_ItemGameplayKind gameplayKind = CCS_ItemGameplayKind.Generic;
+
+        [Header("Tool Identity")]
+        [Tooltip("When enabled, this item satisfies matching harvest tool requirements.")]
         [SerializeField] private bool hasToolIdentity;
 
-        [Tooltip("Harvest tool category satisfied when this item is present in inventory.")]
+        [Tooltip("Harvest tool category satisfied when this item is present or equipped.")]
         [SerializeField] private CCS_ItemToolType toolType = CCS_ItemToolType.None;
+
+        [Tooltip("Stable tool archetype for progression and crafting rules.")]
+        [SerializeField] private CCS_ToolArchetype toolArchetype = CCS_ToolArchetype.None;
+
+        [Tooltip("Technology tier used by future harvesting effectiveness rules.")]
+        [SerializeField] private CCS_ToolTier toolTier = CCS_ToolTier.None;
+
+        [Header("Weapon Identity (Placeholder)")]
+        [Tooltip("When enabled, this item participates in future weapon/combat systems.")]
+        [SerializeField] private bool hasWeaponIdentity;
+
+        [Tooltip("Stable weapon archetype for future combat progression.")]
+        [SerializeField] private CCS_WeaponArchetype weaponArchetype = CCS_WeaponArchetype.None;
+
+        [Tooltip("High-level weapon behavior placeholder.")]
+        [SerializeField] private CCS_WeaponType weaponType = CCS_WeaponType.None;
+
+        [Tooltip("Damage category placeholder.")]
+        [SerializeField] private CCS_DamageType damageType = CCS_DamageType.None;
+
+        [Tooltip("Engagement range placeholder.")]
+        [SerializeField] private CCS_RangeType rangeType = CCS_RangeType.None;
 
         [Header("Presentation (Placeholder)")]
         [Tooltip("Optional icon sprite reference for future UI.")]
@@ -72,9 +98,25 @@ namespace CCS.Modules.Inventory
 
         public float Weight => weight;
 
+        public CCS_ItemGameplayKind GameplayKind => gameplayKind;
+
         public bool HasToolIdentity => hasToolIdentity;
 
         public CCS_ItemToolType ToolType => toolType;
+
+        public CCS_ToolArchetype ToolArchetype => toolArchetype;
+
+        public CCS_ToolTier ToolTier => toolTier;
+
+        public bool HasWeaponIdentity => hasWeaponIdentity;
+
+        public CCS_WeaponArchetype WeaponArchetype => weaponArchetype;
+
+        public CCS_WeaponType WeaponType => weaponType;
+
+        public CCS_DamageType DamageType => damageType;
+
+        public CCS_RangeType RangeType => rangeType;
 
         public Sprite Icon => icon;
 
