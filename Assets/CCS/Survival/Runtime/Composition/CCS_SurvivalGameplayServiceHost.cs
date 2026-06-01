@@ -104,6 +104,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default building profile used to register CCS_BuildingService.")]
         [SerializeField] private CCS_BuildingProfile buildingProfile;
 
+        [Tooltip("Default building progression profile used to register CCS_BuildingRecipeService.")]
+        [SerializeField] private CCS_BuildingProgressionProfile buildingProgressionProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -159,6 +162,7 @@ namespace CCS.Survival.Composition
                 shelterProfile,
                 environmentEffectsProfile,
                 buildingProfile,
+                buildingProgressionProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

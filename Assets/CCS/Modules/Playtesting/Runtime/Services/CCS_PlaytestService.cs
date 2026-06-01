@@ -35,7 +35,8 @@ namespace CCS.Modules.Playtesting
         private const string SpearItemId = "ccs.survival.item.starter.spear";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
-        private const string FoundationPieceId = "ccs.survival.building.test.foundation";
+        private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
+        private const string LegacyFoundationPieceId = "ccs.survival.building.test.foundation";
 
         #region Variables
 
@@ -568,12 +569,31 @@ namespace CCS.Modules.Playtesting
 
         private void HandleBuildingPlaced(CCS_BuildingPlacementEventArgs eventArgs)
         {
-            if (!MatchesTargetBuildingPiece(eventArgs))
+            if (MatchesTargetBuildingPiece(eventArgs))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceBuilding, "Building piece placed.");
+            }
+
+            TryCompleteShelterStepIfReady();
+        }
+
+        private void TryCompleteShelterStepIfReady()
+        {
+            if (!CCS_BuildingRuntimeBridge.TryGetBuildingRecipeService(out CCS_BuildingRecipeService recipeService)
+                || recipeService == null
+                || !recipeService.IsInitialized)
             {
                 return;
             }
 
-            TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceBuilding, "Building piece placed.");
+            if (!recipeService.MeetsMinimumShelter())
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.BuildShelter,
+                "Minimum shelter reached (foundation, wall, roof).");
         }
 
         private void HandleItemEquipped(CCS_EquipmentEventArgs eventArgs)
@@ -777,7 +797,8 @@ namespace CCS.Modules.Playtesting
             }
 
             string placedPieceId = eventArgs?.PlacedInstance != null ? eventArgs.PlacedInstance.PieceId : string.Empty;
-            return placedPieceId == targetObjectId;
+            return placedPieceId == targetObjectId
+                || (targetObjectId == LegacyFoundationPieceId && placedPieceId == FoundationPieceId);
         }
 
         private CCS_EquipmentItemDefinition FindEquipmentDefinitionForItemId(string itemId)

@@ -34,6 +34,9 @@ namespace CCS.Modules.Building
         [Tooltip("Building piece category.")]
         [SerializeField] private CCS_BuildingPieceType buildingPieceType = CCS_BuildingPieceType.Custom;
 
+        [Tooltip("Primitive progression category used for shelter and recipe rules.")]
+        [SerializeField] private CCS_BuildingPieceCategory pieceCategory = CCS_BuildingPieceCategory.Foundation;
+
         [Header("Build Costs")]
         [Tooltip("Inventory items consumed when placing this building piece.")]
         [SerializeField] private List<CCS_BuildingCostEntry> buildCostEntries = new List<CCS_BuildingCostEntry>();
@@ -84,6 +87,8 @@ namespace CCS.Modules.Building
         public string Description => description;
 
         public CCS_BuildingPieceType BuildingPieceType => buildingPieceType;
+
+        public CCS_BuildingPieceCategory PieceCategory => pieceCategory;
 
         public GameObject PrefabReference => prefabReference;
 

@@ -31,7 +31,7 @@ namespace CCS.Modules.Playtesting.Editor
         private const string StickItemId = "ccs.survival.item.resource.stick";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
-        private const string FoundationPieceId = "ccs.survival.building.test.foundation";
+        private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
 
         #region Public Methods
 
@@ -86,8 +86,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.0.3.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.0.3";
+                "Bootstrap manual playtest checklist for milestone 1.1.0.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.0";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -147,11 +147,10 @@ namespace CCS.Modules.Playtesting.Editor
                 "Press F to consume cooked rabbit or venison from inventory.");
             AddStep(
                 stepListProperty,
-                "ccs.survival.playtest.build",
-                "Place primitive building",
-                CCS_PlaytestStepType.PlaceBuilding,
-                "Press B to place one test foundation piece (seeds build costs automatically).",
-                targetObjectId: FoundationPieceId);
+                "ccs.survival.playtest.shelter",
+                "Build shelter",
+                CCS_PlaytestStepType.BuildShelter,
+                "Place primitive foundation, at least one wall, and one roof (B places foundation; snap wall/roof).");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.save",
@@ -316,7 +315,7 @@ namespace CCS.Modules.Playtesting.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.0.3");
+                "bundleVersion: 1.1.0");
             File.WriteAllText(projectSettingsPath, text);
         }
 

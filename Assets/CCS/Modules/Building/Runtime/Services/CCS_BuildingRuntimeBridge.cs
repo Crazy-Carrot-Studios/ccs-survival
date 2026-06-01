@@ -55,6 +55,18 @@ namespace CCS.Modules.Building
             return runtimeHost.ServiceRegistry.TryGetService(out placementService);
         }
 
+        public static bool TryGetBuildingRecipeService(out CCS_BuildingRecipeService recipeService)
+        {
+            recipeService = null;
+            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost)
+                || runtimeHost.ServiceRegistry == null)
+            {
+                return false;
+            }
+
+            return runtimeHost.ServiceRegistry.TryGetService(out recipeService);
+        }
+
         #endregion
     }
 }

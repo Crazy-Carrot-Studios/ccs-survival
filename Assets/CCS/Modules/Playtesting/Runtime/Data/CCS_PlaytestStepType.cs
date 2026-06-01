@@ -23,6 +23,7 @@ namespace CCS.Modules.Playtesting
         SaveGame = 8,
         LoadGame = 9,
         TriggerDeath = 10,
-        Respawn = 11
+        Respawn = 11,
+        BuildShelter = 12
     }
 }

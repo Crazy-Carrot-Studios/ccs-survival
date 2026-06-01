@@ -129,7 +129,7 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.0.3)");
+            GUILayout.Label("CCS Manual Playtest Harness (1.1.0)");
             GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | B Build");
             GUILayout.Label("Interact gather/cook | Primary hunt | F eat | F5 save | F9 load");
             GUILayout.Space(6f);

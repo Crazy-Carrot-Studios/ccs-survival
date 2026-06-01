@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ec0dc19727d1cc468d026f409a41634, type: 3}
+  m_Name: CCS_DefaultBuildingProgressionProfile
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingProgressionProfile
+  profileDisplayName: Default Building Progression
+  profileId: ccs.survival.profile.building.progression.default
+  profileDescription: Tier-1 primitive shelter building progression for milestone
+    1.1.0.
+  profileVersion: 1.1.0
+  enableDebugLogs: 0
+  progressionEnabled: 1
+  enableDebugLogging: 1
+  enabledPieceDefinitions:
+  - {fileID: 11400000, guid: ba1e8bbdc3ee1e64b99bef515fccbf81, type: 2}
+  - {fileID: 11400000, guid: 48f6cbdc9a7e3a945b03f9d73bdf3394, type: 2}
+  - {fileID: 11400000, guid: 28161d0c5bbc3cc4f8cc2a6a7e1f95bd, type: 2}
+  - {fileID: 11400000, guid: d1290ed084541b549a5fa3ee67b7569e, type: 2}
+  - {fileID: 11400000, guid: 0ae405fdcd1c41b4093c7fd2d8fff5f3, type: 2}
+  recipeDefinitions:
+  - recipeId: ccs.survival.building.recipe.primitive.foundation
+    displayName: Primitive Foundation
+    pieceCategory: 0
+    pieceDefinitionId: ccs.survival.building.primitive.foundation
+    requiredItems:
+    - itemDefinitionId: ccs.survival.item.resource.wood
+      itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+      quantity: 4
+    - itemDefinitionId: ccs.survival.item.resource.stick
+      itemDefinition: {fileID: 11400000, guid: 2183236ae8ad5604b81137728adb845d, type: 2}
+      quantity: 2
+    placementRules:
+      allowsFreePlacement: 1
+      requiresSnapPoint: 0
+      requiresFoundationNearby: 0
+      requiresWallOrDoorwaySupport: 0
+      foundationSearchRadius: 12
+  - recipeId: ccs.survival.building.recipe.primitive.wall
+    displayName: Primitive Wall
+    pieceCategory: 1
+    pieceDefinitionId: ccs.survival.building.primitive.wall
+    requiredItems:
+    - itemDefinitionId: ccs.survival.item.resource.wood
+      itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+      quantity: 3
+    placementRules:
+      allowsFreePlacement: 0
+      requiresSnapPoint: 1
+      requiresFoundationNearby: 1
+      requiresWallOrDoorwaySupport: 0
+      foundationSearchRadius: 12
+  - recipeId: ccs.survival.building.recipe.primitive.doorway
+    displayName: Primitive Doorway
+    pieceCategory: 2
+    pieceDefinitionId: ccs.survival.building.primitive.doorway
+    requiredItems:
+    - itemDefinitionId: ccs.survival.item.resource.wood
+      itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+      quantity: 4
+    placementRules:
+      allowsFreePlacement: 0
+      requiresSnapPoint: 1
+      requiresFoundationNearby: 1
+      requiresWallOrDoorwaySupport: 0
+      foundationSearchRadius: 12
+  - recipeId: ccs.survival.building.recipe.primitive.floor
+    displayName: Primitive Floor
+    pieceCategory: 3
+    pieceDefinitionId: ccs.survival.building.primitive.floor
+    requiredItems:
+    - itemDefinitionId: ccs.survival.item.resource.wood
+      itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+      quantity: 2
+    placementRules:
+      allowsFreePlacement: 0
+      requiresSnapPoint: 1
+      requiresFoundationNearby: 1
+      requiresWallOrDoorwaySupport: 0
+      foundationSearchRadius: 12
+  - recipeId: ccs.survival.building.recipe.primitive.roof
+    displayName: Primitive Roof
+    pieceCategory: 4
+    pieceDefinitionId: ccs.survival.building.primitive.roof
+    requiredItems:
+    - itemDefinitionId: ccs.survival.item.resource.wood
+      itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+      quantity: 4
+    - itemDefinitionId: ccs.survival.item.resource.stick
+      itemDefinition: {fileID: 11400000, guid: 2183236ae8ad5604b81137728adb845d, type: 2}
+      quantity: 2
+    placementRules:
+      allowsFreePlacement: 0
+      requiresSnapPoint: 1
+      requiresFoundationNearby: 0
+      requiresWallOrDoorwaySupport: 1
+      foundationSearchRadius: 12
+  minimumFoundationCount: 1
+  minimumWallCount: 1
+  minimumRoofCount: 1

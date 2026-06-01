@@ -11,7 +11,8 @@
         "CCS.Modules.EnvironmentEffects.Runtime",
         "CCS.Modules.UI.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
-        "CCS.Modules.Shelter.Runtime"
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Playtesting.Runtime"
     ],
     "includePlatforms": [
         "Editor"

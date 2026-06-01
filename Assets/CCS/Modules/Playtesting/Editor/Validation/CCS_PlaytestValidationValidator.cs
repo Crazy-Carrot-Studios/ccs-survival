@@ -38,7 +38,7 @@ namespace CCS.Modules.Playtesting.Editor
             CCS_PlaytestStepType.HarvestCarcass,
             CCS_PlaytestStepType.CookFood,
             CCS_PlaytestStepType.EatFood,
-            CCS_PlaytestStepType.PlaceBuilding,
+            CCS_PlaytestStepType.BuildShelter,
             CCS_PlaytestStepType.SaveGame,
             CCS_PlaytestStepType.LoadGame,
             CCS_PlaytestStepType.TriggerDeath,
@@ -100,19 +100,52 @@ namespace CCS.Modules.Playtesting.Editor
                     "Default playtest profile has harness disabled.");
             }
 
-            if (profile.ProfileVersion != "1.0.3")
+            if (profile.ProfileVersion != "1.1.0")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Warning,
                     "Playtesting Profile",
-                    $"Expected profileVersion 1.0.3 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.1.0 but found '{profile.ProfileVersion}'.");
             }
 
             ValidateRequiredStepTypes(report, profile);
+            ValidateBuildShelterStep(report, profile);
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 "Playtesting Profile",
                 "Default playtest profile validated.");
+        }
+
+        private static void ValidateBuildShelterStep(CCS_SurvivalValidationReport report, CCS_PlaytestProfile profile)
+        {
+            IReadOnlyList<CCS_PlaytestStepDefinition> steps = profile.StepDefinitions;
+            for (int index = 0; index < steps.Count; index++)
+            {
+                CCS_PlaytestStepDefinition step = steps[index];
+                if (step == null || step.StepType != CCS_PlaytestStepType.BuildShelter)
+                {
+                    continue;
+                }
+
+                if (!step.DisplayName.Contains("shelter", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Warning,
+                        "Playtesting Shelter Step",
+                        "BuildShelter step display name should reference shelter.");
+                }
+
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Playtesting Shelter Step",
+                    "BuildShelter checklist step is configured.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                "Playtesting Shelter Step",
+                "Default checklist is missing BuildShelter step.");
         }
 
         private static void ValidateRequiredStepTypes(CCS_SurvivalValidationReport report, CCS_PlaytestProfile profile)

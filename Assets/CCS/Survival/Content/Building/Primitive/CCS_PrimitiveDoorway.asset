@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5765251b45182a148a85e1ec76975b23, type: 3}
+  m_Name: CCS_PrimitiveDoorway
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPieceDefinition
+  pieceId: ccs.survival.building.primitive.doorway
+  displayName: Primitive Doorway Wall
+  description: Tier-1 primitive primitive doorway wall for milestone 1.1.0.
+  buildingPieceType: 3
+  pieceCategory: 2
+  buildCostEntries:
+  - itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+    quantity: 4
+  snapPoints:
+  - snapPointId: wall_bottom
+    snapPointType: 1
+    localPosition: {x: 0, y: -0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  - snapPointId: wall_top
+    snapPointType: 2
+    localPosition: {x: 0, y: 0.5, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  allowsFreePlacement: 0
+  requiresSnapPoint: 1
+  prefabReference: {fileID: 8699536623156763771, guid: efec02e9c4e64da4a9248da7293e2438, type: 3}
+  craftingRequirements: []
+  contributesToShelter: 0
+  wetnessProtectionContribution: 0
+  exposureProtectionContribution: 0
+  temperatureProtectionContribution: 0
+  shelterCoverageRadius: 2.5

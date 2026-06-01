@@ -62,8 +62,22 @@
 | **1.0.1** | Death, respawn & save foundation (unified save file, starvation/dehydration death, respawn point) |
 | **1.0.2** | Manual playtest harness (bootstrap checklist HUD, event-driven step completion, F7/F10/F11/F12) |
 | **1.0.3** | Manual playtest pass + fixes (bootstrap route verified, gather/death/equip/build blockers resolved) |
+| **1.1.0** | Building progression foundation (tier-1 primitive shelter, recipes, placement rules, shelter playtest step) |
 
-Later milestones continue from **1.0.4+** (durability, ranged weapons, predators).
+Later milestones continue from **1.1.1+** (durability, ranged weapons, predators).
+
+---
+
+## 1.1.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Tier-1 primitive pieces (foundation, wall, doorway, floor, roof) | **Complete** |
+| `CCS_BuildingRecipeService` with costs and placement authorization | **Complete** |
+| Playtest **Build shelter** step (foundation + wall + roof) | **Complete** |
+| Validation 0 warnings / 0 errors | **Pending batch** |
+| Version **1.1.0** build | **Pending batch** |
+| Production building UI | **Deferred** |
 
 ---
 

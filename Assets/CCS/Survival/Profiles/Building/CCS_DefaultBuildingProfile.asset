@@ -15,7 +15,7 @@ MonoBehaviour:
   profileDisplayName: Default Building
   profileId: ccs.survival.profile.building.default
   profileDescription: Default building rules for 0.8.5 shelter integration.
-  profileVersion: 0.8.5
+  profileVersion: 1.1.0
   enableDebugLogs: 0
   allowPlacement: 1
   allowDemolition: 0
@@ -25,3 +25,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4a895eb55fadabe4e87d126d6107e0e1, type: 2}
   - {fileID: 11400000, guid: 235a88bd51a62d24b98b03cc3719aeae, type: 2}
   - {fileID: 11400000, guid: fb8eab80ab1b82643a4f00950ef3fa0e, type: 2}
+  - {fileID: 11400000, guid: ba1e8bbdc3ee1e64b99bef515fccbf81, type: 2}
+  - {fileID: 11400000, guid: 48f6cbdc9a7e3a945b03f9d73bdf3394, type: 2}
+  - {fileID: 11400000, guid: 28161d0c5bbc3cc4f8cc2a6a7e1f95bd, type: 2}
+  - {fileID: 11400000, guid: d1290ed084541b549a5fa3ee67b7569e, type: 2}
+  - {fileID: 11400000, guid: 0ae405fdcd1c41b4093c7fd2d8fff5f3, type: 2}

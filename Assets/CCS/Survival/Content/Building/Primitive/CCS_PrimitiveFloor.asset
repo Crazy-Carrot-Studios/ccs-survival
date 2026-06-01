@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5765251b45182a148a85e1ec76975b23, type: 3}
+  m_Name: CCS_PrimitiveFloor
+  m_EditorClassIdentifier: CCS.Modules.Building.Runtime::CCS.Modules.Building.CCS_BuildingPieceDefinition
+  pieceId: ccs.survival.building.primitive.floor
+  displayName: Primitive Floor
+  description: Tier-1 primitive primitive floor for milestone 1.1.0.
+  buildingPieceType: 1
+  pieceCategory: 3
+  buildCostEntries:
+  - itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+    quantity: 2
+  snapPoints:
+  - snapPointId: floor_edge
+    snapPointType: 0
+    localPosition: {x: 0, y: 0, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 0}
+    compatibleTargetTypes: 
+  allowsFreePlacement: 0
+  requiresSnapPoint: 1
+  prefabReference: {fileID: 2080890585347021349, guid: ea02ba4c27942e64799c462b9eaae3a2, type: 3}
+  craftingRequirements: []
+  contributesToShelter: 0
+  wetnessProtectionContribution: 0
+  exposureProtectionContribution: 0
+  temperatureProtectionContribution: 0
+  shelterCoverageRadius: 2.5

@@ -63,6 +63,7 @@ namespace CCS.Survival.Composition
             CCS_ShelterProfile shelterProfile,
             CCS_EnvironmentEffectsProfile environmentEffectsProfile,
             CCS_BuildingProfile buildingProfile,
+            CCS_BuildingProgressionProfile buildingProgressionProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -126,6 +127,15 @@ namespace CCS.Survival.Composition
                 buildingService,
                 inventoryService);
             RegisterService(runtimeHost, placementService, enableDebugLogs);
+
+            CCS_BuildingRecipeService recipeService = CreateBuildingRecipeService(buildingProgressionProfile);
+            RegisterService(runtimeHost, recipeService, enableDebugLogs);
+            if (recipeService.IsInitialized)
+            {
+                recipeService.BindBuildingService(buildingService);
+                recipeService.BindInventoryService(inventoryService);
+                placementService.BindRecipeService(recipeService);
+            }
 
             BindBuildingShelterIntegration(shelterService, buildingService);
 
@@ -670,6 +680,20 @@ namespace CCS.Survival.Composition
                 service.BindInventoryService(inventoryService);
             }
 
+            return service;
+        }
+
+        private static CCS_BuildingRecipeService CreateBuildingRecipeService(CCS_BuildingProgressionProfile profile)
+        {
+            CCS_BuildingRecipeService service = new CCS_BuildingRecipeService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
             return service;
         }
 

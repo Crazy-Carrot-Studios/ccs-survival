@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.0.3.
-  profileVersion: 1.0.3
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.0.
+  profileVersion: 1.1.0
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -81,13 +81,13 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.build
-    displayName: Place primitive building
-    stepType: 7
-    instructionText: Press B to place one test foundation piece (seeds build costs
-      automatically).
+  - stepId: ccs.survival.playtest.shelter
+    displayName: Build shelter
+    stepType: 12
+    instructionText: Place primitive foundation, at least one wall, and one roof
+      (B places foundation; snap wall/roof).
     targetItemId: 
-    targetObjectId: ccs.survival.building.test.foundation
+    targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.save

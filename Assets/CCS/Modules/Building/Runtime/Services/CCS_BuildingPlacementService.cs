@@ -26,6 +26,7 @@ namespace CCS.Modules.Building
 
         private CCS_BuildingProfile activeProfile;
         private CCS_BuildingService buildingService;
+        private CCS_BuildingRecipeService recipeService;
         private CCS_PlayerInventoryService inventoryService;
         private int nextInstanceSequence;
         private bool isInitialized;
@@ -88,6 +89,11 @@ namespace CCS.Modules.Building
         public void BindInventoryService(CCS_PlayerInventoryService service)
         {
             inventoryService = service;
+        }
+
+        public void BindRecipeService(CCS_BuildingRecipeService service)
+        {
+            recipeService = service;
         }
 
         public bool EnterPlacementMode(string message = null)
@@ -338,7 +344,30 @@ namespace CCS.Modules.Building
                 return validation;
             }
 
-            if (!CCS_BuildingPlacementValidationUtility.TryConsumeBuildCosts(
+            CCS_BuildingRecipe activeRecipe = null;
+            if (recipeService != null
+                && recipeService.IsInitialized
+                && recipeService.ProgressionEnabled)
+            {
+                if (!recipeService.TryAuthorizePlacement(
+                        definition,
+                        placementState,
+                        out activeRecipe,
+                        out string authorizationMessage))
+                {
+                    validation = CCS_BuildingPlacementValidationResult.Failed(authorizationMessage);
+                    RaisePlacementFailed(validation);
+                    return validation;
+                }
+
+                if (!recipeService.TryConsumeRecipeCosts(activeRecipe, out string consumeMessage))
+                {
+                    validation = CCS_BuildingPlacementValidationResult.Failed(consumeMessage);
+                    RaisePlacementFailed(validation);
+                    return validation;
+                }
+            }
+            else if (!CCS_BuildingPlacementValidationUtility.TryConsumeBuildCosts(
                     inventoryService,
                     definition,
                     out CCS_BuildingPlacementValidationResult consumeResult))
@@ -358,7 +387,7 @@ namespace CCS.Modules.Building
 
             if (!buildingService.TryAddPlacedInstance(instance, consumedSnapMatch))
             {
-                CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
+                RestorePlacementCosts(definition, activeRecipe);
                 validation = CCS_BuildingPlacementValidationResult.Failed("Failed to register placed building instance.");
                 RaisePlacementFailed(validation);
                 return validation;
@@ -370,12 +399,13 @@ namespace CCS.Modules.Building
                     consumedSnapMatch.TargetSnapPointId,
                     true))
             {
-                CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
+                RestorePlacementCosts(definition, activeRecipe);
                 validation = CCS_BuildingPlacementValidationResult.Failed("Failed to mark target snap point occupied.");
                 RaisePlacementFailed(validation);
                 return validation;
             }
 
+            recipeService?.NotifyPiecePlaced(definition);
             BuildingPlaced?.Invoke(
                 CreateEventArgs(instance, $"Placed building piece '{placementState.ActivePieceId}'."));
             return CCS_BuildingPlacementValidationResult.Passed;
@@ -463,6 +493,17 @@ namespace CCS.Modules.Building
         {
             nextInstanceSequence++;
             return $"ccs.survival.building.instance.{nextInstanceSequence}";
+        }
+
+        private void RestorePlacementCosts(CCS_BuildingPieceDefinition definition, CCS_BuildingRecipe recipe)
+        {
+            if (recipeService != null && recipe != null && recipeService.ProgressionEnabled)
+            {
+                recipeService.RestoreRecipeCosts(recipe);
+                return;
+            }
+
+            CCS_BuildingPlacementValidationUtility.RestoreBuildCosts(inventoryService, definition);
         }
 
         private void RaisePlacementFailed(CCS_BuildingPlacementValidationResult validation)

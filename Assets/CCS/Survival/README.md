@@ -1,6 +1,8 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 1.0.3 — Manual Playtest Pass + Fixes
+**Milestone:** 1.1.0 — Building Progression Foundation
+
+**1.0.3** — Manual Playtest Pass + Fixes
 
 **1.0.2** — Manual Playtest Harness
 

@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.Building;
+using CCS.Modules.Inventory;
+using CCS.Modules.Playtesting;
 using CCS.Survival;
 using CCS.Survival.Editor.Development;
 using UnityEditor;
@@ -32,6 +35,25 @@ namespace CCS.Modules.Building.Editor
         private const string TestRoofPath =
             SurvivalRoot + "/Content/Building/Definitions/CCS_TestRoof.asset";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Building_Module.md";
+        private const string ProgressionDocPath = ModuleRoot + "/Documentation/CCS_Building_Progression.md";
+        private const string ProgressionProfilePath =
+            SurvivalRoot + "/Profiles/Building/CCS_DefaultBuildingProgressionProfile.asset";
+        private const string PrimitiveFoundationPath =
+            SurvivalRoot + "/Content/Building/Primitive/CCS_PrimitiveFoundation.asset";
+        private const string PrimitiveWallPath =
+            SurvivalRoot + "/Content/Building/Primitive/CCS_PrimitiveWall.asset";
+        private const string PrimitiveDoorwayPath =
+            SurvivalRoot + "/Content/Building/Primitive/CCS_PrimitiveDoorway.asset";
+        private const string PrimitiveFloorPath =
+            SurvivalRoot + "/Content/Building/Primitive/CCS_PrimitiveFloor.asset";
+        private const string PrimitiveRoofPath =
+            SurvivalRoot + "/Content/Building/Primitive/CCS_PrimitiveRoof.asset";
+        private const string DefaultPlaytestProfilePath =
+            SurvivalRoot + "/Profiles/Playtesting/CCS_DefaultPlaytestProfile.asset";
+        private const string WoodItemPath =
+            SurvivalRoot + "/Content/Items/Resources/Primitive/CCS_Item_Wood.asset";
+        private const string StickItemPath =
+            SurvivalRoot + "/Content/Items/Resources/Primitive/CCS_Item_Stick.asset";
         private const string GameplayServiceRegistrationPath =
             SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
         private const string GameplayServiceHostPath =
@@ -109,8 +131,18 @@ namespace CCS.Modules.Building.Editor
             ValidateRequiredScript(report, "CCS_BuildingSnapMatch", RuntimeRoot + "/Snap/CCS_BuildingSnapMatch.cs");
             ValidateRequiredScript(report, "CCS_BuildingRuntimeSnapPoint", RuntimeRoot + "/Snap/CCS_BuildingRuntimeSnapPoint.cs");
             ValidateRequiredScript(report, "CCS_BuildingSnapCompatibilityUtility", RuntimeRoot + "/Snap/CCS_BuildingSnapCompatibilityUtility.cs");
+            ValidateRequiredScript(report, "CCS_BuildingPieceCategory", RuntimeRoot + "/Data/CCS_BuildingPieceCategory.cs");
+            ValidateRequiredScript(report, "CCS_BuildingRecipe", RuntimeRoot + "/Data/CCS_BuildingRecipe.cs");
+            ValidateRequiredScript(report, "CCS_BuildingRecipeRequiredItem", RuntimeRoot + "/Data/CCS_BuildingRecipeRequiredItem.cs");
+            ValidateRequiredScript(report, "CCS_BuildingRecipePlacementRules", RuntimeRoot + "/Data/CCS_BuildingRecipePlacementRules.cs");
+            ValidateRequiredScript(report, "CCS_BuildingProgressionProfile", RuntimeRoot + "/Profiles/CCS_BuildingProgressionProfile.cs");
+            ValidateRequiredScript(report, "CCS_BuildingRecipeService", RuntimeRoot + "/Services/CCS_BuildingRecipeService.cs");
+            ValidateRequiredScript(report, "CCS_BuildingProgressionPlacementUtility", RuntimeRoot + "/Validation/CCS_BuildingProgressionPlacementUtility.cs");
+            ValidateRequiredScript(report, "CCS_BuildingProgressionEvents", RuntimeRoot + "/Events/CCS_BuildingProgressionEvents.cs");
+            ValidateRequiredScript(report, "CCS_BuildingProgressionEventArgs", RuntimeRoot + "/Events/CCS_BuildingProgressionEventArgs.cs");
 
             ValidateDocumentationAsset(report, "Building Module Doc", ModuleDocPath);
+            ValidateDocumentationAsset(report, "Building Progression Doc", ProgressionDocPath);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateDefaultProfile(report);
             ValidateTestDefinitions(report);
@@ -126,11 +158,12 @@ namespace CCS.Modules.Building.Editor
             ValidateHudDisplay(report);
             ValidateBuildingNotifications(report);
             ValidateBootstrapTestArea(report);
+            ValidateBuildingProgressionFoundation(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Building validator completed (0.8.5 shelter integration).");
+                "Building validator completed (1.1.0 building progression foundation).");
         }
 
         #endregion
@@ -953,20 +986,22 @@ namespace CCS.Modules.Building.Editor
             string registrationSource = File.ReadAllText(GameplayServiceRegistrationPath);
             if (registrationSource.Contains("CreateBuildingService")
                 && registrationSource.Contains("CreateBuildingPlacementService")
+                && registrationSource.Contains("CreateBuildingRecipeService")
                 && registrationSource.Contains("RegisterSaveable(buildingService)")
-                && registrationSource.Contains("BindBuildingShelterIntegration"))
+                && registrationSource.Contains("BindBuildingShelterIntegration")
+                && registrationSource.Contains("BindRecipeService"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Building Service Registration",
-                    "Gameplay composition registers, save-registers, and binds building and placement services.");
+                    "Gameplay composition registers building, placement, recipe services, and shelter integration.");
             }
             else
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Building Service Registration",
-                    "Gameplay composition is missing building service registration wiring.");
+                    "Gameplay composition is missing building progression service registration wiring.");
             }
 
             if (File.Exists(GameplayServiceHostPath))
@@ -986,7 +1021,364 @@ namespace CCS.Modules.Building.Editor
                         "Building Service Host Profile",
                         "CCS_SurvivalGameplayServiceHost is missing buildingProfile reference.");
                 }
+
+                if (hostSource.Contains("buildingProgressionProfile"))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Building Progression Host Profile",
+                        "CCS_SurvivalGameplayServiceHost references buildingProgressionProfile.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Progression Host Profile",
+                        "CCS_SurvivalGameplayServiceHost is missing buildingProgressionProfile reference.");
+                }
             }
+        }
+
+        private static void ValidateBuildingProgressionFoundation(CCS_SurvivalValidationReport report)
+        {
+            ValidateProgressionProfileAsset(report);
+            ValidatePrimitivePieceDefinitions(report);
+            ValidatePlaytestShelterStep(report);
+        }
+
+        private static void ValidateProgressionProfileAsset(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(ProgressionProfilePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Profile",
+                    $"Missing required asset: {ProgressionProfilePath}. Run CCS_BuildingProgressionBootstrapSetup.ExecuteBatch.");
+                return;
+            }
+
+            CCS_BuildingProgressionProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingProgressionProfile>(ProgressionProfilePath);
+            if (profile == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Profile",
+                    "Could not load default building progression profile asset.");
+                return;
+            }
+
+            if (!profile.ProgressionEnabled)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Building Progression Profile",
+                    "Progression is disabled on the default profile.");
+            }
+
+            if (profile.ProfileVersion != "1.1.0")
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Building Progression Profile",
+                    $"Expected profileVersion 1.1.0 but found '{profile.ProfileVersion}'.");
+            }
+
+            IReadOnlyList<CCS_BuildingRecipe> recipes = profile.RecipeDefinitions;
+            if (recipes == null || recipes.Count < 5)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Recipes",
+                    "Default progression profile must define five tier-1 primitive recipes.");
+                return;
+            }
+
+            ValidateRecipeCosts(report, recipes);
+            ValidateRecipePlacementRules(report, recipes);
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Building Progression Profile",
+                $"Default progression profile validated ({recipes.Count} recipes).");
+        }
+
+        private static void ValidateRecipeCosts(
+            CCS_SurvivalValidationReport report,
+            IReadOnlyList<CCS_BuildingRecipe> recipes)
+        {
+            CCS_ItemDefinition woodItem = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(WoodItemPath);
+            CCS_ItemDefinition stickItem = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(StickItemPath);
+            if (woodItem == null || stickItem == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Costs",
+                    "Wood or stick primitive item definitions are missing for recipe cost validation.");
+                return;
+            }
+
+            ValidateRecipeCostForCategory(
+                report,
+                recipes,
+                CCS_BuildingPieceCategory.Foundation,
+                woodItem,
+                4,
+                stickItem,
+                2);
+            ValidateRecipeCostForCategory(report, recipes, CCS_BuildingPieceCategory.Wall, woodItem, 3);
+            ValidateRecipeCostForCategory(report, recipes, CCS_BuildingPieceCategory.Doorway, woodItem, 4);
+            ValidateRecipeCostForCategory(report, recipes, CCS_BuildingPieceCategory.Floor, woodItem, 2);
+            ValidateRecipeCostForCategory(
+                report,
+                recipes,
+                CCS_BuildingPieceCategory.Roof,
+                woodItem,
+                4,
+                stickItem,
+                2);
+        }
+
+        private static void ValidateRecipeCostForCategory(
+            CCS_SurvivalValidationReport report,
+            IReadOnlyList<CCS_BuildingRecipe> recipes,
+            CCS_BuildingPieceCategory category,
+            CCS_ItemDefinition woodItem,
+            int expectedWood,
+            CCS_ItemDefinition stickItem = null,
+            int expectedStick = 0)
+        {
+            CCS_BuildingRecipe recipe = FindRecipeByCategory(recipes, category);
+            if (recipe == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Costs",
+                    $"Missing recipe for category {category}.");
+                return;
+            }
+
+            int woodCount = CountRequiredItem(recipe, woodItem.ItemId);
+            if (woodCount != expectedWood)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Costs",
+                    $"{category} recipe expected Wood x{expectedWood} but found x{woodCount}.");
+            }
+
+            if (expectedStick > 0)
+            {
+                int stickCount = CountRequiredItem(recipe, stickItem.ItemId);
+                if (stickCount != expectedStick)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Building Progression Costs",
+                        $"{category} recipe expected Stick x{expectedStick} but found x{stickCount}.");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(recipe.RecipeId) || string.IsNullOrWhiteSpace(recipe.PieceDefinitionId))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Recipes",
+                    $"{category} recipe is missing recipeId or pieceDefinitionId.");
+            }
+        }
+
+        private static void ValidateRecipePlacementRules(
+            CCS_SurvivalValidationReport report,
+            IReadOnlyList<CCS_BuildingRecipe> recipes)
+        {
+            CCS_BuildingRecipe foundation = FindRecipeByCategory(recipes, CCS_BuildingPieceCategory.Foundation);
+            CCS_BuildingRecipe wall = FindRecipeByCategory(recipes, CCS_BuildingPieceCategory.Wall);
+            CCS_BuildingRecipe doorway = FindRecipeByCategory(recipes, CCS_BuildingPieceCategory.Doorway);
+            CCS_BuildingRecipe floor = FindRecipeByCategory(recipes, CCS_BuildingPieceCategory.Floor);
+            CCS_BuildingRecipe roof = FindRecipeByCategory(recipes, CCS_BuildingPieceCategory.Roof);
+
+            if (foundation?.PlacementRules == null || !foundation.PlacementRules.AllowsFreePlacement)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Placement",
+                    "Foundation recipe must allow free placement.");
+            }
+
+            ValidateRequiresFoundation(report, wall, "Wall");
+            ValidateRequiresFoundation(report, doorway, "Doorway");
+            ValidateRequiresFoundation(report, floor, "Floor");
+
+            if (roof?.PlacementRules == null || !roof.PlacementRules.RequiresWallOrDoorwaySupport)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Placement",
+                    "Roof recipe must require wall or doorway support.");
+            }
+        }
+
+        private static void ValidateRequiresFoundation(
+            CCS_SurvivalValidationReport report,
+            CCS_BuildingRecipe recipe,
+            string label)
+        {
+            if (recipe?.PlacementRules == null || !recipe.PlacementRules.RequiresFoundationNearby)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Progression Placement",
+                    $"{label} recipe must require foundation nearby.");
+            }
+        }
+
+        private static void ValidatePrimitivePieceDefinitions(CCS_SurvivalValidationReport report)
+        {
+            ValidatePrimitiveDefinitionAsset(report, "Primitive Foundation", PrimitiveFoundationPath, CCS_BuildingPieceCategory.Foundation);
+            ValidatePrimitiveDefinitionAsset(report, "Primitive Wall", PrimitiveWallPath, CCS_BuildingPieceCategory.Wall);
+            ValidatePrimitiveDefinitionAsset(report, "Primitive Doorway", PrimitiveDoorwayPath, CCS_BuildingPieceCategory.Doorway);
+            ValidatePrimitiveDefinitionAsset(report, "Primitive Floor", PrimitiveFloorPath, CCS_BuildingPieceCategory.Floor);
+            ValidatePrimitiveDefinitionAsset(report, "Primitive Roof", PrimitiveRoofPath, CCS_BuildingPieceCategory.Roof);
+        }
+
+        private static void ValidatePrimitiveDefinitionAsset(
+            CCS_SurvivalValidationReport report,
+            string label,
+            string assetPath,
+            CCS_BuildingPieceCategory expectedCategory)
+        {
+            if (!File.Exists(assetPath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Primitive Definitions",
+                    $"Missing {label} asset: {assetPath}");
+                return;
+            }
+
+            CCS_BuildingPieceDefinition definition =
+                AssetDatabase.LoadAssetAtPath<CCS_BuildingPieceDefinition>(assetPath);
+            if (definition == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Primitive Definitions",
+                    $"Could not load {label} at {assetPath}.");
+                return;
+            }
+
+            if (definition.PieceCategory != expectedCategory)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Primitive Definitions",
+                    $"{label} has unexpected piece category {definition.PieceCategory}.");
+            }
+
+            if (definition.PrefabReference == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Building Primitive Definitions",
+                    $"{label} is missing prefabReference.");
+            }
+        }
+
+        private static void ValidatePlaytestShelterStep(CCS_SurvivalValidationReport report)
+        {
+            if (!File.Exists(DefaultPlaytestProfilePath))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Playtest Shelter Step",
+                    $"Default playtest profile not found at {DefaultPlaytestProfilePath}.");
+                return;
+            }
+
+            CCS_PlaytestProfile playtestProfile =
+                AssetDatabase.LoadAssetAtPath<CCS_PlaytestProfile>(DefaultPlaytestProfilePath);
+            if (playtestProfile == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Playtest Shelter Step",
+                    "Could not load default playtest profile for shelter step validation.");
+                return;
+            }
+
+            bool foundShelterStep = false;
+            IReadOnlyList<CCS_PlaytestStepDefinition> steps = playtestProfile.StepDefinitions;
+            for (int index = 0; index < steps.Count; index++)
+            {
+                CCS_PlaytestStepDefinition step = steps[index];
+                if (step == null || step.StepType != CCS_PlaytestStepType.BuildShelter)
+                {
+                    continue;
+                }
+
+                foundShelterStep = true;
+                if (!step.DisplayName.Contains("shelter", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Warning,
+                        "Playtest Shelter Step",
+                        "BuildShelter step display name should reference shelter.");
+                }
+            }
+
+            if (!foundShelterStep)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Playtest Shelter Step",
+                    "Default playtest profile is missing BuildShelter checklist step.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Playtest Shelter Step",
+                    "Default playtest profile includes BuildShelter step.");
+            }
+        }
+
+        private static CCS_BuildingRecipe FindRecipeByCategory(
+            IReadOnlyList<CCS_BuildingRecipe> recipes,
+            CCS_BuildingPieceCategory category)
+        {
+            for (int index = 0; index < recipes.Count; index++)
+            {
+                CCS_BuildingRecipe recipe = recipes[index];
+                if (recipe != null && recipe.PieceCategory == category)
+                {
+                    return recipe;
+                }
+            }
+
+            return null;
+        }
+
+        private static int CountRequiredItem(CCS_BuildingRecipe recipe, string itemId)
+        {
+            int total = 0;
+            IReadOnlyList<CCS_BuildingRecipeRequiredItem> requiredItems = recipe.RequiredItems;
+            if (requiredItems == null)
+            {
+                return total;
+            }
+
+            for (int index = 0; index < requiredItems.Count; index++)
+            {
+                CCS_BuildingRecipeRequiredItem entry = requiredItems[index];
+                if (!string.IsNullOrWhiteSpace(entry.itemDefinitionId)
+                    && entry.itemDefinitionId == itemId)
+                {
+                    total += entry.quantity;
+                }
+            }
+
+            return total;
         }
 
         private static void ValidateRestoreOrder(CCS_SurvivalValidationReport report)
