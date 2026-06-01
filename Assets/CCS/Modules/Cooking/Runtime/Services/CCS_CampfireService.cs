@@ -313,6 +313,15 @@ namespace CCS.Modules.Cooking
                 collider.enabled = true;
             }
 
+            CCS_CookingStation cookingStation = campfireObject.AddComponent<CCS_CookingStation>();
+            cookingStation.ConfigureFromProfile(activeProfile, activeProfile.AutoLightCampfiresOnPlacement);
+
+            CCS_CookingInteractable cookingInteractable = campfireObject.AddComponent<CCS_CookingInteractable>();
+            cookingInteractable.ConfigureRuntime(
+                activeProfile,
+                cookingStation,
+                activeProfile.AutoLightCampfiresOnPlacement);
+
             CCS_CampfireInteractable interactable = campfireObject.AddComponent<CCS_CampfireInteractable>();
             interactable.ConfigureRuntime(
                 activeProfile.DefaultCampfireDefinition,
@@ -326,8 +335,8 @@ namespace CCS.Modules.Cooking
             CampfireLit?.Invoke(
                 new CCS_CookingEventArgs(
                     campfireDefinition,
-                    message: "Campfire lit.",
-                    campfireInstanceKey: instanceKey));
+                    campfireInstanceKey: instanceKey,
+                    message: "Campfire lit."));
         }
 
         #endregion

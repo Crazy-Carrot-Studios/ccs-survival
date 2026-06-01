@@ -1,68 +1,70 @@
 # CCS Cooking Module
 
-**Milestone:** 0.9.5 — Consumables & Hunger Usage
+**Milestone:** 1.0.0 — Campfire + Cooking Foundation
 
 ## Purpose
 
-Completes the first self-sustaining survival loop and makes consumable food useful during gameplay:
+Completes the primitive survival loop: gather fuel, hunt wildlife, harvest meat, cook on a campfire, and eat cooked food for stronger hunger restoration.
 
-Knife → Branches → Campfire Kit → Campfire → Raw Meat → Cooked Meat → Hunger Restoration
-
-## Scope (0.9.5)
+## Scope (1.0.0)
 
 | Included | Excluded |
 |---|---|
-| Campfire placement via Building framework | Combat |
-| Campfire interactable (Unlit / Lit / Cooking) | Cooking UI |
-| Raw Meat → Cooked Meat on lit campfire | Fuel systems |
-| Basic Food (+15) + Cooked Meat (+40) hunger restore | Health restore |
-| Consume cooldown and fullness checks | Buffs |
-| Prefer Cooked Meat before Basic Food | Starvation health damage |
-| HUD notifications for consume success/failure | Disease / spoilage |
-| F key consume (temporary developer binding) | Full inventory UI |
+| `CCS_CookingStation` campfire stations | Advanced cooking UI |
+| Fuel-backed recipes (stick or wood) | Fuel burn simulation over time |
+| Rabbit and venison cook recipes | Multi-station queue UI |
+| `CCS_CookingInteractable` auto-starts first valid recipe | Multiplayer replication |
+| Species-specific raw and cooked meat items | Custom campfire art |
 
-## Key Types
+## Gather → Hunt → Cook → Eat Loop
 
-| Type | Role |
+1. Gather **stick** or **wood** from `CCS_GatheringTestArea` nodes.
+2. Hunt rabbit or deer with equipped spear (`CCS_CombatService`).
+3. Harvest carcass for species-specific raw meat.
+4. Interact with `CCS_TestCampfire` (`CCS_CookingInteractable`).
+5. Service consumes raw meat + fuel, cooks over time, grants cooked meat.
+6. Press **F** to consume cooked food (`CCS_ConsumableFoodService`).
+
+## Item IDs (1.0.0)
+
+| Item | Item ID |
 |---|---|
-| `CCS_CookingProfile` | Cooking, campfire, and consumable food tuning |
-| `CCS_CampfireDefinition` | Campfire identity and cook timing |
-| `CCS_CampfireService` | Campfire state, kit placement, lit/cook orchestration |
-| `CCS_CookingService` | Ingredient validation, cook queue, output grant |
-| `CCS_ConsumableFoodService` | Inventory food consumption, cooldown, hunger restore |
-| `CCS_ConsumableFoodDefinition` | Hunger restore, optional cooldown override, notification label |
-| `CCS_CampfireInteractable` | Light fire and cook meat interactions |
+| Raw Rabbit Meat | `ccs.survival.item.resource.rawrabbitmeat` |
+| Raw Venison | `ccs.survival.item.resource.rawvenison` |
+| Cooked Rabbit Meat | `ccs.survival.item.food.cookedrabbitmeat` |
+| Cooked Venison | `ccs.survival.item.food.cookedvenison` |
+| Stick (fuel) | `ccs.survival.item.resource.stick` |
+| Wood (fuel) | `ccs.survival.item.resource.wood` |
+| Legacy Raw Meat | `ccs.survival.item.resource.rawmeat` |
+| Legacy Cooked Meat | `ccs.survival.item.food.cookedmeat` |
 
-## Food Consumption Flow
+## Default Recipes
 
-1. Player presses **F** once (`Consume` gameplay action).
-2. `CCS_ConsumableFoodPlayerDriver` calls `TryConsumeFirstAvailableFood()`.
-3. Service validates survival core availability, cooldown, and hunger fullness.
-4. Service prefers **Cooked Meat** (+40) over **Basic Food** (+15) when both exist.
-5. On success: remove one item, apply hunger modifier, raise `FoodConsumed`.
-6. On failure: raise `FoodConsumeFailed` with reason (no food, hunger full, cooldown, etc.).
+| Recipe ID | Raw | Cooked | Fuel | Duration |
+|---|---|---|---|---|
+| `ccs.survival.cooking.recipe.cookrabbit` | Raw Rabbit x1 | Cooked Rabbit x1 | Stick or Wood x1 | 5s |
+| `ccs.survival.cooking.recipe.cookvenison` | Raw Venison x1 | Cooked Venison x1 | Stick or Wood x1 | 7s |
 
-Inventory food counts persist through existing inventory save paths when enabled. Consume cooldown is runtime-only and does not persist.
+## Hunger Restore (consumables)
 
-## Player Controls (Bootstrap)
-
-| Input | Action |
+| Food | Hunger restore |
 |---|---|
-| Interact | Light campfire / cook meat on targeted campfire |
-| B | Toggle campfire kit placement mode |
-| Interact (while placing) | Confirm campfire placement |
-| F (Keyboard) / D-Pad Down (Gamepad) | Consume first available configured food item |
+| Cooked Rabbit Meat | 35 |
+| Cooked Venison | 50 |
+| Raw Rabbit Meat | 8 |
+| Raw Venison | 12 |
 
 ## Validation
 
 Menu: **CCS → Survival → Cooking → Validate Cooking**
 
-Registered on `CCS_SurvivalValidationPipeline` via `CCS_CookingValidationRegistration`.
+Batch: `CCS.Modules.Cooking.Editor.CCS_CookingValidationMenu.ValidateCooking`
+
+Bootstrap batch: `CCS.Modules.Cooking.Editor.CCS_CookingBootstrapSetup.ExecuteBatch`
 
 ## Deferred
 
-- Fuel and BurnedOut gameplay
-- Cooking UI and recipe browser
-- FirePit crafting station world objects beyond campfire interactable
-- Stamina bonus from cooked food
-- Starvation health damage and death
+- Cooking station selection UI
+- Fuel burn-down while lit
+- Recipe discovery and quality tiers
+- Spoilage and food poisoning

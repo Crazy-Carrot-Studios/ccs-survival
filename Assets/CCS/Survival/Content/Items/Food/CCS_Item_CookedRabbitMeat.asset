@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8490a90abcdef1234560d, type: 3}
-  m_Name: CCS_Item_CookedMeat
+  m_Name: CCS_Item_CookedRabbitMeat
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
-  itemId: ccs.survival.item.food.cookedmeat
-  displayName: Cooked Meat
-  description: Cooked meat food item that restores hunger when consumed.
+  itemId: ccs.survival.item.food.cookedrabbitmeat
+  displayName: Cooked Rabbit Meat
+  description: Cooked rabbit meat that restores more hunger than raw rabbit meat.
   category: 2
   maxStackSize: 20
   isStackable: 1

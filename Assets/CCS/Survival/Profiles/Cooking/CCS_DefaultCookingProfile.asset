@@ -14,22 +14,72 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Cooking.Runtime::CCS.Modules.Cooking.CCS_CookingProfile
   profileDisplayName: Default Cooking
   profileId: ccs.survival.profile.cooking.default
-  profileDescription: Default campfire cooking and consumable food rules for 0.9.5
-    hunger usage.
-  profileVersion: 0.9.5
+  profileDescription: Campfire cooking with fuel, rabbit and venison recipes for
+    1.0.0 foundation.
+  profileVersion: 1.0.0
   enableDebugLogs: 0
+  defaultInteractDistance: 3
+  defaultCookDurationSeconds: 5
+  defaultFuelBurnDurationSeconds: 30
   enableCooking: 1
-  defaultCookTimeSeconds: 5
   autoLightCampfiresOnPlacement: 1
   defaultCampfireDefinition: {fileID: 11400000, guid: 7e89ea6e2854197459fc064da11adc22, type: 2}
   campfireBuildingPiece: {fileID: 11400000, guid: fb8eab80ab1b82643a4f00950ef3fa0e, type: 2}
+  recipeItemCatalog:
+  - {fileID: 11400000, guid: 75b9857b55b7b7241b76b9ba7a88f07c, type: 2}
+  - {fileID: 11400000, guid: 19901c0a2a17a1847b4054418f4362f9, type: 2}
+  - {fileID: 11400000, guid: 07875b339554b884fa4ae43e370cd595, type: 2}
+  - {fileID: 11400000, guid: 6a2dab984fe762f488dd3d08c6e7b2d2, type: 2}
+  - {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
+  - {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
+  - {fileID: 11400000, guid: 2183236ae8ad5604b81137728adb845d, type: 2}
+  - {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+  recipes:
+  - recipeId: ccs.survival.cooking.recipe.cookrabbit
+    displayName: Cook Rabbit Meat
+    rawItemDefinitionId: ccs.survival.item.resource.rawrabbitmeat
+    cookedItemDefinitionId: ccs.survival.item.food.cookedrabbitmeat
+    rawAmount: 1
+    cookedAmount: 1
+    cookDurationSeconds: 5
+    acceptedFuelItemIds:
+    - ccs.survival.item.resource.stick
+    - ccs.survival.item.resource.wood
+    requiredFuelAmount: 1
+  - recipeId: ccs.survival.cooking.recipe.cookvenison
+    displayName: Cook Venison
+    rawItemDefinitionId: ccs.survival.item.resource.rawvenison
+    cookedItemDefinitionId: ccs.survival.item.food.cookedvenison
+    rawAmount: 1
+    cookedAmount: 1
+    cookDurationSeconds: 7
+    acceptedFuelItemIds:
+    - ccs.survival.item.resource.stick
+    - ccs.survival.item.resource.wood
+    requiredFuelAmount: 1
   rawMeatItemDefinition: {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
   cookedMeatItemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
   consumableFoodDefinitions:
+  - itemDefinition: {fileID: 11400000, guid: 07875b339554b884fa4ae43e370cd595, type: 2}
+    hungerRestoreAmount: 35
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Cooked Rabbit Meat
+  - itemDefinition: {fileID: 11400000, guid: 6a2dab984fe762f488dd3d08c6e7b2d2, type: 2}
+    hungerRestoreAmount: 50
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Cooked Venison
   - itemDefinition: {fileID: 11400000, guid: f04d1fc0e4d73784d96a9bb1012bfbde, type: 2}
     hungerRestoreAmount: 40
     consumeCooldownSeconds: 0
     notificationDisplayName: Cooked Meat
+  - itemDefinition: {fileID: 11400000, guid: 75b9857b55b7b7241b76b9ba7a88f07c, type: 2}
+    hungerRestoreAmount: 8
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Raw Rabbit Meat
+  - itemDefinition: {fileID: 11400000, guid: 19901c0a2a17a1847b4054418f4362f9, type: 2}
+    hungerRestoreAmount: 12
+    consumeCooldownSeconds: 0
+    notificationDisplayName: Raw Venison
   - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
     hungerRestoreAmount: 15
     consumeCooldownSeconds: 0

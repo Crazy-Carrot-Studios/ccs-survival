@@ -7,11 +7,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CookingService
 // CATEGORY: Modules / Cooking / Runtime / Services
-// PURPOSE: Validates ingredients, queues cooking jobs, and grants cooked outputs.
+// PURPOSE: Registers cooking stations, validates fuel and ingredients, and grants outputs.
 // PLACEMENT: Registered by CCS_SurvivalGameplayServiceRegistration from cooking profile.
-// AUTHOR: James Schilz
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: FirePit station classification without world station UI. No fuel systems.
+// NOTES: Inventory integration uses CCS_PlayerInventoryService public APIs only.
 // =============================================================================
 
 namespace CCS.Modules.Cooking
@@ -22,19 +22,30 @@ namespace CCS.Modules.Cooking
 
         private sealed class ActiveCookJob
         {
-            public ActiveCookJob(CCS_CookingRequest request, float remainingSeconds)
+            public ActiveCookJob(
+                CCS_CookingStation station,
+                CCS_CookingRecipe recipe,
+                float remainingSeconds,
+                CCS_CookingRequest legacyRequest = null)
             {
-                Request = request;
+                Station = station;
+                Recipe = recipe;
+                LegacyRequest = legacyRequest;
                 RemainingSeconds = remainingSeconds;
             }
 
-            public CCS_CookingRequest Request { get; }
+            public CCS_CookingStation Station { get; }
+
+            public CCS_CookingRecipe Recipe { get; }
+
+            public CCS_CookingRequest LegacyRequest { get; }
 
             public float RemainingSeconds { get; set; }
         }
 
         #region Variables
 
+        private readonly HashSet<CCS_CookingStation> registeredStations = new HashSet<CCS_CookingStation>();
         private readonly List<ActiveCookJob> activeCookJobs = new List<ActiveCookJob>();
 
         private CCS_CookingProfile activeProfile;
@@ -49,6 +60,7 @@ namespace CCS.Modules.Cooking
         public event CookingStartedHandler CookingStarted;
         public event CookingCompletedHandler CookingCompleted;
         public event CookingFailedHandler CookingFailed;
+        public event CookingCancelledHandler CookingCancelled;
 
         #endregion
 
@@ -89,6 +101,7 @@ namespace CCS.Modules.Cooking
                 Debug.LogWarning($"{LogPrefix} Profile validation warning: {validation.Message}");
             }
 
+            profile.BuildRecipeLookup();
             activeProfile = profile;
             if (inventoryServiceOverride != null)
             {
@@ -108,61 +121,156 @@ namespace CCS.Modules.Cooking
             campfireService = service;
         }
 
-        public bool CanCook(CCS_CookingRequest request)
+        public void RegisterStation(CCS_CookingStation station)
         {
-            return ValidateCookingRequest(request).IsSuccess;
+            if (station == null)
+            {
+                return;
+            }
+
+            registeredStations.Add(station);
+        }
+
+        public void UnregisterStation(CCS_CookingStation station)
+        {
+            if (station == null)
+            {
+                return;
+            }
+
+            registeredStations.Remove(station);
+        }
+
+        public bool TryFindFirstCookableRecipe(
+            CCS_CookingStation station,
+            out CCS_CookingRecipe recipe,
+            out string failureMessage)
+        {
+            recipe = null;
+            failureMessage = string.Empty;
+
+            if (!EnsureInitialized() || activeProfile == null || station == null)
+            {
+                failureMessage = "Cooking service is unavailable.";
+                return false;
+            }
+
+            if (!station.CanCook())
+            {
+                failureMessage = "Cooking station is not ready.";
+                return false;
+            }
+
+            IReadOnlyList<CCS_CookingRecipe> recipes = activeProfile.Recipes;
+            if (recipes == null || recipes.Count == 0)
+            {
+                failureMessage = "No cooking recipes are configured.";
+                return false;
+            }
+
+            for (int index = 0; index < recipes.Count; index++)
+            {
+                CCS_CookingRecipe candidate = recipes[index];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                if (ValidateRecipeRequirements(candidate, out _))
+                {
+                    recipe = candidate;
+                    return true;
+                }
+            }
+
+            failureMessage = "Missing raw food or fuel for campfire cooking.";
+            return false;
+        }
+
+        public CCS_CookingResult TryStartCooking(CCS_CookingStation station, string recipeId)
+        {
+            if (!EnsureInitialized() || activeProfile == null)
+            {
+                return FailCooking(station, null, "Cooking service is not initialized.");
+            }
+
+            if (activeProfile != null && !activeProfile.EnableCooking)
+            {
+                return FailCooking(station, null, "Cooking is disabled.");
+            }
+
+            if (station == null)
+            {
+                return FailCooking(null, null, "Cooking station is null.");
+            }
+
+            if (!station.CanCook())
+            {
+                return FailCooking(station, null, "Cooking station is not ready.");
+            }
+
+            if (!activeProfile.TryGetRecipe(recipeId, out CCS_CookingRecipe recipe))
+            {
+                return FailCooking(station, null, $"Cooking recipe '{recipeId}' was not found.");
+            }
+
+            if (!ValidateRecipeRequirements(recipe, out string validationMessage))
+            {
+                return FailCooking(station, recipe, validationMessage);
+            }
+
+            if (!TryConsumeRecipeIngredients(recipe, out string consumeMessage))
+            {
+                return FailCooking(station, recipe, consumeMessage);
+            }
+
+            float cookDuration = recipe.CookDurationSeconds > 0f
+                ? recipe.CookDurationSeconds
+                : activeProfile.DefaultCookDurationSeconds;
+
+            station.ApplyCookingStarted(recipe.RecipeId);
+            activeCookJobs.Add(new ActiveCookJob(station, recipe, cookDuration));
+
+            if (activeProfile.EnableDebugLogs)
+            {
+                Debug.Log($"{LogPrefix} Started {recipe.DisplayName} on {station.StationType}.");
+            }
+
+            RaiseCookingStarted(station, recipe, "Cooking started.");
+            return CCS_CookingResult.Success("Cooking started.");
         }
 
         public CCS_CookingResult TryStartCooking(CCS_CookingRequest request)
         {
             if (!EnsureInitialized())
             {
-                return FailCooking(request, "Cooking service is not initialized.");
+                return CCS_CookingResult.Failure("Cooking service is not initialized.");
             }
 
-            if (activeProfile != null && !activeProfile.EnableCooking)
+            if (request == null)
             {
-                return FailCooking(request, "Cooking is disabled.");
+                return CCS_CookingResult.Failure("Cooking request is null.");
             }
 
-            CCS_SurvivalValidationResult validation = ValidateCookingRequest(request);
-            if (!validation.IsSuccess)
+            CCS_CookingStation matchingStation = FindStationForCampfireKey(request.CampfireInstanceKey);
+            if (matchingStation != null
+                && TryFindFirstCookableRecipe(matchingStation, out CCS_CookingRecipe stationRecipe, out _))
             {
-                return FailCooking(request, validation.Message);
+                return TryStartCooking(matchingStation, stationRecipe.RecipeId);
             }
 
-            if (inventoryService == null || !inventoryService.IsInitialized)
-            {
-                return FailCooking(request, "Inventory service is not initialized.");
-            }
+            return TryStartLegacyRequest(request);
+        }
 
-            CCS_ItemDefinition inputItem = request.InputItemDefinition;
-            CCS_ItemDefinition outputItem = request.OutputItemDefinition;
-
-            if (inventoryService.RemoveItem(inputItem, 1) < 1)
-            {
-                return FailCooking(request, "Failed to consume raw meat.");
-            }
-
-            if (!inventoryService.CanAdd(outputItem, 1))
-            {
-                inventoryService.AddItem(inputItem, 1);
-                return FailCooking(request, "Inventory cannot hold cooked meat.");
-            }
-
-            float cookTimeSeconds = request.CookTimeSeconds;
-            if (cookTimeSeconds <= 0f)
-            {
-                cookTimeSeconds = activeProfile != null ? activeProfile.DefaultCookTimeSeconds : 5f;
-            }
-
-            campfireService?.SetCampfireState(request.CampfireInstanceKey, CCS_CampfireState.Cooking);
-
-            ActiveCookJob job = new ActiveCookJob(request, cookTimeSeconds);
-            activeCookJobs.Add(job);
-
-            RaiseCookingStarted(request);
-            return CCS_CookingResult.Success("Cooking started.");
+        public bool CanCook(CCS_CookingRequest request)
+        {
+            return request != null
+                && request.InputItemDefinition != null
+                && request.OutputItemDefinition != null
+                && inventoryService != null
+                && inventoryService.IsInitialized
+                && inventoryService.GetQuantity(request.InputItemDefinition) > 0
+                && inventoryService.CanAdd(request.OutputItemDefinition, 1);
         }
 
         public void Tick(float deltaTime)
@@ -187,6 +295,28 @@ namespace CCS.Modules.Cooking
             }
         }
 
+        public void CancelCooking(CCS_CookingStation station)
+        {
+            if (station == null)
+            {
+                return;
+            }
+
+            for (int index = activeCookJobs.Count - 1; index >= 0; index--)
+            {
+                ActiveCookJob job = activeCookJobs[index];
+                if (job.Station != station)
+                {
+                    continue;
+                }
+
+                activeCookJobs.RemoveAt(index);
+                station.CancelCooking();
+                RaiseCookingCancelled(station, job.Recipe, "Cooking cancelled.");
+                return;
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -196,68 +326,195 @@ namespace CCS.Modules.Cooking
             return isInitialized;
         }
 
-        private CCS_SurvivalValidationResult ValidateCookingRequest(CCS_CookingRequest request)
+        private bool ValidateRecipeRequirements(CCS_CookingRecipe recipe, out string failureMessage)
         {
-            if (request == null)
+            failureMessage = string.Empty;
+            if (recipe == null)
             {
-                return CCS_SurvivalValidationResult.Fail("Cooking request is null.");
-            }
-
-            CCS_SurvivalValidationResult campfireValidation =
-                CCS_CookingValidationUtility.ValidateCampfireDefinition(request.CampfireDefinition);
-
-            if (!campfireValidation.IsSuccess)
-            {
-                return campfireValidation;
-            }
-
-            if (request.InputItemDefinition == null)
-            {
-                return CCS_SurvivalValidationResult.Fail("Cooking input item is null.");
-            }
-
-            if (request.OutputItemDefinition == null)
-            {
-                return CCS_SurvivalValidationResult.Fail("Cooking output item is null.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.CampfireInstanceKey))
-            {
-                return CCS_SurvivalValidationResult.Fail("Campfire instance key is required.");
+                failureMessage = "Cooking recipe is null.";
+                return false;
             }
 
             if (inventoryService == null || !inventoryService.IsInitialized)
             {
-                return CCS_SurvivalValidationResult.Fail("Inventory service is not initialized.");
+                failureMessage = "Inventory service is not initialized.";
+                return false;
             }
 
-            if (inventoryService.GetQuantity(request.InputItemDefinition) <= 0)
+            if (!activeProfile.TryResolveItemDefinition(recipe.RawItemDefinitionId, out CCS_ItemDefinition rawItem))
             {
-                return CCS_SurvivalValidationResult.Fail("Required raw meat is missing.");
+                failureMessage = $"Raw item '{recipe.RawItemDefinitionId}' could not be resolved.";
+                return false;
             }
 
-            if (!inventoryService.CanAdd(request.OutputItemDefinition, 1))
+            if (!activeProfile.TryResolveItemDefinition(recipe.CookedItemDefinitionId, out CCS_ItemDefinition cookedItem))
             {
-                return CCS_SurvivalValidationResult.Fail("Inventory cannot hold cooked meat.");
+                failureMessage = $"Cooked item '{recipe.CookedItemDefinitionId}' could not be resolved.";
+                return false;
             }
 
-            if (campfireService != null
-                && campfireService.TryGetCampfireState(request.CampfireInstanceKey, out CCS_CampfireState campfireState)
-                && campfireState != CCS_CampfireState.Lit)
+            if (inventoryService.GetQuantity(rawItem) < recipe.RawAmount)
             {
-                return CCS_SurvivalValidationResult.Fail("Campfire must be lit before cooking.");
+                failureMessage = $"Missing {recipe.DisplayName} ingredients.";
+                return false;
             }
 
-            return CCS_SurvivalValidationResult.Pass("Cooking request validated.");
+            if (!inventoryService.CanAdd(cookedItem, recipe.CookedAmount))
+            {
+                failureMessage = "Inventory cannot hold cooked food.";
+                return false;
+            }
+
+            if (!TryResolveFuelItem(recipe, out CCS_ItemDefinition fuelItem, out int fuelAmount))
+            {
+                failureMessage = "Missing stick or wood fuel.";
+                return false;
+            }
+
+            if (inventoryService.GetQuantity(fuelItem) < fuelAmount)
+            {
+                failureMessage = "Missing stick or wood fuel.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryResolveFuelItem(
+            CCS_CookingRecipe recipe,
+            out CCS_ItemDefinition fuelItem,
+            out int fuelAmount)
+        {
+            fuelItem = null;
+            fuelAmount = recipe != null ? recipe.RequiredFuelAmount : 0;
+            if (recipe == null || fuelAmount <= 0)
+            {
+                return false;
+            }
+
+            IReadOnlyList<string> acceptedFuelIds = recipe.AcceptedFuelItemIds;
+            if (acceptedFuelIds == null || acceptedFuelIds.Count == 0)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < acceptedFuelIds.Count; index++)
+            {
+                string fuelId = acceptedFuelIds[index];
+                if (!activeProfile.TryResolveItemDefinition(fuelId, out CCS_ItemDefinition candidate)
+                    || candidate == null)
+                {
+                    continue;
+                }
+
+                if (inventoryService.GetQuantity(candidate) >= fuelAmount)
+                {
+                    fuelItem = candidate;
+                    return true;
+                }
+            }
+
+            for (int index = 0; index < acceptedFuelIds.Count; index++)
+            {
+                if (activeProfile.TryResolveItemDefinition(acceptedFuelIds[index], out CCS_ItemDefinition candidate)
+                    && candidate != null)
+                {
+                    fuelItem = candidate;
+                    return true;
+                }
+            }
+
+            return fuelItem != null;
+        }
+
+        private bool TryConsumeRecipeIngredients(CCS_CookingRecipe recipe, out string failureMessage)
+        {
+            failureMessage = string.Empty;
+            if (!activeProfile.TryResolveItemDefinition(recipe.RawItemDefinitionId, out CCS_ItemDefinition rawItem)
+                || !activeProfile.TryResolveItemDefinition(recipe.CookedItemDefinitionId, out CCS_ItemDefinition cookedItem))
+            {
+                failureMessage = "Cooking recipe items could not be resolved.";
+                return false;
+            }
+
+            if (!TryResolveFuelItem(recipe, out CCS_ItemDefinition fuelItem, out int fuelAmount))
+            {
+                failureMessage = "Missing stick or wood fuel.";
+                return false;
+            }
+
+            if (inventoryService.RemoveItem(rawItem, recipe.RawAmount) < recipe.RawAmount)
+            {
+                failureMessage = "Failed to consume raw ingredients.";
+                return false;
+            }
+
+            if (inventoryService.RemoveItem(fuelItem, fuelAmount) < fuelAmount)
+            {
+                inventoryService.AddItem(rawItem, recipe.RawAmount);
+                failureMessage = "Failed to consume fuel.";
+                return false;
+            }
+
+            if (!inventoryService.CanAdd(cookedItem, recipe.CookedAmount))
+            {
+                inventoryService.AddItem(rawItem, recipe.RawAmount);
+                inventoryService.AddItem(fuelItem, fuelAmount);
+                failureMessage = "Inventory cannot hold cooked food.";
+                return false;
+            }
+
+            return true;
         }
 
         private void CompleteCookJob(ActiveCookJob job)
         {
-            CCS_CookingRequest request = job.Request;
+            if (job == null)
+            {
+                return;
+            }
+
+            if (job.LegacyRequest != null)
+            {
+                CompleteLegacyCookJob(job);
+                return;
+            }
+
+            if (job.Recipe == null)
+            {
+                return;
+            }
+
+            if (!activeProfile.TryResolveItemDefinition(job.Recipe.CookedItemDefinitionId, out CCS_ItemDefinition cookedItem))
+            {
+                FailCooking(job.Station, job.Recipe, "Cooked item could not be resolved.");
+                job.Station?.CompleteCooking();
+                return;
+            }
+
+            int added = inventoryService.AddItem(cookedItem, job.Recipe.CookedAmount);
+            if (added < job.Recipe.CookedAmount)
+            {
+                FailCooking(job.Station, job.Recipe, "Failed to grant cooked food.");
+                job.Station?.CompleteCooking();
+                return;
+            }
+
+            job.Station?.CompleteCooking();
+            RaiseCookingCompleted(job.Station, job.Recipe, "Cooking completed.");
+        }
+
+        private void CompleteLegacyCookJob(ActiveCookJob job)
+        {
+            CCS_CookingRequest request = job.LegacyRequest;
+            if (request == null)
+            {
+                return;
+            }
 
             if (inventoryService == null || !inventoryService.IsInitialized)
             {
-                FailCooking(request, "Inventory service is not initialized.");
+                FailCooking(null, null, "Inventory service is not initialized.");
                 campfireService?.SetCampfireState(request.CampfireInstanceKey, CCS_CampfireState.Lit);
                 return;
             }
@@ -265,50 +522,138 @@ namespace CCS.Modules.Cooking
             int added = inventoryService.AddItem(request.OutputItemDefinition, 1);
             if (added < 1)
             {
-                FailCooking(request, "Failed to grant cooked meat.");
+                FailCooking(null, null, "Failed to grant cooked meat.");
                 campfireService?.SetCampfireState(request.CampfireInstanceKey, CCS_CampfireState.Lit);
                 return;
             }
 
             campfireService?.SetCampfireState(request.CampfireInstanceKey, CCS_CampfireState.Lit);
-            RaiseCookingCompleted(request);
+            RaiseCookingCompleted(
+                null,
+                null,
+                $"Cooked {request.OutputItemDefinition.DisplayName}.",
+                request.OutputItemDefinition,
+                request.CampfireDefinition,
+                request.CampfireInstanceKey);
         }
 
-        private CCS_CookingResult FailCooking(CCS_CookingRequest request, string message)
+        private CCS_CookingResult TryStartLegacyRequest(CCS_CookingRequest request)
         {
-            CCS_CookingResult failure = CCS_CookingResult.Failure(message);
-            RaiseCookingFailed(request, message);
-            return failure;
+            if (!CanCook(request))
+            {
+                return FailCooking(null, null, "Cooking request is invalid.");
+            }
+
+            if (inventoryService.RemoveItem(request.InputItemDefinition, 1) < 1)
+            {
+                return FailCooking(null, null, "Failed to consume raw meat.");
+            }
+
+            float cookTimeSeconds = request.CookTimeSeconds > 0f
+                ? request.CookTimeSeconds
+                : activeProfile.DefaultCookDurationSeconds;
+
+            campfireService?.SetCampfireState(request.CampfireInstanceKey, CCS_CampfireState.Cooking);
+            activeCookJobs.Add(new ActiveCookJob(null, null, cookTimeSeconds, request));
+            RaiseCookingStarted(
+                null,
+                null,
+                "Cooking started.",
+                request.InputItemDefinition,
+                request.CampfireDefinition,
+                request.CampfireInstanceKey);
+            return CCS_CookingResult.Success("Cooking started.");
         }
 
-        private void RaiseCookingStarted(CCS_CookingRequest request)
+        private CCS_CookingStation FindStationForCampfireKey(string campfireInstanceKey)
+        {
+            if (string.IsNullOrWhiteSpace(campfireInstanceKey))
+            {
+                return null;
+            }
+
+            foreach (CCS_CookingStation station in registeredStations)
+            {
+                if (station != null && station.name.Contains(campfireInstanceKey))
+                {
+                    return station;
+                }
+            }
+
+            return null;
+        }
+
+        private CCS_CookingResult FailCooking(
+            CCS_CookingStation station,
+            CCS_CookingRecipe recipe,
+            string message)
+        {
+            RaiseCookingFailed(station, recipe, message);
+            return CCS_CookingResult.Failure(message);
+        }
+
+        private void RaiseCookingStarted(
+            CCS_CookingStation station,
+            CCS_CookingRecipe recipe,
+            string message,
+            CCS_ItemDefinition itemDefinition = null,
+            CCS_CampfireDefinition campfireDefinition = null,
+            string campfireInstanceKey = "")
         {
             CookingStarted?.Invoke(
-                new CCS_CookingEventArgs(
-                    request?.CampfireDefinition,
-                    request?.InputItemDefinition,
-                    request?.CampfireInstanceKey ?? string.Empty,
-                    "Cooking started."));
+                BuildEventArgs(station, recipe, message, itemDefinition, campfireDefinition, campfireInstanceKey));
         }
 
-        private void RaiseCookingCompleted(CCS_CookingRequest request)
+        private void RaiseCookingCompleted(
+            CCS_CookingStation station,
+            CCS_CookingRecipe recipe,
+            string message,
+            CCS_ItemDefinition itemDefinition = null,
+            CCS_CampfireDefinition campfireDefinition = null,
+            string campfireInstanceKey = "")
         {
             CookingCompleted?.Invoke(
-                new CCS_CookingEventArgs(
-                    request?.CampfireDefinition,
-                    request?.OutputItemDefinition,
-                    request?.CampfireInstanceKey ?? string.Empty,
-                    "Cooking completed."));
+                BuildEventArgs(station, recipe, message, itemDefinition, campfireDefinition, campfireInstanceKey));
         }
 
-        private void RaiseCookingFailed(CCS_CookingRequest request, string message)
+        private void RaiseCookingFailed(CCS_CookingStation station, CCS_CookingRecipe recipe, string message)
         {
-            CookingFailed?.Invoke(
-                new CCS_CookingEventArgs(
-                    request?.CampfireDefinition,
-                    request?.InputItemDefinition,
-                    request?.CampfireInstanceKey ?? string.Empty,
-                    message));
+            CookingFailed?.Invoke(BuildEventArgs(station, recipe, message));
+        }
+
+        private void RaiseCookingCancelled(CCS_CookingStation station, CCS_CookingRecipe recipe, string message)
+        {
+            CookingCancelled?.Invoke(BuildEventArgs(station, recipe, message));
+        }
+
+        private static CCS_CookingEventArgs BuildEventArgs(
+            CCS_CookingStation station,
+            CCS_CookingRecipe recipe,
+            string message,
+            CCS_ItemDefinition itemDefinition = null,
+            CCS_CampfireDefinition campfireDefinition = null,
+            string campfireInstanceKey = "")
+        {
+            if (station == null && recipe == null)
+            {
+                return new CCS_CookingEventArgs(
+                    campfireDefinition,
+                    itemDefinition,
+                    campfireInstanceKey,
+                    message);
+            }
+
+            return new CCS_CookingEventArgs(
+                station,
+                station != null ? station.StationType : CCS_CookingStationType.Campfire,
+                recipe?.RecipeId ?? string.Empty,
+                recipe?.RawItemDefinitionId ?? string.Empty,
+                recipe?.CookedItemDefinitionId ?? string.Empty,
+                station != null ? station.WorldPosition : Vector3.zero,
+                message,
+                itemDefinition,
+                campfireDefinition,
+                campfireInstanceKey);
         }
 
         #endregion

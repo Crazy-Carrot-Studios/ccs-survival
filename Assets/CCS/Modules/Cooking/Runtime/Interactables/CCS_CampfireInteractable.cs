@@ -122,6 +122,12 @@ namespace CCS.Modules.Cooking
 
         public bool TryInteract()
         {
+            CCS_CookingInteractable cookingInteractable = GetComponent<CCS_CookingInteractable>();
+            if (cookingInteractable != null)
+            {
+                return cookingInteractable.TryInteract();
+            }
+
             if (campfireService == null || campfireDefinition == null)
             {
                 return false;

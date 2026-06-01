@@ -12,6 +12,7 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Building.Runtime",
+        "CCS.Modules.Wildlife.Runtime",
         "CCS.Modules.SurvivalCore.Runtime"
     ],
     "includePlatforms": [

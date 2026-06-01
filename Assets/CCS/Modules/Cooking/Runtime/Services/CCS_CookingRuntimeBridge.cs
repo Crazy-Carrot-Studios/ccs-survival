@@ -35,68 +35,45 @@ namespace CCS.Modules.Cooking
 
         public static bool TryGetCookingService(out CCS_CookingService cookingService)
         {
-            cookingService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
-            {
-                return false;
-            }
-
-            return runtimeHost.ServiceRegistry.TryGetService(out cookingService);
+            return TryGetService(out cookingService);
         }
 
         public static bool TryGetCampfireService(out CCS_CampfireService campfireService)
         {
-            campfireService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
-            {
-                return false;
-            }
-
-            return runtimeHost.ServiceRegistry.TryGetService(out campfireService);
+            return TryGetService(out campfireService);
         }
 
         public static bool TryGetConsumableFoodService(out CCS_ConsumableFoodService consumableFoodService)
         {
-            consumableFoodService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
-            {
-                return false;
-            }
-
-            return runtimeHost.ServiceRegistry.TryGetService(out consumableFoodService);
+            return TryGetService(out consumableFoodService);
         }
 
         public static bool TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
         {
-            inventoryService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
-            {
-                return false;
-            }
-
-            return runtimeHost.ServiceRegistry.TryGetService(out inventoryService);
+            return TryGetService(out inventoryService);
         }
 
         public static bool TryGetSurvivalCoreService(out CCS_SurvivalCoreService survivalCoreService)
         {
-            survivalCoreService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
-            {
-                return false;
-            }
-
-            return runtimeHost.ServiceRegistry.TryGetService(out survivalCoreService);
+            return TryGetService(out survivalCoreService);
         }
 
         public static bool TryGetInteractionService(out CCS_InteractionService interactionService)
         {
-            interactionService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            return TryGetService(out interactionService);
+        }
+
+        private static bool TryGetService<TService>(out TService service)
+            where TService : class, CCS_IService
+        {
+            service = null;
+            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost)
+                || runtimeHost.ServiceRegistry == null)
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out interactionService);
+            return runtimeHost.ServiceRegistry.TryGetService(out service);
         }
 
         #endregion

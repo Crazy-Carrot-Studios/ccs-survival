@@ -3,6 +3,7 @@ using System.IO;
 using CCS.Modules.Building;
 using CCS.Modules.Cooking;
 using CCS.Modules.Inventory;
+using CCS.Modules.Wildlife;
 using CCS.Survival.Composition;
 using CCS.Survival.Player;
 using UnityEditor;
@@ -17,7 +18,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Batch entry for 0.9.4 campfire and cooking foundation milestone.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: No fuel systems, cooking UI, or health restore in 0.9.4 foundation.
+// NOTES: 1.0.0 adds fuel-backed rabbit and venison recipes with CCS_CookingStation wiring.
 // =============================================================================
 
 namespace CCS.Modules.Cooking.Editor
@@ -31,6 +32,15 @@ namespace CCS.Modules.Cooking.Editor
         private const string FoodItemsRoot = "Assets/CCS/Survival/Content/Items/Food";
         private const string BuildingDefinitionsRoot = "Assets/CCS/Survival/Content/Building/Definitions";
         private const string RawMeatItemPath = "Assets/CCS/Survival/Content/Items/Resources/Wildlife/CCS_Item_RawMeat.asset";
+        private const string RawRabbitMeatItemPath = "Assets/CCS/Survival/Content/Items/Resources/Wildlife/CCS_Item_RawRabbitMeat.asset";
+        private const string RawVenisonItemPath = "Assets/CCS/Survival/Content/Items/Resources/Wildlife/CCS_Item_RawVenison.asset";
+        private const string CookedRabbitMeatItemPath = "Assets/CCS/Survival/Content/Items/Food/CCS_Item_CookedRabbitMeat.asset";
+        private const string CookedVenisonItemPath = "Assets/CCS/Survival/Content/Items/Food/CCS_Item_CookedVenison.asset";
+        private const string StickItemPath = "Assets/CCS/Survival/Content/Items/Resources/Primitive/CCS_Item_Stick.asset";
+        private const string WoodItemPath = "Assets/CCS/Survival/Content/Items/Resources/Primitive/CCS_Item_Wood.asset";
+        private const string InventoryProfilePath = "Assets/CCS/Survival/Profiles/Inventory/CCS_DefaultInventoryProfile.asset";
+        private const string RabbitWildlifeDefinitionPath = "Assets/CCS/Survival/Content/Wildlife/Definitions/CCS_TestRabbit.asset";
+        private const string DeerWildlifeDefinitionPath = "Assets/CCS/Survival/Content/Wildlife/Definitions/CCS_TestDeerCarcass.asset";
         private const string BasicFoodItemPath = "Assets/CCS/Survival/Content/Items/Starter/CCS_Item_BasicFood.asset";
         private const string CampfireKitItemPath = "Assets/CCS/Survival/Content/Items/Starter/CCS_Item_CampfireKit.asset";
         private const string BootstrapScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
@@ -48,9 +58,26 @@ namespace CCS.Modules.Cooking.Editor
             EnsureFolders();
 
             CCS_ItemDefinition rawMeatItem = LoadRequiredItem(RawMeatItemPath, "Raw Meat");
+            CCS_ItemDefinition rawRabbitMeatItem = EnsureRawRabbitMeatItem();
+            CCS_ItemDefinition rawVenisonItem = EnsureRawVenisonItem();
+            CCS_ItemDefinition cookedRabbitMeatItem = EnsureCookedRabbitMeatItem();
+            CCS_ItemDefinition cookedVenisonItem = EnsureCookedVenisonItem();
+            CCS_ItemDefinition cookedMeatItem = EnsureCookedMeatItem();
+            CCS_ItemDefinition stickItem = LoadRequiredItem(StickItemPath, "Stick");
+            CCS_ItemDefinition woodItem = LoadRequiredItem(WoodItemPath, "Wood");
             CCS_ItemDefinition basicFoodItem = LoadRequiredItem(BasicFoodItemPath, "Basic Food");
             CCS_ItemDefinition campfireKitItem = LoadRequiredItem(CampfireKitItemPath, "Campfire Kit");
-            CCS_ItemDefinition cookedMeatItem = EnsureCookedMeatItem();
+
+            EnsureInventoryCatalog(
+                rawMeatItem,
+                rawRabbitMeatItem,
+                rawVenisonItem,
+                cookedMeatItem,
+                cookedRabbitMeatItem,
+                cookedVenisonItem,
+                stickItem,
+                woodItem);
+            UpdateWildlifeHarvestDrops(rawRabbitMeatItem, rawVenisonItem);
 
             CCS_CampfireDefinition campfireDefinition = EnsureCampfireDefinition();
             CCS_BuildingPieceDefinition campfireBuildingPiece = EnsureCampfireBuildingPiece(campfireKitItem);
@@ -61,6 +88,12 @@ namespace CCS.Modules.Cooking.Editor
                 campfireBuildingPiece,
                 rawMeatItem,
                 cookedMeatItem,
+                rawRabbitMeatItem,
+                rawVenisonItem,
+                cookedRabbitMeatItem,
+                cookedVenisonItem,
+                stickItem,
+                woodItem,
                 basicFoodItem);
 
             EnsureBootstrapPrefabProfile(profile);
@@ -90,6 +123,12 @@ namespace CCS.Modules.Cooking.Editor
             CCS_BuildingPieceDefinition campfireBuildingPiece,
             CCS_ItemDefinition rawMeatItem,
             CCS_ItemDefinition cookedMeatItem,
+            CCS_ItemDefinition rawRabbitMeatItem,
+            CCS_ItemDefinition rawVenisonItem,
+            CCS_ItemDefinition cookedRabbitMeatItem,
+            CCS_ItemDefinition cookedVenisonItem,
+            CCS_ItemDefinition stickItem,
+            CCS_ItemDefinition woodItem,
             CCS_ItemDefinition basicFoodItem)
         {
             CCS_CookingProfile profile = AssetDatabase.LoadAssetAtPath<CCS_CookingProfile>(DefaultProfilePath);
@@ -103,26 +142,95 @@ namespace CCS.Modules.Cooking.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Cooking";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.cooking.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Default campfire cooking and consumable food rules for 0.9.5 hunger usage.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "0.9.5";
+                "Campfire cooking with fuel, rabbit and venison recipes for 1.0.0 foundation.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.0.0";
+            serializedProfile.FindProperty("defaultInteractDistance").floatValue = 3f;
+            serializedProfile.FindProperty("defaultCookDurationSeconds").floatValue = 5f;
+            serializedProfile.FindProperty("defaultFuelBurnDurationSeconds").floatValue = 30f;
             serializedProfile.FindProperty("enableCooking").boolValue = true;
-            serializedProfile.FindProperty("defaultCookTimeSeconds").floatValue = 5f;
             serializedProfile.FindProperty("autoLightCampfiresOnPlacement").boolValue = true;
             serializedProfile.FindProperty("defaultCampfireDefinition").objectReferenceValue = campfireDefinition;
             serializedProfile.FindProperty("campfireBuildingPiece").objectReferenceValue = campfireBuildingPiece;
             serializedProfile.FindProperty("rawMeatItemDefinition").objectReferenceValue = rawMeatItem;
             serializedProfile.FindProperty("cookedMeatItemDefinition").objectReferenceValue = cookedMeatItem;
 
+            SerializedProperty catalog = serializedProfile.FindProperty("recipeItemCatalog");
+            catalog.arraySize = 8;
+            catalog.GetArrayElementAtIndex(0).objectReferenceValue = rawRabbitMeatItem;
+            catalog.GetArrayElementAtIndex(1).objectReferenceValue = rawVenisonItem;
+            catalog.GetArrayElementAtIndex(2).objectReferenceValue = cookedRabbitMeatItem;
+            catalog.GetArrayElementAtIndex(3).objectReferenceValue = cookedVenisonItem;
+            catalog.GetArrayElementAtIndex(4).objectReferenceValue = rawMeatItem;
+            catalog.GetArrayElementAtIndex(5).objectReferenceValue = cookedMeatItem;
+            catalog.GetArrayElementAtIndex(6).objectReferenceValue = stickItem;
+            catalog.GetArrayElementAtIndex(7).objectReferenceValue = woodItem;
+
+            ApplyCookingRecipes(serializedProfile.FindProperty("recipes"), stickItem, woodItem);
+
             SerializedProperty consumableDefinitions =
                 serializedProfile.FindProperty("consumableFoodDefinitions");
-            consumableDefinitions.arraySize = 2;
-
-            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(0), cookedMeatItem, 40f, "Cooked Meat");
-            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(1), basicFoodItem, 15f, "Basic Food");
+            consumableDefinitions.arraySize = 6;
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(0), cookedRabbitMeatItem, 35f, "Cooked Rabbit Meat");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(1), cookedVenisonItem, 50f, "Cooked Venison");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(2), cookedMeatItem, 40f, "Cooked Meat");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(3), rawRabbitMeatItem, 8f, "Raw Rabbit Meat");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(4), rawVenisonItem, 12f, "Raw Venison");
+            SetConsumableDefinition(consumableDefinitions.GetArrayElementAtIndex(5), basicFoodItem, 15f, "Basic Food");
 
             serializedProfile.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(profile);
+            profile.BuildRecipeLookup();
             return profile;
+        }
+
+        private static void ApplyCookingRecipes(SerializedProperty recipesProperty, CCS_ItemDefinition stickItem, CCS_ItemDefinition woodItem)
+        {
+            recipesProperty.arraySize = 2;
+
+            ApplyRecipe(
+                recipesProperty.GetArrayElementAtIndex(0),
+                "ccs.survival.cooking.recipe.cookrabbit",
+                "Cook Rabbit Meat",
+                "ccs.survival.item.resource.rawrabbitmeat",
+                "ccs.survival.item.food.cookedrabbitmeat",
+                5f,
+                stickItem,
+                woodItem);
+
+            ApplyRecipe(
+                recipesProperty.GetArrayElementAtIndex(1),
+                "ccs.survival.cooking.recipe.cookvenison",
+                "Cook Venison",
+                "ccs.survival.item.resource.rawvenison",
+                "ccs.survival.item.food.cookedvenison",
+                7f,
+                stickItem,
+                woodItem);
+        }
+
+        private static void ApplyRecipe(
+            SerializedProperty recipeProperty,
+            string recipeId,
+            string displayName,
+            string rawItemId,
+            string cookedItemId,
+            float cookDuration,
+            CCS_ItemDefinition stickItem,
+            CCS_ItemDefinition woodItem)
+        {
+            recipeProperty.FindPropertyRelative("recipeId").stringValue = recipeId;
+            recipeProperty.FindPropertyRelative("displayName").stringValue = displayName;
+            recipeProperty.FindPropertyRelative("rawItemDefinitionId").stringValue = rawItemId;
+            recipeProperty.FindPropertyRelative("cookedItemDefinitionId").stringValue = cookedItemId;
+            recipeProperty.FindPropertyRelative("rawAmount").intValue = 1;
+            recipeProperty.FindPropertyRelative("cookedAmount").intValue = 1;
+            recipeProperty.FindPropertyRelative("cookDurationSeconds").floatValue = cookDuration;
+            recipeProperty.FindPropertyRelative("requiredFuelAmount").intValue = 1;
+
+            SerializedProperty fuelIds = recipeProperty.FindPropertyRelative("acceptedFuelItemIds");
+            fuelIds.arraySize = 2;
+            fuelIds.GetArrayElementAtIndex(0).stringValue = stickItem.ItemId;
+            fuelIds.GetArrayElementAtIndex(1).stringValue = woodItem.ItemId;
         }
 
         private static void SetConsumableDefinition(
@@ -156,6 +264,96 @@ namespace CCS.Modules.Cooking.Editor
             serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
+        }
+
+        private static CCS_ItemDefinition EnsureWildlifeMeatItem(
+            string assetPath,
+            string itemId,
+            string displayName,
+            string description)
+        {
+            CCS_ItemDefinition itemDefinition = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(assetPath);
+            if (itemDefinition == null)
+            {
+                itemDefinition = ScriptableObject.CreateInstance<CCS_ItemDefinition>();
+                AssetDatabase.CreateAsset(itemDefinition, assetPath);
+            }
+
+            SerializedObject serializedItem = new SerializedObject(itemDefinition);
+            serializedItem.FindProperty("itemId").stringValue = itemId;
+            serializedItem.FindProperty("displayName").stringValue = displayName;
+            serializedItem.FindProperty("description").stringValue = description;
+            serializedItem.FindProperty("category").enumValueIndex = (int)CCS_ItemCategory.Resource;
+            serializedItem.FindProperty("maxStackSize").intValue = 20;
+            serializedItem.FindProperty("isStackable").boolValue = true;
+            serializedItem.FindProperty("weight").floatValue = 0.35f;
+            serializedItem.FindProperty("hasToolIdentity").boolValue = false;
+            serializedItem.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(itemDefinition);
+            return itemDefinition;
+        }
+
+        private static CCS_ItemDefinition EnsureCookedFoodItem(
+            string assetPath,
+            string itemId,
+            string displayName,
+            string description)
+        {
+            CCS_ItemDefinition itemDefinition = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(assetPath);
+            if (itemDefinition == null)
+            {
+                itemDefinition = ScriptableObject.CreateInstance<CCS_ItemDefinition>();
+                AssetDatabase.CreateAsset(itemDefinition, assetPath);
+            }
+
+            SerializedObject serializedItem = new SerializedObject(itemDefinition);
+            serializedItem.FindProperty("itemId").stringValue = itemId;
+            serializedItem.FindProperty("displayName").stringValue = displayName;
+            serializedItem.FindProperty("description").stringValue = description;
+            serializedItem.FindProperty("category").enumValueIndex = (int)CCS_ItemCategory.Consumable;
+            serializedItem.FindProperty("maxStackSize").intValue = 20;
+            serializedItem.FindProperty("isStackable").boolValue = true;
+            serializedItem.FindProperty("weight").floatValue = 0.3f;
+            serializedItem.FindProperty("hasToolIdentity").boolValue = false;
+            serializedItem.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(itemDefinition);
+            return itemDefinition;
+        }
+
+        private static CCS_ItemDefinition EnsureRawRabbitMeatItem()
+        {
+            return EnsureWildlifeMeatItem(
+                RawRabbitMeatItemPath,
+                "ccs.survival.item.resource.rawrabbitmeat",
+                "Raw Rabbit Meat",
+                "Uncooked rabbit meat. Cook on a campfire before eating.");
+        }
+
+        private static CCS_ItemDefinition EnsureRawVenisonItem()
+        {
+            return EnsureWildlifeMeatItem(
+                RawVenisonItemPath,
+                "ccs.survival.item.resource.rawvenison",
+                "Raw Venison",
+                "Uncooked deer meat. Cook on a campfire before eating.");
+        }
+
+        private static CCS_ItemDefinition EnsureCookedRabbitMeatItem()
+        {
+            return EnsureCookedFoodItem(
+                CookedRabbitMeatItemPath,
+                "ccs.survival.item.food.cookedrabbitmeat",
+                "Cooked Rabbit Meat",
+                "Cooked rabbit meat that restores more hunger than raw rabbit meat.");
+        }
+
+        private static CCS_ItemDefinition EnsureCookedVenisonItem()
+        {
+            return EnsureCookedFoodItem(
+                CookedVenisonItemPath,
+                "ccs.survival.item.food.cookedvenison",
+                "Cooked Venison",
+                "Cooked venison that restores more hunger than raw venison.");
         }
 
         private static CCS_ItemDefinition EnsureCookedMeatItem()
@@ -388,18 +586,133 @@ namespace CCS.Modules.Cooking.Editor
                 collider.enabled = true;
             }
 
-            CCS_CampfireInteractable interactable = campfireObject.GetComponent<CCS_CampfireInteractable>();
-            if (interactable == null)
+            EnsureCampfireVisualChildren(campfireObject.transform);
+
+            CCS_CookingStation cookingStation = campfireObject.GetComponent<CCS_CookingStation>();
+            if (cookingStation == null)
             {
-                interactable = campfireObject.AddComponent<CCS_CampfireInteractable>();
+                cookingStation = campfireObject.AddComponent<CCS_CookingStation>();
             }
 
-            SerializedObject serializedInteractable = new SerializedObject(interactable);
-            serializedInteractable.FindProperty("campfireDefinition").objectReferenceValue = campfireDefinition;
-            serializedInteractable.FindProperty("cookingProfile").objectReferenceValue = profile;
-            serializedInteractable.FindProperty("interactionDistance").floatValue = 3f;
-            serializedInteractable.FindProperty("assumeLitOnStart").boolValue = false;
-            serializedInteractable.ApplyModifiedPropertiesWithoutUndo();
+            cookingStation.ConfigureFromProfile(profile, startActive: true);
+
+            CCS_CookingInteractable cookingInteractable = campfireObject.GetComponent<CCS_CookingInteractable>();
+            if (cookingInteractable == null)
+            {
+                cookingInteractable = campfireObject.AddComponent<CCS_CookingInteractable>();
+            }
+
+            cookingInteractable.ConfigureRuntime(profile, cookingStation, startActive: true);
+            EditorUtility.SetDirty(campfireObject);
+        }
+
+        private static void EnsureCampfireVisualChildren(Transform campfireRoot)
+        {
+            EnsureChildPrimitive(
+                campfireRoot,
+                "CCS_CampfireLogs",
+                PrimitiveType.Cylinder,
+                new Vector3(0.35f, 0.08f, 0f),
+                new Vector3(0.2f, 0.08f, 0.2f),
+                new Vector3(0f, 0f, 35f));
+            EnsureChildPrimitive(
+                campfireRoot,
+                "CCS_CampfireFlame",
+                PrimitiveType.Sphere,
+                new Vector3(0f, 0.35f, 0f),
+                new Vector3(0.25f, 0.35f, 0.25f),
+                Vector3.zero);
+        }
+
+        private static void EnsureChildPrimitive(
+            Transform parent,
+            string objectName,
+            PrimitiveType primitiveType,
+            Vector3 localPosition,
+            Vector3 localScale,
+            Vector3 localEulerAngles)
+        {
+            Transform existing = parent.Find(objectName);
+            GameObject childObject = existing != null ? existing.gameObject : GameObject.CreatePrimitive(primitiveType);
+            childObject.name = objectName;
+            childObject.transform.SetParent(parent, false);
+            childObject.transform.localPosition = localPosition;
+            childObject.transform.localScale = localScale;
+            childObject.transform.localEulerAngles = localEulerAngles;
+
+            Collider childCollider = childObject.GetComponent<Collider>();
+            if (childCollider != null)
+            {
+                Object.DestroyImmediate(childCollider);
+            }
+        }
+
+        private static void EnsureInventoryCatalog(params CCS_ItemDefinition[] items)
+        {
+            CCS_InventoryProfile inventoryProfile = AssetDatabase.LoadAssetAtPath<CCS_InventoryProfile>(InventoryProfilePath);
+            if (inventoryProfile == null)
+            {
+                Debug.LogError($"{LogPrefix} Missing inventory profile: {InventoryProfilePath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            SerializedObject serializedProfile = new SerializedObject(inventoryProfile);
+            SerializedProperty catalog = serializedProfile.FindProperty("saveRestoreItemDefinitions");
+            for (int itemIndex = 0; itemIndex < items.Length; itemIndex++)
+            {
+                AddCatalogEntryIfMissing(catalog, items[itemIndex]);
+            }
+
+            serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(inventoryProfile);
+        }
+
+        private static void AddCatalogEntryIfMissing(SerializedProperty catalog, CCS_ItemDefinition itemDefinition)
+        {
+            if (itemDefinition == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < catalog.arraySize; index++)
+            {
+                if (catalog.GetArrayElementAtIndex(index).objectReferenceValue == itemDefinition)
+                {
+                    return;
+                }
+            }
+
+            int newIndex = catalog.arraySize;
+            catalog.InsertArrayElementAtIndex(newIndex);
+            catalog.GetArrayElementAtIndex(newIndex).objectReferenceValue = itemDefinition;
+        }
+
+        private static void UpdateWildlifeHarvestDrops(CCS_ItemDefinition rabbitMeat, CCS_ItemDefinition venisonMeat)
+        {
+            UpdateWildlifeDefinitionFirstMeatDrop(RabbitWildlifeDefinitionPath, rabbitMeat);
+            UpdateWildlifeDefinitionFirstMeatDrop(DeerWildlifeDefinitionPath, venisonMeat);
+        }
+
+        private static void UpdateWildlifeDefinitionFirstMeatDrop(string definitionPath, CCS_ItemDefinition meatItem)
+        {
+            CCS_WildlifeDefinition wildlifeDefinition =
+                AssetDatabase.LoadAssetAtPath<CCS_WildlifeDefinition>(definitionPath);
+            if (wildlifeDefinition == null || meatItem == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedDefinition = new SerializedObject(wildlifeDefinition);
+            SerializedProperty harvestDrops = serializedDefinition.FindProperty("harvestDrops");
+            if (harvestDrops.arraySize == 0)
+            {
+                harvestDrops.InsertArrayElementAtIndex(0);
+            }
+
+            harvestDrops.GetArrayElementAtIndex(0).FindPropertyRelative("itemDefinition").objectReferenceValue = meatItem;
+            serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(wildlifeDefinition);
         }
 
         private static Transform FindSceneRoot()

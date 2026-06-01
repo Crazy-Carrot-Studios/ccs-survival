@@ -33,7 +33,11 @@ namespace CCS.Modules.Cooking.Editor
         private const string DefaultCampfireDefinitionPath =
             SurvivalRoot + "/Content/Cooking/Definitions/CCS_TestCampfireDefinition.asset";
         private const string CookedMeatItemPath = SurvivalRoot + "/Content/Items/Food/CCS_Item_CookedMeat.asset";
+        private const string CookedRabbitMeatItemPath = SurvivalRoot + "/Content/Items/Food/CCS_Item_CookedRabbitMeat.asset";
+        private const string CookedVenisonItemPath = SurvivalRoot + "/Content/Items/Food/CCS_Item_CookedVenison.asset";
         private const string RawMeatItemPath = SurvivalRoot + "/Content/Items/Resources/Wildlife/CCS_Item_RawMeat.asset";
+        private const string RawRabbitMeatItemPath = SurvivalRoot + "/Content/Items/Resources/Wildlife/CCS_Item_RawRabbitMeat.asset";
+        private const string RawVenisonItemPath = SurvivalRoot + "/Content/Items/Resources/Wildlife/CCS_Item_RawVenison.asset";
         private const string BasicFoodItemPath = SurvivalRoot + "/Content/Items/Starter/CCS_Item_BasicFood.asset";
         private const string CampfireKitItemPath = SurvivalRoot + "/Content/Items/Starter/CCS_Item_CampfireKit.asset";
         private const string CampfireBuildingPiecePath =
@@ -68,6 +72,8 @@ namespace CCS.Modules.Cooking.Editor
             ValidateRequiredFolder(report, "Runtime/Data", RuntimeRoot + "/Data");
             ValidateRequiredFolder(report, "Runtime/Services", RuntimeRoot + "/Services");
             ValidateRequiredFolder(report, "Runtime/Interactables", RuntimeRoot + "/Interactables");
+            ValidateRequiredFolder(report, "Runtime/Stations", RuntimeRoot + "/Stations");
+            ValidateRequiredFolder(report, "Runtime/Interaction", RuntimeRoot + "/Interaction");
             ValidateRequiredFolder(report, "Runtime/Profiles", RuntimeRoot + "/Profiles");
             ValidateRequiredFolder(report, "Runtime/Events", RuntimeRoot + "/Events");
             ValidateRequiredFolder(report, "Runtime/Validation", RuntimeRoot + "/Validation");
@@ -85,6 +91,11 @@ namespace CCS.Modules.Cooking.Editor
             ValidateRequiredScript(report, "CCS_CookingRequest", RuntimeRoot + "/Data/CCS_CookingRequest.cs");
             ValidateRequiredScript(report, "CCS_CookingResult", RuntimeRoot + "/Data/CCS_CookingResult.cs");
             ValidateRequiredScript(report, "CCS_ConsumableFoodResult", RuntimeRoot + "/Data/CCS_ConsumableFoodResult.cs");
+            ValidateRequiredScript(report, "CCS_CookingStationType", RuntimeRoot + "/Data/CCS_CookingStationType.cs");
+            ValidateRequiredScript(report, "CCS_CookingFuelType", RuntimeRoot + "/Data/CCS_CookingFuelType.cs");
+            ValidateRequiredScript(report, "CCS_CookingRecipe", RuntimeRoot + "/Data/CCS_CookingRecipe.cs");
+            ValidateRequiredScript(report, "CCS_CookingStation", RuntimeRoot + "/Stations/CCS_CookingStation.cs");
+            ValidateRequiredScript(report, "CCS_CookingInteractable", RuntimeRoot + "/Interaction/CCS_CookingInteractable.cs");
             ValidateRequiredScript(report, "CCS_CampfireInteractable", RuntimeRoot + "/Interactables/CCS_CampfireInteractable.cs");
             ValidateRequiredScript(report, "CCS_CookingService", RuntimeRoot + "/Services/CCS_CookingService.cs");
             ValidateRequiredScript(report, "CCS_CampfireService", RuntimeRoot + "/Services/CCS_CampfireService.cs");
@@ -100,15 +111,19 @@ namespace CCS.Modules.Cooking.Editor
             ValidateDocumentationAsset(report, "Cooking Module Doc", ModuleDocPath);
 
             report.AddIssue(
-                typeof(CCS_IInteractableResultProvider).IsAssignableFrom(typeof(CCS_CampfireInteractable))
+                typeof(CCS_IInteractableResultProvider).IsAssignableFrom(typeof(CCS_CookingInteractable))
                     ? CCS_SurvivalValidationIssueSeverity.Info
                     : CCS_SurvivalValidationIssueSeverity.Error,
-                "Campfire Interaction Contract",
-                "CCS_CampfireInteractable implements CCS_IInteractableResultProvider for cooking integration.");
+                "Cooking Interaction Contract",
+                "CCS_CookingInteractable implements CCS_IInteractableResultProvider for cooking integration.");
 
             ValidateRequiredAsset(report, "Default Cooking Profile", DefaultProfilePath);
             ValidateRequiredAsset(report, "Test Campfire Definition", DefaultCampfireDefinitionPath);
+            ValidateRequiredAsset(report, "Cooked Rabbit Meat Item", CookedRabbitMeatItemPath);
+            ValidateRequiredAsset(report, "Cooked Venison Item", CookedVenisonItemPath);
             ValidateRequiredAsset(report, "Cooked Meat Item", CookedMeatItemPath);
+            ValidateRequiredAsset(report, "Raw Rabbit Meat Item", RawRabbitMeatItemPath);
+            ValidateRequiredAsset(report, "Raw Venison Item", RawVenisonItemPath);
             ValidateRequiredAsset(report, "Raw Meat Item", RawMeatItemPath);
             ValidateRequiredAsset(report, "Basic Food Item", BasicFoodItemPath);
             ValidateRequiredAsset(report, "Campfire Kit Item", CampfireKitItemPath);
@@ -155,12 +170,12 @@ namespace CCS.Modules.Cooking.Editor
                 "Default Cooking Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "0.9.5")
+            if (profile.ProfileVersion != "1.0.0")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Cooking Profile Version",
-                    $"Expected profileVersion 0.9.5 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.0.0 but found '{profile.ProfileVersion}'.");
             }
 
             ValidateConsumableFoodDefinitions(report, profile);
@@ -275,11 +290,18 @@ namespace CCS.Modules.Cooking.Editor
             }
 
             report.AddIssue(
-                sceneText.Contains("CCS_CampfireInteractable")
+                sceneText.Contains("CCS_CookingStation")
                     ? CCS_SurvivalValidationIssueSeverity.Info
                     : CCS_SurvivalValidationIssueSeverity.Error,
-                "Bootstrap Campfire Interactable",
-                "Bootstrap scene includes CCS_CampfireInteractable for cooking verification.");
+                "Bootstrap Cooking Station",
+                "Bootstrap scene includes CCS_CookingStation on the test campfire.");
+
+            report.AddIssue(
+                sceneText.Contains("CCS_CookingInteractable")
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Bootstrap Cooking Interactable",
+                "Bootstrap scene includes CCS_CookingInteractable for cooking verification.");
         }
 
         private static void ValidatePlayerPrefabDrivers(CCS_SurvivalValidationReport report)

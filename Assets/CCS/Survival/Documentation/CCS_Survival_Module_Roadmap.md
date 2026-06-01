@@ -58,8 +58,24 @@
 | **0.9.7** | Passive wildlife AI (wander, idle, flee; living rabbit/deer placeholders) |
 | **0.9.8** | Primitive combat foundation (melee hunting, wildlife health, carcass spawn on kill) |
 | **0.9.9** | Resource gathering foundation (SmallTree/Rock/Bush nodes, stick/stone/wood/fiber rewards) |
+| **1.0.0** | Campfire + cooking foundation (fuel-backed rabbit/venison recipes, full gather-hunt-cook-eat loop) |
 
-Later milestones continue from **0.9.10+** (durability, ranged weapons, predators).
+Later milestones continue from **1.0.1+** (durability, ranged weapons, predators).
+
+---
+
+## 1.0.0 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| `CCS_CookingStation` and `CCS_CookingInteractable` on bootstrap campfire | **Complete** |
+| Fuel-backed rabbit and venison recipes | **Complete** |
+| Species-specific raw/cooked meat items in inventory catalog | **Complete** |
+| `CCS_CookingService.TryStartCooking(station, recipeId)` with fuel consumption | **Complete** |
+| Cooked food restores more hunger than raw meat | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **1.0.0** | **Complete** |
+| Cooking UI, fuel burn simulation, recipe picker | **Deferred** |
 
 ---
 

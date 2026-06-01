@@ -20,7 +20,7 @@ MonoBehaviour:
   respawnTimeSeconds: 0
   isAggressive: 0
   harvestDrops:
-  - itemDefinition: {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
+  - itemDefinition: {fileID: 11400000, guid: 75b9857b55b7b7241b76b9ba7a88f07c, type: 2}
     minQuantity: 1
     maxQuantity: 1
   - itemDefinition: {fileID: 11400000, guid: c50f055ddd47d304f83015b3d803006f, type: 2}

@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8490a90abcdef1234560d, type: 3}
-  m_Name: CCS_Item_CookedMeat
+  m_Name: CCS_Item_RawVenison
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
-  itemId: ccs.survival.item.food.cookedmeat
-  displayName: Cooked Meat
-  description: Cooked meat food item that restores hunger when consumed.
-  category: 2
+  itemId: ccs.survival.item.resource.rawvenison
+  displayName: Raw Venison
+  description: Uncooked deer meat. Cook on a campfire before eating.
+  category: 1
   maxStackSize: 20
   isStackable: 1
-  weight: 0.3
+  weight: 0.35
   gameplayKind: 0
   hasToolIdentity: 0
   toolType: 0

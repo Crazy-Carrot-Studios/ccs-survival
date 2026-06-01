@@ -7,9 +7,9 @@ using CCS.Survival;
 // =============================================================================
 // SCRIPT: CCS_CookingValidationUtility
 // CATEGORY: Modules / Cooking / Runtime / Validation
-// PURPOSE: Runtime-safe validation for cooking profiles, campfires, and food definitions.
+// PURPOSE: Runtime-safe validation for cooking profiles, recipes, and campfire content.
 // PLACEMENT: Used by editor validators and cooking service preflight checks.
-// AUTHOR: James Schilz
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
 // NOTES: Returns CCS_SurvivalValidationResult. No UnityEditor references.
 // =============================================================================
@@ -18,6 +18,9 @@ namespace CCS.Modules.Cooking
 {
     public static class CCS_CookingValidationUtility
     {
+        private const string CookRabbitRecipeId = "ccs.survival.cooking.recipe.cookrabbit";
+        private const string CookVenisonRecipeId = "ccs.survival.cooking.recipe.cookvenison";
+
         #region Public Methods
 
         public static CCS_SurvivalValidationResult ValidateProfile(CCS_CookingProfile profile)
@@ -33,9 +36,19 @@ namespace CCS.Modules.Cooking
                 return baseValidation;
             }
 
-            if (profile.DefaultCookTimeSeconds <= 0f)
+            if (profile.DefaultInteractDistance <= 0f)
             {
-                return CCS_SurvivalValidationResult.Fail("Default cook time must be greater than zero.");
+                return CCS_SurvivalValidationResult.Fail("Default interact distance must be greater than zero.");
+            }
+
+            if (profile.DefaultCookDurationSeconds <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Default cook duration must be greater than zero.");
+            }
+
+            if (profile.DefaultFuelBurnDurationSeconds <= 0f)
+            {
+                return CCS_SurvivalValidationResult.Fail("Default fuel burn duration must be greater than zero.");
             }
 
             if (profile.DefaultCampfireDefinition == null)
@@ -64,14 +77,17 @@ namespace CCS.Modules.Cooking
                 return buildingValidation;
             }
 
-            if (profile.RawMeatItemDefinition == null)
+            profile.BuildRecipeLookup();
+            CCS_SurvivalValidationResult rabbitRecipeValidation = ValidateRecipeExists(profile, CookRabbitRecipeId);
+            if (!rabbitRecipeValidation.IsSuccess)
             {
-                return CCS_SurvivalValidationResult.Fail("Raw meat item definition is required.");
+                return rabbitRecipeValidation;
             }
 
-            if (profile.CookedMeatItemDefinition == null)
+            CCS_SurvivalValidationResult venisonRecipeValidation = ValidateRecipeExists(profile, CookVenisonRecipeId);
+            if (!venisonRecipeValidation.IsSuccess)
             {
-                return CCS_SurvivalValidationResult.Fail("Cooked meat item definition is required.");
+                return venisonRecipeValidation;
             }
 
             IReadOnlyList<CCS_ConsumableFoodDefinition> consumableDefinitions = profile.ConsumableFoodDefinitions;
@@ -161,7 +177,43 @@ namespace CCS.Modules.Cooking
                 return CCS_SurvivalValidationResult.Fail("FirePit crafting station type is missing.");
             }
 
-            return CCS_SurvivalValidationResult.Pass("FirePit station type validated.");
+            if (!System.Enum.IsDefined(typeof(CCS_CookingStationType), CCS_CookingStationType.Campfire))
+            {
+                return CCS_SurvivalValidationResult.Fail("Campfire cooking station type is missing.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Cooking station types validated.");
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static CCS_SurvivalValidationResult ValidateRecipeExists(CCS_CookingProfile profile, string recipeId)
+        {
+            if (!profile.TryGetRecipe(recipeId, out CCS_CookingRecipe recipe) || recipe == null)
+            {
+                return CCS_SurvivalValidationResult.Fail($"Cooking recipe '{recipeId}' is missing.");
+            }
+
+            if (string.IsNullOrWhiteSpace(recipe.RawItemDefinitionId)
+                || !profile.TryResolveItemDefinition(recipe.RawItemDefinitionId, out _))
+            {
+                return CCS_SurvivalValidationResult.Fail($"Recipe '{recipeId}' raw item is not configured.");
+            }
+
+            if (string.IsNullOrWhiteSpace(recipe.CookedItemDefinitionId)
+                || !profile.TryResolveItemDefinition(recipe.CookedItemDefinitionId, out _))
+            {
+                return CCS_SurvivalValidationResult.Fail($"Recipe '{recipeId}' cooked item is not configured.");
+            }
+
+            if (recipe.AcceptedFuelItemIds == null || recipe.AcceptedFuelItemIds.Count == 0)
+            {
+                return CCS_SurvivalValidationResult.Fail($"Recipe '{recipeId}' must accept fuel item IDs.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass($"Recipe '{recipeId}' validated.");
         }
 
         #endregion

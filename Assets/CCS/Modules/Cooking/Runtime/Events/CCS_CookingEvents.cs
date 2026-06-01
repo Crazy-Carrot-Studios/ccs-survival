@@ -28,6 +28,8 @@ namespace CCS.Modules.Cooking
 
     public delegate void CookingFailedHandler(CCS_CookingEventArgs eventArgs);
 
+    public delegate void CookingCancelledHandler(CCS_CookingEventArgs eventArgs);
+
     public delegate void FoodConsumedHandler(CCS_CookingEventArgs eventArgs);
 
     public delegate void FoodConsumeFailedHandler(CCS_CookingEventArgs eventArgs);
