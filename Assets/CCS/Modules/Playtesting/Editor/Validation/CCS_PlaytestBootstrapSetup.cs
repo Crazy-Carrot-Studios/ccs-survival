@@ -86,8 +86,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.0.2.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.0.2";
+                "Bootstrap manual playtest checklist for milestone 1.0.3.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.0.3";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -111,22 +111,22 @@ namespace CCS.Modules.Playtesting.Editor
                 "ccs.survival.playtest.gather",
                 "Gather sticks or wood",
                 CCS_PlaytestStepType.GatherResource,
-                "Gather from a small tree or bush node.",
-                StickItemId,
+                "Gather from CCS_TestGatheringSmallTree or CCS_TestGatheringBush (interact).",
+                string.Empty,
                 requiredCount: 1);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.equip",
                 "Equip spear",
                 CCS_PlaytestStepType.EquipWeapon,
-                "Equip the starter spear from inventory.",
+                "Press F6 to equip the starter spear (or equip manually when UI exists).",
                 SpearItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.hunt",
                 "Hunt wildlife",
                 CCS_PlaytestStepType.HuntWildlife,
-                "Kill a rabbit or deer with the spear.");
+                "Kill CCS_TestRabbit or CCS_TestDeer with primary attack while spear is equipped.");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.harvest",
@@ -144,14 +144,13 @@ namespace CCS.Modules.Playtesting.Editor
                 "ccs.survival.playtest.eat",
                 "Eat cooked meat",
                 CCS_PlaytestStepType.EatFood,
-                "Consume cooked rabbit or venison from inventory.",
-                CookedRabbitItemId);
+                "Press F to consume cooked rabbit or venison from inventory.");
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.build",
                 "Place primitive building",
                 CCS_PlaytestStepType.PlaceBuilding,
-                "Place one test foundation building piece.",
+                "Press B to place one test foundation piece (seeds build costs automatically).",
                 targetObjectId: FoundationPieceId);
             AddStep(
                 stepListProperty,
@@ -317,7 +316,7 @@ namespace CCS.Modules.Playtesting.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.0.2");
+                "bundleVersion: 1.0.3");
             File.WriteAllText(projectSettingsPath, text);
         }
 

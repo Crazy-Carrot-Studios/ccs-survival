@@ -100,12 +100,12 @@ namespace CCS.Modules.Playtesting.Editor
                     "Default playtest profile has harness disabled.");
             }
 
-            if (profile.ProfileVersion != "1.0.2")
+            if (profile.ProfileVersion != "1.0.3")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Warning,
                     "Playtesting Profile",
-                    $"Expected profileVersion 1.0.2 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.0.3 but found '{profile.ProfileVersion}'.");
             }
 
             ValidateRequiredStepTypes(report, profile);
@@ -258,10 +258,12 @@ namespace CCS.Modules.Playtesting.Editor
             }
 
             string documentation = File.ReadAllText(ModuleDocPath);
+            ValidateHotkeyDocumented(report, documentation, "F6");
             ValidateHotkeyDocumented(report, documentation, "F7");
             ValidateHotkeyDocumented(report, documentation, "F10");
             ValidateHotkeyDocumented(report, documentation, "F11");
             ValidateHotkeyDocumented(report, documentation, "F12");
+            ValidateHotkeyDocumented(report, documentation, "B");
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,

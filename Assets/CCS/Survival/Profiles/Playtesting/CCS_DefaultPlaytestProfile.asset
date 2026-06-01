@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.0.2.
-  profileVersion: 1.0.2
+  profileDescription: Bootstrap manual playtest checklist for milestone 1.0.3.
+  profileVersion: 1.0.3
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -33,15 +33,17 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.gather
     displayName: Gather sticks or wood
     stepType: 1
-    instructionText: Gather from a small tree or bush node.
-    targetItemId: ccs.survival.item.resource.stick
+    instructionText: Gather from CCS_TestGatheringSmallTree or CCS_TestGatheringBush
+      (interact).
+    targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.equip
     displayName: Equip spear
     stepType: 2
-    instructionText: Equip the starter spear from inventory.
+    instructionText: Press F6 to equip the starter spear (or equip manually when
+      UI exists).
     targetItemId: ccs.survival.item.starter.spear
     targetObjectId: 
     requiredCount: 1
@@ -49,7 +51,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.hunt
     displayName: Hunt wildlife
     stepType: 3
-    instructionText: Kill a rabbit or deer with the spear.
+    instructionText: Kill CCS_TestRabbit or CCS_TestDeer with primary attack while
+      spear is equipped.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -73,15 +76,16 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.eat
     displayName: Eat cooked meat
     stepType: 6
-    instructionText: Consume cooked rabbit or venison from inventory.
-    targetItemId: ccs.survival.item.food.cookedrabbitmeat
+    instructionText: Press F to consume cooked rabbit or venison from inventory.
+    targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.build
     displayName: Place primitive building
     stepType: 7
-    instructionText: Place one test foundation building piece.
+    instructionText: Press B to place one test foundation piece (seeds build costs
+      automatically).
     targetItemId: 
     targetObjectId: ccs.survival.building.test.foundation
     requiredCount: 1

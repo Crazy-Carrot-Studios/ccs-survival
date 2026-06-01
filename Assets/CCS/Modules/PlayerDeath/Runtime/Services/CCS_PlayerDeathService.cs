@@ -91,6 +91,17 @@ namespace CCS.Modules.PlayerDeath
             }
         }
 
+        public void TriggerTestDeath(string causeMessage = "Playtest forced death.")
+        {
+            if (!isInitialized || isPlayerDead)
+            {
+                return;
+            }
+
+            HandlePlayerDeath(
+                string.IsNullOrWhiteSpace(causeMessage) ? "Playtest forced death." : causeMessage);
+        }
+
         #endregion
 
         #region Private Methods

@@ -11,6 +11,7 @@ using CCS.Modules.SaveSystem;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
+using CCS.Survival.Player;
 using UnityEngine;
 
 // =============================================================================
@@ -34,6 +35,7 @@ namespace CCS.Modules.Playtesting
         private const string SpearItemId = "ccs.survival.item.starter.spear";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
+        private const string FoundationPieceId = "ccs.survival.building.test.foundation";
 
         #region Variables
 
@@ -354,7 +356,105 @@ namespace CCS.Modules.Playtesting
             }
 
             survivalCoreService.TryRestoreSavedNeeds(0f, 0f, 0f);
+
+            if (boundPlayerDeathService != null && boundPlayerDeathService.IsInitialized)
+            {
+                boundPlayerDeathService.TriggerTestDeath("Playtest forced death (F7).");
+            }
+
             LogDebug("Forced hunger and thirst to zero for death playtest (F7).");
+        }
+
+        public bool TryEquipStarterSpear()
+        {
+            if (!harnessEnabled || boundEquipmentService == null || !boundEquipmentService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_EquippedItem equippedMainHand =
+                boundEquipmentService.GetEquippedItem(CCS_EquipmentSlotType.MainHand);
+            if (equippedMainHand?.ItemDefinition?.ItemId == SpearItemId)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear already equipped.");
+                return true;
+            }
+
+            CCS_EquipmentItemDefinition spearDefinition = FindEquipmentDefinitionForItemId(SpearItemId);
+            if (spearDefinition == null)
+            {
+                LogDebug("Starter spear equipment definition was not found in the active equipment profile.");
+                return false;
+            }
+
+            if (boundEquipmentService.IsSlotOccupied(CCS_EquipmentSlotType.MainHand))
+            {
+                boundEquipmentService.UnequipItem(CCS_EquipmentSlotType.MainHand);
+            }
+
+            if (!boundEquipmentService.EquipItem(spearDefinition))
+            {
+                LogDebug("Failed to equip starter spear for playtest.");
+                return false;
+            }
+
+            LogDebug("Equipped starter spear for playtest (F6).");
+            return true;
+        }
+
+        public bool TryPlacePlaytestFoundation()
+        {
+            if (!harnessEnabled)
+            {
+                return false;
+            }
+
+            if (!CCS_BuildingRuntimeBridge.TryGetBuildingPlacementService(out CCS_BuildingPlacementService placementService)
+                || placementService == null
+                || !placementService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!CCS_BuildingRuntimeBridge.TryGetBuildingService(out CCS_BuildingService buildingService)
+                || buildingService == null
+                || !buildingService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!buildingService.TryGetDefinition(FoundationPieceId, out CCS_BuildingPieceDefinition definition))
+            {
+                return false;
+            }
+
+            if (!TrySeedBuildingPlacementResources(definition))
+            {
+                LogDebug("Could not seed inventory resources for playtest foundation placement.");
+                return false;
+            }
+
+            if (!placementService.SetActiveDefinition(definition))
+            {
+                return false;
+            }
+
+            Vector3 placementPosition = ResolvePlaytestFoundationPosition();
+            if (!placementService.UpdatePreviewWithSnap(placementPosition, Quaternion.identity))
+            {
+                LogDebug($"Foundation preview invalid at {placementPosition}.");
+                return false;
+            }
+
+            CCS_BuildingPlacementValidationResult result = placementService.PlaceCurrentPieceUsingSnap();
+            if (!result.Success)
+            {
+                LogDebug($"Foundation placement failed: {result.FailureReason}");
+                return false;
+            }
+
+            LogDebug("Placed playtest foundation (B).");
+            return true;
         }
 
         public void Tick(float deltaTime)
@@ -468,6 +568,11 @@ namespace CCS.Modules.Playtesting
 
         private void HandleBuildingPlaced(CCS_BuildingPlacementEventArgs eventArgs)
         {
+            if (!MatchesTargetBuildingPiece(eventArgs))
+            {
+                return;
+            }
+
             TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceBuilding, "Building piece placed.");
         }
 
@@ -642,7 +747,104 @@ namespace CCS.Modules.Playtesting
                 return true;
             }
 
+            if (stepType == CCS_PlaytestStepType.GatherResource && IsGatherResourceItem(targetItemId))
+            {
+                return IsGatherResourceItem(itemId);
+            }
+
+            if (stepType == CCS_PlaytestStepType.EatFood && IsCookedFoodItem(targetItemId))
+            {
+                return IsCookedFoodItem(itemId);
+            }
+
             return targetItemId == itemId;
+        }
+
+        private bool MatchesTargetBuildingPiece(CCS_BuildingPlacementEventArgs eventArgs)
+        {
+            CCS_PlaytestStepState state = activeStepIndex >= 0 && activeStepIndex < stepStates.Count
+                ? stepStates[activeStepIndex]
+                : null;
+            if (state == null || state.Definition.StepType != CCS_PlaytestStepType.PlaceBuilding)
+            {
+                return false;
+            }
+
+            string targetObjectId = state.Definition.TargetObjectId;
+            if (string.IsNullOrWhiteSpace(targetObjectId))
+            {
+                return true;
+            }
+
+            string placedPieceId = eventArgs?.PlacedInstance != null ? eventArgs.PlacedInstance.PieceId : string.Empty;
+            return placedPieceId == targetObjectId;
+        }
+
+        private CCS_EquipmentItemDefinition FindEquipmentDefinitionForItemId(string itemId)
+        {
+            if (boundEquipmentService?.ActiveProfile == null
+                || string.IsNullOrWhiteSpace(itemId))
+            {
+                return null;
+            }
+
+            CCS_EquipmentItemDefinition[] definitions =
+                boundEquipmentService.ActiveProfile.SaveRestoreEquipmentDefinitions;
+            if (definitions == null)
+            {
+                return null;
+            }
+
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_EquipmentItemDefinition definition = definitions[index];
+                if (definition?.ItemDefinition != null && definition.ItemDefinition.ItemId == itemId)
+                {
+                    return definition;
+                }
+            }
+
+            return null;
+        }
+
+        private bool TrySeedBuildingPlacementResources(CCS_BuildingPieceDefinition definition)
+        {
+            if (!CCS_PlaytestRuntimeBridge.TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost)
+                || runtimeHost.ServiceRegistry == null
+                || !runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (definition?.BuildCostEntries != null)
+            {
+                for (int index = 0; index < definition.BuildCostEntries.Count; index++)
+                {
+                    CCS_BuildingCostEntry costEntry = definition.BuildCostEntries[index];
+                    if (costEntry.ItemDefinition == null || costEntry.Quantity <= 0)
+                    {
+                        continue;
+                    }
+
+                    inventoryService.AddItem(costEntry.ItemDefinition, costEntry.Quantity * 5);
+                }
+            }
+
+            return true;
+        }
+
+        private static Vector3 ResolvePlaytestFoundationPosition()
+        {
+            CCS_PlayerGameplayController[] players =
+                Object.FindObjectsByType<CCS_PlayerGameplayController>(FindObjectsSortMode.None);
+            if (players != null && players.Length > 0 && players[0] != null)
+            {
+                return players[0].transform.position + players[0].transform.forward * 3f + Vector3.up * 0.5f;
+            }
+
+            return new Vector3(0f, 0.5f, 3f);
         }
 
         private static bool IsGatherResourceItem(string itemId)

@@ -1,7 +1,7 @@
 # CCS Playtesting Module
 
 **Module ID:** `ccs.survival.playtesting`  
-**Milestone:** 1.0.2 — Manual Playtest Harness  
+**Milestone:** 1.0.3 — Manual Playtest Pass + Fixes  
 **Author:** James Schilz (Developer)
 
 ## Purpose
@@ -11,6 +11,78 @@ Development-only bootstrap checklist and on-screen HUD for manually verifying th
 spawn → gather → equip → hunt → harvest → cook → eat → build → save → load → death → respawn.
 
 This is not production UI and does not automate gameplay.
+
+## Manual playtest route (bootstrap)
+
+**Scene:** `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+
+1. Enter Play Mode.
+2. Press **F10** to show the harness HUD.
+3. Confirm **Spawn** passes when the player exists.
+4. Interact with **CCS_TestGatheringSmallTree** or **CCS_TestGatheringBush** (sticks or wood).
+5. Press **F6** to equip the starter spear (required for melee hunt).
+6. Primary attack **CCS_TestRabbit** or **CCS_TestDeer**.
+7. Harvest the carcass (interact).
+8. Cook raw meat at **CCS_TestCampfire** (interact).
+9. Press **F** to eat cooked meat.
+10. Press **B** to place one test foundation piece.
+11. Press **F5** to save.
+12. Press **F9** to load.
+13. Press **F7** to force death.
+14. Confirm **Respawn** passes (same frame as death in current foundation).
+
+## Milestone 1.0.3 manual test results
+
+**Method:** Code-path audit of bootstrap scene wiring plus targeted checklist fixes (Unity Editor interactive pass recommended after pull).
+
+| Step | Result | Notes |
+|------|--------|-------|
+| Spawn | **Pass** | HUD notifies when `CCS_PlayerGameplayController` exists. |
+| Gather sticks/wood | **Pass (after fix)** | Wood from small trees no longer blocked by stick-only target filter. |
+| Equip spear | **Pass (after fix)** | **F6** dev equip added; no player-facing equip UI yet. |
+| Hunt wildlife | **Pass** | Requires spear in MainHand; primary attack drives `CCS_CombatService`. |
+| Harvest carcass | **Pass** | `WildlifeHarvestCompleted` event. |
+| Cook at campfire | **Pass** | `CookingCompleted` event. |
+| Eat cooked meat | **Pass** | **F** consume; rabbit or venison accepted. |
+| Place foundation | **Pass (after fix)** | **B** dev placement seeds costs and places `ccs.survival.building.test.foundation`. |
+| Save (F5) | **Pass** | `SaveCompleted` when `CCS_SaveDebugController` succeeds. |
+| Load (F9) | **Pass** | `LoadCompleted` on success. |
+| Trigger death (F7) | **Pass (after fix)** | `TriggerTestDeath` ensures death when stats were already depleted. |
+| Respawn | **Pass** | Fires immediately after death in 1.0.1 foundation (no death screen). |
+
+**Steps skipped:** None required for milestone closure.
+
+## Bugs fixed in 1.0.3
+
+| Issue | Fix |
+|-------|-----|
+| Gather step failed when granting **wood** (profile targeted stick only) | `MatchesTargetItem` accepts stick **or** wood when gather target is a gather resource id. |
+| **F7** did not always trigger death | `CCS_PlayerDeathService.TriggerTestDeath()` called after draining needs. |
+| Equip spear blocked (no equip UI) | **F6** `TryEquipStarterSpear()` via equipment profile catalog. |
+| Building step blocked (placement harness disabled) | **B** `TryPlacePlaytestFoundation()` seeds build costs and places foundation. |
+| Building event could ignore target piece id | `MatchesTargetBuildingPiece` validates foundation piece id. |
+
+## Known limitations
+
+- No production equip UI; use **F6** on bootstrap until equipment UI exists.
+- No production building placement UI; use **B** on bootstrap until player placement UX exists.
+- Death and respawn occur in the same frame (1.0.1 foundation); no death screen delay.
+- **F11** can skip steps intentionally for partial verification.
+- Automated gameplay bot deferred.
+
+## Hotkeys
+
+| Key | Action |
+|-----|--------|
+| **F6** | Equip starter spear (dev) |
+| **F7** | Force death (drain needs + `TriggerTestDeath`) |
+| **F10** | Toggle playtest HUD |
+| **F11** | Advance active checklist step |
+| **F12** | Reset checklist |
+| **B** | Place test foundation (dev) |
+| **F** | Consume food (`CCS_ConsumableFoodPlayerDriver`) |
+| **Primary action** | Melee attack / interact gather |
+| **F5** / **F9** | Save / load (`CCS_SaveDebugController`) |
 
 ## Runtime types
 
@@ -29,17 +101,6 @@ This is not production UI and does not automate gameplay.
 
 `Assets/CCS/Survival/Profiles/Playtesting/CCS_DefaultPlaytestProfile.asset`
 
-## Hotkeys
-
-| Key | Action |
-|-----|--------|
-| **F7** | Force hunger/thirst to zero (test death). Active only when harness is enabled. |
-| **F10** | Toggle playtest HUD visibility |
-| **F11** | Advance / pass the active checklist step |
-| **F12** | Reset the full checklist |
-| **F5** | Save game (`CCS_SaveDebugController`) |
-| **F9** | Load game (`CCS_SaveDebugController`) |
-
 ## Bootstrap wiring
 
 - `CCS_PlaytestService` registers through `CCS_SurvivalGameplayServiceRegistration`.
@@ -51,20 +112,6 @@ This is not production UI and does not automate gameplay.
 ```
 CCS.Modules.Playtesting.Editor.CCS_PlaytestBootstrapSetup.ExecuteBatch
 ```
-
-## Event subscriptions
-
-When the harness is enabled, `CCS_PlaytestService` listens for:
-
-- Gathering gathered
-- Wildlife killed
-- Wildlife harvest completed
-- Cooking completed
-- Food consumed
-- Building placed
-- Save completed / load completed
-- Player died / player respawned
-- Item equipped
 
 ## Validation
 

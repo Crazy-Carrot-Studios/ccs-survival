@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap scene or PF_CCS_Survival_BootstrapRoot (PlaytestHarness child).
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: F10 toggle HUD, F11 advance/skip, F12 reset, F7 force death when harness enabled.
+// NOTES: F10 HUD, F11 advance, F12 reset, F7 death, F6 equip spear, B place foundation.
 // =============================================================================
 
 namespace CCS.Modules.Playtesting
@@ -129,8 +129,9 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.0.2)");
-            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Test Death | F5 Save | F9 Load");
+            GUILayout.Label("CCS Manual Playtest Harness (1.0.3)");
+            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Equip | B Build");
+            GUILayout.Label("Interact gather/cook | Primary hunt | F eat | F5 save | F9 load");
             GUILayout.Space(6f);
 
             CCS_PlaytestStepState activeState = GetActiveStepState();

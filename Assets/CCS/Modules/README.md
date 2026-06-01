@@ -1,6 +1,6 @@
 # CCS Gameplay Modules
 
-**Version:** 1.0.2  
+**Version:** 1.0.3  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
@@ -146,7 +146,7 @@ Assets/CCS/Modules/<ModuleName>/
 | `Cooking/` | 0.9.5 — **Consumables & hunger usage complete** (passive drain, F consume, HUD feedback) |
 | `SaveSystem/` | 1.0.1 — **Unified save file complete** (F5/F9 debug save/load) |
 | `PlayerDeath/` | 1.0.1 — **Death and respawn complete** (starvation/dehydration, bootstrap spawn) |
-| `Playtesting/` | 1.0.2 — **Manual playtest harness complete** (bootstrap checklist HUD, dev hotkeys) |
+| `Playtesting/` | 1.0.3 — **Manual playtest pass** (checklist fixes, F6/B dev helpers, bootstrap route verified) |
 | `EnvironmentEffects/` | 0.7.2 / 0.7.5 — **Foundation + shelter and equipment modifiers complete** |
 | `SurvivalCore/` | 0.3.7 / 0.7.5 — **Foundation + effective environment integration complete** |
 

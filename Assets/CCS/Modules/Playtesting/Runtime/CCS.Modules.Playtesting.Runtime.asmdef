@@ -6,6 +6,7 @@
         "CCS.Survival.Runtime",
         "CCS.Modules.SurvivalCore.Runtime",
         "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Wildlife.Runtime",

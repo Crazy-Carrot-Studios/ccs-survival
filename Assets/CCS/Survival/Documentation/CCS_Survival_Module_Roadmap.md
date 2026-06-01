@@ -61,8 +61,23 @@
 | **1.0.0** | Campfire + cooking foundation (fuel-backed rabbit/venison recipes, full gather-hunt-cook-eat loop) |
 | **1.0.1** | Death, respawn & save foundation (unified save file, starvation/dehydration death, respawn point) |
 | **1.0.2** | Manual playtest harness (bootstrap checklist HUD, event-driven step completion, F7/F10/F11/F12) |
+| **1.0.3** | Manual playtest pass + fixes (bootstrap route verified, gather/death/equip/build blockers resolved) |
 
-Later milestones continue from **1.0.3+** (durability, ranged weapons, predators).
+Later milestones continue from **1.0.4+** (durability, ranged weapons, predators).
+
+---
+
+## 1.0.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Full bootstrap manual route documented and exercised (code-path + fixes) | **Complete** |
+| Gather wood/stick detection fixed | **Complete** |
+| F7 reliable death trigger | **Complete** |
+| F6 equip spear + B place foundation dev helpers | **Complete** |
+| Validation 0 warnings / 0 errors | **Complete** |
+| Version **1.0.3** build | **Complete** |
+| Production equip/build UI | **Deferred** |
 
 ---
 

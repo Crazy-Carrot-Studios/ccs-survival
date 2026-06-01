@@ -1,6 +1,8 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 1.0.2 — Manual Playtest Harness
+**Milestone:** 1.0.3 — Manual Playtest Pass + Fixes
+
+**1.0.2** — Manual Playtest Harness
 
 **1.0.1** — Death, Respawn & Save Foundation
 

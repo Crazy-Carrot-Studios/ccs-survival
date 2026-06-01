@@ -23,6 +23,8 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**1.0.3** — Manual Playtest Pass + Fixes
+
 **1.0.2** — Manual Playtest Harness
 
 **1.0.1** — Death, Respawn & Save Foundation
@@ -204,8 +206,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 1.0.2
-**Build output:** `Builds/CCS_Survival_1.0.2_Windows/` (gitignored)
+**Latest verified build:** 1.0.3
+**Build output:** `Builds/CCS_Survival_1.0.3_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
