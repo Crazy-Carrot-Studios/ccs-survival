@@ -15,9 +15,9 @@ MonoBehaviour:
   itemId: ccs.survival.item.starter.spear
   visualPrefab: {fileID: 3768490426494225918, guid: bf5be5fe9afe02b4bb515c1c0a138a2a, type: 3}
   attachmentSocket: 0
-  localPositionOffset: {x: 0, y: 0, z: 0.15}
+  localPositionOffset: {x: 0.02, y: -0.01, z: 0.04}
   localEulerOffset: {x: 90, y: 0, z: 0}
-  localScale: {x: 0.04, y: 0.35, z: 0.04}
+  localScale: {x: 1, y: 1, z: 1}
   hideWhenUnequipped: 1
   supportsAimPose: 0
   supportsTwoHandIk: 0

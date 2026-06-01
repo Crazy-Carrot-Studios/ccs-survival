@@ -1,6 +1,6 @@
 # CCS Survival — Equipment Module
 
-**Milestone:** 1.2.0 — Primitive Equipment Visual Foundation  
+**Milestone:** 1.2.1 — Held Item Pose + Socket Cleanup  
 **Module ID:** `ccs.survival.equipment`  
 **Namespace:** `CCS.Modules.Equipment` (editor: `CCS.Modules.Equipment.Editor`)  
 **Author:** James Schilz (Developer)  
@@ -13,12 +13,19 @@
 
 Provide the **runtime equipment architecture** that sits on top of Inventory and supports clothing, armor, weapons, tools, stat bonuses, durability, and **placeholder equipped visuals** driven by the equipment service.
 
-**1.2.0 visual foundation notes:**
+**1.2.0+ visual foundation notes:**
 
 - Equipped visuals are **primitive Unity placeholder meshes** (cylinders/cubes/capsules), not final art.
 - Attachment uses **transform sockets** on `PF_CCS_Player` (`EquipmentRig` / `Socket_*`). Humanoid bone sockets and IK are planned later.
 - **Equipment state remains service-driven** via `CCS_PlayerEquipmentService`; visuals mirror equip/unequip/save-restore only.
 - No full combat animation, aim poses, or IK in this milestone (future flags exist on visual definitions).
+
+**1.2.1 pose cleanup:**
+
+- Socket local positions/rotations on the capsule rig were tuned for third-person readability (hands, back, hips, backpack).
+- `CCS_EquipmentVisualDefinition` local offsets/scales were tuned so held spear, knife, hatchet, pick, torch, and bedroll attach deliberately.
+- Runtime visual controller duplicate/stale-instance guards were hardened; save/load resync remains duplicate-safe.
+- Batch: `CCS_EquipmentVisualPoseCleanupBootstrapSetup.ExecuteBatch`
 
 The module answers:
 
@@ -94,10 +101,11 @@ CCS_EquipmentVisualProfile / CCS_EquipmentVisualDefinition
 CCS_EquipmentAttachmentRig → CCS_EquipmentAttachmentSocket
 ```
 
-Bootstrap batch:
+Bootstrap batches:
 
 ```text
 CCS.Survival.Editor.Development.CCS_EquipmentVisualFoundationBootstrapSetup.ExecuteBatch
+CCS.Survival.Editor.Development.CCS_EquipmentVisualPoseCleanupBootstrapSetup.ExecuteBatch
 ```
 
 ---

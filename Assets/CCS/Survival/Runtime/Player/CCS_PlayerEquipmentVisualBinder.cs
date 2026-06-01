@@ -58,6 +58,17 @@ namespace CCS.Survival.Player
                 attachmentRig = GetComponentInChildren<CCS_EquipmentAttachmentRig>(true);
             }
 
+            if (attachmentRig == null || equipmentVisualProfile == null)
+            {
+                if (enableDebugLogs)
+                {
+                    Debug.LogWarning(
+                        "[CCS_PlayerEquipmentVisualBinder] Visual bind skipped because rig or visual profile is missing.");
+                }
+
+                return;
+            }
+
             visualController.Bind(equipmentService, attachmentRig, equipmentVisualProfile, enableDebugLogs);
             isBound = true;
         }

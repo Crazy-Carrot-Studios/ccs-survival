@@ -155,7 +155,7 @@ namespace CCS.Modules.Equipment.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Equipment validator completed (1.2.0 primitive equipment visuals).");
+                "Equipment validator completed (1.2.1 held item pose and socket cleanup).");
         }
 
         #endregion
@@ -444,6 +444,39 @@ namespace CCS.Modules.Equipment.Editor
                     : CCS_SurvivalValidationIssueSeverity.Error,
                 "Equipment Visual Profile",
                 profileValidation.Message);
+
+            if (playerPrefab != null && visualProfile != null)
+            {
+                CCS_SurvivalValidationResult socketBindingValidation =
+                    CCS_EquipmentVisualValidationUtility.ValidateVisualProfileSocketBindings(
+                        playerPrefab,
+                        visualProfile);
+                report.AddIssue(
+                    socketBindingValidation.IsSuccess
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Visual Socket Bindings",
+                    socketBindingValidation.Message);
+            }
+
+            CCS_EquipmentProfile equipmentProfile =
+                AssetDatabase.LoadAssetAtPath<CCS_EquipmentProfile>(DefaultProfilePath);
+            if (equipmentProfile != null && visualProfile != null
+                && CCS_EquipmentVisualValidationUtility.TryGetRequiredItemIdsForExistingEquipmentDefinitions(
+                    equipmentProfile,
+                    out System.Collections.Generic.List<string> equipmentItemIds))
+            {
+                CCS_SurvivalValidationResult coverageValidation =
+                    CCS_EquipmentVisualValidationUtility.ValidateVisualDefinitionsExistForEquipmentItems(
+                        visualProfile,
+                        equipmentItemIds);
+                report.AddIssue(
+                    coverageValidation.IsSuccess
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "Equipment Visual Definition Coverage",
+                    coverageValidation.Message);
+            }
         }
 
         private static void ValidateRequiredFolder(

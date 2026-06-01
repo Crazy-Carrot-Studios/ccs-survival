@@ -76,17 +76,36 @@ namespace CCS.Modules.Equipment
 
         public bool HasVisualForItem(string itemId)
         {
-            return itemIdToSocket.ContainsKey(itemId);
+            if (string.IsNullOrWhiteSpace(itemId))
+            {
+                return false;
+            }
+
+            if (!itemIdToSocket.TryGetValue(itemId, out CCS_EquipmentAttachmentSocketType socketType))
+            {
+                return false;
+            }
+
+            return activeBySocket.TryGetValue(socketType, out CCS_EquippedVisualInstance instance)
+                && instance != null
+                && instance.IsValid;
         }
 
         public void ResyncAllEquipped()
         {
             ClearAllVisuals();
-            if (equipmentService == null || definitionLookup == null)
+
+            if (equipmentService == null || !equipmentService.IsInitialized)
             {
                 return;
             }
 
+            if (definitionLookup == null || attachmentRig == null)
+            {
+                return;
+            }
+
+            bool anyEquipped = false;
             foreach (CCS_EquipmentSlotType slotType in System.Enum.GetValues(typeof(CCS_EquipmentSlotType)))
             {
                 CCS_EquippedItem equippedItem = equipmentService.GetEquippedItem(slotType);
@@ -95,7 +114,13 @@ namespace CCS.Modules.Equipment
                     continue;
                 }
 
+                anyEquipped = true;
                 TrySpawnVisual(slotType, equippedItem.ItemDefinition.ItemId);
+            }
+
+            if (!anyEquipped && enableDebugLogs)
+            {
+                Debug.Log($"{LogPrefix} Resync complete with no equipped items.");
             }
         }
 
@@ -154,12 +179,35 @@ namespace CCS.Modules.Equipment
                 return;
             }
 
+            PruneStaleVisualEntries();
+
+            if (itemIdToSocket.TryGetValue(itemId, out CCS_EquipmentAttachmentSocketType trackedSocket)
+                && activeBySocket.TryGetValue(trackedSocket, out CCS_EquippedVisualInstance trackedInstance)
+                && trackedInstance != null
+                && trackedInstance.ItemId == itemId
+                && trackedInstance.IsValid)
+            {
+                return;
+            }
+
             if (!definitionLookup.TryGetDefinition(itemId, out CCS_EquipmentVisualDefinition definition))
             {
                 return;
             }
 
-            if (!attachmentRig.TryGetSocket(definition.AttachmentSocket, out CCS_EquipmentAttachmentSocket socket))
+            if (definition.VisualPrefab == null)
+            {
+                if (enableDebugLogs)
+                {
+                    Debug.LogWarning($"{LogPrefix} Visual prefab missing for item {itemId}.");
+                }
+
+                return;
+            }
+
+            if (!attachmentRig.TryGetSocket(definition.AttachmentSocket, out CCS_EquipmentAttachmentSocket socket)
+                || socket == null
+                || socket.SocketTransform == null)
             {
                 if (enableDebugLogs)
                 {
@@ -171,21 +219,16 @@ namespace CCS.Modules.Equipment
 
             if (activeBySocket.TryGetValue(definition.AttachmentSocket, out CCS_EquippedVisualInstance existing))
             {
-                if (existing != null && existing.ItemId == itemId && existing.IsValid)
-                {
-                    return;
-                }
-
                 RemoveVisualAtSocket(definition.AttachmentSocket, existing);
-            }
-
-            if (definition.VisualPrefab == null)
-            {
-                return;
             }
 
             Transform parent = socket.SocketTransform;
             GameObject instance = Object.Instantiate(definition.VisualPrefab, parent);
+            if (instance == null)
+            {
+                return;
+            }
+
             instance.name = $"{definition.VisualPrefab.name}_Equipped";
             Transform instanceTransform = instance.transform;
             instanceTransform.localPosition = definition.LocalPositionOffset;
@@ -210,13 +253,24 @@ namespace CCS.Modules.Equipment
 
         private void TryRemoveVisualForItem(string itemId)
         {
+            if (string.IsNullOrWhiteSpace(itemId))
+            {
+                return;
+            }
+
+            PruneStaleVisualEntries();
+
             if (!itemIdToSocket.TryGetValue(itemId, out CCS_EquipmentAttachmentSocketType socketType))
             {
                 return;
             }
 
             activeBySocket.TryGetValue(socketType, out CCS_EquippedVisualInstance instance);
-            RemoveVisualAtSocket(socketType, instance);
+            if (!RemoveVisualAtSocket(socketType, instance))
+            {
+                return;
+            }
+
             CCS_EquipmentVisualRuntimeBridge.NotifyVisualRemoved(itemId);
 
             if (enableDebugLogs)
@@ -225,20 +279,56 @@ namespace CCS.Modules.Equipment
             }
         }
 
-        private void RemoveVisualAtSocket(
+        private bool RemoveVisualAtSocket(
             CCS_EquipmentAttachmentSocketType socketType,
             CCS_EquippedVisualInstance instance)
         {
+            bool removed = false;
             if (instance != null)
             {
-                itemIdToSocket.Remove(instance.ItemId);
+                if (!string.IsNullOrWhiteSpace(instance.ItemId))
+                {
+                    itemIdToSocket.Remove(instance.ItemId);
+                }
+
                 if (instance.VisualRoot != null)
                 {
                     Object.Destroy(instance.VisualRoot);
+                    removed = true;
                 }
             }
 
-            activeBySocket.Remove(socketType);
+            if (activeBySocket.Remove(socketType))
+            {
+                removed = true;
+            }
+
+            return removed;
+        }
+
+        private void PruneStaleVisualEntries()
+        {
+            List<CCS_EquipmentAttachmentSocketType> staleSockets = null;
+            foreach (KeyValuePair<CCS_EquipmentAttachmentSocketType, CCS_EquippedVisualInstance> pair in activeBySocket)
+            {
+                if (pair.Value == null || !pair.Value.IsValid)
+                {
+                    staleSockets ??= new List<CCS_EquipmentAttachmentSocketType>();
+                    staleSockets.Add(pair.Key);
+                }
+            }
+
+            if (staleSockets == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < staleSockets.Count; index++)
+            {
+                CCS_EquipmentAttachmentSocketType socketType = staleSockets[index];
+                activeBySocket.TryGetValue(socketType, out CCS_EquippedVisualInstance instance);
+                RemoveVisualAtSocket(socketType, instance);
+            }
         }
 
         private void ClearAllVisuals()

@@ -15,9 +15,9 @@ MonoBehaviour:
   itemId: ccs.survival.item.tool.pick.primitive
   visualPrefab: {fileID: 8887136445618598139, guid: fc1a88a59b4fc854da8aa667f5848c7c, type: 3}
   attachmentSocket: 0
-  localPositionOffset: {x: 0, y: 0, z: 0.08}
-  localEulerOffset: {x: 0, y: 0, z: 0}
-  localScale: {x: 1, y: 1, z: 1}
+  localPositionOffset: {x: 0.02, y: -0.03, z: 0.07}
+  localEulerOffset: {x: 0, y: 0, z: 14}
+  localScale: {x: 0.9, y: 0.9, z: 0.9}
   hideWhenUnequipped: 1
   supportsAimPose: 0
   supportsTwoHandIk: 0

@@ -15,8 +15,8 @@ MonoBehaviour:
   itemId: ccs.survival.item.progression.primitivetorch
   visualPrefab: {fileID: 9064205537231061639, guid: f914ca6367c3c204fb1c0ea70b8afa8b, type: 3}
   attachmentSocket: 1
-  localPositionOffset: {x: 0, y: 0, z: 0.05}
-  localEulerOffset: {x: 0, y: 0, z: 0}
+  localPositionOffset: {x: 0, y: 0.02, z: 0.05}
+  localEulerOffset: {x: 72, y: 0, z: 0}
   localScale: {x: 1, y: 1, z: 1}
   hideWhenUnequipped: 1
   supportsAimPose: 0

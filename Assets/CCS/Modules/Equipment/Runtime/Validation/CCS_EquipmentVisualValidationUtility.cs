@@ -182,8 +182,138 @@ namespace CCS.Modules.Equipment
                 "Equipment visual profile references valid prefabs and required primitive items.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateVisualProfileSocketBindings(
+            GameObject playerPrefabRoot,
+            CCS_EquipmentVisualProfile profile)
+        {
+            if (playerPrefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Player prefab root is null.");
+            }
+
+            if (profile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Missing equipment visual profile: {DefaultVisualProfilePath}");
+            }
+
+            CCS_EquipmentAttachmentRig rig =
+                playerPrefabRoot.GetComponentInChildren<CCS_EquipmentAttachmentRig>(true);
+            if (rig == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "PF_CCS_Player is missing CCS_EquipmentAttachmentRig for socket binding validation.");
+            }
+
+            rig.RebuildSocketCache();
+            IReadOnlyList<CCS_EquipmentVisualDefinition> definitions = profile.VisualDefinitions;
+            for (int index = 0; index < definitions.Count; index++)
+            {
+                CCS_EquipmentVisualDefinition definition = definitions[index];
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                if (!rig.TryGetSocket(definition.AttachmentSocket, out CCS_EquipmentAttachmentSocket socket)
+                    || socket == null
+                    || socket.SocketTransform == null)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Visual definition '{definition.ItemId}' references missing rig socket: {definition.AttachmentSocket}.");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                "All equipment visual definitions reference sockets present on the player rig.");
+        }
+
+        public static bool TryGetRequiredItemIdsForExistingEquipmentDefinitions(
+            CCS_EquipmentProfile equipmentProfile,
+            out List<string> requiredItemIds)
+        {
+            requiredItemIds = new List<string>();
+            if (equipmentProfile?.SaveRestoreEquipmentDefinitions == null)
+            {
+                return false;
+            }
+
+            CCS_EquipmentItemDefinition[] definitions = equipmentProfile.SaveRestoreEquipmentDefinitions;
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_EquipmentItemDefinition equipmentDefinition = definitions[index];
+                if (equipmentDefinition?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                string itemId = equipmentDefinition.ItemDefinition.ItemId;
+                if (!ShouldRequireEquipmentVisual(itemId) || requiredItemIds.Contains(itemId))
+                {
+                    continue;
+                }
+
+                requiredItemIds.Add(itemId);
+            }
+
+            return requiredItemIds.Count > 0;
+        }
+
+        public static CCS_SurvivalValidationResult ValidateVisualDefinitionsExistForEquipmentItems(
+            CCS_EquipmentVisualProfile visualProfile,
+            IReadOnlyList<string> equipmentItemIds)
+        {
+            if (visualProfile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Missing equipment visual profile: {DefaultVisualProfilePath}");
+            }
+
+            if (equipmentItemIds == null || equipmentItemIds.Count == 0)
+            {
+                return CCS_SurvivalValidationResult.Pass(
+                    "No equipment item IDs supplied for visual definition coverage check.");
+            }
+
+            CCS_EquipmentVisualDefinitionLookup lookup = visualProfile.BuildLookup();
+            for (int index = 0; index < equipmentItemIds.Count; index++)
+            {
+                string itemId = equipmentItemIds[index];
+                if (string.IsNullOrWhiteSpace(itemId))
+                {
+                    continue;
+                }
+
+                if (!lookup.TryGetDefinition(itemId, out _))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Equipment item '{itemId}' has no matching equipment visual definition.");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                "Equipment visual definitions exist for all registered equipment item IDs.");
+        }
+
         public static string DefaultVisualProfileAssetPath => DefaultVisualProfilePath;
 
         public static string PlayerPrefabAssetPath => PlayerPrefabPath;
+
+        private static bool ShouldRequireEquipmentVisual(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId))
+            {
+                return false;
+            }
+
+            if (itemId.Contains(".test.", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return itemId.Contains(".starter.", System.StringComparison.OrdinalIgnoreCase)
+                || itemId.Contains(".tool.", System.StringComparison.OrdinalIgnoreCase)
+                || itemId.Contains(".progression.primitive", System.StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

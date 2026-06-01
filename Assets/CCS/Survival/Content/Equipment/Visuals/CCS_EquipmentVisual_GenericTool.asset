@@ -15,9 +15,9 @@ MonoBehaviour:
   itemId: ccs.survival.item.tool.generic.placeholder
   visualPrefab: {fileID: 6610556631523251518, guid: 066c3e77bada3364585ae45c6f396ea2, type: 3}
   attachmentSocket: 4
-  localPositionOffset: {x: 0, y: 0, z: 0}
-  localEulerOffset: {x: 0, y: 0, z: 0}
-  localScale: {x: 1, y: 1, z: 1}
+  localPositionOffset: {x: 0, y: 0, z: 0.03}
+  localEulerOffset: {x: 0, y: 0, z: -8}
+  localScale: {x: 0.85, y: 0.85, z: 0.85}
   hideWhenUnequipped: 1
   supportsAimPose: 0
   supportsTwoHandIk: 0
