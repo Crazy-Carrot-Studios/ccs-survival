@@ -68,6 +68,7 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
             ValidateRuntimeScriptsAvoidUnityEditor(report, SurvivalRoot + "/Runtime/Player");
             ValidateBootstrapSceneGameplayCamera(report);
+            CCS_BootstrapSceneValidationUtility.ValidatePlayableGround(report);
 
             ValidateDocumentationAsset(report, "Character Controller Module Doc", ModuleDocPath);
 

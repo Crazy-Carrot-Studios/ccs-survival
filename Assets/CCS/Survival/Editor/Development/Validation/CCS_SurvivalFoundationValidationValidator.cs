@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
     public sealed class CCS_SurvivalFoundationValidationValidator : CCS_ISurvivalValidationValidator
     {
         private const string SurvivalRoot = "Assets/CCS/Survival";
-        private const string ExpectedBundleVersion = "0.9.2";
+        private const string ExpectedBundleVersion = "0.9.2a";
 
         #region Properties
 
@@ -58,6 +58,7 @@ namespace CCS.Survival.Editor.Development
 
             ValidateProjectVersion(report);
             ValidateBootstrapScenePlayerIntegration(report);
+            CCS_BootstrapSceneValidationUtility.ValidatePlayableGround(report);
 
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,

@@ -219,7 +219,7 @@ namespace CCS.Survival.Editor.Development
 
             playerInstance.name = "PF_CCS_Player";
             playerInstance.transform.SetPositionAndRotation(
-                new Vector3(-1.5f, 0f, 0f),
+                new Vector3(-1.5f, 0.1f, 0f),
                 Quaternion.Euler(0f, 90f, 0f));
 
             EditorSceneManager.MarkSceneDirty(scene);

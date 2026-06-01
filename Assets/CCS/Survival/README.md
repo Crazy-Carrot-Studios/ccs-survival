@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.2 — Primitive Tool & Weapon Foundation  
+**Milestone:** 0.9.2a — Bootstrap Ground Collider Hotfix  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

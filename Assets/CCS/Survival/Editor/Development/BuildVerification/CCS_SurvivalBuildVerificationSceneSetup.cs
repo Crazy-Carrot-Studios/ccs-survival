@@ -22,7 +22,8 @@ namespace CCS.Survival.Editor.Development
         private const string ScenePath = "Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity";
         private const string BootstrapPrefabPath = "Assets/CCS/Survival/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
         private const string SceneRootName = "CCS_BuildVerificationScene";
-        private const string GroundName = "CCS_BuildVerificationGround";
+        private const string GroundName = "CCS_BootstrapTestGround";
+        private const string LegacyGroundName = "CCS_BuildVerificationGround";
         private const string MainCameraName = "Main Camera";
 
         #region Public Methods
@@ -212,20 +213,41 @@ namespace CCS.Survival.Editor.Development
             }
             else
             {
-                groundObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                groundObject.name = GroundName;
-                groundObject.transform.SetParent(sceneRoot.transform, false);
+                groundTransform = sceneRoot.transform.Find(LegacyGroundName);
+                if (groundTransform != null)
+                {
+                    groundObject = groundTransform.gameObject;
+                    groundObject.name = GroundName;
+                }
+                else
+                {
+                    groundObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
+                    groundObject.name = GroundName;
+                    groundObject.transform.SetParent(sceneRoot.transform, false);
+                }
             }
 
             groundObject.transform.localPosition = Vector3.zero;
             groundObject.transform.localRotation = Quaternion.identity;
             groundObject.transform.localScale = new Vector3(2f, 1f, 2f);
+            GameObjectUtility.SetStaticEditorFlags(groundObject, StaticEditorFlags.BatchingStatic);
 
-            Collider groundCollider = groundObject.GetComponent<Collider>();
-            if (groundCollider != null)
+            MeshCollider meshCollider = groundObject.GetComponent<MeshCollider>();
+            if (meshCollider != null)
             {
-                Object.DestroyImmediate(groundCollider);
+                Object.DestroyImmediate(meshCollider);
             }
+
+            BoxCollider boxCollider = groundObject.GetComponent<BoxCollider>();
+            if (boxCollider == null)
+            {
+                boxCollider = groundObject.AddComponent<BoxCollider>();
+            }
+
+            boxCollider.enabled = true;
+            boxCollider.isTrigger = false;
+            boxCollider.size = new Vector3(10f, 0.2f, 10f);
+            boxCollider.center = new Vector3(0f, -0.1f, 0f);
         }
 
         #endregion

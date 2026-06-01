@@ -50,8 +50,21 @@
 | **0.9.0** | Character controller gameplay integration (player prefab, input, interaction, stamina) |
 | **0.9.1** | Starter loadout and primitive progression (knife, branches, hand crafting placeholders) |
 | **0.9.2** | Primitive tool and weapon foundation (archetypes, tiers, bone tools, equipment verification) |
+| **0.9.2a** | Bootstrap ground collider hotfix (playable floor in bootstrap test scene) |
 
 Later milestones continue from **0.9.3+** (wildlife resource foundation, structural integrity, combat, vendors, audio).
+
+---
+
+## 0.9.2a definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Bootstrap scene ground has solid collider (`CCS_BootstrapTestGround`) | **Complete** |
+| Ground collider enabled and not trigger | **Complete** |
+| Player spawn above ground collider | **Complete** |
+| Validation fails when bootstrap scene lacks playable ground | **Complete** |
+| Version **0.9.2a** | **Complete** |
 
 ---
 
