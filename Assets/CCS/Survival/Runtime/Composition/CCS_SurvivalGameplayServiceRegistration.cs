@@ -11,6 +11,7 @@ using CCS.Modules.Weather;
 using CCS.Modules.Shelter;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
+using CCS.Modules.Wildlife;
 using CCS.Modules.CharacterController;
 using CCS.Survival.Player.Loadout;
 
@@ -39,6 +40,7 @@ namespace CCS.Survival.Composition
             CCS_InventoryProfile inventoryProfile,
             CCS_EquipmentProfile equipmentProfile,
             CCS_WorldResourceProfile worldResourceProfile,
+            CCS_WildlifeProfile wildlifeProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_SaveLoadProfile saveLoadProfile,
             CCS_TimeOfDayProfile timeOfDayProfile,
@@ -67,6 +69,7 @@ namespace CCS.Survival.Composition
 
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
+            RegisterService(runtimeHost, CreateWildlifeHarvestService(wildlifeProfile), enableDebugLogs);
 
             CCS_CraftingService craftingService = CreateCraftingService(craftingProfile, inventoryService);
             RegisterService(runtimeHost, craftingService, enableDebugLogs);
@@ -206,6 +209,20 @@ namespace CCS.Survival.Composition
         private static CCS_ResourceRespawnService CreateResourceRespawnService(CCS_WorldResourceProfile profile)
         {
             CCS_ResourceRespawnService service = new CCS_ResourceRespawnService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_WildlifeHarvestService CreateWildlifeHarvestService(CCS_WildlifeProfile profile)
+        {
+            CCS_WildlifeHarvestService service = new CCS_WildlifeHarvestService();
             service.Initialize();
 
             if (profile == null)

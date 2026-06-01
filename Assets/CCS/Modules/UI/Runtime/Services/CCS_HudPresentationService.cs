@@ -9,6 +9,7 @@ using CCS.Modules.EnvironmentEffects;
 using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.WorldResources;
+using CCS.Modules.Wildlife;
 using CCS.Survival;
 using UnityEngine;
 
@@ -37,6 +38,7 @@ namespace CCS.Modules.UI
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_ResourceHarvestService resourceHarvestService;
         private CCS_ResourceRespawnService resourceRespawnService;
+        private CCS_WildlifeHarvestService wildlifeHarvestService;
         private CCS_CraftingService craftingService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_WeatherService weatherService;
@@ -254,6 +256,21 @@ namespace CCS.Modules.UI
             resourceRespawnService.ResourceRespawned += HandleResourceRespawned;
         }
 
+        public void BindWildlifeHarvestService(CCS_WildlifeHarvestService service)
+        {
+            UnbindWildlifeHarvestService();
+            wildlifeHarvestService = service;
+
+            if (wildlifeHarvestService == null)
+            {
+                return;
+            }
+
+            wildlifeHarvestService.WildlifeHarvestCompleted += HandleWildlifeHarvestCompleted;
+            wildlifeHarvestService.WildlifeHarvestFailed += HandleWildlifeHarvestFailed;
+            wildlifeHarvestService.WildlifeDepleted += HandleWildlifeDepleted;
+        }
+
         public void BindCraftingService(CCS_CraftingService service)
         {
             UnbindCraftingService();
@@ -366,6 +383,7 @@ namespace CCS.Modules.UI
             UnbindEquipmentService();
             UnbindResourceHarvestService();
             UnbindResourceRespawnService();
+            UnbindWildlifeHarvestService();
             UnbindCraftingService();
             UnbindTimeOfDayService();
             UnbindWeatherService();
@@ -434,6 +452,28 @@ namespace CCS.Modules.UI
         {
             QueueNotification("Resource depleted");
             HudDataRefreshed?.Invoke(BuildEventArgs("Resource depleted."));
+        }
+
+        private void HandleWildlifeHarvestCompleted(CCS_WildlifeEventArgs eventArgs)
+        {
+            RefreshInventorySnapshot();
+            QueueWildlifeHarvestNotifications(eventArgs);
+            HudDataRefreshed?.Invoke(BuildEventArgs("Wildlife harvest completed."));
+        }
+
+        private void HandleWildlifeHarvestFailed(CCS_WildlifeEventArgs eventArgs)
+        {
+            string message = eventArgs != null && !string.IsNullOrWhiteSpace(eventArgs.Message)
+                ? eventArgs.Message
+                : "Wildlife harvest failed.";
+
+            QueueNotification(BuildWildlifeHarvestFailureNotification(message));
+        }
+
+        private void HandleWildlifeDepleted(CCS_WildlifeEventArgs eventArgs)
+        {
+            QueueNotification("Wildlife depleted");
+            HudDataRefreshed?.Invoke(BuildEventArgs("Wildlife depleted."));
         }
 
         private void HandleResourceRespawned(CCS_ResourceEventArgs eventArgs)
@@ -542,6 +582,30 @@ namespace CCS.Modules.UI
             }
         }
 
+        private void QueueWildlifeHarvestNotifications(CCS_WildlifeEventArgs eventArgs)
+        {
+            if (eventArgs?.Drops == null || eventArgs.Drops.Count == 0)
+            {
+                QueueNotification("Wildlife harvest completed.");
+                return;
+            }
+
+            for (int index = 0; index < eventArgs.Drops.Count; index++)
+            {
+                CCS_WildlifeHarvestedItemDrop drop = eventArgs.Drops[index];
+                if (drop?.ItemDefinition == null || drop.Quantity <= 0)
+                {
+                    continue;
+                }
+
+                string itemName = string.IsNullOrWhiteSpace(drop.ItemDefinition.DisplayName)
+                    ? "Item"
+                    : drop.ItemDefinition.DisplayName;
+
+                QueueNotification($"Harvested {itemName} x{drop.Quantity}");
+            }
+        }
+
         private static string BuildHarvestFailureNotification(string message)
         {
             if (message.IndexOf("Inventory", System.StringComparison.OrdinalIgnoreCase) >= 0)
@@ -550,6 +614,16 @@ namespace CCS.Modules.UI
             }
 
             return $"Harvest failed: {message}";
+        }
+
+        private static string BuildWildlifeHarvestFailureNotification(string message)
+        {
+            if (message.IndexOf("Inventory", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "Wildlife harvest failed: Inventory Full";
+            }
+
+            return $"Wildlife harvest failed: {message}";
         }
 
         private void HandleInventoryItemRemoved(CCS_InventoryEventArgs eventArgs)
@@ -786,6 +860,19 @@ namespace CCS.Modules.UI
 
             resourceRespawnService.ResourceRespawned -= HandleResourceRespawned;
             resourceRespawnService = null;
+        }
+
+        private void UnbindWildlifeHarvestService()
+        {
+            if (wildlifeHarvestService == null)
+            {
+                return;
+            }
+
+            wildlifeHarvestService.WildlifeHarvestCompleted -= HandleWildlifeHarvestCompleted;
+            wildlifeHarvestService.WildlifeHarvestFailed -= HandleWildlifeHarvestFailed;
+            wildlifeHarvestService.WildlifeDepleted -= HandleWildlifeDepleted;
+            wildlifeHarvestService = null;
         }
 
         private void UnbindCraftingService()

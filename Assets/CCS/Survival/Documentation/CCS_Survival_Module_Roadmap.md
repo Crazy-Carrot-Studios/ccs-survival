@@ -51,8 +51,24 @@
 | **0.9.1** | Starter loadout and primitive progression (knife, branches, hand crafting placeholders) |
 | **0.9.2** | Primitive tool and weapon foundation (archetypes, tiers, bone tools, equipment verification) |
 | **0.9.2a** | Bootstrap ground collider hotfix (playable floor in bootstrap test scene) |
+| **0.9.3** | Wildlife resource foundation (carcass harvesting, Bone/Hide/Sinew/Raw Meat drops) |
 
-Later milestones continue from **0.9.3+** (wildlife resource foundation, structural integrity, combat, vendors, audio).
+Later milestones continue from **0.9.4+** (structural integrity, combat, vendors, audio).
+
+---
+
+## 0.9.3 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Wildlife module under `Assets/CCS/Modules/Wildlife/` | **Complete** |
+| Carcass harvest via `CCS_HarvestableWildlife` + `CCS_WildlifeHarvestService` | **Complete** |
+| Drops: Bone, Hide, Sinew, Raw Meat | **Complete** |
+| Bootstrap test carcasses in `SCN_CCS_Survival_Bootstrap` | **Complete** |
+| HUD notifications for wildlife harvest events | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.3** | **Complete** |
+| AI, combat, predators, spawning | **Deferred** |
 
 ---
 

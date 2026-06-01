@@ -126,7 +126,7 @@ Starter content lives under `Assets/CCS/Survival/Content/Items/Starter/`:
 | Damage Type | `CCS_DamageType` | Slash, Pierce, Blunt placeholder |
 | Range Type | `CCS_RangeType` | Melee, ShortRanged, LongRanged placeholder |
 
-Resource placeholders: Bone, Sinew, Hide under `Content/Items/Resources/Primitive/`. Bone tools under `Content/Items/Tools/Bone/`. `CCS_ItemGameplayUtility` maps archetypes to harvest tool types. Equipped tools in MainHand/Tool slots also satisfy harvest checks at 0.9.2.
+Resource placeholders: Bone, Sinew, Hide under `Content/Items/Resources/Primitive/`. Raw Meat under `Content/Items/Resources/Wildlife/` (0.9.3 wildlife drops). Bone tools under `Content/Items/Tools/Bone/`. `CCS_ItemGameplayUtility` maps archetypes to harvest tool types. Equipped tools in MainHand/Tool slots also satisfy harvest checks at 0.9.2+.
 
 ---
 

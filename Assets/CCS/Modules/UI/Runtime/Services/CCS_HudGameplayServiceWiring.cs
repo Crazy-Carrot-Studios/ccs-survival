@@ -9,6 +9,7 @@ using CCS.Modules.TimeOfDay;
 using CCS.Modules.Weather;
 using CCS.Modules.Building;
 using CCS.Modules.WorldResources;
+using CCS.Modules.Wildlife;
 using CCS.Survival;
 using UnityEngine;
 
@@ -82,6 +83,12 @@ namespace CCS.Modules.UI
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_ResourceRespawnService resourceRespawnService))
             {
                 presentationService.BindResourceRespawnService(resourceRespawnService);
+                wiredAnyService = true;
+            }
+
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_WildlifeHarvestService wildlifeHarvestService))
+            {
+                presentationService.BindWildlifeHarvestService(wildlifeHarvestService);
                 wiredAnyService = true;
             }
 

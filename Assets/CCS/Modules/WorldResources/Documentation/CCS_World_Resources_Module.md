@@ -256,5 +256,6 @@ Registered via `CCS_WorldResourceValidationRegistration` on the central `CCS_Sur
 ## Related docs
 
 - [Inventory Module](../Inventory/Documentation/CCS_Inventory_Module.md)
+- [Wildlife Module](../Wildlife/Documentation/CCS_Wildlife_Module.md)
 - [Crafting Module](../Crafting/Documentation/CCS_Crafting_Module.md)
 - [Survival Module Roadmap](../../Survival/Documentation/CCS_Survival_Module_Roadmap.md)

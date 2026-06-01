@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.2a — Bootstrap Ground Collider Hotfix  
+**Milestone:** 0.9.3 — Wildlife Resource Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 
