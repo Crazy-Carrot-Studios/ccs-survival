@@ -106,15 +106,60 @@ Batch setup: `CCS.Modules.Wildlife.Editor.CCS_WildlifeBootstrapSetup.ExecuteBatc
 
 ---
 
-## Deferred systems
+None of these are implemented at **0.9.3**.
+
+---
+
+## Passive wildlife AI (0.9.7)
+
+Living wildlife placeholders use transform movement and a small state machine:
+
+| State | Behavior |
+|-------|----------|
+| Idle | Pause at current location |
+| Wander | Move to random point within wander radius |
+| Alert | Brief detection pause when player enters flee radius |
+| Flee | Move away from player until distance exceeds flee radius × 2 |
+
+| Component | Responsibility |
+|-----------|----------------|
+| `CCS_WildlifeAgent` | Scene MonoBehaviour on living rabbit/deer placeholders |
+| `CCS_WildlifeStateMachine` | Idle / wander / alert / flee transitions |
+| `CCS_WildlifeMovementController` | Transform movement without NavMesh or Rigidbody |
+| `CCS_WildlifeAiService` | Agent registry and HUD debug snapshots |
+| `CCS_WildlifeAiProfile` | Rabbit and deer wander/flee/speed tuning |
+
+Default profile: `Assets/CCS/Survival/Profiles/Wildlife/CCS_DefaultWildlifeAiProfile.asset`
+
+| Species | Wander radius | Flee radius | Move speed |
+|---------|---------------|-------------|------------|
+| Rabbit | 10 | 8 | 4 |
+| Deer | 20 | 15 | 6 |
+
+Bootstrap living placeholders:
+
+- `CCS_TestRabbit` — sphere primitive with `CCS_WildlifeAgent`
+- `CCS_TestDeer` — capsule primitive with `CCS_WildlifeAgent`
+
+Carcass harvest placeholders (`CCS_TestRabbitCarcass`, `CCS_TestDeerCarcass`) remain available for the existing harvest loop.
+
+HUD optional debug (upper-right): `Wildlife:` lines such as `Rabbit Idle`, `Deer Wander`.
+
+Validation menu: **CCS → Survival → Wildlife → Validate Wildlife AI**
+
+Batch setup: `CCS.Modules.Wildlife.Editor.CCS_WildlifeAiBootstrapSetup.ExecuteBatch`
+
+---
+
+## Deferred systems (post-0.9.7)
 
 Future milestones may add:
 
-- Live wildlife AI and movement
-- Combat and kill-state validation
+- Primitive combat and kill-state validation
+- Carcass spawn on death (0.9.8 hunting loop)
 - Predator aggression behavior
 - Respawn and population spawning
 - Save/load persistence for wildlife instances
-- Cooking and nutrition for Raw Meat
+- Animations and final art
 
-None of these are implemented at **0.9.3**.
+None of these are implemented at **0.9.7**.

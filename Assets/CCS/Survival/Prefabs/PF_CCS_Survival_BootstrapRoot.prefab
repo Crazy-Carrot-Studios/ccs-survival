@@ -81,6 +81,7 @@ MonoBehaviour:
   equipmentProfile: {fileID: 11400000, guid: e5f6a7b8c9d0490c90abcdef1234561e, type: 2}
   worldResourceProfile: {fileID: 11400000, guid: 776b229a9a87b024d847d4875a49bf85, type: 2}
   wildlifeProfile: {fileID: 11400000, guid: 6c2e22d884235d14aaca2197a95296d7, type: 2}
+  wildlifeAiProfile: {fileID: 11400000, guid: fc51626cc0c151d4d8a90d75801e128d, type: 2}
   cookingProfile: {fileID: 11400000, guid: ad4c9982cb7f2e94c87459729891a0c7, type: 2}
   sleepProfile: {fileID: 11400000, guid: b02e208f6edc0724391ecf22c5a7185f, type: 2}
   craftingProfile: {fileID: 11400000, guid: 7a454d0b9860c0c44ad990feaba001bf, type: 2}

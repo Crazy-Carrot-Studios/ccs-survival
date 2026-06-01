@@ -41,6 +41,7 @@ namespace CCS.Modules.UI
         private CCS_ResourceHarvestService resourceHarvestService;
         private CCS_ResourceRespawnService resourceRespawnService;
         private CCS_WildlifeHarvestService wildlifeHarvestService;
+        private CCS_WildlifeAiService wildlifeAiService;
         private CCS_CookingService cookingService;
         private CCS_CampfireService campfireService;
         private CCS_ConsumableFoodService consumableFoodService;
@@ -106,6 +107,11 @@ namespace CCS.Modules.UI
 
         public string SleepReadyLabel =>
             sleepSnapshot.SleepReady ? "Sleep Ready: Yes" : "Sleep Ready: No";
+
+        public string WildlifeAiDebugLabel =>
+            wildlifeAiService == null || !wildlifeAiService.IsInitialized
+                ? "Wildlife:\n--"
+                : wildlifeAiService.BuildDebugLabel();
 
         public CCS_SurvivalStatSnapshot ThirstSnapshot => thirstSnapshot;
 
@@ -423,6 +429,20 @@ namespace CCS.Modules.UI
             RefreshSleepSnapshot();
         }
 
+        public void BindWildlifeAiService(CCS_WildlifeAiService service)
+        {
+            UnbindWildlifeAiService();
+            wildlifeAiService = service;
+
+            if (wildlifeAiService == null)
+            {
+                return;
+            }
+
+            wildlifeAiService.WildlifeAiStateChanged += HandleWildlifeAiStateChanged;
+            HudDataRefreshed?.Invoke(BuildEventArgs("Wildlife AI service wired."));
+        }
+
         public void RefreshCachedData(string message)
         {
             RefreshSurvivalSnapshots();
@@ -459,6 +479,7 @@ namespace CCS.Modules.UI
             UnbindResourceHarvestService();
             UnbindResourceRespawnService();
             UnbindWildlifeHarvestService();
+            UnbindWildlifeAiService();
             UnbindCookingService();
             UnbindCampfireService();
             UnbindConsumableFoodService();
@@ -1120,6 +1141,22 @@ namespace CCS.Modules.UI
             wildlifeHarvestService.WildlifeHarvestFailed -= HandleWildlifeHarvestFailed;
             wildlifeHarvestService.WildlifeDepleted -= HandleWildlifeDepleted;
             wildlifeHarvestService = null;
+        }
+
+        private void HandleWildlifeAiStateChanged()
+        {
+            HudDataRefreshed?.Invoke(BuildEventArgs("Wildlife AI state changed."));
+        }
+
+        private void UnbindWildlifeAiService()
+        {
+            if (wildlifeAiService == null)
+            {
+                return;
+            }
+
+            wildlifeAiService.WildlifeAiStateChanged -= HandleWildlifeAiStateChanged;
+            wildlifeAiService = null;
         }
 
         private void UnbindCraftingService()

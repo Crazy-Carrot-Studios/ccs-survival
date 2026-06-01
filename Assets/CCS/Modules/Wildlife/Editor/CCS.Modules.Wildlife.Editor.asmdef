@@ -10,7 +10,9 @@
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Equipment.Runtime",
-        "CCS.Modules.WorldResources.Runtime"
+        "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.UI.Runtime",
+        "CCS.Modules.UI.Editor"
     ],
     "includePlatforms": [
         "Editor"

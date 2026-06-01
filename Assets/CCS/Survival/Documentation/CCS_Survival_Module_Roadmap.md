@@ -55,8 +55,26 @@
 | **0.9.4** | Campfire & cooking foundation (campfire placement, Raw Meat → Cooked Meat, hunger restore) |
 | **0.9.5** | Consumables & hunger usage (passive drain, thresholds, F consume, HUD feedback) |
 | **0.9.6** | Sleep & bedroll foundation (time advance, fatigue restore, shelter modifier) |
+| **0.9.7** | Passive wildlife AI (wander, idle, flee; living rabbit/deer placeholders) |
 
-Later milestones continue from **0.9.7+** (wildlife AI, combat).
+Later milestones continue from **0.9.8+** (primitive combat, hunting loop).
+
+---
+
+## 0.9.7 definition of done
+
+| Criterion | Status |
+|-----------|--------|
+| Wildlife AI under `Assets/CCS/Modules/Wildlife/Runtime/AI/` | **Complete** |
+| `CCS_WildlifeAgent` wander/idle/alert/flee state machine | **Complete** |
+| Transform movement without NavMesh or Rigidbody | **Complete** |
+| Player proximity flee for rabbit and deer | **Complete** |
+| Bootstrap `CCS_TestRabbit` and `CCS_TestDeer` living placeholders | **Complete** |
+| Carcass harvest systems remain available | **Complete** |
+| Optional upper-right HUD wildlife debug readout | **Complete** |
+| Validation registered on pipeline | **Complete** |
+| Version **0.9.7** | **Complete** |
+| Combat, damage, death, predators, animations | **Deferred** |
 
 ---
 

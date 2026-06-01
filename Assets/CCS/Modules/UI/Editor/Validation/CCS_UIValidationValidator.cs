@@ -135,6 +135,7 @@ namespace CCS.Modules.UI.Editor
             ValidateBootstrapGameplayServiceProfiles(report);
             ValidateHungerHudIntegration(report);
             ValidateSleepHudIntegration(report);
+            ValidateWildlifeAiHudIntegration(report);
         }
 
         #endregion
@@ -170,6 +171,36 @@ namespace CCS.Modules.UI.Editor
                         : CCS_SurvivalValidationIssueSeverity.Error,
                     "HUD Sleep Ready Display",
                     "Survival bar presenter shows optional Sleep Ready debug label.");
+            }
+        }
+
+        private static void ValidateWildlifeAiHudIntegration(CCS_SurvivalValidationReport report)
+        {
+            const string presentationServicePath = RuntimeRoot + "/Services/CCS_HudPresentationService.cs";
+            const string debugPresenterPath = RuntimeRoot + "/Presentation/CCS_WildlifeAiDebugPresenter.cs";
+
+            if (File.Exists(presentationServicePath))
+            {
+                string presentationSource = File.ReadAllText(presentationServicePath);
+                report.AddIssue(
+                    presentationSource.Contains("BindWildlifeAiService")
+                        && presentationSource.Contains("WildlifeAiDebugLabel")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Wildlife AI Wiring",
+                    "HUD presentation service exposes wildlife AI debug label.");
+            }
+
+            if (File.Exists(debugPresenterPath))
+            {
+                string presenterSource = File.ReadAllText(debugPresenterPath);
+                report.AddIssue(
+                    presenterSource.Contains("WildlifeAiDebugLabel")
+                        && presenterSource.Contains("Wildlife:")
+                        ? CCS_SurvivalValidationIssueSeverity.Info
+                        : CCS_SurvivalValidationIssueSeverity.Error,
+                    "HUD Wildlife AI Debug Display",
+                    "Optional upper-right wildlife AI debug presenter exists.");
             }
         }
 

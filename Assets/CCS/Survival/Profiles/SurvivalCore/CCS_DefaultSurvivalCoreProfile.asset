@@ -68,13 +68,13 @@ MonoBehaviour:
   passiveHealthDamagePerSecond: 0
   staminaRecoveryPerSecond: 2
   staminaDrainPerSecond: 4
+  hungerDrainPerSecond: 0.01
+  hungerLowThreshold: 30
+  hungerCriticalThreshold: 10
+  hungerConsumeCooldownSeconds: 1
   temperatureRecoveryRate: 0.15
   temperatureDecayRate: 0.12
   exposureFatigueMultiplier: 0.008
   wetnessThirstMultiplier: 0.01
   minimumTemperatureClamp: 0
   maximumTemperatureClamp: 100
-  hungerDrainPerSecond: 0.01
-  hungerLowThreshold: 30
-  hungerCriticalThreshold: 10
-  hungerConsumeCooldownSeconds: 1

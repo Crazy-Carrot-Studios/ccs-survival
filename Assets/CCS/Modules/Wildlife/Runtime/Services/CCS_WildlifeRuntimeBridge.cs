@@ -2,6 +2,7 @@ using CCS.Core;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Survival;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_WildlifeRuntimeBridge
@@ -63,6 +64,49 @@ namespace CCS.Modules.Wildlife
             }
 
             return runtimeHost.ServiceRegistry.TryGetService(out interactionService);
+        }
+
+        public static bool TryGetAiService(out CCS_WildlifeAiService aiService)
+        {
+            aiService = null;
+            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            {
+                return false;
+            }
+
+            return runtimeHost.ServiceRegistry.TryGetService(out aiService);
+        }
+
+        public static bool TryResolvePlayerTransform(out Transform playerTransform)
+        {
+            playerTransform = null;
+            UnityEngine.CharacterController[] characterControllers =
+                CCS_SurvivalSceneQueryUtility.FindActiveObjectsByType<UnityEngine.CharacterController>();
+            if (characterControllers == null || characterControllers.Length == 0)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < characterControllers.Length; index++)
+            {
+                UnityEngine.CharacterController characterController = characterControllers[index];
+                if (characterController == null)
+                {
+                    continue;
+                }
+
+                if (string.Equals(
+                        characterController.gameObject.name,
+                        "PF_CCS_Player",
+                        System.StringComparison.Ordinal))
+                {
+                    playerTransform = characterController.transform;
+                    return true;
+                }
+            }
+
+            playerTransform = characterControllers[0].transform;
+            return playerTransform != null;
         }
 
         #endregion

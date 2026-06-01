@@ -94,6 +94,12 @@ namespace CCS.Modules.UI
                 wiredAnyService = true;
             }
 
+            if (runtimeHost.ServiceRegistry.TryGetService(out CCS_WildlifeAiService wildlifeAiService))
+            {
+                presentationService.BindWildlifeAiService(wildlifeAiService);
+                wiredAnyService = true;
+            }
+
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_CookingService cookingService))
             {
                 presentationService.BindCookingService(cookingService);

@@ -41,6 +41,7 @@ namespace CCS.Modules.UI.Editor
         private const float NotificationRowHeight = 40f;
         private const int NotificationFontSize = 16;
         private const float NotificationAreaHeight = 240f;
+        private const float WildlifeAiDebugAreaHeight = 72f;
 
         #region Public Methods
 
@@ -176,6 +177,26 @@ namespace CCS.Modules.UI.Editor
             SetPresenterField(notificationQueue, "notificationContainer", notificationContainer);
             SetPresenterField(notificationQueue, "notificationTemplate", notificationTemplate);
 
+            GameObject wildlifeAiDebugArea = CreatePanel(
+                root.transform,
+                "WildlifeAiDebugArea",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-SafeMargin, -SafeMargin - NotificationAreaHeight - 8f),
+                new Vector2(NotificationWidth, WildlifeAiDebugAreaHeight));
+            wildlifeAiDebugArea.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.18f);
+            CCS_WildlifeAiDebugPresenter wildlifeAiDebugPresenter =
+                wildlifeAiDebugArea.AddComponent<CCS_WildlifeAiDebugPresenter>();
+            Text wildlifeAiDebugText = CreateText(
+                wildlifeAiDebugArea.transform,
+                "DebugText",
+                "Wildlife:\n--",
+                SummaryFontSize,
+                TextAnchor.UpperRight);
+            wildlifeAiDebugText.color = new Color(0.92f, 0.92f, 0.92f, 1f);
+            SetPresenterField(wildlifeAiDebugPresenter, "debugText", wildlifeAiDebugText);
+
             SerializedObject rootSerializedObject = new SerializedObject(rootPresenter);
             rootSerializedObject.FindProperty("hudProfile").objectReferenceValue = profile;
             rootSerializedObject.FindProperty("survivalBarArea").objectReferenceValue = survivalArea.GetComponent<RectTransform>();
@@ -183,11 +204,14 @@ namespace CCS.Modules.UI.Editor
             rootSerializedObject.FindProperty("inventorySummaryArea").objectReferenceValue = inventoryArea.GetComponent<RectTransform>();
             rootSerializedObject.FindProperty("equipmentSummaryArea").objectReferenceValue = equipmentArea.GetComponent<RectTransform>();
             rootSerializedObject.FindProperty("notificationArea").objectReferenceValue = notificationArea.GetComponent<RectTransform>();
+            rootSerializedObject.FindProperty("wildlifeAiDebugArea").objectReferenceValue =
+                wildlifeAiDebugArea.GetComponent<RectTransform>();
             rootSerializedObject.FindProperty("survivalBarPresenter").objectReferenceValue = survivalPresenter;
             rootSerializedObject.FindProperty("interactionPromptPresenter").objectReferenceValue = promptPresenter;
             rootSerializedObject.FindProperty("inventorySummaryPresenter").objectReferenceValue = inventoryPresenter;
             rootSerializedObject.FindProperty("equipmentSummaryPresenter").objectReferenceValue = equipmentPresenter;
             rootSerializedObject.FindProperty("notificationQueue").objectReferenceValue = notificationQueue;
+            rootSerializedObject.FindProperty("wildlifeAiDebugPresenter").objectReferenceValue = wildlifeAiDebugPresenter;
             rootSerializedObject.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, prefabPath);

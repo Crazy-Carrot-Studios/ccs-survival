@@ -43,6 +43,7 @@ namespace CCS.Survival.Composition
             CCS_EquipmentProfile equipmentProfile,
             CCS_WorldResourceProfile worldResourceProfile,
             CCS_WildlifeProfile wildlifeProfile,
+            CCS_WildlifeAiProfile wildlifeAiProfile,
             CCS_CookingProfile cookingProfile,
             CCS_SleepProfile sleepProfile,
             CCS_CraftingProfile craftingProfile,
@@ -74,6 +75,7 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, CreateResourceHarvestService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateResourceRespawnService(worldResourceProfile), enableDebugLogs);
             RegisterService(runtimeHost, CreateWildlifeHarvestService(wildlifeProfile), enableDebugLogs);
+            RegisterService(runtimeHost, CreateWildlifeAiService(wildlifeAiProfile), enableDebugLogs);
 
             CCS_CraftingService craftingService = CreateCraftingService(craftingProfile, inventoryService);
             RegisterService(runtimeHost, craftingService, enableDebugLogs);
@@ -253,6 +255,20 @@ namespace CCS.Survival.Composition
         private static CCS_WildlifeHarvestService CreateWildlifeHarvestService(CCS_WildlifeProfile profile)
         {
             CCS_WildlifeHarvestService service = new CCS_WildlifeHarvestService();
+            service.Initialize();
+
+            if (profile == null)
+            {
+                return service;
+            }
+
+            service.InitializeFromProfile(profile);
+            return service;
+        }
+
+        private static CCS_WildlifeAiService CreateWildlifeAiService(CCS_WildlifeAiProfile profile)
+        {
+            CCS_WildlifeAiService service = new CCS_WildlifeAiService();
             service.Initialize();
 
             if (profile == null)

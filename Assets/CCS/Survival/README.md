@@ -1,6 +1,6 @@
 # CCS Survival — Project Shell
 
-**Milestone:** 0.9.6 — Sleep & Bedroll Foundation  
+**Milestone:** 0.9.7 — Passive Wildlife AI Foundation  
 **Author:** James Schilz  
 **Date:** 2026-05-31
 

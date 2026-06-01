@@ -151,7 +151,7 @@ namespace CCS.Modules.Wildlife.Editor
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 ValidatorId,
-                "Wildlife validator completed (carcass resource foundation; no AI or combat).");
+                "Wildlife validator completed (carcass harvesting and passive AI foundation; no combat or death).");
         }
 
         #endregion

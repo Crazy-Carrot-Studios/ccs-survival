@@ -23,11 +23,13 @@ namespace CCS.Modules.UI
         [SerializeField] private RectTransform inventorySummaryArea;
         [SerializeField] private RectTransform equipmentSummaryArea;
         [SerializeField] private RectTransform notificationArea;
+        [SerializeField] private RectTransform wildlifeAiDebugArea;
         [SerializeField] private CCS_SurvivalBarPresenter survivalBarPresenter;
         [SerializeField] private CCS_InteractionPromptPresenter interactionPromptPresenter;
         [SerializeField] private CCS_InventorySummaryPresenter inventorySummaryPresenter;
         [SerializeField] private CCS_EquipmentSummaryPresenter equipmentSummaryPresenter;
         [SerializeField] private CCS_NotificationQueue notificationQueue;
+        [SerializeField] private CCS_WildlifeAiDebugPresenter wildlifeAiDebugPresenter;
 
         private CCS_HudPresentationService presentationService;
 
@@ -118,6 +120,7 @@ namespace CCS.Modules.UI
             inventorySummaryPresenter?.Bind(presentationService, hudProfile);
             equipmentSummaryPresenter?.Bind(presentationService, hudProfile);
             notificationQueue?.Bind(presentationService, hudProfile);
+            wildlifeAiDebugPresenter?.Bind(presentationService, hudProfile);
         }
 
         private void UnbindPresenters()
@@ -127,6 +130,7 @@ namespace CCS.Modules.UI
             inventorySummaryPresenter?.Unbind();
             equipmentSummaryPresenter?.Unbind();
             notificationQueue?.Unbind();
+            wildlifeAiDebugPresenter?.Unbind();
         }
 
         #endregion

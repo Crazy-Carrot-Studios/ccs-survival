@@ -54,6 +54,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default wildlife profile used to register CCS_WildlifeHarvestService.")]
         [SerializeField] private CCS_WildlifeProfile wildlifeProfile;
 
+        [Tooltip("Default wildlife AI profile used to register CCS_WildlifeAiService.")]
+        [SerializeField] private CCS_WildlifeAiProfile wildlifeAiProfile;
+
         [Tooltip("Default cooking profile used to register cooking and campfire services.")]
         [SerializeField] private CCS_CookingProfile cookingProfile;
 
@@ -121,6 +124,7 @@ namespace CCS.Survival.Composition
                 equipmentProfile,
                 worldResourceProfile,
                 wildlifeProfile,
+                wildlifeAiProfile,
                 cookingProfile,
                 sleepProfile,
                 craftingProfile,

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cafdd68588c8d7048b43c7dd09d8da1c, type: 3}
+  m_Name: CCS_DefaultWildlifeAiProfile
+  m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeAiProfile
+  profileDisplayName: Default Wildlife AI
+  profileId: ccs.survival.profile.wildlifeai.default
+  profileDescription: Default passive wildlife AI tuning for 0.9.7 foundation.
+  profileVersion: 0.9.7
+  enableDebugLogs: 0
+  rabbitSettings:
+    wanderRadius: 10
+    fleeRadius: 8
+    moveSpeed: 4
+  deerSettings:
+    wanderRadius: 20
+    fleeRadius: 15
+    moveSpeed: 6
+  minimumIdleSeconds: 1
+  maximumIdleSeconds: 3
+  alertDurationSeconds: 0.25
+  fleeDestinationDistance: 6

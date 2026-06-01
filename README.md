@@ -23,6 +23,8 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**0.9.7** — Passive Wildlife AI Foundation
+
 **0.9.6** — Sleep & Bedroll Foundation
 
 **0.9.5** — Consumables & Hunger Usage
@@ -192,8 +194,8 @@ Batch entry points and log paths are documented in [Assets/CCS/Modules/README.md
 - Validation pipeline
 - Windows development build
 
-**Latest verified build:** 0.9.6
-**Build output:** `Builds/CCS_Survival_0.9.6_Windows/` (gitignored)
+**Latest verified build:** 0.9.7
+**Build output:** `Builds/CCS_Survival_0.9.7_Windows/` (gitignored)
 
 Details: [Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
 
