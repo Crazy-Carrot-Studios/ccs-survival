@@ -14,6 +14,7 @@ using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
 using CCS.Modules.Settlements;
+using CCS.Modules.Regions;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Survival;
@@ -54,6 +55,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_VehicleService vehicleService;
         private CCS_FirearmService firearmService;
         private CCS_SettlementService settlementService;
+        private CCS_RegionService regionService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -131,6 +133,7 @@ namespace CCS.Modules.SaveSystem
             CCS_VehicleService vehicles,
             CCS_FirearmService firearms,
             CCS_SettlementService settlements,
+            CCS_RegionService regions,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -150,6 +153,7 @@ namespace CCS.Modules.SaveSystem
             vehicleService = vehicles;
             firearmService = firearms;
             settlementService = settlements;
+            regionService = regions;
             playerTransform = playerRoot;
         }
 
@@ -312,6 +316,7 @@ namespace CCS.Modules.SaveSystem
             CaptureVehicles(saveData.vehicles);
             CaptureFirearms(saveData.firearms);
             CaptureSettlements(saveData.settlements);
+            CaptureRegions(saveData.regions);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -632,6 +637,7 @@ namespace CCS.Modules.SaveSystem
             ApplyVehicles(saveData.vehicles);
             ApplyFirearms(saveData.firearms);
             ApplySettlements(saveData.settlements);
+            ApplyRegions(saveData.regions);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1111,6 +1117,78 @@ namespace CCS.Modules.SaveSystem
             }
 
             settlementService.RestoreState(records);
+        }
+
+        private void CaptureRegions(CCS_SaveRegionsWorldData regionsData)
+        {
+            if (regionsData == null)
+            {
+                return;
+            }
+
+            if (regionService == null || !regionService.IsInitialized)
+            {
+                regionsData.discoveries = Array.Empty<CCS_SaveRegionDiscoveryData>();
+                return;
+            }
+
+            CCS_RegionSaveState[] records = regionService.CaptureState();
+            if (records == null || records.Length == 0)
+            {
+                regionsData.discoveries = Array.Empty<CCS_SaveRegionDiscoveryData>();
+                return;
+            }
+
+            CCS_SaveRegionDiscoveryData[] saveRecords = new CCS_SaveRegionDiscoveryData[records.Length];
+            for (int index = 0; index < records.Length; index++)
+            {
+                CCS_RegionSaveState source = records[index];
+                saveRecords[index] = new CCS_SaveRegionDiscoveryData
+                {
+                    regionId = source?.regionId ?? string.Empty,
+                    displayName = source?.displayName ?? string.Empty,
+                    regionType = source != null ? source.regionType : 0,
+                    discovered = source != null && source.discovered,
+                    positionX = source != null ? source.positionX : 0f,
+                    positionY = source != null ? source.positionY : 0f,
+                    positionZ = source != null ? source.positionZ : 0f
+                };
+            }
+
+            regionsData.discoveries = saveRecords;
+        }
+
+        private void ApplyRegions(CCS_SaveRegionsWorldData regionsData)
+        {
+            if (regionService == null || !regionService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_SaveRegionDiscoveryData[] discoveries = regionsData?.discoveries;
+            if (discoveries == null || discoveries.Length == 0)
+            {
+                regionService.RestoreState(Array.Empty<CCS_RegionSaveState>());
+                return;
+            }
+
+            CCS_RegionSaveState[] records = new CCS_RegionSaveState[discoveries.Length];
+            for (int index = 0; index < discoveries.Length; index++)
+            {
+                CCS_SaveRegionDiscoveryData source = discoveries[index];
+                records[index] = new CCS_RegionSaveState
+                {
+                    regionId = source?.regionId ?? string.Empty,
+                    displayName = source?.displayName ?? string.Empty,
+                    regionType = source != null ? source.regionType : 0,
+                    discovered = source != null && source.discovered,
+                    positionX = source != null ? source.positionX : 0f,
+                    positionY = source != null ? source.positionY : 0f,
+                    positionZ = source != null ? source.positionZ : 0f
+                };
+            }
+
+            regionService.RestoreState(records);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

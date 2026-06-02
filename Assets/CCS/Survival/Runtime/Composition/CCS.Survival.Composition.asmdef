@@ -35,6 +35,7 @@
         "CCS.Modules.Vehicles.Runtime",
         "CCS.Modules.Firearms.Runtime",
         "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Regions.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

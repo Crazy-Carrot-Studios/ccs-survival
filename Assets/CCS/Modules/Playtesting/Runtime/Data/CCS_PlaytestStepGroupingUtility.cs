@@ -29,7 +29,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.HorseWagon,
             CCS_PlaytestStepGroup.Firearms,
             CCS_PlaytestStepGroup.Prospecting,
-            CCS_PlaytestStepGroup.Settlement
+            CCS_PlaytestStepGroup.Settlement,
+            CCS_PlaytestStepGroup.Region
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -69,6 +70,8 @@ namespace CCS.Modules.Playtesting
                     return "Prospecting";
                 case CCS_PlaytestStepGroup.Settlement:
                     return "Settlement / Services";
+                case CCS_PlaytestStepGroup.Region:
+                    return "Regions";
                 default:
                     return group.ToString();
             }
@@ -231,6 +234,15 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveSettlementDiscovery:
                 case CCS_PlaytestStepType.VerifySettlementDiscoveryAfterLoad:
                     return CCS_PlaytestStepGroup.Settlement;
+
+                case CCS_PlaytestStepType.DiscoverPineRidgeForestRegion:
+                case CCS_PlaytestStepType.DiscoverBrokenCreekRegion:
+                case CCS_PlaytestStepType.DiscoverIronRidgeMineRegion:
+                case CCS_PlaytestStepType.DiscoverFrontierTradingPostRegion:
+                case CCS_PlaytestStepType.VerifyAllRegionsDiscovered:
+                case CCS_PlaytestStepType.SaveRegionDiscovery:
+                case CCS_PlaytestStepType.VerifyRegionDiscoveryAfterLoad:
+                    return CCS_PlaytestStepGroup.Region;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

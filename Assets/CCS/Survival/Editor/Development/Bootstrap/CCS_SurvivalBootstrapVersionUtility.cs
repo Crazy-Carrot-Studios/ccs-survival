@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBootstrapVersionUtility
     {
-        public const string CurrentMilestoneVersion = "1.8.1";
+        public const string CurrentMilestoneVersion = "1.9.0";
 
         private const string ProjectSettingsPath = "ProjectSettings/ProjectSettings.asset";
         private static readonly Regex HardcodedBundleVersionReplacementPattern = new Regex(

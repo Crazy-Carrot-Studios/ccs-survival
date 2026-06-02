@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a32328255bbbda41a43008b07e6cf9e, type: 3}
+  m_Name: CCS_DefaultRegionProfile
+  m_EditorClassIdentifier: CCS.Modules.Regions.Runtime::CCS.Modules.Regions.CCS_RegionProfile
+  profileDisplayName: Default Region Profile
+  profileId: ccs.survival.profile.regions.default
+  profileDescription: Frontier region catalog for bootstrap world organization.
+  profileVersion: 1.9.0
+  enableDebugLogs: 0
+  regionDefinitions:
+  - {fileID: 11400000, guid: f5c30f90a85b34a42a2fc563f0d8ba77, type: 2}
+  - {fileID: 11400000, guid: d52417d16f291204db570a896738e8f1, type: 2}
+  - {fileID: 11400000, guid: 891c232664df5f84298a071455ccd13a, type: 2}
+  - {fileID: 11400000, guid: 5c2981fc9ab88d54b9e7f386f6527549, type: 2}
+  enableDebugLogging: 1

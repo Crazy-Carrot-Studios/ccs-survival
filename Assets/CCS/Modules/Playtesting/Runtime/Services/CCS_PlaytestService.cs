@@ -24,6 +24,7 @@ using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
 using CCS.Modules.Settlements;
+using CCS.Modules.Regions;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
 using CCS.Survival.Player;
@@ -148,6 +149,7 @@ namespace CCS.Modules.Playtesting
         private CCS_VehicleService boundVehicleService;
         private CCS_FirearmService boundFirearmService;
         private CCS_SettlementService boundSettlementService;
+        private CCS_RegionService boundRegionService;
 
         #endregion
 
@@ -222,7 +224,8 @@ namespace CCS.Modules.Playtesting
             CCS_MountService mountService = null,
             CCS_VehicleService vehicleService = null,
             CCS_FirearmService firearmService = null,
-            CCS_SettlementService settlementService = null)
+            CCS_SettlementService settlementService = null,
+            CCS_RegionService regionService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -254,11 +257,17 @@ namespace CCS.Modules.Playtesting
             boundVehicleService = vehicleService;
             boundFirearmService = firearmService;
             boundSettlementService = settlementService;
+            boundRegionService = regionService;
 
             if (boundSettlementService != null)
             {
                 boundSettlementService.SettlementDiscovered += HandleSettlementDiscovered;
                 boundSettlementService.ServicePointActivated += HandleSettlementServicePointActivated;
+            }
+
+            if (boundRegionService != null)
+            {
+                boundRegionService.RegionDiscovered += HandleRegionDiscovered;
             }
 
             if (boundMountService != null)
@@ -475,6 +484,11 @@ namespace CCS.Modules.Playtesting
                 boundSettlementService.ServicePointActivated -= HandleSettlementServicePointActivated;
             }
 
+            if (boundRegionService != null)
+            {
+                boundRegionService.RegionDiscovered -= HandleRegionDiscovered;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -506,6 +520,7 @@ namespace CCS.Modules.Playtesting
             boundVehicleService = null;
             boundFirearmService = null;
             boundSettlementService = null;
+            boundRegionService = null;
 
             if (boundInteractionService != null)
             {
@@ -977,6 +992,15 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveSettlementDiscovery,
                         "Settlement discovery saved.");
                 }
+
+                if (boundRegionService != null
+                    && boundRegionService.IsInitialized
+                    && AreAllBootstrapRegionsDiscovered())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveRegionDiscovery,
+                        "Region discovery saved.");
+                }
             }
         }
 
@@ -993,7 +1017,98 @@ namespace CCS.Modules.Playtesting
                 EvaluateWagonPersistenceAfterLoad();
                 EvaluateFirearmPersistenceAfterLoad();
                 EvaluateSettlementDiscoveryAfterLoad();
+                EvaluateRegionDiscoveryAfterLoad();
             }
+        }
+
+        private void EvaluateRegionDiscoveryAfterLoad()
+        {
+            if (boundRegionService == null || !boundRegionService.IsInitialized)
+            {
+                return;
+            }
+
+            if (AreAllBootstrapRegionsDiscovered())
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRegionDiscoveryAfterLoad,
+                    "All bootstrap region discoveries persisted after load.");
+            }
+        }
+
+        private bool AreAllBootstrapRegionsDiscovered()
+        {
+            if (boundRegionService == null || !boundRegionService.IsInitialized)
+            {
+                return false;
+            }
+
+            return boundRegionService.IsDiscovered(CCS_RegionContentIds.PineRidgeForestRegionId)
+                && boundRegionService.IsDiscovered(CCS_RegionContentIds.BrokenCreekRegionId)
+                && boundRegionService.IsDiscovered(CCS_RegionContentIds.IronRidgeMineRegionId)
+                && boundRegionService.IsDiscovered(CCS_RegionContentIds.FrontierTradingPostRegionId);
+        }
+
+        private void EvaluateAllRegionsDiscoveredStep()
+        {
+            if (!AreAllBootstrapRegionsDiscovered())
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.VerifyAllRegionsDiscovered,
+                "All bootstrap frontier regions discovered.");
+        }
+
+        private void HandleRegionDiscovered(CCS_RegionSnapshot snapshot)
+        {
+            if (snapshot == null)
+            {
+                return;
+            }
+
+            if (string.Equals(
+                    snapshot.RegionId,
+                    CCS_RegionContentIds.PineRidgeForestRegionId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverPineRidgeForestRegion,
+                    "Pine Ridge Forest region discovered.");
+            }
+
+            if (string.Equals(
+                    snapshot.RegionId,
+                    CCS_RegionContentIds.BrokenCreekRegionId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverBrokenCreekRegion,
+                    "Broken Creek region discovered.");
+            }
+
+            if (string.Equals(
+                    snapshot.RegionId,
+                    CCS_RegionContentIds.IronRidgeMineRegionId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverIronRidgeMineRegion,
+                    "Iron Ridge Mine region discovered.");
+            }
+
+            if (string.Equals(
+                    snapshot.RegionId,
+                    CCS_RegionContentIds.FrontierTradingPostRegionId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverFrontierTradingPostRegion,
+                    "Frontier Trading Post region discovered.");
+            }
+
+            EvaluateAllRegionsDiscoveredStep();
         }
 
         private void EvaluateSettlementDiscoveryAfterLoad()

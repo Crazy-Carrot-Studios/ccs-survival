@@ -131,6 +131,13 @@ namespace CCS.Modules.Playtesting
         SaveSettlementDiscovery = 116,
         VerifySettlementDiscoveryAfterLoad = 117,
         InteractBlacksmithServicePoint = 118,
-        VerifySettlementBlacksmithRouting = 119
+        VerifySettlementBlacksmithRouting = 119,
+        DiscoverPineRidgeForestRegion = 120,
+        DiscoverBrokenCreekRegion = 121,
+        DiscoverIronRidgeMineRegion = 122,
+        DiscoverFrontierTradingPostRegion = 123,
+        VerifyAllRegionsDiscovered = 124,
+        SaveRegionDiscovery = 125,
+        VerifyRegionDiscoveryAfterLoad = 126
     }
 }

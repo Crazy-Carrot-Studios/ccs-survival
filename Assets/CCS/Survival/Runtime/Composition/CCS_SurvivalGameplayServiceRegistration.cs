@@ -30,6 +30,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
+using CCS.Modules.Regions;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -87,6 +88,7 @@ namespace CCS.Survival.Composition
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
+            CCS_RegionProfile regionProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -384,6 +386,9 @@ namespace CCS.Survival.Composition
 
             CCS_SettlementService settlementService = CreateSettlementService(settlementProfile);
             RegisterService(runtimeHost, settlementService, enableDebugLogs);
+
+            CCS_RegionService regionService = CreateRegionService(regionProfile);
+            RegisterService(runtimeHost, regionService, enableDebugLogs);
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += result =>
@@ -421,6 +426,7 @@ namespace CCS.Survival.Composition
                 vehicleService,
                 firearmService,
                 settlementService,
+                regionService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -463,7 +469,8 @@ namespace CCS.Survival.Composition
                     mountService,
                     vehicleService,
                     firearmService,
-                    settlementService);
+                    settlementService,
+                    regionService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1463,6 +1470,18 @@ namespace CCS.Survival.Composition
         private static CCS_SettlementService CreateSettlementService(CCS_SettlementProfile profile)
         {
             CCS_SettlementService service = new CCS_SettlementService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static CCS_RegionService CreateRegionService(CCS_RegionProfile profile)
+        {
+            CCS_RegionService service = new CCS_RegionService();
             service.Initialize();
             if (profile != null)
             {

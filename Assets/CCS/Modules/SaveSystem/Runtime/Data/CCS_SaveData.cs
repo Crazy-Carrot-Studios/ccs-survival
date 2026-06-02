@@ -59,7 +59,27 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveSettlementsWorldData settlements = new CCS_SaveSettlementsWorldData();
 
+        public CCS_SaveRegionsWorldData regions = new CCS_SaveRegionsWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveRegionsWorldData
+    {
+        public CCS_SaveRegionDiscoveryData[] discoveries = Array.Empty<CCS_SaveRegionDiscoveryData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveRegionDiscoveryData
+    {
+        public string regionId = string.Empty;
+        public string displayName = string.Empty;
+        public int regionType;
+        public bool discovered;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
     }
 
     [Serializable]

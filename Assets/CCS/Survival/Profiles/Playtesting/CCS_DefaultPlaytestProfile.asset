@@ -1042,3 +1042,59 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.pineridge
+    displayName: Discover Pine Ridge Forest region
+    stepType: 120
+    instructionText: Enter the Pine Ridge Forest trigger volume.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.brokencreek
+    displayName: Discover Broken Creek region
+    stepType: 121
+    instructionText: Enter the Broken Creek trigger volume.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.ironridge
+    displayName: Discover Iron Ridge Mine region
+    stepType: 122
+    instructionText: Enter the Iron Ridge Mine trigger volume.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.tradingpost
+    displayName: Discover Frontier Trading Post region
+    stepType: 123
+    instructionText: Enter the Frontier Trading Post region trigger volume.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.verify.all
+    displayName: Verify all frontier regions discovered
+    stepType: 124
+    instructionText: Confirm all four bootstrap regions are discovered.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.save
+    displayName: Save region discovery
+    stepType: 125
+    instructionText: Press F5 after discovering all regions.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.region.load.verify
+    displayName: Verify region discovery persists
+    stepType: 126
+    instructionText: Press F9 and confirm all region discoveries remain.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

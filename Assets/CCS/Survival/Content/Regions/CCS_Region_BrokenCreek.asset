@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b728f8f42565f414fbce4796e348738e, type: 3}
+  m_Name: CCS_Region_BrokenCreek
+  m_EditorClassIdentifier: CCS.Modules.Regions.Runtime::CCS.Modules.Regions.CCS_RegionDefinition
+  regionId: ccs.survival.region.frontier.brokencreek
+  displayName: Broken Creek
+  description: Creek region with fishing, clay, and frontier water resources.
+  regionType: 1
+  defaultWorldPosition: {x: -30, y: 0, z: 8}
+  settlementIds: []
+  resourceMetadataTags:
+  - ccs.survival.resource.fish
+  - ccs.survival.resource.clay
+  - ccs.survival.resource.water

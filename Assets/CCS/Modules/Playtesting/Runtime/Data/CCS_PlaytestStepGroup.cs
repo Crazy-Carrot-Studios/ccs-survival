@@ -25,6 +25,7 @@ namespace CCS.Modules.Playtesting
         HorseWagon = 10,
         Firearms = 11,
         Prospecting = 12,
-        Settlement = 13
+        Settlement = 13,
+        Region = 14
     }
 }

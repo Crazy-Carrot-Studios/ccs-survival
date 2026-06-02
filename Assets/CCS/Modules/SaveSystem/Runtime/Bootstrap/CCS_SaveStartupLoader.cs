@@ -9,6 +9,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
+using CCS.Modules.Regions;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -69,6 +70,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_VehicleService vehicleService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FirearmService firearmService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_SettlementService settlementService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_RegionService regionService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
@@ -92,6 +94,7 @@ namespace CCS.Modules.SaveSystem
                 vehicleService,
                 firearmService,
                 settlementService,
+                regionService,
                 playerTransform);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)
