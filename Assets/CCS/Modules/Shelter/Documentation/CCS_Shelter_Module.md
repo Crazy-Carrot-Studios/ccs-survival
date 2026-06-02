@@ -5,7 +5,30 @@
 **Namespace:** `CCS.Modules.Shelter` (editor: `CCS.Modules.Shelter.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters and camp tier tracking (1.4.0).
+**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters, homestead tier progression, storage, and workbench camp contributions (1.4.1).
+
+---
+
+## Frontier homestead loop (1.4.1)
+
+```
+Temporary Camp (shelter + campfire + bedroll)
+        ↓ place storage
+Frontier Camp
+        ↓ place workbench
+Frontier Homestead
+```
+
+| Piece | Role |
+|-------|------|
+| `CCS_CampTierProfile` | Profile-driven tier requirements (`CCS_CampRequirement`, `CCS_CampTierDefinition`) |
+| `CCS_CampDefinition` | Shelter catalog, tier profile, frontier storage + workbench catalogs |
+| `CCS_FrontierShelterService` | Shelter kit placement |
+| `CCS_FrontierHomesteadStructureService` | Storage kit + workbench kit placement |
+| `CCS_CampService` | Evaluates structure presence → highest qualifying tier |
+| Save | `CCS_SaveCampWorldData` (camp state, shelters, workbenches) + storage containers |
+
+Bootstrap: `CCS.Modules.Shelter.Editor.CCS_FrontierHomesteadBootstrapSetup.ExecuteBatch`
 
 ---
 
@@ -18,12 +41,9 @@ Gather Resources → Build Shelter Kit → Place Lean-To → Place Campfire + Be
 | Piece | Role |
 |-------|------|
 | `CCS_ShelterDefinition` | Frontier shelter costs, effects, kit item, camp tier marker |
-| `CCS_CampDefinition` | Shelter catalog + camp detection radius |
 | `CCS_FrontierShelterService` | Kit placement preview/confirm (trap-style), shelter instances |
-| `CCS_CampService` | Shelter + campfire + bedroll proximity → `TemporaryCamp` |
-| Save | `CCS_SaveCampWorldData` on unified save |
 
-Bootstrap: `CCS.Modules.Shelter.Editor.CCS_FrontierShelterBootstrapSetup.ExecuteBatch`
+Shelter bootstrap: `CCS.Modules.Shelter.Editor.CCS_FrontierShelterBootstrapSetup.ExecuteBatch`
 
 ---
 

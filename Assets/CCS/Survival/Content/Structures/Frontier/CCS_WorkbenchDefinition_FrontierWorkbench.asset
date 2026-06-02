@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 236b1687b9ffd324eaedb617609ce563, type: 3}
+  m_Name: CCS_WorkbenchDefinition_FrontierWorkbench
+  m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_WorkbenchDefinition
+  workbenchDefinitionId: ccs.survival.workbench.frontier
+  displayName: Frontier Workbench
+  placeableKitItem: {fileID: 11400000, guid: 637c5c451a2c5b843b986e4019c373e1, type: 2}
+  placementForwardDistance: 2
+  placementMaxGroundRayDistance: 8
+  placementMaxSlopeAngle: 35
+  contributesToCampTier: 1
+  campStructureKind: 5
+  placementPrimitive: 3
+  placedLocalScale: {x: 1.6, y: 0.9, z: 1.2}

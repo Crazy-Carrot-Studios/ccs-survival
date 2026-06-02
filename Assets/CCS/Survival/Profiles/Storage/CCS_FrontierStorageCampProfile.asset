@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4c07ad767e45744835c6835b1019e2, type: 3}
+  m_Name: CCS_FrontierStorageCampProfile
+  m_EditorClassIdentifier: CCS.Modules.Storage.Runtime::CCS.Modules.Storage.CCS_FrontierStorageCampProfile
+  profileDisplayName: 
+  profileId: 
+  profileDescription: Frontier placeable storage definitions for camp tier progression
+    (1.4.1).
+  profileVersion: 1.4.1
+  enableDebugLogs: 0
+  frontierStorageDefinitions:
+  - {fileID: 11400000, guid: 9ee0d8a3c9a040b4f90579b187d2f524, type: 2}
+  - {fileID: 11400000, guid: a8ede81a361f05a428a902d0d52d3bfc, type: 2}

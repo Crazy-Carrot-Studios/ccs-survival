@@ -71,6 +71,14 @@ namespace CCS.Modules.Playtesting
         PlaceBedrollForCamp = 56,
         VerifyTemporaryCampTier = 57,
         SleepInFrontierCamp = 58,
-        VerifyCampPersistenceAfterLoad = 59
+        VerifyCampPersistenceAfterLoad = 59,
+        BuySupplyCrateKitForHomestead = 60,
+        PlaceSupplyCrateForFrontierCamp = 61,
+        VerifyFrontierCampTier = 62,
+        BuyWorkbenchKitForHomestead = 63,
+        PlaceWorkbenchForHomestead = 64,
+        VerifyFrontierHomesteadTier = 65,
+        SaveHomesteadCampState = 66,
+        VerifyHomesteadCampPersistenceAfterLoad = 67
     }
 }

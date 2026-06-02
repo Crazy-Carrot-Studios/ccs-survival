@@ -10,6 +10,15 @@ Turn the crafted **Storage Crate** item into a usable primitive storage containe
 
 Primitives only — no real art assets, multiplayer, or item database editor in this milestone.
 
+## Frontier homestead storage (1.4.1)
+
+| Container | Definition id | Camp contribution |
+|-----------|---------------|-------------------|
+| Supply Crate | `ccs.survival.storage.frontier.supplycrate` | Yes (kit placement) |
+| Trapper Chest | `ccs.survival.storage.frontier.trapperchest` | Yes |
+
+`CCS_StorageContainerDefinition` supports `placeableKitItem` and `contributesToCampTier`. Placed instances within camp radius advance tier to **FrontierCamp** via `CCS_FrontierHomesteadStructureService` + `CCS_CampService`.
+
 ## Gameplay flow
 
 1. Gather resources and craft `ccs.survival.item.progression.storagecrate` at the workbench.

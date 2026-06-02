@@ -1,3 +1,5 @@
+using System;
+
 namespace CCS.Modules.Shelter
 {
     public sealed class CCS_CampSaveState
@@ -5,11 +7,15 @@ namespace CCS.Modules.Shelter
         public int campTier;
         public bool ownsCamp;
         public string campOwnerId = string.Empty;
+        public long campCreationTimeUtcTicks;
         public float campCenterX;
         public float campCenterY;
         public float campCenterZ;
         public bool hasShelter;
         public bool hasCampfire;
         public bool hasBedroll;
+        public bool hasStorage;
+        public bool hasWorkArea;
+        public string[] structuresPresent = Array.Empty<string>();
     }
 }

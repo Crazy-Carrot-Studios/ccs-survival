@@ -53,6 +53,7 @@ namespace CCS.Modules.SaveSystem
     {
         public CCS_SaveCampStateData campState = new CCS_SaveCampStateData();
         public CCS_SaveFrontierShelterInstanceData[] shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
+        public CCS_SaveFrontierWorkbenchInstanceData[] workbenchInstances = Array.Empty<CCS_SaveFrontierWorkbenchInstanceData>();
     }
 
     [Serializable]
@@ -67,6 +68,22 @@ namespace CCS.Modules.SaveSystem
         public bool hasShelter;
         public bool hasCampfire;
         public bool hasBedroll;
+        public bool hasStorage;
+        public bool hasWorkArea;
+        public long campCreationTimeUtcTicks;
+        public string[] structuresPresent = Array.Empty<string>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveFrontierWorkbenchInstanceData
+    {
+        public string instanceId = string.Empty;
+        public string workbenchDefinitionId = string.Empty;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+        public float rotationY;
+        public string campOwnerId = string.Empty;
     }
 
     [Serializable]

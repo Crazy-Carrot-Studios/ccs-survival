@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Frontier starter progression with economy and hunting playtest
-    checklist for milestone 1.3.2.
-  profileVersion: 1.3.2
+  profileDescription: Frontier progression with shelter camp and homestead tier loop
+    (1.4.1).
+  profileVersion: 1.4.1
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -336,6 +336,70 @@ MonoBehaviour:
     displayName: Verify camp save/load
     stepType: 59
     instructionText: Save and load; camp tier and shelter should restore.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.buy.crate
+    displayName: Buy Supply Crate kit
+    stepType: 60
+    instructionText: Press Ctrl+Shift+K to grant Supply Crate kit.
+    targetItemId: ccs.survival.item.frontier.supplycratekit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.place.crate
+    displayName: Place Supply Crate
+    stepType: 61
+    instructionText: Equip kit and use twice to place storage in camp radius.
+    targetItemId: ccs.survival.item.frontier.supplycratekit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.verify.frontiercamp
+    displayName: Verify FrontierCamp
+    stepType: 62
+    instructionText: Camp tier should be FrontierCamp with storage.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.buy.workbench
+    displayName: Buy Workbench kit
+    stepType: 63
+    instructionText: Press Ctrl+Shift+W to grant Workbench kit.
+    targetItemId: ccs.survival.item.frontier.workbenchkit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.place.workbench
+    displayName: Place Workbench
+    stepType: 64
+    instructionText: Place workbench within camp radius.
+    targetItemId: ccs.survival.item.frontier.workbenchkit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.verify.homestead
+    displayName: Verify FrontierHomestead
+    stepType: 65
+    instructionText: Camp tier should be FrontierHomestead.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.save
+    displayName: Save homestead camp
+    stepType: 66
+    instructionText: Save game with homestead tier.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.homestead.verify.load
+    displayName: Verify homestead save/load
+    stepType: 67
+    instructionText: Load save; homestead tier and structures should restore.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

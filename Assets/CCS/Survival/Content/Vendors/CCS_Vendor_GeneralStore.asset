@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorDefinition
   vendorId: ccs.survival.vendor.frontier.generalstore
   displayName: Frontier General Store
-  description: Frontier general store (1.3.4). Sells trail rations; buys fish, meat,
-    and cooked goods.
+  description: Frontier general store (1.4.1). Sells homestead kits and material
+    bundles.
   currencyDefinition: {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}
   vendorInventory:
     items:
@@ -187,3 +187,27 @@ MonoBehaviour:
       allowSell: 1
       buyPriceOverride: -1
       sellPriceOverride: 4
+    - itemDefinition: {fileID: 11400000, guid: 5848c798feb598d4f929567b00ed8df4, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 12
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 637c5c451a2c5b843b986e4019c373e1, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 18
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: cfa985d81bd2d8a4da33cd7c54e3d018, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 10
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 3467e6ed345254e44a98cd7aed9387b3, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 10
+      sellPriceOverride: -1

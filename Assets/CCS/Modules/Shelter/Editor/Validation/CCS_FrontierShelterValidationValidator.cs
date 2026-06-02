@@ -40,11 +40,11 @@ namespace CCS.Modules.Shelter.Editor
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
             string path = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.4.0");
+            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.4.1");
             report.AddIssue(
                 ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
                 "Project Version",
-                ok ? "bundleVersion is 1.4.0." : "Expected bundleVersion 1.4.0. Run CCS_FrontierShelterBootstrapSetup.ExecuteBatch.");
+                ok ? "bundleVersion is 1.4.1." : "Expected bundleVersion 1.4.1. Run CCS_FrontierHomesteadBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateCampDefinition(CCS_SurvivalValidationReport report)

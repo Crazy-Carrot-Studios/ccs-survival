@@ -39,6 +39,8 @@ namespace CCS.Modules.Hotbar
         private CCS_PlayerInventoryService inventoryService;
         private CCS_TrapService trapService;
         private CCS_FrontierShelterService frontierShelterService;
+        private CCS_FrontierHomesteadStructureService frontierHomesteadStructureService;
+        private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierStoragePlacementHandler;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -142,6 +144,17 @@ namespace CCS.Modules.Hotbar
         public void BindFrontierShelterService(CCS_FrontierShelterService service)
         {
             frontierShelterService = service;
+        }
+
+        public void BindFrontierHomesteadStructureService(CCS_FrontierHomesteadStructureService service)
+        {
+            frontierHomesteadStructureService = service;
+        }
+
+        public void BindFrontierStoragePlacementHandler(
+            System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
+        {
+            frontierStoragePlacementHandler = handler;
         }
 
         public void UnbindEquipmentService()
@@ -531,9 +544,76 @@ namespace CCS.Modules.Hotbar
                     state.ActiveItemId);
             }
 
+            if (frontierStoragePlacementHandler != null)
+            {
+                CCS_ActiveItemUseResult storageResult = frontierStoragePlacementHandler.Invoke(
+                    state.ItemDefinition,
+                    request);
+                if (storageResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
+                {
+                    return storageResult;
+                }
+            }
+
+            if (frontierHomesteadStructureService != null
+                && frontierHomesteadStructureService.IsInitialized
+                && frontierHomesteadStructureService.TryResolveWorkbenchDefinitionForItem(
+                    state.ItemDefinition,
+                    out CCS_WorkbenchDefinition workbenchDefinition))
+            {
+                return TryUseHomesteadPlacement(
+                    state,
+                    request,
+                    CCS_CampStructureKind.WorkArea,
+                    workbenchDefinition.WorkbenchDefinitionId);
+            }
+
             return new CCS_ActiveItemUseResult(
                 CCS_ActiveItemUseResultType.NoBehaviorRegistered,
                 "Item is not a supported placeable.",
+                true,
+                state.ActiveItemId);
+        }
+
+        private CCS_ActiveItemUseResult TryUseHomesteadPlacement(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemUseRequest request,
+            CCS_CampStructureKind structureKind,
+            string definitionId)
+        {
+            bool confirmPlacement = frontierHomesteadStructureService.IsPlacementModeActive;
+            CCS_FrontierHomesteadPlacementRequest placementRequest = new CCS_FrontierHomesteadPlacementRequest(
+                structureKind,
+                definitionId,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_FrontierHomesteadPlacementResult placementResult =
+                frontierHomesteadStructureService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.HomesteadStructurePlacementPreview
+                        : CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                placementResult.Message,
                 true,
                 state.ActiveItemId);
         }

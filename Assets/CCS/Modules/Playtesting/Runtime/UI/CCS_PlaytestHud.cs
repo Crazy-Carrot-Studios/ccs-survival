@@ -262,6 +262,28 @@ namespace CCS.Modules.Playtesting
                     playtestService.TryPlaytestBuyHatchet();
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryGrantHomesteadSupplyCrateKit();
+                    }
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryGrantHomesteadWorkbenchKit();
+                    }
+                }
+            }
         }
 
         private void TryNotifySpawnReady()

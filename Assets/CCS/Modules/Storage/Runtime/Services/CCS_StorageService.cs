@@ -57,6 +57,11 @@ namespace CCS.Modules.Storage
 
         public int RegisteredContainerCount => registeredContainers.Count;
 
+        public IReadOnlyList<CCS_StorageContainer> GetRegisteredContainers()
+        {
+            return new List<CCS_StorageContainer>(registeredContainers.Values);
+        }
+
         #endregion
 
         #region Public Methods

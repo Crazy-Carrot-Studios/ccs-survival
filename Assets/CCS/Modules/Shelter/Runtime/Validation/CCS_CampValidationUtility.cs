@@ -27,7 +27,98 @@ namespace CCS.Modules.Shelter
                 return CCS_SurvivalValidationResult.Fail("Camp definition is missing campfire piece id.");
             }
 
+            if (definition.CampTierProfile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Camp definition is missing camp tier profile.");
+            }
+
+            CCS_SurvivalValidationResult tierResult = ValidateCampTierProfile(definition.CampTierProfile);
+            if (!tierResult.IsSuccess)
+            {
+                return tierResult;
+            }
+
             return ValidateShelterCatalog(definition.ShelterDefinitions);
+        }
+
+        public static CCS_SurvivalValidationResult ValidateCampTierProfile(CCS_CampTierProfile profile)
+        {
+            if (profile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Camp tier profile is null.");
+            }
+
+            CCS_CampTierDefinition[] tiers = profile.GetTiersOrderedAscending();
+            if (tiers.Length < 3)
+            {
+                return CCS_SurvivalValidationResult.Fail("Camp tier profile must include at least three tiers.");
+            }
+
+            bool hasTemporary = false;
+            bool hasFrontier = false;
+            bool hasHomestead = false;
+            for (int index = 0; index < tiers.Length; index++)
+            {
+                CCS_CampTierDefinition tier = tiers[index];
+                if (tier == null)
+                {
+                    continue;
+                }
+
+                switch (tier.CampTier)
+                {
+                    case CCS_CampTier.TemporaryCamp:
+                        hasTemporary = true;
+                        break;
+                    case CCS_CampTier.FrontierCamp:
+                        hasFrontier = true;
+                        break;
+                    case CCS_CampTier.FrontierHomestead:
+                        hasHomestead = true;
+                        break;
+                }
+            }
+
+            if (!hasTemporary || !hasFrontier || !hasHomestead)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Camp tier profile must define TemporaryCamp, FrontierCamp, and FrontierHomestead.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Camp tier profile is valid.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateWorkbenchCatalog(
+            IReadOnlyList<CCS_WorkbenchDefinition> definitions)
+        {
+            if (definitions == null || definitions.Count == 0)
+            {
+                return CCS_SurvivalValidationResult.Fail("Camp definition has no workbench definitions.");
+            }
+
+            HashSet<string> ids = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index < definitions.Count; index++)
+            {
+                CCS_WorkbenchDefinition definition = definitions[index];
+                if (definition == null || string.IsNullOrWhiteSpace(definition.WorkbenchDefinitionId))
+                {
+                    return CCS_SurvivalValidationResult.Fail("Workbench definition id is required.");
+                }
+
+                if (!ids.Add(definition.WorkbenchDefinitionId))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Duplicate workbench definition id '{definition.WorkbenchDefinitionId}'.");
+                }
+
+                if (definition.ContributesToCampTier && definition.PlaceableKitItem == null)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Workbench '{definition.WorkbenchDefinitionId}' is missing placeable kit item.");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Frontier workbench catalog is valid.");
         }
 
         public static CCS_SurvivalValidationResult ValidateShelterDefinition(CCS_ShelterDefinition definition)

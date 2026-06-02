@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // =============================================================================
@@ -18,18 +20,26 @@ namespace CCS.Modules.Shelter
             bool hasShelter,
             bool hasCampfire,
             bool hasBedroll,
+            bool hasStorage,
+            bool hasWorkArea,
             bool ownsCamp,
             string campOwnerId,
+            long campCreationTimeUtcTicks,
             Vector3 campCenter,
+            IReadOnlyList<string> structuresPresent,
             string message)
         {
             CampTier = campTier;
             HasShelter = hasShelter;
             HasCampfire = hasCampfire;
             HasBedroll = hasBedroll;
+            HasStorage = hasStorage;
+            HasWorkArea = hasWorkArea;
             OwnsCamp = ownsCamp;
             CampOwnerId = campOwnerId ?? string.Empty;
+            CampCreationTimeUtcTicks = campCreationTimeUtcTicks;
             CampCenter = campCenter;
+            StructuresPresent = structuresPresent ?? Array.Empty<string>();
             Message = message ?? string.Empty;
         }
 
@@ -41,13 +51,25 @@ namespace CCS.Modules.Shelter
 
         public bool HasBedroll { get; }
 
+        public bool HasStorage { get; }
+
+        public bool HasWorkArea { get; }
+
         public bool HasCompleteTemporaryCamp => HasShelter && HasCampfire && HasBedroll;
+
+        public bool HasCompleteFrontierCamp => HasCompleteTemporaryCamp && HasStorage;
+
+        public bool HasCompleteFrontierHomestead => HasCompleteFrontierCamp && HasWorkArea;
 
         public bool OwnsCamp { get; }
 
         public string CampOwnerId { get; }
 
+        public long CampCreationTimeUtcTicks { get; }
+
         public Vector3 CampCenter { get; }
+
+        public IReadOnlyList<string> StructuresPresent { get; }
 
         public string Message { get; }
 
@@ -57,8 +79,12 @@ namespace CCS.Modules.Shelter
             false,
             false,
             false,
+            false,
+            false,
             string.Empty,
+            0L,
             Vector3.zero,
+            Array.Empty<string>(),
             "No camp.");
     }
 }

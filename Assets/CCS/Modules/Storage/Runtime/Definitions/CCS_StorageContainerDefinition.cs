@@ -1,3 +1,4 @@
+using CCS.Modules.Inventory;
 using CCS.Survival;
 using UnityEngine;
 
@@ -38,6 +39,12 @@ namespace CCS.Modules.Storage
         [Tooltip("Prefab spawned when this container is placed in the world.")]
         [SerializeField] private GameObject prefabReference;
 
+        [Tooltip("Optional kit item used for frontier placeable storage placement.")]
+        [SerializeField] private CCS_ItemDefinition placeableKitItem;
+
+        [Tooltip("When true, placed instances within camp radius count toward FrontierCamp tier.")]
+        [SerializeField] private bool contributesToCampTier;
+
         [Header("Diagnostics")]
         [Tooltip("Emit storage container debug logs for this definition.")]
         [SerializeField] private bool enableDebugLogging;
@@ -57,6 +64,10 @@ namespace CCS.Modules.Storage
         public bool HasMaxWeight => maxWeight > 0f;
 
         public GameObject PrefabReference => prefabReference;
+
+        public CCS_ItemDefinition PlaceableKitItem => placeableKitItem;
+
+        public bool ContributesToCampTier => contributesToCampTier;
 
         public bool EnableDebugLogging => enableDebugLogging;
 

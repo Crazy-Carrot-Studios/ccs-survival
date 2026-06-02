@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4931d962d6399424db9a9db046b5af36, type: 3}
+  m_Name: CCS_StorageDefinition_SupplyCrate
+  m_EditorClassIdentifier: CCS.Modules.Storage.Runtime::CCS.Modules.Storage.CCS_StorageContainerDefinition
+  containerId: ccs.survival.storage.frontier.supplycrate
+  displayName: Supply Crate
+  slotCount: 10
+  maxWeight: 0
+  prefabReference: {fileID: 2831769466246650877, guid: bb10bd50e5a0b2040844332d9b9e2b92, type: 3}
+  placeableKitItem: {fileID: 11400000, guid: 5848c798feb598d4f929567b00ed8df4, type: 2}
+  contributesToCampTier: 1
+  enableDebugLogging: 0

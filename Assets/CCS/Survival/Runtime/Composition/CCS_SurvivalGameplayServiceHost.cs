@@ -133,6 +133,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default storage profile used to register CCS_StorageService.")]
         [SerializeField] private CCS_StorageProfile storageProfile;
 
+        [Tooltip("Frontier storage definitions that contribute to camp tier progression.")]
+        [SerializeField] private CCS_FrontierStorageCampProfile frontierStorageCampProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -196,6 +199,7 @@ namespace CCS.Survival.Composition
                 buildingProfile,
                 buildingProgressionProfile,
                 storageProfile,
+                frontierStorageCampProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

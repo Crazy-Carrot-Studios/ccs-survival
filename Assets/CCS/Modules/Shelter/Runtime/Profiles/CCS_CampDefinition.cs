@@ -21,7 +21,9 @@ namespace CCS.Modules.Shelter
         [SerializeField] private bool enableCampTracking = true;
         [SerializeField] private float campDetectionRadius = 12f;
         [SerializeField] private string campfirePieceId = "ccs.survival.building.campfire.test";
+        [SerializeField] private CCS_CampTierProfile campTierProfile;
         [SerializeField] private CCS_ShelterDefinition[] shelterDefinitions = System.Array.Empty<CCS_ShelterDefinition>();
+        [SerializeField] private CCS_WorkbenchDefinition[] workbenchDefinitions = System.Array.Empty<CCS_WorkbenchDefinition>();
 
         public bool EnableCampTracking => enableCampTracking;
 
@@ -29,7 +31,11 @@ namespace CCS.Modules.Shelter
 
         public string CampfirePieceId => campfirePieceId ?? string.Empty;
 
+        public CCS_CampTierProfile CampTierProfile => campTierProfile;
+
         public IReadOnlyList<CCS_ShelterDefinition> ShelterDefinitions => shelterDefinitions;
+
+        public IReadOnlyList<CCS_WorkbenchDefinition> WorkbenchDefinitions => workbenchDefinitions;
 
         public bool TryGetShelterById(string shelterDefinitionId, out CCS_ShelterDefinition definition)
         {
@@ -66,6 +72,50 @@ namespace CCS.Modules.Shelter
                 CCS_ShelterDefinition candidate = shelterDefinitions[index];
                 if (candidate?.PlaceableKitItem != null
                     && string.Equals(candidate.PlaceableKitItem.ItemId, itemId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    definition = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetWorkbenchByPlaceableItemId(string itemId, out CCS_WorkbenchDefinition definition)
+        {
+            definition = null;
+            if (string.IsNullOrWhiteSpace(itemId) || workbenchDefinitions == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < workbenchDefinitions.Length; index++)
+            {
+                CCS_WorkbenchDefinition candidate = workbenchDefinitions[index];
+                if (candidate?.PlaceableKitItem != null
+                    && string.Equals(candidate.PlaceableKitItem.ItemId, itemId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    definition = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetWorkbenchById(string workbenchDefinitionId, out CCS_WorkbenchDefinition definition)
+        {
+            definition = null;
+            if (string.IsNullOrWhiteSpace(workbenchDefinitionId) || workbenchDefinitions == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < workbenchDefinitions.Length; index++)
+            {
+                CCS_WorkbenchDefinition candidate = workbenchDefinitions[index];
+                if (candidate != null
+                    && string.Equals(candidate.WorkbenchDefinitionId, workbenchDefinitionId, System.StringComparison.OrdinalIgnoreCase))
                 {
                     definition = candidate;
                     return true;

@@ -20,6 +20,7 @@ namespace CCS.Modules.Shelter.Editor
         {
             CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_ShelterValidationValidator());
             CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_FrontierShelterValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_FrontierHomesteadValidationValidator());
         }
     }
 }

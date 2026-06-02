@@ -70,6 +70,8 @@ namespace CCS.Modules.Playtesting
         private const string JerkyItemId = "ccs.survival.item.food.jerky";
         private const string DriedFishItemId = "ccs.survival.item.food.driedfish";
         private const string LeanToKitItemId = "ccs.survival.item.frontier.leantokit";
+        private const string SupplyCrateKitItemId = "ccs.survival.item.frontier.supplycratekit";
+        private const string WorkbenchKitItemId = "ccs.survival.item.frontier.workbenchkit";
         private const string CampfirePieceId = "ccs.survival.building.campfire.test";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
         private const string LegacyFoundationPieceId = "ccs.survival.building.test.foundation";
@@ -860,6 +862,9 @@ namespace CCS.Modules.Playtesting
             if (eventArgs != null && eventArgs.IsSuccess)
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.SaveGame, "Save completed.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SaveHomesteadCampState,
+                    "Homestead camp state saved.");
             }
         }
 
@@ -871,6 +876,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateStorageCrateStepAfterLoad();
                 EvaluateBedrollStepAfterLoad();
                 EvaluateCampPersistenceAfterLoad();
+                EvaluateHomesteadCampPersistenceAfterLoad();
             }
         }
 
@@ -1339,6 +1345,25 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceLeanToShelter, useResult.Message);
             }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.HomesteadStructurePlaced)
+            {
+                if (MatchesTargetItem(CCS_PlaytestStepType.PlaceSupplyCrateForFrontierCamp, useResult.ActiveItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PlaceSupplyCrateForFrontierCamp,
+                        useResult.Message);
+                }
+
+                if (MatchesTargetItem(CCS_PlaytestStepType.PlaceWorkbenchForHomestead, useResult.ActiveItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PlaceWorkbenchForHomestead,
+                        useResult.Message);
+                }
+
+                TryEvaluateShelterCampPlaytestSteps();
+            }
         }
 
         private void IncrementActiveStepOfType(CCS_PlaytestStepType stepType, string itemId)
@@ -1668,6 +1693,46 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryGrantHomesteadSupplyCrateKit()
+        {
+            return TryGrantHomesteadKit(
+                SupplyCrateKitItemId,
+                CCS_PlaytestStepType.BuySupplyCrateKitForHomestead,
+                "Supply Crate kit granted for homestead playtest.");
+        }
+
+        public bool TryGrantHomesteadWorkbenchKit()
+        {
+            return TryGrantHomesteadKit(
+                WorkbenchKitItemId,
+                CCS_PlaytestStepType.BuyWorkbenchKitForHomestead,
+                "Workbench kit granted for homestead playtest.");
+        }
+
+        private bool TryGrantHomesteadKit(
+            string itemId,
+            CCS_PlaytestStepType buyStepType,
+            string completionMessage)
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition kit = FindItemDefinitionById(itemId);
+            if (kit == null)
+            {
+                return false;
+            }
+
+            inventoryService.AddItem(kit, 1);
+            TryCompleteActiveStepOfType(buyStepType, completionMessage);
+            return true;
+        }
+
         private bool TryPlaytestBuyItemById(string itemId)
         {
             if (!EnsureVendorReadyForPlaytest())
@@ -1734,6 +1799,38 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.VerifyTemporaryCampTier,
                     "Temporary frontier camp tier verified.");
             }
+
+            if (boundCampService != null
+                && boundCampService.IsInitialized
+                && boundCampService.CurrentSnapshot.CampTier >= CCS_CampTier.FrontierCamp)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFrontierCampTier,
+                    "Frontier camp tier verified with storage.");
+            }
+
+            if (boundCampService != null
+                && boundCampService.IsInitialized
+                && boundCampService.CurrentSnapshot.CampTier >= CCS_CampTier.FrontierHomestead)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFrontierHomesteadTier,
+                    "Frontier homestead tier verified.");
+            }
+
+            if (HasInventoryItem(SupplyCrateKitItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuySupplyCrateKitForHomestead,
+                    "Supply Crate kit available in inventory.");
+            }
+
+            if (HasInventoryItem(WorkbenchKitItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyWorkbenchKitForHomestead,
+                    "Workbench kit available in inventory.");
+            }
         }
 
         private void EvaluateCampPersistenceAfterLoad()
@@ -1749,6 +1846,22 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyCampPersistenceAfterLoad,
                     "Camp tier and shelter state restored after load.");
+            }
+        }
+
+        private void EvaluateHomesteadCampPersistenceAfterLoad()
+        {
+            if (boundCampService == null || !boundCampService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_CampSnapshot snapshot = boundCampService.CurrentSnapshot;
+            if (snapshot.CampTier >= CCS_CampTier.FrontierHomestead && snapshot.HasStorage && snapshot.HasWorkArea)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyHomesteadCampPersistenceAfterLoad,
+                    "Homestead camp tier and structures restored after load.");
             }
         }
 

@@ -41,6 +41,8 @@ namespace CCS.Modules.SaveSystem
         private CCS_SleepService sleepService;
         private CCS_TrapService trapService;
         private CCS_FrontierShelterService frontierShelterService;
+        private CCS_FrontierHomesteadStructureService homesteadStructureService;
+        private CCS_FrontierStoragePlacementService frontierStoragePlacementService;
         private CCS_CampService campService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
@@ -112,6 +114,8 @@ namespace CCS.Modules.SaveSystem
             CCS_TrapService trapping,
             CCS_FrontierShelterService frontierShelter,
             CCS_CampService camp,
+            CCS_FrontierHomesteadStructureService homesteadStructure,
+            CCS_FrontierStoragePlacementService frontierStoragePlacement,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -124,6 +128,8 @@ namespace CCS.Modules.SaveSystem
             trapService = trapping;
             frontierShelterService = frontierShelter;
             campService = camp;
+            homesteadStructureService = homesteadStructure;
+            frontierStoragePlacementService = frontierStoragePlacement;
             playerTransform = playerRoot;
         }
 
@@ -837,7 +843,11 @@ namespace CCS.Modules.SaveSystem
                     campCenterZ = state.campCenterZ,
                     hasShelter = state.hasShelter,
                     hasCampfire = state.hasCampfire,
-                    hasBedroll = state.hasBedroll
+                    hasBedroll = state.hasBedroll,
+                    hasStorage = state.hasStorage,
+                    hasWorkArea = state.hasWorkArea,
+                    campCreationTimeUtcTicks = state.campCreationTimeUtcTicks,
+                    structuresPresent = state.structuresPresent ?? Array.Empty<string>()
                 };
             }
 
@@ -872,6 +882,39 @@ namespace CCS.Modules.SaveSystem
             }
 
             campData.shelterInstances = saveRecords;
+
+            if (homesteadStructureService == null || !homesteadStructureService.IsInitialized)
+            {
+                campData.workbenchInstances = Array.Empty<CCS_SaveFrontierWorkbenchInstanceData>();
+                return;
+            }
+
+            CCS_FrontierWorkbenchInstanceSaveState[] workbenchRecords =
+                homesteadStructureService.CaptureWorkbenchWorldState();
+            if (workbenchRecords == null || workbenchRecords.Length == 0)
+            {
+                campData.workbenchInstances = Array.Empty<CCS_SaveFrontierWorkbenchInstanceData>();
+                return;
+            }
+
+            CCS_SaveFrontierWorkbenchInstanceData[] workbenchSaveRecords =
+                new CCS_SaveFrontierWorkbenchInstanceData[workbenchRecords.Length];
+            for (int index = 0; index < workbenchRecords.Length; index++)
+            {
+                CCS_FrontierWorkbenchInstanceSaveState source = workbenchRecords[index];
+                workbenchSaveRecords[index] = new CCS_SaveFrontierWorkbenchInstanceData
+                {
+                    instanceId = source?.InstanceId ?? string.Empty,
+                    workbenchDefinitionId = source?.WorkbenchDefinitionId ?? string.Empty,
+                    positionX = source != null ? source.Position.x : 0f,
+                    positionY = source != null ? source.Position.y : 0f,
+                    positionZ = source != null ? source.Position.z : 0f,
+                    rotationY = source != null ? source.RotationY : 0f,
+                    campOwnerId = source?.CampOwnerId ?? string.Empty
+                };
+            }
+
+            campData.workbenchInstances = workbenchSaveRecords;
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)
@@ -888,12 +931,50 @@ namespace CCS.Modules.SaveSystem
                     campCenterZ = campData.campState.campCenterZ,
                     hasShelter = campData.campState.hasShelter,
                     hasCampfire = campData.campState.hasCampfire,
-                    hasBedroll = campData.campState.hasBedroll
+                    hasBedroll = campData.campState.hasBedroll,
+                    hasStorage = campData.campState.hasStorage,
+                    hasWorkArea = campData.campState.hasWorkArea,
+                    campCreationTimeUtcTicks = campData.campState.campCreationTimeUtcTicks,
+                    structuresPresent = campData.campState.structuresPresent ?? Array.Empty<string>()
                 });
+            }
+
+            if (homesteadStructureService != null && homesteadStructureService.IsInitialized)
+            {
+                if (campData?.workbenchInstances == null || campData.workbenchInstances.Length == 0)
+                {
+                    homesteadStructureService.RestoreWorkbenchWorldState(
+                        Array.Empty<CCS_FrontierWorkbenchInstanceSaveState>());
+                }
+                else
+                {
+                    CCS_FrontierWorkbenchInstanceSaveState[] workbenchSaveStates =
+                        new CCS_FrontierWorkbenchInstanceSaveState[campData.workbenchInstances.Length];
+                    for (int index = 0; index < campData.workbenchInstances.Length; index++)
+                    {
+                        CCS_SaveFrontierWorkbenchInstanceData source = campData.workbenchInstances[index];
+                        workbenchSaveStates[index] = new CCS_FrontierWorkbenchInstanceSaveState
+                        {
+                            InstanceId = source?.instanceId ?? string.Empty,
+                            WorkbenchDefinitionId = source?.workbenchDefinitionId ?? string.Empty,
+                            Position = new Vector3(
+                                source != null ? source.positionX : 0f,
+                                source != null ? source.positionY : 0f,
+                                source != null ? source.positionZ : 0f),
+                            RotationY = source != null ? source.rotationY : 0f,
+                            CampOwnerId = source?.campOwnerId ?? string.Empty
+                        };
+                    }
+
+                    homesteadStructureService.RestoreWorkbenchWorldState(workbenchSaveStates);
+                }
+
+                frontierStoragePlacementService?.RebuildPlacedStorageTracking();
             }
 
             if (frontierShelterService == null || !frontierShelterService.IsInitialized)
             {
+                campService?.RecalculateCamp();
                 return;
             }
 

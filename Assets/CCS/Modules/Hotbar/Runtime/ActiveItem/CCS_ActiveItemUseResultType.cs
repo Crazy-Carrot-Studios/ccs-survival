@@ -45,6 +45,9 @@ namespace CCS.Modules.Hotbar
         TrapHarvestSuccess = 30,
         ShelterPlacementPreview = 31,
         ShelterPlaced = 32,
-        ShelterPlacementFailed = 33
+        ShelterPlacementFailed = 33,
+        HomesteadStructurePlacementPreview = 34,
+        HomesteadStructurePlaced = 35,
+        HomesteadStructurePlacementFailed = 36
     }
 }

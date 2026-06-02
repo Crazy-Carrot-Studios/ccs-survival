@@ -57,6 +57,8 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_TrapService trapService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierShelterService frontierShelterService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CampService campService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierHomesteadStructureService homesteadStructureService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierStoragePlacementService frontierStoragePlacementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
 
@@ -72,6 +74,8 @@ namespace CCS.Modules.SaveSystem
                 trapService,
                 frontierShelterService,
                 campService,
+                homesteadStructureService,
+                frontierStoragePlacementService,
                 playerTransform);
 
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)

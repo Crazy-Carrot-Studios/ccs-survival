@@ -76,6 +76,7 @@ namespace CCS.Survival.Composition
             CCS_BuildingProfile buildingProfile,
             CCS_BuildingProgressionProfile buildingProgressionProfile,
             CCS_StorageProfile storageProfile,
+            CCS_FrontierStorageCampProfile frontierStorageCampProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -270,6 +271,54 @@ namespace CCS.Survival.Composition
             CCS_StorageService storageService = CreateStorageService(storageProfile, inventoryService);
             RegisterService(runtimeHost, storageService, enableDebugLogs);
 
+            CCS_FrontierStoragePlacementService frontierStoragePlacementService = CreateFrontierStoragePlacementService(
+                frontierStorageCampProfile,
+                storageService,
+                campService);
+            RegisterService(runtimeHost, frontierStoragePlacementService, enableDebugLogs);
+
+            CCS_FrontierHomesteadStructureService homesteadStructureService = CreateFrontierHomesteadStructureService(
+                campDefinition,
+                campService);
+            RegisterService(runtimeHost, homesteadStructureService, enableDebugLogs);
+
+            if (frontierStoragePlacementService.IsInitialized)
+            {
+                frontierStoragePlacementService.BindInventoryService(inventoryService);
+            }
+
+            if (homesteadStructureService.IsInitialized)
+            {
+                homesteadStructureService.BindInventoryService(inventoryService);
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                campService.BindHomesteadStructureService(homesteadStructureService);
+                campService.BindStorageProximityQuery(
+                    (origin, radius) => frontierStoragePlacementService != null
+                        && frontierStoragePlacementService.IsInitialized
+                        && frontierStoragePlacementService.HasStorageInRadius(origin, radius));
+            }
+
+            if (activeItemService != null && activeItemService.IsInitialized)
+            {
+                if (frontierStoragePlacementService.IsInitialized)
+                {
+                    activeItemService.BindFrontierStoragePlacementHandler(
+                        (itemDefinition, placementRequest) =>
+                            TryHandleFrontierStoragePlacement(
+                                frontierStoragePlacementService,
+                                itemDefinition,
+                                placementRequest));
+                }
+
+                if (homesteadStructureService.IsInitialized)
+                {
+                    activeItemService.BindFrontierHomesteadStructureService(homesteadStructureService);
+                }
+            }
+
             CCS_CurrencyService currencyService = CreateCurrencyService(economyProfile, inventoryService);
             RegisterService(runtimeHost, currencyService, enableDebugLogs);
             CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
@@ -288,6 +337,8 @@ namespace CCS.Survival.Composition
                 trapService,
                 frontierShelterService,
                 campService,
+                homesteadStructureService,
+                frontierStoragePlacementService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -721,6 +772,107 @@ namespace CCS.Survival.Composition
             }
 
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(frontierShelterService);
+        }
+
+        private static CCS_FrontierStoragePlacementService CreateFrontierStoragePlacementService(
+            CCS_FrontierStorageCampProfile frontierStorageCampProfile,
+            CCS_StorageService storageService,
+            CCS_CampService campService)
+        {
+            CCS_FrontierStoragePlacementService service = new CCS_FrontierStoragePlacementService();
+            service.Initialize();
+
+            if (frontierStorageCampProfile != null)
+            {
+                service.InitializeFromProfile(frontierStorageCampProfile);
+            }
+
+            if (storageService != null && storageService.IsInitialized)
+            {
+                service.BindStorageService(storageService);
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                service.BindCampStructureChangedCallback(campService.RecalculateCamp);
+            }
+
+            return service;
+        }
+
+        private static CCS_ActiveItemUseResult TryHandleFrontierStoragePlacement(
+            CCS_FrontierStoragePlacementService storagePlacementService,
+            CCS_ItemDefinition itemDefinition,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (storagePlacementService == null
+                || !storagePlacementService.IsInitialized
+                || itemDefinition == null
+                || !storagePlacementService.TryResolveStorageDefinitionForItem(
+                    itemDefinition,
+                    out CCS_StorageContainerDefinition storageDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a supported frontier storage kit.",
+                    true,
+                    itemDefinition?.ItemId ?? string.Empty);
+            }
+
+            bool confirmPlacement = storagePlacementService.IsPlacementModeActive;
+            CCS_FrontierStoragePlacementRequest placementRequest = new CCS_FrontierStoragePlacementRequest(
+                storageDefinition.ContainerId,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_FrontierStoragePlacementResult placementResult =
+                storagePlacementService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.HomesteadStructurePlacementPreview
+                        : CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                placementResult.Message,
+                true,
+                itemDefinition.ItemId);
+        }
+
+        private static CCS_FrontierHomesteadStructureService CreateFrontierHomesteadStructureService(
+            CCS_CampDefinition campDefinition,
+            CCS_CampService campService)
+        {
+            CCS_FrontierHomesteadStructureService service = new CCS_FrontierHomesteadStructureService();
+            service.Initialize();
+
+            if (campDefinition != null)
+            {
+                service.InitializeFromProfile(campDefinition);
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                service.BindCampService(campService);
+            }
+
+            return service;
         }
 
         private static CCS_SleepService CreateSleepService(

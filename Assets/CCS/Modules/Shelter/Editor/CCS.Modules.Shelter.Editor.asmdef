@@ -13,7 +13,9 @@
         "CCS.Modules.Inventory.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Economy.Runtime",
-        "CCS.Modules.Playtesting.Runtime"
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Storage.Editor"
     ],
     "includePlatforms": [
         "Editor"

@@ -14,15 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_CampDefinition
   profileDisplayName: 
   profileId: 
-  profileDescription: Frontier camp tracking for shelter, campfire, and bedroll (1.4.0).
-  profileVersion: 1.4.0
+  profileDescription: Frontier homestead camp tracking with tier profile, storage,
+    and workbench (1.4.1).
+  profileVersion: 1.4.1
   enableDebugLogs: 0
   enableCampTracking: 1
   campDetectionRadius: 12
   campfirePieceId: ccs.survival.building.campfire.test
+  campTierProfile: {fileID: 11400000, guid: b19e276e136778745b3f74d543aeab41, type: 2}
   shelterDefinitions:
   - {fileID: 11400000, guid: b2b32d2ffe77efb498638e295b453a19, type: 2}
   - {fileID: 11400000, guid: 64bf7042ec869254697fd323059f5080, type: 2}
   - {fileID: 11400000, guid: 5c11e8e519dfdb245976fd23bba753cf, type: 2}
   - {fileID: 11400000, guid: bc33af359785bb3438647c817e659f98, type: 2}
   - {fileID: 11400000, guid: 29bb128fd44268545802d1c3bbf54f2a, type: 2}
+  workbenchDefinitions:
+  - {fileID: 11400000, guid: 452e8a3704514fe41bfb6e669162c43f, type: 2}
