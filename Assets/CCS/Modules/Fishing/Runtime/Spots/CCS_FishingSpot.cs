@@ -1,5 +1,4 @@
 using CCS.Modules.Interaction;
-using CCS.Modules.Inventory;
 using UnityEngine;
 
 // =============================================================================
@@ -7,9 +6,9 @@ using UnityEngine;
 // CATEGORY: Modules / Fishing / Runtime / Spots
 // PURPOSE: World fishable water-source interactable registered with CCS_FishingService.
 // PLACEMENT: Bootstrap test spots and future river/pond/lake/stream content.
-// AUTHOR: James Schilz
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: Implements interaction for targeting; active item use routes through FishingService.
+// NOTES: Deferred registration until fishing service exists (matches CCS_SleepSpot pattern).
 // =============================================================================
 
 namespace CCS.Modules.Fishing
@@ -26,8 +25,7 @@ namespace CCS.Modules.Fishing
         [Tooltip("Optional profile override for interaction distance.")]
         [SerializeField] private CCS_FishingProfile fishingProfileOverride;
 
-        private CCS_FishingService fishingService;
-        private bool isRegistered;
+        private bool isRegisteredWithService;
 
         #endregion
 
@@ -46,21 +44,22 @@ namespace CCS.Modules.Fishing
             TryRegisterWithService();
         }
 
-        private void OnDisable()
+        private void Start()
         {
-            if (fishingService != null && isRegistered)
-            {
-                fishingService.UnregisterSpot(this);
-                isRegistered = false;
-            }
+            TryRegisterWithService();
         }
 
         private void Update()
         {
-            if (!isRegistered)
+            if (!isRegisteredWithService)
             {
                 TryRegisterWithService();
             }
+        }
+
+        private void OnDisable()
+        {
+            UnregisterFromService();
         }
 
         #endregion
@@ -131,8 +130,9 @@ namespace CCS.Modules.Fishing
                 return;
             }
 
-            ResolveService();
-            if (fishingService != null && fishingService.ActiveProfile != null)
+            if (CCS_FishingRuntimeBridge.TryGetFishingService(out CCS_FishingService fishingService)
+                && fishingService != null
+                && fishingService.ActiveProfile != null)
             {
                 fishingProfileOverride = fishingService.ActiveProfile;
             }
@@ -140,24 +140,35 @@ namespace CCS.Modules.Fishing
 
         private void TryRegisterWithService()
         {
-            ResolveService();
-            if (fishingService == null || isRegistered)
+            if (isRegisteredWithService || !isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (!CCS_FishingRuntimeBridge.TryGetFishingService(out CCS_FishingService fishingService)
+                || fishingService == null)
             {
                 return;
             }
 
             fishingService.RegisterSpot(this);
-            isRegistered = true;
+            isRegisteredWithService = true;
         }
 
-        private void ResolveService()
+        private void UnregisterFromService()
         {
-            if (fishingService != null && fishingService.IsInitialized)
+            if (!isRegisteredWithService)
             {
                 return;
             }
 
-            CCS_FishingRuntimeBridge.TryGetFishingService(out fishingService);
+            if (CCS_FishingRuntimeBridge.TryGetFishingService(out CCS_FishingService fishingService)
+                && fishingService != null)
+            {
+                fishingService.UnregisterSpot(this);
+            }
+
+            isRegisteredWithService = false;
         }
 
         #endregion

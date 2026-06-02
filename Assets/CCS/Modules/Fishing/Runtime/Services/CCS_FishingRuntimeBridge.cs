@@ -4,11 +4,11 @@ using CCS.Survival;
 // =============================================================================
 // SCRIPT: CCS_FishingRuntimeBridge
 // CATEGORY: Modules / Fishing / Runtime / Services
-// PURPOSE: Resolves fishing and inventory services from the runtime registry.
+// PURPOSE: Resolves fishing services from the runtime registry without null host access.
 // PLACEMENT: Used by CCS_FishingSpot and future fishing interactables.
-// AUTHOR: James Schilz
+// AUTHOR: James Schilz (Developer)
 // CREATED: 2026-06-01
-// NOTES: Safe when runtime host or services are missing. No singletons.
+// NOTES: Milestone 2.1.1 — null-safe ServiceRegistry resolution (matches Sleep bridge).
 // =============================================================================
 
 namespace CCS.Modules.Fishing
@@ -33,12 +33,30 @@ namespace CCS.Modules.Fishing
         public static bool TryGetFishingService(out CCS_FishingService fishingService)
         {
             fishingService = null;
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
+            {
+                return false;
+            }
+
+            return serviceRegistry.TryGetService(out fishingService)
+                && fishingService != null
+                && fishingService.IsInitialized;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry)
+        {
+            serviceRegistry = null;
             if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out fishingService);
+            serviceRegistry = runtimeHost.ServiceRegistry;
+            return serviceRegistry != null;
         }
 
         #endregion

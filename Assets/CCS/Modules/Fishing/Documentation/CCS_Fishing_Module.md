@@ -7,6 +7,11 @@ Service-driven frontier fishing foundation using `CCS_FishingService`, `CCS_Fish
 **Author:** James Schilz  
 **Milestone:** 1.2.5
 
+## Runtime safety (2.1.1)
+
+- `CCS_FishingRuntimeBridge` resolves `CCS_FishingService` only when `CCS_RuntimeHost.ServiceRegistry` is non-null and the service is initialized (same pattern as `CCS_SleepRuntimeBridge`).
+- `CCS_FishingSpot` defers registration in `OnEnable` / `Start` / `Update` until the service exists — no startup `NullReferenceException` when the bootstrap host is not ready.
+
 ## Placement
 
 - Runtime: `Assets/CCS/Modules/Fishing/Runtime/`

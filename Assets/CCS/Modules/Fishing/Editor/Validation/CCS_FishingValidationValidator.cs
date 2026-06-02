@@ -68,7 +68,48 @@ namespace CCS.Modules.Fishing.Editor
             ValidateTestSpotPrefab(report);
             ValidateBootstrapSceneSpot(report);
             ValidateActiveItemBinding(report);
+            ValidateFishingRuntimeBridgeSafety(report);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
+        }
+
+        private static void ValidateFishingRuntimeBridgeSafety(CCS_SurvivalValidationReport report)
+        {
+            string bridgePath = RuntimeRoot + "/Services/CCS_FishingRuntimeBridge.cs";
+            if (!File.Exists(bridgePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(bridgePath);
+            bool nullSafe = source.Contains("TryGetServiceRegistry")
+                && source.Contains("serviceRegistry != null")
+                && source.Contains("IsInitialized");
+            report.AddIssue(
+                nullSafe
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Fishing Runtime Bridge Safety",
+                nullSafe
+                    ? "CCS_FishingRuntimeBridge null-checks ServiceRegistry before TryGetService."
+                    : "CCS_FishingRuntimeBridge must null-check ServiceRegistry (milestone 2.1.1).");
+
+            string spotPath = RuntimeRoot + "/Spots/CCS_FishingSpot.cs";
+            if (!File.Exists(spotPath))
+            {
+                return;
+            }
+
+            string spotSource = File.ReadAllText(spotPath);
+            bool deferredRegistration = spotSource.Contains("isRegisteredWithService")
+                && spotSource.Contains("TryRegisterWithService");
+            report.AddIssue(
+                deferredRegistration
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "Fishing Spot Deferred Registration",
+                deferredRegistration
+                    ? "CCS_FishingSpot defers registration until fishing service is initialized."
+                    : "CCS_FishingSpot must defer service registration (milestone 2.1.1).");
         }
 
         private static void ValidateFishingProfile(CCS_SurvivalValidationReport report)

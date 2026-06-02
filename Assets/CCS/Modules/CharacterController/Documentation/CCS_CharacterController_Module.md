@@ -13,7 +13,7 @@
 
 | Asset / script | Role |
 |----------------|------|
-| `Assets/CCS/Survival/Input/CCS_Survival_InputActions.inputactions` | New Input System **Gameplay** + **UI** maps |
+| `Assets/CCS/Survival/Input/CCS_Survival_InputActions.inputactions` | New Input System **Gameplay** + **UI** maps (see [CCS_Survival_Input_System.md](../../Survival/Input/CCS_Survival_Input_System.md)) |
 | `Assets/CCS/Survival/Prefabs/Player/PF_CCS_Player.prefab` | CharacterController + camera pivot + gameplay camera |
 | `CCS_CharacterInputActionProvider` | Reads input actions → `CCS_CharacterInputSnapshot` |
 | `CCS_PlayerGameplayController` | Composition glue: movement tick, cursor lock, stamina sprint gate |
