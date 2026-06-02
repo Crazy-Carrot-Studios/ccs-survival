@@ -370,7 +370,7 @@ namespace CCS.Modules.Vehicles.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [\d\.]+",
-                "bundleVersion: 1.5.2");
+                "bundleVersion: 1.6.0");
             File.WriteAllText(projectSettingsPath, text);
         }
     }
