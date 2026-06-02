@@ -31,6 +31,7 @@
         "CCS.Modules.Playtesting.Runtime",
         "CCS.Modules.Hotbar.Runtime",
         "CCS.Modules.Industry.Runtime",
+        "CCS.Modules.Mounts.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

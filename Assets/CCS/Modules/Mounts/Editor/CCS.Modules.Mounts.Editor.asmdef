@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Mounts.Editor",
+    "rootNamespace": "CCS.Modules.Mounts.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Mounts.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Survival.Composition"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

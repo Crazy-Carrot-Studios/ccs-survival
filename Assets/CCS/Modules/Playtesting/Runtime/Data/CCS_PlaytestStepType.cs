@@ -88,6 +88,14 @@ namespace CCS.Modules.Playtesting
         UpgradeToIronTool = 73,
         VerifyIndustrialHomesteadTier = 74,
         SaveIndustryCampState = 75,
-        VerifyIndustryCampPersistenceAfterLoad = 76
+        VerifyIndustryCampPersistenceAfterLoad = 76,
+        EarnCurrencyForHorse = 77,
+        BuyHorseFromStable = 78,
+        SummonHorse = 79,
+        MountHorse = 80,
+        RideHorse = 81,
+        OpenHorseSaddlebag = 82,
+        SaveHorseState = 83,
+        VerifyHorsePersistenceAfterLoad = 84
     }
 }

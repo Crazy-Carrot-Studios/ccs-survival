@@ -126,6 +126,22 @@ namespace CCS.Survival.Player
             gameplayCamera.Target.LookAtTarget = cameraLookTarget;
         }
 
+        public void SetHorseRidingCameraActive(bool active)
+        {
+            if (characterControllerProfile?.Camera == null || thirdPersonFollow == null)
+            {
+                return;
+            }
+
+            CCS_CharacterCameraProfile cameraProfile = characterControllerProfile.Camera;
+            thirdPersonFollow.CameraDistance = active
+                ? cameraProfile.HorseCameraDistance
+                : cameraProfile.CameraDistance;
+            thirdPersonFollow.ShoulderOffset = active
+                ? cameraProfile.HorseShoulderOffset
+                : cameraProfile.ShoulderOffset;
+        }
+
         #endregion
 
         #region Properties

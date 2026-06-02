@@ -147,6 +147,19 @@ namespace CCS.Modules.CharacterController
             TickMovement(deltaTime);
         }
 
+        public void TickLookOnly(float deltaTime)
+        {
+            if (!isInitialized || deltaTime <= 0f)
+            {
+                return;
+            }
+
+            CCS_CharacterInputSnapshot inputSnapshot = inputProvider != null
+                ? inputProvider.GetInputSnapshot()
+                : CCS_CharacterInputSnapshot.Empty;
+            cameraController.TickLook(inputSnapshot, deltaTime);
+        }
+
         public void TickMovement(float deltaTime)
         {
             if (!isInitialized || deltaTime <= 0f || movementLocked)

@@ -7,6 +7,7 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -46,6 +47,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_FrontierStoragePlacementService frontierStoragePlacementService;
         private CCS_CampService campService;
         private CCS_IndustryService industryService;
+        private CCS_MountService mountService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -119,6 +121,7 @@ namespace CCS.Modules.SaveSystem
             CCS_FrontierHomesteadStructureService homesteadStructure,
             CCS_FrontierStoragePlacementService frontierStoragePlacement,
             CCS_IndustryService industry,
+            CCS_MountService mounts,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -134,6 +137,7 @@ namespace CCS.Modules.SaveSystem
             homesteadStructureService = homesteadStructure;
             frontierStoragePlacementService = frontierStoragePlacement;
             industryService = industry;
+            mountService = mounts;
             playerTransform = playerRoot;
         }
 
@@ -292,6 +296,7 @@ namespace CCS.Modules.SaveSystem
             CaptureTrapping(saveData.trapping);
             CaptureCamp(saveData.camp);
             CaptureIndustry(saveData.industry);
+            CaptureMounts(saveData.mounts);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -608,6 +613,7 @@ namespace CCS.Modules.SaveSystem
             ApplyTrapping(saveData.trapping);
             ApplyCamp(saveData.camp);
             ApplyIndustry(saveData.industry);
+            ApplyMounts(saveData.mounts);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -949,6 +955,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             industryService.RestoreActiveJobs(industryData?.activeJobs);
+        }
+
+        private void CaptureMounts(CCS_SaveMountsWorldData mountsData)
+        {
+            if (mountsData == null)
+            {
+                return;
+            }
+
+            mountsData.ownedMount = mountService != null && mountService.IsInitialized
+                ? mountService.CaptureSnapshot()
+                : CCS_MountSnapshot.Empty;
+        }
+
+        private void ApplyMounts(CCS_SaveMountsWorldData mountsData)
+        {
+            if (mountService == null || !mountService.IsInitialized)
+            {
+                return;
+            }
+
+            mountService.RestoreSnapshot(mountsData?.ownedMount);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

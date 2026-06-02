@@ -109,6 +109,7 @@ MonoBehaviour:
   storageProfile: {fileID: 11400000, guid: a1b2c3d4e5f6789012345678abcdef01, type: 2}
   frontierStorageCampProfile: {fileID: 11400000, guid: 19f129697daf8a3418dbb1e406b3848b, type: 2}
   industryProfile: {fileID: 11400000, guid: 2802978dff1e64e41b10483e3a1dfe75, type: 2}
+  mountProfile: {fileID: 11400000, guid: 6e0312d0be3a23b4389cf245649a015d, type: 2}
   characterControllerProfile: {fileID: 11400000, guid: 5edc05f571b3c6a48b6eeba09502dd60, type: 2}
   starterLoadoutProfile: {fileID: 11400000, guid: f8a19f9b3ce49a942aaf52a9dd1912e8, type: 2}
   enableDebugLogs: 0

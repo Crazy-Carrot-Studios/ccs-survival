@@ -677,3 +677,70 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.earn.currency
+    displayName: Earn horse currency
+    stepType: 77
+    instructionText: 'Horse playtest: Earn horse currency. Ctrl+Shift+H shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.buy
+    displayName: Buy frontier horse
+    stepType: 78
+    instructionText: 'Horse playtest: Buy frontier horse. Ctrl+Shift+H shortcuts
+      available.'
+    targetItemId: ccs.survival.item.mount.frontierhorse
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.summon
+    displayName: Summon horse
+    stepType: 79
+    instructionText: 'Horse playtest: Summon horse. Ctrl+Shift+H shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.mount
+    displayName: Mount horse
+    stepType: 80
+    instructionText: 'Horse playtest: Mount horse. Ctrl+Shift+H shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.ride
+    displayName: Ride horse
+    stepType: 81
+    instructionText: 'Horse playtest: Ride horse. Ctrl+Shift+H shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.saddlebag
+    displayName: Open saddlebag
+    stepType: 82
+    instructionText: 'Horse playtest: Open saddlebag. Ctrl+Shift+H shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.save
+    displayName: Save horse state
+    stepType: 83
+    instructionText: 'Horse playtest: Save horse state. Ctrl+Shift+H shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.horse.verify.load
+    displayName: Verify horse after load
+    stepType: 84
+    instructionText: 'Horse playtest: Verify horse after load. Ctrl+Shift+H shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

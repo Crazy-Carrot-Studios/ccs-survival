@@ -18,6 +18,7 @@ using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -61,6 +62,8 @@ namespace CCS.Modules.Playtesting
         private const string CordageItemId = "ccs.survival.item.frontier.cordage";
         private const string TradeDollarsCurrencyId = "ccs.survival.currency.tradedollars";
         private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
+        private const string FrontierStableVendorId = CCS_MountContentIds.FrontierStableVendorId;
+        private const string FrontierHorseItemId = CCS_MountContentIds.FrontierHorseItemId;
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -133,6 +136,7 @@ namespace CCS.Modules.Playtesting
         private bool controllerPolishYawInitialized;
         private CCS_InteractionService boundInteractionService;
         private CCS_CampService boundCampService;
+        private CCS_MountService boundMountService;
 
         #endregion
 
@@ -203,7 +207,8 @@ namespace CCS.Modules.Playtesting
             CCS_InteractionService interactionService = null,
             CCS_CurrencyService currencyService = null,
             CCS_VendorService vendorService = null,
-            CCS_CampService campService = null)
+            CCS_CampService campService = null,
+            CCS_MountService mountService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -231,6 +236,13 @@ namespace CCS.Modules.Playtesting
             boundCurrencyService = currencyService;
             boundVendorService = vendorService;
             boundCampService = campService;
+            boundMountService = mountService;
+
+            if (boundMountService != null)
+            {
+                boundMountService.MountStateChanged += HandleMountStateChanged;
+                boundMountService.HorseOwnershipChanged += HandleHorseOwnershipChanged;
+            }
 
             if (boundVendorService != null)
             {
@@ -443,6 +455,13 @@ namespace CCS.Modules.Playtesting
             boundActiveItemService = null;
             boundCurrencyService = null;
             boundVendorService = null;
+            if (boundMountService != null)
+            {
+                boundMountService.MountStateChanged -= HandleMountStateChanged;
+                boundMountService.HorseOwnershipChanged -= HandleHorseOwnershipChanged;
+            }
+
+            boundMountService = null;
 
             if (boundInteractionService != null)
             {
@@ -875,6 +894,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveHomesteadCampState,
                     "Homestead camp state saved.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SaveHorseState,
+                    "Horse ownership and saddlebag state saved.");
             }
         }
 
@@ -887,7 +909,34 @@ namespace CCS.Modules.Playtesting
                 EvaluateBedrollStepAfterLoad();
                 EvaluateCampPersistenceAfterLoad();
                 EvaluateHomesteadCampPersistenceAfterLoad();
+                EvaluateHorsePersistenceAfterLoad();
             }
+        }
+
+        private void HandleMountStateChanged(CCS_MountInstance instance, CCS_MountState previousState)
+        {
+            if (instance == null)
+            {
+                return;
+            }
+
+            if (instance.State == CCS_MountState.Mounted)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.MountHorse, "Horse mounted.");
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.RideHorse, "Horse riding active.");
+            }
+        }
+
+        private void HandleHorseOwnershipChanged(bool ownsHorse)
+        {
+            if (!ownsHorse)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.BuyHorseFromStable,
+                "Frontier horse ownership granted.");
         }
 
         private void HandleStorageContainerOpened(CCS_StorageEventArgs eventArgs)
@@ -902,6 +951,14 @@ namespace CCS.Modules.Playtesting
             controllerPolishStorageDone = true;
             TryEvaluateControllerPolishCompletion();
             TryEvaluateStorageCrateStepCompletion();
+
+            if (!string.IsNullOrWhiteSpace(eventArgs.ContainerId)
+                && eventArgs.ContainerId.Contains("saddlebag", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.OpenHorseSaddlebag,
+                    "Horse saddlebag opened.");
+            }
         }
 
         private void HandleStorageItemAdded(CCS_StorageEventArgs eventArgs)
@@ -1778,6 +1835,96 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        private bool EnsureStableVendorReadyForPlaytest()
+        {
+            if (!harnessEnabled
+                || boundVendorService == null
+                || !boundVendorService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!boundVendorService.TryGetVendor(FrontierStableVendorId, out CCS_VendorDefinition vendor))
+            {
+                return false;
+            }
+
+            boundVendorService.SetActiveVendor(vendor);
+            return true;
+        }
+
+        public bool TryPlaytestGrantHorseCurrency()
+        {
+            if (!harnessEnabled
+                || boundCurrencyService == null
+                || !boundCurrencyService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_CurrencyTransactionResult result = boundCurrencyService.AddCurrency(
+                TradeDollarsCurrencyId,
+                3000,
+                "Playtest horse purchase funds");
+            if (result.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.EarnCurrencyForHorse,
+                    "Granted playtest currency for horse purchase.");
+            }
+
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestBuyHorse()
+        {
+            if (!EnsureStableVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition horseItem = FindItemDefinitionById(FrontierHorseItemId);
+            if (horseItem == null)
+            {
+                return false;
+            }
+
+            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(horseItem, 1);
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestSummonHorse()
+        {
+            if (boundMountService == null || !boundMountService.IsInitialized)
+            {
+                return false;
+            }
+
+            bool summoned = boundMountService.TrySummonHorseNearPlayer();
+            if (summoned)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.SummonHorse, "Horse summoned near player.");
+            }
+
+            return summoned;
+        }
+
+        public bool TryPlaytestMountHorseShortcut()
+        {
+            if (boundMountService == null || !boundMountService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!boundMountService.OwnsHorse)
+            {
+                boundMountService.TryGrantHorseOwnership();
+                boundMountService.TrySummonHorseNearPlayer();
+            }
+
+            return boundMountService.TryMount(boundMountService.ActiveMountInstanceId);
+        }
+
         private int GetTradeDollarsBalance()
         {
             return boundCurrencyService != null
@@ -2021,6 +2168,24 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.VerifyIndustryCampPersistenceAfterLoad,
                     "Industrial homestead tier and forge restored after load.");
             }
+
+            EvaluateHorsePersistenceAfterLoad();
+        }
+
+        private void EvaluateHorsePersistenceAfterLoad()
+        {
+            if (boundMountService == null || !boundMountService.IsInitialized || !boundMountService.OwnsHorse)
+            {
+                return;
+            }
+
+            CCS_MountSnapshot snapshot = boundMountService.CurrentSnapshot;
+            if (snapshot.ownsMount && !string.IsNullOrWhiteSpace(snapshot.instanceId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyHorsePersistenceAfterLoad,
+                    "Horse ownership and world state restored after load.");
+            }
         }
 
         private void TryEvaluateEconomyPlaytestSteps()
@@ -2181,6 +2346,15 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
                         "Cordage added to player inventory.");
                 }
+            }
+
+            if (!result.WasSell
+                && string.Equals(result.VendorId, FrontierStableVendorId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(result.ItemId, FrontierHorseItemId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyHorseFromStable,
+                    "Purchased frontier horse from stable.");
             }
 
             if (!result.WasSell && result.ItemId == BoneHatchetItemId)

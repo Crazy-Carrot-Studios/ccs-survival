@@ -104,7 +104,9 @@ Grounding: `Grounded` / `Airborne` from `CharacterController.isGrounded`.
 
 **Active default mode:** `ThirdPersonSurvival` (modern AAA survival/MMO third-person prototype).
 
-**Planned profile modes (not implemented):** `FirstPerson`, `TopDown`, `AimOverShoulder`, `Vehicle`, `Horse`.
+**Planned profile modes:** `FirstPerson`, `TopDown`, `AimOverShoulder`, `Vehicle`.
+
+**Horse mode (1.5.1 placeholder):** `CCS_CharacterCameraMode.Horse` uses wider follow distance (`horseCameraDistance`, `horseShoulderOffset`) while mounted. Look input still runs via `TickLookOnly` during riding.
 
 - **Cinemachine 3.1** `CinemachineThirdPersonFollow` on `CM_GameplayCamera`
 - **Look smoothing** via `lookSmoothing` on pointer/stick input

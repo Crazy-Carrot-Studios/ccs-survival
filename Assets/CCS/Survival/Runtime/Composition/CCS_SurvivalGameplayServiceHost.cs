@@ -26,6 +26,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -140,6 +141,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier industry processing profile for lumber, charcoal, and forge production.")]
         [SerializeField] private CCS_IndustryProfile industryProfile;
 
+        [Tooltip("Frontier mount profile for horse ownership, riding, and saddlebags.")]
+        [SerializeField] private CCS_MountProfile mountProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -205,6 +209,7 @@ namespace CCS.Survival.Composition
                 storageProfile,
                 frontierStorageCampProfile,
                 industryProfile,
+                mountProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

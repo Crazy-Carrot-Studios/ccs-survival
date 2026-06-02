@@ -1,5 +1,6 @@
 using System;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 
 // =============================================================================
 // SCRIPT: CCS_SaveData
@@ -48,7 +49,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveIndustryWorldData industry = new CCS_SaveIndustryWorldData();
 
+        public CCS_SaveMountsWorldData mounts = new CCS_SaveMountsWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveMountsWorldData
+    {
+        public CCS_MountSnapshot ownedMount = new CCS_MountSnapshot();
     }
 
     [Serializable]

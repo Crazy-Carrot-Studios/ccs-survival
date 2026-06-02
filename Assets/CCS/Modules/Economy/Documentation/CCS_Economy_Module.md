@@ -1,8 +1,8 @@
-# CCS Economy Module (1.3.4)
+# CCS Economy Module
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Milestone:** 1.3.4 — Cooking + Food Preservation (trail food buy/sell on General Store)
+**Latest:** 1.5.1 — Frontier Stable vendor for horse purchases (General Store does not sell horses)
 
 ## Purpose
 
@@ -49,6 +49,19 @@ Wallet balances persist in unified save (`CCS_SaveData.economy`). Inventory back
 `CCS_VendorDefinition` + `CCS_VendorItemEntry` provide generic buy/sell. `CCS_VendorInteractable` uses the interaction module and opens `CCS_VendorDebugHud` (temporary panel).
 
 Bootstrap test object: `CCS_TestGeneralStore` in `SCN_CCS_Survival_Bootstrap`.
+
+### Frontier Stable (1.5.1)
+
+| ID | Role |
+|----|------|
+| `ccs.survival.vendor.frontier.stable` | Frontier Stable vendor |
+| `ccs.survival.item.mount.frontierhorse` | Horse deed (buy **2500** Trade Dollars) |
+
+Bootstrap test object: `CCS_TestFrontierStable` in `SCN_CCS_Survival_Bootstrap`. Horses are **not** listed on the General Store.
+
+```text
+Earn Wealth → Buy Horse → Travel Faster → Carry More → Expand Frontier Reach
+```
 
 ### General Store catalog (1.3.1)
 

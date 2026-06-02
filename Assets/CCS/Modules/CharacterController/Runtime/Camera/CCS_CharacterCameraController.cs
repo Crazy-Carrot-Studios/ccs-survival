@@ -50,7 +50,7 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            if (!activeProfile.IsThirdPersonSurvivalActive)
+            if (!activeProfile.IsThirdPersonSurvivalActive && !activeProfile.IsHorseModeActive)
             {
                 return;
             }

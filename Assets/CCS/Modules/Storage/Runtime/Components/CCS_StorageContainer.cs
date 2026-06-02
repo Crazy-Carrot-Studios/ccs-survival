@@ -107,6 +107,21 @@ namespace CCS.Modules.Storage
                 : configuredInstanceId;
         }
 
+        public void ConfigureRuntimeInstance(
+            string containerDefinitionId,
+            string configuredInstanceId,
+            string label,
+            int slots)
+        {
+            containerId = containerDefinitionId ?? string.Empty;
+            instanceId = string.IsNullOrWhiteSpace(configuredInstanceId)
+                ? GenerateInstanceId()
+                : configuredInstanceId;
+            displayName = string.IsNullOrWhiteSpace(label) ? "Storage" : label;
+            slotCount = slots < 1 ? 1 : slots;
+            EnsureInventoryInitialized();
+        }
+
         public bool CanOpen()
         {
             return isActiveAndEnabled && inventoryContainer != null;

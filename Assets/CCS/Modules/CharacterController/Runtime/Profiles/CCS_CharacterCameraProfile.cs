@@ -79,6 +79,13 @@ namespace CCS.Modules.CharacterController
         [Tooltip("Reserved aim/mode transition speed for future camera mode switching.")]
         [SerializeField] private float aimTransitionSpeed = 6f;
 
+        [Header("Horse Mode Placeholder")]
+        [Tooltip("Follow distance when Horse camera mode is active.")]
+        [SerializeField] private float horseCameraDistance = 6.25f;
+
+        [Tooltip("Shoulder offset when Horse camera mode is active.")]
+        [SerializeField] private Vector3 horseShoulderOffset = new Vector3(0.65f, 0.35f, 0f);
+
         [Header("Obstacle Avoidance")]
         [Tooltip("Pull gameplay camera in front of occluding geometry when enabled.")]
         [SerializeField] private bool enableObstacleAvoidance = true;
@@ -142,6 +149,10 @@ namespace CCS.Modules.CharacterController
 
         public float AimTransitionSpeed => aimTransitionSpeed;
 
+        public float HorseCameraDistance => horseCameraDistance;
+
+        public Vector3 HorseShoulderOffset => horseShoulderOffset;
+
         public bool EnableObstacleAvoidance => enableObstacleAvoidance;
 
         public float ObstacleCameraRadius => obstacleCameraRadius;
@@ -157,6 +168,8 @@ namespace CCS.Modules.CharacterController
         public float PointerLookThreshold => pointerLookThreshold;
 
         public bool IsThirdPersonSurvivalActive => activeCameraMode == CCS_CharacterCameraMode.ThirdPersonSurvival;
+
+        public bool IsHorseModeActive => activeCameraMode == CCS_CharacterCameraMode.Horse;
 
         #endregion
     }

@@ -5,6 +5,7 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -61,6 +62,8 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierHomesteadStructureService homesteadStructureService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierStoragePlacementService frontierStoragePlacementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_IndustryService industryService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_MountService mountService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
 
@@ -79,10 +82,37 @@ namespace CCS.Modules.SaveSystem
                 homesteadStructureService,
                 frontierStoragePlacementService,
                 industryService,
+                mountService,
                 playerTransform);
 
+            if (mountService != null && mountService.IsInitialized && playerTransform != null)
+            {
+                mountService.BindPlayerTransform(playerTransform);
+                if (movementService != null && movementService.IsInitialized)
+                {
+                    CCS_PlayerCinemachineCameraDriver cameraDriver =
+                        playerTransform.GetComponentInChildren<CCS_PlayerCinemachineCameraDriver>();
+                    mountService.BindRidingIntegration(
+                        () =>
+                        {
+                            CCS_CharacterInputSnapshot input = movementService.InputProvider != null
+                                ? movementService.InputProvider.GetInputSnapshot()
+                                : CCS_CharacterInputSnapshot.Empty;
+                            float yaw = movementService.LookState.YawDegrees;
+                            Vector3 forward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+                            Vector3 right = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+                            return forward * input.Move.y + right * input.Move.x;
+                        },
+                        () => movementService.InputProvider != null
+                            && movementService.InputProvider.GetInputSnapshot().SprintHeld,
+                        movementService.SetMovementLocked,
+                        movementService.TickLookOnly,
+                        active => cameraDriver?.SetHorseRidingCameraActive(active));
+                }
+            }
+
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)
-                && runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService))
+                && movementService != null)
             {
                 playerDeathService.BindGameplayServices(
                     survivalCoreService,

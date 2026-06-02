@@ -253,7 +253,17 @@ namespace CCS.Modules.Playtesting
 
             if (Input.GetKeyDown(KeyCode.H))
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryPlaytestGrantHorseCurrency();
+                        playtestService.TryPlaytestBuyHorse();
+                        playtestService.TryPlaytestSummonHorse();
+                        playtestService.TryPlaytestMountHorseShortcut();
+                    }
+                }
+                else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                 {
                     playtestService.TryGrantShelterCordage();
                 }
@@ -300,6 +310,7 @@ namespace CCS.Modules.Playtesting
                     }
                 }
             }
+
         }
 
         private void TryNotifySpawnReady()

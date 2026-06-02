@@ -26,6 +26,7 @@ using CCS.Modules.Playtesting;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
+using CCS.Modules.Mounts;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -79,6 +80,7 @@ namespace CCS.Survival.Composition
             CCS_StorageProfile storageProfile,
             CCS_FrontierStorageCampProfile frontierStorageCampProfile,
             CCS_IndustryProfile industryProfile,
+            CCS_MountProfile mountProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -286,6 +288,9 @@ namespace CCS.Survival.Composition
                 craftingService);
             RegisterService(runtimeHost, industryService, enableDebugLogs);
 
+            CCS_MountService mountService = CreateMountService(runtimeHost, mountProfile, inventoryService);
+            RegisterService(runtimeHost, mountService, enableDebugLogs);
+
             CCS_FrontierHomesteadStructureService homesteadStructureService = CreateFrontierHomesteadStructureService(
                 campDefinition,
                 campService,
@@ -321,6 +326,11 @@ namespace CCS.Survival.Composition
                     (origin, radius) => frontierStoragePlacementService != null
                         && frontierStoragePlacementService.IsInitialized
                         && frontierStoragePlacementService.HasStorageInRadius(origin, radius));
+                if (mountService != null && mountService.IsInitialized)
+                {
+                    campService.BindMountPresenceQuery(
+                        (origin, radius) => mountService.HasHorseCampPresence(origin, radius));
+                }
             }
 
             if (activeItemService != null && activeItemService.IsInitialized)
@@ -345,6 +355,18 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, currencyService, enableDebugLogs);
             CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
             RegisterService(runtimeHost, vendorService, enableDebugLogs);
+            if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
+            {
+                vendorService.VendorTransactionCompleted += result =>
+                {
+                    if (result == null || !result.IsSuccess || result.WasSell)
+                    {
+                        return;
+                    }
+
+                    mountService.TryConsumeHorsePurchaseItem(result.ItemDefinition);
+                };
+            }
 
             CCS_SaveService saveService = CreateSaveService(saveProfile);
             RegisterService(runtimeHost, saveService, enableDebugLogs);
@@ -362,6 +384,7 @@ namespace CCS.Survival.Composition
                 homesteadStructureService,
                 frontierStoragePlacementService,
                 industryService,
+                mountService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -400,7 +423,8 @@ namespace CCS.Survival.Composition
                     interactionService,
                     currencyService,
                     vendorService,
-                    campService);
+                    campService,
+                    mountService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -876,6 +900,33 @@ namespace CCS.Survival.Composition
                 placementResult.Message,
                 true,
                 itemDefinition.ItemId);
+        }
+
+        private static CCS_MountService CreateMountService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_MountProfile mountProfile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_MountService service = new CCS_MountService();
+            service.Initialize();
+
+            if (mountProfile != null)
+            {
+                service.InitializeFromProfile(mountProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            CCS_MountRuntimeBridge.Register(service);
+            if (runtimeHost?.RuntimeUpdateLoop != null)
+            {
+                runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
+            }
+
+            return service;
         }
 
         private static CCS_IndustryService CreateIndustryService(
