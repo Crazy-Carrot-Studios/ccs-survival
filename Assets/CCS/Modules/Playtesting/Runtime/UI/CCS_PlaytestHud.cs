@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.CharacterController;
 using CCS.Survival.Player;
 using UnityEngine;
 
@@ -76,31 +77,31 @@ namespace CCS.Modules.Playtesting
 
         private void HandleHotkeys()
         {
-            if (Input.GetKeyDown(KeyCode.F10))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F10))
             {
                 hudVisible = !hudVisible;
             }
 
-            if (Input.GetKeyDown(KeyCode.F11))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F11))
             {
                 playtestService.AdvanceActiveStep();
             }
 
-            if (Input.GetKeyDown(KeyCode.F12))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F12))
             {
                 playtestService.ResetSteps();
                 spawnNotified = false;
                 TryNotifySpawnReady();
             }
 
-            if (Input.GetKeyDown(KeyCode.F7))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F7))
             {
                 playtestService.ForceTestDeathCondition();
             }
 
-            if (Input.GetKeyDown(KeyCode.F6))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F6))
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                 {
                     CCS_PlaytestStepState activeStep = GetActiveStepState();
                     if (activeStep != null
@@ -139,34 +140,34 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.Alpha1))
             {
                 playtestService.TrySelectActiveFromMainHand();
             }
 
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.Alpha2))
             {
                 playtestService.TrySelectActiveFromToolSlot();
             }
 
-            if (Input.GetKeyDown(KeyCode.B))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.B))
             {
                 playtestService.TryPlacePlaytestFoundation();
             }
 
-            if (Input.GetKeyDown(KeyCode.F4))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F4))
             {
                 playtestService.TrySeedWorkbenchCraftingResources();
             }
 
-            if (Input.GetKeyDown(KeyCode.F3))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F3))
             {
                 playtestService.TryCraftWorkbenchPlaytestItem();
             }
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F2))
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                 {
                     playtestService.TryPlaceOrSleepBedrollNearPlayer();
                 }
@@ -176,9 +177,9 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.F1))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F1))
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                 {
                     playtestService.TryMoveFirstStorageItemToPlayer();
                 }
@@ -188,45 +189,45 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.M))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.M))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftAlt) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightAlt))
                     {
                         playtestService.TryGrantPlaytestRawMeat();
                     }
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.T))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.T))
             {
-                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
+                if ((CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
+                    && (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftAlt) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightAlt)))
                 {
                     playtestService.TryGrantPlaytestTrap();
                 }
-                else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                else if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftAlt) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightAlt))
                 {
                     playtestService.TryForceTrapTriggerForPlaytest();
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.B))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.B))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
                     playtestService.TryGrantPlaytestBow();
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.V))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.V))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
                     playtestService.TryGrantPlaytestRawFish();
                 }
-                else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                else if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                 {
                     CCS_PlaytestStepState activeStep = GetActiveStepState();
                     if (activeStep != null
@@ -251,11 +252,11 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.H))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.H))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryPlaytestGrantHorseCurrency();
                         playtestService.TryPlaytestBuyHorse();
@@ -263,7 +264,7 @@ namespace CCS.Modules.Playtesting
                         playtestService.TryPlaytestMountHorseShortcut();
                     }
                 }
-                else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                else if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                 {
                     playtestService.TryGrantShelterCordage();
                 }
@@ -273,44 +274,44 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.G))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.G))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryPlaytestFirearmFoundationShortcut();
                     }
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.M))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.M))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryPlaytestMiningFoundationShortcut();
                     }
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.K))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.K))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryGrantHomesteadSupplyCrateKit();
                     }
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.W))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.W))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryPlaytestGrantWagonCurrency();
                         playtestService.TryPlaytestBuyWagon();
@@ -324,11 +325,11 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.I))
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.I))
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftControl) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightControl))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    if (CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.LeftShift) || CCS_KeyboardInputUtility.IsKeyHeld(KeyCode.RightShift))
                     {
                         playtestService.TryGrantWoodForIndustry();
                         playtestService.TryProduceLumberAtSawTable();
@@ -350,7 +351,7 @@ namespace CCS.Modules.Playtesting
             }
 
             CCS_PlayerGameplayController[] players =
-                Object.FindObjectsByType<CCS_PlayerGameplayController>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_PlayerGameplayController>();
             if (players == null || players.Length == 0)
             {
                 return;

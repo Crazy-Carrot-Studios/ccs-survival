@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
     public sealed class CCS_SurvivalFoundationValidationValidator : CCS_ISurvivalValidationValidator
     {
         private const string SurvivalRoot = "Assets/CCS/Survival";
-        private const string ExpectedBundleVersion = "1.7.0";
+        private const string ExpectedBundleVersion = CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion;
 
         #region Properties
 
@@ -142,20 +142,11 @@ namespace CCS.Survival.Editor.Development
                 return;
             }
 
-            string projectSettingsText = File.ReadAllText(projectSettingsPath);
-            if (projectSettingsText.Contains($"bundleVersion: {ExpectedBundleVersion}"))
-            {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Info,
-                    "Project Version",
-                    $"bundleVersion matches expected milestone {ExpectedBundleVersion}.");
-                return;
-            }
-
-            report.AddIssue(
-                CCS_SurvivalValidationIssueSeverity.Warning,
+            CCS_SurvivalBootstrapVersionUtility.AddBundleVersionValidationIssue(
+                report,
                 "Project Version",
-                $"Expected bundleVersion {ExpectedBundleVersion}. Review ProjectSettings/ProjectSettings.asset.");
+                ExpectedBundleVersion);
+            CCS_SurvivalBootstrapVersionUtility.ValidateNoHardcodedBootstrapVersionWrites(report, "Project Version");
         }
 
         private static void ValidateBootstrapScenePlayerIntegration(CCS_SurvivalValidationReport report)

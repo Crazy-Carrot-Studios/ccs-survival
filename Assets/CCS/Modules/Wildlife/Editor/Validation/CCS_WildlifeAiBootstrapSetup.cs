@@ -198,8 +198,7 @@ namespace CCS.Modules.Wildlife.Editor
 
             UnityEngine.CharacterController[] characterControllers =
                 Object.FindObjectsByType<UnityEngine.CharacterController>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
             if (characterControllers == null || characterControllers.Length == 0)
             {
                 return null;

@@ -18,16 +18,12 @@ namespace CCS.Survival
 
         public static T[] FindActiveObjectsByType<T>() where T : Object
         {
-#pragma warning disable CS0618
-            return Object.FindObjectsByType<T>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-#pragma warning restore CS0618
+            return Object.FindObjectsByType<T>(FindObjectsInactive.Exclude);
         }
 
         public static T[] FindAllObjectsByType<T>() where T : Object
         {
-#pragma warning disable CS0618
-            return Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#pragma warning restore CS0618
+            return Object.FindObjectsByType<T>(FindObjectsInactive.Include);
         }
 
         #endregion

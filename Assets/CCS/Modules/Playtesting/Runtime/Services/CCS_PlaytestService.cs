@@ -3367,7 +3367,7 @@ namespace CCS.Modules.Playtesting
         private static Vector3 ResolvePlaytestFoundationPosition()
         {
             CCS_PlayerGameplayController[] players =
-                Object.FindObjectsByType<CCS_PlayerGameplayController>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_PlayerGameplayController>();
             if (players != null && players.Length > 0 && players[0] != null)
             {
                 return players[0].transform.position + players[0].transform.forward * 3f + Vector3.up * 0.5f;

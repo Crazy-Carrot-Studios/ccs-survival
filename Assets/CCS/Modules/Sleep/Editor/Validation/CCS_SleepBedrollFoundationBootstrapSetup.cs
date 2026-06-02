@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.Sleep;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -208,18 +209,8 @@ namespace CCS.Modules.Sleep.Editor
 
         private static void UpdateProjectVersion()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            if (!File.Exists(projectSettingsPath))
-            {
-                return;
-            }
-
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.1.3");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
 
         #endregion

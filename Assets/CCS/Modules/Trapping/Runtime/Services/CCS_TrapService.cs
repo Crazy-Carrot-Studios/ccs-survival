@@ -519,7 +519,7 @@ namespace CCS.Modules.Trapping
                 : string.Empty;
             wildlifeKey = string.Empty;
 
-            CCS_WildlifeAgent[] agents = UnityEngine.Object.FindObjectsByType<CCS_WildlifeAgent>(FindObjectsSortMode.None);
+            CCS_WildlifeAgent[] agents = UnityEngine.Object.FindObjectsByType<CCS_WildlifeAgent>();
             float bestDistance = float.MaxValue;
             CCS_WildlifeAgent bestAgent = null;
 
@@ -551,7 +551,7 @@ namespace CCS.Modules.Trapping
                 return false;
             }
 
-            wildlifeKey = bestAgent.gameObject.name + "_" + bestAgent.GetInstanceID();
+            wildlifeKey = bestAgent.gameObject.name + "_" + bestAgent.GetEntityId();
             bestAgent.gameObject.SetActive(false);
             return true;
         }

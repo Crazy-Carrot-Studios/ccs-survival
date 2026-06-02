@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.7.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.7.1** — Bootstrap Version Safety Cleanup
+
+All legacy milestone bootstrap scripts now call `CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(...)` so re-running older bootstraps cannot downgrade `ProjectSettings.bundleVersion`. Validators use minimum-version checks instead of brittle exact pins. See **Bootstrap version policy** under Development Notes.
 
 **1.7.0** — Prospecting and Mining Expansion
 
@@ -208,8 +212,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **1.1.5** |
-| Output | `Builds/CCS_Survival_1.1.5_Windows/` (gitignored) |
+| Version | **1.7.1** |
+| Output | `Builds/CCS_Survival_1.7.1_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
@@ -225,6 +229,17 @@ Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Bui
 | Locomotion | `CharacterController` (animator root motion **OFF**) |
 | Look | Reduced mouse sensitivity; safe pitch clamp |
 | Architecture | Modular service-driven composition via bootstrap host |
+| Bootstrap version policy | Milestone bootstraps must use `CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion)` — never hard-code `Regex.Replace(..., "bundleVersion: X.Y.Z")`. Update `CurrentMilestoneVersion` when cutting a release. Foundation validation scans for stale hard-coded writes. |
+
+### Bootstrap version policy
+
+1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **1.7.1**).
+2. **Bootstrap writes:** Every `*BootstrapSetup.cs` that touches `ProjectSettings.bundleVersion` must call `EnsureBundleVersionAtLeast(...)` so older scripts only bump forward, never downgrade.
+3. **Validators:** Check `bundleVersion >= CurrentMilestoneVersion` via `AddBundleVersionValidationIssue`. Do not pin exact milestone strings that break on the next release.
+4. **Log strings:** Historical milestone labels in `Debug.Log` or playtest copy may stay unchanged (e.g. wagon bootstrap still logs `1.5.2`).
+5. **New milestones:** Bump `CurrentMilestoneVersion`, build runner output folder, README, then run full validation and Windows build verification.
+
+Utility: `Assets/CCS/Survival/Editor/Development/Bootstrap/CCS_SurvivalBootstrapVersionUtility.cs`
 
 ---
 

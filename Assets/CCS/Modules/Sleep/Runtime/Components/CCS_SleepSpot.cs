@@ -38,6 +38,7 @@ namespace CCS.Modules.Sleep
 
         private bool isAssignedRespawn;
         private bool isSleeping;
+        private bool isRegisteredWithService;
 
         #endregion
 
@@ -61,7 +62,20 @@ namespace CCS.Modules.Sleep
 
         private void OnEnable()
         {
-            RegisterWithService();
+            TryRegisterWithService();
+        }
+
+        private void Start()
+        {
+            TryRegisterWithService();
+        }
+
+        private void Update()
+        {
+            if (!isRegisteredWithService)
+            {
+                TryRegisterWithService();
+            }
         }
 
         private void OnDisable()
@@ -211,24 +225,39 @@ namespace CCS.Modules.Sleep
             respawnPoint.ConfigureRuntime(respawnSpawnId);
         }
 
-        private void RegisterWithService()
-        {
-            if (CCS_SleepRuntimeBridge.TryGetSleepService(out CCS_SleepService sleepService)
-                && sleepService != null
-                && sleepService.IsInitialized)
-            {
-                sleepService.RegisterSleepSpot(this);
-            }
-        }
-
         private void UnregisterFromService()
         {
+            if (!isRegisteredWithService)
+            {
+                return;
+            }
+
             if (CCS_SleepRuntimeBridge.TryGetSleepService(out CCS_SleepService sleepService)
                 && sleepService != null
                 && sleepService.IsInitialized)
             {
                 sleepService.UnregisterSleepSpot(this);
             }
+
+            isRegisteredWithService = false;
+        }
+
+        private void TryRegisterWithService()
+        {
+            if (isRegisteredWithService || !isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (!CCS_SleepRuntimeBridge.TryGetSleepService(out CCS_SleepService sleepService)
+                || sleepService == null
+                || !sleepService.IsInitialized)
+            {
+                return;
+            }
+
+            sleepService.RegisterSleepSpot(this);
+            isRegisteredWithService = true;
         }
 
         private static string GenerateInstanceId()

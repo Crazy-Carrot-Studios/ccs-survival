@@ -39,13 +39,10 @@ namespace CCS.Modules.Vehicles.Editor
 
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(projectSettingsPath)
-                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.7.0");
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+            CCS_SurvivalBootstrapVersionUtility.AddBundleVersionValidationIssue(
+                report,
                 ValidatorContext,
-                ok ? "bundleVersion is 1.7.0." : "Expected bundleVersion 1.7.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
+                remediationHint: "Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateVehicleProfile(CCS_SurvivalValidationReport report)

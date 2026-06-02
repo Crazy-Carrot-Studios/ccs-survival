@@ -229,7 +229,7 @@ namespace CCS.Survival.Editor.Development
         private static void DisableNoisyHarnessDefaultsInScene()
         {
             Scene scene = EditorSceneManager.GetActiveScene();
-            foreach (MonoBehaviour behaviour in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            foreach (MonoBehaviour behaviour in Object.FindObjectsByType<MonoBehaviour>())
             {
                 if (behaviour == null)
                 {

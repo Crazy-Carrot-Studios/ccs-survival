@@ -5,6 +5,7 @@ using CCS.Modules.Playtesting;
 using CCS.Modules.Shelter;
 using CCS.Modules.Storage;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
@@ -94,13 +95,8 @@ namespace CCS.Modules.Shelter.Editor
 
         private static void UpdateProjectVersion()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.4.1");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
 
         private static void EnsureFolders()

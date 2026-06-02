@@ -1069,7 +1069,7 @@ namespace CCS.Modules.Firearms.Editor
 
         private static void BumpVersions()
         {
-            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast("1.7.0");
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
     }
 }

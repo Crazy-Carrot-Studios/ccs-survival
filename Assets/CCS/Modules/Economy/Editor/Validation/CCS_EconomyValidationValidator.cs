@@ -266,7 +266,7 @@ namespace CCS.Modules.Economy.Editor
             try
             {
                 CCS_VendorInteractable[] vendors =
-                    Object.FindObjectsByType<CCS_VendorInteractable>(FindObjectsSortMode.None);
+                    Object.FindObjectsByType<CCS_VendorInteractable>();
                 bool foundTestStore = false;
                 for (int index = 0; index < vendors.Length; index++)
                 {

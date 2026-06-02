@@ -39,67 +39,83 @@ namespace CCS.Modules.Sleep
         public static bool TryGetSleepService(out CCS_SleepService sleepService)
         {
             sleepService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out sleepService);
+            return serviceRegistry.TryGetService(out sleepService);
         }
 
         public static bool TryGetShelterService(out CCS_ShelterService shelterService)
         {
             shelterService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out shelterService);
+            return serviceRegistry.TryGetService(out shelterService);
         }
 
         public static bool TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
         {
             inventoryService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out inventoryService);
+            return serviceRegistry.TryGetService(out inventoryService);
         }
 
         public static bool TryGetSurvivalCoreService(out CCS_SurvivalCoreService survivalCoreService)
         {
             survivalCoreService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out survivalCoreService);
+            return serviceRegistry.TryGetService(out survivalCoreService);
         }
 
         public static bool TryGetTimeOfDayService(out CCS_TimeOfDayService timeOfDayService)
         {
             timeOfDayService = null;
-            if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out timeOfDayService);
+            return serviceRegistry.TryGetService(out timeOfDayService);
         }
 
         public static bool TryGetInteractionService(out CCS_InteractionService interactionService)
         {
             interactionService = null;
+            if (!TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry))
+            {
+                return false;
+            }
+
+            return serviceRegistry.TryGetService(out interactionService);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool TryGetServiceRegistry(out CCS_ServiceRegistry serviceRegistry)
+        {
+            serviceRegistry = null;
             if (!TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
             {
                 return false;
             }
 
-            return runtimeHost.ServiceRegistry.TryGetService(out interactionService);
+            serviceRegistry = runtimeHost.ServiceRegistry;
+            return serviceRegistry != null;
         }
 
         #endregion

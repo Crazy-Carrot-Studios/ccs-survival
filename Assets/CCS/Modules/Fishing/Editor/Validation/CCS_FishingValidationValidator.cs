@@ -223,7 +223,7 @@ namespace CCS.Modules.Fishing.Editor
             Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Additive);
             try
             {
-                CCS_FishingSpot[] spots = Object.FindObjectsByType<CCS_FishingSpot>(FindObjectsSortMode.None);
+                CCS_FishingSpot[] spots = Object.FindObjectsByType<CCS_FishingSpot>();
                 bool foundTestSpot = false;
                 HashSet<string> spotIds = new HashSet<string>();
                 for (int index = 0; index < spots.Length; index++)

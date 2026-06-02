@@ -4,6 +4,7 @@ using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
 using CCS.Modules.Playtesting;
 using CCS.Modules.Wildlife;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
@@ -122,13 +123,8 @@ namespace CCS.Modules.Cooking.Editor
 
         private static void UpdateProjectVersion()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.3.4");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
 
         private static CCS_ItemDefinition EnsureRawTurkeyMeatItem()

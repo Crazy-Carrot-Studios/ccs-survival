@@ -6,6 +6,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Playtesting;
 using CCS.Modules.Storage;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
@@ -409,18 +410,8 @@ namespace CCS.Modules.Mounts.Editor
 
         private static void BumpVersions()
         {
-            const string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            if (!File.Exists(projectSettingsPath))
-            {
-                return;
-            }
-
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [\d\.]+",
-                "bundleVersion: 1.5.1");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
     }
 }

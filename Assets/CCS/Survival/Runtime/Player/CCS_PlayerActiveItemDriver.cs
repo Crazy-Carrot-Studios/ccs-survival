@@ -58,12 +58,12 @@ namespace CCS.Survival.Player
                 return;
             }
 
-            if (enableCycleHotkey && Input.GetKeyDown(KeyCode.Alpha1))
+            if (enableCycleHotkey && CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.Alpha1))
             {
                 activeItemService.CycleActiveEquippedItem();
             }
 
-            if (Input.GetKeyDown(KeyCode.R)
+            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.R)
                 && activeItemService.ActiveState.BehaviorType == CCS_ActiveItemBehaviorType.Firearm)
             {
                 activeItemService.TryReloadActiveFirearm();

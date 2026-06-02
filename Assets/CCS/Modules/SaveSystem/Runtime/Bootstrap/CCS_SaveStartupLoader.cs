@@ -159,7 +159,7 @@ namespace CCS.Modules.SaveSystem
         private static Transform ResolvePlayerTransform()
         {
             CCS_PlayerGameplayController[] controllers =
-                Object.FindObjectsByType<CCS_PlayerGameplayController>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_PlayerGameplayController>();
             if (controllers == null || controllers.Length == 0)
             {
                 return null;

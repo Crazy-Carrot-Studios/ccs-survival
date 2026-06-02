@@ -460,7 +460,7 @@ namespace CCS.Survival.Editor.Development
         {
             Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
             CCS_HarvestableResource[] harvestables =
-                Object.FindObjectsByType<CCS_HarvestableResource>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_HarvestableResource>();
 
             for (int index = 0; index < harvestables.Length; index++)
             {
@@ -481,7 +481,7 @@ namespace CCS.Survival.Editor.Development
         {
             Scene scene = EditorSceneManager.GetActiveScene();
             CCS_CraftingTestHarness[] harnesses =
-                Object.FindObjectsByType<CCS_CraftingTestHarness>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_CraftingTestHarness>();
 
             for (int index = 0; index < harnesses.Length; index++)
             {

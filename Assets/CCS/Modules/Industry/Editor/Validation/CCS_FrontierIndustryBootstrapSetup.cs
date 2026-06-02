@@ -6,6 +6,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Playtesting;
 using CCS.Modules.Shelter;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
@@ -826,13 +827,8 @@ namespace CCS.Modules.Industry.Editor
 
         private static void BumpVersions()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.5.0");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
     }
 }

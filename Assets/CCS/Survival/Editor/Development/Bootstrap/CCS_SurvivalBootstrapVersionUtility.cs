@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -14,7 +15,12 @@ namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBootstrapVersionUtility
     {
+        public const string CurrentMilestoneVersion = "1.7.1";
+
         private const string ProjectSettingsPath = "ProjectSettings/ProjectSettings.asset";
+        private static readonly Regex HardcodedBundleVersionReplacementPattern = new Regex(
+            @"""bundleVersion:\s*[\d]+\.[\d]+\.[\d]+""",
+            RegexOptions.Compiled);
 
         public static void EnsureBundleVersionAtLeast(string minimumVersion)
         {
@@ -34,7 +40,98 @@ namespace CCS.Survival.Editor.Development
             File.WriteAllText(ProjectSettingsPath, text);
         }
 
-        private static int CompareVersions(string left, string right)
+        public static bool TryReadProjectBundleVersion(out string version)
+        {
+            version = string.Empty;
+            if (!File.Exists(ProjectSettingsPath))
+            {
+                return false;
+            }
+
+            Match match = Regex.Match(File.ReadAllText(ProjectSettingsPath), @"bundleVersion:\s*([\d\.]+)");
+            if (!match.Success)
+            {
+                return false;
+            }
+
+            version = match.Groups[1].Value;
+            return true;
+        }
+
+        public static bool IsProjectBundleVersionAtLeast(string minimumVersion)
+        {
+            if (!TryReadProjectBundleVersion(out string currentVersion))
+            {
+                return false;
+            }
+
+            return CompareVersions(currentVersion, minimumVersion) >= 0;
+        }
+
+        public static void AddBundleVersionValidationIssue(
+            CCS_SurvivalValidationReport report,
+            string validatorContext,
+            string minimumVersion = CurrentMilestoneVersion,
+            string remediationHint = null)
+        {
+            if (IsProjectBundleVersionAtLeast(minimumVersion))
+            {
+                TryReadProjectBundleVersion(out string currentVersion);
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    validatorContext,
+                    $"bundleVersion {currentVersion} meets minimum {minimumVersion}.");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Error,
+                validatorContext,
+                $"Expected bundleVersion at least {minimumVersion}. {remediationHint ?? "Review ProjectSettings/ProjectSettings.asset."}");
+        }
+
+        public static void ValidateNoHardcodedBootstrapVersionWrites(
+            CCS_SurvivalValidationReport report,
+            string validatorContext)
+        {
+            List<string> offenders = CollectHardcodedBootstrapVersionWriteFiles();
+            bool ok = offenders.Count == 0;
+            report.AddIssue(
+                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+                validatorContext,
+                ok
+                    ? "Bootstrap setup scripts use EnsureBundleVersionAtLeast for bundleVersion writes."
+                    : $"Stale bootstrap bundleVersion writes remain: {string.Join(", ", offenders)}. Use CCS_SurvivalBootstrapVersionUtility.");
+        }
+
+        public static List<string> CollectHardcodedBootstrapVersionWriteFiles()
+        {
+            List<string> offenders = new List<string>();
+            if (!Directory.Exists("Assets"))
+            {
+                return offenders;
+            }
+
+            string[] files = Directory.GetFiles("Assets", "*BootstrapSetup.cs", SearchOption.AllDirectories);
+            for (int index = 0; index < files.Length; index++)
+            {
+                string normalizedPath = files[index].Replace('\\', '/');
+                string content = File.ReadAllText(normalizedPath);
+                if (!content.Contains("bundleVersion:"))
+                {
+                    continue;
+                }
+
+                if (HardcodedBundleVersionReplacementPattern.IsMatch(content))
+                {
+                    offenders.Add(normalizedPath);
+                }
+            }
+
+            return offenders;
+        }
+
+        public static int CompareVersions(string left, string right)
         {
             int[] leftParts = ParseVersionParts(left);
             int[] rightParts = ParseVersionParts(right);

@@ -419,13 +419,8 @@ namespace CCS.Modules.Playtesting.Editor
 
         private static void UpdateProjectVersion()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.2.6");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
 
         private static void UpdateModuleDocumentation()

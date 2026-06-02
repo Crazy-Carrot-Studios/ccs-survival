@@ -231,7 +231,7 @@ namespace CCS.Modules.Combat.Editor
         private static void EnsureLivingWildlifeDamageable()
         {
             Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
-            CCS_WildlifeAgent[] agents = Object.FindObjectsByType<CCS_WildlifeAgent>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            CCS_WildlifeAgent[] agents = Object.FindObjectsByType<CCS_WildlifeAgent>(FindObjectsInactive.Exclude);
             CCS_CombatProfile combatProfile = AssetDatabase.LoadAssetAtPath<CCS_CombatProfile>(DefaultProfilePath);
 
             for (int index = 0; index < agents.Length; index++)

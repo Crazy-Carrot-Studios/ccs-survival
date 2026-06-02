@@ -18,7 +18,7 @@ namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBuildVerificationBuildRunner
     {
-        private const string OutputFolder = "Builds/CCS_Survival_1.7.0_Windows";
+        private const string OutputFolder = "Builds/CCS_Survival_1.7.1_Windows";
         private const string OutputExecutable = OutputFolder + "/CCS_Survival.exe";
         private const string LogPrefix = "[CCS_SurvivalBuildVerificationBuildRunner]";
 
@@ -26,10 +26,8 @@ namespace CCS.Survival.Editor.Development
 
         public static void ExecuteBatch()
         {
-            if (PlayerSettings.bundleVersion != "1.7.0")
-            {
-                PlayerSettings.bundleVersion = "1.7.0";
-            }
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
 
             string projectRoot = Directory.GetParent(Application.dataPath)?.FullName ?? Application.dataPath;
             string outputPath = Path.Combine(projectRoot, OutputExecutable);

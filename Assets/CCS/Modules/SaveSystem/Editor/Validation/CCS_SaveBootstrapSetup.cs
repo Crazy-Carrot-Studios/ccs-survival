@@ -283,13 +283,8 @@ namespace CCS.Modules.SaveSystem.Editor
 
         private static void UpdateProjectVersion()
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.0.1");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
+                CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
         }
 
         #endregion

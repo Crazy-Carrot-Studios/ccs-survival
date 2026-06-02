@@ -205,7 +205,7 @@ namespace CCS.Survival.Editor.Development
                 return foundObject;
             }
 
-            GameObject[] sceneObjects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            GameObject[] sceneObjects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Exclude);
             for (int index = 0; index < sceneObjects.Length; index++)
             {
                 if (sceneObjects[index].name == objectName)

@@ -147,6 +147,18 @@ Lists may be **empty** in 0.3.6. Modules append requirements later without chang
 
 ---
 
+## Bootstrap version policy
+
+| Rule | Detail |
+|------|--------|
+| Utility | `CCS_SurvivalBootstrapVersionUtility` in `Assets/CCS/Survival/Editor/Development/Bootstrap/` |
+| Current milestone | `CurrentMilestoneVersion` constant (update on each release tag) |
+| Bootstrap scripts | Call `EnsureBundleVersionAtLeast(CurrentMilestoneVersion)` — no direct `Regex.Replace` to a fixed version |
+| Validators | Use `AddBundleVersionValidationIssue` / `ValidateNoHardcodedBootstrapVersionWrites` |
+| Forward-only | Re-running any legacy bootstrap must never downgrade `ProjectSettings.bundleVersion` |
+
+---
+
 ## Definition of done (0.3.6)
 
 | Criterion | Expected |

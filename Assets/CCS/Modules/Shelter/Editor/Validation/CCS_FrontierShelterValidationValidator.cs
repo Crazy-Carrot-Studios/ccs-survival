@@ -39,12 +39,7 @@ namespace CCS.Modules.Shelter.Editor
 
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
-            string path = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.7.0");
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
-                "Project Version",
-                ok ? "bundleVersion is 1.7.0." : "Expected bundleVersion 1.7.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
+            CCS_SurvivalBootstrapVersionUtility.AddBundleVersionValidationIssue(report, "Project Version");
         }
 
         private static void ValidateCampDefinition(CCS_SurvivalValidationReport report)

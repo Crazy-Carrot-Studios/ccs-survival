@@ -43,36 +43,15 @@ namespace CCS.Modules.Prospecting.Editor
 
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(projectSettingsPath)
-                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.7.0");
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+            CCS_SurvivalBootstrapVersionUtility.AddBundleVersionValidationIssue(
+                report,
                 ValidatorContext,
-                ok
-                    ? "bundleVersion is 1.7.0."
-                    : "Expected bundleVersion 1.7.0. Run CCS_ProspectingFoundationBootstrapSetup.ExecuteBatch.");
+                remediationHint: "Run CCS_ProspectingFoundationBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateNoStaleDowngradeBootstraps(CCS_SurvivalValidationReport report)
         {
-            bool firearmOk = !File.Exists(
-                "Assets/CCS/Modules/Firearms/Editor/Validation/CCS_FirearmFoundationBootstrapSetup.cs")
-                || !File.ReadAllText(
-                    "Assets/CCS/Modules/Firearms/Editor/Validation/CCS_FirearmFoundationBootstrapSetup.cs")
-                    .Contains("\"bundleVersion: 1.7.0\"");
-            bool wagonOk = !File.Exists(
-                "Assets/CCS/Modules/Vehicles/Editor/Validation/CCS_WagonFoundationBootstrapSetup.cs")
-                || !File.ReadAllText(
-                    "Assets/CCS/Modules/Vehicles/Editor/Validation/CCS_WagonFoundationBootstrapSetup.cs")
-                    .Contains("\"bundleVersion: 1.7.0\"");
-            bool ok = firearmOk && wagonOk;
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
-                ValidatorContext,
-                ok
-                    ? "Firearm and wagon bootstraps cannot downgrade bundleVersion below 1.7.0."
-                    : "Stale bootstrap BumpVersions still hard-codes 1.6.0. Use CCS_SurvivalBootstrapVersionUtility.");
+            CCS_SurvivalBootstrapVersionUtility.ValidateNoHardcodedBootstrapVersionWrites(report, ValidatorContext);
         }
 
         private static void ValidateGatheringMiningNodes(CCS_SurvivalValidationReport report)
@@ -225,7 +204,7 @@ namespace CCS.Modules.Prospecting.Editor
             bool hasEntrance = false;
             if (scene.isLoaded)
             {
-                CCS_GatheringNode[] nodes = Object.FindObjectsByType<CCS_GatheringNode>(FindObjectsSortMode.None);
+                CCS_GatheringNode[] nodes = Object.FindObjectsByType<CCS_GatheringNode>();
                 for (int index = 0; index < nodes.Length; index++)
                 {
                     if (nodes[index].NodeType == CCS_GatheringNodeType.OreVein)

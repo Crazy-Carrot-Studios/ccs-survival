@@ -39,13 +39,7 @@ namespace CCS.Modules.Mounts.Editor
 
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
-            string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(projectSettingsPath)
-                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.7.0");
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
-                ValidatorContext,
-                ok ? "bundleVersion is 1.7.0." : "Expected bundleVersion 1.7.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
+            CCS_SurvivalBootstrapVersionUtility.AddBundleVersionValidationIssue(report, ValidatorContext);
         }
 
         private static void ValidateMountProfile(CCS_SurvivalValidationReport report)

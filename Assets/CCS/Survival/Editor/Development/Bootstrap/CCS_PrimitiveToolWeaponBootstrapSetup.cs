@@ -686,7 +686,7 @@ namespace CCS.Survival.Editor.Development
         {
             Scene scene = EditorSceneManager.OpenScene(BootstrapScenePath, OpenSceneMode.Single);
             CCS_PrimitiveToolEquipTestHarness[] harnesses =
-                Object.FindObjectsByType<CCS_PrimitiveToolEquipTestHarness>(FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_PrimitiveToolEquipTestHarness>();
 
             CCS_PrimitiveToolEquipTestHarness harness;
             if (harnesses.Length == 0)

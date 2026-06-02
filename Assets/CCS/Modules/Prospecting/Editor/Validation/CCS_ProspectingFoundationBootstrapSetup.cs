@@ -59,7 +59,7 @@ namespace CCS.Modules.Prospecting.Editor
             PatchVendorBuyCatalogs(ironOre, coal, clay, scrapIron, nails, refinedIron, stone, flint);
             EnsureProspectingTestSceneNodes();
             EnsurePlaytestMiningSteps();
-            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast("1.7.0");
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
 
             AssetDatabase.SaveAssets();
             Debug.Log($"{LogPrefix} Prospecting and mining expansion bootstrap complete (1.7.0).");
