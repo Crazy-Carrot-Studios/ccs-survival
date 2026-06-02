@@ -79,6 +79,15 @@ namespace CCS.Modules.Playtesting
         PlaceWorkbenchForHomestead = 64,
         VerifyFrontierHomesteadTier = 65,
         SaveHomesteadCampState = 66,
-        VerifyHomesteadCampPersistenceAfterLoad = 67
+        VerifyHomesteadCampPersistenceAfterLoad = 67,
+        GatherWoodForIndustry = 68,
+        ProduceLumberAtSawTable = 69,
+        ProduceCharcoalAtKiln = 70,
+        RefineIronAtPrimitiveForge = 71,
+        CraftIronHatchetHeadAtForge = 72,
+        UpgradeToIronTool = 73,
+        VerifyIndustrialHomesteadTier = 74,
+        SaveIndustryCampState = 75,
+        VerifyIndustryCampPersistenceAfterLoad = 76
     }
 }

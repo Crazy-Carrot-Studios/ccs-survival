@@ -27,6 +27,9 @@ namespace CCS.Modules.Shelter
         [SerializeField] private float placementMaxGroundRayDistance = 8f;
         [SerializeField] private float placementMaxSlopeAngle = 35f;
 
+        [Header("Industry")]
+        [SerializeField] private string industryWorkstationRoleId = string.Empty;
+
         [Header("Camp")]
         [SerializeField] private bool contributesToCampTier = true;
         [SerializeField] private CCS_CampStructureKind campStructureKind = CCS_CampStructureKind.WorkArea;
@@ -47,6 +50,8 @@ namespace CCS.Modules.Shelter
             placementMaxGroundRayDistance < 1f ? 1f : placementMaxGroundRayDistance;
 
         public float PlacementMaxSlopeAngle => placementMaxSlopeAngle < 1f ? 1f : placementMaxSlopeAngle;
+
+        public string IndustryWorkstationRoleId => industryWorkstationRoleId ?? string.Empty;
 
         public bool ContributesToCampTier => contributesToCampTier;
 

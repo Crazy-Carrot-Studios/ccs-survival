@@ -14,6 +14,7 @@ namespace CCS.Modules.Shelter
         None = 0,
         TemporaryCamp = 1,
         FrontierCamp = 2,
-        FrontierHomestead = 3
+        FrontierHomestead = 3,
+        IndustrialHomestead = 4
     }
 }

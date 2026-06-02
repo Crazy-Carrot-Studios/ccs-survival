@@ -16,6 +16,9 @@ namespace CCS.Modules.Shelter
         public bool hasBedroll;
         public bool hasStorage;
         public bool hasWorkArea;
+        public bool hasSawTable;
+        public bool hasCharcoalKiln;
+        public bool hasPrimitiveForge;
         public string[] structuresPresent = Array.Empty<string>();
     }
 }

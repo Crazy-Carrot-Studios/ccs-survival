@@ -118,7 +118,10 @@ namespace CCS.Modules.Shelter
             bool hasCampfire = HasCampfireInRadius(radius);
             bool hasBedroll = HasBedrollInRadius(radius);
             bool hasStorage = HasStorageInRadius(radius);
-            bool hasWorkArea = HasWorkAreaInRadius(radius);
+            bool hasWorkArea = HasCampStructureInRadius(radius, CCS_CampStructureKind.WorkArea);
+            bool hasSawTable = HasCampStructureInRadius(radius, CCS_CampStructureKind.SawTable);
+            bool hasCharcoalKiln = HasCampStructureInRadius(radius, CCS_CampStructureKind.CharcoalKiln);
+            bool hasPrimitiveForge = HasCampStructureInRadius(radius, CCS_CampStructureKind.PrimitiveForge);
             Vector3 campCenter = subjectPosition;
 
             Dictionary<CCS_CampStructureKind, bool> presence = CCS_CampTierEvaluationUtility.CreatePresenceMap();
@@ -127,10 +130,19 @@ namespace CCS.Modules.Shelter
             presence[CCS_CampStructureKind.Bedroll] = hasBedroll;
             presence[CCS_CampStructureKind.Storage] = hasStorage;
             presence[CCS_CampStructureKind.WorkArea] = hasWorkArea;
+            presence[CCS_CampStructureKind.SawTable] = hasSawTable;
+            presence[CCS_CampStructureKind.CharcoalKiln] = hasCharcoalKiln;
+            presence[CCS_CampStructureKind.PrimitiveForge] = hasPrimitiveForge;
 
             CCS_CampTier tier = activeProfile.CampTierProfile != null
                 ? CCS_CampTierEvaluationUtility.EvaluateHighestTier(activeProfile.CampTierProfile, presence)
-                : EvaluateLegacyTier(hasShelter, hasCampfire, hasBedroll, hasStorage, hasWorkArea);
+                : EvaluateLegacyTier(
+                    hasShelter,
+                    hasCampfire,
+                    hasBedroll,
+                    hasStorage,
+                    hasWorkArea,
+                    hasPrimitiveForge);
 
             bool ownsCamp = tier != CCS_CampTier.None;
             string ownerId = ownsCamp ? savedState.campOwnerId : string.Empty;
@@ -150,7 +162,10 @@ namespace CCS.Modules.Shelter
                 hasCampfire,
                 hasBedroll,
                 hasStorage,
-                hasWorkArea);
+                hasWorkArea,
+                hasSawTable,
+                hasCharcoalKiln,
+                hasPrimitiveForge);
 
             savedState.campTier = (int)tier;
             savedState.hasShelter = hasShelter;
@@ -158,6 +173,9 @@ namespace CCS.Modules.Shelter
             savedState.hasBedroll = hasBedroll;
             savedState.hasStorage = hasStorage;
             savedState.hasWorkArea = hasWorkArea;
+            savedState.hasSawTable = hasSawTable;
+            savedState.hasCharcoalKiln = hasCharcoalKiln;
+            savedState.hasPrimitiveForge = hasPrimitiveForge;
             savedState.ownsCamp = ownsCamp;
             savedState.campCenterX = campCenter.x;
             savedState.campCenterY = campCenter.y;
@@ -171,6 +189,9 @@ namespace CCS.Modules.Shelter
                 hasBedroll,
                 hasStorage,
                 hasWorkArea,
+                hasSawTable,
+                hasCharcoalKiln,
+                hasPrimitiveForge,
                 ownsCamp,
                 ownerId,
                 savedState.campCreationTimeUtcTicks,
@@ -195,7 +216,8 @@ namespace CCS.Modules.Shelter
             bool hasCampfire,
             bool hasBedroll,
             bool hasStorage,
-            bool hasWorkArea)
+            bool hasWorkArea,
+            bool hasPrimitiveForge)
         {
             if (!hasShelter || !hasCampfire || !hasBedroll)
             {
@@ -212,7 +234,12 @@ namespace CCS.Modules.Shelter
                 return CCS_CampTier.FrontierCamp;
             }
 
-            return CCS_CampTier.FrontierHomestead;
+            if (!hasPrimitiveForge)
+            {
+                return CCS_CampTier.FrontierHomestead;
+            }
+
+            return CCS_CampTier.IndustrialHomestead;
         }
 
         private static List<string> BuildStructuresPresentList(
@@ -220,9 +247,12 @@ namespace CCS.Modules.Shelter
             bool hasCampfire,
             bool hasBedroll,
             bool hasStorage,
-            bool hasWorkArea)
+            bool hasWorkArea,
+            bool hasSawTable,
+            bool hasCharcoalKiln,
+            bool hasPrimitiveForge)
         {
-            List<string> structures = new List<string>(5);
+            List<string> structures = new List<string>(8);
             if (hasShelter)
             {
                 structures.Add(CCS_CampStructureKind.Shelter.ToString());
@@ -248,6 +278,21 @@ namespace CCS.Modules.Shelter
                 structures.Add(CCS_CampStructureKind.WorkArea.ToString());
             }
 
+            if (hasSawTable)
+            {
+                structures.Add(CCS_CampStructureKind.SawTable.ToString());
+            }
+
+            if (hasCharcoalKiln)
+            {
+                structures.Add(CCS_CampStructureKind.CharcoalKiln.ToString());
+            }
+
+            if (hasPrimitiveForge)
+            {
+                structures.Add(CCS_CampStructureKind.PrimitiveForge.ToString());
+            }
+
             return structures;
         }
 
@@ -258,6 +303,7 @@ namespace CCS.Modules.Shelter
                 CCS_CampTier.TemporaryCamp => "Temporary frontier camp established.",
                 CCS_CampTier.FrontierCamp => "Frontier camp established with storage.",
                 CCS_CampTier.FrontierHomestead => "Frontier homestead established.",
+                CCS_CampTier.IndustrialHomestead => "Industrial homestead established.",
                 _ => "Camp requirements incomplete."
             };
         }
@@ -327,11 +373,11 @@ namespace CCS.Modules.Shelter
             return false;
         }
 
-        private bool HasWorkAreaInRadius(float radius)
+        private bool HasCampStructureInRadius(float radius, CCS_CampStructureKind structureKind)
         {
             return homesteadStructureService != null
                 && homesteadStructureService.IsInitialized
-                && homesteadStructureService.HasWorkbenchInRadius(subjectPosition, radius);
+                && homesteadStructureService.HasCampStructureInRadius(subjectPosition, radius, structureKind);
         }
 
         private bool IsWithinRadius(Vector3 worldPosition, float radius)

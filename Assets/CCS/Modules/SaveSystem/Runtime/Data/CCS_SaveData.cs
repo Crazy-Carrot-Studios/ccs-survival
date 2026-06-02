@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Industry;
 
 // =============================================================================
 // SCRIPT: CCS_SaveData
@@ -45,7 +46,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveCampWorldData camp = new CCS_SaveCampWorldData();
 
+        public CCS_SaveIndustryWorldData industry = new CCS_SaveIndustryWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveIndustryWorldData
+    {
+        public CCS_IndustryJob[] activeJobs = Array.Empty<CCS_IndustryJob>();
     }
 
     [Serializable]
@@ -70,6 +79,9 @@ namespace CCS.Modules.SaveSystem
         public bool hasBedroll;
         public bool hasStorage;
         public bool hasWorkArea;
+        public bool hasSawTable;
+        public bool hasCharcoalKiln;
+        public bool hasPrimitiveForge;
         public long campCreationTimeUtcTicks;
         public string[] structuresPresent = Array.Empty<string>();
     }

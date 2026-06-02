@@ -28,11 +28,11 @@ namespace CCS.Modules.Shelter.Editor
         {
             string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
             bool ok = File.Exists(projectSettingsPath)
-                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.4.1");
+                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.5.0");
             report.AddIssue(
                 ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
                 ValidatorContext,
-                ok ? "bundleVersion is 1.4.1." : "Expected bundleVersion 1.4.1. Run CCS_FrontierHomesteadBootstrapSetup.ExecuteBatch.");
+                ok ? "bundleVersion is 1.5.0." : "Expected bundleVersion 1.5.0. Run CCS_FrontierIndustryBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateCampTierProfile(CCS_SurvivalValidationReport report)

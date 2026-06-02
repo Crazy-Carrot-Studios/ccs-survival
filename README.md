@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.4.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.5.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.5.0** — Frontier Industry Foundation
+
+Generic **Industry** module for resource processing (wood → lumber, wood → charcoal, iron ore → refined iron) at Saw Table, Charcoal Kiln, and Primitive Forge workstations. Blacksmith forge recipes (tool heads, nails, horseshoe placeholder), iron tool upgrades, **IndustrialHomestead** camp tier, economy trade paths, industry save jobs, and playtest industry loop.
 
 **1.4.1** — Frontier Homestead Foundation
 

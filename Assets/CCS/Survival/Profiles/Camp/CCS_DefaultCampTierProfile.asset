@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_CampTierProfile
   profileDisplayName: 
   profileId: 
-  profileDescription: 'Frontier camp tier ladder: TemporaryCamp, FrontierCamp, FrontierHomestead
-    (1.4.1).'
-  profileVersion: 1.4.1
+  profileDescription: Frontier camp tiers through IndustrialHomestead (1.5.0).
+  profileVersion: 1.5.0
   enableDebugLogs: 0
   tierDefinitions:
   - campTier: 1
@@ -40,4 +39,10 @@ MonoBehaviour:
     prerequisiteTier: 2
     requirements:
     - structureKind: 5
+      structureDefinitionId: 
+  - campTier: 4
+    displayName: Industrial Homestead
+    prerequisiteTier: 3
+    requirements:
+    - structureKind: 12
       structureDefinitionId: 

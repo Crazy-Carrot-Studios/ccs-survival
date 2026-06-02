@@ -404,6 +404,87 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.verify.load
+    displayName: Verify industry load
+    stepType: 76
+    instructionText: 'Industry playtest: Verify industry load. Shortcuts available
+      via playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.save
+    displayName: Save industry camp
+    stepType: 75
+    instructionText: 'Industry playtest: Save industry camp. Shortcuts available
+      via playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.verify.tier
+    displayName: Verify IndustrialHomestead
+    stepType: 74
+    instructionText: 'Industry playtest: Verify IndustrialHomestead. Shortcuts available
+      via playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.upgrade.tool
+    displayName: Upgrade to iron tool
+    stepType: 73
+    instructionText: 'Industry playtest: Upgrade to iron tool. Shortcuts available
+      via playtest HUD.'
+    targetItemId: ccs.survival.item.tool.hatchet.iron
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.hatchet.head
+    displayName: Craft iron hatchet head
+    stepType: 72
+    instructionText: 'Industry playtest: Craft iron hatchet head. Shortcuts available
+      via playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.refine.iron
+    displayName: Refine iron ore
+    stepType: 71
+    instructionText: 'Industry playtest: Refine iron ore. Shortcuts available via
+      playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.charcoal
+    displayName: Produce charcoal
+    stepType: 70
+    instructionText: 'Industry playtest: Produce charcoal. Shortcuts available via
+      playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.lumber
+    displayName: Produce lumber
+    stepType: 69
+    instructionText: 'Industry playtest: Produce lumber. Shortcuts available via
+      playtest HUD.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.industry.gather.wood
+    displayName: Gather wood for industry
+    stepType: 68
+    instructionText: 'Industry playtest: Gather wood for industry. Shortcuts available
+      via playtest HUD.'
+    targetItemId: ccs.survival.item.resource.wood
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.trapping.trap.obtain
     displayName: Obtain simple trap
     stepType: 37

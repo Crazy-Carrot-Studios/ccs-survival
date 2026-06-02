@@ -25,6 +25,7 @@ using CCS.Modules.PlayerDeath;
 using CCS.Modules.Playtesting;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Industry;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -77,6 +78,7 @@ namespace CCS.Survival.Composition
             CCS_BuildingProgressionProfile buildingProgressionProfile,
             CCS_StorageProfile storageProfile,
             CCS_FrontierStorageCampProfile frontierStorageCampProfile,
+            CCS_IndustryProfile industryProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -277,10 +279,26 @@ namespace CCS.Survival.Composition
                 campService);
             RegisterService(runtimeHost, frontierStoragePlacementService, enableDebugLogs);
 
+            CCS_IndustryService industryService = CreateIndustryService(
+                runtimeHost,
+                industryProfile,
+                inventoryService,
+                craftingService);
+            RegisterService(runtimeHost, industryService, enableDebugLogs);
+
             CCS_FrontierHomesteadStructureService homesteadStructureService = CreateFrontierHomesteadStructureService(
                 campDefinition,
-                campService);
+                campService,
+                industryService);
             RegisterService(runtimeHost, homesteadStructureService, enableDebugLogs);
+
+            if (industryService.IsInitialized)
+            {
+                industryService.BindWorkstationRoleProximityQuery(
+                    (origin, radius, roleId) => homesteadStructureService != null
+                        && homesteadStructureService.IsInitialized
+                        && homesteadStructureService.HasIndustryWorkstationRoleInRadius(origin, radius, roleId));
+            }
 
             if (frontierStoragePlacementService.IsInitialized)
             {
@@ -290,6 +308,10 @@ namespace CCS.Survival.Composition
             if (homesteadStructureService.IsInitialized)
             {
                 homesteadStructureService.BindInventoryService(inventoryService);
+                if (industryService != null && industryService.IsInitialized)
+                {
+                    homesteadStructureService.BindIndustryService(industryService);
+                }
             }
 
             if (campService != null && campService.IsInitialized)
@@ -339,6 +361,7 @@ namespace CCS.Survival.Composition
                 campService,
                 homesteadStructureService,
                 frontierStoragePlacementService,
+                industryService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -855,9 +878,43 @@ namespace CCS.Survival.Composition
                 itemDefinition.ItemId);
         }
 
+        private static CCS_IndustryService CreateIndustryService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_IndustryProfile industryProfile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_CraftingService craftingService)
+        {
+            CCS_IndustryService service = new CCS_IndustryService();
+            service.Initialize();
+
+            if (industryProfile != null)
+            {
+                service.InitializeFromProfile(industryProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (craftingService != null && craftingService.IsInitialized)
+            {
+                service.BindCraftingService(craftingService);
+            }
+
+            CCS_IndustryRuntimeBridge.Register(service);
+            if (runtimeHost?.RuntimeUpdateLoop != null)
+            {
+                runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
+            }
+
+            return service;
+        }
+
         private static CCS_FrontierHomesteadStructureService CreateFrontierHomesteadStructureService(
             CCS_CampDefinition campDefinition,
-            CCS_CampService campService)
+            CCS_CampService campService,
+            CCS_IndustryService industryService)
         {
             CCS_FrontierHomesteadStructureService service = new CCS_FrontierHomesteadStructureService();
             service.Initialize();
@@ -870,6 +927,11 @@ namespace CCS.Survival.Composition
             if (campService != null && campService.IsInitialized)
             {
                 service.BindCampService(campService);
+            }
+
+            if (industryService != null && industryService.IsInitialized)
+            {
+                service.BindIndustryService(industryService);
             }
 
             return service;

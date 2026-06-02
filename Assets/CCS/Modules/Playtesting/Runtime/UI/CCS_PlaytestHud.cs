@@ -284,6 +284,22 @@ namespace CCS.Modules.Playtesting
                     }
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryGrantWoodForIndustry();
+                        playtestService.TryProduceLumberAtSawTable();
+                        playtestService.TryProduceCharcoalAtKiln();
+                        playtestService.TryRefineIronAtForge();
+                        playtestService.TryCraftIronHatchetHeadAtForge();
+                        playtestService.TryGrantIronHatchetUpgrade();
+                    }
+                }
+            }
         }
 
         private void TryNotifySpawnReady()

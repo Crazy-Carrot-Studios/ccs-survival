@@ -91,7 +91,10 @@ namespace CCS.Modules.Shelter
                 { CCS_CampStructureKind.Barn, false },
                 { CCS_CampStructureKind.Stable, false },
                 { CCS_CampStructureKind.Garden, false },
-                { CCS_CampStructureKind.Livestock, false }
+                { CCS_CampStructureKind.Livestock, false },
+                { CCS_CampStructureKind.SawTable, false },
+                { CCS_CampStructureKind.CharcoalKiln, false },
+                { CCS_CampStructureKind.PrimitiveForge, false }
             };
         }
     }

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_CampDefinition
   profileDisplayName: 
   profileId: 
-  profileDescription: Frontier homestead camp tracking with tier profile, storage,
-    and workbench (1.4.1).
-  profileVersion: 1.4.1
+  profileDescription: Frontier camp with industry workstations and IndustrialHomestead
+    tier (1.5.0).
+  profileVersion: 1.5.0
   enableDebugLogs: 0
   enableCampTracking: 1
   campDetectionRadius: 12
@@ -30,3 +30,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 29bb128fd44268545802d1c3bbf54f2a, type: 2}
   workbenchDefinitions:
   - {fileID: 11400000, guid: 452e8a3704514fe41bfb6e669162c43f, type: 2}
+  - {fileID: 11400000, guid: f7888c197a302d545983ef1a1eb0f7c3, type: 2}
+  - {fileID: 11400000, guid: 24b584d2a2c3e574591452f4100a40fb, type: 2}
+  - {fileID: 11400000, guid: e3b308cd4dde36540b631d7fa93f4cd4, type: 2}

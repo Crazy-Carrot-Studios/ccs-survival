@@ -20,6 +20,9 @@ namespace CCS.Modules.Shelter
         Barn = 6,
         Stable = 7,
         Garden = 8,
-        Livestock = 9
+        Livestock = 9,
+        SawTable = 10,
+        CharcoalKiln = 11,
+        PrimitiveForge = 12
     }
 }

@@ -1,5 +1,6 @@
 using CCS.Core;
 using CCS.Modules.CharacterController;
+using CCS.Modules.Industry;
 using CCS.Modules.Shelter;
 using CCS.Modules.SurvivalCore;
 using UnityEngine;
@@ -46,6 +47,7 @@ namespace CCS.Survival.Player
         private CCS_SurvivalCoreService survivalCoreService;
         private CCS_ShelterService shelterService;
         private CCS_CampService campService;
+        private CCS_IndustryService industryService;
         private bool cursorLocked;
         private bool servicesBound;
         private bool gameplayFrozen;
@@ -143,6 +145,7 @@ namespace CCS.Survival.Player
             runtimeHost.ServiceRegistry.TryGetService(out survivalCoreService);
             runtimeHost.ServiceRegistry.TryGetService(out shelterService);
             runtimeHost.ServiceRegistry.TryGetService(out campService);
+            runtimeHost.ServiceRegistry.TryGetService(out industryService);
 
             CCS_ICharacterInputProvider provider = inputProvider != null
                 ? inputProvider
@@ -207,6 +210,11 @@ namespace CCS.Survival.Player
             if (campService != null && campService.IsInitialized)
             {
                 campService.SetSubjectPosition(subjectPosition);
+            }
+
+            if (industryService != null && industryService.IsInitialized)
+            {
+                industryService.SetSubjectPosition(subjectPosition);
             }
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CCS.Core;
+using CCS.Modules.Industry;
 using CCS.Modules.Inventory;
 using CCS.Survival;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace CCS.Modules.Shelter
 
         private CCS_CampDefinition activeProfile;
         private CCS_CampService campService;
+        private CCS_IndustryService industryService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_FrontierShelterPlacementPreview placementPreview;
         private CCS_WorkbenchDefinition pendingWorkbenchDefinition;
@@ -41,6 +43,11 @@ namespace CCS.Modules.Shelter
         public void BindCampService(CCS_CampService service)
         {
             campService = service;
+        }
+
+        public void BindIndustryService(CCS_IndustryService service)
+        {
+            industryService = service;
         }
 
         public void BindInventoryService(CCS_PlayerInventoryService service)
@@ -91,10 +98,54 @@ namespace CCS.Modules.Shelter
 
         public bool HasWorkbenchInRadius(Vector3 origin, float radius)
         {
+            return HasCampStructureInRadius(origin, radius, CCS_CampStructureKind.WorkArea);
+        }
+
+        public bool HasCampStructureInRadius(Vector3 origin, float radius, CCS_CampStructureKind structureKind)
+        {
             foreach (KeyValuePair<string, CCS_FrontierWorkbenchInstance> entry in placedWorkbenches)
             {
                 CCS_FrontierWorkbenchInstance workbench = entry.Value;
-                if (workbench != null && Vector3.Distance(origin, workbench.WorldPosition) <= radius)
+                CCS_WorkbenchDefinition definition = workbench?.WorkbenchDefinition;
+                if (workbench == null
+                    || definition == null
+                    || !definition.ContributesToCampTier
+                    || definition.CampStructureKind != structureKind)
+                {
+                    continue;
+                }
+
+                if (Vector3.Distance(origin, workbench.WorldPosition) <= radius)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool HasIndustryWorkstationRoleInRadius(Vector3 origin, float radius, string workstationRoleId)
+        {
+            if (string.IsNullOrWhiteSpace(workstationRoleId))
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<string, CCS_FrontierWorkbenchInstance> entry in placedWorkbenches)
+            {
+                CCS_FrontierWorkbenchInstance workbench = entry.Value;
+                CCS_WorkbenchDefinition definition = workbench?.WorkbenchDefinition;
+                if (workbench == null
+                    || definition == null
+                    || !string.Equals(
+                        definition.IndustryWorkstationRoleId,
+                        workstationRoleId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (Vector3.Distance(origin, workbench.WorldPosition) <= radius)
                 {
                     return true;
                 }
@@ -236,6 +287,19 @@ namespace CCS.Modules.Shelter
             CCS_FrontierWorkbenchInstance instance = workbenchObject.AddComponent<CCS_FrontierWorkbenchInstance>();
             instance.Initialize(this, definition, instanceId, campOwnerId);
             placedWorkbenches[instanceId] = instance;
+
+            if (industryService != null
+                && industryService.IsInitialized
+                && CCS_IndustryWorkstationRole.IsIndustryRole(definition.IndustryWorkstationRoleId))
+            {
+                CCS_IndustryWorkstation industryWorkstation = workbenchObject.AddComponent<CCS_IndustryWorkstation>();
+                industryWorkstation.Initialize(
+                    industryService,
+                    instanceId,
+                    definition.IndustryWorkstationRoleId,
+                    campOwnerId);
+            }
+
             return instance;
         }
 

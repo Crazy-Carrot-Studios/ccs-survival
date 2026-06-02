@@ -1,0 +1,30 @@
+{
+    "name": "CCS.Modules.Industry.Editor",
+    "rootNamespace": "CCS.Modules.Industry.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Industry.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Crafting.Editor",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Shelter.Editor",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Economy.Editor",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Survival.Composition"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

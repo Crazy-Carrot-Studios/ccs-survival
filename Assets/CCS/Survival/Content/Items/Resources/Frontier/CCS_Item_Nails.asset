@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: CCS_Item_Nails
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
   itemId: ccs.survival.item.resource.nails
-  displayName: Nails
+  displayName: Iron Nails
   description: Frontier resource material for practical source harvesting.
-  category: 0
+  category: 4
   maxStackSize: 99
   isStackable: 1
   weight: 0
@@ -32,3 +32,7 @@ MonoBehaviour:
   meleeDamage: 0
   meleeRange: 2
   icon: {fileID: 0}
+  hasEconomyValues: 0
+  buyValue: 0
+  sellValue: 0
+  vendorCategory: 0

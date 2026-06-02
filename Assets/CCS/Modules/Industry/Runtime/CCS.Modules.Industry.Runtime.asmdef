@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.Industry.Runtime",
+    "rootNamespace": "CCS.Modules.Industry",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.SaveLoad.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

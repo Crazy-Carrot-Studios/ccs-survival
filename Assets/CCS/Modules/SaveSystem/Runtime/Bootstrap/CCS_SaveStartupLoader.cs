@@ -4,6 +4,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Industry;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -59,6 +60,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CampService campService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierHomesteadStructureService homesteadStructureService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierStoragePlacementService frontierStoragePlacementService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_IndustryService industryService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
 
@@ -76,6 +78,7 @@ namespace CCS.Modules.SaveSystem
                 campService,
                 homesteadStructureService,
                 frontierStoragePlacementService,
+                industryService,
                 playerTransform);
 
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)

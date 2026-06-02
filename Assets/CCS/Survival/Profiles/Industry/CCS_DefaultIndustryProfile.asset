@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1436640f377095449ba029ec7f90a83a, type: 3}
+  m_Name: CCS_DefaultIndustryProfile
+  m_EditorClassIdentifier: CCS.Modules.Industry.Runtime::CCS.Modules.Industry.CCS_IndustryProfile
+  profileDisplayName: 
+  profileId: 
+  profileDescription: Frontier industry processing and primitive forge catalog (1.5.0).
+  profileVersion: 1.5.0
+  enableDebugLogs: 0
+  processDefinitions:
+  - {fileID: 11400000, guid: 628f9a04ed4199f4bb697fc020102fd7, type: 2}
+  - {fileID: 11400000, guid: 2330f3d0e6639c043b74ad297ee14c7e, type: 2}
+  - {fileID: 11400000, guid: c2e382b499c314d418446a21e3570045, type: 2}
+  - {fileID: 11400000, guid: 7943c58d5c5a778418bce0286dbae97d, type: 2}
+  blacksmithRecipes:
+  - {fileID: 11400000, guid: 280e4b71e8114c74b80b8c471186b47a, type: 2}
+  - {fileID: 11400000, guid: 01a65d2fec7c00b469e64cd7e9756210, type: 2}
+  - {fileID: 11400000, guid: 68ab3c10af7818d4290f7a3e51203ba2, type: 2}
+  - {fileID: 11400000, guid: a2f7a3be1bbc7d94894320074ab20ea4, type: 2}
+  coalPlaceholder: {fileID: 11400000, guid: 088343fe45e93044d896344e4700b7f1, type: 2}
+  sulfurPlaceholder: {fileID: 11400000, guid: 25f08af0847970a47a1315d1ee5748f6, type: 2}
+  saltpeterPlaceholder: {fileID: 11400000, guid: 8fdc984876259ab458b7963198fd9277, type: 2}

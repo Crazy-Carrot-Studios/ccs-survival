@@ -12,6 +12,7 @@
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.SurvivalCore.Runtime",
         "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Industry.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Equipment.Runtime",

@@ -17,6 +17,7 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Trapping;
+using CCS.Modules.Industry;
 using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -72,6 +73,15 @@ namespace CCS.Modules.Playtesting
         private const string LeanToKitItemId = "ccs.survival.item.frontier.leantokit";
         private const string SupplyCrateKitItemId = "ccs.survival.item.frontier.supplycratekit";
         private const string WorkbenchKitItemId = "ccs.survival.item.frontier.workbenchkit";
+        private const string SawTableKitItemId = "ccs.survival.item.frontier.sawtablekit";
+        private const string CharcoalKilnKitItemId = "ccs.survival.item.frontier.charcoalkilnkit";
+        private const string PrimitiveForgeKitItemId = "ccs.survival.item.frontier.primitiveforgekit";
+        private const string IronOreItemId = "ccs.survival.item.resource.ironore";
+        private const string IronHatchetItemId = "ccs.survival.item.tool.hatchet.iron";
+        private const string IndustryProcessWoodLumberId = "ccs.survival.industry.process.wood.lumber";
+        private const string IndustryProcessWoodCharcoalId = "ccs.survival.industry.process.wood.charcoal";
+        private const string IndustryProcessIronRefineId = "ccs.survival.industry.process.ironore.refinediron";
+        private const string BlacksmithIronHatchetHeadId = "ccs.survival.industry.blacksmith.ironhatchethead";
         private const string CampfirePieceId = "ccs.survival.building.campfire.test";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
         private const string LegacyFoundationPieceId = "ccs.survival.building.test.foundation";
@@ -1831,6 +1841,136 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.BuyWorkbenchKitForHomestead,
                     "Workbench kit available in inventory.");
             }
+
+            if (boundCampService != null
+                && boundCampService.IsInitialized
+                && boundCampService.CurrentSnapshot.CampTier >= CCS_CampTier.IndustrialHomestead)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyIndustrialHomesteadTier,
+                    "Industrial homestead tier verified.");
+            }
+        }
+
+        public bool TryGrantWoodForIndustry()
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition wood = FindItemDefinitionById(WoodItemId);
+            if (wood == null)
+            {
+                return false;
+            }
+
+            inventoryService.AddItem(wood, 6);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.GatherWoodForIndustry,
+                "Wood granted for industry playtest.");
+            return true;
+        }
+
+        public bool TryRunIndustryProcess(string processId, CCS_PlaytestStepType completionStep)
+        {
+            if (!TryResolveIndustryService(out CCS_IndustryService industryService))
+            {
+                return false;
+            }
+
+            CCS_IndustryJobResult result = industryService.TryStartProcess(processId);
+            if (result.Success)
+            {
+                TryCompleteActiveStepOfType(completionStep, result.Message);
+            }
+
+            return result.Success;
+        }
+
+        public bool TryProduceLumberAtSawTable()
+        {
+            return TryRunIndustryProcess(IndustryProcessWoodLumberId, CCS_PlaytestStepType.ProduceLumberAtSawTable);
+        }
+
+        public bool TryProduceCharcoalAtKiln()
+        {
+            return TryRunIndustryProcess(IndustryProcessWoodCharcoalId, CCS_PlaytestStepType.ProduceCharcoalAtKiln);
+        }
+
+        public bool TryRefineIronAtForge()
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition ironOre = FindItemDefinitionById(IronOreItemId);
+            if (ironOre != null)
+            {
+                inventoryService.AddItem(ironOre, 4);
+            }
+
+            return TryRunIndustryProcess(IndustryProcessIronRefineId, CCS_PlaytestStepType.RefineIronAtPrimitiveForge);
+        }
+
+        public bool TryCraftIronHatchetHeadAtForge()
+        {
+            if (!TryResolveIndustryService(out CCS_IndustryService industryService))
+            {
+                return false;
+            }
+
+            CCS_IndustryJobResult result = industryService.TryCraftBlacksmithRecipe(
+                BlacksmithIronHatchetHeadId,
+                new CCS_CraftingStationContext(CCS_CraftingStationType.Forge, "Primitive Forge", string.Empty));
+            if (result.Success)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.CraftIronHatchetHeadAtForge, result.Message);
+            }
+
+            return result.Success;
+        }
+
+        public bool TryGrantIronHatchetUpgrade()
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition ironHatchet = FindItemDefinitionById(IronHatchetItemId);
+            if (ironHatchet == null)
+            {
+                return false;
+            }
+
+            inventoryService.AddItem(ironHatchet, 1);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.UpgradeToIronTool,
+                "Iron hatchet granted for tool upgrade playtest.");
+            return true;
+        }
+
+        private static bool TryResolveIndustryService(out CCS_IndustryService industryService)
+        {
+            industryService = null;
+            if (!CCS_CharacterMovementRuntimeBridge.TryGetRuntimeHost(out CCS_RuntimeHost runtimeHost))
+            {
+                return false;
+            }
+
+            industryService = CCS_IndustryRuntimeBridge.ResolveService(runtimeHost);
+            return industryService != null && industryService.IsInitialized;
         }
 
         private void EvaluateCampPersistenceAfterLoad()
@@ -1862,6 +2002,24 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyHomesteadCampPersistenceAfterLoad,
                     "Homestead camp tier and structures restored after load.");
+            }
+
+            EvaluateIndustryCampPersistenceAfterLoad();
+        }
+
+        private void EvaluateIndustryCampPersistenceAfterLoad()
+        {
+            if (boundCampService == null || !boundCampService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_CampSnapshot snapshot = boundCampService.CurrentSnapshot;
+            if (snapshot.CampTier >= CCS_CampTier.IndustrialHomestead && snapshot.HasPrimitiveForge)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyIndustryCampPersistenceAfterLoad,
+                    "Industrial homestead tier and forge restored after load.");
             }
         }
 

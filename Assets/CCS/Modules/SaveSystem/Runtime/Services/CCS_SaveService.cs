@@ -6,6 +6,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Industry;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -44,6 +45,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_FrontierHomesteadStructureService homesteadStructureService;
         private CCS_FrontierStoragePlacementService frontierStoragePlacementService;
         private CCS_CampService campService;
+        private CCS_IndustryService industryService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -116,6 +118,7 @@ namespace CCS.Modules.SaveSystem
             CCS_CampService camp,
             CCS_FrontierHomesteadStructureService homesteadStructure,
             CCS_FrontierStoragePlacementService frontierStoragePlacement,
+            CCS_IndustryService industry,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -130,6 +133,7 @@ namespace CCS.Modules.SaveSystem
             campService = camp;
             homesteadStructureService = homesteadStructure;
             frontierStoragePlacementService = frontierStoragePlacement;
+            industryService = industry;
             playerTransform = playerRoot;
         }
 
@@ -287,6 +291,7 @@ namespace CCS.Modules.SaveSystem
             CaptureSleep(saveData.sleep);
             CaptureTrapping(saveData.trapping);
             CaptureCamp(saveData.camp);
+            CaptureIndustry(saveData.industry);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -602,6 +607,7 @@ namespace CCS.Modules.SaveSystem
             ApplySleep(saveData.sleep);
             ApplyTrapping(saveData.trapping);
             ApplyCamp(saveData.camp);
+            ApplyIndustry(saveData.industry);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -846,6 +852,9 @@ namespace CCS.Modules.SaveSystem
                     hasBedroll = state.hasBedroll,
                     hasStorage = state.hasStorage,
                     hasWorkArea = state.hasWorkArea,
+                    hasSawTable = state.hasSawTable,
+                    hasCharcoalKiln = state.hasCharcoalKiln,
+                    hasPrimitiveForge = state.hasPrimitiveForge,
                     campCreationTimeUtcTicks = state.campCreationTimeUtcTicks,
                     structuresPresent = state.structuresPresent ?? Array.Empty<string>()
                 };
@@ -854,15 +863,16 @@ namespace CCS.Modules.SaveSystem
             if (frontierShelterService == null || !frontierShelterService.IsInitialized)
             {
                 campData.shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
-                return;
             }
-
+            else
+            {
             CCS_FrontierShelterInstanceSaveState[] records = frontierShelterService.CaptureWorldState();
             if (records == null || records.Length == 0)
             {
                 campData.shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
-                return;
             }
+            else
+            {
 
             CCS_SaveFrontierShelterInstanceData[] saveRecords =
                 new CCS_SaveFrontierShelterInstanceData[records.Length];
@@ -882,6 +892,8 @@ namespace CCS.Modules.SaveSystem
             }
 
             campData.shelterInstances = saveRecords;
+            }
+            }
 
             if (homesteadStructureService == null || !homesteadStructureService.IsInitialized)
             {
@@ -917,6 +929,28 @@ namespace CCS.Modules.SaveSystem
             campData.workbenchInstances = workbenchSaveRecords;
         }
 
+        private void CaptureIndustry(CCS_SaveIndustryWorldData industryData)
+        {
+            if (industryData == null)
+            {
+                return;
+            }
+
+            industryData.activeJobs = industryService != null && industryService.IsInitialized
+                ? industryService.CaptureActiveJobs()
+                : Array.Empty<CCS_IndustryJob>();
+        }
+
+        private void ApplyIndustry(CCS_SaveIndustryWorldData industryData)
+        {
+            if (industryService == null || !industryService.IsInitialized)
+            {
+                return;
+            }
+
+            industryService.RestoreActiveJobs(industryData?.activeJobs);
+        }
+
         private void ApplyCamp(CCS_SaveCampWorldData campData)
         {
             if (campService != null && campService.IsInitialized && campData?.campState != null)
@@ -934,6 +968,9 @@ namespace CCS.Modules.SaveSystem
                     hasBedroll = campData.campState.hasBedroll,
                     hasStorage = campData.campState.hasStorage,
                     hasWorkArea = campData.campState.hasWorkArea,
+                    hasSawTable = campData.campState.hasSawTable,
+                    hasCharcoalKiln = campData.campState.hasCharcoalKiln,
+                    hasPrimitiveForge = campData.campState.hasPrimitiveForge,
                     campCreationTimeUtcTicks = campData.campState.campCreationTimeUtcTicks,
                     structuresPresent = campData.campState.structuresPresent ?? Array.Empty<string>()
                 });

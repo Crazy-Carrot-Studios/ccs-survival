@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c95cda8146fd623488be78fd6c5769b6, type: 3}
+  m_Name: CCS_IndustryProcess_WoodToLumber
+  m_EditorClassIdentifier: CCS.Modules.Industry.Runtime::CCS.Modules.Industry.CCS_IndustryDefinition
+  processId: ccs.survival.industry.process.wood.lumber
+  displayName: Wood to Lumber
+  description: 
+  requiredWorkstationRoleId: ccs.survival.industry.workstation.sawtable
+  inputs:
+  - itemDefinition: {fileID: 11400000, guid: ae01098ce15f262498e9a6507b46d568, type: 2}
+    quantity: 1
+  outputs:
+  - itemDefinition: {fileID: 11400000, guid: 09a21916e1838f94287c91c0cc9a037c, type: 2}
+    quantity: 1
+  processTimeSeconds: 0
+  isFuturePlaceholder: 0

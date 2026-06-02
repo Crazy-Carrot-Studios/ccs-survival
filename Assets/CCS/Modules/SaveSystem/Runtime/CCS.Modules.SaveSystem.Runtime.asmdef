@@ -12,6 +12,7 @@
         "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.Trapping.Runtime",
         "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Industry.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Cooking.Runtime",
         "CCS.Modules.Economy.Runtime",

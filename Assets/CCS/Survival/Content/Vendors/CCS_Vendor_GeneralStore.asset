@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorDefinition
   vendorId: ccs.survival.vendor.frontier.generalstore
   displayName: Frontier General Store
-  description: Frontier general store (1.4.1). Sells homestead kits and material
-    bundles.
+  description: Frontier general store (1.5.0). Homestead and industry trade catalog.
   currencyDefinition: {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}
   vendorInventory:
     items:
@@ -210,4 +209,46 @@ MonoBehaviour:
       allowBuy: 1
       allowSell: 0
       buyPriceOverride: 10
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 09a21916e1838f94287c91c0cc9a037c, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: 4
+    - itemDefinition: {fileID: 11400000, guid: 4f5745a9eeb32d24a9c1be34b0d8fd7d, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: 10
+    - itemDefinition: {fileID: 11400000, guid: feb20b147b28d7c4f86abca9094e6b18, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: 6b0bd9a86a495b9419a1324e99898531, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 5
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 8fc4afbab3647314ab92f23bc0f6b690, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 16
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 1ed6db395aeea51448d43d7f664c8b0d, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 18
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 7e7719cd795c6b54baaec238a549c7c2, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 28
       sellPriceOverride: -1

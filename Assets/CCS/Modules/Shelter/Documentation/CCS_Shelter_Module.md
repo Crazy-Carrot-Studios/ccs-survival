@@ -5,7 +5,23 @@
 **Namespace:** `CCS.Modules.Shelter` (editor: `CCS.Modules.Shelter.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters, homestead tier progression, storage, and workbench camp contributions (1.4.1).
+**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters, homestead tier progression, storage, workbench, and industry workstation camp contributions (1.5.0).
+
+---
+
+## Frontier industry loop (1.5.0)
+
+```
+Gather → Process Resources → Produce Materials → Forge Better Tools → Expand Homestead
+```
+
+| Piece | Role |
+|-------|------|
+| `CCS_IndustryService` | Resource processing jobs at placed industry workstations |
+| Saw Table / Charcoal Kiln / Primitive Forge | Placeable workbench definitions with `industryWorkstationRoleId` |
+| `IndustrialHomestead` | Camp tier requires Primitive Forge after Frontier Homestead |
+
+Industry bootstrap: `CCS.Modules.Industry.Editor.CCS_FrontierIndustryBootstrapSetup.ExecuteBatch`
 
 ---
 
@@ -17,6 +33,8 @@ Temporary Camp (shelter + campfire + bedroll)
 Frontier Camp
         ↓ place workbench
 Frontier Homestead
+        ↓ place primitive forge
+Industrial Homestead
 ```
 
 | Piece | Role |

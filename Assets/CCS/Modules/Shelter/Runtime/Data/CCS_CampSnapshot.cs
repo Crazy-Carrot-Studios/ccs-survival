@@ -22,6 +22,9 @@ namespace CCS.Modules.Shelter
             bool hasBedroll,
             bool hasStorage,
             bool hasWorkArea,
+            bool hasSawTable,
+            bool hasCharcoalKiln,
+            bool hasPrimitiveForge,
             bool ownsCamp,
             string campOwnerId,
             long campCreationTimeUtcTicks,
@@ -35,6 +38,9 @@ namespace CCS.Modules.Shelter
             HasBedroll = hasBedroll;
             HasStorage = hasStorage;
             HasWorkArea = hasWorkArea;
+            HasSawTable = hasSawTable;
+            HasCharcoalKiln = hasCharcoalKiln;
+            HasPrimitiveForge = hasPrimitiveForge;
             OwnsCamp = ownsCamp;
             CampOwnerId = campOwnerId ?? string.Empty;
             CampCreationTimeUtcTicks = campCreationTimeUtcTicks;
@@ -55,11 +61,19 @@ namespace CCS.Modules.Shelter
 
         public bool HasWorkArea { get; }
 
+        public bool HasSawTable { get; }
+
+        public bool HasCharcoalKiln { get; }
+
+        public bool HasPrimitiveForge { get; }
+
         public bool HasCompleteTemporaryCamp => HasShelter && HasCampfire && HasBedroll;
 
         public bool HasCompleteFrontierCamp => HasCompleteTemporaryCamp && HasStorage;
 
         public bool HasCompleteFrontierHomestead => HasCompleteFrontierCamp && HasWorkArea;
+
+        public bool HasCompleteIndustrialHomestead => CampTier >= CCS_CampTier.IndustrialHomestead;
 
         public bool OwnsCamp { get; }
 
@@ -75,6 +89,9 @@ namespace CCS.Modules.Shelter
 
         public static CCS_CampSnapshot Empty { get; } = new CCS_CampSnapshot(
             CCS_CampTier.None,
+            false,
+            false,
+            false,
             false,
             false,
             false,

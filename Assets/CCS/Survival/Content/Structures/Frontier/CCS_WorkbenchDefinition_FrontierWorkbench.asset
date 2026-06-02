@@ -18,6 +18,7 @@ MonoBehaviour:
   placementForwardDistance: 2
   placementMaxGroundRayDistance: 8
   placementMaxSlopeAngle: 35
+  industryWorkstationRoleId: ccs.survival.industry.workstation.frontierworkbench
   contributesToCampTier: 1
   campStructureKind: 5
   placementPrimitive: 3

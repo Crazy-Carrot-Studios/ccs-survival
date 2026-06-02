@@ -25,6 +25,7 @@ using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Industry;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -136,6 +137,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier storage definitions that contribute to camp tier progression.")]
         [SerializeField] private CCS_FrontierStorageCampProfile frontierStorageCampProfile;
 
+        [Tooltip("Frontier industry processing profile for lumber, charcoal, and forge production.")]
+        [SerializeField] private CCS_IndustryProfile industryProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -200,6 +204,7 @@ namespace CCS.Survival.Composition
                 buildingProgressionProfile,
                 storageProfile,
                 frontierStorageCampProfile,
+                industryProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);
