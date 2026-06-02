@@ -41,7 +41,31 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveEconomyData economy = new CCS_SaveEconomyData();
 
+        public CCS_SaveTrapWorldData trapping = new CCS_SaveTrapWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveTrapWorldData
+    {
+        public CCS_SaveTrapInstanceData[] instances = Array.Empty<CCS_SaveTrapInstanceData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveTrapInstanceData
+    {
+        public string instanceId = string.Empty;
+        public string trapDefinitionId = string.Empty;
+        public int trapState;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+        public float rotationY;
+        public string capturedWildlifeId = string.Empty;
+        public string capturedInstanceKey = string.Empty;
+        public float remainingTimerSeconds;
+        public bool hasCaptureData;
     }
 
     [Serializable]

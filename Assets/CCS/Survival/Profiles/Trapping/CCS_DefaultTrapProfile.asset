@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344f25fe8ec9f24184a3bbbe29e01ba, type: 3}
+  m_Name: CCS_DefaultTrapProfile
+  m_EditorClassIdentifier: CCS.Modules.Trapping.Runtime::CCS.Modules.Trapping.CCS_TrapProfile
+  profileDisplayName: 
+  profileId: 
+  profileDescription: Frontier trapping profile for simple snare placement and rabbit
+    capture (1.3.3).
+  profileVersion: 1.3.3
+  enableDebugLogs: 0
+  enableTrapping: 1
+  trapDefinitions:
+  - {fileID: 11400000, guid: fe6875132797f454a879c15819e38d04, type: 2}
+  validPreviewColor: {r: 0.2, g: 0.85, b: 0.35, a: 0.45}
+  invalidPreviewColor: {r: 0.85, g: 0.2, b: 0.2, a: 0.45}

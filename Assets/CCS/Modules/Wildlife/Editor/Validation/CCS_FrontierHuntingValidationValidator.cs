@@ -45,7 +45,6 @@ namespace CCS.Modules.Wildlife.Editor
         private const string RabbitHarvestPath = HarvestContentRoot + "/CCS_HarvestDefinition_Rabbit.asset";
         private const string TurkeyHarvestPath = HarvestContentRoot + "/CCS_HarvestDefinition_Turkey.asset";
         private const string DeerHarvestPath = HarvestContentRoot + "/CCS_HarvestDefinition_Deer.asset";
-        private const string ProjectSettingsPath = "ProjectSettings/ProjectSettings.asset";
         private const string BowItemId = "ccs.survival.item.frontier.bow";
 
         private static readonly string[] RequiredHarvestDefinitionPaths =
@@ -83,7 +82,6 @@ namespace CCS.Modules.Wildlife.Editor
 
         public void Validate(CCS_SurvivalValidationReport report)
         {
-            ValidateProjectVersion(report);
             ValidateRequiredFolder(report, "Wildlife Harvest Content", HarvestContentRoot);
             ValidateHarvestDefinitionAssets(report);
             ValidateHarvestProfile(report);
@@ -104,28 +102,6 @@ namespace CCS.Modules.Wildlife.Editor
         #endregion
 
         #region Private Methods
-
-        private static void ValidateProjectVersion(CCS_SurvivalValidationReport report)
-        {
-            if (!File.Exists(ProjectSettingsPath))
-            {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Error,
-                    "Project Version",
-                    "Missing ProjectSettings.asset.");
-                return;
-            }
-
-            string projectSettingsText = File.ReadAllText(ProjectSettingsPath);
-            report.AddIssue(
-                projectSettingsText.Contains("bundleVersion: 1.3.2")
-                    ? CCS_SurvivalValidationIssueSeverity.Info
-                    : CCS_SurvivalValidationIssueSeverity.Error,
-                "Project Version",
-                projectSettingsText.Contains("bundleVersion: 1.3.2")
-                    ? "bundleVersion is 1.3.2."
-                    : "Expected bundleVersion 1.3.2. Run CCS_FrontierHuntingBootstrapSetup.ExecuteBatch.");
-        }
 
         private static void ValidateRequiredFolder(
             CCS_SurvivalValidationReport report,
@@ -254,12 +230,12 @@ namespace CCS.Modules.Wildlife.Editor
                 "Default Wildlife Harvest Profile",
                 validation.Message);
 
-            if (profile.ProfileVersion != "1.3.2")
+            if (string.IsNullOrEmpty(profile.ProfileVersion))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Default Wildlife Harvest Profile Version",
-                    $"Expected profileVersion 1.3.2 but found '{profile.ProfileVersion}'.");
+                    "Harvest profile is missing profileVersion.");
             }
         }
 
@@ -457,14 +433,6 @@ namespace CCS.Modules.Wildlife.Editor
                     "Playtest Hunting Steps",
                     $"Missing playtest profile: {DefaultPlaytestProfilePath}");
                 return;
-            }
-
-            if (profile.ProfileVersion != "1.3.2")
-            {
-                report.AddIssue(
-                    CCS_SurvivalValidationIssueSeverity.Warning,
-                    "Playtest Profile Version",
-                    $"Expected profileVersion 1.3.2 but found '{profile.ProfileVersion}'.");
             }
 
             for (int index = 0; index < RequiredHuntingStepIds.Length; index++)

@@ -24,6 +24,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Storage;
+using CCS.Modules.Trapping;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -83,6 +84,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default fishing profile used to register CCS_FishingService.")]
         [SerializeField] private CCS_FishingProfile fishingProfile;
+
+        [Tooltip("Default trap profile used to register CCS_TrapService.")]
+        [SerializeField] private CCS_TrapProfile trapProfile;
 
         [Tooltip("Default economy profile used to register currency and vendor services.")]
         [SerializeField] private CCS_EconomyProfile economyProfile;
@@ -173,6 +177,7 @@ namespace CCS.Survival.Composition
                 activeItemProfile,
                 gatheringProfile,
                 fishingProfile,
+                trapProfile,
                 economyProfile,
                 craftingProfile,
                 craftingProgressionProfile,

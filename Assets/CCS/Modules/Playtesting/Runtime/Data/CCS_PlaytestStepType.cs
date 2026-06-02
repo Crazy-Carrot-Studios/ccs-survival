@@ -48,6 +48,14 @@ namespace CCS.Modules.Playtesting
         ObtainBowForHunt = 33,
         EquipBowForHunt = 34,
         SellHuntingResourceAtVendor = 35,
-        VerifyHuntingCurrencyIncreased = 36
+        VerifyHuntingCurrencyIncreased = 36,
+        ObtainTrapForTrapping = 37,
+        EquipTrapForTrapping = 38,
+        PlaceTrapForTrapping = 39,
+        ForceTrapTrigger = 40,
+        HarvestTriggeredTrap = 41,
+        VerifyTrapHarvestInventory = 42,
+        SellTrappingResourceAtVendor = 43,
+        VerifyTrappingCurrencyIncreased = 44
     }
 }

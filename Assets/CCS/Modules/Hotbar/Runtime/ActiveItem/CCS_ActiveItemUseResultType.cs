@@ -38,6 +38,10 @@ namespace CCS.Modules.Hotbar
         HarvestSuccess = 23,
         HarvestFailed = 24,
         WildlifeNotDead = 25,
-        WildlifeAlreadyHarvested = 26
+        WildlifeAlreadyHarvested = 26,
+        TrapPlacementPreview = 27,
+        TrapPlaced = 28,
+        TrapPlacementFailed = 29,
+        TrapHarvestSuccess = 30
     }
 }

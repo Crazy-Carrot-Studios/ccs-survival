@@ -16,7 +16,7 @@ MonoBehaviour:
   profileId: 
   profileDescription: Frontier economy profile (1.3.2) with fishing and hunting trade
     goods.
-  profileVersion: 1.3.2
+  profileVersion: 1.3.3
   enableDebugLogs: 0
   currencyDefinitions:
   - {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}

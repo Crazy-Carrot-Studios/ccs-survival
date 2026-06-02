@@ -1,6 +1,6 @@
 # CCS Survival — Hotbar / Active Item Module
 
-**Milestone:** 1.3.2 — Frontier Hunting Foundation (bow + wildlife harvest routing)  
+**Milestone:** 1.3.3 — Frontier Trapping Foundation (placeable trap routing + hunting)  
 **Module ID:** `ccs.survival.hotbar`  
 **Namespace:** `CCS.Modules.Hotbar` (editor: `CCS.Modules.Hotbar.Editor`)  
 **Author:** James Schilz  
@@ -55,6 +55,7 @@ Equipment visuals (unchanged — no duplicate spawn)
 | `ResourceHarvestSuccess` / `ResourceHarvestFailed` | World resource harvest attempt |
 | `HarvestSuccess` / `HarvestFailed` / `WildlifeNotDead` / `WildlifeAlreadyHarvested` | Wildlife carcass harvest (knife) |
 | `Bow` behavior | Ranged raycast via combat service (no final archery UI) |
+| `Placeable` behavior | Trap preview + confirm placement via `CCS_TrapService` |
 | `WrongTool` | Tool metadata does not match target |
 | `TargetOutOfRange` | Interactable beyond interaction distance |
 | `TargetUnavailable` | Node depleted or not gatherable |

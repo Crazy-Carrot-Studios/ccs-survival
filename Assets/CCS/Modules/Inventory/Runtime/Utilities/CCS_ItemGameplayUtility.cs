@@ -89,6 +89,12 @@ namespace CCS.Modules.Inventory
                 || itemDefinition.RangeType == CCS_RangeType.LongRanged;
         }
 
+        public static bool IsPlaceableTrapItem(CCS_ItemDefinition itemDefinition)
+        {
+            return itemDefinition != null
+                && itemDefinition.GameplayKind == CCS_ItemGameplayKind.Placeable;
+        }
+
         public static bool ItemSatisfiesHarvestTool(
             CCS_ItemDefinition itemDefinition,
             CCS_ItemToolType requiredTool)

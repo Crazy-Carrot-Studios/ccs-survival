@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Frontier starter progression with economy and hunting playtest
-    checklist for milestone 1.3.2.
-  profileVersion: 1.3.2
+  profileDescription: Frontier starter progression with economy, hunting, and trapping
+    playtest checklist for milestone 1.3.3.
+  profileVersion: 1.3.3
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -285,6 +285,71 @@ MonoBehaviour:
     stepType: 36
     instructionText: Confirm Trade Dollars balance increased after selling hide at
       the general store.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.trap.obtain
+    displayName: Obtain simple trap
+    stepType: 37
+    instructionText: Craft simple trap or press Ctrl+Alt+T to grant one.
+    targetItemId: ccs.survival.item.frontier.simpletrap
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.trap.equip
+    displayName: Equip simple trap
+    stepType: 38
+    instructionText: Select the trap as active item (playtest harness).
+    targetItemId: ccs.survival.item.frontier.simpletrap
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.trap.place
+    displayName: Place simple trap
+    stepType: 39
+    instructionText: Primary use once for preview, again to confirm placement near
+      CCS_TestRabbit.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.trigger
+    displayName: Trigger trap capture
+    stepType: 40
+    instructionText: Wait for timer or press Alt+T to force capture roll near rabbit.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.harvest
+    displayName: Harvest triggered trap
+    stepType: 41
+    instructionText: Equip knife (F6) and interact with the triggered trap.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.hide.verify
+    displayName: Verify trap harvest inventory
+    stepType: 42
+    instructionText: Confirm hide is in inventory after trap harvest.
+    targetItemId: ccs.survival.item.resource.hide
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.hide.sell
+    displayName: Sell trap hide at vendor
+    stepType: 43
+    instructionText: Sell hide at general store (Shift+V on this step).
+    targetItemId: ccs.survival.item.resource.hide
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.trapping.currency.verify
+    displayName: Verify trapping currency increased
+    stepType: 44
+    instructionText: Confirm Trade Dollars increased after selling trap hide.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

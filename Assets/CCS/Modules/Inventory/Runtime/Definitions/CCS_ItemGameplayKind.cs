@@ -15,6 +15,7 @@ namespace CCS.Modules.Inventory
         Generic = 0,
         Tool = 1,
         Weapon = 2,
-        ToolAndWeapon = 3
+        ToolAndWeapon = 3,
+        Placeable = 4
     }
 }

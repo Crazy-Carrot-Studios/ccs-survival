@@ -24,6 +24,7 @@ using CCS.Modules.SaveSystem;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.Playtesting;
 using CCS.Modules.Storage;
+using CCS.Modules.Trapping;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -59,6 +60,7 @@ namespace CCS.Survival.Composition
             CCS_ActiveItemProfile activeItemProfile,
             CCS_GatheringProfile gatheringProfile,
             CCS_FishingProfile fishingProfile,
+            CCS_TrapProfile trapProfile,
             CCS_EconomyProfile economyProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_CraftingProgressionProfile craftingProgressionProfile,
@@ -201,12 +203,20 @@ namespace CCS.Survival.Composition
             CCS_FishingService fishingService = CreateFishingService(fishingProfile, inventoryService);
             RegisterService(runtimeHost, fishingService, enableDebugLogs);
 
+            CCS_TrapService trapService = CreateTrapService(
+                trapProfile,
+                inventoryService,
+                wildlifeHarvestService);
+            RegisterService(runtimeHost, trapService, enableDebugLogs);
+            RegisterTrapUpdatable(runtimeHost, trapService);
+
             if (activeItemService != null && activeItemService.IsInitialized)
             {
                 activeItemService.BindGatheringService(gatheringService);
                 activeItemService.BindFishingService(fishingService);
                 activeItemService.BindInteractionService(interactionService);
                 activeItemService.BindInventoryService(inventoryService);
+                activeItemService.BindTrapService(trapService);
             }
 
             CCS_CharacterMovementService characterMovementService =
@@ -246,6 +256,7 @@ namespace CCS.Survival.Composition
                 storageService,
                 sleepService,
                 currencyService,
+                trapService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -269,6 +280,7 @@ namespace CCS.Survival.Composition
                     gatheringService,
                     combatService,
                     wildlifeHarvestService,
+                    trapService,
                     cookingService,
                     consumableFoodService,
                     saveService,
@@ -574,6 +586,42 @@ namespace CCS.Survival.Composition
             }
 
             return service;
+        }
+
+        private static CCS_TrapService CreateTrapService(
+            CCS_TrapProfile profile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_WildlifeHarvestService wildlifeHarvestService)
+        {
+            CCS_TrapService service = new CCS_TrapService();
+            service.Initialize();
+
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (wildlifeHarvestService != null && wildlifeHarvestService.IsInitialized)
+            {
+                service.BindWildlifeHarvestService(wildlifeHarvestService);
+            }
+
+            return service;
+        }
+
+        private static void RegisterTrapUpdatable(CCS_RuntimeHost runtimeHost, CCS_TrapService trapService)
+        {
+            if (runtimeHost?.RuntimeUpdateLoop == null || trapService == null || !trapService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(trapService);
         }
 
         private static CCS_SleepService CreateSleepService(

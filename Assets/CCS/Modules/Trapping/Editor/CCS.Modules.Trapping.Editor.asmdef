@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Trapping.Editor",
+    "rootNamespace": "CCS.Modules.Trapping.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Trapping.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Wildlife.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Economy.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

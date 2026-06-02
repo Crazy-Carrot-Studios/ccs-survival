@@ -16,6 +16,7 @@ using CCS.Modules.SaveSystem;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
+using CCS.Modules.Trapping;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
 using CCS.Survival.Player;
@@ -51,6 +52,8 @@ namespace CCS.Modules.Playtesting
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
         private const string BowItemId = "ccs.survival.item.frontier.bow";
+        private const string SimpleTrapItemId = "ccs.survival.item.frontier.simpletrap";
+        private const string FrontierSimpleTrapRecipeId = "ccs.survival.recipe.frontier.simpletrap";
         private const string HideItemId = "ccs.survival.item.resource.hide";
         private const string RawFishItemId = "ccs.survival.item.resource.rawfish";
         private const string CordageItemId = "ccs.survival.item.frontier.cordage";
@@ -75,6 +78,7 @@ namespace CCS.Modules.Playtesting
         private CCS_GatheringService boundGatheringService;
         private CCS_CombatService boundCombatService;
         private CCS_WildlifeHarvestService boundWildlifeHarvestService;
+        private CCS_TrapService boundTrapService;
         private CCS_CookingService boundCookingService;
         private CCS_ConsumableFoodService boundConsumableFoodService;
         private CCS_SaveService boundSaveService;
@@ -162,6 +166,7 @@ namespace CCS.Modules.Playtesting
             CCS_GatheringService gatheringService,
             CCS_CombatService combatService,
             CCS_WildlifeHarvestService wildlifeHarvestService,
+            CCS_TrapService trapService,
             CCS_CookingService cookingService,
             CCS_ConsumableFoodService consumableFoodService,
             CCS_SaveService saveService,
@@ -188,6 +193,7 @@ namespace CCS.Modules.Playtesting
             boundGatheringService = gatheringService;
             boundCombatService = combatService;
             boundWildlifeHarvestService = wildlifeHarvestService;
+            boundTrapService = trapService;
             boundCookingService = cookingService;
             boundConsumableFoodService = consumableFoodService;
             boundSaveService = saveService;
@@ -225,6 +231,13 @@ namespace CCS.Modules.Playtesting
             if (boundWildlifeHarvestService != null)
             {
                 boundWildlifeHarvestService.WildlifeHarvestCompleted += HandleWildlifeHarvestCompleted;
+            }
+
+            if (boundTrapService != null)
+            {
+                boundTrapService.TrapPlaced += HandleTrapPlaced;
+                boundTrapService.TrapTriggered += HandleTrapTriggered;
+                boundTrapService.TrapHarvested += HandleTrapHarvested;
             }
 
             if (boundCookingService != null)
@@ -317,6 +330,13 @@ namespace CCS.Modules.Playtesting
             if (boundWildlifeHarvestService != null)
             {
                 boundWildlifeHarvestService.WildlifeHarvestCompleted -= HandleWildlifeHarvestCompleted;
+            }
+
+            if (boundTrapService != null)
+            {
+                boundTrapService.TrapPlaced -= HandleTrapPlaced;
+                boundTrapService.TrapTriggered -= HandleTrapTriggered;
+                boundTrapService.TrapHarvested -= HandleTrapHarvested;
             }
 
             if (boundCookingService != null)
@@ -759,6 +779,31 @@ namespace CCS.Modules.Playtesting
             TryEvaluateHuntingPlaytestSteps();
         }
 
+        private void HandleTrapPlaced(CCS_TrapEventArgs eventArgs)
+        {
+            if (eventArgs != null && eventArgs.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceTrapForTrapping, eventArgs.Message);
+            }
+        }
+
+        private void HandleTrapTriggered(CCS_TrapEventArgs eventArgs)
+        {
+            if (eventArgs != null && eventArgs.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.ForceTrapTrigger, eventArgs.Message);
+            }
+        }
+
+        private void HandleTrapHarvested(CCS_TrapEventArgs eventArgs)
+        {
+            if (eventArgs != null && eventArgs.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.HarvestTriggeredTrap, eventArgs.Message);
+                TryEvaluateTrappingPlaytestSteps();
+            }
+        }
+
         private void HandleCookingCompleted(CCS_CookingEventArgs eventArgs)
         {
             TryCompleteActiveStepOfType(CCS_PlaytestStepType.CookFood, "Cooking completed.");
@@ -1141,6 +1186,11 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipBowForHunt, "Frontier bow equipped for hunt.");
             }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.EquipTrapForTrapping, itemId))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipTrapForTrapping, "Simple trap equipped for placement.");
+            }
         }
 
         private void HandleEquipmentVisualSpawned(string itemId)
@@ -1215,6 +1265,21 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.HarvestCarcass, useResult.Message);
                 TryEvaluateHuntingPlaytestSteps();
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.EquipTrapForTrapping, useResult.ActiveItemId)
+                && (useResult.ResultType == CCS_ActiveItemUseResultType.TrapPlacementPreview
+                    || useResult.ResultType == CCS_ActiveItemUseResultType.TrapPlaced))
+            {
+                if (useResult.ResultType == CCS_ActiveItemUseResultType.TrapPlaced)
+                {
+                    TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceTrapForTrapping, useResult.Message);
+                }
+            }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.TrapPlaced)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceTrapForTrapping, useResult.Message);
             }
         }
 
@@ -1347,6 +1412,7 @@ namespace CCS.Modules.Playtesting
             TryEvaluateFrontierRecipeValidationStep();
             TryEvaluateEconomyPlaytestSteps();
             TryEvaluateHuntingPlaytestSteps();
+            TryEvaluateTrappingPlaytestSteps();
         }
 
         public bool TryGrantPlaytestRawFish()
@@ -1379,6 +1445,55 @@ namespace CCS.Modules.Playtesting
             playtestCurrencyBaseline = GetTradeDollarsBalance();
             CCS_VendorTransactionResult result = boundVendorService.TrySellActiveVendorItem(rawFish, 1);
             return result.IsSuccess;
+        }
+
+        public bool TryGrantPlaytestTrap()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || !TryAddInventoryItemById(inventoryService, SimpleTrapItemId, 1))
+            {
+                return false;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ObtainTrapForTrapping,
+                "Simple trap available for trapping playtest.");
+            return true;
+        }
+
+        public bool TryEquipTrapForTrapping()
+        {
+            if (!harnessEnabled || boundActiveItemService == null || !boundActiveItemService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition trapItem = FindItemDefinitionById(SimpleTrapItemId);
+            if (trapItem == null)
+            {
+                return false;
+            }
+
+            if (!boundActiveItemService.SelectActiveFromTestHarness(trapItem.ItemId, trapItem))
+            {
+                return false;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.EquipTrapForTrapping,
+                "Simple trap selected as active item.");
+            return true;
+        }
+
+        public bool TryForceTrapTriggerForPlaytest()
+        {
+            if (boundTrapService == null || !boundTrapService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_TrapResult result = boundTrapService.TryForceTriggerForPlaytest(string.Empty);
+            return result.IsSuccess || result.ResultType == CCS_TrapResultType.CaptureSuccess;
         }
 
         public bool TryGrantPlaytestBow()
@@ -1489,6 +1604,32 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void TryEvaluateTrappingPlaytestSteps()
+        {
+            if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
+            {
+                return;
+            }
+
+            CCS_PlaytestStepState state = stepStates[activeStepIndex];
+            if (state.Definition.StepType == CCS_PlaytestStepType.ObtainTrapForTrapping
+                && HasInventoryItem(SimpleTrapItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ObtainTrapForTrapping,
+                    "Simple trap obtained for trapping.");
+            }
+
+            if (state.Definition.StepType == CCS_PlaytestStepType.VerifyTrapHarvestInventory
+                && state.Definition.TargetItemId == HideItemId
+                && HasInventoryItem(HideItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyTrapHarvestInventory,
+                    "Hide verified after trap harvest.");
+            }
+        }
+
         private void TryEvaluateHuntingPlaytestSteps()
         {
             if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
@@ -1550,8 +1691,19 @@ namespace CCS.Modules.Playtesting
                         TryCompleteActiveStepOfType(
                             CCS_PlaytestStepType.VerifyHuntingCurrencyIncreased,
                             $"Hunting trade dollars increased to {balance}.");
+
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifyTrappingCurrencyIncreased,
+                            $"Trapping trade dollars increased to {balance}.");
                     }
                 }
+            }
+
+            if (result.WasSell && result.ItemId == HideItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellTrappingResourceAtVendor,
+                    "Sold trap harvest hide at general store.");
             }
 
             if (!result.WasSell && result.ItemId == CordageItemId)

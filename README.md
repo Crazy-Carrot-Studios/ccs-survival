@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.3.2-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.3.3-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.3.3** — Frontier Trapping Foundation
+
+Placeable simple trap (preview + confirm), timer capture rolls for rabbit/turkey, knife harvest via wildlife harvest service, trap save/load persistence, and playtest trapping loop (craft → place → trigger → harvest → sell).
 
 **1.3.2** — Frontier Hunting Foundation
 
@@ -78,6 +82,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.3.3** | Frontier Trapping Foundation |
 | **1.3.2** | Frontier Hunting Foundation |
 | **1.3.1** | Vendor Trading Polish + Tool Acquisition |
 | **1.3.0** | Frontier Economy Foundation |

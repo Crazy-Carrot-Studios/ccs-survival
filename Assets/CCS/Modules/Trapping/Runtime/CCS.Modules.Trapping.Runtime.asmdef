@@ -1,0 +1,21 @@
+{
+    "name": "CCS.Modules.Trapping.Runtime",
+    "rootNamespace": "CCS.Modules.Trapping",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Wildlife.Runtime",
+        "CCS.Modules.WorldResources.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

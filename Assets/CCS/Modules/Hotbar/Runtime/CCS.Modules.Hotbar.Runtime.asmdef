@@ -12,7 +12,8 @@
         "CCS.Modules.WorldResources.Runtime",
         "CCS.Modules.Resources.Runtime",
         "CCS.Modules.Fishing.Runtime",
-        "CCS.Modules.Wildlife.Runtime"
+        "CCS.Modules.Wildlife.Runtime",
+        "CCS.Modules.Trapping.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

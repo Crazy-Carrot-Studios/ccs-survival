@@ -5,6 +5,7 @@ using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
+using CCS.Modules.Trapping;
 using CCS.Modules.Wildlife;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
@@ -35,6 +36,7 @@ namespace CCS.Modules.Hotbar
         private CCS_FishingService fishingService;
         private CCS_InteractionService interactionService;
         private CCS_PlayerInventoryService inventoryService;
+        private CCS_TrapService trapService;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -128,6 +130,11 @@ namespace CCS.Modules.Hotbar
         public void BindInventoryService(CCS_PlayerInventoryService service)
         {
             inventoryService = service;
+        }
+
+        public void BindTrapService(CCS_TrapService service)
+        {
+            trapService = service;
         }
 
         public void UnbindEquipmentService()
@@ -364,8 +371,9 @@ namespace CCS.Modules.Hotbar
                     return TryUseBow(state, request);
                 case CCS_ActiveItemBehaviorType.Tool:
                     return TryUseTool(state, request);
-                case CCS_ActiveItemBehaviorType.Consumable:
                 case CCS_ActiveItemBehaviorType.Placeable:
+                    return TryUsePlaceable(state, request);
+                case CCS_ActiveItemBehaviorType.Consumable:
                     return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
                 case CCS_ActiveItemBehaviorType.Generic:
                 default:
@@ -429,6 +437,61 @@ namespace CCS.Modules.Hotbar
                 string.IsNullOrWhiteSpace(combatResult.Message)
                     ? "No wildlife target in range."
                     : combatResult.Message,
+                true,
+                state.ActiveItemId);
+        }
+
+        private CCS_ActiveItemUseResult TryUsePlaceable(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
+        {
+            if (trapService == null || !trapService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Trap service is unavailable.",
+                    false,
+                    state.ActiveItemId);
+            }
+
+            if (!trapService.TryResolveTrapDefinitionForItem(state.ItemDefinition, out CCS_TrapDefinition trapDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a placeable trap.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            bool confirmPlacement = trapService.IsPlacementModeActive;
+            CCS_TrapPlacementRequest placementRequest = new CCS_TrapPlacementRequest(
+                trapDefinition,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_TrapPlacementResult placementResult = trapService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                    placementResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.TrapPlacementPreview
+                        : CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                    placementResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.TrapPlaced,
+                placementResult.Message,
                 true,
                 state.ActiveItemId);
         }

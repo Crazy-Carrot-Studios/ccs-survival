@@ -10,6 +10,7 @@
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.Storage.Runtime",
         "CCS.Modules.Sleep.Runtime",
+        "CCS.Modules.Trapping.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Cooking.Runtime",
         "CCS.Modules.Economy.Runtime",

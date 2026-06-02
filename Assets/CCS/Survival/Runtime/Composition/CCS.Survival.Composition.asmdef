@@ -15,6 +15,7 @@
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.Fishing.Runtime",
+        "CCS.Modules.Trapping.Runtime",
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.SaveLoad.Runtime",

@@ -414,12 +414,19 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             string sceneText = File.ReadAllText(BootstrapScenePath);
-            if (sceneText.Contains("PF_CCS_Player") && sceneText.Contains("m_TagString: MainCamera"))
+            bool sceneHasPlayer = sceneText.Contains("PF_CCS_Player");
+            bool prefabHasMainCamera = File.Exists(PlayerPrefabPath)
+                && File.ReadAllText(PlayerPrefabPath).Contains("m_TagString: MainCamera");
+            bool sceneInlinesMainCamera = sceneText.Contains("m_TagString: MainCamera");
+
+            if (sceneHasPlayer && (prefabHasMainCamera || sceneInlinesMainCamera))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
                     "Bootstrap Gameplay Camera",
-                    "Bootstrap scene includes player camera setup.");
+                    prefabHasMainCamera
+                        ? "Bootstrap scene includes PF_CCS_Player with MainCamera on player prefab."
+                        : "Bootstrap scene includes player MainCamera setup.");
             }
             else
             {

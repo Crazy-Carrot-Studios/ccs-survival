@@ -5,6 +5,7 @@ using CCS.Modules.Building;
 using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
+using CCS.Modules.Trapping;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
@@ -37,6 +38,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_BuildingService buildingService;
         private CCS_StorageService storageService;
         private CCS_SleepService sleepService;
+        private CCS_TrapService trapService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -104,6 +106,7 @@ namespace CCS.Modules.SaveSystem
             CCS_StorageService storage,
             CCS_SleepService sleep,
             CCS_CurrencyService currency,
+            CCS_TrapService trapping,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -113,6 +116,7 @@ namespace CCS.Modules.SaveSystem
             storageService = storage;
             sleepService = sleep;
             currencyService = currency;
+            trapService = trapping;
             playerTransform = playerRoot;
         }
 
@@ -268,6 +272,7 @@ namespace CCS.Modules.SaveSystem
             CaptureBuilding(saveData.building);
             CaptureStorage(saveData.storage);
             CaptureSleep(saveData.sleep);
+            CaptureTrapping(saveData.trapping);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -581,6 +586,7 @@ namespace CCS.Modules.SaveSystem
             ApplyBuilding(saveData.building);
             ApplyStorage(saveData.storage);
             ApplySleep(saveData.sleep);
+            ApplyTrapping(saveData.trapping);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -731,6 +737,98 @@ namespace CCS.Modules.SaveSystem
                 assignedRespawnSpotId = source.assignedRespawnSpotId ?? string.Empty,
                 isAssignedRespawn = source.isAssignedRespawn
             };
+        }
+
+        private void CaptureTrapping(CCS_SaveTrapWorldData trappingData)
+        {
+            if (trappingData == null || trapService == null || !trapService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_TrapInstanceSaveState[] trapStates = trapService.CaptureWorldState();
+            if (trapStates == null || trapStates.Length == 0)
+            {
+                trappingData.instances = Array.Empty<CCS_SaveTrapInstanceData>();
+                return;
+            }
+
+            CCS_SaveTrapInstanceData[] records = new CCS_SaveTrapInstanceData[trapStates.Length];
+            for (int index = 0; index < trapStates.Length; index++)
+            {
+                records[index] = ConvertTrapSaveRecord(trapStates[index]);
+            }
+
+            trappingData.instances = records;
+        }
+
+        private static CCS_SaveTrapInstanceData ConvertTrapSaveRecord(CCS_TrapInstanceSaveState source)
+        {
+            if (source == null)
+            {
+                return new CCS_SaveTrapInstanceData();
+            }
+
+            return new CCS_SaveTrapInstanceData
+            {
+                instanceId = source.instanceId ?? string.Empty,
+                trapDefinitionId = source.trapDefinitionId ?? string.Empty,
+                trapState = source.trapState,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationY = source.rotationY,
+                capturedWildlifeId = source.capturedWildlifeId ?? string.Empty,
+                capturedInstanceKey = source.capturedInstanceKey ?? string.Empty,
+                remainingTimerSeconds = source.remainingTimerSeconds,
+                hasCaptureData = source.hasCaptureData
+            };
+        }
+
+        private static CCS_TrapInstanceSaveState ConvertTrapSaveRecordToState(CCS_SaveTrapInstanceData source)
+        {
+            if (source == null)
+            {
+                return new CCS_TrapInstanceSaveState();
+            }
+
+            return new CCS_TrapInstanceSaveState
+            {
+                instanceId = source.instanceId ?? string.Empty,
+                trapDefinitionId = source.trapDefinitionId ?? string.Empty,
+                trapState = source.trapState,
+                positionX = source.positionX,
+                positionY = source.positionY,
+                positionZ = source.positionZ,
+                rotationY = source.rotationY,
+                capturedWildlifeId = source.capturedWildlifeId ?? string.Empty,
+                capturedInstanceKey = source.capturedInstanceKey ?? string.Empty,
+                remainingTimerSeconds = source.remainingTimerSeconds,
+                hasCaptureData = source.hasCaptureData
+            };
+        }
+
+        private void ApplyTrapping(CCS_SaveTrapWorldData trappingData)
+        {
+            if (trapService == null || !trapService.IsInitialized)
+            {
+                return;
+            }
+
+            if (trappingData?.instances == null || trappingData.instances.Length == 0)
+            {
+                trapService.RestoreWorldState(Array.Empty<CCS_TrapInstanceSaveState>());
+                return;
+            }
+
+            CCS_TrapInstanceSaveState[] saveStates =
+                new CCS_TrapInstanceSaveState[trappingData.instances.Length];
+            for (int index = 0; index < trappingData.instances.Length; index++)
+            {
+                saveStates[index] = ConvertTrapSaveRecordToState(trappingData.instances[index]);
+            }
+
+            trapService.RestoreWorldState(saveStates);
         }
 
         private void ApplySleep(CCS_SaveSleepWorldData sleepData)

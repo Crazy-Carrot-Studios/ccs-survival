@@ -36,6 +36,11 @@ namespace CCS.Modules.Hotbar
                 return CCS_ActiveItemBehaviorType.Tool;
             }
 
+            if (CCS_ItemGameplayUtility.IsPlaceableTrapItem(itemDefinition))
+            {
+                return CCS_ActiveItemBehaviorType.Placeable;
+            }
+
             if (itemDefinition.Category == CCS_ItemCategory.Consumable)
             {
                 return CCS_ActiveItemBehaviorType.Consumable;
@@ -48,7 +53,8 @@ namespace CCS.Modules.Hotbar
         {
             return behaviorType == CCS_ActiveItemBehaviorType.Weapon
                 || behaviorType == CCS_ActiveItemBehaviorType.Bow
-                || behaviorType == CCS_ActiveItemBehaviorType.Tool;
+                || behaviorType == CCS_ActiveItemBehaviorType.Tool
+                || behaviorType == CCS_ActiveItemBehaviorType.Placeable;
         }
     }
 }

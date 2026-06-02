@@ -1,8 +1,8 @@
-# CCS Economy Module (1.3.2)
+# CCS Economy Module (1.3.3)
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Milestone:** 1.3.2 — Frontier Hunting Foundation (economy buys hunting goods)
+**Milestone:** 1.3.3 — Frontier Trapping Foundation (hunting + trapping trade goods unchanged)
 
 ## Purpose
 
