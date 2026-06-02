@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CCS.Modules.Combat;
+using CCS.Modules.Firearms;
 using CCS.Modules.Equipment;
 using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
@@ -33,6 +34,7 @@ namespace CCS.Modules.Hotbar
         private CCS_ActiveItemProfile activeProfile;
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_CombatService combatService;
+        private CCS_FirearmService firearmService;
         private CCS_GatheringService gatheringService;
         private CCS_FishingService fishingService;
         private CCS_InteractionService interactionService;
@@ -114,6 +116,26 @@ namespace CCS.Modules.Hotbar
         public void BindCombatService(CCS_CombatService service)
         {
             combatService = service;
+        }
+
+        public void BindFirearmService(CCS_FirearmService service)
+        {
+            firearmService = service;
+        }
+
+        public CCS_ActiveItemUseResult TryReloadActiveFirearm()
+        {
+            if (!isInitialized || firearmService == null || !firearmService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Firearm service is unavailable.",
+                    false,
+                    activeState.ActiveItemId);
+            }
+
+            CCS_FirearmUseResult reloadResult = firearmService.TryReloadEquippedFirearm();
+            return MapFirearmUseResult(reloadResult, activeState.ActiveItemId);
         }
 
         public void BindGatheringService(CCS_GatheringService service)
@@ -389,6 +411,8 @@ namespace CCS.Modules.Hotbar
                     return TryUseWeapon(state, request);
                 case CCS_ActiveItemBehaviorType.Bow:
                     return TryUseBow(state, request);
+                case CCS_ActiveItemBehaviorType.Firearm:
+                    return TryUseFirearm(state, request);
                 case CCS_ActiveItemBehaviorType.Tool:
                     return TryUseTool(state, request);
                 case CCS_ActiveItemBehaviorType.Placeable:
@@ -676,6 +700,92 @@ namespace CCS.Modules.Hotbar
                     : combatResult.Message,
                 true,
                 state.ActiveItemId);
+        }
+
+        private CCS_ActiveItemUseResult TryUseFirearm(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
+        {
+            if (firearmService == null || !firearmService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Firearm service is unavailable.",
+                    false,
+                    state.ActiveItemId);
+            }
+
+            if (!IsActiveWeaponEquippedInMainHand(state))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WeaponNotEquipped,
+                    "Firearm must be equipped in the main hand to fire.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            CCS_FirearmUseResult fireResult = firearmService.TryFire(
+                new CCS_FirearmUseRequest(request.UseOrigin, request.UseDirection));
+            return MapFirearmUseResult(fireResult, state.ActiveItemId);
+        }
+
+        private static CCS_ActiveItemUseResult MapFirearmUseResult(
+            CCS_FirearmUseResult fireResult,
+            string activeItemId)
+        {
+            if (fireResult == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Firearm result was unavailable.",
+                    false,
+                    activeItemId);
+            }
+
+            switch (fireResult.ResultType)
+            {
+                case CCS_FirearmUseResultType.CombatHit:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.CombatHit,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                case CCS_FirearmUseResultType.Fired:
+                case CCS_FirearmUseResultType.CombatMiss:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.NoTarget,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                case CCS_FirearmUseResultType.Empty:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FirearmEmpty,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                case CCS_FirearmUseResultType.NoAmmo:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FirearmNoAmmo,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                case CCS_FirearmUseResultType.Reloaded:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.FirearmReloaded,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                case CCS_FirearmUseResultType.NotEquipped:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.WeaponNotEquipped,
+                        fireResult.Message,
+                        true,
+                        activeItemId);
+                default:
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.ServiceUnavailable,
+                        fireResult.Message,
+                        false,
+                        activeItemId);
+            }
         }
 
         private CCS_ActiveItemUseResult TryUseTool(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)

@@ -27,6 +27,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 01a65d2fec7c00b469e64cd7e9756210, type: 2}
   - {fileID: 11400000, guid: 68ab3c10af7818d4290f7a3e51203ba2, type: 2}
   - {fileID: 11400000, guid: a2f7a3be1bbc7d94894320074ab20ea4, type: 2}
+  - {fileID: 11400000, guid: 4f991f847e0265d459b4997509affbe1, type: 2}
+  - {fileID: 11400000, guid: 7bd081a48b3a4b1458396d439c76797f, type: 2}
+  - {fileID: 11400000, guid: b342549388f7bf649ae6c64271b62682, type: 2}
   coalPlaceholder: {fileID: 11400000, guid: 088343fe45e93044d896344e4700b7f1, type: 2}
   sulfurPlaceholder: {fileID: 11400000, guid: 25f08af0847970a47a1315d1ee5748f6, type: 2}
   saltpeterPlaceholder: {fileID: 11400000, guid: 8fdc984876259ab458b7963198fd9277, type: 2}

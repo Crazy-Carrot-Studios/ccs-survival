@@ -2,7 +2,7 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 1.5.2 — Frontier Stable sells horse and wagon deeds (General Store does not sell horses or wagons)
+**Latest:** 1.6.0 — Frontier Gunsmith sells firearms and ammo (Stable and General Store do not sell firearms)
 
 ## Purpose
 
@@ -49,6 +49,22 @@ Wallet balances persist in unified save (`CCS_SaveData.economy`). Inventory back
 `CCS_VendorDefinition` + `CCS_VendorItemEntry` provide generic buy/sell. `CCS_VendorInteractable` uses the interaction module and opens `CCS_VendorDebugHud` (temporary panel).
 
 Bootstrap test object: `CCS_TestGeneralStore` in `SCN_CCS_Survival_Bootstrap`.
+
+### Frontier Gunsmith (1.6.0)
+
+| ID | Role |
+|----|------|
+| `ccs.survival.vendor.frontier.gunsmith` | Frontier Gunsmith vendor |
+| `ccs.survival.item.firearm.revolver.frontier` | Frontier Revolver |
+| `ccs.survival.item.firearm.rifle.frontier` | Frontier Rifle |
+| `ccs.survival.item.firearm.shotgun.frontier` | Frontier Shotgun |
+| `ccs.survival.item.ammo.*` | Cartridges and shells |
+
+Bootstrap test object: `CCS_TestFrontierGunsmith` in `SCN_CCS_Survival_Bootstrap`. Firearms are **not** sold at the Stable or General Store.
+
+```text
+Industry → Ammunition → Purchase Firearm → Hunt → Harvest → Trade
+```
 
 ### Frontier Stable (1.5.2)
 

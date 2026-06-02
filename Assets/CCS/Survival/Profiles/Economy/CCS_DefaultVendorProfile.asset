@@ -21,3 +21,4 @@ MonoBehaviour:
   vendorDefinitions:
   - {fileID: 11400000, guid: 3e16207587f0007439ce2687ec62492b, type: 2}
   - {fileID: 11400000, guid: e62a9e587c5c90e46aad959ab8f6dcc7, type: 2}
+  - {fileID: 11400000, guid: 9cf91ddcc62a22143b37203ef26c7408, type: 2}

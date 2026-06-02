@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a89ae9b36bc97414ca862c6a8f5d35c7, type: 3}
+  m_Name: CCS_DefaultFirearmProfile
+  m_EditorClassIdentifier: CCS.Modules.Firearms.Runtime::CCS.Modules.Firearms.CCS_FirearmProfile
+  profileDisplayName: 
+  profileId: 
+  profileDescription: 
+  profileVersion: 0.0.1
+  enableDebugLogs: 0
+  firearmDefinitions:
+  - {fileID: 11400000, guid: 5ee1dab2e3f40234aa749996386b4b3a, type: 2}
+  - {fileID: 11400000, guid: 8d3fa49d0efb0e84d8d1f098470a755c, type: 2}
+  - {fileID: 11400000, guid: 811f9462df9d60d429d8e1d745c7ed56, type: 2}
+  ammoDefinitions:
+  - {fileID: 11400000, guid: 004c573b1fd1c6d44b6e1f11d99629a9, type: 2}
+  - {fileID: 11400000, guid: 42c194173bf810e4b9497c19d757b02e, type: 2}
+  - {fileID: 11400000, guid: 3700b5760920b914ca81455f0a53480d, type: 2}

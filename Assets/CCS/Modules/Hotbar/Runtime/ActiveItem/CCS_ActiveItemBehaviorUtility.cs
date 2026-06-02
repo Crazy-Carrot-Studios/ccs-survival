@@ -26,6 +26,11 @@ namespace CCS.Modules.Hotbar
                 return CCS_ActiveItemBehaviorType.Bow;
             }
 
+            if (CCS_ItemGameplayUtility.IsFirearmWeaponItem(itemDefinition))
+            {
+                return CCS_ActiveItemBehaviorType.Firearm;
+            }
+
             if (CCS_ItemGameplayUtility.IsWeaponItem(itemDefinition))
             {
                 return CCS_ActiveItemBehaviorType.Weapon;
@@ -53,6 +58,7 @@ namespace CCS.Modules.Hotbar
         {
             return behaviorType == CCS_ActiveItemBehaviorType.Weapon
                 || behaviorType == CCS_ActiveItemBehaviorType.Bow
+                || behaviorType == CCS_ActiveItemBehaviorType.Firearm
                 || behaviorType == CCS_ActiveItemBehaviorType.Tool
                 || behaviorType == CCS_ActiveItemBehaviorType.Placeable;
         }

@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.Firearms.Runtime",
+    "rootNamespace": "CCS.Modules.Firearms",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Combat.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

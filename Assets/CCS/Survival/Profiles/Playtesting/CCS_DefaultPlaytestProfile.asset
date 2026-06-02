@@ -813,3 +813,91 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.earn.currency
+    displayName: Earn firearm currency
+    stepType: 93
+    instructionText: 'Firearm playtest: Earn firearm currency. Ctrl+Shift+G shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.buy.revolver
+    displayName: Buy frontier revolver
+    stepType: 94
+    instructionText: 'Firearm playtest: Buy frontier revolver. Ctrl+Shift+G shortcuts
+      available.'
+    targetItemId: ccs.survival.item.firearm.revolver.frontier
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.buy.ammo
+    displayName: Buy firearm ammo
+    stepType: 95
+    instructionText: 'Firearm playtest: Buy firearm ammo. Ctrl+Shift+G shortcuts
+      available.'
+    targetItemId: ccs.survival.item.ammo.revolver.cartridge
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.equip
+    displayName: Equip firearm
+    stepType: 96
+    instructionText: 'Firearm playtest: Equip firearm. Ctrl+Shift+G shortcuts available.'
+    targetItemId: ccs.survival.item.firearm.revolver.frontier
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.reload
+    displayName: Reload firearm
+    stepType: 97
+    instructionText: 'Firearm playtest: Reload firearm. Ctrl+Shift+G shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.shoot
+    displayName: Shoot wildlife with firearm
+    stepType: 98
+    instructionText: 'Firearm playtest: Shoot wildlife with firearm. Ctrl+Shift+G
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.harvest.knife
+    displayName: Harvest with knife after firearm
+    stepType: 99
+    instructionText: 'Firearm playtest: Harvest with knife after firearm. Ctrl+Shift+G
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.sell.hunt
+    displayName: Sell hunting resources after firearm
+    stepType: 100
+    instructionText: 'Firearm playtest: Sell hunting resources after firearm. Ctrl+Shift+G
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.save
+    displayName: Save firearm state
+    stepType: 101
+    instructionText: 'Firearm playtest: Save firearm state. Ctrl+Shift+G shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.firearm.verify.load
+    displayName: Verify firearm after load
+    stepType: 102
+    instructionText: 'Firearm playtest: Verify firearm after load. Ctrl+Shift+G shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

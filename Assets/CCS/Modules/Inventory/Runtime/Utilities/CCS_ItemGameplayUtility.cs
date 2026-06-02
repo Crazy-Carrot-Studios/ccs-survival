@@ -84,9 +84,19 @@ namespace CCS.Modules.Inventory
                 return false;
             }
 
-            return itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Bow
-                || itemDefinition.RangeType == CCS_RangeType.ShortRanged
-                || itemDefinition.RangeType == CCS_RangeType.LongRanged;
+            return itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Bow;
+        }
+
+        public static bool IsFirearmWeaponItem(CCS_ItemDefinition itemDefinition)
+        {
+            if (itemDefinition == null || !itemDefinition.HasWeaponIdentity)
+            {
+                return false;
+            }
+
+            return itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Revolver
+                || itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Rifle
+                || itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Shotgun;
         }
 
         public static bool IsPlaceableTrapItem(CCS_ItemDefinition itemDefinition)

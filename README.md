@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.5.2-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.6.0** — Firearm Foundation
+
+Generic **Firearms** module with **Frontier Revolver, Rifle, and Shotgun**, ammunition crafting at the primitive forge, gunsmith economy, reload/fire active-item flow, wildlife hunting via existing combat raycast, firearm save/load, and playtest loop (Ctrl+Shift+G shortcut).
 
 **1.5.2** — Wagon Foundation
 

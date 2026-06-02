@@ -20,6 +20,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -66,6 +67,9 @@ namespace CCS.Modules.Playtesting
         private const string FrontierStableVendorId = CCS_MountContentIds.FrontierStableVendorId;
         private const string FrontierHorseItemId = CCS_MountContentIds.FrontierHorseItemId;
         private const string FrontierWagonItemId = CCS_VehicleContentIds.FrontierWagonItemId;
+        private const string FrontierGunsmithVendorId = CCS_FirearmContentIds.FrontierGunsmithVendorId;
+        private const string FrontierRevolverItemId = CCS_FirearmContentIds.FrontierRevolverItemId;
+        private const string RevolverCartridgeItemId = CCS_FirearmContentIds.RevolverCartridgeItemId;
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -140,6 +144,7 @@ namespace CCS.Modules.Playtesting
         private CCS_CampService boundCampService;
         private CCS_MountService boundMountService;
         private CCS_VehicleService boundVehicleService;
+        private CCS_FirearmService boundFirearmService;
 
         #endregion
 
@@ -212,7 +217,8 @@ namespace CCS.Modules.Playtesting
             CCS_VendorService vendorService = null,
             CCS_CampService campService = null,
             CCS_MountService mountService = null,
-            CCS_VehicleService vehicleService = null)
+            CCS_VehicleService vehicleService = null,
+            CCS_FirearmService firearmService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -242,6 +248,7 @@ namespace CCS.Modules.Playtesting
             boundCampService = campService;
             boundMountService = mountService;
             boundVehicleService = vehicleService;
+            boundFirearmService = firearmService;
 
             if (boundMountService != null)
             {
@@ -480,6 +487,7 @@ namespace CCS.Modules.Playtesting
 
             boundMountService = null;
             boundVehicleService = null;
+            boundFirearmService = null;
 
             if (boundInteractionService != null)
             {
@@ -918,6 +926,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SaveFirearmState,
+                    "Firearm loaded rounds and equipment state saved.");
             }
         }
 
@@ -932,6 +943,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateHomesteadCampPersistenceAfterLoad();
                 EvaluateHorsePersistenceAfterLoad();
                 EvaluateWagonPersistenceAfterLoad();
+                EvaluateFirearmPersistenceAfterLoad();
             }
         }
 
@@ -1416,6 +1428,23 @@ namespace CCS.Modules.Playtesting
                 return;
             }
 
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.FirearmReloaded)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ReloadFirearm,
+                    useResult.Message ?? "Firearm reloaded.");
+            }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.CombatHit
+                && boundActiveItemService != null
+                && boundActiveItemService.ActiveState.BehaviorType == CCS_ActiveItemBehaviorType.Firearm)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ShootWildlifeWithFirearm,
+                    useResult.Message ?? "Firearm hit wildlife.");
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.HuntWildlife, "Wildlife killed.");
+            }
+
             if (MatchesTargetItem(CCS_PlaytestStepType.UseActiveItem, useResult.ActiveItemId)
                 && (useResult.ResultType == CCS_ActiveItemUseResultType.CombatHit
                     || useResult.ResultType == CCS_ActiveItemUseResultType.NoTarget
@@ -1455,6 +1484,9 @@ namespace CCS.Modules.Playtesting
             if (useResult.ResultType == CCS_ActiveItemUseResultType.HarvestSuccess)
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.HarvestCarcass, useResult.Message);
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.HarvestWithKnifeAfterFirearm,
+                    "Carcass harvested with knife after firearm hunt.");
                 TryEvaluateHuntingPlaytestSteps();
             }
 
@@ -2074,6 +2106,136 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestGrantFirearmCurrency()
+        {
+            if (!harnessEnabled
+                || boundCurrencyService == null
+                || !boundCurrencyService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_CurrencyTransactionResult result = boundCurrencyService.AddCurrency(
+                TradeDollarsCurrencyId,
+                8000,
+                "Playtest firearm purchase funds");
+            if (result.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.EarnCurrencyForFirearm,
+                    "Granted playtest currency for firearm purchase.");
+            }
+
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestBuyRevolver()
+        {
+            if (!EnsureGunsmithVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition revolverItem = FindItemDefinitionById(FrontierRevolverItemId);
+            if (revolverItem == null)
+            {
+                return false;
+            }
+
+            return boundVendorService.TryBuyActiveVendorItem(revolverItem, 1).IsSuccess;
+        }
+
+        public bool TryPlaytestBuyRevolverAmmo()
+        {
+            if (!EnsureGunsmithVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition ammoItem = FindItemDefinitionById(RevolverCartridgeItemId);
+            if (ammoItem == null)
+            {
+                return false;
+            }
+
+            return boundVendorService.TryBuyActiveVendorItem(ammoItem, 24).IsSuccess;
+        }
+
+        public bool TryPlaytestEquipRevolver()
+        {
+            bool equipped = TryEquipItemForPlaytest(
+                FrontierRevolverItemId,
+                "frontier revolver",
+                CCS_PlaytestStepType.EquipFirearm);
+            if (equipped && boundActiveItemService != null && boundActiveItemService.IsInitialized)
+            {
+                boundActiveItemService.SelectActiveFromEquipped(CCS_EquipmentSlotType.MainHand);
+            }
+
+            return equipped;
+        }
+
+        public bool TryPlaytestReloadRevolver()
+        {
+            if (boundActiveItemService == null || !boundActiveItemService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ActiveItemUseResult result = boundActiveItemService.TryReloadActiveFirearm();
+            return result.ResultType == CCS_ActiveItemUseResultType.FirearmReloaded;
+        }
+
+        public bool TryPlaytestFirearmFoundationShortcut()
+        {
+            TryPlaytestGrantFirearmCurrency();
+            TryPlaytestBuyRevolver();
+            TryPlaytestBuyRevolverAmmo();
+            TryPlaytestEquipRevolver();
+            TryPlaytestReloadRevolver();
+            return true;
+        }
+
+        private bool EnsureGunsmithVendorReadyForPlaytest()
+        {
+            if (!harnessEnabled
+                || boundVendorService == null
+                || !boundVendorService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_VendorDefinition gunsmith = FindVendorDefinitionById(FrontierGunsmithVendorId);
+            if (gunsmith == null)
+            {
+                return false;
+            }
+
+            boundVendorService.SetActiveVendor(gunsmith);
+            return true;
+        }
+
+        private CCS_VendorDefinition FindVendorDefinitionById(string vendorId)
+        {
+            if (boundVendorService?.ActiveProfile?.VendorProfile?.VendorDefinitions == null
+                || string.IsNullOrWhiteSpace(vendorId))
+            {
+                return null;
+            }
+
+            CCS_VendorDefinition[] vendors = boundVendorService.ActiveProfile.VendorProfile.VendorDefinitions;
+            for (int index = 0; index < vendors.Length; index++)
+            {
+                if (vendors[index] != null
+                    && string.Equals(vendors[index].VendorId, vendorId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return vendors[index];
+                }
+            }
+
+            return null;
+        }
+
         private int GetTradeDollarsBalance()
         {
             return boundCurrencyService != null
@@ -2353,6 +2515,22 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void EvaluateFirearmPersistenceAfterLoad()
+        {
+            if (boundFirearmService == null || !boundFirearmService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_FirearmSnapshot snapshot = boundFirearmService.CurrentSnapshot;
+            if (snapshot?.firearmStates != null && snapshot.firearmStates.Length > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFirearmPersistenceAfterLoad,
+                    "Firearm loaded-round state restored after load.");
+            }
+        }
+
         private void TryEvaluateEconomyPlaytestSteps()
         {
             if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
@@ -2529,6 +2707,24 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.BuyWagonFromStable,
                     "Purchased frontier wagon deed from stable.");
+            }
+
+            if (!result.WasSell
+                && string.Equals(result.VendorId, FrontierGunsmithVendorId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(result.ItemId, FrontierRevolverItemId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyRevolverFromGunsmith,
+                    "Purchased frontier revolver from gunsmith.");
+            }
+
+            if (!result.WasSell
+                && string.Equals(result.VendorId, FrontierGunsmithVendorId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(result.ItemId, RevolverCartridgeItemId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyFirearmAmmo,
+                    "Purchased revolver cartridges from gunsmith.");
             }
 
             if (!result.WasSell && result.ItemId == BoneHatchetItemId)

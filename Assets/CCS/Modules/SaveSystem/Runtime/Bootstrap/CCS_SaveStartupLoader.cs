@@ -7,6 +7,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -65,6 +66,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_IndustryService industryService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_MountService mountService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_VehicleService vehicleService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_FirearmService firearmService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
@@ -86,6 +88,7 @@ namespace CCS.Modules.SaveSystem
                 industryService,
                 mountService,
                 vehicleService,
+                firearmService,
                 playerTransform);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)

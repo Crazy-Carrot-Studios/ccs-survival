@@ -77,11 +77,11 @@ namespace CCS.Modules.Cooking.Editor
         private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
         {
             string path = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.5.2");
+            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.6.0");
             report.AddIssue(
                 ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
                 "Project Version",
-                ok ? "bundleVersion is 1.5.2." : "Expected bundleVersion 1.5.2. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
+                ok ? "bundleVersion is 1.6.0." : "Expected bundleVersion 1.6.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateFoodItems(CCS_SurvivalValidationReport report)

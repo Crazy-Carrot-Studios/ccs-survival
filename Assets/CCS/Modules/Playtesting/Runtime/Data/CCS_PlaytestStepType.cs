@@ -104,6 +104,16 @@ namespace CCS.Modules.Playtesting
         RideHorseWithWagon = 89,
         OpenWagonCargo = 90,
         SaveWagonState = 91,
-        VerifyWagonPersistenceAfterLoad = 92
+        VerifyWagonPersistenceAfterLoad = 92,
+        EarnCurrencyForFirearm = 93,
+        BuyRevolverFromGunsmith = 94,
+        BuyFirearmAmmo = 95,
+        EquipFirearm = 96,
+        ReloadFirearm = 97,
+        ShootWildlifeWithFirearm = 98,
+        HarvestWithKnifeAfterFirearm = 99,
+        SellHuntingResourcesAfterFirearm = 100,
+        SaveFirearmState = 101,
+        VerifyFirearmPersistenceAfterLoad = 102
     }
 }

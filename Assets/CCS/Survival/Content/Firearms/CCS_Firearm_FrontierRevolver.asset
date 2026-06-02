@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c186e4883fce043b4bc70f24cbced9, type: 3}
+  m_Name: CCS_Firearm_FrontierRevolver
+  m_EditorClassIdentifier: CCS.Modules.Firearms.Runtime::CCS.Modules.Firearms.CCS_FirearmDefinition
+  firearmId: ccs.survival.firearm.revolver.frontier
+  displayName: Frontier Revolver
+  inventoryItemId: ccs.survival.item.firearm.revolver.frontier
+  weaponArchetype: 5
+  ammoDefinition: {fileID: 11400000, guid: 004c573b1fd1c6d44b6e1f11d99629a9, type: 2}
+  magazineCapacity: 6
+  damage: 28
+  range: 25
+  worldPrefab: {fileID: 4965704987190960470, guid: c758db44f52bc7a48a3ce6a6aaf6afa8, type: 3}

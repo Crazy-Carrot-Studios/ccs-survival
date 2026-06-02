@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01511f80f2742504991932c6a1a5a850, type: 3}
+  m_Name: CCS_Vendor_FrontierGunsmith
+  m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorDefinition
+  vendorId: ccs.survival.vendor.frontier.gunsmith
+  displayName: Frontier Gunsmith
+  description: Frontier gunsmith for firearms, ammunition, and metalworking supplies
+    (1.6.0).
+  currencyDefinition: {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}
+  vendorInventory:
+    items:
+    - itemDefinition: {fileID: 11400000, guid: e4dc9d946c146db42a06ccce8707c060, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 1400
+      sellPriceOverride: 280
+    - itemDefinition: {fileID: 11400000, guid: 325c3a7537eedde4baed721ec822d4da, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 3600
+      sellPriceOverride: 720
+    - itemDefinition: {fileID: 11400000, guid: 018bc6c8e38104645b65f998aaf34a65, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 2800
+      sellPriceOverride: 560
+    - itemDefinition: {fileID: 11400000, guid: 45469a61d189d8f45a9228c3a8770258, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 10
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: 02b724813d10c6b45ae32834eddb7237, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 10
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: 1c4b6fc85a685994a91507df04affa2a, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 10
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: 09a21916e1838f94287c91c0cc9a037c, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 12
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: feb20b147b28d7c4f86abca9094e6b18, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 10
+      sellPriceOverride: 2
+    - itemDefinition: {fileID: 11400000, guid: d14c7b0a1fdb2fa4092e75acad484d81, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 28
+      sellPriceOverride: 5

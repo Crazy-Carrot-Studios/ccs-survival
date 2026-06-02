@@ -14,6 +14,7 @@ namespace CCS.Modules.Industry
         Tool = 0,
         Hardware = 1,
         Utility = 2,
-        FutureWeapon = 3
+        FutureWeapon = 3,
+        Ammunition = 4
     }
 }

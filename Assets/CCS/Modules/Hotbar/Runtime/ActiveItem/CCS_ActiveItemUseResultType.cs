@@ -48,6 +48,9 @@ namespace CCS.Modules.Hotbar
         ShelterPlacementFailed = 33,
         HomesteadStructurePlacementPreview = 34,
         HomesteadStructurePlaced = 35,
-        HomesteadStructurePlacementFailed = 36
+        HomesteadStructurePlacementFailed = 36,
+        FirearmEmpty = 37,
+        FirearmReloaded = 38,
+        FirearmNoAmmo = 39
     }
 }

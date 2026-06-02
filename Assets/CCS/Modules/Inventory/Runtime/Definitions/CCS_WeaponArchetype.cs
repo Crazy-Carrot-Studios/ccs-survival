@@ -16,6 +16,9 @@ namespace CCS.Modules.Inventory
         Knife = 1,
         Spear = 2,
         Bow = 3,
-        Club = 4
+        Club = 4,
+        Revolver = 5,
+        Rifle = 6,
+        Shotgun = 7
     }
 }

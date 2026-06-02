@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4570193a1c8021c4fbefc366fb727045, type: 3}
+  m_Name: CCS_Ammo_RifleCartridge
+  m_EditorClassIdentifier: CCS.Modules.Firearms.Runtime::CCS.Modules.Firearms.CCS_AmmoDefinition
+  ammoId: ccs.survival.ammo.rifle.cartridge
+  displayName: Rifle Cartridge
+  inventoryItemId: ccs.survival.item.ammo.rifle.cartridge
+  inventoryItem: {fileID: 11400000, guid: 02b724813d10c6b45ae32834eddb7237, type: 2}
+  roundsPerInventoryUnit: 1

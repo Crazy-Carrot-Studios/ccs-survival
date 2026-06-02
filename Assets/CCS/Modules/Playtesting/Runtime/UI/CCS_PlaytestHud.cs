@@ -273,6 +273,17 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryPlaytestFirearmFoundationShortcut();
+                    }
+                }
+            }
+
             if (Input.GetKeyDown(KeyCode.K))
             {
                 if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))

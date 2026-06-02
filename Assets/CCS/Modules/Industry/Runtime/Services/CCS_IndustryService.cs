@@ -215,7 +215,7 @@ namespace CCS.Modules.Industry
 
             if (blacksmithRecipe.Category == CCS_BlacksmithRecipeCategory.FutureWeapon)
             {
-                return CCS_IndustryJobResult.Failure("Firearms are not available in this milestone.");
+                return CCS_IndustryJobResult.Failure("Future firearm products are not available in this milestone.");
             }
 
             if (!HasWorkstationRoleInRadius(

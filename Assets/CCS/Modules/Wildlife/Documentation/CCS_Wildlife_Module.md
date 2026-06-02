@@ -16,15 +16,16 @@ This milestone does **not** include:
 - Final archery systems (draw, aim IK, arrow physics)
 - Advanced animal AI (pack, stalk, flee trees)
 - Final animations or IK
-- Firearms
 - Ragdolls or complex corpse physics
+
+**1.6.0:** Firearms reuse the same `CCS_WildlifeDamageable` raycast path via `CCS_CombatService.TryFirearmAttack`. Harvesting remains knife-based.
 
 ---
 
 ## Frontier hunting loop
 
 ```text
-Bow (active item raycast)
+Bow or Firearm (active item raycast)
   ↓
 Kill wildlife (CCS_WildlifeDamageable)
   ↓

@@ -28,6 +28,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -83,6 +84,7 @@ namespace CCS.Survival.Composition
             CCS_IndustryProfile industryProfile,
             CCS_MountProfile mountProfile,
             CCS_VehicleProfile vehicleProfile,
+            CCS_FirearmProfile firearmProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -203,6 +205,19 @@ namespace CCS.Survival.Composition
             if (activeItemService != null && activeItemService.IsInitialized)
             {
                 activeItemService.BindCombatService(combatService);
+            }
+
+            CCS_FirearmService firearmService = CreateFirearmService(
+                runtimeHost,
+                firearmProfile,
+                inventoryService,
+                equipmentService,
+                combatService);
+            RegisterService(runtimeHost, firearmService, enableDebugLogs);
+
+            if (activeItemService != null && activeItemService.IsInitialized && firearmService.IsInitialized)
+            {
+                activeItemService.BindFirearmService(firearmService);
             }
 
             CCS_GatheringService gatheringService = CreateGatheringService(gatheringProfile, inventoryService);
@@ -399,6 +414,7 @@ namespace CCS.Survival.Composition
                 industryService,
                 mountService,
                 vehicleService,
+                firearmService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -439,7 +455,8 @@ namespace CCS.Survival.Composition
                     vendorService,
                     campService,
                     mountService,
-                    vehicleService);
+                    vehicleService,
+                    firearmService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -974,6 +991,40 @@ namespace CCS.Survival.Composition
                 runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
             }
 
+            return service;
+        }
+
+        private static CCS_FirearmService CreateFirearmService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_FirearmProfile firearmProfile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_PlayerEquipmentService equipmentService,
+            CCS_CombatService combatService)
+        {
+            CCS_FirearmService service = new CCS_FirearmService();
+            service.Initialize();
+
+            if (firearmProfile != null)
+            {
+                service.InitializeFromProfile(firearmProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (equipmentService != null && equipmentService.IsInitialized)
+            {
+                service.BindEquipmentService(equipmentService);
+            }
+
+            if (combatService != null && combatService.IsInitialized)
+            {
+                service.BindCombatService(combatService);
+            }
+
+            CCS_FirearmRuntimeBridge.Register(service);
             return service;
         }
 

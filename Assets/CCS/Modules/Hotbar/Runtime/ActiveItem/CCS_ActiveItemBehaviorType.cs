@@ -18,6 +18,7 @@ namespace CCS.Modules.Hotbar
         Consumable = 3,
         Placeable = 4,
         Generic = 5,
-        Bow = 6
+        Bow = 6,
+        Firearm = 7
     }
 }

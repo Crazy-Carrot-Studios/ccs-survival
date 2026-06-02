@@ -63,6 +63,12 @@ namespace CCS.Survival.Player
                 activeItemService.CycleActiveEquippedItem();
             }
 
+            if (Input.GetKeyDown(KeyCode.R)
+                && activeItemService.ActiveState.BehaviorType == CCS_ActiveItemBehaviorType.Firearm)
+            {
+                activeItemService.TryReloadActiveFirearm();
+            }
+
             if (!inputProvider.PrimaryActionPressedThisFrame || useCamera == null)
             {
                 return;

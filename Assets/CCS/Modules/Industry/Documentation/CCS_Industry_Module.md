@@ -6,6 +6,12 @@
 Gather → Process Resources → Produce Materials → Forge Better Tools → Expand Homestead
 ```
 
+## Milestone 1.6.0 — Ammunition
+
+- Primitive forge blacksmith recipes craft revolver cartridges, rifle cartridges, and shotgun shells.
+- Inputs: **Refined Iron** + **Charcoal** (sulfur/saltpeter placeholders reserved for later).
+- Category: `CCS_BlacksmithRecipeCategory.Ammunition`.
+
 ## Milestone 1.5.0
 
 - Generic `CCS_IndustryService` for resource processing jobs at placed workstations.

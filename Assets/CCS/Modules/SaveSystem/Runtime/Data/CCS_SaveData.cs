@@ -2,6 +2,7 @@ using System;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 
 // =============================================================================
 // SCRIPT: CCS_SaveData
@@ -54,6 +55,8 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveVehiclesWorldData vehicles = new CCS_SaveVehiclesWorldData();
 
+        public CCS_SaveFirearmsWorldData firearms = new CCS_SaveFirearmsWorldData();
+
         #endregion
     }
 
@@ -67,6 +70,12 @@ namespace CCS.Modules.SaveSystem
     public sealed class CCS_SaveVehiclesWorldData
     {
         public CCS_VehicleSnapshot ownedVehicle = new CCS_VehicleSnapshot();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveFirearmsWorldData
+    {
+        public CCS_FirearmSnapshot firearmState = new CCS_FirearmSnapshot();
     }
 
     [Serializable]

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c15dd8fde1b494a43bf3061c4595f4f6, type: 3}
+  m_Name: CCS_EquipmentVisual_FrontierShotgun
+  m_EditorClassIdentifier: CCS.Modules.Equipment.Runtime::CCS.Modules.Equipment.CCS_EquipmentVisualDefinition
+  itemId: ccs.survival.item.firearm.shotgun.frontier
+  visualPrefab: {fileID: 6610556631523251518, guid: 066c3e77bada3364585ae45c6f396ea2, type: 3}
+  attachmentSocket: 0
+  localPositionOffset: {x: 0, y: 0, z: 0.14}
+  localEulerOffset: {x: 10, y: 0, z: 90}
+  localScale: {x: 0.14, y: 0.1, z: 0.36}
+  hideWhenUnequipped: 1
+  supportsAimPose: 0
+  supportsTwoHandIk: 0
+  supportsHolsterVisual: 0

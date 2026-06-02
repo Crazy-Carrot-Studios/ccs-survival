@@ -9,6 +9,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -50,6 +51,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_IndustryService industryService;
         private CCS_MountService mountService;
         private CCS_VehicleService vehicleService;
+        private CCS_FirearmService firearmService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -125,6 +127,7 @@ namespace CCS.Modules.SaveSystem
             CCS_IndustryService industry,
             CCS_MountService mounts,
             CCS_VehicleService vehicles,
+            CCS_FirearmService firearms,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -142,6 +145,7 @@ namespace CCS.Modules.SaveSystem
             industryService = industry;
             mountService = mounts;
             vehicleService = vehicles;
+            firearmService = firearms;
             playerTransform = playerRoot;
         }
 
@@ -302,6 +306,7 @@ namespace CCS.Modules.SaveSystem
             CaptureIndustry(saveData.industry);
             CaptureMounts(saveData.mounts);
             CaptureVehicles(saveData.vehicles);
+            CaptureFirearms(saveData.firearms);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -620,6 +625,7 @@ namespace CCS.Modules.SaveSystem
             ApplyIndustry(saveData.industry);
             ApplyMounts(saveData.mounts);
             ApplyVehicles(saveData.vehicles);
+            ApplyFirearms(saveData.firearms);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1005,6 +1011,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             vehicleService.RestoreSnapshot(vehiclesData?.ownedVehicle);
+        }
+
+        private void CaptureFirearms(CCS_SaveFirearmsWorldData firearmsData)
+        {
+            if (firearmsData == null)
+            {
+                return;
+            }
+
+            firearmsData.firearmState = firearmService != null && firearmService.IsInitialized
+                ? firearmService.CurrentSnapshot
+                : CCS_FirearmSnapshot.Empty;
+        }
+
+        private void ApplyFirearms(CCS_SaveFirearmsWorldData firearmsData)
+        {
+            if (firearmService == null || !firearmService.IsInitialized)
+            {
+                return;
+            }
+
+            firearmService.RestoreSnapshot(firearmsData?.firearmState);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

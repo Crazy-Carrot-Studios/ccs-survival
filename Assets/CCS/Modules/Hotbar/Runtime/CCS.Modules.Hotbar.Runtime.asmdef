@@ -14,7 +14,8 @@
         "CCS.Modules.Fishing.Runtime",
         "CCS.Modules.Wildlife.Runtime",
         "CCS.Modules.Trapping.Runtime",
-        "CCS.Modules.Shelter.Runtime"
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Firearms.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

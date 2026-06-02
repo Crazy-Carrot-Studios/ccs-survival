@@ -1,0 +1,29 @@
+{
+    "name": "CCS.Modules.Firearms.Editor",
+    "rootNamespace": "CCS.Modules.Firearms.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Firearms.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Equipment.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Industry.Runtime",
+        "CCS.Modules.Crafting.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Mounts.Runtime",
+        "CCS.Survival.Composition"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

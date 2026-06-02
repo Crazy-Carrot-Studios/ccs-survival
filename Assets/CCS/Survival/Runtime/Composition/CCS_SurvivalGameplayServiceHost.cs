@@ -28,6 +28,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
+using CCS.Modules.Firearms;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -148,6 +149,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier vehicle profile for wagon ownership, hitching, and cargo.")]
         [SerializeField] private CCS_VehicleProfile vehicleProfile;
 
+        [Tooltip("Frontier firearm profile for revolver, rifle, shotgun, and ammunition.")]
+        [SerializeField] private CCS_FirearmProfile firearmProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -215,6 +219,7 @@ namespace CCS.Survival.Composition
                 industryProfile,
                 mountProfile,
                 vehicleProfile,
+                firearmProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);
