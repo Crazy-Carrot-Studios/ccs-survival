@@ -1098,3 +1098,69 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.discover.settlement
+    displayName: Discover settlement for world simulation
+    stepType: 127
+    instructionText: Discover the frontier trading post settlement.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.sell.food
+    displayName: Sell food for world simulation
+    stepType: 128
+    instructionText: Sell fish, meat, or preserved food at the general store.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.verify.food
+    displayName: Verify food supply increased
+    stepType: 129
+    instructionText: Confirm trading post food supply increased after selling food.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.sell.industry
+    displayName: Sell industry goods for world simulation
+    stepType: 130
+    instructionText: Sell ore, nails, or refined iron at the general store.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.verify.industry
+    displayName: Verify industry supply increased
+    stepType: 131
+    instructionText: Confirm trading post industrial supply increased after selling
+      goods.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.verify.prosperity
+    displayName: Verify prosperity increased
+    stepType: 132
+    instructionText: Confirm trading post prosperity increased after supply changes.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.save
+    displayName: Save world simulation state
+    stepType: 133
+    instructionText: Press F5 after world simulation supply changes.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.worldsim.load.verify
+    displayName: Verify world simulation restored after load
+    stepType: 134
+    instructionText: Press F9 and confirm settlement simulation supply and prosperity
+      persist.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

@@ -25,6 +25,7 @@ using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
+using CCS.Modules.WorldSimulation;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
 using CCS.Survival.Player;
@@ -150,6 +151,14 @@ namespace CCS.Modules.Playtesting
         private CCS_FirearmService boundFirearmService;
         private CCS_SettlementService boundSettlementService;
         private CCS_RegionService boundRegionService;
+        private CCS_WorldSimulationService boundWorldSimulationService;
+        private float worldSimulationFoodBaseline;
+        private float worldSimulationIndustryBaseline;
+        private float worldSimulationProsperityBaseline;
+        private float worldSimulationSavedFoodAmount;
+        private float worldSimulationSavedIndustryAmount;
+        private float worldSimulationSavedProsperity;
+        private bool worldSimulationBaselinesCaptured;
 
         #endregion
 
@@ -225,7 +234,8 @@ namespace CCS.Modules.Playtesting
             CCS_VehicleService vehicleService = null,
             CCS_FirearmService firearmService = null,
             CCS_SettlementService settlementService = null,
-            CCS_RegionService regionService = null)
+            CCS_RegionService regionService = null,
+            CCS_WorldSimulationService worldSimulationService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -258,6 +268,13 @@ namespace CCS.Modules.Playtesting
             boundFirearmService = firearmService;
             boundSettlementService = settlementService;
             boundRegionService = regionService;
+            boundWorldSimulationService = worldSimulationService;
+
+            if (boundWorldSimulationService != null)
+            {
+                boundWorldSimulationService.SettlementSupplyChanged += HandleWorldSimulationSupplyChanged;
+                boundWorldSimulationService.SettlementProsperityChanged += HandleWorldSimulationProsperityChanged;
+            }
 
             if (boundSettlementService != null)
             {
@@ -489,6 +506,12 @@ namespace CCS.Modules.Playtesting
                 boundRegionService.RegionDiscovered -= HandleRegionDiscovered;
             }
 
+            if (boundWorldSimulationService != null)
+            {
+                boundWorldSimulationService.SettlementSupplyChanged -= HandleWorldSimulationSupplyChanged;
+                boundWorldSimulationService.SettlementProsperityChanged -= HandleWorldSimulationProsperityChanged;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -521,6 +544,8 @@ namespace CCS.Modules.Playtesting
             boundFirearmService = null;
             boundSettlementService = null;
             boundRegionService = null;
+            boundWorldSimulationService = null;
+            worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
             {
@@ -819,6 +844,7 @@ namespace CCS.Modules.Playtesting
             }
 
             TryEvaluateShelterCampPlaytestSteps();
+            TryEvaluateWorldSimulationPlaytestSteps();
         }
 
         #endregion
@@ -1001,6 +1027,26 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveRegionDiscovery,
                         "Region discovery saved.");
                 }
+
+                if (boundWorldSimulationService != null
+                    && boundWorldSimulationService.IsInitialized
+                    && boundWorldSimulationService.TryGetSettlementState(
+                        CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                        out CCS_SettlementSimulationState settlementState)
+                    && settlementState != null
+                    && settlementState.isDiscovered)
+                {
+                    worldSimulationSavedFoodAmount = boundWorldSimulationService.GetSupplyAmount(
+                        CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                        CCS_SettlementSupplyType.Food);
+                    worldSimulationSavedIndustryAmount = boundWorldSimulationService.GetSupplyAmount(
+                        CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                        CCS_SettlementSupplyType.IndustrialMaterials);
+                    worldSimulationSavedProsperity = settlementState.prosperity;
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveWorldSimulationState,
+                        "World simulation state saved.");
+                }
             }
         }
 
@@ -1018,6 +1064,40 @@ namespace CCS.Modules.Playtesting
                 EvaluateFirearmPersistenceAfterLoad();
                 EvaluateSettlementDiscoveryAfterLoad();
                 EvaluateRegionDiscoveryAfterLoad();
+                EvaluateWorldSimulationAfterLoad();
+            }
+        }
+
+        private void EvaluateWorldSimulationAfterLoad()
+        {
+            if (boundWorldSimulationService == null || !boundWorldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                || settlementState == null
+                || !settlementState.isDiscovered)
+            {
+                return;
+            }
+
+            float foodAmount = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.Food);
+            float industryAmount = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.IndustrialMaterials);
+
+            if (Mathf.Approximately(foodAmount, worldSimulationSavedFoodAmount)
+                && Mathf.Approximately(industryAmount, worldSimulationSavedIndustryAmount)
+                && Mathf.Approximately(settlementState.prosperity, worldSimulationSavedProsperity))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyWorldSimulationRestoredAfterLoad,
+                    "World simulation supply and prosperity restored after load.");
             }
         }
 
@@ -1140,6 +1220,28 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.DiscoverTradingPost,
                 "Frontier trading post discovered.");
+
+            EvaluateWorldSimulationSettlementDiscovered();
+        }
+
+        private void EvaluateWorldSimulationSettlementDiscovered()
+        {
+            if (boundWorldSimulationService == null || !boundWorldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            if (boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState state)
+                && state != null
+                && state.isDiscovered)
+            {
+                CaptureWorldSimulationBaselinesIfNeeded();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverSettlementForWorldSimulation,
+                    "Trading post settlement simulation discovered.");
+            }
         }
 
         private void HandleSettlementServicePointActivated(CCS_SettlementServicePointActivationArgs activationArgs)
@@ -3003,6 +3105,20 @@ namespace CCS.Modules.Playtesting
                     "Sold fish at general store.");
             }
 
+            if (result.WasSell && IsWorldSimulationFoodItem(result.ItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellFoodForWorldSimulation,
+                    "Sold food at general store for world simulation.");
+            }
+
+            if (result.WasSell && IsWorldSimulationIndustryItem(result.ItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellIndustryGoodsForWorldSimulation,
+                    "Sold industry goods at general store for world simulation.");
+            }
+
             if (result.WasSell && result.ItemId == HideItemId)
             {
                 TryCompleteActiveStepOfType(
@@ -3719,6 +3835,115 @@ namespace CCS.Modules.Playtesting
                 state.Definition.StepType,
                 state.Status,
                 message);
+        }
+
+        private void TryEvaluateWorldSimulationPlaytestSteps()
+        {
+            if (boundWorldSimulationService == null || !boundWorldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            CaptureWorldSimulationBaselinesIfNeeded();
+
+            float foodAmount = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.Food);
+            float industryAmount = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.IndustrialMaterials);
+
+            if (worldSimulationBaselinesCaptured && foodAmount > worldSimulationFoodBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFoodSupplyIncreased,
+                    $"Food supply increased to {foodAmount:0.##}.");
+            }
+
+            if (worldSimulationBaselinesCaptured && industryAmount > worldSimulationIndustryBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyIndustrySupplyIncreased,
+                    $"Industrial supply increased to {industryAmount:0.##}.");
+            }
+
+            if (boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && worldSimulationBaselinesCaptured
+                && settlementState.prosperity > worldSimulationProsperityBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyProsperityIncreased,
+                    $"Settlement prosperity increased to {settlementState.prosperity:0.##}.");
+            }
+        }
+
+        private void HandleWorldSimulationSupplyChanged(CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState == null)
+            {
+                return;
+            }
+
+            TryEvaluateWorldSimulationPlaytestSteps();
+        }
+
+        private void HandleWorldSimulationProsperityChanged(CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState == null)
+            {
+                return;
+            }
+
+            TryEvaluateWorldSimulationPlaytestSteps();
+        }
+
+        private void CaptureWorldSimulationBaselinesIfNeeded()
+        {
+            if (worldSimulationBaselinesCaptured
+                || boundWorldSimulationService == null
+                || !boundWorldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                || settlementState == null
+                || !settlementState.isDiscovered)
+            {
+                return;
+            }
+
+            worldSimulationFoodBaseline = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.Food);
+            worldSimulationIndustryBaseline = boundWorldSimulationService.GetSupplyAmount(
+                CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                CCS_SettlementSupplyType.IndustrialMaterials);
+            worldSimulationProsperityBaseline = settlementState.prosperity;
+            worldSimulationBaselinesCaptured = true;
+        }
+
+        private static bool IsWorldSimulationFoodItem(string itemId)
+        {
+            return itemId == RawFishItemId
+                || itemId == CookedFishItemId
+                || itemId == DriedFishItemId
+                || itemId == RawMeatItemId
+                || itemId == CookedMeatItemId
+                || itemId == JerkyItemId;
+        }
+
+        private static bool IsWorldSimulationIndustryItem(string itemId)
+        {
+            return itemId == IronOreItemId
+                || itemId == CCS_ProspectingContentIds.NailsItemId
+                || itemId.Contains("refinediron", System.StringComparison.OrdinalIgnoreCase)
+                || itemId.Contains("ironbar", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private void LogDebug(string message)

@@ -31,6 +31,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
+using CCS.Modules.WorldSimulation;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -160,6 +161,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default region profile used to register CCS_RegionService.")]
         [SerializeField] private CCS_RegionProfile regionProfile;
 
+        [Tooltip("Default world simulation profile used to register CCS_WorldSimulationService.")]
+        [SerializeField] private CCS_WorldSimulationProfile worldSimulationProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -230,6 +234,7 @@ namespace CCS.Survival.Composition
                 firearmProfile,
                 settlementProfile,
                 regionProfile,
+                worldSimulationProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

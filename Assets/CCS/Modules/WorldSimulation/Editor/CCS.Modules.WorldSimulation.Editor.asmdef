@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Modules.WorldSimulation.Editor",
+    "rootNamespace": "CCS.Modules.WorldSimulation.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.WorldSimulation.Runtime",
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Regions.Runtime",
+        "CCS.Modules.Playtesting.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

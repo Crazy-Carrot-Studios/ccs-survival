@@ -26,6 +26,7 @@ namespace CCS.Modules.Playtesting
         Firearms = 11,
         Prospecting = 12,
         Settlement = 13,
-        Region = 14
+        Region = 14,
+        WorldSimulation = 15
     }
 }

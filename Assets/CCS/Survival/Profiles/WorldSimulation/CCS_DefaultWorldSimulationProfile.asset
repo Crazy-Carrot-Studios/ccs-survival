@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c3628c00ede00e44a41a181564bf1ad, type: 3}
+  m_Name: CCS_DefaultWorldSimulationProfile
+  m_EditorClassIdentifier: CCS.Modules.WorldSimulation.Runtime::CCS.Modules.WorldSimulation.CCS_WorldSimulationProfile
+  profileDisplayName: Default World Simulation Profile
+  profileId: ccs.survival.profile.worldsimulation.default
+  profileDescription: Frontier settlement and region simulation defaults for bootstrap
+    trading post.
+  profileVersion: 2.0.0
+  enableDebugLogs: 0
+  settlementEntries:
+  - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    population: 48
+    supplies:
+    - supplyType: 0
+      currentAmount: 12
+      desiredAmount: 40
+    - supplyType: 1
+      currentAmount: 20
+      desiredAmount: 40
+    - supplyType: 2
+      currentAmount: 8
+      desiredAmount: 30
+    - supplyType: 3
+      currentAmount: 10
+      desiredAmount: 35
+    - supplyType: 4
+      currentAmount: 6
+      desiredAmount: 30
+    - supplyType: 5
+      currentAmount: 4
+      desiredAmount: 20
+    - supplyType: 6
+      currentAmount: 15
+      desiredAmount: 45
+    demands:
+    - supplyType: 0
+      currentDemand: 18
+    - supplyType: 4
+      currentDemand: 12
+    - supplyType: 6
+      currentDemand: 10
+    productions:
+    - supplyType: 0
+      currentProduction: 8
+    - supplyType: 4
+      currentProduction: 5
+    - supplyType: 6
+      currentProduction: 12
+  regionEntries:
+  - regionId: ccs.survival.region.frontier.pineridgeforest
+    foodPotential: 0.85
+    wildlifePotential: 0.75
+    miningPotential: 0.15
+    industryPotential: 0.2
+  - regionId: ccs.survival.region.frontier.brokencreek
+    foodPotential: 0.7
+    wildlifePotential: 0.65
+    miningPotential: 0.1
+    industryPotential: 0.15
+  - regionId: ccs.survival.region.frontier.ironridgemine
+    foodPotential: 0.2
+    wildlifePotential: 0.15
+    miningPotential: 0.9
+    industryPotential: 0.75
+  - regionId: ccs.survival.region.frontier.tradingpost
+    foodPotential: 0.35
+    wildlifePotential: 0.25
+    miningPotential: 0.3
+    industryPotential: 0.8
+  vendorRoutes:
+  - vendorId: ccs.survival.vendor.frontier.generalstore
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+  enableDebugLogging: 1

@@ -30,7 +30,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Firearms,
             CCS_PlaytestStepGroup.Prospecting,
             CCS_PlaytestStepGroup.Settlement,
-            CCS_PlaytestStepGroup.Region
+            CCS_PlaytestStepGroup.Region,
+            CCS_PlaytestStepGroup.WorldSimulation
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -72,6 +73,8 @@ namespace CCS.Modules.Playtesting
                     return "Settlement / Services";
                 case CCS_PlaytestStepGroup.Region:
                     return "Regions";
+                case CCS_PlaytestStepGroup.WorldSimulation:
+                    return "World Simulation";
                 default:
                     return group.ToString();
             }
@@ -243,6 +246,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveRegionDiscovery:
                 case CCS_PlaytestStepType.VerifyRegionDiscoveryAfterLoad:
                     return CCS_PlaytestStepGroup.Region;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForWorldSimulation:
+                case CCS_PlaytestStepType.SellFoodForWorldSimulation:
+                case CCS_PlaytestStepType.VerifyFoodSupplyIncreased:
+                case CCS_PlaytestStepType.SellIndustryGoodsForWorldSimulation:
+                case CCS_PlaytestStepType.VerifyIndustrySupplyIncreased:
+                case CCS_PlaytestStepType.VerifyProsperityIncreased:
+                case CCS_PlaytestStepType.SaveWorldSimulationState:
+                case CCS_PlaytestStepType.VerifyWorldSimulationRestoredAfterLoad:
+                    return CCS_PlaytestStepGroup.WorldSimulation;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

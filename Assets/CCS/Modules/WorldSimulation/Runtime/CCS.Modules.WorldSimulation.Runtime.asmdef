@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.WorldSimulation.Runtime",
+    "rootNamespace": "CCS.Modules.WorldSimulation",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Regions.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

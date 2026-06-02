@@ -138,6 +138,14 @@ namespace CCS.Modules.Playtesting
         DiscoverFrontierTradingPostRegion = 123,
         VerifyAllRegionsDiscovered = 124,
         SaveRegionDiscovery = 125,
-        VerifyRegionDiscoveryAfterLoad = 126
+        VerifyRegionDiscoveryAfterLoad = 126,
+        DiscoverSettlementForWorldSimulation = 127,
+        SellFoodForWorldSimulation = 128,
+        VerifyFoodSupplyIncreased = 129,
+        SellIndustryGoodsForWorldSimulation = 130,
+        VerifyIndustrySupplyIncreased = 131,
+        VerifyProsperityIncreased = 132,
+        SaveWorldSimulationState = 133,
+        VerifyWorldSimulationRestoredAfterLoad = 134
     }
 }

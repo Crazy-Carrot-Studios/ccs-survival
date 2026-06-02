@@ -15,6 +15,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
+using CCS.Modules.WorldSimulation;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Survival;
@@ -56,6 +57,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_FirearmService firearmService;
         private CCS_SettlementService settlementService;
         private CCS_RegionService regionService;
+        private CCS_WorldSimulationService worldSimulationService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -134,6 +136,7 @@ namespace CCS.Modules.SaveSystem
             CCS_FirearmService firearms,
             CCS_SettlementService settlements,
             CCS_RegionService regions,
+            CCS_WorldSimulationService worldSimulation,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -154,6 +157,7 @@ namespace CCS.Modules.SaveSystem
             firearmService = firearms;
             settlementService = settlements;
             regionService = regions;
+            worldSimulationService = worldSimulation;
             playerTransform = playerRoot;
         }
 
@@ -317,6 +321,7 @@ namespace CCS.Modules.SaveSystem
             CaptureFirearms(saveData.firearms);
             CaptureSettlements(saveData.settlements);
             CaptureRegions(saveData.regions);
+            CaptureWorldSimulation(saveData.worldSimulation);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -638,6 +643,7 @@ namespace CCS.Modules.SaveSystem
             ApplyFirearms(saveData.firearms);
             ApplySettlements(saveData.settlements);
             ApplyRegions(saveData.regions);
+            ApplyWorldSimulation(saveData.worldSimulation);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1189,6 +1195,49 @@ namespace CCS.Modules.SaveSystem
             }
 
             regionService.RestoreState(records);
+        }
+
+        private void CaptureWorldSimulation(CCS_SaveWorldSimulationData worldSimulationData)
+        {
+            if (worldSimulationData == null)
+            {
+                return;
+            }
+
+            if (worldSimulationService == null || !worldSimulationService.IsInitialized)
+            {
+                worldSimulationData.settlementStates = Array.Empty<CCS_SettlementSimulationState>();
+                worldSimulationData.regionStates = Array.Empty<CCS_RegionSimulationState>();
+                return;
+            }
+
+            worldSimulationData.settlementStates = worldSimulationService.CaptureState()
+                ?? Array.Empty<CCS_SettlementSimulationState>();
+            worldSimulationData.regionStates = worldSimulationService.CaptureRegionState()
+                ?? Array.Empty<CCS_RegionSimulationState>();
+        }
+
+        private void ApplyWorldSimulation(CCS_SaveWorldSimulationData worldSimulationData)
+        {
+            if (worldSimulationService == null || !worldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_SettlementSimulationState[] settlementStates = worldSimulationData?.settlementStates;
+            CCS_RegionSimulationState[] regionStates = worldSimulationData?.regionStates;
+            if ((settlementStates == null || settlementStates.Length == 0)
+                && (regionStates == null || regionStates.Length == 0))
+            {
+                worldSimulationService.RestoreState(
+                    Array.Empty<CCS_SettlementSimulationState>(),
+                    Array.Empty<CCS_RegionSimulationState>());
+                return;
+            }
+
+            worldSimulationService.RestoreState(
+                settlementStates ?? Array.Empty<CCS_SettlementSimulationState>(),
+                regionStates ?? Array.Empty<CCS_RegionSimulationState>());
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

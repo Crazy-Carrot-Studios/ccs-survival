@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.9.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,24 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.0.0** — Frontier World Simulation Foundation
+
+Generic **WorldSimulation** module tracks settlement supply, demand, production, and prosperity plus region resource potential metadata. Player vendor trades adjust frontier trading post supplies; prosperity derives from food, supply, and production ratios. Simulation state persists in unified save. Bootstrap profile links Frontier Trading Post to Pine Ridge Forest, Broken Creek, Iron Ridge Mine, and Frontier Trading Post Region.
+
+**Frontier World Simulation Loop:**
+
+```text
+Gather Resources
+      ↓
+Trade Goods
+      ↓
+Settlement Supply Changes
+      ↓
+Prosperity Changes
+      ↓
+Frontier Evolves
+```
 
 **1.9.0** — Frontier Region Foundation
 
@@ -228,8 +246,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **1.9.0** |
-| Output | `Builds/CCS_Survival_1.9.0_Windows/` (gitignored) |
+| Version | **2.0.0** |
+| Output | `Builds/CCS_Survival_2.0.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
@@ -250,7 +268,7 @@ Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Bui
 
 ### Bootstrap version policy
 
-1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **1.9.0**).
+1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **2.0.0**).
 2. **Bootstrap writes:** Every `*BootstrapSetup.cs` that touches `ProjectSettings.bundleVersion` must call `EnsureBundleVersionAtLeast(...)` so older scripts only bump forward, never downgrade.
 3. **Validators:** Check `bundleVersion >= CurrentMilestoneVersion` via `AddBundleVersionValidationIssue`. Do not pin exact milestone strings that break on the next release.
 4. **Log strings:** Historical milestone labels in `Debug.Log` or playtest copy may stay unchanged (e.g. wagon bootstrap still logs `1.5.2`).

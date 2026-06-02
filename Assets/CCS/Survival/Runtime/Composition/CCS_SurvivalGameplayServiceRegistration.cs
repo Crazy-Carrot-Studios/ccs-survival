@@ -31,6 +31,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
+using CCS.Modules.WorldSimulation;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -89,6 +90,7 @@ namespace CCS.Survival.Composition
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
             CCS_RegionProfile regionProfile,
+            CCS_WorldSimulationProfile worldSimulationProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -389,6 +391,19 @@ namespace CCS.Survival.Composition
 
             CCS_RegionService regionService = CreateRegionService(regionProfile);
             RegisterService(runtimeHost, regionService, enableDebugLogs);
+
+            CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
+            RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
+            if (worldSimulationService.IsInitialized)
+            {
+                worldSimulationService.BindGameplayServices(settlementService, regionService);
+            }
+
+            if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
+            {
+                vendorService.VendorTransactionCompleted += worldSimulationService.HandleVendorTransactionCompleted;
+            }
+
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += result =>
@@ -427,6 +442,7 @@ namespace CCS.Survival.Composition
                 firearmService,
                 settlementService,
                 regionService,
+                worldSimulationService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -470,7 +486,8 @@ namespace CCS.Survival.Composition
                     vehicleService,
                     firearmService,
                     settlementService,
-                    regionService);
+                    regionService,
+                    worldSimulationService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1482,6 +1499,18 @@ namespace CCS.Survival.Composition
         private static CCS_RegionService CreateRegionService(CCS_RegionProfile profile)
         {
             CCS_RegionService service = new CCS_RegionService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static CCS_WorldSimulationService CreateWorldSimulationService(CCS_WorldSimulationProfile profile)
+        {
+            CCS_WorldSimulationService service = new CCS_WorldSimulationService();
             service.Initialize();
             if (profile != null)
             {

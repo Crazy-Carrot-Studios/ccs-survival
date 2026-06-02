@@ -3,6 +3,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.WorldSimulation;
 
 // =============================================================================
 // SCRIPT: CCS_SaveData
@@ -61,7 +62,16 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveRegionsWorldData regions = new CCS_SaveRegionsWorldData();
 
+        public CCS_SaveWorldSimulationData worldSimulation = new CCS_SaveWorldSimulationData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveWorldSimulationData
+    {
+        public CCS_SettlementSimulationState[] settlementStates = Array.Empty<CCS_SettlementSimulationState>();
+        public CCS_RegionSimulationState[] regionStates = Array.Empty<CCS_RegionSimulationState>();
     }
 
     [Serializable]
