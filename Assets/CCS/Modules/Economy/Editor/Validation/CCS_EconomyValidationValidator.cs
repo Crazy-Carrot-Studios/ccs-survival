@@ -101,12 +101,12 @@ namespace CCS.Modules.Economy.Editor
                 "Default Economy Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "1.3.1")
+            if (profile.ProfileVersion != "1.3.2")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Economy Profile Version",
-                    $"Expected profileVersion 1.3.1 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.3.2 but found '{profile.ProfileVersion}'.");
             }
         }
 

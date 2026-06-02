@@ -12,7 +12,12 @@
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.WorldResources.Runtime",
         "CCS.Modules.UI.Runtime",
-        "CCS.Modules.UI.Editor"
+        "CCS.Modules.UI.Editor",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Combat.Runtime",
+        "CCS.Modules.Hotbar.Runtime",
+        "CCS.Modules.Resources.Runtime"
     ],
     "includePlatforms": [
         "Editor"

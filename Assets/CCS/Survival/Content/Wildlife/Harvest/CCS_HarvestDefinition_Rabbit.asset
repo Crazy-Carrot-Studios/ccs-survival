@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de963845e9cf6b48a870944828c58a3, type: 3}
+  m_Name: CCS_HarvestDefinition_Rabbit
+  m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeHarvestDefinition
+  harvestDefinitionId: ccs.survival.wildlife.harvest.rabbit
+  wildlifeDefinition: {fileID: 11400000, guid: 50f43f3f552769947b0f36e9f2fc440f, type: 2}
+  resourceSourceType: 2
+  skinDrops:
+  - itemDefinition: {fileID: 11400000, guid: c50f055ddd47d304f83015b3d803006f, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 4
+  butcherDrops:
+  - itemDefinition: {fileID: 11400000, guid: 75b9857b55b7b7241b76b9ba7a88f07c, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 5
+  - itemDefinition: {fileID: 11400000, guid: 88622fa9bb112ad4a875e2752e174701, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 5

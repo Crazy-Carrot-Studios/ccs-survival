@@ -5,6 +5,7 @@ using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
+using CCS.Modules.Wildlife;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
 using UnityEngine;
@@ -359,6 +360,8 @@ namespace CCS.Modules.Hotbar
             {
                 case CCS_ActiveItemBehaviorType.Weapon:
                     return TryUseWeapon(state, request);
+                case CCS_ActiveItemBehaviorType.Bow:
+                    return TryUseBow(state, request);
                 case CCS_ActiveItemBehaviorType.Tool:
                     return TryUseTool(state, request);
                 case CCS_ActiveItemBehaviorType.Consumable:
@@ -430,6 +433,66 @@ namespace CCS.Modules.Hotbar
                 state.ActiveItemId);
         }
 
+        private CCS_ActiveItemUseResult TryUseBow(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
+        {
+            if (combatService == null || !combatService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Combat service is unavailable.",
+                    false,
+                    state.ActiveItemId);
+            }
+
+            if (!IsActiveWeaponEquippedInMainHand(state))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WeaponNotEquipped,
+                    "Bow must be equipped in the main hand to attack.",
+                    true,
+                    state.ActiveItemId);
+            }
+
+            CCS_CombatHitResult combatResult =
+                combatService.TryRangedAttack(request.UseOrigin, request.UseDirection);
+
+            if (combatResult == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Combat result was unavailable.",
+                    false,
+                    state.ActiveItemId);
+            }
+
+            if (combatResult.DidHitWildlife)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.CombatHit,
+                    combatResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            if (combatResult.Message != null
+                && combatResult.Message.Contains("cooldown", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.OnCooldown,
+                    combatResult.Message,
+                    true,
+                    state.ActiveItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.NoTarget,
+                string.IsNullOrWhiteSpace(combatResult.Message)
+                    ? "No wildlife target in bow range."
+                    : combatResult.Message,
+                true,
+                state.ActiveItemId);
+        }
+
         private CCS_ActiveItemUseResult TryUseTool(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
         {
             if (!IsActiveToolEquipped(state))
@@ -475,6 +538,8 @@ namespace CCS.Modules.Hotbar
                     return TryUseToolOnGatheringNode(state, targetContext);
                 case CCS_ActiveItemTargetKind.HarvestableResource:
                     return TryUseToolOnHarvestableResource(state, targetContext);
+                case CCS_ActiveItemTargetKind.HarvestableWildlife:
+                    return TryUseToolOnHarvestableWildlife(state, targetContext);
                 case CCS_ActiveItemTargetKind.FishingSpot:
                     return TryUseFishingPoleOnSpot(state, targetContext);
                 default:
@@ -836,6 +901,96 @@ namespace CCS.Modules.Hotbar
                 state.ActiveItemId,
                 targetContext.DisplayName,
                 targetContext.TargetTypeLabel);
+        }
+
+        private CCS_ActiveItemUseResult TryUseToolOnHarvestableWildlife(
+            CCS_ActiveItemState state,
+            CCS_ActiveItemTargetContext targetContext)
+        {
+            if (activeProfile == null || !activeProfile.EnableWildlifeHarvestRouting)
+            {
+                return CCS_ActiveItemUseResult.NoBehavior(state.ActiveItemId);
+            }
+
+            CCS_HarvestableWildlife harvestableWildlife = targetContext.HarvestableWildlife;
+            if (harvestableWildlife == null)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.TargetUnavailable,
+                    "Wildlife carcass is unavailable.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (!CCS_ItemGameplayUtility.ItemSatisfiesHarvestTool(
+                    state.ItemDefinition,
+                    CCS_ItemToolType.Knife))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.WrongTool,
+                    "Knife required to harvest wildlife.",
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            if (inventoryService == null || !inventoryService.IsInitialized)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.ServiceUnavailable,
+                    "Inventory service is unavailable for wildlife harvest.",
+                    false,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_WildlifeHarvestResult harvestResult =
+                harvestableWildlife.Harvest(CCS_RequiredToolType.Knife, inventoryService);
+
+            if (harvestResult != null && harvestResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HarvestSuccess,
+                    harvestResult.Message,
+                    true,
+                    state.ActiveItemId,
+                    targetContext.DisplayName,
+                    targetContext.TargetTypeLabel);
+            }
+
+            CCS_WildlifeHarvestResultType wildlifeResultType = harvestResult?.ResultType
+                ?? CCS_WildlifeHarvestResultType.HarvestFailed;
+            CCS_ActiveItemUseResultType mappedType = MapWildlifeHarvestResult(wildlifeResultType);
+            string failureMessage = harvestResult != null && !string.IsNullOrWhiteSpace(harvestResult.Message)
+                ? harvestResult.Message
+                : "Wildlife harvest failed.";
+
+            return new CCS_ActiveItemUseResult(
+                mappedType,
+                failureMessage,
+                true,
+                state.ActiveItemId,
+                targetContext.DisplayName,
+                targetContext.TargetTypeLabel);
+        }
+
+        private static CCS_ActiveItemUseResultType MapWildlifeHarvestResult(CCS_WildlifeHarvestResultType resultType)
+        {
+            switch (resultType)
+            {
+                case CCS_WildlifeHarvestResultType.WildlifeNotDead:
+                    return CCS_ActiveItemUseResultType.WildlifeNotDead;
+                case CCS_WildlifeHarvestResultType.WildlifeAlreadyHarvested:
+                    return CCS_ActiveItemUseResultType.WildlifeAlreadyHarvested;
+                case CCS_WildlifeHarvestResultType.WrongTool:
+                    return CCS_ActiveItemUseResultType.WrongTool;
+                default:
+                    return CCS_ActiveItemUseResultType.HarvestFailed;
+            }
         }
 
         private bool IsActiveWeaponEquippedInMainHand(CCS_ActiveItemState state)

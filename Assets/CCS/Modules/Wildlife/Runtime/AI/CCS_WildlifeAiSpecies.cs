@@ -13,6 +13,7 @@ namespace CCS.Modules.Wildlife
     public enum CCS_WildlifeAiSpecies
     {
         Rabbit = 0,
-        Deer = 1
+        Deer = 1,
+        Turkey = 2
     }
 }

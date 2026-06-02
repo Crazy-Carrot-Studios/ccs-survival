@@ -8,6 +8,7 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Equipment.Runtime",
         "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Resources.Runtime",
         "CCS.Modules.SaveLoad.Runtime"
     ],
     "includePlatforms": [],

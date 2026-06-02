@@ -20,12 +20,14 @@ namespace CCS.Modules.Wildlife
             CCS_WildlifeDefinition wildlifeDefinition,
             CCS_WildlifeState wildlifeState,
             CCS_RequiredToolType equippedToolType,
-            string instanceKey = "")
+            string instanceKey = "",
+            bool isDeadCarcass = true)
         {
             WildlifeDefinition = wildlifeDefinition;
             WildlifeState = wildlifeState;
             EquippedToolType = equippedToolType;
             InstanceKey = instanceKey ?? string.Empty;
+            IsDeadCarcass = isDeadCarcass;
         }
 
         #endregion
@@ -39,6 +41,8 @@ namespace CCS.Modules.Wildlife
         public CCS_RequiredToolType EquippedToolType { get; }
 
         public string InstanceKey { get; }
+
+        public bool IsDeadCarcass { get; }
 
         #endregion
     }

@@ -34,6 +34,10 @@ namespace CCS.Modules.Hotbar
         FishingFailed = 19,
         FishingNoBait = 20,
         FishingNoWater = 21,
-        FishingTargetUnavailable = 22
+        FishingTargetUnavailable = 22,
+        HarvestSuccess = 23,
+        HarvestFailed = 24,
+        WildlifeNotDead = 25,
+        WildlifeAlreadyHarvested = 26
     }
 }

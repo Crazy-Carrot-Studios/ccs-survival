@@ -121,3 +121,9 @@ MonoBehaviour:
       allowSell: 1
       buyPriceOverride: -1
       sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 88622fa9bb112ad4a875e2752e174701, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: -1

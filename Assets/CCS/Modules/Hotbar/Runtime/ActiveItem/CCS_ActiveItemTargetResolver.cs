@@ -1,6 +1,7 @@
 using CCS.Modules.Fishing;
 using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
+using CCS.Modules.Wildlife;
 using CCS.Modules.WorldResources;
 using UnityEngine;
 
@@ -98,6 +99,21 @@ namespace CCS.Modules.Hotbar
                     null,
                     null,
                     fishingSpot);
+                return true;
+            }
+
+            CCS_HarvestableWildlife harvestableWildlife = component.GetComponent<CCS_HarvestableWildlife>();
+            if (harvestableWildlife != null)
+            {
+                targetContext = new CCS_ActiveItemTargetContext(
+                    CCS_ActiveItemTargetKind.HarvestableWildlife,
+                    interactable.GetInteractionDisplayName(),
+                    "WildlifeCarcass",
+                    false,
+                    null,
+                    null,
+                    null,
+                    harvestableWildlife);
                 return true;
             }
 

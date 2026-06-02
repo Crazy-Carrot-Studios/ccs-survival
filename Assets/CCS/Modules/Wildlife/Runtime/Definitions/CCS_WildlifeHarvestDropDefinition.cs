@@ -1,5 +1,6 @@
 using System;
 using CCS.Modules.Inventory;
+using CCS.Modules.Resources;
 using UnityEngine;
 
 // =============================================================================
@@ -28,6 +29,9 @@ namespace CCS.Modules.Wildlife
         [Tooltip("Maximum quantity granted for this drop entry.")]
         [SerializeField] private int maxQuantity = 1;
 
+        [Tooltip("Harvest method tag for resource framework alignment.")]
+        [SerializeField] private CCS_HarvestMethodType harvestMethodType = CCS_HarvestMethodType.Skin;
+
         #endregion
 
         #region Properties
@@ -37,6 +41,8 @@ namespace CCS.Modules.Wildlife
         public int MinQuantity => minQuantity;
 
         public int MaxQuantity => maxQuantity;
+
+        public CCS_HarvestMethodType HarvestMethodType => harvestMethodType;
 
         #endregion
     }

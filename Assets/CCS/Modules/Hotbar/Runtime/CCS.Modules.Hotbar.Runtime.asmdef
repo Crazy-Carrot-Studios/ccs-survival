@@ -11,7 +11,8 @@
         "CCS.Modules.Gathering.Runtime",
         "CCS.Modules.WorldResources.Runtime",
         "CCS.Modules.Resources.Runtime",
-        "CCS.Modules.Fishing.Runtime"
+        "CCS.Modules.Fishing.Runtime",
+        "CCS.Modules.Wildlife.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

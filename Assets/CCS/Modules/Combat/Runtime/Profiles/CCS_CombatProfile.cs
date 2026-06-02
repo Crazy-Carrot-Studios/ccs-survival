@@ -80,14 +80,42 @@ namespace CCS.Modules.Combat
 
         #region Public Methods
 
+        [Header("Turkey")]
+        [SerializeField] private CCS_CombatWildlifeSpeciesSettings turkeySettings = new CCS_CombatWildlifeSpeciesSettings
+        {
+            maxHealth = 25f,
+            carcassObjectName = "CCS_TestTurkeyCarcass",
+            carcassPrimitive = PrimitiveType.Sphere,
+            carcassLocalScale = new Vector3(0.55f, 0.55f, 0.55f)
+        };
+
+        [Tooltip("Carcass wildlife definition spawned when a turkey is killed.")]
+        [SerializeField] private CCS_WildlifeDefinition turkeyCarcassDefinition;
+
         public CCS_CombatWildlifeSpeciesSettings GetSpeciesSettings(CCS_WildlifeAiSpecies species)
         {
-            return species == CCS_WildlifeAiSpecies.Deer ? deerSettings : rabbitSettings;
+            switch (species)
+            {
+                case CCS_WildlifeAiSpecies.Deer:
+                    return deerSettings;
+                case CCS_WildlifeAiSpecies.Turkey:
+                    return turkeySettings;
+                default:
+                    return rabbitSettings;
+            }
         }
 
         public CCS_WildlifeDefinition GetCarcassDefinition(CCS_WildlifeAiSpecies species)
         {
-            return species == CCS_WildlifeAiSpecies.Deer ? deerCarcassDefinition : rabbitCarcassDefinition;
+            switch (species)
+            {
+                case CCS_WildlifeAiSpecies.Deer:
+                    return deerCarcassDefinition;
+                case CCS_WildlifeAiSpecies.Turkey:
+                    return turkeyCarcassDefinition != null ? turkeyCarcassDefinition : rabbitCarcassDefinition;
+                default:
+                    return rabbitCarcassDefinition;
+            }
         }
 
         #endregion

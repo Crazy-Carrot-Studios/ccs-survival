@@ -77,6 +77,18 @@ namespace CCS.Modules.Inventory
             return ResolveHarvestToolType(itemDefinition) == CCS_ItemToolType.FishingPole;
         }
 
+        public static bool IsBowWeaponItem(CCS_ItemDefinition itemDefinition)
+        {
+            if (itemDefinition == null || !itemDefinition.HasWeaponIdentity)
+            {
+                return false;
+            }
+
+            return itemDefinition.WeaponArchetype == CCS_WeaponArchetype.Bow
+                || itemDefinition.RangeType == CCS_RangeType.ShortRanged
+                || itemDefinition.RangeType == CCS_RangeType.LongRanged;
+        }
+
         public static bool ItemSatisfiesHarvestTool(
             CCS_ItemDefinition itemDefinition,
             CCS_ItemToolType requiredTool)

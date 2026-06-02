@@ -27,6 +27,9 @@ namespace CCS.Modules.Wildlife
         [Tooltip("Default harvest count applied when definitions omit a valid max harvest count.")]
         [SerializeField] private int defaultHarvestCount = 1;
 
+        [Tooltip("Optional catalog of skin/butcher harvest tables for frontier species.")]
+        [SerializeField] private CCS_WildlifeHarvestProfile harvestProfile;
+
         [Header("Future Systems")]
         [Tooltip("Placeholder for future wildlife respawn systems.")]
         [SerializeField] private bool enableRespawnPlaceholder;
@@ -38,6 +41,8 @@ namespace CCS.Modules.Wildlife
         public bool EnableCarcassHarvesting => enableCarcassHarvesting;
 
         public int DefaultHarvestCount => defaultHarvestCount;
+
+        public CCS_WildlifeHarvestProfile HarvestProfile => harvestProfile;
 
         public bool EnableRespawnPlaceholder => enableRespawnPlaceholder;
 

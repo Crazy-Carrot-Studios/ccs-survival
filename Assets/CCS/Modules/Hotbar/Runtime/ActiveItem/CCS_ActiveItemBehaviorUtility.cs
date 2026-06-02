@@ -21,6 +21,11 @@ namespace CCS.Modules.Hotbar
                 return CCS_ActiveItemBehaviorType.None;
             }
 
+            if (CCS_ItemGameplayUtility.IsBowWeaponItem(itemDefinition))
+            {
+                return CCS_ActiveItemBehaviorType.Bow;
+            }
+
             if (CCS_ItemGameplayUtility.IsWeaponItem(itemDefinition))
             {
                 return CCS_ActiveItemBehaviorType.Weapon;
@@ -42,6 +47,7 @@ namespace CCS.Modules.Hotbar
         public static bool CanUseBehavior(CCS_ActiveItemBehaviorType behaviorType)
         {
             return behaviorType == CCS_ActiveItemBehaviorType.Weapon
+                || behaviorType == CCS_ActiveItemBehaviorType.Bow
                 || behaviorType == CCS_ActiveItemBehaviorType.Tool;
         }
     }

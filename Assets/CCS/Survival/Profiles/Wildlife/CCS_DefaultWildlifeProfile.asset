@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeProfile
   profileDisplayName: Default Wildlife
   profileId: ccs.survival.profile.wildlife.default
-  profileDescription: Default wildlife carcass harvesting rules for 0.9.3 foundation.
-  profileVersion: 0.9.3
+  profileDescription: Default wildlife harvesting rules with frontier skin/butcher
+    tables (1.3.2).
+  profileVersion: 1.3.2
   enableDebugLogs: 0
   enableCarcassHarvesting: 1
   defaultHarvestCount: 1
+  harvestProfile: {fileID: 11400000, guid: 5c3fe0a8e876b6242a5d50bb72afb4a3, type: 2}
   enableRespawnPlaceholder: 0

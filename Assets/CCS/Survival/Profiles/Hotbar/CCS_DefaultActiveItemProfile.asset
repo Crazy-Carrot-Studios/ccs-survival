@@ -16,10 +16,12 @@ MonoBehaviour:
   profileId: ccs.survival.profile.activeitem.default
   profileDescription: Active item selection and primitive tool use routing for milestone
     1.2.3.
-  profileVersion: 1.2.3
+  profileVersion: 1.3.2
   enableDebugLogs: 0
   useCooldownSeconds: 0
   autoSelectMainHandOnEquip: 1
   enableEquipmentSlotCycling: 1
   enableGatheringRouting: 1
   enableResourceHarvestRouting: 1
+  enableFishingRouting: 1
+  enableWildlifeHarvestRouting: 1

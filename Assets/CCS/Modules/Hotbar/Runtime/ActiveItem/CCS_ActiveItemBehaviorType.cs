@@ -17,6 +17,7 @@ namespace CCS.Modules.Hotbar
         Tool = 2,
         Consumable = 3,
         Placeable = 4,
-        Generic = 5
+        Generic = 5,
+        Bow = 6
     }
 }

@@ -23,7 +23,7 @@ Legacy bootstrap nodes (`SmallTree`, `Rock`, `Bush`) remain for regression tests
 | Value | Use |
 |-------|-----|
 | Natural | Trees, outcrops, fiber, water |
-| Wildlife | Carcass/skin/butcher (future) |
+| Wildlife | Carcass skin/butcher via Wildlife module (1.3.2) |
 | Salvage | Wagon, camp, ruins, mine debris |
 | Mining | Ore and coal veins |
 | Water | Collectable water sources |
@@ -40,7 +40,7 @@ Legacy bootstrap nodes (`SmallTree`, `Rock`, `Bush`) remain for regression tests
 | Mine | Pickaxe | Supported |
 | Dig | Shovel | Supported |
 | Salvage | None | Supported |
-| Skin / Butcher | Knife | Metadata only (wildlife later) |
+| Skin / Butcher | Knife | Wildlife harvest (`CCS_WildlifeHarvestDefinition`, 1.3.2) |
 | Fish | FishingPole | **Fishing module (1.2.5)** via `CCS_FishingService` (not gathering harvest) |
 
 Explicit `requiredToolType` on definitions overrides defaults.

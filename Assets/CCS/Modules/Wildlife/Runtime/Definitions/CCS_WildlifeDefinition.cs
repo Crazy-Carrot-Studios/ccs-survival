@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.Resources;
 using CCS.Modules.WorldResources;
 using UnityEngine;
 
@@ -46,9 +47,16 @@ namespace CCS.Modules.Wildlife
         [SerializeField] private bool isAggressive;
 
         [Header("Drops")]
-        [Tooltip("Items granted when a wildlife harvest succeeds.")]
+        [Tooltip("Optional harvest profile entry with skin/butcher tables (preferred for 1.3.2+).")]
+        [SerializeField] private CCS_WildlifeHarvestDefinition harvestDefinition;
+
+        [Tooltip("Legacy inline drops when harvestDefinition is not assigned.")]
         [SerializeField] private List<CCS_WildlifeHarvestDropDefinition> harvestDrops =
             new List<CCS_WildlifeHarvestDropDefinition>();
+
+        [Header("Resource Framework")]
+        [Tooltip("Resource source type for harvest validation.")]
+        [SerializeField] private CCS_ResourceSourceType resourceSourceType = CCS_ResourceSourceType.Wildlife;
 
         #endregion
 
@@ -68,7 +76,11 @@ namespace CCS.Modules.Wildlife
 
         public bool IsAggressive => isAggressive;
 
+        public CCS_WildlifeHarvestDefinition HarvestDefinition => harvestDefinition;
+
         public IReadOnlyList<CCS_WildlifeHarvestDropDefinition> HarvestDrops => harvestDrops;
+
+        public CCS_ResourceSourceType ResourceSourceType => resourceSourceType;
 
         #endregion
     }

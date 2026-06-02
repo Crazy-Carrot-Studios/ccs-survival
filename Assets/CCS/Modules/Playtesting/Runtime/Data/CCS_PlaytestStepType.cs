@@ -44,6 +44,10 @@ namespace CCS.Modules.Playtesting
         VerifyCurrencyIncreased = 29,
         BuyItemFromVendor = 30,
         VerifyCurrencyDecreased = 31,
-        VerifyVendorInventoryUpdated = 32
+        VerifyVendorInventoryUpdated = 32,
+        ObtainBowForHunt = 33,
+        EquipBowForHunt = 34,
+        SellHuntingResourceAtVendor = 35,
+        VerifyHuntingCurrencyIncreased = 36
     }
 }

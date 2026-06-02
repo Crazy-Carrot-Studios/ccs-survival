@@ -104,6 +104,11 @@ namespace CCS.Modules.Playtesting
                 {
                     CCS_PlaytestStepState activeStep = GetActiveStepState();
                     if (activeStep != null
+                        && activeStep.Definition.StepType == CCS_PlaytestStepType.EquipBowForHunt)
+                    {
+                        playtestService.TryEquipBowForHunt();
+                    }
+                    else if (activeStep != null
                         && (activeStep.Definition.StepType == CCS_PlaytestStepType.EquipFishingPole
                             || activeStep.Definition.StepType == CCS_PlaytestStepType.UseFishingPoleOnSpot))
                     {
@@ -183,6 +188,14 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    playtestService.TryGrantPlaytestBow();
+                }
+            }
+
             if (Input.GetKeyDown(KeyCode.V))
             {
                 if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
@@ -191,7 +204,16 @@ namespace CCS.Modules.Playtesting
                 }
                 else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                 {
-                    playtestService.TryPlaytestSellRawFish();
+                    CCS_PlaytestStepState activeStep = GetActiveStepState();
+                    if (activeStep != null
+                        && activeStep.Definition.StepType == CCS_PlaytestStepType.SellHuntingResourceAtVendor)
+                    {
+                        playtestService.TryPlaytestSellHide();
+                    }
+                    else
+                    {
+                        playtestService.TryPlaytestSellRawFish();
+                    }
                 }
                 else
                 {
@@ -235,8 +257,8 @@ namespace CCS.Modules.Playtesting
             GUI.Box(panelRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 10f, panelRect.width - 20f, panelRect.height - 20f));
 
-            GUILayout.Label("CCS Manual Playtest Harness (1.3.0)");
-            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Knife/Spear | Shift+F6 Tool | V Buy | Shift+V Sell | Ctrl+V Fish");
+            GUILayout.Label("CCS Manual Playtest Harness (1.3.2)");
+            GUILayout.Label("F10 HUD | F11 Advance | F12 Reset | F7 Death | F6 Knife/Spear | Shift+F6 Tool | V Buy | Shift+V Sell | Ctrl+V Fish | Ctrl+B Bow");
             GUILayout.Label("F2 crate | Shift+F2 bedroll/sleep | F1 deposit | Shift+F1 withdraw | F5 save | F9 load");
             GUILayout.Label("Interact gather/cook | Primary active use | F eat");
 

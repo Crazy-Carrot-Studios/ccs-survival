@@ -16,6 +16,7 @@ namespace CCS.Modules.Hotbar
         GatheringNode = 1,
         HarvestableResource = 2,
         FishingSpot = 3,
-        UnsupportedInteractable = 4
+        UnsupportedInteractable = 4,
+        HarvestableWildlife = 5
     }
 }

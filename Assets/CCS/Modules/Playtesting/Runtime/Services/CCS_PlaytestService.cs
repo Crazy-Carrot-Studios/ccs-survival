@@ -50,6 +50,8 @@ namespace CCS.Modules.Playtesting
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
+        private const string BowItemId = "ccs.survival.item.frontier.bow";
+        private const string HideItemId = "ccs.survival.item.resource.hide";
         private const string RawFishItemId = "ccs.survival.item.resource.rawfish";
         private const string CordageItemId = "ccs.survival.item.frontier.cordage";
         private const string TradeDollarsCurrencyId = "ccs.survival.currency.tradedollars";
@@ -754,6 +756,7 @@ namespace CCS.Modules.Playtesting
         private void HandleWildlifeHarvestCompleted(CCS_WildlifeEventArgs eventArgs)
         {
             TryCompleteActiveStepOfType(CCS_PlaytestStepType.HarvestCarcass, "Carcass harvested.");
+            TryEvaluateHuntingPlaytestSteps();
         }
 
         private void HandleCookingCompleted(CCS_CookingEventArgs eventArgs)
@@ -1133,6 +1136,11 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipFishingPole, "Fishing pole equipped.");
             }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.EquipBowForHunt, itemId))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipBowForHunt, "Frontier bow equipped for hunt.");
+            }
         }
 
         private void HandleEquipmentVisualSpawned(string itemId)
@@ -1201,6 +1209,12 @@ namespace CCS.Modules.Playtesting
                     || useResult.ResultType == CCS_ActiveItemUseResultType.FishingFailed))
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.UseFishingPoleOnSpot, useResult.Message);
+            }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.HarvestSuccess)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.HarvestCarcass, useResult.Message);
+                TryEvaluateHuntingPlaytestSteps();
             }
         }
 
@@ -1332,6 +1346,7 @@ namespace CCS.Modules.Playtesting
             RaiseStepChanged(stepStates[index], message);
             TryEvaluateFrontierRecipeValidationStep();
             TryEvaluateEconomyPlaytestSteps();
+            TryEvaluateHuntingPlaytestSteps();
         }
 
         public bool TryGrantPlaytestRawFish()
@@ -1363,6 +1378,43 @@ namespace CCS.Modules.Playtesting
 
             playtestCurrencyBaseline = GetTradeDollarsBalance();
             CCS_VendorTransactionResult result = boundVendorService.TrySellActiveVendorItem(rawFish, 1);
+            return result.IsSuccess;
+        }
+
+        public bool TryGrantPlaytestBow()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || !TryAddInventoryItemById(inventoryService, BowItemId, 1))
+            {
+                return false;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ObtainBowForHunt,
+                "Frontier bow available for hunting playtest.");
+            return true;
+        }
+
+        public bool TryEquipBowForHunt()
+        {
+            return TryEquipItemForPlaytest(BowItemId, "frontier bow", CCS_PlaytestStepType.EquipBowForHunt);
+        }
+
+        public bool TryPlaytestSellHide()
+        {
+            if (!EnsureVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition hide = FindItemDefinitionById(HideItemId);
+            if (hide == null)
+            {
+                return false;
+            }
+
+            playtestCurrencyBaseline = GetTradeDollarsBalance();
+            CCS_VendorTransactionResult result = boundVendorService.TrySellActiveVendorItem(hide, 1);
             return result.IsSuccess;
         }
 
@@ -1437,6 +1489,32 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void TryEvaluateHuntingPlaytestSteps()
+        {
+            if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
+            {
+                return;
+            }
+
+            CCS_PlaytestStepState state = stepStates[activeStepIndex];
+            if (state.Definition.StepType == CCS_PlaytestStepType.ObtainBowForHunt
+                && HasInventoryItem(BowItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ObtainBowForHunt,
+                    "Frontier bow obtained for hunting.");
+            }
+
+            if (state.Definition.StepType == CCS_PlaytestStepType.VerifyVendorInventoryUpdated
+                && state.Definition.TargetItemId == HideItemId
+                && HasInventoryItem(HideItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
+                    "Hide verified in player inventory after harvest.");
+            }
+        }
+
         private void HandleVendorTransactionCompleted(CCS_VendorTransactionResult result)
         {
             if (result == null || !result.IsSuccess)
@@ -1451,6 +1529,13 @@ namespace CCS.Modules.Playtesting
                     "Sold fish at general store.");
             }
 
+            if (result.WasSell && result.ItemId == HideItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellHuntingResourceAtVendor,
+                    "Sold hide at general store.");
+            }
+
             if (result.WasSell)
             {
                 int balance = result.CurrencyBalanceAfter;
@@ -1459,6 +1544,13 @@ namespace CCS.Modules.Playtesting
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.VerifyCurrencyIncreased,
                         $"Trade dollars increased to {balance}.");
+
+                    if (result.ItemId == HideItemId)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifyHuntingCurrencyIncreased,
+                            $"Hunting trade dollars increased to {balance}.");
+                    }
                 }
             }
 

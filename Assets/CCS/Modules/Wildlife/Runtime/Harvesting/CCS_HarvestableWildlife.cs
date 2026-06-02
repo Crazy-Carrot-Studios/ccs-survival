@@ -38,6 +38,8 @@ namespace CCS.Modules.Wildlife
         private CCS_WildlifeHarvestService harvestService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_PlayerEquipmentService equipmentService;
+        private Renderer carcassRenderer;
+        private Color defaultCarcassColor = Color.white;
         private string instanceKey;
 
         #endregion
@@ -57,6 +59,12 @@ namespace CCS.Modules.Wildlife
         private void Awake()
         {
             instanceKey = gameObject.name + "_" + GetEntityId();
+            carcassRenderer = GetComponent<Renderer>();
+            if (carcassRenderer != null)
+            {
+                defaultCarcassColor = carcassRenderer.material.color;
+            }
+
             ResetWildlifeState();
         }
 
@@ -88,6 +96,11 @@ namespace CCS.Modules.Wildlife
 
         public bool CanInteract()
         {
+            if (IsLivingWildlifeTarget())
+            {
+                return false;
+            }
+
             if (wildlifeDefinition == null || wildlifeState == null || wildlifeState.IsDepleted)
             {
                 return false;
@@ -144,9 +157,18 @@ namespace CCS.Modules.Wildlife
                 wildlifeDefinition,
                 wildlifeState,
                 equippedToolType,
-                instanceKey);
+                instanceKey,
+                isDeadCarcass: !IsLivingWildlifeTarget());
 
-            return harvestService.TryHarvest(request, activeInventoryService);
+            CCS_WildlifeHarvestResult result =
+                harvestService.TryHarvest(request, activeInventoryService);
+
+            if (result.IsSuccess)
+            {
+                ApplyHarvestedVisual();
+            }
+
+            return result;
         }
 
         public void ResetWildlifeState()
@@ -168,6 +190,22 @@ namespace CCS.Modules.Wildlife
         #endregion
 
         #region Private Methods
+
+        private bool IsLivingWildlifeTarget()
+        {
+            CCS_WildlifeDamageable damageable = GetComponent<CCS_WildlifeDamageable>();
+            return damageable != null && !damageable.IsDead;
+        }
+
+        private void ApplyHarvestedVisual()
+        {
+            if (carcassRenderer == null)
+            {
+                return;
+            }
+
+            carcassRenderer.material.color = new Color(0.35f, 0.35f, 0.35f, 0.65f);
+        }
 
         private void ResolveServices()
         {

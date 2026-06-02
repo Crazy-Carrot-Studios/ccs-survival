@@ -1,8 +1,8 @@
-# CCS Economy Module (1.3.1)
+# CCS Economy Module (1.3.2)
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Milestone:** 1.3.1 — Vendor Trading Polish + Tool Acquisition
+**Milestone:** 1.3.2 — Frontier Hunting Foundation (economy buys hunting goods)
 
 ## Purpose
 
@@ -54,7 +54,9 @@ Bootstrap test object: `CCS_TestGeneralStore` in `SCN_CCS_Survival_Bootstrap`.
 
 **Sells (early progression):** bone hatchet, fishing pole, cordage, crude hook, fishing line, hardtack, tinderbox, arrows, simple trap (optional).
 
-**Buys from player:** raw/small fish, hide, raw meat, scrap iron, feathers, animal fat, junk.
+**Buys from player:** raw/small fish, hide, raw meat, bone, scrap iron, feathers, animal fat, junk.
+
+Hunting and fishing both produce trade goods for the same General Store loop.
 
 **Intentional progression:** the bone hatchet (`ccs.survival.item.tool.hatchet.bone`, buy **18** Trade Dollars placeholder) is **not** in the knife-only starter loadout. Players earn currency (fish/salvage), sell goods, then purchase the hatchet as the first meaningful tool upgrade.
 
@@ -74,7 +76,9 @@ Legacy items without economy fields continue to work (zero prices unless vendor 
 
 After fishing: obtain fish → interact store → sell fish → verify currency → **H** buy hatchet → equip (Shift+F6) → use hatchet on `CCS_TestGatheringSmallTree` for wood.
 
-Hotkeys (playtest HUD): **Shift+V** sell fish, **V** buy cordage, **H** buy hatchet, **Ctrl+V** grant test fish.
+Hotkeys (playtest HUD): **Shift+V** sell fish or hide (step-dependent), **V** buy cordage, **H** buy hatchet, **Ctrl+V** grant test fish, **Ctrl+B** grant test bow.
+
+Hunting playtest: bow → kill rabbit → knife harvest → sell hide → verify Trade Dollars.
 
 ## Debug vendor UI (temporary)
 

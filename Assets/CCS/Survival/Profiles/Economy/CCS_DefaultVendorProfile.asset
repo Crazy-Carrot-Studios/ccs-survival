@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorProfile
   profileDisplayName: 
   profileId: 
-  profileDescription: Frontier vendor catalog profile for milestone 1.3.1.
-  profileVersion: 1.3.1
+  profileDescription: Frontier vendor catalog profile for milestone 1.3.2 (hunting
+    trade goods).
+  profileVersion: 1.3.2
   enableDebugLogs: 0
   vendorDefinitions:
   - {fileID: 11400000, guid: 3e16207587f0007439ce2687ec62492b, type: 2}

@@ -188,13 +188,19 @@ namespace CCS.Survival.Editor.Development
                 return;
             }
 
-            if (CCS_ItemGameplayUtility.IsWeaponItem(bow))
+            if (!CCS_ItemGameplayUtility.IsBowWeaponItem(bow))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Bow Active Item",
-                    "Bow must not register weapon identity until ranged use exists (NoBehaviorRegistered foundation).");
+                    "Bow must register ranged weapon identity for frontier hunting (1.3.2).");
+                return;
             }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Bow Active Item",
+                "Bow has ranged weapon identity for hunting foundation.");
         }
 
         private static void ValidateFrontierRecipes(CCS_SurvivalValidationReport report)

@@ -19,16 +19,20 @@ MonoBehaviour:
   maxStackSize: 1
   isStackable: 0
   weight: 1.2
-  gameplayKind: 0
+  gameplayKind: 2
   hasToolIdentity: 0
   toolType: 0
   toolArchetype: 0
   toolTier: 0
-  hasWeaponIdentity: 0
-  weaponArchetype: 0
-  weaponType: 0
-  damageType: 0
-  rangeType: 0
-  meleeDamage: 0
-  meleeRange: 2
+  hasWeaponIdentity: 1
+  weaponArchetype: 3
+  weaponType: 2
+  damageType: 2
+  rangeType: 3
+  meleeDamage: 14
+  meleeRange: 28
   icon: {fileID: 0}
+  hasEconomyValues: 0
+  buyValue: 0
+  sellValue: 0
+  vendorCategory: 0

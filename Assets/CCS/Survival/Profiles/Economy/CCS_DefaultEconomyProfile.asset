@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_EconomyProfile
   profileDisplayName: 
   profileId: 
-  profileDescription: Frontier economy profile (1.3.1) with hatchet trade progression.
-  profileVersion: 1.3.1
+  profileDescription: Frontier economy profile (1.3.2) with fishing and hunting trade
+    goods.
+  profileVersion: 1.3.2
   enableDebugLogs: 0
   currencyDefinitions:
   - {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}

@@ -152,6 +152,79 @@ namespace CCS.Modules.Combat
             return result;
         }
 
+        public CCS_CombatHitResult TryRangedAttack(Vector3 attackOrigin, Vector3 attackDirection)
+        {
+            if (!isInitialized || activeProfile == null)
+            {
+                return CCS_CombatHitResult.Miss("Combat service is unavailable.");
+            }
+
+            if (Time.time < lastAttackTime + activeProfile.AttackCooldownSeconds)
+            {
+                return CCS_CombatHitResult.Miss("Attack is on cooldown.");
+            }
+
+            if (!TryResolveEquippedRangedWeapon(out CCS_ItemDefinition weaponItem, out float damage, out float range))
+            {
+                return CCS_CombatHitResult.Miss("No ranged weapon equipped.");
+            }
+
+            if (damage <= 0f || range <= 0f)
+            {
+                return CCS_CombatHitResult.Miss("Equipped bow has no ranged damage configured.", weaponItem);
+            }
+
+            Vector3 normalizedDirection = attackDirection.sqrMagnitude > 0.0001f
+                ? attackDirection.normalized
+                : Vector3.forward;
+
+            if (!TryFindWildlifeTarget(
+                    attackOrigin,
+                    normalizedDirection,
+                    range,
+                    out CCS_WildlifeDamageable damageable))
+            {
+                lastAttackTime = Time.time;
+                return CCS_CombatHitResult.Miss("No wildlife target in range.", weaponItem);
+            }
+
+            float appliedDamage = damageable.ApplyDamage(damage);
+            if (appliedDamage <= 0f)
+            {
+                lastAttackTime = Time.time;
+                return CCS_CombatHitResult.Miss("Wildlife target could not be damaged.", weaponItem);
+            }
+
+            bool targetKilled = damageable.IsDead;
+            CCS_CombatDamageType combatDamageType = MapDamageType(weaponItem.DamageType);
+            CCS_CombatRangeType combatRangeType = MapRangeType(weaponItem.RangeType);
+            string targetName = damageable.DisplayName;
+            string message = targetKilled
+                ? $"{targetName} killed with bow."
+                : $"Bow hit {targetName} ({appliedDamage:0}).";
+
+            CCS_CombatHitResult result = CCS_CombatHitResult.Hit(
+                targetName,
+                appliedDamage,
+                damageable.CurrentHealth,
+                targetKilled,
+                combatDamageType,
+                combatRangeType,
+                weaponItem,
+                message);
+
+            lastAttackTime = Time.time;
+            WildlifeDamaged?.Invoke(new CCS_CombatEventArgs(result));
+
+            if (targetKilled)
+            {
+                HandleWildlifeKilled(damageable);
+                WildlifeKilled?.Invoke(new CCS_CombatEventArgs(result));
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private Methods
@@ -174,6 +247,39 @@ namespace CCS.Modules.Combat
             }
 
             weaponItem = mainHand.ItemDefinition;
+            if (CCS_ItemGameplayUtility.IsBowWeaponItem(weaponItem))
+            {
+                return false;
+            }
+
+            damage = weaponItem.MeleeDamage;
+            range = weaponItem.MeleeRange;
+            return damage > 0f && range > 0f;
+        }
+
+        private bool TryResolveEquippedRangedWeapon(out CCS_ItemDefinition weaponItem, out float damage, out float range)
+        {
+            weaponItem = null;
+            damage = 0f;
+            range = 0f;
+
+            if (equipmentService == null || !equipmentService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_EquippedItem mainHand = equipmentService.GetEquippedItem(CCS_EquipmentSlotType.MainHand);
+            if (mainHand?.ItemDefinition == null || !mainHand.ItemDefinition.HasWeaponIdentity)
+            {
+                return false;
+            }
+
+            weaponItem = mainHand.ItemDefinition;
+            if (!CCS_ItemGameplayUtility.IsBowWeaponItem(weaponItem))
+            {
+                return false;
+            }
+
             damage = weaponItem.MeleeDamage;
             range = weaponItem.MeleeRange;
             return damage > 0f && range > 0f;

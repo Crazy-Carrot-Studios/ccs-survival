@@ -1,6 +1,6 @@
 # CCS Survival — Hotbar / Active Item Module
 
-**Milestone:** 1.2.5 — Fishing Foundation (active item routing extended)  
+**Milestone:** 1.3.2 — Frontier Hunting Foundation (bow + wildlife harvest routing)  
 **Module ID:** `ccs.survival.hotbar`  
 **Namespace:** `CCS.Modules.Hotbar` (editor: `CCS.Modules.Hotbar.Editor`)  
 **Author:** James Schilz  
@@ -23,10 +23,11 @@ CCS_PlayerActiveItemDriver (PrimaryAction / Alpha1 / Alpha2)
         ↓
 CCS_ActiveItemService
         ↓ behavior routing
-CCS_CombatService (weapons)
+CCS_CombatService (melee + bow raycast)
 CCS_GatheringService (hatchet/axe → tree/bush, pick → rock)
 CCS_FishingService (fishing pole → fishable water spots)
 CCS_HarvestableResource + inventory (world resource harvest)
+CCS_HarvestableWildlife + CCS_WildlifeHarvestService (knife on carcass)
         ↓
 Equipment visuals (unchanged — no duplicate spawn)
 ```
@@ -52,6 +53,8 @@ Equipment visuals (unchanged — no duplicate spawn)
 | `FishingNoBait` / `FishingNoWater` / `FishingTargetUnavailable` | Fishing validation outcomes |
 | `GatheringSuccess` / `GatheringFailed` | Gathering node attempt |
 | `ResourceHarvestSuccess` / `ResourceHarvestFailed` | World resource harvest attempt |
+| `HarvestSuccess` / `HarvestFailed` / `WildlifeNotDead` / `WildlifeAlreadyHarvested` | Wildlife carcass harvest (knife) |
+| `Bow` behavior | Ranged raycast via combat service (no final archery UI) |
 | `WrongTool` | Tool metadata does not match target |
 | `TargetOutOfRange` | Interactable beyond interaction distance |
 | `TargetUnavailable` | Node depleted or not gatherable |
@@ -92,7 +95,8 @@ CCS.Modules.Playtesting.Editor.CCS_PlaytestBootstrapSetup.ExecuteBatch
 | Key | Action |
 |-----|--------|
 | **F6** | Equip starter spear |
-| **Shift+F6** | Equip bone hatchet, pick, or fishing pole (depends on active playtest step) |
+| **Shift+F6** | Equip bow, bone hatchet, pick, or fishing pole (depends on active playtest step) |
+| **Ctrl+B** | Grant frontier bow (hunting playtest) |
 | **Alpha1** | Select active item from main hand |
 | **Alpha2** | Select active item from tool slot |
 | **Primary (LMB)** | Use active item (combat, gather, or safe failure) |

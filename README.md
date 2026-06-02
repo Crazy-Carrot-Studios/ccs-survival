@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.3.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.3.2-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.3.2** — Frontier Hunting Foundation
+
+Bow raycast hunting, knife wildlife harvest (skin/butcher drop tables), passive wildlife death/carcass state, General Store buys hunting trade goods (hide, meat, feather, fat, bone), and playtest hunting loop (bow → kill → harvest → sell).
 
 **1.3.1** — Vendor Trading Polish + Tool Acquisition
 
@@ -74,6 +78,8 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.3.2** | Frontier Hunting Foundation |
+| **1.3.1** | Vendor Trading Polish + Tool Acquisition |
 | **1.3.0** | Frontier Economy Foundation |
 | **1.2.6** | Frontier Starter Progression Rework |
 | **1.2.5** | Fishing Foundation |

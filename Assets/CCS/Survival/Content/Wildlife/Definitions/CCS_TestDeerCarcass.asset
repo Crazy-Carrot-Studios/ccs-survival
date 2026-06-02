@@ -19,16 +19,22 @@ MonoBehaviour:
   maxHarvestCount: 1
   respawnTimeSeconds: 0
   isAggressive: 0
+  harvestDefinition: {fileID: 11400000, guid: 922befc543b4eea40be2bea007e3475f, type: 2}
   harvestDrops:
   - itemDefinition: {fileID: 11400000, guid: 19901c0a2a17a1847b4054418f4362f9, type: 2}
     minQuantity: 3
     maxQuantity: 3
+    harvestMethodType: 4
   - itemDefinition: {fileID: 11400000, guid: c50f055ddd47d304f83015b3d803006f, type: 2}
     minQuantity: 2
     maxQuantity: 2
+    harvestMethodType: 4
   - itemDefinition: {fileID: 11400000, guid: 88622fa9bb112ad4a875e2752e174701, type: 2}
     minQuantity: 2
     maxQuantity: 2
+    harvestMethodType: 4
   - itemDefinition: {fileID: 11400000, guid: ec86d895ab6b2d946a7c74f3a85ac399, type: 2}
     minQuantity: 1
     maxQuantity: 1
+    harvestMethodType: 4
+  resourceSourceType: 2

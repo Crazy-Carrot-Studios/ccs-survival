@@ -86,18 +86,25 @@ namespace CCS.Modules.Wildlife
         {
             if (!EnsureInitialized())
             {
-                return FailHarvest(request, "Wildlife harvest service is not initialized.");
+                return FailHarvest(
+                    request,
+                    CCS_WildlifeHarvestResultType.ServiceUnavailable,
+                    "Wildlife harvest service is not initialized.");
             }
 
             if (activeProfile != null && !activeProfile.EnableCarcassHarvesting)
             {
-                return FailHarvest(request, "Wildlife carcass harvesting is disabled.");
+                return FailHarvest(
+                    request,
+                    CCS_WildlifeHarvestResultType.HarvestFailed,
+                    "Wildlife carcass harvesting is disabled.");
             }
 
             CCS_SurvivalValidationResult validation = ValidateHarvestRequest(request);
             if (!validation.IsSuccess)
             {
-                return FailHarvest(request, validation.Message);
+                CCS_WildlifeHarvestResultType resultType = MapValidationFailure(validation.Message);
+                return FailHarvest(request, resultType, validation.Message);
             }
 
             CCS_WildlifeDefinition wildlifeDefinition = request.WildlifeDefinition;
@@ -108,7 +115,10 @@ namespace CCS.Modules.Wildlife
             List<CCS_WildlifeHarvestedItemDrop> drops = GenerateDrops(wildlifeDefinition);
             if (drops.Count == 0)
             {
-                return FailHarvest(request, "Wildlife definition produced no valid drops.");
+                return FailHarvest(
+                    request,
+                    CCS_WildlifeHarvestResultType.HarvestFailed,
+                    "Wildlife definition produced no valid drops.");
             }
 
             int itemsAddedToInventory = 0;
@@ -124,7 +134,10 @@ namespace CCS.Modules.Wildlife
 
                     if (!inventoryService.CanAdd(drop.ItemDefinition, drop.Quantity))
                     {
-                        return FailHarvest(request, "Inventory cannot hold harvested items.");
+                        return FailHarvest(
+                            request,
+                            CCS_WildlifeHarvestResultType.InventoryFull,
+                            "Inventory cannot hold harvested items.");
                     }
                 }
 
@@ -139,7 +152,10 @@ namespace CCS.Modules.Wildlife
                     int added = inventoryService.AddItem(drop.ItemDefinition, drop.Quantity);
                     if (added < drop.Quantity)
                     {
-                        return FailHarvest(request, "Inventory cannot hold harvested items.");
+                        return FailHarvest(
+                            request,
+                            CCS_WildlifeHarvestResultType.InventoryFull,
+                            "Inventory cannot hold harvested items.");
                     }
 
                     itemsAddedToInventory += added;
@@ -147,7 +163,10 @@ namespace CCS.Modules.Wildlife
             }
             else if (inventoryService != null)
             {
-                return FailHarvest(request, "Inventory service is not initialized.");
+                return FailHarvest(
+                    request,
+                    CCS_WildlifeHarvestResultType.ServiceUnavailable,
+                    "Inventory service is not initialized.");
             }
 
             wildlifeState.ConsumeHarvest("Wildlife harvest completed.");
@@ -183,6 +202,11 @@ namespace CCS.Modules.Wildlife
                 return CCS_SurvivalValidationResult.Fail("Wildlife harvest request is null.");
             }
 
+            if (!request.IsDeadCarcass)
+            {
+                return CCS_SurvivalValidationResult.Fail("Living wildlife cannot be harvested.");
+            }
+
             CCS_WildlifeDefinition wildlifeDefinition = request.WildlifeDefinition;
             CCS_WildlifeState wildlifeState = request.WildlifeState;
 
@@ -201,17 +225,49 @@ namespace CCS.Modules.Wildlife
 
             if (wildlifeState.IsDepleted)
             {
-                return CCS_SurvivalValidationResult.Fail("Wildlife carcass is depleted.");
+                return CCS_SurvivalValidationResult.Fail("Wildlife carcass has already been harvested.");
             }
 
             if (!ValidateToolRequirement(
                     wildlifeDefinition.HarvestToolRequirement,
                     request.EquippedToolType))
             {
-                return CCS_SurvivalValidationResult.Fail("Required tool is not equipped.");
+                return CCS_SurvivalValidationResult.Fail("Required knife is not equipped.");
             }
 
             return CCS_SurvivalValidationResult.Pass("Wildlife harvest request validated.");
+        }
+
+        private static CCS_WildlifeHarvestResultType MapValidationFailure(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return CCS_WildlifeHarvestResultType.HarvestFailed;
+            }
+
+            if (message.Contains("Living wildlife", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return CCS_WildlifeHarvestResultType.WildlifeNotDead;
+            }
+
+            if (message.Contains("already been harvested", System.StringComparison.OrdinalIgnoreCase)
+                || message.Contains("depleted", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return CCS_WildlifeHarvestResultType.WildlifeAlreadyHarvested;
+            }
+
+            if (message.Contains("knife", System.StringComparison.OrdinalIgnoreCase)
+                || message.Contains("tool", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return CCS_WildlifeHarvestResultType.WrongTool;
+            }
+
+            if (message.Contains("Inventory", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return CCS_WildlifeHarvestResultType.InventoryFull;
+            }
+
+            return CCS_WildlifeHarvestResultType.HarvestFailed;
         }
 
         private static bool ValidateToolRequirement(
@@ -229,7 +285,26 @@ namespace CCS.Modules.Wildlife
         private static List<CCS_WildlifeHarvestedItemDrop> GenerateDrops(CCS_WildlifeDefinition wildlifeDefinition)
         {
             List<CCS_WildlifeHarvestedItemDrop> drops = new List<CCS_WildlifeHarvestedItemDrop>();
-            IReadOnlyList<CCS_WildlifeHarvestDropDefinition> dropDefinitions = wildlifeDefinition.HarvestDrops;
+
+            if (wildlifeDefinition.HarvestDefinition != null)
+            {
+                AppendDropsFromTable(drops, wildlifeDefinition.HarvestDefinition.SkinDrops);
+                AppendDropsFromTable(drops, wildlifeDefinition.HarvestDefinition.ButcherDrops);
+                return drops;
+            }
+
+            AppendDropsFromTable(drops, wildlifeDefinition.HarvestDrops);
+            return drops;
+        }
+
+        private static void AppendDropsFromTable(
+            List<CCS_WildlifeHarvestedItemDrop> drops,
+            IReadOnlyList<CCS_WildlifeHarvestDropDefinition> dropDefinitions)
+        {
+            if (dropDefinitions == null)
+            {
+                return;
+            }
 
             for (int index = 0; index < dropDefinitions.Count; index++)
             {
@@ -259,13 +334,14 @@ namespace CCS.Modules.Wildlife
 
                 drops.Add(new CCS_WildlifeHarvestedItemDrop(dropDefinition.ItemDefinition, quantity));
             }
-
-            return drops;
         }
 
-        private CCS_WildlifeHarvestResult FailHarvest(CCS_WildlifeHarvestRequest request, string message)
+        private CCS_WildlifeHarvestResult FailHarvest(
+            CCS_WildlifeHarvestRequest request,
+            CCS_WildlifeHarvestResultType resultType,
+            string message)
         {
-            CCS_WildlifeHarvestResult failure = CCS_WildlifeHarvestResult.Failure(message);
+            CCS_WildlifeHarvestResult failure = CCS_WildlifeHarvestResult.Failure(resultType, message);
             if (request != null)
             {
                 RaiseWildlifeHarvestFailed(

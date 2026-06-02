@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de963845e9cf6b48a870944828c58a3, type: 3}
+  m_Name: CCS_HarvestDefinition_Turkey
+  m_EditorClassIdentifier: CCS.Modules.Wildlife.Runtime::CCS.Modules.Wildlife.CCS_WildlifeHarvestDefinition
+  harvestDefinitionId: ccs.survival.wildlife.harvest.turkey
+  wildlifeDefinition: {fileID: 11400000, guid: 4bf69611cb103144aac7d04cba2dae58, type: 2}
+  resourceSourceType: 2
+  skinDrops:
+  - itemDefinition: {fileID: 11400000, guid: 566ffb77aec6c9841aa0a6a34fb0ead5, type: 2}
+    minQuantity: 1
+    maxQuantity: 2
+    harvestMethodType: 4
+  butcherDrops:
+  - itemDefinition: {fileID: 11400000, guid: d4534008844ac38428fcda5404e142e0, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 5
+  - itemDefinition: {fileID: 11400000, guid: 88622fa9bb112ad4a875e2752e174701, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 5
