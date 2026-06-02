@@ -21,6 +21,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -823,6 +824,28 @@ namespace CCS.Modules.Playtesting
             controllerPolishGatherDone = true;
             TryEvaluateControllerPolishCompletion();
 
+            if (eventArgs != null)
+            {
+                switch (eventArgs.NodeType)
+                {
+                    case CCS_GatheringNodeType.StoneOutcrop:
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.MineStoneOutcrop,
+                            "Stone outcrop mined.");
+                        break;
+                    case CCS_GatheringNodeType.OreVein:
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.MineIronVein,
+                            "Iron vein mined.");
+                        break;
+                    case CCS_GatheringNodeType.CoalVein:
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.MineCoalVein,
+                            "Coal vein mined.");
+                        break;
+                }
+            }
+
             if (eventArgs?.Rewards == null)
             {
                 return;
@@ -1035,6 +1058,14 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.OpenWagonCargo,
                     "Wagon cargo opened.");
+                if (HasInventoryItem(CCS_ProspectingContentIds.IronOreItemId)
+                    || HasInventoryItem(CCS_ProspectingContentIds.CoalItemId)
+                    || HasInventoryItem(CCS_ProspectingContentIds.RefinedIronItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.LoadMiningGoodsIntoWagonCargo,
+                        "Mining bulk goods ready for wagon haul.");
+                }
             }
         }
 
@@ -1418,6 +1449,13 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SelectActiveItem,
                     $"Active item selected: {newState.ActiveItemId}.");
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.AcquirePickForMining, newState.ActiveItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcquirePickForMining,
+                    $"Mining pick active: {newState.ActiveItemId}.");
             }
         }
 
@@ -2196,6 +2234,123 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestGrantMiningPick()
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition ironPick = FindItemDefinitionById(CCS_ProspectingContentIds.IronPickItemId);
+            CCS_ItemDefinition primitivePick = FindItemDefinitionById(CCS_ProspectingContentIds.PrimitivePickItemId);
+            if (ironPick != null)
+            {
+                inventoryService.AddItem(ironPick, 1);
+            }
+
+            if (primitivePick != null)
+            {
+                inventoryService.AddItem(primitivePick, 1);
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.AcquirePickForMining,
+                "Mining picks granted for prospecting playtest.");
+            return ironPick != null || primitivePick != null;
+        }
+
+        public bool TryPlaytestMiningFoundationShortcut()
+        {
+            playtestCurrencyBaseline = GetTradeDollarsBalance();
+            TryPlaytestGrantMiningPick();
+            TryGrantMiningHarvestBundle();
+            TryRefineIronAtForge();
+            TryLoadMiningGoodsIntoWagonCargoShortcut();
+            return true;
+        }
+
+        public bool TryLoadMiningGoodsIntoWagonCargoShortcut()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition ironOre = FindItemDefinitionById(CCS_ProspectingContentIds.IronOreItemId);
+            CCS_ItemDefinition coal = FindItemDefinitionById(CCS_ProspectingContentIds.CoalItemId);
+            CCS_ItemDefinition refinedIron = FindItemDefinitionById(CCS_ProspectingContentIds.RefinedIronItemId);
+            if (ironOre != null)
+            {
+                inventoryService.AddItem(ironOre, 6);
+            }
+
+            if (coal != null)
+            {
+                inventoryService.AddItem(coal, 4);
+            }
+
+            if (refinedIron != null)
+            {
+                inventoryService.AddItem(refinedIron, 2);
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.LoadMiningGoodsIntoWagonCargo,
+                "Mining bulk goods ready for wagon haul (inventory shortcut).");
+            return true;
+        }
+
+        private void TryGrantMiningHarvestBundle()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null)
+            {
+                return;
+            }
+
+            CCS_ItemDefinition stone = FindItemDefinitionById(CCS_ProspectingContentIds.StoneItemId);
+            CCS_ItemDefinition ironOre = FindItemDefinitionById(CCS_ProspectingContentIds.IronOreItemId);
+            CCS_ItemDefinition coal = FindItemDefinitionById(CCS_ProspectingContentIds.CoalItemId);
+            if (stone != null)
+            {
+                inventoryService.AddItem(stone, 4);
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.MineStoneOutcrop, "Stone granted for mining playtest.");
+            }
+
+            if (ironOre != null)
+            {
+                inventoryService.AddItem(ironOre, 4);
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.MineIronVein, "Iron ore granted for mining playtest.");
+            }
+
+            if (coal != null)
+            {
+                inventoryService.AddItem(coal, 4);
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.MineCoalVein, "Coal granted for mining playtest.");
+            }
+        }
+
+        private static bool IsMiningTradeItem(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId))
+            {
+                return false;
+            }
+
+            return itemId == CCS_ProspectingContentIds.IronOreItemId
+                || itemId == CCS_ProspectingContentIds.CoalItemId
+                || itemId == CCS_ProspectingContentIds.RefinedIronItemId
+                || itemId == CCS_ProspectingContentIds.ClayItemId
+                || itemId == CCS_ProspectingContentIds.ScrapIronItemId
+                || itemId == CCS_ProspectingContentIds.NailsItemId
+                || itemId == CCS_ProspectingContentIds.StoneItemId
+                || itemId == CCS_ProspectingContentIds.FlintItemId;
+        }
+
         private bool EnsureGunsmithVendorReadyForPlaytest()
         {
             if (!harnessEnabled
@@ -2375,7 +2530,15 @@ namespace CCS.Modules.Playtesting
                 inventoryService.AddItem(ironOre, 4);
             }
 
-            return TryRunIndustryProcess(IndustryProcessIronRefineId, CCS_PlaytestStepType.RefineIronAtPrimitiveForge);
+            bool refined = TryRunIndustryProcess(IndustryProcessIronRefineId, CCS_PlaytestStepType.RefineIronAtPrimitiveForge);
+            if (refined)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.RefineMinedOreAtForge,
+                    "Mined iron ore refined at forge.");
+            }
+
+            return refined;
         }
 
         public bool TryCraftIronHatchetHeadAtForge()
@@ -2650,6 +2813,20 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SellTrappingResourceAtVendor,
                     "Sold trap harvest hide at general store.");
+            }
+
+            if (result.WasSell && IsMiningTradeItem(result.ItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellMiningGoods,
+                    $"Sold mining good {result.ItemId} at vendor.");
+            }
+
+            if (result.WasSell && IsMiningTradeItem(result.ItemId) && result.CurrencyBalanceAfter > playtestCurrencyBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyMiningCurrencyIncreased,
+                    $"Mining trade dollars increased to {result.CurrencyBalanceAfter}.");
             }
 
             if (result.WasSell && IsPreservedFoodItem(result.ItemId))

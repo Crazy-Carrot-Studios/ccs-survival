@@ -117,6 +117,21 @@ namespace CCS.Modules.Inventory
             return ResolveHarvestToolType(itemDefinition) == requiredTool;
         }
 
+        public static bool ToolMeetsMinimumTier(CCS_ItemDefinition itemDefinition, CCS_ToolTier minimumToolTier)
+        {
+            if (minimumToolTier == CCS_ToolTier.None)
+            {
+                return true;
+            }
+
+            if (itemDefinition == null || !IsToolItem(itemDefinition))
+            {
+                return false;
+            }
+
+            return (int)itemDefinition.ToolTier >= (int)minimumToolTier;
+        }
+
         #endregion
     }
 }

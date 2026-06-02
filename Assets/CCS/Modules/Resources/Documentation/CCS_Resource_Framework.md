@@ -1,6 +1,7 @@
 # CCS Resource Framework
 
-**Milestone:** 1.2.4 — Frontier Resource Framework Audit  
+**Milestone:** 1.7.0 — Prospecting and mining expansion (pick tiers, iron ore veins, test nodes)  
+**Previous:** 1.2.4 — Frontier Resource Framework Audit  
 **Module ID:** `ccs.survival.resources`  
 **Namespace:** `CCS.Modules.Resources`  
 **Author:** James Schilz  

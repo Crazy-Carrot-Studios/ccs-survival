@@ -7,6 +7,7 @@ using CCS.Modules.Playtesting;
 using CCS.Modules.Storage;
 using CCS.Modules.Vehicles;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEngine;
 
@@ -360,18 +361,7 @@ namespace CCS.Modules.Vehicles.Editor
 
         private static void BumpVersions()
         {
-            const string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            if (!File.Exists(projectSettingsPath))
-            {
-                return;
-            }
-
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [\d\.]+",
-                "bundleVersion: 1.6.0");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast("1.7.0");
         }
     }
 }

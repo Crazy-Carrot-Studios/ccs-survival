@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 1.6.0 — Frontier Gunsmith sells firearms and ammo (Stable and General Store do not sell firearms)
+**Latest:** 1.7.0 — General Store and Gunsmith buy frontier mining goods (ore, coal, clay, scrap, nails)
+
+**1.6.0** — Frontier Gunsmith sells firearms and ammo (Stable and General Store do not sell firearms)
 
 ## Purpose
 
@@ -49,6 +51,14 @@ Wallet balances persist in unified save (`CCS_SaveData.economy`). Inventory back
 `CCS_VendorDefinition` + `CCS_VendorItemEntry` provide generic buy/sell. `CCS_VendorInteractable` uses the interaction module and opens `CCS_VendorDebugHud` (temporary panel).
 
 Bootstrap test object: `CCS_TestGeneralStore` in `SCN_CCS_Survival_Bootstrap`.
+
+### Mining trade (1.7.0)
+
+General Store buys iron ore, coal, clay, scrap iron, nails, stone, and flint. Gunsmith buys refined iron and raw ore/coal for metalworking surplus.
+
+```text
+Industry → Mine → Haul → Refine → Sell
+```
 
 ### Frontier Gunsmith (1.6.0)
 

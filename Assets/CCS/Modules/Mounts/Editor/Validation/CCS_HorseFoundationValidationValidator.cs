@@ -41,11 +41,11 @@ namespace CCS.Modules.Mounts.Editor
         {
             string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
             bool ok = File.Exists(projectSettingsPath)
-                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.6.0");
+                && File.ReadAllText(projectSettingsPath).Contains("bundleVersion: 1.7.0");
             report.AddIssue(
                 ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
                 ValidatorContext,
-                ok ? "bundleVersion is 1.6.0." : "Expected bundleVersion 1.6.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
+                ok ? "bundleVersion is 1.7.0." : "Expected bundleVersion 1.7.0. Run CCS_WagonFoundationBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateMountProfile(CCS_SurvivalValidationReport report)

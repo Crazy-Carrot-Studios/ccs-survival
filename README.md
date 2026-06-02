@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,12 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.7.0** — Prospecting and Mining Expansion
+
+**Prospecting** frontier loop: iron/coal veins, stone outcrops, clay deposits, salvage mine debris, prospecting spot and abandoned mine placeholders, pick tier rules (primitive vs iron), industry iron refining, wagon bulk-haul weight hints, vendor buy paths for mining goods, gathering node save persistence, and playtest mining loop (Ctrl+Shift+M shortcut).
+
+**Prospecting loop:** Find deposit → mine ore/coal → haul with wagon → refine at homestead → sell or craft better gear.
 
 **1.6.0** — Firearm Foundation
 

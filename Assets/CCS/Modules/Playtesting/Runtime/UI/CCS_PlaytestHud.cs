@@ -284,6 +284,17 @@ namespace CCS.Modules.Playtesting
                 }
             }
 
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                    {
+                        playtestService.TryPlaytestMiningFoundationShortcut();
+                    }
+                }
+            }
+
             if (Input.GetKeyDown(KeyCode.K))
             {
                 if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))

@@ -98,9 +98,9 @@ MonoBehaviour:
       sellPriceOverride: -1
     - itemDefinition: {fileID: 11400000, guid: 598be62d0a274ea42a16ee17efa2a302, type: 2}
       stockQuantity: -1
-      allowBuy: 0
+      allowBuy: 1
       allowSell: 1
-      buyPriceOverride: -1
+      buyPriceOverride: 7
       sellPriceOverride: -1
     - itemDefinition: {fileID: 11400000, guid: 566ffb77aec6c9841aa0a6a34fb0ead5, type: 2}
       stockQuantity: -1
@@ -232,7 +232,7 @@ MonoBehaviour:
       stockQuantity: -1
       allowBuy: 1
       allowSell: 0
-      buyPriceOverride: 5
+      buyPriceOverride: 3
       sellPriceOverride: -1
     - itemDefinition: {fileID: 11400000, guid: 8fc4afbab3647314ab92f23bc0f6b690, type: 2}
       stockQuantity: -1
@@ -252,3 +252,33 @@ MonoBehaviour:
       allowSell: 0
       buyPriceOverride: 28
       sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 6160c2e6479345c46829b53e0439d6a0, type: 2}
+      stockQuantity: 99
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 6
+      sellPriceOverride: 0
+    - itemDefinition: {fileID: 11400000, guid: 6642fc5134b17144988256e62fc4be02, type: 2}
+      stockQuantity: 99
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 5
+      sellPriceOverride: 0
+    - itemDefinition: {fileID: 11400000, guid: 6d38429fbf980b24c8fb69ccb0d0bc0d, type: 2}
+      stockQuantity: 99
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 4
+      sellPriceOverride: 0
+    - itemDefinition: {fileID: 11400000, guid: ffd321b6155eec741ae4126b2140a970, type: 2}
+      stockQuantity: 99
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 2
+      sellPriceOverride: 0
+    - itemDefinition: {fileID: 11400000, guid: 0206614a35a241e4a8ad3f1a30966dee, type: 2}
+      stockQuantity: 99
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 2
+      sellPriceOverride: 0

@@ -20,6 +20,7 @@ MonoBehaviour:
   maxHarvestCount: 2
   respawnTimeSeconds: 45
   requiredToolType: 2
+  minimumToolTier: 4
   dropDefinitions:
   - itemDefinition: {fileID: 11400000, guid: 6642fc5134b17144988256e62fc4be02, type: 2}
     minQuantity: 1

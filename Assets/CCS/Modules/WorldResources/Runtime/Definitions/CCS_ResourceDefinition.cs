@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.Inventory;
 using CCS.Modules.Resources;
 using UnityEngine;
 
@@ -48,6 +49,9 @@ namespace CCS.Modules.WorldResources
         [Tooltip("Tool type required to harvest this resource.")]
         [SerializeField] private CCS_RequiredToolType requiredToolType = CCS_RequiredToolType.None;
 
+        [Tooltip("Minimum tool tier required. None allows any compatible tool tier.")]
+        [SerializeField] private CCS_ToolTier minimumToolTier = CCS_ToolTier.None;
+
         [Header("Drops")]
         [Tooltip("Items granted when a harvest succeeds. Multiple entries support multi-yield sources.")]
         [SerializeField] private List<CCS_ResourceDropDefinition> dropDefinitions =
@@ -72,6 +76,8 @@ namespace CCS.Modules.WorldResources
         public float RespawnTimeSeconds => respawnTimeSeconds;
 
         public CCS_RequiredToolType RequiredToolType => requiredToolType;
+
+        public CCS_ToolTier MinimumToolTier => minimumToolTier;
 
         public IReadOnlyList<CCS_ResourceDropDefinition> DropDefinitions => dropDefinitions;
 

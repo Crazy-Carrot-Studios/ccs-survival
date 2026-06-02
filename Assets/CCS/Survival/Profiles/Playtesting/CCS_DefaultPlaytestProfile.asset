@@ -901,3 +901,71 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.acquire.pick
+    displayName: Acquire pick
+    stepType: 103
+    instructionText: 'Mining playtest: Acquire pick. Ctrl+Shift+M shortcut available.'
+    targetItemId: ccs.survival.item.tool.pick.iron
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.stone
+    displayName: Mine stone outcrop
+    stepType: 104
+    instructionText: 'Mining playtest: Mine stone outcrop. Ctrl+Shift+M shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.iron
+    displayName: Mine iron vein
+    stepType: 105
+    instructionText: 'Mining playtest: Mine iron vein. Ctrl+Shift+M shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.coal
+    displayName: Mine coal vein
+    stepType: 106
+    instructionText: 'Mining playtest: Mine coal vein. Ctrl+Shift+M shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.refine
+    displayName: Refine ore at forge
+    stepType: 107
+    instructionText: 'Mining playtest: Refine ore at forge. Ctrl+Shift+M shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.wagon
+    displayName: Load mining goods into wagon
+    stepType: 108
+    instructionText: 'Mining playtest: Load mining goods into wagon. Ctrl+Shift+M
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.sell
+    displayName: Sell mining goods
+    stepType: 109
+    instructionText: 'Mining playtest: Sell mining goods. Ctrl+Shift+M shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.mining.currency
+    displayName: Verify mining currency
+    stepType: 110
+    instructionText: 'Mining playtest: Verify mining currency. Ctrl+Shift+M shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

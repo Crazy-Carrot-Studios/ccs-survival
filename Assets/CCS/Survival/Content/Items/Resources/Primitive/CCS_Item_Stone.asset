@@ -18,7 +18,7 @@ MonoBehaviour:
   category: 1
   maxStackSize: 50
   isStackable: 1
-  weight: 0.1
+  weight: 1.5
   gameplayKind: 0
   hasToolIdentity: 0
   toolType: 0
@@ -32,3 +32,7 @@ MonoBehaviour:
   meleeDamage: 0
   meleeRange: 2
   icon: {fileID: 0}
+  hasEconomyValues: 0
+  buyValue: 0
+  sellValue: 0
+  vendorCategory: 0

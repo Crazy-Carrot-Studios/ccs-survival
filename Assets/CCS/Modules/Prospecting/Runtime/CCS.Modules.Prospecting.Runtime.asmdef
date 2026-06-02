@@ -1,0 +1,21 @@
+{
+    "name": "CCS.Modules.Prospecting.Runtime",
+    "rootNamespace": "CCS.Modules.Prospecting",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Resources.Runtime",
+        "CCS.Modules.WorldResources.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

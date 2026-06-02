@@ -114,6 +114,14 @@ namespace CCS.Modules.Playtesting
         HarvestWithKnifeAfterFirearm = 99,
         SellHuntingResourcesAfterFirearm = 100,
         SaveFirearmState = 101,
-        VerifyFirearmPersistenceAfterLoad = 102
+        VerifyFirearmPersistenceAfterLoad = 102,
+        AcquirePickForMining = 103,
+        MineStoneOutcrop = 104,
+        MineIronVein = 105,
+        MineCoalVein = 106,
+        RefineMinedOreAtForge = 107,
+        LoadMiningGoodsIntoWagonCargo = 108,
+        SellMiningGoods = 109,
+        VerifyMiningCurrencyIncreased = 110
     }
 }

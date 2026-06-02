@@ -222,6 +222,9 @@ namespace CCS.Modules.Gathering
         [Tooltip("Explicit tool requirement. None uses harvest-method defaults.")]
         public CCS_ItemToolType requiredToolType;
 
+        [Tooltip("Minimum tool tier required. None allows any compatible tool tier.")]
+        public CCS_ToolTier minimumToolTier;
+
         [Tooltip("Rewards granted when this node type is gathered. Multiple entries support multi-yield sources.")]
         public CCS_GatheringReward[] rewards;
     }

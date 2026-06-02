@@ -37,11 +37,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6b0bd9a86a495b9419a1324e99898531, type: 2}
   - {fileID: 11400000, guid: 2ea5ca54045c15345973e8740eb7727d, type: 2}
   - {fileID: 11400000, guid: 36c29508615c46248ab77d6f19027729, type: 2}
+  - {fileID: 11400000, guid: 6160c2e6479345c46829b53e0439d6a0, type: 2}
   nodeRewardSettings:
   - nodeType: 1
     resourceSourceType: 1
     harvestMethod: 2
     requiredToolType: 1
+    minimumToolTier: 0
     rewards:
     - resourceType: 1
       itemDefinitionId: ccs.survival.item.resource.stick
@@ -53,6 +55,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 3
     requiredToolType: 2
+    minimumToolTier: 0
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.stone
@@ -61,6 +64,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 1
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 4
       itemDefinitionId: ccs.survival.item.resource.fiber
@@ -72,6 +76,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 2
     requiredToolType: 1
+    minimumToolTier: 0
     rewards:
     - resourceType: 3
       itemDefinitionId: ccs.survival.item.resource.wood
@@ -86,6 +91,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 2
     requiredToolType: 1
+    minimumToolTier: 0
     rewards:
     - resourceType: 3
       itemDefinitionId: ccs.survival.item.resource.wood
@@ -94,6 +100,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 1
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 4
       itemDefinitionId: ccs.survival.item.resource.fiber
@@ -102,6 +109,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 3
     requiredToolType: 2
+    minimumToolTier: 1
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.stone
@@ -113,6 +121,7 @@ MonoBehaviour:
     resourceSourceType: 1
     harvestMethod: 8
     requiredToolType: 4
+    minimumToolTier: 1
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.clay
@@ -121,6 +130,7 @@ MonoBehaviour:
     resourceSourceType: 5
     harvestMethod: 7
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 0
       itemDefinitionId: ccs.survival.item.resource.water
@@ -129,14 +139,16 @@ MonoBehaviour:
     resourceSourceType: 4
     harvestMethod: 3
     requiredToolType: 2
+    minimumToolTier: 4
     rewards:
     - resourceType: 2
-      itemDefinitionId: ccs.survival.item.resource.ore
+      itemDefinitionId: ccs.survival.item.resource.ironore
       amount: 2
   - nodeType: 17
     resourceSourceType: 4
     harvestMethod: 3
     requiredToolType: 2
+    minimumToolTier: 4
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.coal
@@ -145,6 +157,7 @@ MonoBehaviour:
     resourceSourceType: 3
     harvestMethod: 6
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 0
       itemDefinitionId: ccs.survival.item.resource.scrapiron
@@ -162,6 +175,7 @@ MonoBehaviour:
     resourceSourceType: 3
     harvestMethod: 6
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 1
       itemDefinitionId: ccs.survival.item.resource.stick
@@ -170,6 +184,7 @@ MonoBehaviour:
     resourceSourceType: 3
     harvestMethod: 6
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 3
       itemDefinitionId: ccs.survival.item.resource.wood
@@ -181,10 +196,14 @@ MonoBehaviour:
     resourceSourceType: 3
     harvestMethod: 6
     requiredToolType: 0
+    minimumToolTier: 0
     rewards:
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.scrapiron
       amount: 2
+    - resourceType: 2
+      itemDefinitionId: ccs.survival.item.resource.nails
+      amount: 1
     - resourceType: 2
       itemDefinitionId: ccs.survival.item.resource.coal
       amount: 1

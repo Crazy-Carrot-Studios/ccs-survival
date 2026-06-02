@@ -31,6 +31,10 @@ namespace CCS.Modules.Gathering
         SalvageAbandonedWagon = 18,
         SalvageCampRemains = 19,
         SalvageHomesteadRuins = 20,
-        SalvageMineDebris = 21
+        SalvageMineDebris = 21,
+
+        // Prospecting / mining frontier placeholders (1.7.0)
+        ProspectingSpot = 22,
+        AbandonedMineEntrance = 23
     }
 }

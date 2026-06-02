@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d45202cabe481aa4ea38c4749cddfac3, type: 3}
+  m_Name: CCS_FrontierResource_MineDebris
+  m_EditorClassIdentifier: CCS.Modules.WorldResources.Runtime::CCS.Modules.WorldResources.CCS_ResourceDefinition
+  resourceId: ccs.survival.resource.frontier.minedebris
+  displayName: Mine Debris
+  nodeType: 3
+  resourceSourceType: 3
+  harvestMethod: 6
+  maxHarvestCount: 3
+  respawnTimeSeconds: 60
+  requiredToolType: 0
+  minimumToolTier: 0
+  dropDefinitions:
+  - itemDefinition: {fileID: 11400000, guid: 598be62d0a274ea42a16ee17efa2a302, type: 2}
+    minQuantity: 1
+    maxQuantity: 2
+  - itemDefinition: {fileID: 11400000, guid: 6b0bd9a86a495b9419a1324e99898531, type: 2}
+    minQuantity: 1
+    maxQuantity: 2
+  - itemDefinition: {fileID: 11400000, guid: 6642fc5134b17144988256e62fc4be02, type: 2}
+    minQuantity: 1
+    maxQuantity: 1

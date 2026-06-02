@@ -7,6 +7,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Inventory;
 using CCS.Modules.Playtesting;
 using CCS.Survival.Composition;
+using CCS.Survival.Editor.Development;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -1068,18 +1069,7 @@ namespace CCS.Modules.Firearms.Editor
 
         private static void BumpVersions()
         {
-            const string projectSettingsPath = "ProjectSettings/ProjectSettings.asset";
-            if (!File.Exists(projectSettingsPath))
-            {
-                return;
-            }
-
-            string text = File.ReadAllText(projectSettingsPath);
-            text = System.Text.RegularExpressions.Regex.Replace(
-                text,
-                @"bundleVersion: [\d\.]+",
-                "bundleVersion: 1.6.0");
-            File.WriteAllText(projectSettingsPath, text);
+            CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast("1.7.0");
         }
     }
 }

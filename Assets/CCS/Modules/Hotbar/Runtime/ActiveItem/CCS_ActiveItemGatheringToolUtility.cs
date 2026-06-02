@@ -33,7 +33,8 @@ namespace CCS.Modules.Hotbar
                 return ActiveToolMatchesHarvestMetadata(
                     activeToolDefinition,
                     settings.harvestMethod,
-                    settings.requiredToolType);
+                    settings.requiredToolType,
+                    settings.minimumToolTier);
             }
 
             return ActiveToolMatchesLegacyGatheringNode(activeToolDefinition, nodeType);
@@ -57,23 +58,30 @@ namespace CCS.Modules.Hotbar
             return ActiveToolMatchesHarvestMetadata(
                 activeToolDefinition,
                 resourceDefinition.HarvestMethod,
-                explicitTool);
+                explicitTool,
+                resourceDefinition.MinimumToolTier);
         }
 
         public static bool ActiveToolMatchesHarvestMetadata(
             CCS_ItemDefinition activeToolDefinition,
             CCS_HarvestMethodType harvestMethod,
-            CCS_ItemToolType explicitRequiredTool)
+            CCS_ItemToolType explicitRequiredTool,
+            CCS_ToolTier minimumToolTier = CCS_ToolTier.None)
         {
             if (!IsHarvestMethodImplementedForActiveUse(harvestMethod))
             {
                 return false;
             }
 
-            return CCS_HarvestMethodToolRulesUtility.ToolSatisfiesHarvestMethod(
-                activeToolDefinition,
-                harvestMethod,
-                explicitRequiredTool);
+            if (!CCS_HarvestMethodToolRulesUtility.ToolSatisfiesHarvestMethod(
+                    activeToolDefinition,
+                    harvestMethod,
+                    explicitRequiredTool))
+            {
+                return false;
+            }
+
+            return CCS_ItemGameplayUtility.ToolMeetsMinimumTier(activeToolDefinition, minimumToolTier);
         }
 
         public static CCS_RequiredToolType ResolveEquippedToolType(CCS_ItemDefinition activeToolDefinition)

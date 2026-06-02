@@ -2,6 +2,10 @@
 
 Generic vehicle framework for hand carts, wagons, stagecoaches, and future mine carts.
 
+## Milestone 1.7.0 — Mining haul
+
+Dense ore/coal item weights encourage wagon cargo for bulk mining hauls (placeholder logistics; slot-based cargo unchanged).
+
 ## Milestone 1.5.2 — Wagon Foundation
 
 - `CCS_VehicleDefinition` / `CCS_VehicleProfile` — vehicle stats and catalog

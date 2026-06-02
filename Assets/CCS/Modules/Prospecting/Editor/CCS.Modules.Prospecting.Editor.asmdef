@@ -1,0 +1,29 @@
+{
+    "name": "CCS.Modules.Prospecting.Editor",
+    "rootNamespace": "CCS.Modules.Prospecting.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Prospecting.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Gathering.Runtime",
+        "CCS.Modules.Resources.Runtime",
+        "CCS.Modules.WorldResources.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Industry.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Vehicles.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

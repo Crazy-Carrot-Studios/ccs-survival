@@ -18,7 +18,7 @@ MonoBehaviour:
   category: 4
   maxStackSize: 99
   isStackable: 1
-  weight: 0
+  weight: 0.25
   gameplayKind: 0
   hasToolIdentity: 0
   toolType: 0
