@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorDefinition
   vendorId: ccs.survival.vendor.frontier.stable
   displayName: Frontier Stable
-  description: Frontier stable for horse purchases and future horse supplies (1.5.1).
+  description: Frontier stable for horse and wagon purchases (1.5.2).
   currencyDefinition: {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}
   vendorInventory:
     items:
@@ -24,3 +24,9 @@ MonoBehaviour:
       allowSell: 1
       buyPriceOverride: 2500
       sellPriceOverride: 500
+    - itemDefinition: {fileID: 11400000, guid: 5f234d7e4d84004479751304108e98b1, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 1
+      buyPriceOverride: 1800
+      sellPriceOverride: 360

@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Vehicles.Editor",
+    "rootNamespace": "CCS.Modules.Vehicles.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Mounts.Runtime",
+        "CCS.Modules.Vehicles.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Survival.Composition"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

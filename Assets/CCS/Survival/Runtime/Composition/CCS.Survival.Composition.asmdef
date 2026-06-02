@@ -32,6 +32,7 @@
         "CCS.Modules.Hotbar.Runtime",
         "CCS.Modules.Industry.Runtime",
         "CCS.Modules.Mounts.Runtime",
+        "CCS.Modules.Vehicles.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

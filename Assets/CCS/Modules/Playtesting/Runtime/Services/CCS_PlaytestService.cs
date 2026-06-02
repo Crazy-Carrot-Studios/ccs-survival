@@ -19,6 +19,7 @@ using CCS.Modules.SurvivalCore;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Vehicles;
 using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
@@ -64,6 +65,7 @@ namespace CCS.Modules.Playtesting
         private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         private const string FrontierStableVendorId = CCS_MountContentIds.FrontierStableVendorId;
         private const string FrontierHorseItemId = CCS_MountContentIds.FrontierHorseItemId;
+        private const string FrontierWagonItemId = CCS_VehicleContentIds.FrontierWagonItemId;
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -137,6 +139,7 @@ namespace CCS.Modules.Playtesting
         private CCS_InteractionService boundInteractionService;
         private CCS_CampService boundCampService;
         private CCS_MountService boundMountService;
+        private CCS_VehicleService boundVehicleService;
 
         #endregion
 
@@ -208,7 +211,8 @@ namespace CCS.Modules.Playtesting
             CCS_CurrencyService currencyService = null,
             CCS_VendorService vendorService = null,
             CCS_CampService campService = null,
-            CCS_MountService mountService = null)
+            CCS_MountService mountService = null,
+            CCS_VehicleService vehicleService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -237,11 +241,18 @@ namespace CCS.Modules.Playtesting
             boundVendorService = vendorService;
             boundCampService = campService;
             boundMountService = mountService;
+            boundVehicleService = vehicleService;
 
             if (boundMountService != null)
             {
                 boundMountService.MountStateChanged += HandleMountStateChanged;
                 boundMountService.HorseOwnershipChanged += HandleHorseOwnershipChanged;
+            }
+
+            if (boundVehicleService != null)
+            {
+                boundVehicleService.VehicleStateChanged += HandleVehicleStateChanged;
+                boundVehicleService.WagonOwnershipChanged += HandleWagonOwnershipChanged;
             }
 
             if (boundVendorService != null)
@@ -461,7 +472,14 @@ namespace CCS.Modules.Playtesting
                 boundMountService.HorseOwnershipChanged -= HandleHorseOwnershipChanged;
             }
 
+            if (boundVehicleService != null)
+            {
+                boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
+                boundVehicleService.WagonOwnershipChanged -= HandleWagonOwnershipChanged;
+            }
+
             boundMountService = null;
+            boundVehicleService = null;
 
             if (boundInteractionService != null)
             {
@@ -897,6 +915,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveHorseState,
                     "Horse ownership and saddlebag state saved.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SaveWagonState,
+                    "Wagon ownership, hitch, and cargo state saved.");
             }
         }
 
@@ -910,6 +931,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateCampPersistenceAfterLoad();
                 EvaluateHomesteadCampPersistenceAfterLoad();
                 EvaluateHorsePersistenceAfterLoad();
+                EvaluateWagonPersistenceAfterLoad();
             }
         }
 
@@ -924,6 +946,14 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.MountHorse, "Horse mounted.");
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.RideHorse, "Horse riding active.");
+                if (boundVehicleService != null
+                    && boundVehicleService.IsInitialized
+                    && boundVehicleService.IsHitched)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.RideHorseWithWagon,
+                        "Horse riding with hitched wagon.");
+                }
             }
         }
 
@@ -937,6 +967,33 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.BuyHorseFromStable,
                 "Frontier horse ownership granted.");
+        }
+
+        private void HandleVehicleStateChanged(CCS_VehicleInstance instance, CCS_VehicleState previousState)
+        {
+            if (instance == null)
+            {
+                return;
+            }
+
+            if (instance.State == CCS_VehicleState.Hitched || instance.State == CCS_VehicleState.Moving)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.HitchWagonToHorse,
+                    "Wagon hitched to owned horse.");
+            }
+        }
+
+        private void HandleWagonOwnershipChanged(bool ownsWagon)
+        {
+            if (!ownsWagon)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.BuyWagonFromStable,
+                "Frontier wagon ownership granted.");
         }
 
         private void HandleStorageContainerOpened(CCS_StorageEventArgs eventArgs)
@@ -958,6 +1015,14 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.OpenHorseSaddlebag,
                     "Horse saddlebag opened.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(eventArgs.ContainerId)
+                && eventArgs.ContainerId.Contains(".cargo", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.OpenWagonCargo,
+                    "Wagon cargo opened.");
             }
         }
 
@@ -1925,6 +1990,90 @@ namespace CCS.Modules.Playtesting
             return boundMountService.TryMount(boundMountService.ActiveMountInstanceId);
         }
 
+        public bool TryPlaytestGrantWagonCurrency()
+        {
+            if (!harnessEnabled
+                || boundCurrencyService == null
+                || !boundCurrencyService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_CurrencyTransactionResult result = boundCurrencyService.AddCurrency(
+                TradeDollarsCurrencyId,
+                5000,
+                "Playtest wagon purchase funds");
+            if (result.IsSuccess)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.EarnCurrencyForWagon,
+                    "Granted playtest currency for wagon purchase.");
+            }
+
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestBuyWagon()
+        {
+            if (!EnsureStableVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition wagonItem = FindItemDefinitionById(FrontierWagonItemId);
+            if (wagonItem == null)
+            {
+                return false;
+            }
+
+            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(wagonItem, 1);
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestSummonWagon()
+        {
+            if (boundVehicleService == null || !boundVehicleService.IsInitialized)
+            {
+                return false;
+            }
+
+            bool summoned = boundVehicleService.TrySummonWagonNearPlayer();
+            if (summoned)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.SummonWagon, "Wagon summoned near player.");
+            }
+
+            return summoned;
+        }
+
+        public bool TryPlaytestWagonFoundationShortcut()
+        {
+            if (boundVehicleService == null || !boundVehicleService.IsInitialized)
+            {
+                return false;
+            }
+
+            TryPlaytestGrantWagonCurrency();
+            if (!boundVehicleService.OwnsWagon)
+            {
+                if (!TryPlaytestBuyWagon())
+                {
+                    boundVehicleService.TryGrantWagonOwnership();
+                }
+            }
+
+            boundVehicleService.TrySummonWagonNearPlayer();
+            if (boundMountService != null
+                && boundMountService.IsInitialized
+                && boundMountService.OwnsHorse)
+            {
+                boundVehicleService.TryHitchToOwnedHorse();
+                boundMountService.TryMount(boundMountService.ActiveMountInstanceId);
+            }
+
+            return true;
+        }
+
         private int GetTradeDollarsBalance()
         {
             return boundCurrencyService != null
@@ -2188,6 +2337,22 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void EvaluateWagonPersistenceAfterLoad()
+        {
+            if (boundVehicleService == null || !boundVehicleService.IsInitialized || !boundVehicleService.OwnsWagon)
+            {
+                return;
+            }
+
+            CCS_VehicleSnapshot snapshot = boundVehicleService.CurrentSnapshot;
+            if (snapshot.ownsVehicle && !string.IsNullOrWhiteSpace(snapshot.instanceId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyWagonPersistenceAfterLoad,
+                    "Wagon ownership and world state restored after load.");
+            }
+        }
+
         private void TryEvaluateEconomyPlaytestSteps()
         {
             if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
@@ -2355,6 +2520,15 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.BuyHorseFromStable,
                     "Purchased frontier horse from stable.");
+            }
+
+            if (!result.WasSell
+                && string.Equals(result.VendorId, FrontierStableVendorId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(result.ItemId, FrontierWagonItemId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyWagonFromStable,
+                    "Purchased frontier wagon deed from stable.");
             }
 
             if (!result.WasSell && result.ItemId == BoneHatchetItemId)

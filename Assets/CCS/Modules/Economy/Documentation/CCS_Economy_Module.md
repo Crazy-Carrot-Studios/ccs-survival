@@ -2,7 +2,7 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 1.5.1 — Frontier Stable vendor for horse purchases (General Store does not sell horses)
+**Latest:** 1.5.2 — Frontier Stable sells horse and wagon deeds (General Store does not sell horses or wagons)
 
 ## Purpose
 
@@ -50,17 +50,18 @@ Wallet balances persist in unified save (`CCS_SaveData.economy`). Inventory back
 
 Bootstrap test object: `CCS_TestGeneralStore` in `SCN_CCS_Survival_Bootstrap`.
 
-### Frontier Stable (1.5.1)
+### Frontier Stable (1.5.2)
 
 | ID | Role |
 |----|------|
 | `ccs.survival.vendor.frontier.stable` | Frontier Stable vendor |
 | `ccs.survival.item.mount.frontierhorse` | Horse deed (buy **2500** Trade Dollars) |
+| `ccs.survival.item.vehicle.frontierwagon` | Wagon deed (buy **1800** Trade Dollars) |
 
-Bootstrap test object: `CCS_TestFrontierStable` in `SCN_CCS_Survival_Bootstrap`. Horses are **not** listed on the General Store.
+Bootstrap test object: `CCS_TestFrontierStable` in `SCN_CCS_Survival_Bootstrap`. Horses and wagons are **not** listed on the General Store.
 
 ```text
-Earn Wealth → Buy Horse → Travel Faster → Carry More → Expand Frontier Reach
+Earn Wealth → Buy Horse → Buy Wagon → Carry More → Move Supplies → Expand Homestead Reach
 ```
 
 ### General Store catalog (1.3.1)

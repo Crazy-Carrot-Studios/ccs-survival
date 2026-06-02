@@ -744,3 +744,72 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.earn.currency
+    displayName: Earn wagon currency
+    stepType: 85
+    instructionText: 'Wagon playtest: Earn wagon currency. Ctrl+Shift+W shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.buy
+    displayName: Buy frontier wagon
+    stepType: 86
+    instructionText: 'Wagon playtest: Buy frontier wagon. Ctrl+Shift+W shortcuts
+      available.'
+    targetItemId: ccs.survival.item.vehicle.frontierwagon
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.summon
+    displayName: Summon wagon
+    stepType: 87
+    instructionText: 'Wagon playtest: Summon wagon. Ctrl+Shift+W shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.hitch
+    displayName: Hitch wagon to horse
+    stepType: 88
+    instructionText: 'Wagon playtest: Hitch wagon to horse. Ctrl+Shift+W shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.ride
+    displayName: Ride horse with wagon
+    stepType: 89
+    instructionText: 'Wagon playtest: Ride horse with wagon. Ctrl+Shift+W shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.cargo
+    displayName: Open wagon cargo
+    stepType: 90
+    instructionText: 'Wagon playtest: Open wagon cargo. Ctrl+Shift+W shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.save
+    displayName: Save wagon state
+    stepType: 91
+    instructionText: 'Wagon playtest: Save wagon state. Ctrl+Shift+W shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.wagon.verify.load
+    displayName: Verify wagon after load
+    stepType: 92
+    instructionText: 'Wagon playtest: Verify wagon after load. Ctrl+Shift+W shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

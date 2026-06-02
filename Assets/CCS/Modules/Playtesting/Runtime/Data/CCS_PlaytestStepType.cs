@@ -96,6 +96,14 @@ namespace CCS.Modules.Playtesting
         RideHorse = 81,
         OpenHorseSaddlebag = 82,
         SaveHorseState = 83,
-        VerifyHorsePersistenceAfterLoad = 84
+        VerifyHorsePersistenceAfterLoad = 84,
+        EarnCurrencyForWagon = 85,
+        BuyWagonFromStable = 86,
+        SummonWagon = 87,
+        HitchWagonToHorse = 88,
+        RideHorseWithWagon = 89,
+        OpenWagonCargo = 90,
+        SaveWagonState = 91,
+        VerifyWagonPersistenceAfterLoad = 92
     }
 }

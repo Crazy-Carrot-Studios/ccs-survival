@@ -1,0 +1,21 @@
+{
+    "name": "CCS.Modules.Vehicles.Runtime",
+    "rootNamespace": "CCS.Modules.Vehicles",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Mounts.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

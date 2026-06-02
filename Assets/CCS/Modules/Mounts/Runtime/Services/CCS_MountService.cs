@@ -240,6 +240,16 @@ namespace CCS.Modules.Mounts
             return true;
         }
 
+        public Transform GetOwnedHorseWagonHitchPoint()
+        {
+            return ownedMount?.WorldActor != null ? ownedMount.WorldActor.WagonHitchPoint : null;
+        }
+
+        public string GetOwnedHorseMountDefinitionId()
+        {
+            return ownedMount?.Definition?.MountId ?? string.Empty;
+        }
+
         public bool HasHorseCampPresence(Vector3 campCenter, float radius)
         {
             if (!OwnsHorse || ownedMount?.WorldActor == null)

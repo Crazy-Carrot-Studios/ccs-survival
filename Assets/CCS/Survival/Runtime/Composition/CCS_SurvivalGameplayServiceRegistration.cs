@@ -27,6 +27,7 @@ using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Vehicles;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -81,6 +82,7 @@ namespace CCS.Survival.Composition
             CCS_FrontierStorageCampProfile frontierStorageCampProfile,
             CCS_IndustryProfile industryProfile,
             CCS_MountProfile mountProfile,
+            CCS_VehicleProfile vehicleProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -291,6 +293,13 @@ namespace CCS.Survival.Composition
             CCS_MountService mountService = CreateMountService(runtimeHost, mountProfile, inventoryService);
             RegisterService(runtimeHost, mountService, enableDebugLogs);
 
+            CCS_VehicleService vehicleService = CreateVehicleService(
+                runtimeHost,
+                vehicleProfile,
+                inventoryService,
+                mountService);
+            RegisterService(runtimeHost, vehicleService, enableDebugLogs);
+
             CCS_FrontierHomesteadStructureService homesteadStructureService = CreateFrontierHomesteadStructureService(
                 campDefinition,
                 campService,
@@ -365,6 +374,10 @@ namespace CCS.Survival.Composition
                     }
 
                     mountService.TryConsumeHorsePurchaseItem(result.ItemDefinition);
+                    if (vehicleService != null && vehicleService.IsInitialized)
+                    {
+                        vehicleService.TryConsumeWagonPurchaseItem(result.ItemDefinition);
+                    }
                 };
             }
 
@@ -385,6 +398,7 @@ namespace CCS.Survival.Composition
                 frontierStoragePlacementService,
                 industryService,
                 mountService,
+                vehicleService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -424,7 +438,8 @@ namespace CCS.Survival.Composition
                     currencyService,
                     vendorService,
                     campService,
-                    mountService);
+                    mountService,
+                    vehicleService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -921,6 +936,39 @@ namespace CCS.Survival.Composition
             }
 
             CCS_MountRuntimeBridge.Register(service);
+            if (runtimeHost?.RuntimeUpdateLoop != null)
+            {
+                runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
+            }
+
+            return service;
+        }
+
+        private static CCS_VehicleService CreateVehicleService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_VehicleProfile vehicleProfile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_MountService mountService)
+        {
+            CCS_VehicleService service = new CCS_VehicleService();
+            service.Initialize();
+
+            if (vehicleProfile != null)
+            {
+                service.InitializeFromProfile(vehicleProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (mountService != null && mountService.IsInitialized)
+            {
+                service.BindMountService(mountService);
+            }
+
+            CCS_VehicleRuntimeBridge.Register(service);
             if (runtimeHost?.RuntimeUpdateLoop != null)
             {
                 runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);

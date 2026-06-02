@@ -1,6 +1,7 @@
 using System;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Vehicles;
 
 // =============================================================================
 // SCRIPT: CCS_SaveData
@@ -51,6 +52,8 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveMountsWorldData mounts = new CCS_SaveMountsWorldData();
 
+        public CCS_SaveVehiclesWorldData vehicles = new CCS_SaveVehiclesWorldData();
+
         #endregion
     }
 
@@ -58,6 +61,12 @@ namespace CCS.Modules.SaveSystem
     public sealed class CCS_SaveMountsWorldData
     {
         public CCS_MountSnapshot ownedMount = new CCS_MountSnapshot();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveVehiclesWorldData
+    {
+        public CCS_VehicleSnapshot ownedVehicle = new CCS_VehicleSnapshot();
     }
 
     [Serializable]

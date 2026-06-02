@@ -8,6 +8,7 @@ using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Vehicles;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
@@ -48,6 +49,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_CampService campService;
         private CCS_IndustryService industryService;
         private CCS_MountService mountService;
+        private CCS_VehicleService vehicleService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -122,6 +124,7 @@ namespace CCS.Modules.SaveSystem
             CCS_FrontierStoragePlacementService frontierStoragePlacement,
             CCS_IndustryService industry,
             CCS_MountService mounts,
+            CCS_VehicleService vehicles,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -138,6 +141,7 @@ namespace CCS.Modules.SaveSystem
             frontierStoragePlacementService = frontierStoragePlacement;
             industryService = industry;
             mountService = mounts;
+            vehicleService = vehicles;
             playerTransform = playerRoot;
         }
 
@@ -297,6 +301,7 @@ namespace CCS.Modules.SaveSystem
             CaptureCamp(saveData.camp);
             CaptureIndustry(saveData.industry);
             CaptureMounts(saveData.mounts);
+            CaptureVehicles(saveData.vehicles);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -614,6 +619,7 @@ namespace CCS.Modules.SaveSystem
             ApplyCamp(saveData.camp);
             ApplyIndustry(saveData.industry);
             ApplyMounts(saveData.mounts);
+            ApplyVehicles(saveData.vehicles);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -977,6 +983,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             mountService.RestoreSnapshot(mountsData?.ownedMount);
+        }
+
+        private void CaptureVehicles(CCS_SaveVehiclesWorldData vehiclesData)
+        {
+            if (vehiclesData == null)
+            {
+                return;
+            }
+
+            vehiclesData.ownedVehicle = vehicleService != null && vehicleService.IsInitialized
+                ? vehicleService.CaptureSnapshot()
+                : CCS_VehicleSnapshot.Empty;
+        }
+
+        private void ApplyVehicles(CCS_SaveVehiclesWorldData vehiclesData)
+        {
+            if (vehicleService == null || !vehicleService.IsInitialized)
+            {
+                return;
+            }
+
+            vehicleService.RestoreSnapshot(vehiclesData?.ownedVehicle);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

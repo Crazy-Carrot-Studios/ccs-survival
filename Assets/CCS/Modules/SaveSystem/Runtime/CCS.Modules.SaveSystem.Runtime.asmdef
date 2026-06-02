@@ -14,6 +14,7 @@
         "CCS.Modules.Shelter.Runtime",
         "CCS.Modules.Industry.Runtime",
         "CCS.Modules.Mounts.Runtime",
+        "CCS.Modules.Vehicles.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Cooking.Runtime",
         "CCS.Modules.Economy.Runtime",

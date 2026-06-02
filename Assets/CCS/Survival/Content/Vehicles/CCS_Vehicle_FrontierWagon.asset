@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a87c3bfe8e92e41a040664a069f80d, type: 3}
+  m_Name: CCS_Vehicle_FrontierWagon
+  m_EditorClassIdentifier: CCS.Modules.Vehicles.Runtime::CCS.Modules.Vehicles.CCS_VehicleDefinition
+  vehicleId: ccs.survival.vehicle.wagon.frontier
+  displayName: Frontier Wagon
+  description: Frontier logistics wagon for expanded mobile cargo and horse towing.
+  movementDragPlaceholder: 1.25
+  cargoSlotCount: 24
+  cargoContainerDefinitionId: ccs.survival.storage.wagon.cargo
+  hitchCompatibleMountIds:
+  - ccs.survival.mount.horse
+  purchaseValue: 1800
+  worldPrefab: {fileID: 8552268673050082723, guid: 017ad6057ecfd67428fe71fbfa443ad0, type: 3}
+  followOffsetLocal: {x: 0, y: 0, z: -3.25}
+  followSmoothing: 10

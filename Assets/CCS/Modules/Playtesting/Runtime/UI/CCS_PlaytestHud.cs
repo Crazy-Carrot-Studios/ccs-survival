@@ -290,6 +290,13 @@ namespace CCS.Modules.Playtesting
                 {
                     if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                     {
+                        playtestService.TryPlaytestGrantWagonCurrency();
+                        playtestService.TryPlaytestBuyWagon();
+                        playtestService.TryPlaytestSummonWagon();
+                        playtestService.TryPlaytestWagonFoundationShortcut();
+                    }
+                    else
+                    {
                         playtestService.TryGrantHomesteadWorkbenchKit();
                     }
                 }

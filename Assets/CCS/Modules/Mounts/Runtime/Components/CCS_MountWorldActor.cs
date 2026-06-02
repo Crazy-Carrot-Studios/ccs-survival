@@ -20,6 +20,7 @@ namespace CCS.Modules.Mounts
         [SerializeField] private CCS_MountDefinition mountDefinition;
         [SerializeField] private CCS_HorseSaddlebagContainer saddlebagContainer;
         [SerializeField] private CCS_MountInteractable mountInteractable;
+        [SerializeField] private Transform wagonHitchPoint;
         [SerializeField] private float followStopDistance = 2.5f;
         [SerializeField] private float callMoveSpeed = 6f;
 
@@ -37,6 +38,19 @@ namespace CCS.Modules.Mounts
             saddlebagContainer != null ? saddlebagContainer.StorageContainer : null;
 
         public float FollowStopDistance => followStopDistance < 0.5f ? 2.5f : followStopDistance;
+
+        public Transform WagonHitchPoint
+        {
+            get
+            {
+                if (wagonHitchPoint != null)
+                {
+                    return wagonHitchPoint;
+                }
+
+                return transform;
+            }
+        }
 
         private void Awake()
         {
