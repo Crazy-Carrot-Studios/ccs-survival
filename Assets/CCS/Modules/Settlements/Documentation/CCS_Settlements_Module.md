@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 1.8.0 — Frontier Settlement Expansion  
+**Milestone:** 1.8.1 — Settlement Services Polish + Blacksmith Routing  
 **Author:** James Schilz
 
 ## Purpose
@@ -15,20 +15,18 @@ Generic settlement framework for frontier service locations beyond the player ho
 - Ranches
 - Forts
 
-No NPC AI, dialogue, quest systems, or final town art in 1.8.0.
+No NPC AI, dialogue, quest systems, or final town art.
 
-## Frontier Settlement Loop
+## Settlement Service Hub Loop
 
 ```text
-Travel
-  ↓
 Discover Trading Post
   ↓
-Access Services
+Use Store / Stable / Gunsmith / Blacksmith
   ↓
-Trade / Buy Gear
+Access Economy + Industry Services
   ↓
-Expand Frontier Reach
+Expand Frontier Progression
 ```
 
 ## Bootstrap test settlement
@@ -39,12 +37,36 @@ Expand Frontier Reach
 
 Service points:
 
-| Service | Type | Routing |
-|---------|------|---------|
-| General Store | `GeneralStore` | `CCS_Vendor_GeneralStore` |
-| Stable | `Stable` | `CCS_Vendor_FrontierStable` |
-| Gunsmith | `Gunsmith` | `CCS_Vendor_FrontierGunsmith` |
-| Blacksmith | `Blacksmith` | Placeholder message (future industry) |
+| Service | Type | Routing | Availability |
+|---------|------|---------|--------------|
+| General Store | `GeneralStore` | `CCS_Vendor_GeneralStore` | Always |
+| Stable | `Stable` | `CCS_Vendor_FrontierStable` | Always |
+| Gunsmith | `Gunsmith` | `CCS_Vendor_FrontierGunsmith` | Always |
+| Blacksmith | `Blacksmith` | Industry summary (`CCS_SettlementIndustryServiceHud`) | When industry service exists |
+
+## Service activation results
+
+`CCS_SettlementServiceRouteResolver` returns structured results:
+
+| Route | Status | Behavior |
+|-------|--------|----------|
+| Vendor | Succeeded | `CCS_VendorService` + `CCS_VendorDebugHud` |
+| Industry | Succeeded | `CCS_SettlementIndustryServiceHud` summary |
+| Placeholder | Succeeded | `CCS_SettlementDebugMessageHud` message |
+| Disabled | Disabled | Safe message; no service mutation |
+| Unavailable | Unavailable | Safe message; requirements not met |
+| Unknown | UnknownRoute | Safe fallback message |
+
+## Availability flags
+
+Each `CCS_SettlementServicePoint` supports:
+
+- `isAvailable` — hard disable
+- `unavailableReason` — player-facing message
+- `requiredSettlementDiscovered` — gate until discovery
+- `requiredCampTier` — future camp tier placeholder (-1 = none)
+
+Blacksmith availability is also tied to `CCS_IndustryService` initialization.
 
 ## Interaction flow
 
@@ -53,8 +75,11 @@ Look at service point
   ↓
 Interact (F)
   ↓
-Vendor-backed → CCS_VendorService + CCS_VendorDebugHud
-Placeholder → CCS_SettlementDebugMessageHud
+Route resolver checks availability
+  ↓
+Vendor → economy debug panel
+Industry → forge / workstation summary (no auto-craft)
+Placeholder → settlement debug message
 ```
 
 ## Discovery / map placeholder
@@ -69,17 +94,24 @@ Placeholder → CCS_SettlementDebugMessageHud
 
 Persisted in unified save under `settlements.discoveries`. No map UI yet.
 
+Activation events include `RouteType`, `ActivationStatus`, and `Message` for playtest validation.
+
 ## Runtime types
 
 | Type | Role |
 |------|------|
 | `CCS_SettlementType` | Settlement archetype enum |
 | `CCS_SettlementServicePointType` | Service point enum |
+| `CCS_SettlementServiceRouteType` | Activation route enum |
+| `CCS_SettlementServiceActivationStatus` | Activation result status |
+| `CCS_SettlementServiceActivationResult` | Structured activation outcome |
 | `CCS_SettlementDefinition` | ScriptableObject settlement catalog entry |
 | `CCS_SettlementProfile` | Module profile with definition list |
 | `CCS_SettlementService` | Discovery state + service point events |
+| `CCS_SettlementServiceRouteResolver` | Availability + routing logic |
 | `CCS_SettlementLocation` | World root with proximity discovery |
 | `CCS_SettlementServicePoint` | Interactable service routing |
+| `CCS_SettlementIndustryServiceHud` | Blacksmith / industry debug summary |
 | `CCS_SettlementSnapshot` | Runtime discovery record |
 | `CCS_SettlementRuntimeBridge` | Service registry resolver |
 | `CCS_SettlementValidationUtility` | Profile validation |

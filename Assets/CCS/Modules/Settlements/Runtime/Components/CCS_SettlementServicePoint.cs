@@ -5,11 +5,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_SettlementServicePoint
 // CATEGORY: Modules / Settlements / Runtime / Components
-// PURPOSE: Interactable settlement service that routes to vendors or placeholder messages.
+// PURPOSE: Interactable settlement service that routes to vendors, industry, or placeholders.
 // PLACEMENT: Child objects under CCS_SettlementLocation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Reuses CCS_VendorService; no duplicate vendor transaction logic.
+// NOTES: Reuses CCS_VendorService and CCS_IndustryService; no duplicate vendor logic.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -26,11 +26,22 @@ namespace CCS.Modules.Settlements
         [Header("Settlement")]
         [SerializeField] private CCS_SettlementLocation settlementLocation;
 
+        [Header("Availability")]
+        [SerializeField] private bool isAvailable = true;
+
+        [SerializeField] private string unavailableReason = string.Empty;
+
+        [SerializeField] private bool requiredSettlementDiscovered;
+
+        [SerializeField] private int requiredCampTier = -1;
+
         [Header("Routing")]
+        [SerializeField] private CCS_SettlementServiceRouteType routeOverride = CCS_SettlementServiceRouteType.Unknown;
+
         [Tooltip("Vendor-backed service points open the existing vendor debug flow.")]
         [SerializeField] private CCS_VendorDefinition vendorDefinition;
 
-        [Tooltip("Placeholder message for non-vendor services such as blacksmith.")]
+        [Tooltip("Placeholder message for non-vendor, non-industry services.")]
         [SerializeField] private string placeholderMessage = "Service coming soon.";
 
         [Header("Interaction")]
@@ -47,6 +58,20 @@ namespace CCS.Modules.Settlements
         public CCS_SettlementServicePointType ServicePointType => servicePointType;
 
         public CCS_VendorDefinition VendorDefinition => vendorDefinition;
+
+        public CCS_SettlementLocation SettlementLocation => settlementLocation;
+
+        public bool IsAvailableFlag => isAvailable;
+
+        public string UnavailableReason => unavailableReason ?? string.Empty;
+
+        public bool RequiredSettlementDiscovered => requiredSettlementDiscovered;
+
+        public int RequiredCampTier => requiredCampTier;
+
+        public CCS_SettlementServiceRouteType RouteOverride => routeOverride;
+
+        public string PlaceholderMessage => placeholderMessage ?? string.Empty;
 
         #endregion
 
@@ -76,7 +101,7 @@ namespace CCS.Modules.Settlements
 
         public bool CanInteract()
         {
-            return isActiveAndEnabled;
+            return isActiveAndEnabled && isAvailable;
         }
 
         public void Interact()
@@ -91,37 +116,9 @@ namespace CCS.Modules.Settlements
                 settlementLocation = GetComponentInParent<CCS_SettlementLocation>();
             }
 
-            settlementLocation?.NotifyServicePointUsed(this);
-
-            if (vendorDefinition != null)
-            {
-                return TryActivateVendor(vendorDefinition);
-            }
-
-            CCS_SettlementDebugMessageHud.ShowMessage(
-                GetInteractionDisplayName(),
-                string.IsNullOrWhiteSpace(placeholderMessage)
-                    ? "Service coming soon."
-                    : placeholderMessage);
-            return true;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static bool TryActivateVendor(CCS_VendorDefinition definition)
-        {
-            if (definition == null
-                || !CCS_EconomyRuntimeBridge.TryGetVendorService(out CCS_VendorService vendorService)
-                || !vendorService.IsInitialized)
-            {
-                return false;
-            }
-
-            vendorService.SetActiveVendor(definition);
-            CCS_VendorDebugHud.NotifyVendorActivated(definition);
-            return true;
+            CCS_SettlementServiceActivationResult result = CCS_SettlementServiceRouteResolver.TryActivate(this);
+            settlementLocation?.NotifyServicePointUsed(this, result);
+            return result.IsSuccess;
         }
 
         #endregion

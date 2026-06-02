@@ -1051,6 +1051,18 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.InteractGunsmithServicePoint,
                         "Gunsmith service point activated.");
                     break;
+                case CCS_SettlementServicePointType.Blacksmith:
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractBlacksmithServicePoint,
+                        "Blacksmith service point activated.");
+                    if (activationArgs.IsSuccess
+                        && activationArgs.RouteType == CCS_SettlementServiceRouteType.Industry)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifySettlementBlacksmithRouting,
+                            "Blacksmith routed to industry service summary.");
+                    }
+                    break;
             }
         }
 

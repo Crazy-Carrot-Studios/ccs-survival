@@ -1961,6 +1961,11 @@ MonoBehaviour:
   servicePointId: ccs.survival.settlement.service.generalstore
   servicePointType: 0
   settlementLocation: {fileID: 2090062475}
+  isAvailable: 1
+  unavailableReason: 
+  requiredSettlementDiscovered: 0
+  requiredCampTier: -1
+  routeOverride: 0
   vendorDefinition: {fileID: 11400000, guid: 3e16207587f0007439ce2687ec62492b, type: 2}
   placeholderMessage: 
   interactionDistance: 3
@@ -3465,8 +3470,13 @@ MonoBehaviour:
   servicePointId: ccs.survival.settlement.service.blacksmith
   servicePointType: 3
   settlementLocation: {fileID: 2090062475}
+  isAvailable: 1
+  unavailableReason: 
+  requiredSettlementDiscovered: 0
+  requiredCampTier: -1
+  routeOverride: 2
   vendorDefinition: {fileID: 0}
-  placeholderMessage: Blacksmith services coming in a future industry milestone.
+  placeholderMessage: Refine and forge services require a Primitive Forge at camp.
   interactionDistance: 3
   interactionDisplayNameOverride: Blacksmith
 --- !u!23 &792656944
@@ -6311,6 +6321,11 @@ MonoBehaviour:
   servicePointId: ccs.survival.settlement.service.stable
   servicePointType: 1
   settlementLocation: {fileID: 2090062475}
+  isAvailable: 1
+  unavailableReason: 
+  requiredSettlementDiscovered: 0
+  requiredCampTier: -1
+  routeOverride: 0
   vendorDefinition: {fileID: 11400000, guid: e62a9e587c5c90e46aad959ab8f6dcc7, type: 2}
   placeholderMessage: 
   interactionDistance: 3
@@ -7506,6 +7521,11 @@ MonoBehaviour:
   servicePointId: ccs.survival.settlement.service.gunsmith
   servicePointType: 2
   settlementLocation: {fileID: 2090062475}
+  isAvailable: 1
+  unavailableReason: 
+  requiredSettlementDiscovered: 0
+  requiredCampTier: -1
+  routeOverride: 0
   vendorDefinition: {fileID: 11400000, guid: 9cf91ddcc62a22143b37203ef26c7408, type: 2}
   placeholderMessage: 
   interactionDistance: 3

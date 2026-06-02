@@ -14,7 +14,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 1.8.0 frontier settlement foundation.
+// NOTES: Milestone 1.8.1 settlement services polish and blacksmith routing.
 // =============================================================================
 
 namespace CCS.Modules.Settlements.Editor
@@ -51,7 +51,9 @@ namespace CCS.Modules.Settlements.Editor
             ValidateRequiredFile(report, "Runtime asmdef", RuntimeRoot + "/CCS.Modules.Settlements.Runtime.asmdef");
             ValidateRequiredFile(report, "Editor asmdef", EditorRoot + "/CCS.Modules.Settlements.Editor.asmdef");
             ValidateRequiredScript(report, "CCS_SettlementService", RuntimeRoot + "/Services/CCS_SettlementService.cs");
+            ValidateRequiredScript(report, "CCS_SettlementServiceRouteResolver", RuntimeRoot + "/Services/CCS_SettlementServiceRouteResolver.cs");
             ValidateRequiredScript(report, "CCS_SettlementServicePoint", RuntimeRoot + "/Components/CCS_SettlementServicePoint.cs");
+            ValidateRequiredScript(report, "CCS_SettlementIndustryServiceHud", RuntimeRoot + "/UI/CCS_SettlementIndustryServiceHud.cs");
             ValidateRequiredScript(report, "CCS_SettlementLocation", RuntimeRoot + "/Components/CCS_SettlementLocation.cs");
 
             ValidateSettlementContent(report);
@@ -235,6 +237,100 @@ namespace CCS.Modules.Settlements.Editor
             }
 
             ValidateSceneServicePointIds(report, sceneText);
+            ValidateBlacksmithRouting(report, sceneText);
+            ValidatePlaytestSettlementSteps(report);
+        }
+
+        private static void ValidateBlacksmithRouting(CCS_SurvivalValidationReport report, string sceneText)
+        {
+            if (sceneText.Contains("Blacksmith services coming in a future industry milestone"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Settlements Blacksmith Routing",
+                    "Blacksmith service point still uses orphan placeholder message. Run settlement bootstrap.");
+            }
+
+            if (!sceneText.Contains(CCS_SettlementContentIds.BlacksmithServicePointId))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Settlements Blacksmith Routing",
+                    "Bootstrap scene is missing blacksmith service point id.");
+                return;
+            }
+
+            int industryRouteIndex = (int)CCS_SettlementServiceRouteType.Industry;
+            string industryRouteToken = "routeOverride: " + industryRouteIndex;
+            int blacksmithIndex = sceneText.IndexOf(CCS_SettlementContentIds.BlacksmithServicePointId, System.StringComparison.Ordinal);
+            int routeIndex = sceneText.IndexOf(industryRouteToken, blacksmithIndex, System.StringComparison.Ordinal);
+            if (blacksmithIndex >= 0 && routeIndex >= blacksmithIndex && routeIndex - blacksmithIndex < 512)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Settlements Blacksmith Routing",
+                    "Blacksmith service point routes to industry context.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Settlements Blacksmith Routing",
+                    "Blacksmith route override may be missing. Run settlement bootstrap.");
+            }
+        }
+
+        private static void ValidatePlaytestSettlementSteps(CCS_SurvivalValidationReport report)
+        {
+            const string playtestProfilePath = "Assets/CCS/Survival/Profiles/Playtesting/CCS_DefaultPlaytestProfile.asset";
+            CCS.Modules.Playtesting.CCS_PlaytestProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS.Modules.Playtesting.CCS_PlaytestProfile>(playtestProfilePath);
+            if (profile == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Settlements Playtest",
+                    $"Missing playtest profile: {playtestProfilePath}");
+                return;
+            }
+
+            bool hasBlacksmithInteract = false;
+            bool hasBlacksmithRouting = false;
+            System.Collections.Generic.IReadOnlyList<CCS.Modules.Playtesting.CCS_PlaytestStepDefinition> steps =
+                profile.StepDefinitions;
+            for (int index = 0; index < steps.Count; index++)
+            {
+                CCS.Modules.Playtesting.CCS_PlaytestStepDefinition step = steps[index];
+                if (step == null)
+                {
+                    continue;
+                }
+
+                if (step.StepType == CCS.Modules.Playtesting.CCS_PlaytestStepType.InteractBlacksmithServicePoint)
+                {
+                    hasBlacksmithInteract = true;
+                }
+
+                if (step.StepType == CCS.Modules.Playtesting.CCS_PlaytestStepType.VerifySettlementBlacksmithRouting)
+                {
+                    hasBlacksmithRouting = true;
+                }
+            }
+
+            if (hasBlacksmithInteract && hasBlacksmithRouting)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Settlements Playtest",
+                    "Settlement playtest includes blacksmith activation and routing verification.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Settlements Playtest",
+                    "Settlement playtest is missing blacksmith steps. Run settlement bootstrap.");
+            }
         }
 
         private static void ValidateSceneServicePointIds(CCS_SurvivalValidationReport report, string sceneText)
@@ -311,7 +407,16 @@ namespace CCS.Modules.Settlements.Editor
             }
 
             string documentation = File.ReadAllText(ModuleDocPath);
-            if (documentation.Contains("Discover Trading Post") && documentation.Contains("CCS_TestTradingPost"))
+            if (documentation.Contains("Settlement Service Hub Loop")
+                && documentation.Contains("CCS_TestTradingPost")
+                && documentation.Contains("Blacksmith"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Settlements Documentation",
+                    "Settlement module documentation validated.");
+            }
+            else if (documentation.Contains("Discover Trading Post") && documentation.Contains("CCS_TestTradingPost"))
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,

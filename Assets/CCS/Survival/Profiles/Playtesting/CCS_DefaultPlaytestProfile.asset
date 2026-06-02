@@ -1026,3 +1026,19 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.blacksmith
+    displayName: Interact with Blacksmith service point
+    stepType: 118
+    instructionText: Interact with the Blacksmith cube at the trading post.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.blacksmith.routing
+    displayName: Verify blacksmith industry routing
+    stepType: 119
+    instructionText: Confirm blacksmith opens industry service summary panel.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

@@ -225,7 +225,9 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.InteractGeneralStoreServicePoint:
                 case CCS_PlaytestStepType.InteractStableServicePoint:
                 case CCS_PlaytestStepType.InteractGunsmithServicePoint:
+                case CCS_PlaytestStepType.InteractBlacksmithServicePoint:
                 case CCS_PlaytestStepType.VerifySettlementVendorRouting:
+                case CCS_PlaytestStepType.VerifySettlementBlacksmithRouting:
                 case CCS_PlaytestStepType.SaveSettlementDiscovery:
                 case CCS_PlaytestStepType.VerifySettlementDiscoveryAfterLoad:
                     return CCS_PlaytestStepGroup.Settlement;

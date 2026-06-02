@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 // SCRIPT: CCS_FrontierSettlementBootstrapSetup
 // CATEGORY: Modules / Settlements / Editor / Validation
 // PURPOSE: Creates frontier settlement content, bootstrap trading post, and playtest steps.
-// PLACEMENT: Batch entry for milestone 1.8.0 frontier settlement foundation.
+// PLACEMENT: Batch entry for milestone 1.8.1 settlement services polish.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
 // NOTES: Western-specific content under Assets/CCS/Survival/.
@@ -60,7 +60,7 @@ namespace CCS.Modules.Settlements.Editor
                 CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
 
             AssetDatabase.SaveAssets();
-            Debug.Log($"{LogPrefix} Frontier settlement bootstrap complete (1.8.0).");
+            Debug.Log($"{LogPrefix} Frontier settlement bootstrap complete (1.8.1).");
             EditorApplication.Exit(0);
         }
 
@@ -101,7 +101,7 @@ namespace CCS.Modules.Settlements.Editor
             serialized.FindProperty("settlementId").stringValue = CCS_SettlementContentIds.TestTradingPostSettlementId;
             serialized.FindProperty("displayName").stringValue = "Frontier Test Trading Post";
             serialized.FindProperty("description").stringValue =
-                "Bootstrap trading post with general store, stable, gunsmith, and blacksmith placeholder.";
+                "Bootstrap trading post with general store, stable, gunsmith, and blacksmith industry routing.";
             serialized.FindProperty("settlementType").enumValueIndex = (int)CCS_SettlementType.TradingPost;
             serialized.FindProperty("defaultWorldPosition").vector3Value = new Vector3(24f, 0f, 20f);
             serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -124,7 +124,7 @@ namespace CCS.Modules.Settlements.Editor
             serialized.FindProperty("profileDisplayName").stringValue = "Default Settlement Profile";
             serialized.FindProperty("profileDescription").stringValue =
                 "Frontier settlement catalog for bootstrap trading post discovery.";
-            serialized.FindProperty("profileVersion").stringValue = "1.8.0";
+            serialized.FindProperty("profileVersion").stringValue = "1.8.1";
             SerializedProperty definitions = serialized.FindProperty("settlementDefinitions");
             definitions.arraySize = 1;
             definitions.GetArrayElementAtIndex(0).objectReferenceValue = tradingPost;
@@ -240,9 +240,14 @@ namespace CCS.Modules.Settlements.Editor
                 CCS_SettlementServicePointType.Blacksmith,
                 location,
                 null,
-                "Blacksmith services coming in a future industry milestone.",
+                "Refine and forge services require a Primitive Forge at camp.",
                 new Vector3(12f, 0.5f, 0f),
-                "Blacksmith");
+                "Blacksmith",
+                true,
+                string.Empty,
+                false,
+                -1,
+                CCS_SettlementServiceRouteType.Industry);
 
             EditorUtility.SetDirty(tradingPostRoot);
             EditorSceneManager.MarkSceneDirty(scene);
@@ -258,7 +263,12 @@ namespace CCS.Modules.Settlements.Editor
             CCS_VendorDefinition vendorDefinition,
             string placeholderMessage,
             Vector3 localPosition,
-            string displayName)
+            string displayName,
+            bool pointIsAvailable = true,
+            string pointUnavailableReason = "",
+            bool requireSettlementDiscovered = false,
+            int requiredCampTier = -1,
+            CCS_SettlementServiceRouteType routeOverride = CCS_SettlementServiceRouteType.Unknown)
         {
             Transform existing = parent.Find(objectName);
             GameObject serviceObject;
@@ -300,6 +310,11 @@ namespace CCS.Modules.Settlements.Editor
             serialized.FindProperty("settlementLocation").objectReferenceValue = settlementLocation;
             serialized.FindProperty("vendorDefinition").objectReferenceValue = vendorDefinition;
             serialized.FindProperty("placeholderMessage").stringValue = placeholderMessage ?? string.Empty;
+            serialized.FindProperty("isAvailable").boolValue = pointIsAvailable;
+            serialized.FindProperty("unavailableReason").stringValue = pointUnavailableReason ?? string.Empty;
+            serialized.FindProperty("requiredSettlementDiscovered").boolValue = requireSettlementDiscovered;
+            serialized.FindProperty("requiredCampTier").intValue = requiredCampTier;
+            serialized.FindProperty("routeOverride").enumValueIndex = (int)routeOverride;
             serialized.FindProperty("interactionDistance").floatValue = 3f;
             serialized.FindProperty("interactionDisplayNameOverride").stringValue = displayName;
             serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -338,6 +353,18 @@ namespace CCS.Modules.Settlements.Editor
                 "Interact with Gunsmith service point",
                 CCS_PlaytestStepType.InteractGunsmithServicePoint,
                 "Interact with the Gunsmith cube at the trading post.");
+            InsertStep(
+                profile,
+                "ccs.survival.playtest.settlement.blacksmith",
+                "Interact with Blacksmith service point",
+                CCS_PlaytestStepType.InteractBlacksmithServicePoint,
+                "Interact with the Blacksmith cube at the trading post.");
+            InsertStep(
+                profile,
+                "ccs.survival.playtest.settlement.blacksmith.routing",
+                "Verify blacksmith industry routing",
+                CCS_PlaytestStepType.VerifySettlementBlacksmithRouting,
+                "Confirm blacksmith opens industry service summary panel.");
             InsertStep(
                 profile,
                 "ccs.survival.playtest.settlement.vendor.routing",

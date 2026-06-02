@@ -6,6 +6,12 @@
 Gather → Process Resources → Produce Materials → Forge Better Tools → Expand Homestead
 ```
 
+## Milestone 1.8.1 — Settlement blacksmith routing
+
+- `CCS_TestTradingPost` Blacksmith service point routes to `CCS_SettlementIndustryServiceHud`.
+- Shows available industry processes, forge recipes, and Primitive Forge requirement.
+- Does not auto-craft from settlement; camp workstation still required.
+
 ## Milestone 1.7.0 — Mining outputs
 
 - Iron ore from ore veins feeds existing **Iron Ore → Refined Iron** forge process.

@@ -30,6 +30,9 @@ namespace CCS.Modules.Settlements
         private string lastActivatedServicePointId = string.Empty;
         private CCS_SettlementServicePointType lastActivatedServicePointType = CCS_SettlementServicePointType.Other;
         private string lastActivatedVendorId = string.Empty;
+        private CCS_SettlementServiceRouteType lastActivatedRouteType = CCS_SettlementServiceRouteType.Unknown;
+        private CCS_SettlementServiceActivationStatus lastActivationStatus = CCS_SettlementServiceActivationStatus.Failed;
+        private string lastActivationMessage = string.Empty;
 
         public event Action<CCS_SettlementSnapshot> SettlementDiscovered;
         public event Action<CCS_SettlementServicePointActivationArgs> ServicePointActivated;
@@ -43,6 +46,12 @@ namespace CCS.Modules.Settlements
         public CCS_SettlementServicePointType LastActivatedServicePointType => lastActivatedServicePointType;
 
         public string LastActivatedVendorId => lastActivatedVendorId;
+
+        public CCS_SettlementServiceRouteType LastActivatedRouteType => lastActivatedRouteType;
+
+        public CCS_SettlementServiceActivationStatus LastActivationStatus => lastActivationStatus;
+
+        public string LastActivationMessage => lastActivationMessage;
 
         public void Initialize()
         {
@@ -174,12 +183,16 @@ namespace CCS.Modules.Settlements
             lastActivatedServicePointId = activationArgs.ServicePointId ?? string.Empty;
             lastActivatedServicePointType = activationArgs.ServicePointType;
             lastActivatedVendorId = activationArgs.VendorId ?? string.Empty;
+            lastActivatedRouteType = activationArgs.RouteType;
+            lastActivationStatus = activationArgs.ActivationStatus;
+            lastActivationMessage = activationArgs.Message ?? string.Empty;
 
             if (activeProfile != null && activeProfile.EnableDebugLogging)
             {
                 Debug.Log(
                     $"{LogPrefix} Service point activated: {activationArgs.ServicePointType} "
-                    + $"(settlement={activationArgs.SettlementId}, vendor={activationArgs.VendorId}).");
+                    + $"(settlement={activationArgs.SettlementId}, route={activationArgs.RouteType}, "
+                    + $"status={activationArgs.ActivationStatus}, vendor={activationArgs.VendorId}).");
             }
 
             ServicePointActivated?.Invoke(activationArgs);
@@ -279,5 +292,14 @@ namespace CCS.Modules.Settlements
         public string VendorId { get; set; } = string.Empty;
 
         public bool HasVendor { get; set; }
+
+        public CCS_SettlementServiceRouteType RouteType { get; set; } = CCS_SettlementServiceRouteType.Unknown;
+
+        public CCS_SettlementServiceActivationStatus ActivationStatus { get; set; } =
+            CCS_SettlementServiceActivationStatus.Failed;
+
+        public string Message { get; set; } = string.Empty;
+
+        public bool IsSuccess { get; set; }
     }
 }

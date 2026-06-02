@@ -83,7 +83,9 @@ namespace CCS.Modules.Settlements
             return settlementService.DiscoverSettlement(settlementDefinition, resolvedPosition);
         }
 
-        public void NotifyServicePointUsed(CCS_SettlementServicePoint servicePoint)
+        public void NotifyServicePointUsed(
+            CCS_SettlementServicePoint servicePoint,
+            CCS_SettlementServiceActivationResult activationResult)
         {
             if (settlementDefinition == null || servicePoint == null)
             {
@@ -98,13 +100,21 @@ namespace CCS.Modules.Settlements
                 return;
             }
 
+            CCS_SettlementServiceRouteType routeType = activationResult?.RouteType ?? CCS_SettlementServiceRouteType.Unknown;
+            CCS_SettlementServiceActivationStatus activationStatus =
+                activationResult?.Status ?? CCS_SettlementServiceActivationStatus.Failed;
+
             settlementService.NotifyServicePointActivated(new CCS_SettlementServicePointActivationArgs
             {
                 SettlementId = settlementDefinition.SettlementId,
                 ServicePointId = servicePoint.ServicePointId,
                 ServicePointType = servicePoint.ServicePointType,
                 VendorId = servicePoint.VendorDefinition != null ? servicePoint.VendorDefinition.VendorId : string.Empty,
-                HasVendor = servicePoint.VendorDefinition != null
+                HasVendor = servicePoint.VendorDefinition != null,
+                RouteType = routeType,
+                ActivationStatus = activationStatus,
+                Message = activationResult?.Message ?? string.Empty,
+                IsSuccess = activationResult != null && activationResult.IsSuccess
             });
         }
 

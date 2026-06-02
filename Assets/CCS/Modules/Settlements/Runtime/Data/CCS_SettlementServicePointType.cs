@@ -5,7 +5,7 @@
 // PLACEMENT: Used by CCS_SettlementServicePoint and validation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Only GeneralStore, Stable, and Gunsmith are vendor-backed in 1.8.0.
+// NOTES: Vendor-backed types route to economy; Blacksmith routes to industry in 1.8.1.
 // =============================================================================
 
 namespace CCS.Modules.Settlements

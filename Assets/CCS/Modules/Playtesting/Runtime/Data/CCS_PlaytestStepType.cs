@@ -129,6 +129,8 @@ namespace CCS.Modules.Playtesting
         InteractGunsmithServicePoint = 114,
         VerifySettlementVendorRouting = 115,
         SaveSettlementDiscovery = 116,
-        VerifySettlementDiscoveryAfterLoad = 117
+        VerifySettlementDiscoveryAfterLoad = 117,
+        InteractBlacksmithServicePoint = 118,
+        VerifySettlementBlacksmithRouting = 119
     }
 }

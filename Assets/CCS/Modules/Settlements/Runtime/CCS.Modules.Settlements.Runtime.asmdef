@@ -7,6 +7,7 @@
         "CCS.Survival.Player.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Industry.Runtime",
         "CCS.Modules.CharacterController.Runtime"
     ],
     "includePlatforms": [],
