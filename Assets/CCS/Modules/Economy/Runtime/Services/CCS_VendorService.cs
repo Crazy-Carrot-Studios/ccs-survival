@@ -363,6 +363,18 @@ namespace CCS.Modules.Economy
                     "Inventory could not accept item.");
             }
 
+            if (added < quantity)
+            {
+                inventoryService.RemoveItem(entry.ItemDefinition, added);
+                return Failure(
+                    CCS_VendorTransactionResultType.InventoryFull,
+                    vendor.VendorId,
+                    entry.ItemDefinition,
+                    quantity,
+                    false,
+                    "Inventory could not accept full purchase quantity.");
+            }
+
             CCS_CurrencyTransactionResult removeResult =
                 currencyService.RemoveCurrency(currencyId, totalCost, $"Buy {entry.ItemDefinition.DisplayName}");
             if (!removeResult.IsSuccess)
@@ -526,6 +538,7 @@ namespace CCS.Modules.Economy
 
         private void RaiseCompleted(CCS_VendorTransactionResult result)
         {
+            CCS_VendorDebugHud.NotifyTransactionResult(result);
             VendorTransactionCompleted?.Invoke(result);
         }
 

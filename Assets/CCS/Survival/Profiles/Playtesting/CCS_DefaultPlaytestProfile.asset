@@ -15,8 +15,8 @@ MonoBehaviour:
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
   profileDescription: Frontier starter progression and economy playtest checklist
-    for milestone 1.3.0.
-  profileVersion: 1.3.0
+    for milestone 1.3.1.
+  profileVersion: 1.3.1
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -84,15 +84,6 @@ MonoBehaviour:
     instructionText: Primary attack (left mouse) routes through active item. Hit
       wildlife or receive a safe no-target result.
     targetItemId: ccs.survival.item.starter.knife
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.active.hatchet.tree
-    displayName: Use hatchet on tree
-    stepType: 20
-    instructionText: Equip bone hatchet (Shift+F6), face CCS_TestGatheringSmallTree,
-      Alpha2 active select, primary use.
-    targetItemId: ccs.survival.item.tool.hatchet.bone
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
@@ -185,28 +176,46 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.cordage.buy
-    displayName: Buy cordage from vendor
+  - stepId: ccs.survival.playtest.economy.hatchet.buy
+    displayName: Buy bone hatchet from vendor
     stepType: 30
-    instructionText: Press V to buy one cordage from the general store (or use vendor
-      debug Buy).
-    targetItemId: ccs.survival.item.frontier.cordage
+    instructionText: 'Press H to buy the bone hatchet (first meaningful purchased
+      tool). Vendor debug: Buy Hatchet.'
+    targetItemId: ccs.survival.item.tool.hatchet.bone
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.economy.currency.verify.decrease
     displayName: Verify currency decreased
     stepType: 31
-    instructionText: Confirm Trade Dollars were spent on cordage.
+    instructionText: Confirm Trade Dollars were spent on the hatchet purchase.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.inventory.verify
-    displayName: Verify cordage in inventory
+  - stepId: ccs.survival.playtest.economy.hatchet.inventory
+    displayName: Verify hatchet in inventory
     stepType: 32
-    instructionText: Confirm cordage appears in player inventory after purchase.
-    targetItemId: ccs.survival.item.frontier.cordage
+    instructionText: Confirm bone hatchet appears in player inventory after purchase.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.economy.hatchet.equip
+    displayName: Equip purchased hatchet
+    stepType: 2
+    instructionText: Shift+F6 equips the bone hatchet. Hatchet is not in the knife-only
+      starter loadout.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.economy.hatchet.tree
+    displayName: Use hatchet on tree
+    stepType: 20
+    instructionText: Face CCS_TestGatheringSmallTree, Alpha2 tool select, primary
+      use to harvest wood.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0

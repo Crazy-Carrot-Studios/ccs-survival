@@ -198,6 +198,11 @@ namespace CCS.Modules.Playtesting
                     playtestService.TryPlaytestBuyCordage();
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.H))
+            {
+                playtestService.TryPlaytestBuyHatchet();
+            }
         }
 
         private void TryNotifySpawnReady()

@@ -109,16 +109,66 @@ namespace CCS.Modules.Economy
                         $"Vendor '{definition.VendorId}' has invalid price override at index {index}.");
                 }
 
-                if (!CCS_EconomyValidationUtility.HasValidEconomyValues(entry.ItemDefinition)
-                    && !entry.HasBuyPriceOverride
-                    && !entry.HasSellPriceOverride)
+                CCS_SurvivalValidationResult entryResult =
+                    ValidateVendorCatalogEntry(definition.VendorId, entry, index);
+                if (!entryResult.IsSuccess)
                 {
-                    return CCS_SurvivalValidationResult.Pass(
-                        $"Vendor entry '{entry.ItemDefinition.ItemId}' uses runtime overrides only.");
+                    return entryResult;
                 }
             }
 
             return CCS_SurvivalValidationResult.Pass($"Vendor '{definition.VendorId}' validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateVendorCatalogEntry(
+            string vendorId,
+            CCS_VendorItemEntry entry,
+            int index)
+        {
+            if (entry == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Vendor '{vendorId}' has null catalog entry at index {index}.");
+            }
+
+            if (entry.ItemDefinition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Vendor '{vendorId}' has null item at index {index}.");
+            }
+
+            if (!entry.AllowBuy && !entry.AllowSell)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Vendor '{vendorId}' entry '{entry.ItemDefinition.ItemId}' must allow buy or sell.");
+            }
+
+            if (entry.AllowBuy)
+            {
+                int buyPrice = entry.HasBuyPriceOverride
+                    ? entry.BuyPriceOverride
+                    : entry.ItemDefinition.BuyValue;
+                if (buyPrice <= 0)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Vendor '{vendorId}' entry '{entry.ItemDefinition.ItemId}' allows buy but has no buy price.");
+                }
+            }
+
+            if (entry.AllowSell)
+            {
+                int sellPrice = entry.HasSellPriceOverride
+                    ? entry.SellPriceOverride
+                    : entry.ItemDefinition.SellValue;
+                if (sellPrice <= 0)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Vendor '{vendorId}' entry '{entry.ItemDefinition.ItemId}' allows sell but has no sell value.");
+                }
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                $"Vendor entry '{entry.ItemDefinition.ItemId}' validated.");
         }
 
         public static void ValidateItemEconomyValues(CCS_ItemDefinition itemDefinition)

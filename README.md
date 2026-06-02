@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.3.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.3.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -25,9 +25,11 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**1.3.0** — Frontier Economy Foundation
+**1.3.1** — Vendor Trading Polish + Tool Acquisition
 
-Generic currency and vendor framework with Trade Dollars, General Store buy/sell, save-backed wallet balances, and playtest trade loop (fish → dollars → supplies).
+Expanded General Store catalog, polished debug vendor HUD, safer buy/sell transactions, and hatchet trade progression (fish/salvage → dollars → hatchet → wood harvest). Knife-only starter unchanged.
+
+**1.3.0** — Frontier Economy Foundation — currency/vendor framework, Trade Dollars, save-backed wallet, initial trade loop.
 
 **1.2.6** — Frontier Starter Progression Rework — knife, camp, water, bow, fishing, traps, salvage, shelter, tools, and trade placeholders.
 

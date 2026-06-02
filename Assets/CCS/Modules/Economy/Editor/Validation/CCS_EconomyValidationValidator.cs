@@ -18,7 +18,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Milestone 1.3.0 economy foundation validation.
+// NOTES: Milestone 1.3.1 vendor trading polish and hatchet acquisition validation.
 // =============================================================================
 
 namespace CCS.Modules.Economy.Editor
@@ -47,6 +47,9 @@ namespace CCS.Modules.Economy.Editor
         private const string TradeDollarsBackingItemId = "ccs.survival.item.starter.dollars";
         private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         private const string TestGeneralStoreObjectName = "CCS_TestGeneralStore";
+        private const string BoneHatchetItemPath =
+            SurvivalRoot + "/Content/Items/Tools/Bone/CCS_Item_BoneHatchet.asset";
+        private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
 
         public string ValidatorId => "ccs.survival.validation.economy";
 
@@ -77,6 +80,8 @@ namespace CCS.Modules.Economy.Editor
             ValidateBootstrapSceneGeneralStore(report);
             ValidateEconomyItemValues(report);
             ValidateStarterLoadoutCurrency(report);
+            ValidateStarterLoadoutKnifeOnly(report);
+            ValidateGeneralStoreProgressionCatalog(report);
             ValidateRuntimeScriptsAvoidUnityEditor(report, RuntimeRoot);
         }
 
@@ -96,12 +101,12 @@ namespace CCS.Modules.Economy.Editor
                 "Default Economy Profile Validation",
                 validation.Message);
 
-            if (profile.ProfileVersion != "1.3.0")
+            if (profile.ProfileVersion != "1.3.1")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Economy Profile Version",
-                    $"Expected profileVersion 1.3.0 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.3.1 but found '{profile.ProfileVersion}'.");
             }
         }
 
@@ -173,6 +178,27 @@ namespace CCS.Modules.Economy.Editor
                     : CCS_SurvivalValidationIssueSeverity.Error,
                 "General Store Vendor Validation",
                 validation.Message);
+
+            ValidateRequiredAsset(report, "Bone Hatchet Item", BoneHatchetItemPath);
+            CCS_ItemDefinition hatchetItem = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(BoneHatchetItemPath);
+            if (hatchetItem != null)
+            {
+                if (hatchetItem.ItemId != BoneHatchetItemId)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Bone Hatchet Item Id",
+                        $"Expected {BoneHatchetItemId} but found '{hatchetItem.ItemId}'.");
+                }
+
+                if (!hatchetItem.HasEconomyValues || hatchetItem.BuyValue <= 0)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Bone Hatchet Buy Value",
+                        "Bone hatchet must define a positive buy value (acquired via trade, not starter loadout).");
+                }
+            }
         }
 
         private static void ValidateCompositionRegistration(CCS_SurvivalValidationReport report)
@@ -317,7 +343,15 @@ namespace CCS.Modules.Economy.Editor
                 SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Cordage.asset",
                 SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Hardtack.asset",
                 SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Tinderbox.asset",
-                SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Arrow.asset"
+                SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Arrow.asset",
+                BoneHatchetItemPath,
+                SurvivalRoot + "/Content/Items/Frontier/CCS_Item_SimpleTrap.asset",
+                SurvivalRoot + "/Content/Items/Resources/Primitive/CCS_Item_Hide.asset",
+                SurvivalRoot + "/Content/Items/Resources/Wildlife/CCS_Item_RawMeat.asset",
+                SurvivalRoot + "/Content/Items/Resources/Frontier/CCS_Item_ScrapIron.asset",
+                SurvivalRoot + "/Content/Items/Frontier/CCS_Item_Feather.asset",
+                SurvivalRoot + "/Content/Items/Frontier/CCS_Item_AnimalFat.asset",
+                SurvivalRoot + "/Content/Items/Fishing/CCS_Item_Junk.asset"
             };
 
             for (int index = 0; index < economyItemPaths.Length; index++)
@@ -344,6 +378,111 @@ namespace CCS.Modules.Economy.Editor
                         $"Item '{item.ItemId}' has negative buy/sell values (buy={item.BuyValue}, sell={item.SellValue}).");
                 }
             }
+        }
+
+        private static void ValidateStarterLoadoutKnifeOnly(CCS_SurvivalValidationReport report)
+        {
+            CCS_StarterLoadoutProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_StarterLoadoutProfile>(StarterLoadoutProfilePath);
+            if (profile == null)
+            {
+                return;
+            }
+
+            CCS_StarterLoadoutEntry[] entries = profile.StartingItems;
+            if (entries == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < entries.Length; index++)
+            {
+                CCS_StarterLoadoutEntry entry = entries[index];
+                if (entry?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                if (entry.ItemDefinition.ItemId == BoneHatchetItemId)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Starter Loadout Knife Only",
+                        "Bone hatchet must not be in the default starter loadout (trade progression only).");
+                    return;
+                }
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Starter Loadout Knife Only",
+                "Starter loadout does not include bone hatchet (trade acquisition path).");
+        }
+
+        private static void ValidateGeneralStoreProgressionCatalog(CCS_SurvivalValidationReport report)
+        {
+            CCS_VendorDefinition vendor =
+                AssetDatabase.LoadAssetAtPath<CCS_VendorDefinition>(GeneralStoreVendorPath);
+            if (vendor?.VendorInventory?.Items == null)
+            {
+                return;
+            }
+
+            bool hasProgressionTool = false;
+            bool hatchetBuyable = false;
+            bool rawFishSellOnly = false;
+            CCS_VendorItemEntry[] entries = vendor.VendorInventory.Items;
+            for (int index = 0; index < entries.Length; index++)
+            {
+                CCS_VendorItemEntry entry = entries[index];
+                if (entry?.ItemDefinition == null)
+                {
+                    continue;
+                }
+
+                if (entry.ItemDefinition.ItemId == BoneHatchetItemId)
+                {
+                    hatchetBuyable = entry.AllowBuy && !entry.AllowSell;
+                }
+
+                if (entry.ItemDefinition.ItemId == "ccs.survival.item.resource.rawfish")
+                {
+                    rawFishSellOnly = entry.AllowSell && !entry.AllowBuy;
+                }
+
+                if (entry.AllowBuy
+                    && entry.ItemDefinition.GameplayKind == CCS_ItemGameplayKind.Tool)
+                {
+                    hasProgressionTool = true;
+                }
+            }
+
+            report.AddIssue(
+                hasProgressionTool
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "General Store Progression Tool",
+                hasProgressionTool
+                    ? "General Store sells at least one progression tool."
+                    : "General Store must sell at least one progression tool (e.g. hatchet).");
+
+            report.AddIssue(
+                hatchetBuyable
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "General Store Hatchet Buy Rule",
+                hatchetBuyable
+                    ? "Bone hatchet is buy-only at the General Store."
+                    : "Bone hatchet must be purchasable (buy enabled, sell disabled) at the General Store.");
+
+            report.AddIssue(
+                rawFishSellOnly
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                "General Store Raw Fish Sell Rule",
+                rawFishSellOnly
+                    ? "Raw fish is sell-only at the General Store."
+                    : "Raw fish must be sell-only (purchase disabled) at the General Store.");
         }
 
         private static void ValidateStarterLoadoutCurrency(CCS_SurvivalValidationReport report)

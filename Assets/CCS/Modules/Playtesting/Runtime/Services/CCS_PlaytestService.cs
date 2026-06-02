@@ -1119,7 +1119,9 @@ namespace CCS.Modules.Playtesting
 
             if (MatchesTargetItem(CCS_PlaytestStepType.EquipWeapon, itemId))
             {
-                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Pocket knife equipped.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.EquipWeapon,
+                    $"Equipped {itemId} for playtest step.");
             }
 
             if (MatchesTargetItem(CCS_PlaytestStepType.EquipSpearRegression, itemId))
@@ -1366,18 +1368,28 @@ namespace CCS.Modules.Playtesting
 
         public bool TryPlaytestBuyCordage()
         {
+            return TryPlaytestBuyItemById(CordageItemId);
+        }
+
+        public bool TryPlaytestBuyHatchet()
+        {
+            return TryPlaytestBuyItemById(BoneHatchetItemId);
+        }
+
+        private bool TryPlaytestBuyItemById(string itemId)
+        {
             if (!EnsureVendorReadyForPlaytest())
             {
                 return false;
             }
 
-            CCS_ItemDefinition cordage = FindItemDefinitionById(CordageItemId);
-            if (cordage == null)
+            CCS_ItemDefinition item = FindItemDefinitionById(itemId);
+            if (item == null)
             {
                 return false;
             }
 
-            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(cordage, 1);
+            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(item, 1);
             return result.IsSuccess;
         }
 
@@ -1468,6 +1480,27 @@ namespace CCS.Modules.Playtesting
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
                         "Cordage added to player inventory.");
+                }
+            }
+
+            if (!result.WasSell && result.ItemId == BoneHatchetItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyItemFromVendor,
+                    "Purchased bone hatchet from general store.");
+
+                if (result.CurrencyAmount > 0)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyCurrencyDecreased,
+                        $"Trade dollars spent: {result.CurrencyAmount} (delta {result.CurrencyDelta}).");
+                }
+
+                if (HasInventoryItem(BoneHatchetItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
+                        "Bone hatchet added to player inventory.");
                 }
             }
         }

@@ -15,7 +15,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Batch entry for milestone 1.3.0 economy foundation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: CCS_TestGeneralStore in bootstrap scene; playtest economy steps after fishing.
+// NOTES: CCS_TestGeneralStore in bootstrap scene; hatchet trade progression after fishing (1.3.1).
 // =============================================================================
 
 namespace CCS.Modules.Economy.Editor
@@ -42,6 +42,8 @@ namespace CCS.Modules.Economy.Editor
         private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         private const string RawFishItemId = "ccs.survival.item.resource.rawfish";
         private const string CordageItemId = "ccs.survival.item.frontier.cordage";
+        private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
+        private const string EarlyHatchetTreeStepId = "ccs.survival.playtest.active.hatchet.tree";
 
         public static void ExecuteBatch()
         {
@@ -134,6 +136,38 @@ namespace CCS.Modules.Economy.Editor
                 "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Arrow.asset",
                 buyValue: 1,
                 sellValue: 0);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Tools/Bone/CCS_Item_BoneHatchet.asset",
+                buyValue: 18,
+                sellValue: 0);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_SimpleTrap.asset",
+                buyValue: 8,
+                sellValue: 0);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Resources/Primitive/CCS_Item_Hide.asset",
+                buyValue: 0,
+                sellValue: 2);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Resources/Wildlife/CCS_Item_RawMeat.asset",
+                buyValue: 0,
+                sellValue: 3);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Resources/Frontier/CCS_Item_ScrapIron.asset",
+                buyValue: 0,
+                sellValue: 4);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Feather.asset",
+                buyValue: 0,
+                sellValue: 1);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_AnimalFat.asset",
+                buyValue: 0,
+                sellValue: 2);
+            SetItemEconomyValues(
+                "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_Junk.asset",
+                buyValue: 0,
+                sellValue: 1);
         }
 
         private static void SetItemEconomyValues(string assetPath, int buyValue, int sellValue)
@@ -185,33 +219,97 @@ namespace CCS.Modules.Economy.Editor
                 AssetDatabase.CreateAsset(vendor, GeneralStoreVendorPath);
             }
 
-            CCS_ItemDefinition fishingPole = LoadItem(
-                "Assets/CCS/Survival/Content/Items/Tools/Fishing/CCS_Item_FishingPole.asset");
-            CCS_ItemDefinition cordage = LoadItem("Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Cordage.asset");
-            CCS_ItemDefinition crudeHook = LoadItem("Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_CrudeHook.asset");
-            CCS_ItemDefinition hardtack = LoadItem("Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Hardtack.asset");
-            CCS_ItemDefinition tinderbox = LoadItem("Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Tinderbox.asset");
-            CCS_ItemDefinition arrow = LoadItem("Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Arrow.asset");
-            CCS_ItemDefinition rawFish = LoadItem("Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_RawFish.asset");
-            CCS_ItemDefinition smallFish = LoadItem("Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_SmallFish.asset");
+            VendorCatalogRow[] catalogRows =
+            {
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Tools/Bone/CCS_Item_BoneHatchet.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Tools/Fishing/CCS_Item_FishingPole.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Cordage.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_CrudeHook.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_FishingLine.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Hardtack.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Tinderbox.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Arrow.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_SimpleTrap.asset",
+                    allowBuy: true,
+                    allowSell: false),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_RawFish.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_SmallFish.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Resources/Primitive/CCS_Item_Hide.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Resources/Wildlife/CCS_Item_RawMeat.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Resources/Frontier/CCS_Item_ScrapIron.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_Feather.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Frontier/CCS_Item_AnimalFat.asset",
+                    allowBuy: false,
+                    allowSell: true),
+                new VendorCatalogRow(
+                    "Assets/CCS/Survival/Content/Items/Fishing/CCS_Item_Junk.asset",
+                    allowBuy: false,
+                    allowSell: true)
+            };
 
             SerializedObject serialized = new SerializedObject(vendor);
             serialized.FindProperty("vendorId").stringValue = GeneralStoreVendorId;
             serialized.FindProperty("displayName").stringValue = "Frontier General Store";
             serialized.FindProperty("description").stringValue =
-                "Bootstrap general store for milestone 1.3.0 economy buy/sell validation.";
+                "Frontier general store for early progression (1.3.1). Hatchet and supplies sold; fish and salvage bought.";
             serialized.FindProperty("currencyDefinition").objectReferenceValue = currency;
 
             SerializedProperty catalogItems = serialized.FindProperty("vendorInventory").FindPropertyRelative("items");
-            catalogItems.arraySize = 8;
-            SetVendorCatalogEntry(catalogItems, 0, fishingPole, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 1, cordage, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 2, crudeHook, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 3, hardtack, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 4, tinderbox, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 5, arrow, allowBuy: true, allowSell: false);
-            SetVendorCatalogEntry(catalogItems, 6, rawFish, allowBuy: false, allowSell: true);
-            SetVendorCatalogEntry(catalogItems, 7, smallFish, allowBuy: false, allowSell: true);
+            catalogItems.arraySize = catalogRows.Length;
+            for (int index = 0; index < catalogRows.Length; index++)
+            {
+                VendorCatalogRow row = catalogRows[index];
+                SetVendorCatalogEntry(
+                    catalogItems,
+                    index,
+                    LoadItem(row.ItemAssetPath),
+                    row.AllowBuy,
+                    row.AllowSell);
+            }
 
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(vendor);
@@ -244,9 +342,9 @@ namespace CCS.Modules.Economy.Editor
             }
 
             SerializedObject serialized = new SerializedObject(profile);
-            serialized.FindProperty("profileVersion").stringValue = "1.3.0";
+            serialized.FindProperty("profileVersion").stringValue = "1.3.1";
             serialized.FindProperty("profileDescription").stringValue =
-                "Frontier vendor catalog profile for milestone 1.3.0.";
+                "Frontier vendor catalog profile for milestone 1.3.1.";
             SerializedProperty vendors = serialized.FindProperty("vendorDefinitions");
             vendors.arraySize = 1;
             vendors.GetArrayElementAtIndex(0).objectReferenceValue = generalStore;
@@ -267,9 +365,9 @@ namespace CCS.Modules.Economy.Editor
             }
 
             SerializedObject serialized = new SerializedObject(profile);
-            serialized.FindProperty("profileVersion").stringValue = "1.3.0";
+            serialized.FindProperty("profileVersion").stringValue = "1.3.1";
             serialized.FindProperty("profileDescription").stringValue =
-                "Frontier economy foundation profile (1.3.0).";
+                "Frontier economy profile (1.3.1) with hatchet trade progression.";
             SerializedProperty currencies = serialized.FindProperty("currencyDefinitions");
             currencies.arraySize = 1;
             currencies.GetArrayElementAtIndex(0).objectReferenceValue = tradeDollars;
@@ -411,12 +509,13 @@ namespace CCS.Modules.Economy.Editor
             }
 
             SerializedObject serializedProfile = new SerializedObject(profile);
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.3.0";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.3.1";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Frontier starter progression and economy playtest checklist for milestone 1.3.0.";
+                "Frontier starter progression and economy playtest checklist for milestone 1.3.1.";
 
             SerializedProperty stepList = serializedProfile.FindProperty("stepDefinitions");
             RemoveEconomySteps(stepList);
+            RemovePlaytestStepById(stepList, EarlyHatchetTreeStepId);
 
             int insertIndex = FindStepIndex(stepList, FishingUseStepId);
             if (insertIndex < 0)
@@ -439,6 +538,22 @@ namespace CCS.Modules.Economy.Editor
             {
                 string stepId = stepList.GetArrayElementAtIndex(index).FindPropertyRelative("stepId").stringValue;
                 if (!string.IsNullOrEmpty(stepId) && stepId.StartsWith("ccs.survival.playtest.economy."))
+                {
+                    stepList.DeleteArrayElementAtIndex(index);
+                }
+            }
+        }
+
+        private static void RemovePlaytestStepById(SerializedProperty stepList, string stepId)
+        {
+            if (string.IsNullOrWhiteSpace(stepId))
+            {
+                return;
+            }
+
+            for (int index = stepList.arraySize - 1; index >= 0; index--)
+            {
+                if (stepList.GetArrayElementAtIndex(index).FindPropertyRelative("stepId").stringValue == stepId)
                 {
                     stepList.DeleteArrayElementAtIndex(index);
                 }
@@ -495,26 +610,42 @@ namespace CCS.Modules.Economy.Editor
             InsertStep(
                 stepList,
                 insertIndex++,
-                "ccs.survival.playtest.economy.cordage.buy",
-                "Buy cordage from vendor",
+                "ccs.survival.playtest.economy.hatchet.buy",
+                "Buy bone hatchet from vendor",
                 CCS_PlaytestStepType.BuyItemFromVendor,
-                "Press V to buy one cordage from the general store (or use vendor debug Buy).",
-                CordageItemId);
+                "Press H to buy the bone hatchet (first meaningful purchased tool). Vendor debug: Buy Hatchet.",
+                BoneHatchetItemId);
             InsertStep(
                 stepList,
                 insertIndex++,
                 "ccs.survival.playtest.economy.currency.verify.decrease",
                 "Verify currency decreased",
                 CCS_PlaytestStepType.VerifyCurrencyDecreased,
-                "Confirm Trade Dollars were spent on cordage.");
+                "Confirm Trade Dollars were spent on the hatchet purchase.");
+            InsertStep(
+                stepList,
+                insertIndex++,
+                "ccs.survival.playtest.economy.hatchet.inventory",
+                "Verify hatchet in inventory",
+                CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
+                "Confirm bone hatchet appears in player inventory after purchase.",
+                BoneHatchetItemId);
+            InsertStep(
+                stepList,
+                insertIndex++,
+                "ccs.survival.playtest.economy.hatchet.equip",
+                "Equip purchased hatchet",
+                CCS_PlaytestStepType.EquipWeapon,
+                "Shift+F6 equips the bone hatchet. Hatchet is not in the knife-only starter loadout.",
+                BoneHatchetItemId);
             InsertStep(
                 stepList,
                 insertIndex,
-                "ccs.survival.playtest.economy.inventory.verify",
-                "Verify cordage in inventory",
-                CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
-                "Confirm cordage appears in player inventory after purchase.",
-                CordageItemId);
+                "ccs.survival.playtest.economy.hatchet.tree",
+                "Use hatchet on tree",
+                CCS_PlaytestStepType.UseHatchetOnTree,
+                "Face CCS_TestGatheringSmallTree, Alpha2 tool select, primary use to harvest wood.",
+                BoneHatchetItemId);
         }
 
         private static void InsertStep(
@@ -546,7 +677,7 @@ namespace CCS.Modules.Economy.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.3.0");
+                "bundleVersion: 1.3.1");
             File.WriteAllText(projectSettingsPath, text);
         }
 
@@ -567,6 +698,22 @@ namespace CCS.Modules.Economy.Editor
             }
 
             return null;
+        }
+
+        private readonly struct VendorCatalogRow
+        {
+            public VendorCatalogRow(string itemAssetPath, bool allowBuy, bool allowSell)
+            {
+                ItemAssetPath = itemAssetPath;
+                AllowBuy = allowBuy;
+                AllowSell = allowSell;
+            }
+
+            public string ItemAssetPath { get; }
+
+            public bool AllowBuy { get; }
+
+            public bool AllowSell { get; }
         }
     }
 }

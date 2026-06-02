@@ -30,4 +30,10 @@ MonoBehaviour:
   weaponType: 0
   damageType: 0
   rangeType: 0
+  meleeDamage: 0
+  meleeRange: 2
   icon: {fileID: 0}
+  hasEconomyValues: 1
+  buyValue: 0
+  sellValue: 3
+  vendorCategory: 0

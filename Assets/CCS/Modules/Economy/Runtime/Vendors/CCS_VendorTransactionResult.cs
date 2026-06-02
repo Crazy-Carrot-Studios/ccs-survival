@@ -31,6 +31,7 @@ namespace CCS.Modules.Economy
             CurrencyBalanceAfter = currencyBalanceAfter;
             WasSell = wasSell;
             Message = message ?? string.Empty;
+            CurrencyDelta = wasSell ? currencyAmount : -currencyAmount;
         }
 
         public CCS_VendorTransactionResultType ResultType { get; }
@@ -42,6 +43,9 @@ namespace CCS.Modules.Economy
         public int Quantity { get; }
 
         public int CurrencyAmount { get; }
+
+        /// <summary>Signed wallet change: positive when selling, negative when buying.</summary>
+        public int CurrencyDelta { get; }
 
         public int CurrencyBalanceAfter { get; }
 
