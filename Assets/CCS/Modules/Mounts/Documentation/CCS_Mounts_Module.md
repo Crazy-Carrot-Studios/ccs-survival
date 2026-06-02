@@ -10,6 +10,7 @@ Generic mount framework for horses, mules, donkeys, and future rideable animals.
 - `CCS_HorseSaddlebagContainer` — saddlebag storage via `CCS_StorageService`
 - `WagonHitchPoint` on horse prefab for wagon towing (1.5.2)
 - Frontier Stable vendor (horses not sold at General Store)
+- **1.8.0:** Stable service point at `CCS_TestTradingPost` routes to `CCS_Vendor_FrontierStable` via Settlements module
 - Save section `CCS_SaveMountsWorldData`
 
 ## Bootstrap

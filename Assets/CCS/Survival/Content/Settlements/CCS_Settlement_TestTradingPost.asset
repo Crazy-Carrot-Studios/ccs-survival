@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed4a86638643b894686495035eabc33e, type: 3}
+  m_Name: CCS_Settlement_TestTradingPost
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementDefinition
+  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  displayName: Frontier Test Trading Post
+  description: Bootstrap trading post with general store, stable, gunsmith, and blacksmith
+    placeholder.
+  settlementType: 0
+  defaultWorldPosition: {x: 24, y: 0, z: 20}

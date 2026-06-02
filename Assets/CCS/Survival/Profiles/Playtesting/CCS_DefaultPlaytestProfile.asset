@@ -969,3 +969,60 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.discover
+    displayName: Discover trading post
+    stepType: 111
+    instructionText: Walk within range of CCS_TestTradingPost or interact with a
+      service point.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.generalstore
+    displayName: Interact with General Store service point
+    stepType: 112
+    instructionText: Interact with the General Store cube at the trading post.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.stable
+    displayName: Interact with Stable service point
+    stepType: 113
+    instructionText: Interact with the Stable cube at the trading post.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.gunsmith
+    displayName: Interact with Gunsmith service point
+    stepType: 114
+    instructionText: Interact with the Gunsmith cube at the trading post.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.vendor.routing
+    displayName: Verify settlement vendor routing
+    stepType: 115
+    instructionText: Buy or sell through a settlement service point vendor (V/H/Shift+V).
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.save
+    displayName: Save settlement discovery
+    stepType: 116
+    instructionText: Press F5 after discovering the trading post.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlement.load.verify
+    displayName: Verify settlement discovery persists
+    stepType: 117
+    instructionText: Press F9 and confirm trading post remains discovered.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

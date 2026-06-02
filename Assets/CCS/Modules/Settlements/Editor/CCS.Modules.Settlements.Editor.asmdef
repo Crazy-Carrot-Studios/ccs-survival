@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Settlements.Editor",
+    "rootNamespace": "CCS.Modules.Settlements.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Mounts.Runtime",
+        "CCS.Modules.Firearms.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

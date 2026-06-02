@@ -9,6 +9,7 @@ Generic firearm framework for revolvers, rifles, shotguns, and future repeaters.
 - `CCS_FirearmService` — loaded rounds, reload, fire routing, save snapshots
 - `CCS_ActiveItemBehaviorType.Firearm` — primary use consumes ammo and raycast hunts wildlife
 - Frontier **Gunsmith** vendor (stable and general store do not sell firearms)
+- **1.8.0:** Gunsmith service point at `CCS_TestTradingPost` routes to `CCS_Vendor_FrontierGunsmith` via Settlements module
 - Primitive forge crafts ammunition from refined iron and charcoal
 - Save section `CCS_SaveFirearmsWorldData`
 

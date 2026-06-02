@@ -10,7 +10,7 @@
 
 Generic economy framework for any currency type and vendor buy/sell loop. Western frontier content (Trade Dollars, General Store) lives in Survival profiles under `Assets/CCS/Survival/Profiles/Economy/` and `Assets/CCS/Survival/Content/Vendors/`.
 
-No final vendor UI, NPC AI, settlements, reputation, or dynamic pricing in this milestone.
+No final vendor UI, NPC AI, reputation, or dynamic pricing in this milestone. **Settlement service routing (1.8.0):** `CCS_SettlementServicePoint` activates existing vendor definitions — economy logic stays in `CCS_VendorService`.
 
 ## Frontier progression philosophy
 

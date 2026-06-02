@@ -29,6 +29,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.Settlements;
 using CCS.Survival.Player.Loadout;
 using UnityEngine;
 
@@ -152,6 +153,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier firearm profile for revolver, rifle, shotgun, and ammunition.")]
         [SerializeField] private CCS_FirearmProfile firearmProfile;
 
+        [Tooltip("Default settlement profile used to register CCS_SettlementService.")]
+        [SerializeField] private CCS_SettlementProfile settlementProfile;
+
         [Tooltip("Default character controller profile used to register CCS_CharacterMovementService.")]
         [SerializeField] private CCS_CharacterControllerProfile characterControllerProfile;
 
@@ -220,6 +224,7 @@ namespace CCS.Survival.Composition
                 mountProfile,
                 vehicleProfile,
                 firearmProfile,
+                settlementProfile,
                 characterControllerProfile,
                 starterLoadoutProfile,
                 enableDebugLogs);

@@ -13,6 +13,7 @@ using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
+using CCS.Modules.Settlements;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Survival;
@@ -52,6 +53,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_MountService mountService;
         private CCS_VehicleService vehicleService;
         private CCS_FirearmService firearmService;
+        private CCS_SettlementService settlementService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -128,6 +130,7 @@ namespace CCS.Modules.SaveSystem
             CCS_MountService mounts,
             CCS_VehicleService vehicles,
             CCS_FirearmService firearms,
+            CCS_SettlementService settlements,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -146,6 +149,7 @@ namespace CCS.Modules.SaveSystem
             mountService = mounts;
             vehicleService = vehicles;
             firearmService = firearms;
+            settlementService = settlements;
             playerTransform = playerRoot;
         }
 
@@ -307,6 +311,7 @@ namespace CCS.Modules.SaveSystem
             CaptureMounts(saveData.mounts);
             CaptureVehicles(saveData.vehicles);
             CaptureFirearms(saveData.firearms);
+            CaptureSettlements(saveData.settlements);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -626,6 +631,7 @@ namespace CCS.Modules.SaveSystem
             ApplyMounts(saveData.mounts);
             ApplyVehicles(saveData.vehicles);
             ApplyFirearms(saveData.firearms);
+            ApplySettlements(saveData.settlements);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1033,6 +1039,78 @@ namespace CCS.Modules.SaveSystem
             }
 
             firearmService.RestoreSnapshot(firearmsData?.firearmState);
+        }
+
+        private void CaptureSettlements(CCS_SaveSettlementsWorldData settlementsData)
+        {
+            if (settlementsData == null)
+            {
+                return;
+            }
+
+            if (settlementService == null || !settlementService.IsInitialized)
+            {
+                settlementsData.discoveries = Array.Empty<CCS_SaveSettlementDiscoveryData>();
+                return;
+            }
+
+            CCS_SettlementSaveState[] records = settlementService.CaptureState();
+            if (records == null || records.Length == 0)
+            {
+                settlementsData.discoveries = Array.Empty<CCS_SaveSettlementDiscoveryData>();
+                return;
+            }
+
+            CCS_SaveSettlementDiscoveryData[] saveRecords = new CCS_SaveSettlementDiscoveryData[records.Length];
+            for (int index = 0; index < records.Length; index++)
+            {
+                CCS_SettlementSaveState source = records[index];
+                saveRecords[index] = new CCS_SaveSettlementDiscoveryData
+                {
+                    settlementId = source?.settlementId ?? string.Empty,
+                    displayName = source?.displayName ?? string.Empty,
+                    settlementType = source != null ? source.settlementType : 0,
+                    discovered = source != null && source.discovered,
+                    positionX = source != null ? source.positionX : 0f,
+                    positionY = source != null ? source.positionY : 0f,
+                    positionZ = source != null ? source.positionZ : 0f
+                };
+            }
+
+            settlementsData.discoveries = saveRecords;
+        }
+
+        private void ApplySettlements(CCS_SaveSettlementsWorldData settlementsData)
+        {
+            if (settlementService == null || !settlementService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_SaveSettlementDiscoveryData[] discoveries = settlementsData?.discoveries;
+            if (discoveries == null || discoveries.Length == 0)
+            {
+                settlementService.RestoreState(Array.Empty<CCS_SettlementSaveState>());
+                return;
+            }
+
+            CCS_SettlementSaveState[] records = new CCS_SettlementSaveState[discoveries.Length];
+            for (int index = 0; index < discoveries.Length; index++)
+            {
+                CCS_SaveSettlementDiscoveryData source = discoveries[index];
+                records[index] = new CCS_SettlementSaveState
+                {
+                    settlementId = source?.settlementId ?? string.Empty,
+                    displayName = source?.displayName ?? string.Empty,
+                    settlementType = source != null ? source.settlementType : 0,
+                    discovered = source != null && source.discovered,
+                    positionX = source != null ? source.positionX : 0f,
+                    positionY = source != null ? source.positionY : 0f,
+                    positionZ = source != null ? source.positionZ : 0f
+                };
+            }
+
+            settlementService.RestoreState(records);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

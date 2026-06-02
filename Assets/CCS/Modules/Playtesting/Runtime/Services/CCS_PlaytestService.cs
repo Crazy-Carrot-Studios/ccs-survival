@@ -23,6 +23,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
+using CCS.Modules.Settlements;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
 using CCS.Survival.Player;
@@ -146,6 +147,7 @@ namespace CCS.Modules.Playtesting
         private CCS_MountService boundMountService;
         private CCS_VehicleService boundVehicleService;
         private CCS_FirearmService boundFirearmService;
+        private CCS_SettlementService boundSettlementService;
 
         #endregion
 
@@ -219,7 +221,8 @@ namespace CCS.Modules.Playtesting
             CCS_CampService campService = null,
             CCS_MountService mountService = null,
             CCS_VehicleService vehicleService = null,
-            CCS_FirearmService firearmService = null)
+            CCS_FirearmService firearmService = null,
+            CCS_SettlementService settlementService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -250,6 +253,13 @@ namespace CCS.Modules.Playtesting
             boundMountService = mountService;
             boundVehicleService = vehicleService;
             boundFirearmService = firearmService;
+            boundSettlementService = settlementService;
+
+            if (boundSettlementService != null)
+            {
+                boundSettlementService.SettlementDiscovered += HandleSettlementDiscovered;
+                boundSettlementService.ServicePointActivated += HandleSettlementServicePointActivated;
+            }
 
             if (boundMountService != null)
             {
@@ -459,6 +469,12 @@ namespace CCS.Modules.Playtesting
                 boundVendorService.VendorTransactionCompleted -= HandleVendorTransactionCompleted;
             }
 
+            if (boundSettlementService != null)
+            {
+                boundSettlementService.SettlementDiscovered -= HandleSettlementDiscovered;
+                boundSettlementService.ServicePointActivated -= HandleSettlementServicePointActivated;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -489,6 +505,7 @@ namespace CCS.Modules.Playtesting
             boundMountService = null;
             boundVehicleService = null;
             boundFirearmService = null;
+            boundSettlementService = null;
 
             if (boundInteractionService != null)
             {
@@ -952,6 +969,14 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveFirearmState,
                     "Firearm loaded rounds and equipment state saved.");
+                if (boundSettlementService != null
+                    && boundSettlementService.IsInitialized
+                    && boundSettlementService.IsDiscovered(CCS_SettlementContentIds.TestTradingPostSettlementId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveSettlementDiscovery,
+                        "Settlement discovery saved.");
+                }
             }
         }
 
@@ -967,6 +992,65 @@ namespace CCS.Modules.Playtesting
                 EvaluateHorsePersistenceAfterLoad();
                 EvaluateWagonPersistenceAfterLoad();
                 EvaluateFirearmPersistenceAfterLoad();
+                EvaluateSettlementDiscoveryAfterLoad();
+            }
+        }
+
+        private void EvaluateSettlementDiscoveryAfterLoad()
+        {
+            if (boundSettlementService == null || !boundSettlementService.IsInitialized)
+            {
+                return;
+            }
+
+            if (boundSettlementService.IsDiscovered(CCS_SettlementContentIds.TestTradingPostSettlementId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementDiscoveryAfterLoad,
+                    "Trading post discovery persisted after load.");
+            }
+        }
+
+        private void HandleSettlementDiscovered(CCS_SettlementSnapshot snapshot)
+        {
+            if (snapshot == null
+                || !string.Equals(
+                    snapshot.SettlementId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverTradingPost,
+                "Frontier trading post discovered.");
+        }
+
+        private void HandleSettlementServicePointActivated(CCS_SettlementServicePointActivationArgs activationArgs)
+        {
+            if (activationArgs == null)
+            {
+                return;
+            }
+
+            switch (activationArgs.ServicePointType)
+            {
+                case CCS_SettlementServicePointType.GeneralStore:
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractGeneralStoreServicePoint,
+                        "General Store service point activated.");
+                    break;
+                case CCS_SettlementServicePointType.Stable:
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractStableServicePoint,
+                        "Stable service point activated.");
+                    break;
+                case CCS_SettlementServicePointType.Gunsmith:
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractGunsmithServicePoint,
+                        "Gunsmith service point activated.");
+                    break;
             }
         }
 
@@ -2770,6 +2854,19 @@ namespace CCS.Modules.Playtesting
             if (result == null || !result.IsSuccess)
             {
                 return;
+            }
+
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && !string.IsNullOrWhiteSpace(boundSettlementService.LastActivatedVendorId)
+                && string.Equals(
+                    result.VendorId,
+                    boundSettlementService.LastActivatedVendorId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementVendorRouting,
+                    "Settlement service point routed vendor transaction.");
             }
 
             if (result.WasSell && result.ItemId == RawFishItemId)

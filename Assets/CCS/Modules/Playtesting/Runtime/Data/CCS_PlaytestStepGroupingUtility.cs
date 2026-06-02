@@ -28,7 +28,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Industry,
             CCS_PlaytestStepGroup.HorseWagon,
             CCS_PlaytestStepGroup.Firearms,
-            CCS_PlaytestStepGroup.Prospecting
+            CCS_PlaytestStepGroup.Prospecting,
+            CCS_PlaytestStepGroup.Settlement
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -66,6 +67,8 @@ namespace CCS.Modules.Playtesting
                     return "Firearms";
                 case CCS_PlaytestStepGroup.Prospecting:
                     return "Prospecting";
+                case CCS_PlaytestStepGroup.Settlement:
+                    return "Settlement / Services";
                 default:
                     return group.ToString();
             }
@@ -217,6 +220,15 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.MineCoalVein:
                 case CCS_PlaytestStepType.RefineMinedOreAtForge:
                     return CCS_PlaytestStepGroup.Prospecting;
+
+                case CCS_PlaytestStepType.DiscoverTradingPost:
+                case CCS_PlaytestStepType.InteractGeneralStoreServicePoint:
+                case CCS_PlaytestStepType.InteractStableServicePoint:
+                case CCS_PlaytestStepType.InteractGunsmithServicePoint:
+                case CCS_PlaytestStepType.VerifySettlementVendorRouting:
+                case CCS_PlaytestStepType.SaveSettlementDiscovery:
+                case CCS_PlaytestStepType.VerifySettlementDiscoveryAfterLoad:
+                    return CCS_PlaytestStepGroup.Settlement;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

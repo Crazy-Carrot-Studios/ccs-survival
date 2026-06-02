@@ -29,6 +29,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.Settlements;
 using CCS.Survival.Player.Loadout;
 
 // =============================================================================
@@ -85,6 +86,7 @@ namespace CCS.Survival.Composition
             CCS_MountProfile mountProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
+            CCS_SettlementProfile settlementProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
             CCS_StarterLoadoutProfile starterLoadoutProfile,
             bool enableDebugLogs = false)
@@ -379,6 +381,9 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, currencyService, enableDebugLogs);
             CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
             RegisterService(runtimeHost, vendorService, enableDebugLogs);
+
+            CCS_SettlementService settlementService = CreateSettlementService(settlementProfile);
+            RegisterService(runtimeHost, settlementService, enableDebugLogs);
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += result =>
@@ -415,6 +420,7 @@ namespace CCS.Survival.Composition
                 mountService,
                 vehicleService,
                 firearmService,
+                settlementService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -456,7 +462,8 @@ namespace CCS.Survival.Composition
                     campService,
                     mountService,
                     vehicleService,
-                    firearmService);
+                    firearmService,
+                    settlementService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1448,6 +1455,18 @@ namespace CCS.Survival.Composition
             if (service.IsInitialized)
             {
                 service.BindServices(currencyService, inventoryService);
+            }
+
+            return service;
+        }
+
+        private static CCS_SettlementService CreateSettlementService(CCS_SettlementProfile profile)
+        {
+            CCS_SettlementService service = new CCS_SettlementService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
             }
 
             return service;

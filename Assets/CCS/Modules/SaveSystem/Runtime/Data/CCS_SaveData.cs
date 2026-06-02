@@ -57,7 +57,27 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveFirearmsWorldData firearms = new CCS_SaveFirearmsWorldData();
 
+        public CCS_SaveSettlementsWorldData settlements = new CCS_SaveSettlementsWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveSettlementsWorldData
+    {
+        public CCS_SaveSettlementDiscoveryData[] discoveries = Array.Empty<CCS_SaveSettlementDiscoveryData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveSettlementDiscoveryData
+    {
+        public string settlementId = string.Empty;
+        public string displayName = string.Empty;
+        public int settlementType;
+        public bool discovered;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
     }
 
     [Serializable]

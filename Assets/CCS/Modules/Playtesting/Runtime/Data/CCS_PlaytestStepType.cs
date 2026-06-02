@@ -122,6 +122,13 @@ namespace CCS.Modules.Playtesting
         RefineMinedOreAtForge = 107,
         LoadMiningGoodsIntoWagonCargo = 108,
         SellMiningGoods = 109,
-        VerifyMiningCurrencyIncreased = 110
+        VerifyMiningCurrencyIncreased = 110,
+        DiscoverTradingPost = 111,
+        InteractGeneralStoreServicePoint = 112,
+        InteractStableServicePoint = 113,
+        InteractGunsmithServicePoint = 114,
+        VerifySettlementVendorRouting = 115,
+        SaveSettlementDiscovery = 116,
+        VerifySettlementDiscoveryAfterLoad = 117
     }
 }

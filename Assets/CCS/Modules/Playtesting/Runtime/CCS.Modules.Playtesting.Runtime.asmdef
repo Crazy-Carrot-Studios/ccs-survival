@@ -30,6 +30,7 @@
         "CCS.Modules.Vehicles.Runtime",
         "CCS.Modules.Firearms.Runtime",
         "CCS.Modules.Prospecting.Runtime",
+        "CCS.Modules.Settlements.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],
