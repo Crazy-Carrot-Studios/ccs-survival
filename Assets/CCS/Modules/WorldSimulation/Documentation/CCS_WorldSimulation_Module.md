@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **2.1.0** — Ranching goods (egg, milk, future meat placeholders) route to settlement **Food** supply on vendor sell.
+
 Milestone **2.0.0** — Frontier World Simulation Foundation
 
 ## Purpose

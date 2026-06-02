@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8072945394fac647aad755189541cda, type: 3}
+  m_Name: CCS_DefaultLivestockProfile
+  m_EditorClassIdentifier: CCS.Modules.Ranching.Runtime::CCS.Modules.Ranching.CCS_LivestockProfile
+  profileDisplayName: Default Livestock Profile
+  profileId: ccs.survival.profile.ranching.default
+  profileDescription: Frontier ranching livestock and structure catalog (2.1.0).
+  profileVersion: 0.0.1
+  enableDebugLogs: 0
+  livestockDefinitions:
+  - {fileID: 11400000, guid: 05795f34645846740870e85ebf4cd670, type: 2}
+  - {fileID: 11400000, guid: 9535b6f6ba1e10843b8800c659f31835, type: 2}
+  - {fileID: 11400000, guid: cf72f6c54a0892d48ac5c3680434de8e, type: 2}
+  - {fileID: 11400000, guid: ddd1c3743bfc6cd45a91bb51df6d89a9, type: 2}
+  ranchStructureDefinitions:
+  - {fileID: 11400000, guid: 72d241454a0f9c44f82bce3c3b035049, type: 2}
+  - {fileID: 11400000, guid: dda91dae5d806cf4e88f0ff506a0c707, type: 2}
+  - {fileID: 11400000, guid: 568757695cb877d46b54cc8081a68cd8, type: 2}
+  - {fileID: 11400000, guid: 82e148370bda55f4d94ab85b13b478db, type: 2}
+  enableDebugLogging: 1

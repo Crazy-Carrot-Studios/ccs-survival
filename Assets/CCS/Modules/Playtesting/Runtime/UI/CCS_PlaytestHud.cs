@@ -267,6 +267,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryGrantHomesteadSupplyCrateKit();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.R))
+            {
+                playtestService.TryPlaytestRanchFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.W))
             {
                 playtestService.TryPlaytestGrantWagonCurrency();

@@ -43,6 +43,7 @@ namespace CCS.Modules.Hotbar
         private CCS_FrontierShelterService frontierShelterService;
         private CCS_FrontierHomesteadStructureService frontierHomesteadStructureService;
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierStoragePlacementHandler;
+        private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierRanchPlacementHandler;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -177,6 +178,12 @@ namespace CCS.Modules.Hotbar
             System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
         {
             frontierStoragePlacementHandler = handler;
+        }
+
+        public void BindFrontierRanchPlacementHandler(
+            System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
+        {
+            frontierRanchPlacementHandler = handler;
         }
 
         public void UnbindEquipmentService()
@@ -576,6 +583,17 @@ namespace CCS.Modules.Hotbar
                 if (storageResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
                 {
                     return storageResult;
+                }
+            }
+
+            if (frontierRanchPlacementHandler != null)
+            {
+                CCS_ActiveItemUseResult ranchResult = frontierRanchPlacementHandler.Invoke(
+                    state.ItemDefinition,
+                    request);
+                if (ranchResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
+                {
+                    return ranchResult;
                 }
             }
 

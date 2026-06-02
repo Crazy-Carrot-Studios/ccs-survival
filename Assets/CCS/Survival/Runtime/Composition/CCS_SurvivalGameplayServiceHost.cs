@@ -27,6 +27,7 @@ using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -149,6 +150,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier mount profile for horse ownership, riding, and saddlebags.")]
         [SerializeField] private CCS_MountProfile mountProfile;
 
+        [Tooltip("Frontier livestock profile for ranch ownership, structures, and production.")]
+        [SerializeField] private CCS_LivestockProfile livestockProfile;
+
         [Tooltip("Frontier vehicle profile for wagon ownership, hitching, and cargo.")]
         [SerializeField] private CCS_VehicleProfile vehicleProfile;
 
@@ -230,6 +234,7 @@ namespace CCS.Survival.Composition
                 frontierStorageCampProfile,
                 industryProfile,
                 mountProfile,
+                livestockProfile,
                 vehicleProfile,
                 firearmProfile,
                 settlementProfile,

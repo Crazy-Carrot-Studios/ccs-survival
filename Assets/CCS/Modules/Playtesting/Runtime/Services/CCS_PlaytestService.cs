@@ -19,6 +19,7 @@ using CCS.Modules.SurvivalCore;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -70,6 +71,9 @@ namespace CCS.Modules.Playtesting
         private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         private const string FrontierStableVendorId = CCS_MountContentIds.FrontierStableVendorId;
         private const string FrontierHorseItemId = CCS_MountContentIds.FrontierHorseItemId;
+        private const string ChickenItemId = CCS_RanchingContentIds.ChickenItemId;
+        private const string EggItemId = CCS_RanchingContentIds.EggItemId;
+        private const string ChickenCoopKitItemId = CCS_RanchingContentIds.ChickenCoopKitItemId;
         private const string FrontierWagonItemId = CCS_VehicleContentIds.FrontierWagonItemId;
         private const string FrontierGunsmithVendorId = CCS_FirearmContentIds.FrontierGunsmithVendorId;
         private const string FrontierRevolverItemId = CCS_FirearmContentIds.FrontierRevolverItemId;
@@ -152,6 +156,7 @@ namespace CCS.Modules.Playtesting
         private CCS_SettlementService boundSettlementService;
         private CCS_RegionService boundRegionService;
         private CCS_WorldSimulationService boundWorldSimulationService;
+        private CCS_RanchService boundRanchService;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -159,6 +164,8 @@ namespace CCS.Modules.Playtesting
         private float worldSimulationSavedIndustryAmount;
         private float worldSimulationSavedProsperity;
         private bool worldSimulationBaselinesCaptured;
+        private int savedRanchLivestockCount;
+        private int savedRanchStructureCount;
 
         #endregion
 
@@ -235,7 +242,8 @@ namespace CCS.Modules.Playtesting
             CCS_FirearmService firearmService = null,
             CCS_SettlementService settlementService = null,
             CCS_RegionService regionService = null,
-            CCS_WorldSimulationService worldSimulationService = null)
+            CCS_WorldSimulationService worldSimulationService = null,
+            CCS_RanchService ranchService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -269,6 +277,7 @@ namespace CCS.Modules.Playtesting
             boundSettlementService = settlementService;
             boundRegionService = regionService;
             boundWorldSimulationService = worldSimulationService;
+            boundRanchService = ranchService;
 
             if (boundWorldSimulationService != null)
             {
@@ -291,6 +300,13 @@ namespace CCS.Modules.Playtesting
             {
                 boundMountService.MountStateChanged += HandleMountStateChanged;
                 boundMountService.HorseOwnershipChanged += HandleHorseOwnershipChanged;
+            }
+
+            if (boundRanchService != null)
+            {
+                boundRanchService.RanchStructurePlaced += HandleRanchStructurePlaced;
+                boundRanchService.LivestockProductCollected += HandleLivestockProductCollected;
+                boundRanchService.LivestockProductionReady += HandleLivestockProductionReady;
             }
 
             if (boundVehicleService != null)
@@ -533,6 +549,13 @@ namespace CCS.Modules.Playtesting
                 boundMountService.HorseOwnershipChanged -= HandleHorseOwnershipChanged;
             }
 
+            if (boundRanchService != null)
+            {
+                boundRanchService.RanchStructurePlaced -= HandleRanchStructurePlaced;
+                boundRanchService.LivestockProductCollected -= HandleLivestockProductCollected;
+                boundRanchService.LivestockProductionReady -= HandleLivestockProductionReady;
+            }
+
             if (boundVehicleService != null)
             {
                 boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
@@ -545,6 +568,7 @@ namespace CCS.Modules.Playtesting
             boundSettlementService = null;
             boundRegionService = null;
             boundWorldSimulationService = null;
+            boundRanchService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1004,6 +1028,14 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveHorseState,
                     "Horse ownership and saddlebag state saved.");
+                if (boundRanchService != null && boundRanchService.IsInitialized)
+                {
+                    savedRanchLivestockCount = boundRanchService.GetOwnedLivestockCount(CCS_LivestockType.Chicken);
+                    savedRanchStructureCount = boundRanchService.CaptureStructureState().Length;
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveRanchState,
+                        "Ranch livestock and structure state saved.");
+                }
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1065,6 +1097,24 @@ namespace CCS.Modules.Playtesting
                 EvaluateSettlementDiscoveryAfterLoad();
                 EvaluateRegionDiscoveryAfterLoad();
                 EvaluateWorldSimulationAfterLoad();
+                EvaluateRanchStateAfterLoad();
+            }
+        }
+
+        private void EvaluateRanchStateAfterLoad()
+        {
+            if (boundRanchService == null || !boundRanchService.IsInitialized || savedRanchLivestockCount <= 0)
+            {
+                return;
+            }
+
+            int livestockCount = boundRanchService.GetOwnedLivestockCount(CCS_LivestockType.Chicken);
+            int structureCount = boundRanchService.CaptureStructureState().Length;
+            if (livestockCount >= savedRanchLivestockCount && structureCount >= savedRanchStructureCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRanchStateAfterLoad,
+                    "Ranch livestock and structures restored after load.");
             }
         }
 
@@ -1874,6 +1924,13 @@ namespace CCS.Modules.Playtesting
                 {
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.PlaceWorkbenchForHomestead,
+                        useResult.Message);
+                }
+
+                if (MatchesTargetItem(CCS_PlaytestStepType.PlaceChickenCoop, useResult.ActiveItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PlaceChickenCoop,
                         useResult.Message);
                 }
 
@@ -3105,6 +3162,13 @@ namespace CCS.Modules.Playtesting
                     "Sold fish at general store.");
             }
 
+            if (result.WasSell && result.ItemId == EggItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellRanchEgg,
+                    "Sold ranch egg at general store.");
+            }
+
             if (result.WasSell && IsWorldSimulationFoodItem(result.ItemId))
             {
                 TryCompleteActiveStepOfType(
@@ -3206,6 +3270,14 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
                         "Cordage added to player inventory.");
                 }
+            }
+
+            if (!result.WasSell
+                && string.Equals(result.ItemId, ChickenItemId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyChickenFromVendor,
+                    "Purchased chicken from vendor.");
             }
 
             if (!result.WasSell
@@ -3858,6 +3930,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyFoodSupplyIncreased,
                     $"Food supply increased to {foodAmount:0.##}.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRanchFoodSupplyIncreased,
+                    $"Ranch goods increased settlement food supply to {foodAmount:0.##}.");
             }
 
             if (worldSimulationBaselinesCaptured && industryAmount > worldSimulationIndustryBaseline)
@@ -3935,7 +4010,138 @@ namespace CCS.Modules.Playtesting
                 || itemId == DriedFishItemId
                 || itemId == RawMeatItemId
                 || itemId == CookedMeatItemId
-                || itemId == JerkyItemId;
+                || itemId == JerkyItemId
+                || itemId == EggItemId
+                || itemId == CCS_RanchingContentIds.MilkItemId;
+        }
+
+        private void HandleRanchStructurePlaced(CCS_RanchStructureInstance structure)
+        {
+            if (structure?.Definition == null)
+            {
+                return;
+            }
+
+            if (structure.StructureKind == CCS_RanchStructureKind.ChickenCoop)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PlaceChickenCoop,
+                    $"{structure.Definition.DisplayName} placed.");
+            }
+        }
+
+        private void HandleLivestockProductionReady(CCS_LivestockInstance livestock)
+        {
+            if (livestock == null)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ForceRanchProduction,
+                $"{livestock.Definition?.DisplayName ?? "Livestock"} production ready.");
+        }
+
+        private void HandleLivestockProductCollected(CCS_LivestockInstance livestock)
+        {
+            if (livestock == null)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.CollectRanchProduct,
+                "Ranch product collected into inventory.");
+        }
+
+        public bool TryPlaytestBuyChicken()
+        {
+            if (!EnsureVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition chickenItem = FindItemDefinitionById(ChickenItemId);
+            if (chickenItem == null)
+            {
+                return false;
+            }
+
+            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(chickenItem, 1);
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestAssignChickenToCoop()
+        {
+            if (boundRanchService == null || !boundRanchService.IsInitialized)
+            {
+                return false;
+            }
+
+            bool assigned = boundRanchService.TryAssignNearestLivestockToNearestStructure(
+                CCS_LivestockType.Chicken,
+                CCS_RanchStructureKind.ChickenCoop);
+            if (assigned)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AssignChickenToCoop,
+                    "Chicken assigned to chicken coop.");
+            }
+
+            return assigned;
+        }
+
+        public bool TryPlaytestForceRanchProduction()
+        {
+            if (boundRanchService == null || !boundRanchService.IsInitialized)
+            {
+                return false;
+            }
+
+            return boundRanchService.TryForceFirstLivestockProductionForPlaytest();
+        }
+
+        public bool TryPlaytestCollectRanchProduct()
+        {
+            if (boundRanchService == null || !boundRanchService.IsInitialized)
+            {
+                return false;
+            }
+
+            return boundRanchService.TryCollectFirstReadyProduction();
+        }
+
+        public bool TryPlaytestRanchFoundationShortcut()
+        {
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 2500, "Playtest ranch foundation funds");
+            }
+
+            TryPlaytestBuyChicken();
+            GrantPlaytestItem(ChickenCoopKitItemId, 1);
+            GrantPlaytestItem(CCS_RanchingContentIds.FeedTroughKitItemId, 1);
+            GrantPlaytestItem(CCS_RanchingContentIds.WaterTroughKitItemId, 1);
+
+            TryPlaytestAssignChickenToCoop();
+            TryPlaytestForceRanchProduction();
+            TryPlaytestCollectRanchProduct();
+            return true;
+        }
+
+        private void GrantPlaytestItem(string itemId, int quantity)
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || !inventoryService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_ItemDefinition itemDefinition = FindItemDefinitionById(itemId);
+            if (itemDefinition != null)
+            {
+                inventoryService.AddItem(itemDefinition, quantity);
+            }
         }
 
         private static bool IsWorldSimulationIndustryItem(string itemId)

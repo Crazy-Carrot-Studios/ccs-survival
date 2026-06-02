@@ -1164,3 +1164,82 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.buy.chicken
+    displayName: Buy chicken from vendor
+    stepType: 135
+    instructionText: 'Ranch playtest: Buy chicken from vendor. Ctrl+Shift+R shortcuts
+      available.'
+    targetItemId: ccs.survival.item.livestock.chicken
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.place.coop
+    displayName: Place chicken coop
+    stepType: 136
+    instructionText: 'Ranch playtest: Place chicken coop. Ctrl+Shift+R shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.assign.chicken
+    displayName: Assign chicken to coop
+    stepType: 137
+    instructionText: 'Ranch playtest: Assign chicken to coop. Ctrl+Shift+R shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.force.production
+    displayName: Force ranch production
+    stepType: 138
+    instructionText: 'Ranch playtest: Force ranch production. Ctrl+Shift+R shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.collect
+    displayName: Collect ranch product
+    stepType: 139
+    instructionText: 'Ranch playtest: Collect ranch product. Ctrl+Shift+R shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.sell.egg
+    displayName: Sell ranch egg
+    stepType: 140
+    instructionText: 'Ranch playtest: Sell ranch egg. Ctrl+Shift+R shortcuts available.'
+    targetItemId: ccs.survival.item.ranch.egg
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.verify.food
+    displayName: Verify ranch food supply increased
+    stepType: 141
+    instructionText: 'Ranch playtest: Verify ranch food supply increased. Ctrl+Shift+R
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.save
+    displayName: Save ranch state
+    stepType: 142
+    instructionText: 'Ranch playtest: Save ranch state. Ctrl+Shift+R shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.ranch.verify.load
+    displayName: Verify ranch state after load
+    stepType: 143
+    instructionText: 'Ranch playtest: Verify ranch state after load. Ctrl+Shift+R
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

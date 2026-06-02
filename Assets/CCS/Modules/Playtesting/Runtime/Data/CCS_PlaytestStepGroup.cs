@@ -27,6 +27,7 @@ namespace CCS.Modules.Playtesting
         Prospecting = 12,
         Settlement = 13,
         Region = 14,
-        WorldSimulation = 15
+        WorldSimulation = 15,
+        Ranching = 16
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.WorldSimulation;
@@ -64,7 +65,16 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveWorldSimulationData worldSimulation = new CCS_SaveWorldSimulationData();
 
+        public CCS_SaveRanchingWorldData ranching = new CCS_SaveRanchingWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveRanchingWorldData
+    {
+        public CCS_LivestockSnapshot[] livestock = Array.Empty<CCS_LivestockSnapshot>();
+        public CCS_RanchStructureSnapshot[] structures = Array.Empty<CCS_RanchStructureSnapshot>();
     }
 
     [Serializable]

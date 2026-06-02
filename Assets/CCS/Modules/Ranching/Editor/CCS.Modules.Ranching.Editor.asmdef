@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.Ranching.Editor",
+    "rootNamespace": "CCS.Modules.Ranching.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Ranching.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Survival.Composition"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

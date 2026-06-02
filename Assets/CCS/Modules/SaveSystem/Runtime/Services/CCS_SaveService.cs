@@ -8,6 +8,7 @@ using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -58,6 +59,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_SettlementService settlementService;
         private CCS_RegionService regionService;
         private CCS_WorldSimulationService worldSimulationService;
+        private CCS_RanchService ranchService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -137,6 +139,7 @@ namespace CCS.Modules.SaveSystem
             CCS_SettlementService settlements,
             CCS_RegionService regions,
             CCS_WorldSimulationService worldSimulation,
+            CCS_RanchService ranching,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -158,6 +161,7 @@ namespace CCS.Modules.SaveSystem
             settlementService = settlements;
             regionService = regions;
             worldSimulationService = worldSimulation;
+            ranchService = ranching;
             playerTransform = playerRoot;
         }
 
@@ -322,6 +326,7 @@ namespace CCS.Modules.SaveSystem
             CaptureSettlements(saveData.settlements);
             CaptureRegions(saveData.regions);
             CaptureWorldSimulation(saveData.worldSimulation);
+            CaptureRanching(saveData.ranching);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -644,6 +649,7 @@ namespace CCS.Modules.SaveSystem
             ApplySettlements(saveData.settlements);
             ApplyRegions(saveData.regions);
             ApplyWorldSimulation(saveData.worldSimulation);
+            ApplyRanching(saveData.ranching);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -985,6 +991,31 @@ namespace CCS.Modules.SaveSystem
             }
 
             industryService.RestoreActiveJobs(industryData?.activeJobs);
+        }
+
+        private void CaptureRanching(CCS_SaveRanchingWorldData ranchingData)
+        {
+            if (ranchingData == null)
+            {
+                return;
+            }
+
+            ranchingData.livestock = ranchService != null && ranchService.IsInitialized
+                ? ranchService.CaptureLivestockState()
+                : Array.Empty<CCS_LivestockSnapshot>();
+            ranchingData.structures = ranchService != null && ranchService.IsInitialized
+                ? ranchService.CaptureStructureState()
+                : Array.Empty<CCS_RanchStructureSnapshot>();
+        }
+
+        private void ApplyRanching(CCS_SaveRanchingWorldData ranchingData)
+        {
+            if (ranchService == null || !ranchService.IsInitialized)
+            {
+                return;
+            }
+
+            ranchService.RestoreState(ranchingData?.livestock, ranchingData?.structures);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

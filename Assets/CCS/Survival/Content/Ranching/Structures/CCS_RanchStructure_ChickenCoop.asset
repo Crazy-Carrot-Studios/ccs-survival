@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 839ed2d8d785c324bae5e4f9f4d4f0d2, type: 3}
+  m_Name: CCS_RanchStructure_ChickenCoop
+  m_EditorClassIdentifier: CCS.Modules.Ranching.Runtime::CCS.Modules.Ranching.CCS_RanchStructureDefinition
+  structureDefinitionId: ccs.survival.ranch.structure.chickencoop
+  displayName: Chicken Coop
+  structureKind: 0
+  placeableKitItem: {fileID: 11400000, guid: b4c06363b7c119d4cb1b4912699a2a20, type: 2}
+  placementForwardDistance: 2
+  placementMaxGroundRayDistance: 8
+  placementMaxSlopeAngle: 35
+  contributesToCampTier: 1
+  campStructureKind: 9
+  placementPrimitive: 3
+  placedLocalScale: {x: 1.6, y: 1, z: 1.6}

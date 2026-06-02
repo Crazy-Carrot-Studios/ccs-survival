@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 1.7.0 — General Store and Gunsmith buy frontier mining goods (ore, coal, clay, scrap, nails)
+**Latest:** 2.1.0 — General Store and Stable sell livestock, feed, and ranch structure kits; General Store buys eggs and milk for world simulation Food supply.
+
+**1.7.0** — General Store and Gunsmith buy frontier mining goods (ore, coal, clay, scrap, nails)
 
 **1.6.0** — Frontier Gunsmith sells firearms and ammo (Stable and General Store do not sell firearms)
 

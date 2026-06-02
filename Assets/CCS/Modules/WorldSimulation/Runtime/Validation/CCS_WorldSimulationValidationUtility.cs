@@ -1,5 +1,6 @@
 using System;
 using CCS.Modules.Economy;
+using CCS.Modules.Ranching;
 using CCS.Survival;
 
 // =============================================================================
@@ -228,7 +229,11 @@ namespace CCS.Modules.WorldSimulation
                 || itemId.Contains("driedfish", StringComparison.OrdinalIgnoreCase)
                 || itemId.Contains("rawmeat", StringComparison.OrdinalIgnoreCase)
                 || itemId.Contains("cookedmeat", StringComparison.OrdinalIgnoreCase)
-                || itemId.Contains("jerky", StringComparison.OrdinalIgnoreCase);
+                || itemId.Contains("jerky", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_RanchingContentIds.EggItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_RanchingContentIds.MilkItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_RanchingContentIds.RawPorkItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_RanchingContentIds.RawBeefItemId, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool TryResolveFuelOrBuildingItem(string itemId, out CCS_SettlementSupplyType supplyType)

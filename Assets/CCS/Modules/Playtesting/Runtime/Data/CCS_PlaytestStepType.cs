@@ -146,6 +146,15 @@ namespace CCS.Modules.Playtesting
         VerifyIndustrySupplyIncreased = 131,
         VerifyProsperityIncreased = 132,
         SaveWorldSimulationState = 133,
-        VerifyWorldSimulationRestoredAfterLoad = 134
+        VerifyWorldSimulationRestoredAfterLoad = 134,
+        BuyChickenFromVendor = 135,
+        PlaceChickenCoop = 136,
+        AssignChickenToCoop = 137,
+        ForceRanchProduction = 138,
+        CollectRanchProduct = 139,
+        SellRanchEgg = 140,
+        VerifyRanchFoodSupplyIncreased = 141,
+        SaveRanchState = 142,
+        VerifyRanchStateAfterLoad = 143
     }
 }

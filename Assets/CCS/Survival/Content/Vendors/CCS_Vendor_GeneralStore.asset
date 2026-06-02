@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Economy.Runtime::CCS.Modules.Economy.CCS_VendorDefinition
   vendorId: ccs.survival.vendor.frontier.generalstore
   displayName: Frontier General Store
-  description: Frontier general store (1.5.0). Homestead and industry trade catalog.
+  description: Frontier general store with ranch livestock, kits, and product buyback
+    (2.1.0).
   currencyDefinition: {fileID: 11400000, guid: b23fc092f7e2f9a489b2d65d9cbe4a16, type: 2}
   vendorInventory:
     items:
@@ -282,3 +283,69 @@ MonoBehaviour:
       allowSell: 0
       buyPriceOverride: 2
       sellPriceOverride: 0
+    - itemDefinition: {fileID: 11400000, guid: b43db5abeb4932842b23e2fe89ff52d9, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 175
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: bd4e6f8ab8d85e149907b61ff5971e87, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 425
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 9ec11f45cd14e8945a76eece2537e522, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 850
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: eac3aa368143cbc44a19438df733f9e8, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 375
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: a653b0b420107ae4b848c2fc9462f74f, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 20
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: b4c06363b7c119d4cb1b4912699a2a20, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 225
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 393ec0f292050da4e8fba8a5e2e26aab, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 350
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 39b562c7d62ed3741abe3338d2ff7889, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 90
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 7c53a0116a682ab4db415befbdaad8fc, type: 2}
+      stockQuantity: -1
+      allowBuy: 1
+      allowSell: 0
+      buyPriceOverride: 90
+      sellPriceOverride: -1
+    - itemDefinition: {fileID: 11400000, guid: 4f0bb7bbc84c0364fa8f7771622db898, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: 18
+    - itemDefinition: {fileID: 11400000, guid: 3a9c2387066b57340917fc43ca54b9b3, type: 2}
+      stockQuantity: -1
+      allowBuy: 0
+      allowSell: 1
+      buyPriceOverride: -1
+      sellPriceOverride: 28

@@ -15,6 +15,7 @@ namespace CCS.Modules.Shelter
         private CCS_FrontierHomesteadStructureService homesteadStructureService;
         private Func<Vector3, float, bool> storageProximityQuery;
         private Func<Vector3, float, bool> mountPresenceQuery;
+        private Func<Vector3, float, bool> ranchStructureProximityQuery;
         private CCS_BuildingService buildingService;
         private Func<Vector3, float, bool> bedrollProximityQuery;
         private CCS_ShelterService shelterService;
@@ -61,6 +62,12 @@ namespace CCS.Modules.Shelter
         public void BindMountPresenceQuery(Func<Vector3, float, bool> query)
         {
             mountPresenceQuery = query;
+            RecalculateCamp();
+        }
+
+        public void BindRanchStructureProximityQuery(Func<Vector3, float, bool> query)
+        {
+            ranchStructureProximityQuery = query;
             RecalculateCamp();
         }
 
@@ -144,6 +151,10 @@ namespace CCS.Modules.Shelter
                 && mountPresenceQuery != null
                 && mountPresenceQuery(campCenter, radius);
             presence[CCS_CampStructureKind.Stable] = hasHorsePresence;
+            bool hasLivestockStructure = hasSubjectPosition
+                && ranchStructureProximityQuery != null
+                && ranchStructureProximityQuery(campCenter, radius);
+            presence[CCS_CampStructureKind.Livestock] = hasLivestockStructure;
 
             CCS_CampTier tier = activeProfile.CampTierProfile != null
                 ? CCS_CampTierEvaluationUtility.EvaluateHighestTier(activeProfile.CampTierProfile, presence)
@@ -177,7 +188,8 @@ namespace CCS.Modules.Shelter
                 hasSawTable,
                 hasCharcoalKiln,
                 hasPrimitiveForge,
-                hasHorsePresence);
+                hasHorsePresence,
+                hasLivestockStructure);
 
             savedState.campTier = (int)tier;
             savedState.hasShelter = hasShelter;
@@ -263,7 +275,8 @@ namespace CCS.Modules.Shelter
             bool hasSawTable,
             bool hasCharcoalKiln,
             bool hasPrimitiveForge,
-            bool hasHorsePresence)
+            bool hasHorsePresence,
+            bool hasLivestockStructure)
         {
             List<string> structures = new List<string>(10);
             if (hasShelter)
@@ -309,6 +322,11 @@ namespace CCS.Modules.Shelter
             if (hasHorsePresence)
             {
                 structures.Add(CCS_CampStructureKind.Stable.ToString());
+            }
+
+            if (hasLivestockStructure)
+            {
+                structures.Add(CCS_CampStructureKind.Livestock.ToString());
             }
 
             return structures;

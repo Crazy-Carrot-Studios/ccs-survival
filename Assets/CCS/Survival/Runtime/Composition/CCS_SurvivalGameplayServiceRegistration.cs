@@ -27,12 +27,15 @@ using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
+using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
 using CCS.Modules.WorldSimulation;
+using CCS.Survival.Player;
 using CCS.Survival.Player.Loadout;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_SurvivalGameplayServiceRegistration
@@ -86,6 +89,7 @@ namespace CCS.Survival.Composition
             CCS_FrontierStorageCampProfile frontierStorageCampProfile,
             CCS_IndustryProfile industryProfile,
             CCS_MountProfile mountProfile,
+            CCS_LivestockProfile livestockProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
@@ -314,6 +318,9 @@ namespace CCS.Survival.Composition
             CCS_MountService mountService = CreateMountService(runtimeHost, mountProfile, inventoryService);
             RegisterService(runtimeHost, mountService, enableDebugLogs);
 
+            CCS_RanchService ranchService = CreateRanchService(runtimeHost, livestockProfile, inventoryService, campService);
+            RegisterService(runtimeHost, ranchService, enableDebugLogs);
+
             CCS_VehicleService vehicleService = CreateVehicleService(
                 runtimeHost,
                 vehicleProfile,
@@ -361,6 +368,12 @@ namespace CCS.Survival.Composition
                     campService.BindMountPresenceQuery(
                         (origin, radius) => mountService.HasHorseCampPresence(origin, radius));
                 }
+
+                if (ranchService != null && ranchService.IsInitialized)
+                {
+                    campService.BindRanchStructureProximityQuery(
+                        (origin, radius) => ranchService.HasCampContributingStructureInRadius(origin, radius));
+                }
             }
 
             if (activeItemService != null && activeItemService.IsInitialized)
@@ -371,6 +384,16 @@ namespace CCS.Survival.Composition
                         (itemDefinition, placementRequest) =>
                             TryHandleFrontierStoragePlacement(
                                 frontierStoragePlacementService,
+                                itemDefinition,
+                                placementRequest));
+                }
+
+                if (ranchService != null && ranchService.IsInitialized)
+                {
+                    activeItemService.BindFrontierRanchPlacementHandler(
+                        (itemDefinition, placementRequest) =>
+                            TryHandleFrontierRanchPlacement(
+                                ranchService,
                                 itemDefinition,
                                 placementRequest));
                 }
@@ -418,6 +441,11 @@ namespace CCS.Survival.Composition
                     {
                         vehicleService.TryConsumeWagonPurchaseItem(result.ItemDefinition);
                     }
+
+                    if (ranchService != null && ranchService.IsInitialized)
+                    {
+                        ranchService.TryConsumeLivestockPurchaseItem(result.ItemDefinition);
+                    }
                 };
             }
 
@@ -443,6 +471,7 @@ namespace CCS.Survival.Composition
                 settlementService,
                 regionService,
                 worldSimulationService,
+                ranchService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -487,7 +516,8 @@ namespace CCS.Survival.Composition
                     firearmService,
                     settlementService,
                     regionService,
-                    worldSimulationService);
+                    worldSimulationService,
+                    ranchService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -938,6 +968,103 @@ namespace CCS.Survival.Composition
 
             CCS_FrontierStoragePlacementResult placementResult =
                 storagePlacementService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.HomesteadStructurePlacementPreview
+                        : CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                placementResult.Message,
+                true,
+                itemDefinition.ItemId);
+        }
+
+        private static CCS_RanchService CreateRanchService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_LivestockProfile livestockProfile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_CampService campService)
+        {
+            CCS_RanchService service = new CCS_RanchService();
+            service.Initialize();
+
+            if (livestockProfile != null)
+            {
+                service.InitializeFromProfile(livestockProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                service.BindCampService(campService);
+            }
+
+            service.BindPlayerPositionProvider(() =>
+            {
+                CCS_PlayerGameplayController[] controllers =
+                    Object.FindObjectsByType<CCS_PlayerGameplayController>();
+                if (controllers != null && controllers.Length > 0 && controllers[0] != null)
+                {
+                    return controllers[0].transform.position;
+                }
+
+                return Vector3.zero;
+            });
+
+            CCS_RanchRuntimeBridge.Register(service);
+            if (runtimeHost?.RuntimeUpdateLoop != null)
+            {
+                runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
+            }
+
+            return service;
+        }
+
+        private static CCS_ActiveItemUseResult TryHandleFrontierRanchPlacement(
+            CCS_RanchService ranchService,
+            CCS_ItemDefinition itemDefinition,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (ranchService == null
+                || !ranchService.IsInitialized
+                || itemDefinition == null
+                || !ranchService.TryResolveStructureDefinitionForItem(itemDefinition, out CCS_RanchStructureDefinition structureDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a supported ranch structure kit.",
+                    true,
+                    itemDefinition?.ItemId ?? string.Empty);
+            }
+
+            bool confirmPlacement = ranchService.IsPlacementModeActive;
+            CCS_RanchPlacementRequest placementRequest = new CCS_RanchPlacementRequest(
+                structureDefinition.StructureDefinitionId,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_RanchPlacementResult placementResult = ranchService.HandlePlacementRequest(placementRequest);
             if (!placementResult.IsSuccess)
             {
                 return new CCS_ActiveItemUseResult(

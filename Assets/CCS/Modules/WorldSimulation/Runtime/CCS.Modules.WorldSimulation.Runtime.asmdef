@@ -6,7 +6,8 @@
         "CCS.Survival.Runtime",
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.Settlements.Runtime",
-        "CCS.Modules.Regions.Runtime"
+        "CCS.Modules.Regions.Runtime",
+        "CCS.Modules.Ranching.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
