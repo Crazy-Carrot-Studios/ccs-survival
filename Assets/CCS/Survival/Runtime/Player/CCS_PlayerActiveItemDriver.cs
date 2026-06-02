@@ -63,7 +63,7 @@ namespace CCS.Survival.Player
                 activeItemService.CycleActiveEquippedItem();
             }
 
-            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.R)
+            if (CCS_DevHotkeyUtility.WasReloadActiveFirearmPressed()
                 && activeItemService.ActiveState.BehaviorType == CCS_ActiveItemBehaviorType.Firearm)
             {
                 activeItemService.TryReloadActiveFirearm();

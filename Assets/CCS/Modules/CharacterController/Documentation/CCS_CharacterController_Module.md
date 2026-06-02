@@ -86,9 +86,19 @@ Grounding: `Grounded` / `Airborne` from `CharacterController.isGrounded`.
 | Type | Role |
 |------|------|
 | `CCS_ICharacterInputProvider` | Supplies `CCS_CharacterInputSnapshot` each tick |
-| `CCS_CharacterInputRuntimeBridge` | Serialized/test bridge until New Input System is wired |
+| `CCS_CharacterInputActionProvider` | Reads `CCS_Survival_InputActions` (New Input System gameplay map) |
+| `CCS_KeyboardInputUtility` | Low-level keyboard reads for dev hotkeys via Input System |
+| `CCS_DevHotkeyUtility` | Named dev hotkey chords (F-keys, Ctrl/Shift/Alt, save/load, reload) |
 
-**Deferred:** Input Actions asset, player map, and device rebinding.
+### Input policy (1.7.2)
+
+| Layer | Source |
+|-------|--------|
+| **Gameplay** | `Assets/CCS/Survival/Input/CCS_Survival_InputActions.inputactions` through `CCS_CharacterInputActionProvider` |
+| **Dev hotkeys** | `CCS_DevHotkeyUtility` / `CCS_KeyboardInputUtility` only |
+| **Banned** | Legacy `UnityEngine.Input` (`Input.GetKey*`, old Input Manager assumptions) |
+
+Foundation validation scans project sources and fails if legacy input or obsolete `FindObjectsSortMode` usage is reintroduced.
 
 ---
 

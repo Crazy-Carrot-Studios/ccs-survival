@@ -1,3 +1,4 @@
+using CCS.Modules.CharacterController;
 using CCS.Modules.Inventory;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap harness or vendor test object.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Milestone 1.3.1 polish — readable balances, hotkeys, last transaction summary.
+// NOTES: Dev hotkeys route through CCS_DevHotkeyUtility (Input System keyboard reads).
 // =============================================================================
 
 namespace CCS.Modules.Economy
@@ -72,6 +73,33 @@ namespace CCS.Modules.Economy
             }
         }
 
+        private void Update()
+        {
+            if (!s_showPanel || s_activeVendorDefinition == null)
+            {
+                return;
+            }
+
+            if (CCS_DevHotkeyUtility.WasCloseVendorDebugPanelPressed())
+            {
+                HidePanel();
+                return;
+            }
+
+            if (CCS_DevHotkeyUtility.WasShiftPressed(KeyCode.V))
+            {
+                TryTransactionByItemId(RawFishItemId, isSell: true);
+            }
+            else if (CCS_DevHotkeyUtility.WasUnmodifiedPressed(KeyCode.V))
+            {
+                TryTransactionByItemId(CordageItemId, isSell: false);
+            }
+            else if (CCS_DevHotkeyUtility.WasUnmodifiedPressed(KeyCode.H))
+            {
+                TryTransactionByItemId(BoneHatchetItemId, isSell: false);
+            }
+        }
+
         private void OnGUI()
         {
             if (!s_showPanel || s_activeVendorDefinition == null)
@@ -112,32 +140,6 @@ namespace CCS.Modules.Economy
             }
 
             GUILayout.EndArea();
-
-            if (Event.current.type == EventType.KeyDown)
-            {
-                if (Event.current.keyCode == KeyCode.Escape)
-                {
-                    HidePanel();
-                    Event.current.Use();
-                }
-                else if (Event.current.keyCode == KeyCode.V
-                    && !Event.current.shift
-                    && !Event.current.control)
-                {
-                    TryTransactionByItemId(CordageItemId, isSell: false);
-                    Event.current.Use();
-                }
-                else if (Event.current.keyCode == KeyCode.H)
-                {
-                    TryTransactionByItemId(BoneHatchetItemId, isSell: false);
-                    Event.current.Use();
-                }
-                else if (Event.current.keyCode == KeyCode.V && Event.current.shift)
-                {
-                    TryTransactionByItemId(RawFishItemId, isSell: true);
-                    Event.current.Use();
-                }
-            }
         }
 
         private static void DrawCurrencyBalance()

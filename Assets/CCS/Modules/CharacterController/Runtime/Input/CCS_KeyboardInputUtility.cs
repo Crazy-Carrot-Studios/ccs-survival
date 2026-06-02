@@ -86,6 +86,7 @@ namespace CCS.Modules.CharacterController
                 case KeyCode.RightControl: key = Key.RightCtrl; return true;
                 case KeyCode.LeftAlt: key = Key.LeftAlt; return true;
                 case KeyCode.RightAlt: key = Key.RightAlt; return true;
+                case KeyCode.Escape: key = Key.Escape; return true;
                 default:
                     key = Key.None;
                     return false;

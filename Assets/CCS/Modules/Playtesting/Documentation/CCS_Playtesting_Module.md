@@ -83,7 +83,20 @@ This is not production UI and does not automate gameplay.
 | **B** | Place test foundation (dev) |
 | **F** | Consume food (`CCS_ConsumableFoodPlayerDriver`) |
 | **Primary action** | Melee attack / interact gather |
-| **F5** / **F9** | Save / load (`CCS_SaveDebugController`) |
+| **F5** / **F9** / **F8** | Save / load / delete save (`CCS_SaveDebugController` via `CCS_DevHotkeyUtility`) |
+| **R** | Reload active firearm (`CCS_PlayerActiveItemDriver`) |
+
+## Input routing (1.7.2)
+
+| Layer | Source |
+|-------|--------|
+| Gameplay | `CCS_Survival_InputActions` |
+| Dev hotkeys | `CCS_DevHotkeyUtility` / `CCS_KeyboardInputUtility` |
+| Banned | Legacy `UnityEngine.Input` |
+
+## Checklist groups (HUD)
+
+Steps render under grouped headers: Core Spawn / Movement, Inventory / Equipment, Gathering / Crafting, Fishing, Economy, Hunting, Trapping, Cooking, Shelter / Homestead, Industry, Horse / Wagon, Firearms, Prospecting. Mapping lives in `CCS_PlaytestStepGroupingUtility`.
 
 ## Runtime types
 
@@ -95,7 +108,9 @@ This is not production UI and does not automate gameplay.
 | `CCS_PlaytestProfile` | Harness tuning and default steps |
 | `CCS_PlaytestService` | Checklist state and module event subscriptions |
 | `CCS_PlaytestRuntimeBridge` | Resolves service from `CCS_RuntimeHost` |
-| `CCS_PlaytestHud` | On-screen dev checklist (OnGUI) |
+| `CCS_PlaytestHud` | On-screen dev checklist (OnGUI, grouped by domain) |
+| `CCS_PlaytestStepGroup` | HUD checklist section enum |
+| `CCS_PlaytestStepGroupingUtility` | Maps step types to HUD groups |
 | `CCS_PlaytestEventArgs` | Step change payloads |
 
 ## Default profile

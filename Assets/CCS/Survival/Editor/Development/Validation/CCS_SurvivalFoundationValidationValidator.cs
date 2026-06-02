@@ -57,6 +57,7 @@ namespace CCS.Survival.Editor.Development
                 $"{SurvivalRoot}/Documentation/CCS_Survival_Module_Roadmap.md");
 
             ValidateProjectVersion(report);
+            ValidateInputAndObsoleteApiStandards(report);
             ValidateBootstrapScenePlayerIntegration(report);
             CCS_BootstrapSceneValidationUtility.ValidatePlayableGround(report);
 
@@ -147,6 +148,13 @@ namespace CCS.Survival.Editor.Development
                 "Project Version",
                 ExpectedBundleVersion);
             CCS_SurvivalBootstrapVersionUtility.ValidateNoHardcodedBootstrapVersionWrites(report, "Project Version");
+        }
+
+        private static void ValidateInputAndObsoleteApiStandards(CCS_SurvivalValidationReport report)
+        {
+            CCS_SurvivalInputValidationUtility.ValidateNoLegacyInputUsage(report, "Input Policy");
+            CCS_SurvivalInputValidationUtility.ValidateNoFindObjectsSortModeUsage(report, "Obsolete API Scan");
+            CCS_SurvivalInputValidationUtility.ValidateDevHotkeyRegistry(report, "Dev Hotkeys");
         }
 
         private static void ValidateBootstrapScenePlayerIntegration(CCS_SurvivalValidationReport report)

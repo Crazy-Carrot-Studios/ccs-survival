@@ -77,6 +77,7 @@ namespace CCS.Modules.Playtesting.Editor
             ValidateCompositionRegistration(report);
             ValidateBootstrapWiring(report);
             ValidateDocumentation(report);
+            ValidatePlaytestGroupingAndStepIds(report);
         }
 
         #endregion
@@ -112,11 +113,71 @@ namespace CCS.Modules.Playtesting.Editor
             }
 
             ValidateRequiredStepTypes(report, profile);
+            ValidateUniqueStepIds(report, profile);
             ValidateBuildShelterStep(report, profile);
             report.AddIssue(
                 CCS_SurvivalValidationIssueSeverity.Info,
                 "Playtesting Profile",
                 "Default playtest profile validated.");
+        }
+
+        private static void ValidatePlaytestGroupingAndStepIds(CCS_SurvivalValidationReport report)
+        {
+            CCS_PlaytestStepType[] stepTypes = (CCS_PlaytestStepType[])System.Enum.GetValues(typeof(CCS_PlaytestStepType));
+            IReadOnlyList<CCS_PlaytestStepGroup> orderedGroups = CCS_PlaytestStepGroupingUtility.GetOrderedGroups();
+            HashSet<CCS_PlaytestStepGroup> groupSet = new HashSet<CCS_PlaytestStepGroup>(orderedGroups);
+
+            for (int index = 0; index < stepTypes.Length; index++)
+            {
+                CCS_PlaytestStepType stepType = stepTypes[index];
+                CCS_PlaytestStepGroup group = CCS_PlaytestStepGroupingUtility.ResolveGroup(stepType);
+                if (!groupSet.Contains(group))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Playtesting Groups",
+                        $"Step type {stepType} resolves to unknown group {group}.");
+                }
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Playtesting Groups",
+                $"Playtest step grouping covers {stepTypes.Length} step types across {orderedGroups.Count} groups.");
+        }
+
+        private static void ValidateUniqueStepIds(CCS_SurvivalValidationReport report, CCS_PlaytestProfile profile)
+        {
+            HashSet<string> seenStepIds = new HashSet<string>();
+            IReadOnlyList<CCS_PlaytestStepDefinition> steps = profile.StepDefinitions;
+            for (int index = 0; index < steps.Count; index++)
+            {
+                CCS_PlaytestStepDefinition step = steps[index];
+                if (step == null || string.IsNullOrWhiteSpace(step.StepId))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Playtesting Step Ids",
+                        $"Step at index {index} is missing a stepId.");
+                    continue;
+                }
+
+                if (!seenStepIds.Add(step.StepId))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Playtesting Step Ids",
+                        $"Duplicate playtest stepId '{step.StepId}'.");
+                }
+            }
+
+            if (seenStepIds.Count > 0)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Playtesting Step Ids",
+                    $"Validated {seenStepIds.Count} unique playtest step ids.");
+            }
         }
 
         private static void ValidateBuildShelterStep(CCS_SurvivalValidationReport report, CCS_PlaytestProfile profile)

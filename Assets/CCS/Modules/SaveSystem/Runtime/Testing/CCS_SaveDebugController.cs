@@ -35,19 +35,19 @@ namespace CCS.Modules.SaveSystem
                 return;
             }
 
-            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F5))
+            if (CCS_DevHotkeyUtility.WasSaveGamePressed())
             {
                 bool saved = saveService.SaveGame();
                 Debug.Log($"{LogPrefix} Manual save {(saved ? "succeeded" : "failed")}.");
             }
 
-            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F9))
+            if (CCS_DevHotkeyUtility.WasLoadGamePressed())
             {
                 bool loaded = saveService.LoadGame();
                 Debug.Log($"{LogPrefix} Manual load {(loaded ? "succeeded" : "failed")}.");
             }
 
-            if (CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.F8))
+            if (CCS_DevHotkeyUtility.WasDeleteSavePressed())
             {
                 bool deleted = saveService.DeleteSave();
                 Debug.Log($"{LogPrefix} Delete save {(deleted ? "succeeded" : "failed")}.");

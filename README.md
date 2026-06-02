@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.7.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.7.2-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.7.2** — Playtest Harness Cleanup + Input Action Consolidation
+
+Dev hotkeys consolidated through `CCS_DevHotkeyUtility` / `CCS_KeyboardInputUtility` (New Input System only). Playtest HUD checklist grouped by survival domain. Validation scans ban legacy `UnityEngine.Input` and obsolete API usage.
 
 **1.7.1** — Bootstrap Version Safety Cleanup
 
@@ -212,8 +216,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **1.7.1** |
-| Output | `Builds/CCS_Survival_1.7.1_Windows/` (gitignored) |
+| Version | **1.7.2** |
+| Output | `Builds/CCS_Survival_1.7.2_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
@@ -230,10 +234,11 @@ Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Bui
 | Look | Reduced mouse sensitivity; safe pitch clamp |
 | Architecture | Modular service-driven composition via bootstrap host |
 | Bootstrap version policy | Milestone bootstraps must use `CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion)` — never hard-code `Regex.Replace(..., "bundleVersion: X.Y.Z")`. Update `CurrentMilestoneVersion` when cutting a release. Foundation validation scans for stale hard-coded writes. |
+| Input policy | Gameplay reads `Assets/CCS/Survival/Input/CCS_Survival_InputActions.inputactions` via `CCS_CharacterInputActionProvider`. Dev-only hotkeys use `CCS_DevHotkeyUtility` / `CCS_KeyboardInputUtility`. **Legacy `UnityEngine.Input` is banned.** |
 
 ### Bootstrap version policy
 
-1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **1.7.1**).
+1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **1.7.2**).
 2. **Bootstrap writes:** Every `*BootstrapSetup.cs` that touches `ProjectSettings.bundleVersion` must call `EnsureBundleVersionAtLeast(...)` so older scripts only bump forward, never downgrade.
 3. **Validators:** Check `bundleVersion >= CurrentMilestoneVersion` via `AddBundleVersionValidationIssue`. Do not pin exact milestone strings that break on the next release.
 4. **Log strings:** Historical milestone labels in `Debug.Log` or playtest copy may stay unchanged (e.g. wagon bootstrap still logs `1.5.2`).
