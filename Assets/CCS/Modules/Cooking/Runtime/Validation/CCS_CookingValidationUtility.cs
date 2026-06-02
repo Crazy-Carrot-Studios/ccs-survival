@@ -20,6 +20,11 @@ namespace CCS.Modules.Cooking
     {
         private const string CookRabbitRecipeId = "ccs.survival.cooking.recipe.cookrabbit";
         private const string CookVenisonRecipeId = "ccs.survival.cooking.recipe.cookvenison";
+        private const string CookFishRecipeId = "ccs.survival.cooking.recipe.cookfish";
+        private const string SmokeJerkyRecipeId = "ccs.survival.cooking.recipe.smokejerky";
+        private const string CookedFishItemId = "ccs.survival.item.food.cookedfish";
+        private const string JerkyItemId = "ccs.survival.item.food.jerky";
+        private const string RawFishItemId = "ccs.survival.item.resource.rawfish";
 
         #region Public Methods
 
@@ -118,6 +123,65 @@ namespace CCS.Modules.Cooking
             return CCS_SurvivalValidationResult.Pass("Cooking profile validated.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateFrontierCookingExpansion(CCS_CookingProfile profile)
+        {
+            if (profile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Cooking profile is null.");
+            }
+
+            profile.BuildRecipeLookup();
+
+            CCS_SurvivalValidationResult fishRecipe = ValidateRecipeExists(profile, CookFishRecipeId);
+            if (!fishRecipe.IsSuccess)
+            {
+                return fishRecipe;
+            }
+
+            CCS_SurvivalValidationResult jerkyRecipe = ValidateRecipeExists(profile, SmokeJerkyRecipeId);
+            if (!jerkyRecipe.IsSuccess)
+            {
+                return jerkyRecipe;
+            }
+
+            if (!profile.TryResolveItemDefinition(CookedFishItemId, out CCS_ItemDefinition cookedFish)
+                || cookedFish == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Cooked fish item is not in the cooking recipe catalog.");
+            }
+
+            if (!profile.TryResolveItemDefinition(JerkyItemId, out CCS_ItemDefinition jerky)
+                || jerky == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Jerky item is not in the cooking recipe catalog.");
+            }
+
+            if (!TryGetConsumableHunger(profile, CookedFishItemId, out float cookedFishHunger)
+                || !TryGetConsumableHunger(profile, RawFishItemId, out float rawFishHunger))
+            {
+                return CCS_SurvivalValidationResult.Fail("Fish consumable definitions are missing from the cooking profile.");
+            }
+
+            if (cookedFishHunger <= rawFishHunger)
+            {
+                return CCS_SurvivalValidationResult.Fail("Cooked fish must restore more hunger than raw fish.");
+            }
+
+            if (!TryGetConsumableHunger(profile, JerkyItemId, out float jerkyHunger)
+                || jerkyHunger <= rawFishHunger
+                || jerkyHunger >= cookedFishHunger)
+            {
+                return CCS_SurvivalValidationResult.Fail("Jerky must restore more hunger than raw fish but less than cooked meals.");
+            }
+
+            if (!jerky.HasEconomyValues || jerky.SellValue <= 0)
+            {
+                return CCS_SurvivalValidationResult.Fail("Jerky must have economy sell value for frontier trade.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Frontier cooking expansion validated.");
+        }
+
         public static CCS_SurvivalValidationResult ValidateCampfireDefinition(CCS_CampfireDefinition campfireDefinition)
         {
             if (campfireDefinition == null)
@@ -188,6 +252,29 @@ namespace CCS.Modules.Cooking
         #endregion
 
         #region Private Methods
+
+        private static bool TryGetConsumableHunger(CCS_CookingProfile profile, string itemId, out float hungerRestore)
+        {
+            hungerRestore = 0f;
+            IReadOnlyList<CCS_ConsumableFoodDefinition> definitions = profile.ConsumableFoodDefinitions;
+            if (definitions == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < definitions.Count; index++)
+            {
+                CCS_ConsumableFoodDefinition definition = definitions[index];
+                if (definition?.ItemDefinition != null
+                    && string.Equals(definition.ItemDefinition.ItemId, itemId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    hungerRestore = definition.HungerRestoreAmount;
+                    return hungerRestore > 0f;
+                }
+            }
+
+            return false;
+        }
 
         private static CCS_SurvivalValidationResult ValidateRecipeExists(CCS_CookingProfile profile, string recipeId)
         {

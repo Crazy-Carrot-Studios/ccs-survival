@@ -13,7 +13,9 @@
         "CCS.Modules.Crafting.Runtime",
         "CCS.Modules.Building.Runtime",
         "CCS.Modules.Wildlife.Runtime",
-        "CCS.Modules.SurvivalCore.Runtime"
+        "CCS.Modules.SurvivalCore.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Economy.Runtime"
     ],
     "includePlatforms": [
         "Editor"

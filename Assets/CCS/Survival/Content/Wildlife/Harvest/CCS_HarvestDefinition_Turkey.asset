@@ -29,3 +29,7 @@ MonoBehaviour:
     minQuantity: 1
     maxQuantity: 1
     harvestMethodType: 5
+  - itemDefinition: {fileID: 11400000, guid: 959fe654f37238147925c05c92f7247a, type: 2}
+    minQuantity: 1
+    maxQuantity: 1
+    harvestMethodType: 5

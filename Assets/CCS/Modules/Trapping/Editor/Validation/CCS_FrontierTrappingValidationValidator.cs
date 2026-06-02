@@ -1,4 +1,3 @@
-using System.IO;
 using CCS.Modules.Crafting;
 using CCS.Modules.Inventory;
 using CCS.Modules.Playtesting;
@@ -14,22 +13,11 @@ namespace CCS.Modules.Trapping.Editor
 
         public void Validate(CCS_SurvivalValidationReport report)
         {
-            ValidateBundleVersion(report);
             ValidateTrapProfile(report);
             ValidateTrapDefinition(report);
             ValidateSimpleTrapItem(report);
             ValidateTrapRecipe(report);
             ValidatePlaytestSteps(report);
-        }
-
-        private static void ValidateBundleVersion(CCS_SurvivalValidationReport report)
-        {
-            string path = "ProjectSettings/ProjectSettings.asset";
-            bool ok = File.Exists(path) && File.ReadAllText(path).Contains("bundleVersion: 1.3.3");
-            report.AddIssue(
-                ok ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
-                "Project Version",
-                ok ? "bundleVersion is 1.3.3." : "Expected bundleVersion 1.3.3. Run CCS_FrontierTrappingBootstrapSetup.ExecuteBatch.");
         }
 
         private static void ValidateTrapProfile(CCS_SurvivalValidationReport report)

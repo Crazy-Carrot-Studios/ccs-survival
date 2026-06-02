@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8490a90abcdef1234560d, type: 3}
-  m_Name: CCS_Item_CookedVenison
+  m_Name: CCS_Item_Jerky
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
-  itemId: ccs.survival.item.food.cookedvenison
-  displayName: Cooked Venison
-  description: Cooked venison that restores more hunger than raw venison.
+  itemId: ccs.survival.item.food.jerky
+  displayName: Jerky
+  description: Smoke-dried meat trail ration. Lower hunger restore than a hot meal,
+    better trade value than raw meat.
   category: 2
   maxStackSize: 20
   isStackable: 1
@@ -33,6 +34,6 @@ MonoBehaviour:
   meleeRange: 2
   icon: {fileID: 0}
   hasEconomyValues: 1
-  buyValue: 0
+  buyValue: 3
   sellValue: 8
   vendorCategory: 0

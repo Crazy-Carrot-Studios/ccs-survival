@@ -17,6 +17,8 @@ Timer + capture roll (no collision simulation)
 Harvest with knife (CCS_WildlifeHarvestService)
   ↓
 Trade goods at General Store
+  ↓
+Cook or preserve meat/fish at campfire (1.3.4)
 ```
 
 ## Architecture

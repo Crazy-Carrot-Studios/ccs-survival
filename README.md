@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.3.3-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.3.4-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**1.3.4** — Cooking + Food Preservation Expansion
+
+Campfire cook recipes for fish and all frontier meats, smoke-only jerky/dried fish preservation, consumable hunger tuning, General Store trail food trade, and playtest cooking loop (raw → cook → eat → preserve → sell).
 
 **1.3.3** — Frontier Trapping Foundation
 
@@ -82,6 +86,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.3.4** | Cooking + Food Preservation Expansion |
 | **1.3.3** | Frontier Trapping Foundation |
 | **1.3.2** | Frontier Hunting Foundation |
 | **1.3.1** | Vendor Trading Polish + Tool Acquisition |

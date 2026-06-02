@@ -35,5 +35,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   hasEconomyValues: 1
   buyValue: 0
-  sellValue: 3
+  sellValue: 2
   vendorCategory: 0

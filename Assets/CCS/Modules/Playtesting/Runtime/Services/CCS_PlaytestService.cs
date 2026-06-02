@@ -62,6 +62,12 @@ namespace CCS.Modules.Playtesting
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
+        private const string RawMeatItemId = "ccs.survival.item.resource.rawmeat";
+        private const string CookedFishItemId = "ccs.survival.item.food.cookedfish";
+        private const string CookedMeatItemId = "ccs.survival.item.food.cookedmeat";
+        private const string CookedTurkeyItemId = "ccs.survival.item.food.cookedturkey";
+        private const string JerkyItemId = "ccs.survival.item.food.jerky";
+        private const string DriedFishItemId = "ccs.survival.item.food.driedfish";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
         private const string LegacyFoundationPieceId = "ccs.survival.building.test.foundation";
 
@@ -807,6 +813,21 @@ namespace CCS.Modules.Playtesting
         private void HandleCookingCompleted(CCS_CookingEventArgs eventArgs)
         {
             TryCompleteActiveStepOfType(CCS_PlaytestStepType.CookFood, "Cooking completed.");
+
+            string cookedItemId = eventArgs?.CookedItemId ?? string.Empty;
+            if (IsCookedFoodItem(cookedItemId) || IsPreservedFoodItem(cookedItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyCookedFoodInInventory,
+                    "Cooked food added to inventory.");
+            }
+
+            if (IsPreservedFoodItem(cookedItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PreserveFoodAtCampfire,
+                    "Preserved food created at campfire.");
+            }
         }
 
         private void HandleFoodConsumed(CCS_CookingEventArgs eventArgs)
@@ -1413,6 +1434,7 @@ namespace CCS.Modules.Playtesting
             TryEvaluateEconomyPlaytestSteps();
             TryEvaluateHuntingPlaytestSteps();
             TryEvaluateTrappingPlaytestSteps();
+            TryEvaluateCookingPlaytestSteps();
         }
 
         public bool TryGrantPlaytestRawFish()
@@ -1426,7 +1448,42 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.ObtainFishForTrade,
                 "Raw fish available for vendor trade.");
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ObtainRawFoodForCooking,
+                "Raw fish available for cooking playtest.");
             return true;
+        }
+
+        public bool TryGrantPlaytestRawMeat()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || !TryAddInventoryItemById(inventoryService, RawMeatItemId, 1))
+            {
+                return false;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ObtainRawFoodForCooking,
+                "Raw meat available for cooking playtest.");
+            return true;
+        }
+
+        public bool TryPlaytestSellPreservedFood()
+        {
+            if (!EnsureVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition jerky = FindItemDefinitionById(JerkyItemId);
+            if (jerky == null)
+            {
+                return false;
+            }
+
+            playtestCurrencyBaseline = GetTradeDollarsBalance();
+            CCS_VendorTransactionResult result = boundVendorService.TrySellActiveVendorItem(jerky, 1);
+            return result.IsSuccess;
         }
 
         public bool TryPlaytestSellRawFish()
@@ -1704,6 +1761,24 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SellTrappingResourceAtVendor,
                     "Sold trap harvest hide at general store.");
+            }
+
+            if (result.WasSell && IsPreservedFoodItem(result.ItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellPreservedFoodAtVendor,
+                    "Sold preserved food at general store.");
+            }
+
+            if (result.WasSell && IsPreservedFoodItem(result.ItemId))
+            {
+                int balance = result.CurrencyBalanceAfter;
+                if (balance > playtestCurrencyBaseline)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyCookingCurrencyIncreased,
+                        $"Cooking trade dollars increased to {balance}.");
+                }
             }
 
             if (!result.WasSell && result.ItemId == CordageItemId)
@@ -2243,9 +2318,55 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        private void TryEvaluateCookingPlaytestSteps()
+        {
+            if (!harnessEnabled || activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
+            {
+                return;
+            }
+
+            CCS_PlaytestStepType stepType = stepStates[activeStepIndex].Definition.StepType;
+            if (stepType == CCS_PlaytestStepType.VerifyCookedFoodInInventory)
+            {
+                if (HasAnyInventoryItem(
+                        CookedFishItemId,
+                        CookedMeatItemId,
+                        CookedRabbitItemId,
+                        CookedVenisonItemId,
+                        CookedTurkeyItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyCookedFoodInInventory,
+                        "Cooked food verified in inventory.");
+                }
+            }
+        }
+
+        private bool HasAnyInventoryItem(params string[] itemIds)
+        {
+            for (int index = 0; index < itemIds.Length; index++)
+            {
+                if (HasInventoryItem(itemIds[index]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static bool IsCookedFoodItem(string itemId)
         {
-            return itemId == CookedRabbitItemId || itemId == CookedVenisonItemId;
+            return itemId == CookedRabbitItemId
+                || itemId == CookedVenisonItemId
+                || itemId == CookedFishItemId
+                || itemId == CookedMeatItemId
+                || itemId == CookedTurkeyItemId;
+        }
+
+        private static bool IsPreservedFoodItem(string itemId)
+        {
+            return itemId == JerkyItemId || itemId == DriedFishItemId;
         }
 
         private void RaiseStepChanged(CCS_PlaytestStepState state, string message)

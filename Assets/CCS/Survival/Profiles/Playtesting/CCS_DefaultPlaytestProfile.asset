@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Frontier starter progression with economy, hunting, and trapping
-    playtest checklist for milestone 1.3.3.
-  profileVersion: 1.3.3
+  profileDescription: Frontier starter progression with fishing, hunting, trapping,
+    and cooking playtest checklist (1.3.4).
+  profileVersion: 1.3.4
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -350,6 +350,63 @@ MonoBehaviour:
     displayName: Verify trapping currency increased
     stepType: 44
     instructionText: Confirm Trade Dollars increased after selling trap hide.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.raw.obtain
+    displayName: Obtain raw food
+    stepType: 45
+    instructionText: Press Ctrl+Alt+M for raw meat or Ctrl+V for raw fish.
+    targetItemId: ccs.survival.item.resource.rawmeat
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.cook
+    displayName: Cook at campfire
+    stepType: 5
+    instructionText: Interact with CCS_TestCampfire and cook raw meat or fish.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.verify
+    displayName: Verify cooked food
+    stepType: 46
+    instructionText: Confirm cooked fish or meat is in inventory after cooking.
+    targetItemId: ccs.survival.item.food.cookedmeat
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.eat
+    displayName: Consume cooked food
+    stepType: 6
+    instructionText: Press F to consume cooked food from inventory.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.preserve
+    displayName: Preserve food at campfire
+    stepType: 47
+    instructionText: Smoke raw meat into jerky or raw fish into dried fish (longer
+      cook time).
+    targetItemId: ccs.survival.item.food.jerky
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.sell
+    displayName: Sell preserved food
+    stepType: 48
+    instructionText: Sell jerky at general store (Shift+V on this step).
+    targetItemId: ccs.survival.item.food.jerky
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.cooking.currency.verify
+    displayName: Verify cooking currency increased
+    stepType: 49
+    instructionText: Confirm Trade Dollars increased after selling preserved food.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

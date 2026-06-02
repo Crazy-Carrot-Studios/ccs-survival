@@ -53,7 +53,7 @@ Fishing spots use:
 | `ccs.survival.recipe.frontier.crudehook.scrap` | Crude Hook | Scrap Iron x1 |
 | `ccs.survival.recipe.frontier.fishingpole` | Fishing Pole | Sapling + Fishing Line + Crude Hook |
 
-**Cooked Fish:** reserved for Cooking module integration.
+**Cooked Fish:** `ccs.survival.item.food.cookedfish` via campfire (`ccs.survival.cooking.recipe.cookfish`, 1.3.4). **Dried Fish:** smoke preservation recipe (`ccs.survival.cooking.recipe.smokedriedfish`).
 
 ## Economy (1.3.0)
 
@@ -69,5 +69,5 @@ CCS.Modules.Fishing.Editor.CCS_FishingBootstrapSetup.ExecuteBatch
 
 - Fishing minigame and tension mechanics
 - Bait consumption policies per water body
-- Cooking integration for cooked fish
+- Salt curing for dried fish (smoke-only in 1.3.4)
 - Multiplayer authority on `CCS_FishingRequest` / spot state

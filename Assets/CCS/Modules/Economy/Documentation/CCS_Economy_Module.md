@@ -1,8 +1,8 @@
-# CCS Economy Module (1.3.3)
+# CCS Economy Module (1.3.4)
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Milestone:** 1.3.3 — Frontier Trapping Foundation (hunting + trapping trade goods unchanged)
+**Milestone:** 1.3.4 — Cooking + Food Preservation (trail food buy/sell on General Store)
 
 ## Purpose
 

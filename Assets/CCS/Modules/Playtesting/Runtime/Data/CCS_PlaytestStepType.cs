@@ -56,6 +56,11 @@ namespace CCS.Modules.Playtesting
         HarvestTriggeredTrap = 41,
         VerifyTrapHarvestInventory = 42,
         SellTrappingResourceAtVendor = 43,
-        VerifyTrappingCurrencyIncreased = 44
+        VerifyTrappingCurrencyIncreased = 44,
+        ObtainRawFoodForCooking = 45,
+        VerifyCookedFoodInInventory = 46,
+        PreserveFoodAtCampfire = 47,
+        SellPreservedFoodAtVendor = 48,
+        VerifyCookingCurrencyIncreased = 49
     }
 }

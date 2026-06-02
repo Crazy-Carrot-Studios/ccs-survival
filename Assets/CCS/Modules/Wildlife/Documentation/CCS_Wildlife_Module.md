@@ -72,7 +72,7 @@ Content assets live under `Assets/CCS/Survival/Content/Wildlife/` (frontier-spec
 | Species | Skin / Butcher outputs |
 |---------|------------------------|
 | Rabbit | Raw meat, hide, bone |
-| Turkey | Raw meat, feather, bone |
+| Turkey | Raw meat, raw turkey meat (1.3.4), feather, bone |
 | Deer | Raw meat, hide, bone, animal fat |
 
 ---
