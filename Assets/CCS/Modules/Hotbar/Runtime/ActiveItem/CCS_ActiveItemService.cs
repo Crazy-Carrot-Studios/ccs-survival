@@ -6,6 +6,7 @@ using CCS.Modules.Gathering;
 using CCS.Modules.Interaction;
 using CCS.Modules.Inventory;
 using CCS.Modules.Trapping;
+using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Modules.WorldResources;
 using CCS.Survival;
@@ -37,6 +38,7 @@ namespace CCS.Modules.Hotbar
         private CCS_InteractionService interactionService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_TrapService trapService;
+        private CCS_FrontierShelterService frontierShelterService;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -135,6 +137,11 @@ namespace CCS.Modules.Hotbar
         public void BindTrapService(CCS_TrapService service)
         {
             trapService = service;
+        }
+
+        public void BindFrontierShelterService(CCS_FrontierShelterService service)
+        {
+            frontierShelterService = service;
         }
 
         public void UnbindEquipmentService()
@@ -443,55 +450,90 @@ namespace CCS.Modules.Hotbar
 
         private CCS_ActiveItemUseResult TryUsePlaceable(CCS_ActiveItemState state, CCS_ActiveItemUseRequest request)
         {
-            if (trapService == null || !trapService.IsInitialized)
+            if (trapService != null
+                && trapService.IsInitialized
+                && trapService.TryResolveTrapDefinitionForItem(state.ItemDefinition, out CCS_TrapDefinition trapDefinition))
             {
-                return new CCS_ActiveItemUseResult(
-                    CCS_ActiveItemUseResultType.ServiceUnavailable,
-                    "Trap service is unavailable.",
-                    false,
-                    state.ActiveItemId);
-            }
+                bool confirmPlacement = trapService.IsPlacementModeActive;
+                CCS_TrapPlacementRequest placementRequest = new CCS_TrapPlacementRequest(
+                    trapDefinition,
+                    request.UseOrigin,
+                    request.UseDirection,
+                    confirmPlacement);
 
-            if (!trapService.TryResolveTrapDefinitionForItem(state.ItemDefinition, out CCS_TrapDefinition trapDefinition))
-            {
-                return new CCS_ActiveItemUseResult(
-                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
-                    "Item is not a placeable trap.",
-                    true,
-                    state.ActiveItemId);
-            }
+                CCS_TrapPlacementResult placementResult = trapService.HandlePlacementRequest(placementRequest);
+                if (!placementResult.IsSuccess)
+                {
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                        placementResult.Message,
+                        true,
+                        state.ActiveItemId);
+                }
 
-            bool confirmPlacement = trapService.IsPlacementModeActive;
-            CCS_TrapPlacementRequest placementRequest = new CCS_TrapPlacementRequest(
-                trapDefinition,
-                request.UseOrigin,
-                request.UseDirection,
-                confirmPlacement);
+                if (placementResult.IsPreview)
+                {
+                    return new CCS_ActiveItemUseResult(
+                        placementResult.IsValid
+                            ? CCS_ActiveItemUseResultType.TrapPlacementPreview
+                            : CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                        placementResult.Message,
+                        true,
+                        state.ActiveItemId);
+                }
 
-            CCS_TrapPlacementResult placementResult = trapService.HandlePlacementRequest(placementRequest);
-            if (!placementResult.IsSuccess)
-            {
                 return new CCS_ActiveItemUseResult(
-                    CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                    CCS_ActiveItemUseResultType.TrapPlaced,
                     placementResult.Message,
                     true,
                     state.ActiveItemId);
             }
 
-            if (placementResult.IsPreview)
+            if (frontierShelterService != null
+                && frontierShelterService.IsInitialized
+                && frontierShelterService.TryResolveShelterDefinitionForItem(
+                    state.ItemDefinition,
+                    out CCS_ShelterDefinition shelterDefinition))
             {
+                bool confirmPlacement = frontierShelterService.IsPlacementModeActive;
+                CCS_FrontierShelterPlacementRequest placementRequest = new CCS_FrontierShelterPlacementRequest(
+                    shelterDefinition,
+                    request.UseOrigin,
+                    request.UseDirection,
+                    confirmPlacement);
+
+                CCS_FrontierShelterPlacementResult placementResult =
+                    frontierShelterService.HandlePlacementRequest(placementRequest);
+                if (!placementResult.IsSuccess)
+                {
+                    return new CCS_ActiveItemUseResult(
+                        CCS_ActiveItemUseResultType.ShelterPlacementFailed,
+                        placementResult.Message,
+                        true,
+                        state.ActiveItemId);
+                }
+
+                if (placementResult.IsPreview)
+                {
+                    return new CCS_ActiveItemUseResult(
+                        placementResult.IsValid
+                            ? CCS_ActiveItemUseResultType.ShelterPlacementPreview
+                            : CCS_ActiveItemUseResultType.ShelterPlacementFailed,
+                        placementResult.Message,
+                        true,
+                        state.ActiveItemId);
+                }
+
                 return new CCS_ActiveItemUseResult(
-                    placementResult.IsValid
-                        ? CCS_ActiveItemUseResultType.TrapPlacementPreview
-                        : CCS_ActiveItemUseResultType.TrapPlacementFailed,
+                    CCS_ActiveItemUseResultType.ShelterPlaced,
                     placementResult.Message,
                     true,
                     state.ActiveItemId);
             }
 
             return new CCS_ActiveItemUseResult(
-                CCS_ActiveItemUseResultType.TrapPlaced,
-                placementResult.Message,
+                CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                "Item is not a supported placeable.",
                 true,
                 state.ActiveItemId);
         }

@@ -24,6 +24,7 @@
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Trapping.Runtime",
+        "CCS.Modules.Shelter.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

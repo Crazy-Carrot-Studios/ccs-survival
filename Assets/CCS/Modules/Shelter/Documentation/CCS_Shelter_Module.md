@@ -5,7 +5,25 @@
 **Namespace:** `CCS.Modules.Shelter` (editor: `CCS.Modules.Shelter.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Trigger volumes plus building contribution coverage (max protection within radius). No enclosure detection yet.
+**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters and camp tier tracking (1.4.0).
+
+---
+
+## Frontier camp loop (1.4.0)
+
+```
+Gather Resources → Build Shelter Kit → Place Lean-To → Place Campfire + Bedroll → TemporaryCamp → Sleep
+```
+
+| Piece | Role |
+|-------|------|
+| `CCS_ShelterDefinition` | Frontier shelter costs, effects, kit item, camp tier marker |
+| `CCS_CampDefinition` | Shelter catalog + camp detection radius |
+| `CCS_FrontierShelterService` | Kit placement preview/confirm (trap-style), shelter instances |
+| `CCS_CampService` | Shelter + campfire + bedroll proximity → `TemporaryCamp` |
+| Save | `CCS_SaveCampWorldData` on unified save |
+
+Bootstrap: `CCS.Modules.Shelter.Editor.CCS_FrontierShelterBootstrapSetup.ExecuteBatch`
 
 ---
 

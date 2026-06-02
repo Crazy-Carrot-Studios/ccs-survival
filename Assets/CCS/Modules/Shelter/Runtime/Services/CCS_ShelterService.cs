@@ -31,6 +31,9 @@ namespace CCS.Modules.Shelter
         private readonly List<CCS_BuildingShelterContribution> buildingContributions =
             new List<CCS_BuildingShelterContribution>();
 
+        private readonly List<CCS_BuildingShelterContribution> frontierShelterContributions =
+            new List<CCS_BuildingShelterContribution>();
+
         private CCS_ShelterProfile activeProfile;
         private CCS_BuildingService buildingService;
         private Vector3 subjectPosition;
@@ -138,6 +141,25 @@ namespace CCS.Modules.Shelter
             RecalculateBuildingShelter();
         }
 
+        public void SetFrontierShelterContributions(IReadOnlyList<CCS_BuildingShelterContribution> contributions)
+        {
+            frontierShelterContributions.Clear();
+
+            if (contributions != null)
+            {
+                for (int index = 0; index < contributions.Count; index++)
+                {
+                    CCS_BuildingShelterContribution contribution = contributions[index];
+                    if (contribution != null)
+                    {
+                        frontierShelterContributions.Add(contribution);
+                    }
+                }
+            }
+
+            RecalculateBuildingShelter();
+        }
+
         public void RecalculateBuildingShelter()
         {
             if (!EnsureInitialized())
@@ -148,16 +170,47 @@ namespace CCS.Modules.Shelter
             bool wasBuildingSheltered = buildingShelterState.IsSheltered;
             buildingShelterState.Clear();
 
-            if (hasSubjectPosition && buildingContributions.Count > 0)
+            if (hasSubjectPosition && (buildingContributions.Count > 0 || frontierShelterContributions.Count > 0))
             {
                 float bestWetnessProtection = 0f;
                 float bestExposureProtection = 0f;
                 float bestTemperatureProtection = 0f;
                 string bestShelterId = string.Empty;
 
-                for (int index = 0; index < buildingContributions.Count; index++)
+                EvaluateContributionList(buildingContributions, ref bestWetnessProtection, ref bestExposureProtection, ref bestTemperatureProtection, ref bestShelterId);
+                EvaluateContributionList(frontierShelterContributions, ref bestWetnessProtection, ref bestExposureProtection, ref bestTemperatureProtection, ref bestShelterId);
+
+                if (bestWetnessProtection > 0f
+                    || bestExposureProtection > 0f
+                    || bestTemperatureProtection > 0f)
                 {
-                    CCS_BuildingShelterContribution contribution = buildingContributions[index];
+                    buildingShelterState.ApplyShelter(
+                        bestShelterId,
+                        ClampWetnessProtection(bestWetnessProtection),
+                        ClampExposureProtection(bestExposureProtection),
+                        ClampTemperatureProtection(bestTemperatureProtection),
+                        1f);
+                }
+            }
+
+            if (buildingShelterState.IsSheltered != wasBuildingSheltered
+                || buildingContributions.Count > 0
+                || frontierShelterContributions.Count > 0)
+            {
+                RaiseShelterChanged("Building shelter protection recalculated.");
+            }
+        }
+
+        private void EvaluateContributionList(
+            IReadOnlyList<CCS_BuildingShelterContribution> contributions,
+            ref float bestWetnessProtection,
+            ref float bestExposureProtection,
+            ref float bestTemperatureProtection,
+            ref string bestShelterId)
+        {
+            for (int index = 0; index < contributions.Count; index++)
+            {
+                CCS_BuildingShelterContribution contribution = contributions[index];
                     float coverageRadius = contribution.CoverageRadius;
                     if (coverageRadius <= 0f)
                     {
@@ -190,25 +243,6 @@ namespace CCS.Modules.Shelter
                         bestShelterId = contribution.BuildingInstanceId;
                     }
                 }
-
-                if (bestWetnessProtection > 0f
-                    || bestExposureProtection > 0f
-                    || bestTemperatureProtection > 0f)
-                {
-                    buildingShelterState.ApplyShelter(
-                        bestShelterId,
-                        ClampWetnessProtection(bestWetnessProtection),
-                        ClampExposureProtection(bestExposureProtection),
-                        ClampTemperatureProtection(bestTemperatureProtection),
-                        1f);
-                }
-            }
-
-            if (buildingShelterState.IsSheltered != wasBuildingSheltered
-                || buildingContributions.Count > 0)
-            {
-                RaiseShelterChanged("Building shelter protection recalculated.");
-            }
         }
 
         public void RegisterVolume(CCS_ShelterVolume shelterVolume)

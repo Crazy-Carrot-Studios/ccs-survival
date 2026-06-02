@@ -61,6 +61,7 @@ namespace CCS.Survival.Composition
             CCS_GatheringProfile gatheringProfile,
             CCS_FishingProfile fishingProfile,
             CCS_TrapProfile trapProfile,
+            CCS_CampDefinition campDefinition,
             CCS_EconomyProfile economyProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_CraftingProgressionProfile craftingProgressionProfile,
@@ -210,6 +211,33 @@ namespace CCS.Survival.Composition
             RegisterService(runtimeHost, trapService, enableDebugLogs);
             RegisterTrapUpdatable(runtimeHost, trapService);
 
+            CCS_FrontierShelterService frontierShelterService = CreateFrontierShelterService(
+                campDefinition,
+                shelterService);
+            RegisterService(runtimeHost, frontierShelterService, enableDebugLogs);
+            RegisterFrontierShelterUpdatable(runtimeHost, frontierShelterService);
+
+            CCS_CampService campService = CreateCampService(
+                campDefinition,
+                frontierShelterService,
+                buildingService,
+                sleepService,
+                shelterService);
+            RegisterService(runtimeHost, campService, enableDebugLogs);
+
+            if (frontierShelterService.IsInitialized)
+            {
+                frontierShelterService.BindInventoryService(inventoryService);
+                frontierShelterService.BindCampService(campService);
+            }
+
+            if (sleepService != null && sleepService.IsInitialized)
+            {
+                sleepService.BindCampService(campService);
+                campService.BindBedrollProximityQuery(
+                    (origin, radius) => sleepService.TryGetNearestSleepSpotWithinRadius(origin, radius, out _));
+            }
+
             if (activeItemService != null && activeItemService.IsInitialized)
             {
                 activeItemService.BindGatheringService(gatheringService);
@@ -217,6 +245,7 @@ namespace CCS.Survival.Composition
                 activeItemService.BindInteractionService(interactionService);
                 activeItemService.BindInventoryService(inventoryService);
                 activeItemService.BindTrapService(trapService);
+                activeItemService.BindFrontierShelterService(frontierShelterService);
             }
 
             CCS_CharacterMovementService characterMovementService =
@@ -257,6 +286,8 @@ namespace CCS.Survival.Composition
                 sleepService,
                 currencyService,
                 trapService,
+                frontierShelterService,
+                campService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -294,7 +325,8 @@ namespace CCS.Survival.Composition
                     survivalCoreService,
                     interactionService,
                     currencyService,
-                    vendorService);
+                    vendorService,
+                    campService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -622,6 +654,73 @@ namespace CCS.Survival.Composition
             }
 
             runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(trapService);
+        }
+
+        private static CCS_FrontierShelterService CreateFrontierShelterService(
+            CCS_CampDefinition campDefinition,
+            CCS_ShelterService shelterService)
+        {
+            CCS_FrontierShelterService service = new CCS_FrontierShelterService();
+            service.Initialize();
+
+            if (campDefinition != null)
+            {
+                service.InitializeFromProfile(campDefinition);
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                service.BindShelterService(shelterService);
+            }
+
+            return service;
+        }
+
+        private static CCS_CampService CreateCampService(
+            CCS_CampDefinition campDefinition,
+            CCS_FrontierShelterService frontierShelterService,
+            CCS_BuildingService buildingService,
+            CCS_SleepService sleepService,
+            CCS_ShelterService shelterService)
+        {
+            CCS_CampService service = new CCS_CampService();
+            service.Initialize();
+
+            if (campDefinition != null)
+            {
+                service.InitializeFromProfile(campDefinition);
+            }
+
+            if (frontierShelterService != null && frontierShelterService.IsInitialized)
+            {
+                service.BindFrontierShelterService(frontierShelterService);
+            }
+
+            if (buildingService != null && buildingService.IsInitialized)
+            {
+                service.BindBuildingService(buildingService);
+            }
+
+            if (shelterService != null && shelterService.IsInitialized)
+            {
+                service.BindShelterService(shelterService);
+            }
+
+            return service;
+        }
+
+        private static void RegisterFrontierShelterUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_FrontierShelterService frontierShelterService)
+        {
+            if (runtimeHost?.RuntimeUpdateLoop == null
+                || frontierShelterService == null
+                || !frontierShelterService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(frontierShelterService);
         }
 
         private static CCS_SleepService CreateSleepService(

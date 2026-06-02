@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Frontier starter progression with fishing, hunting, trapping,
-    and cooking playtest checklist (1.3.4).
-  profileVersion: 1.3.4
+  profileDescription: Frontier starter progression with economy and hunting playtest
+    checklist for milestone 1.3.2.
+  profileVersion: 1.3.2
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -87,6 +87,15 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.active.hatchet.tree
+    displayName: Use hatchet on tree
+    stepType: 20
+    instructionText: Equip bone hatchet (Shift+F6), face CCS_TestGatheringSmallTree,
+      Alpha2 active select, primary use.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.active.pick.rock
     displayName: Use pick on rock
     stepType: 21
@@ -141,150 +150,192 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.fish.obtain
-    displayName: Obtain fish for trade
-    stepType: 27
-    instructionText: Catch raw fish at CCS_TestFishingSpot or press F11 after fishing
-      step grants inventory.
-    targetItemId: ccs.survival.item.resource.rawfish
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.store.interact
-    displayName: Interact with general store
-    stepType: 1
-    instructionText: Face CCS_TestGeneralStore and interact (F) to open vendor debug.
-      Press F11 when the vendor panel is visible.
-    targetItemId: 
-    targetObjectId: ccs.survival.vendor.frontier.generalstore
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.fish.sell
-    displayName: Sell fish at vendor
-    stepType: 28
-    instructionText: With vendor active, press Shift+V to sell one raw fish (or use
-      vendor debug Sell).
-    targetItemId: ccs.survival.item.resource.rawfish
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.currency.verify.increase
-    displayName: Verify currency increased
-    stepType: 29
-    instructionText: Confirm Trade Dollars balance increased after selling fish.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.hatchet.buy
-    displayName: Buy bone hatchet from vendor
-    stepType: 30
-    instructionText: 'Press H to buy the bone hatchet (first meaningful purchased
-      tool). Vendor debug: Buy Hatchet.'
-    targetItemId: ccs.survival.item.tool.hatchet.bone
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.currency.verify.decrease
-    displayName: Verify currency decreased
-    stepType: 31
-    instructionText: Confirm Trade Dollars were spent on the hatchet purchase.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.hatchet.inventory
-    displayName: Verify hatchet in inventory
-    stepType: 32
-    instructionText: Confirm bone hatchet appears in player inventory after purchase.
-    targetItemId: ccs.survival.item.tool.hatchet.bone
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.hatchet.equip
-    displayName: Equip purchased hatchet
-    stepType: 2
-    instructionText: Shift+F6 equips the bone hatchet. Hatchet is not in the knife-only
-      starter loadout.
-    targetItemId: ccs.survival.item.tool.hatchet.bone
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.economy.hatchet.tree
-    displayName: Use hatchet on tree
-    stepType: 20
-    instructionText: Face CCS_TestGatheringSmallTree, Alpha2 tool select, primary
-      use to harvest wood.
-    targetItemId: ccs.survival.item.tool.hatchet.bone
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.bow.obtain
-    displayName: Obtain bow for hunt
-    stepType: 33
-    instructionText: Craft or grant the frontier bow (Shift+F6 debug or frontier
-      bow recipe). Press F11 when bow is in inventory.
-    targetItemId: ccs.survival.item.frontier.bow
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.bow.equip
-    displayName: Equip bow for hunt
-    stepType: 34
-    instructionText: Shift+F6 equips the frontier bow for ranged hunting foundation
-      verification.
-    targetItemId: ccs.survival.item.frontier.bow
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.rabbit.kill
-    displayName: Hunt rabbit with bow
+  - stepId: ccs.survival.playtest.hunt
+    displayName: Hunt wildlife
     stepType: 3
-    instructionText: Kill CCS_TestRabbit with primary attack while the bow is equipped.
+    instructionText: Kill CCS_TestRabbit or CCS_TestDeer with primary attack while
+      a weapon is equipped.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.knife.equip
-    displayName: Equip knife for harvest
-    stepType: 2
-    instructionText: Press F6 to equip the pocket knife before harvesting the carcass.
-    targetItemId: ccs.survival.item.starter.knife
+  - stepId: ccs.survival.playtest.spear.regression
+    displayName: Equip spear (regression)
+    stepType: 26
+    instructionText: 'Optional legacy regression: press F6 on this step to equip
+      the starter spear.'
+    targetItemId: ccs.survival.item.starter.spear
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.carcass.harvest
-    displayName: Harvest rabbit carcass
+  - stepId: ccs.survival.playtest.harvest
+    displayName: Harvest carcass
     stepType: 4
-    instructionText: Interact with the rabbit carcass and harvest skin/butcher drops
-      with the knife equipped.
+    instructionText: Harvest meat from the wildlife carcass.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.hide.verify
-    displayName: Verify hide in inventory
-    stepType: 32
-    instructionText: Confirm hide appears in player inventory after harvesting the
-      rabbit carcass.
-    targetItemId: ccs.survival.item.resource.hide
+  - stepId: ccs.survival.playtest.cook
+    displayName: Cook meat at campfire
+    stepType: 5
+    instructionText: Cook raw meat at the test campfire station.
+    targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.hide.sell
-    displayName: Sell hide at vendor
-    stepType: 35
-    instructionText: Face CCS_TestGeneralStore, open vendor debug, and sell one hide
-      (Shift+V or vendor Sell).
-    targetItemId: ccs.survival.item.resource.hide
+  - stepId: ccs.survival.playtest.eat
+    displayName: Eat cooked meat
+    stepType: 6
+    instructionText: Press F to consume cooked rabbit or venison from inventory.
+    targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunting.currency.verify
-    displayName: Verify hunting currency increased
-    stepType: 36
-    instructionText: Confirm Trade Dollars balance increased after selling hide at
-      the general store.
+  - stepId: ccs.survival.playtest.build.shelter
+    displayName: Build shelter
+    stepType: 12
+    instructionText: Place foundation, wall, and roof pieces to reach minimum shelter
+      coverage.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.workbench
+    displayName: Craft item at workbench
+    stepType: 13
+    instructionText: Interact with CCS_TestWorkbench; F4 seeds mats; F3 crafts storage
+      crate.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.storage
+    displayName: Use storage crate
+    stepType: 14
+    instructionText: F2 place/open crate near player; F1 deposit item; F5 save; F9
+      load to verify persistence.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.bedroll
+    displayName: Place and sleep at bedroll
+    stepType: 15
+    instructionText: Shift+F2 place/sleep at bedroll; interact to sleep; F5 save;
+      F9 load to verify bedroll restore.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.save
+    displayName: Save game
+    stepType: 8
+    instructionText: Press F5 to save the unified survival file.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.load
+    displayName: Load game
+    stepType: 9
+    instructionText: Press F9 to load the unified survival file.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.death
+    displayName: Trigger death
+    stepType: 10
+    instructionText: Press F7 to drain needs or die from starvation/dehydration.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.respawn
+    displayName: Respawn
+    stepType: 11
+    instructionText: Confirm respawn at the bootstrap respawn point.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.hatchet
+    displayName: Buy hatchet
+    stepType: 50
+    instructionText: Press Ctrl+Shift+H to grant bone hatchet.
+    targetItemId: ccs.survival.item.tool.hatchet.bone
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.wood
+    displayName: Gather wood
+    stepType: 51
+    instructionText: Chop test tree with hatchet.
+    targetItemId: ccs.survival.item.resource.wood
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.cordage
+    displayName: Acquire cordage
+    stepType: 52
+    instructionText: Press Ctrl+Shift+C to grant cordage.
+    targetItemId: ccs.survival.item.frontier.cordage
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.craft.leanto
+    displayName: Craft Lean-To kit
+    stepType: 53
+    instructionText: Hand-craft Lean-To kit from wood, sapling, and cordage.
+    targetItemId: ccs.survival.item.frontier.leantokit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.place.leanto
+    displayName: Place Lean-To
+    stepType: 54
+    instructionText: Equip Lean-To kit and use twice to preview and place.
+    targetItemId: ccs.survival.item.frontier.leantokit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.place.campfire
+    displayName: Place campfire
+    stepType: 55
+    instructionText: Place test campfire within camp radius.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.place.bedroll
+    displayName: Place bedroll
+    stepType: 56
+    instructionText: Place bedroll within camp radius.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.verify.camp
+    displayName: Verify TemporaryCamp
+    stepType: 57
+    instructionText: Camp tier should be TemporaryCamp when all three are nearby.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.sleep
+    displayName: Sleep in camp
+    stepType: 58
+    instructionText: Sleep at bedroll inside camp.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.shelter.verify.save
+    displayName: Verify camp save/load
+    stepType: 59
+    instructionText: Save and load; camp tier and shelter should restore.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -411,112 +462,72 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.hunt
-    displayName: Hunt wildlife
+  - stepId: ccs.survival.playtest.hunting.bow.obtain
+    displayName: Obtain bow for hunt
+    stepType: 33
+    instructionText: Craft or grant the frontier bow (Shift+F6 debug or frontier
+      bow recipe). Press F11 when bow is in inventory.
+    targetItemId: ccs.survival.item.frontier.bow
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.hunting.bow.equip
+    displayName: Equip bow for hunt
+    stepType: 34
+    instructionText: Shift+F6 equips the frontier bow for ranged hunting foundation
+      verification.
+    targetItemId: ccs.survival.item.frontier.bow
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.hunting.rabbit.kill
+    displayName: Hunt rabbit with bow
     stepType: 3
-    instructionText: Kill CCS_TestRabbit or CCS_TestDeer with primary attack while
-      a weapon is equipped.
+    instructionText: Kill CCS_TestRabbit with primary attack while the bow is equipped.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.spear.regression
-    displayName: Equip spear (regression)
-    stepType: 26
-    instructionText: 'Optional legacy regression: press F6 on this step to equip
-      the starter spear.'
-    targetItemId: ccs.survival.item.starter.spear
+  - stepId: ccs.survival.playtest.hunting.knife.equip
+    displayName: Equip knife for harvest
+    stepType: 2
+    instructionText: Press F6 to equip the pocket knife before harvesting the carcass.
+    targetItemId: ccs.survival.item.starter.knife
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.harvest
-    displayName: Harvest carcass
+  - stepId: ccs.survival.playtest.hunting.carcass.harvest
+    displayName: Harvest rabbit carcass
     stepType: 4
-    instructionText: Harvest meat from the wildlife carcass.
+    instructionText: Interact with the rabbit carcass and harvest skin/butcher drops
+      with the knife equipped.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.cook
-    displayName: Cook meat at campfire
-    stepType: 5
-    instructionText: Cook raw meat at the test campfire station.
-    targetItemId: 
+  - stepId: ccs.survival.playtest.hunting.hide.verify
+    displayName: Verify hide in inventory
+    stepType: 32
+    instructionText: Confirm hide appears in player inventory after harvesting the
+      rabbit carcass.
+    targetItemId: ccs.survival.item.resource.hide
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.eat
-    displayName: Eat cooked meat
-    stepType: 6
-    instructionText: Press F to consume cooked rabbit or venison from inventory.
-    targetItemId: 
+  - stepId: ccs.survival.playtest.hunting.hide.sell
+    displayName: Sell hide at vendor
+    stepType: 35
+    instructionText: Face CCS_TestGeneralStore, open vendor debug, and sell one hide
+      (Shift+V or vendor Sell).
+    targetItemId: ccs.survival.item.resource.hide
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.shelter
-    displayName: Build shelter
-    stepType: 12
-    instructionText: Place primitive foundation, at least one wall, and one roof
-      (B places foundation; snap wall/roof).
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.workbench
-    displayName: Craft item at workbench
-    stepType: 13
-    instructionText: Interact with CCS_TestWorkbench; F4 seeds mats; F3 crafts storage
-      crate.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.storage
-    displayName: Use storage crate
-    stepType: 14
-    instructionText: F2 place/open crate near player; F1 deposit item; F5 save; F9
-      load to verify persistence.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.bedroll
-    displayName: Place and sleep at bedroll
-    stepType: 15
-    instructionText: Shift+F2 place/sleep at bedroll; interact to sleep; F5 save;
-      F9 load to verify bedroll restore.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.save
-    displayName: Save game
-    stepType: 8
-    instructionText: Press F5 to save the unified survival file.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.load
-    displayName: Load game
-    stepType: 9
-    instructionText: Press F9 to load the unified survival file.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.death
-    displayName: Trigger death
-    stepType: 10
-    instructionText: Press F7 to drain needs or die from starvation/dehydration.
-    targetItemId: 
-    targetObjectId: 
-    requiredCount: 1
-    timeoutSeconds: 0
-  - stepId: ccs.survival.playtest.respawn
-    displayName: Respawn
-    stepType: 11
-    instructionText: Confirm respawn at the bootstrap respawn point.
+  - stepId: ccs.survival.playtest.hunting.currency.verify
+    displayName: Verify hunting currency increased
+    stepType: 36
+    instructionText: Confirm Trade Dollars balance increased after selling hide at
+      the general store.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

@@ -6,6 +6,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
@@ -39,6 +40,8 @@ namespace CCS.Modules.SaveSystem
         private CCS_StorageService storageService;
         private CCS_SleepService sleepService;
         private CCS_TrapService trapService;
+        private CCS_FrontierShelterService frontierShelterService;
+        private CCS_CampService campService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -107,6 +110,8 @@ namespace CCS.Modules.SaveSystem
             CCS_SleepService sleep,
             CCS_CurrencyService currency,
             CCS_TrapService trapping,
+            CCS_FrontierShelterService frontierShelter,
+            CCS_CampService camp,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -117,6 +122,8 @@ namespace CCS.Modules.SaveSystem
             sleepService = sleep;
             currencyService = currency;
             trapService = trapping;
+            frontierShelterService = frontierShelter;
+            campService = camp;
             playerTransform = playerRoot;
         }
 
@@ -273,6 +280,7 @@ namespace CCS.Modules.SaveSystem
             CaptureStorage(saveData.storage);
             CaptureSleep(saveData.sleep);
             CaptureTrapping(saveData.trapping);
+            CaptureCamp(saveData.camp);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -587,6 +595,7 @@ namespace CCS.Modules.SaveSystem
             ApplyStorage(saveData.storage);
             ApplySleep(saveData.sleep);
             ApplyTrapping(saveData.trapping);
+            ApplyCamp(saveData.camp);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -806,6 +815,114 @@ namespace CCS.Modules.SaveSystem
                 remainingTimerSeconds = source.remainingTimerSeconds,
                 hasCaptureData = source.hasCaptureData
             };
+        }
+
+        private void CaptureCamp(CCS_SaveCampWorldData campData)
+        {
+            if (campData == null)
+            {
+                return;
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                CCS_CampSaveState state = campService.CaptureState();
+                campData.campState = new CCS_SaveCampStateData
+                {
+                    campTier = state.campTier,
+                    ownsCamp = state.ownsCamp,
+                    campOwnerId = state.campOwnerId ?? string.Empty,
+                    campCenterX = state.campCenterX,
+                    campCenterY = state.campCenterY,
+                    campCenterZ = state.campCenterZ,
+                    hasShelter = state.hasShelter,
+                    hasCampfire = state.hasCampfire,
+                    hasBedroll = state.hasBedroll
+                };
+            }
+
+            if (frontierShelterService == null || !frontierShelterService.IsInitialized)
+            {
+                campData.shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
+                return;
+            }
+
+            CCS_FrontierShelterInstanceSaveState[] records = frontierShelterService.CaptureWorldState();
+            if (records == null || records.Length == 0)
+            {
+                campData.shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
+                return;
+            }
+
+            CCS_SaveFrontierShelterInstanceData[] saveRecords =
+                new CCS_SaveFrontierShelterInstanceData[records.Length];
+            for (int index = 0; index < records.Length; index++)
+            {
+                CCS_FrontierShelterInstanceSaveState source = records[index];
+                saveRecords[index] = new CCS_SaveFrontierShelterInstanceData
+                {
+                    instanceId = source?.InstanceId ?? string.Empty,
+                    shelterDefinitionId = source?.ShelterDefinitionId ?? string.Empty,
+                    positionX = source != null ? source.Position.x : 0f,
+                    positionY = source != null ? source.Position.y : 0f,
+                    positionZ = source != null ? source.Position.z : 0f,
+                    rotationY = source != null ? source.RotationY : 0f,
+                    campOwnerId = source?.CampOwnerId ?? string.Empty
+                };
+            }
+
+            campData.shelterInstances = saveRecords;
+        }
+
+        private void ApplyCamp(CCS_SaveCampWorldData campData)
+        {
+            if (campService != null && campService.IsInitialized && campData?.campState != null)
+            {
+                campService.RestoreState(new CCS_CampSaveState
+                {
+                    campTier = campData.campState.campTier,
+                    ownsCamp = campData.campState.ownsCamp,
+                    campOwnerId = campData.campState.campOwnerId,
+                    campCenterX = campData.campState.campCenterX,
+                    campCenterY = campData.campState.campCenterY,
+                    campCenterZ = campData.campState.campCenterZ,
+                    hasShelter = campData.campState.hasShelter,
+                    hasCampfire = campData.campState.hasCampfire,
+                    hasBedroll = campData.campState.hasBedroll
+                });
+            }
+
+            if (frontierShelterService == null || !frontierShelterService.IsInitialized)
+            {
+                return;
+            }
+
+            if (campData?.shelterInstances == null || campData.shelterInstances.Length == 0)
+            {
+                frontierShelterService.RestoreWorldState(Array.Empty<CCS_FrontierShelterInstanceSaveState>());
+                return;
+            }
+
+            CCS_FrontierShelterInstanceSaveState[] saveStates =
+                new CCS_FrontierShelterInstanceSaveState[campData.shelterInstances.Length];
+            for (int index = 0; index < campData.shelterInstances.Length; index++)
+            {
+                CCS_SaveFrontierShelterInstanceData source = campData.shelterInstances[index];
+                saveStates[index] = new CCS_FrontierShelterInstanceSaveState
+                {
+                    InstanceId = source?.instanceId ?? string.Empty,
+                    ShelterDefinitionId = source?.shelterDefinitionId ?? string.Empty,
+                    Position = new Vector3(
+                        source != null ? source.positionX : 0f,
+                        source != null ? source.positionY : 0f,
+                        source != null ? source.positionZ : 0f),
+                    RotationY = source != null ? source.rotationY : 0f,
+                    CampOwnerId = source?.campOwnerId ?? string.Empty
+                };
+            }
+
+            frontierShelterService.RestoreWorldState(saveStates);
+            campService?.RecalculateCamp();
         }
 
         private void ApplyTrapping(CCS_SaveTrapWorldData trappingData)

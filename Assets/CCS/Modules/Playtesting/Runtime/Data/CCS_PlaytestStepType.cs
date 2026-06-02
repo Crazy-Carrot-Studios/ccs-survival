@@ -61,6 +61,16 @@ namespace CCS.Modules.Playtesting
         VerifyCookedFoodInInventory = 46,
         PreserveFoodAtCampfire = 47,
         SellPreservedFoodAtVendor = 48,
-        VerifyCookingCurrencyIncreased = 49
+        VerifyCookingCurrencyIncreased = 49,
+        BuyHatchetForShelter = 50,
+        GatherWoodForShelter = 51,
+        AcquireCordageForShelter = 52,
+        CraftLeanToShelter = 53,
+        PlaceLeanToShelter = 54,
+        PlaceCampfireForCamp = 55,
+        PlaceBedrollForCamp = 56,
+        VerifyTemporaryCampTier = 57,
+        SleepInFrontierCamp = 58,
+        VerifyCampPersistenceAfterLoad = 59
     }
 }

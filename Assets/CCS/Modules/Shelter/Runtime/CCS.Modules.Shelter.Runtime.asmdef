@@ -5,7 +5,8 @@
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
-        "CCS.Modules.Building.Runtime"
+        "CCS.Modules.Building.Runtime",
+        "CCS.Modules.Inventory.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

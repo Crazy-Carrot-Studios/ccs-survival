@@ -43,7 +43,42 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveTrapWorldData trapping = new CCS_SaveTrapWorldData();
 
+        public CCS_SaveCampWorldData camp = new CCS_SaveCampWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveCampWorldData
+    {
+        public CCS_SaveCampStateData campState = new CCS_SaveCampStateData();
+        public CCS_SaveFrontierShelterInstanceData[] shelterInstances = Array.Empty<CCS_SaveFrontierShelterInstanceData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveCampStateData
+    {
+        public int campTier;
+        public bool ownsCamp;
+        public string campOwnerId = string.Empty;
+        public float campCenterX;
+        public float campCenterY;
+        public float campCenterZ;
+        public bool hasShelter;
+        public bool hasCampfire;
+        public bool hasBedroll;
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveFrontierShelterInstanceData
+    {
+        public string instanceId = string.Empty;
+        public string shelterDefinitionId = string.Empty;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+        public float rotationY;
+        public string campOwnerId = string.Empty;
     }
 
     [Serializable]

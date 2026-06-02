@@ -4,6 +4,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Trapping;
+using CCS.Modules.Shelter;
 using CCS.Modules.Gathering;
 using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
@@ -54,6 +55,8 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StorageService storageService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_SleepService sleepService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_TrapService trapService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_FrontierShelterService frontierShelterService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_CampService campService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
 
@@ -67,6 +70,8 @@ namespace CCS.Modules.SaveSystem
                 sleepService,
                 currencyService,
                 trapService,
+                frontierShelterService,
+                campService,
                 playerTransform);
 
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)

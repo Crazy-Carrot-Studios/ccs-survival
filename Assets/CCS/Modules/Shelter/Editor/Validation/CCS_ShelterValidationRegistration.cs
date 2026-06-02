@@ -19,6 +19,7 @@ namespace CCS.Modules.Shelter.Editor
         static CCS_ShelterValidationRegistration()
         {
             CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_ShelterValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_FrontierShelterValidationValidator());
         }
     }
 }

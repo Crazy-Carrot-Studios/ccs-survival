@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8241dc20fe54ed84aa4f682c3cf63802, type: 3}
+  m_Name: CCS_DefaultCampDefinition
+  m_EditorClassIdentifier: CCS.Modules.Shelter.Runtime::CCS.Modules.Shelter.CCS_CampDefinition
+  profileDisplayName: 
+  profileId: 
+  profileDescription: Frontier camp tracking for shelter, campfire, and bedroll (1.4.0).
+  profileVersion: 1.4.0
+  enableDebugLogs: 0
+  enableCampTracking: 1
+  campDetectionRadius: 12
+  campfirePieceId: ccs.survival.building.campfire.test
+  shelterDefinitions:
+  - {fileID: 11400000, guid: b2b32d2ffe77efb498638e295b453a19, type: 2}
+  - {fileID: 11400000, guid: 64bf7042ec869254697fd323059f5080, type: 2}
+  - {fileID: 11400000, guid: 5c11e8e519dfdb245976fd23bba753cf, type: 2}
+  - {fileID: 11400000, guid: bc33af359785bb3438647c817e659f98, type: 2}
+  - {fileID: 11400000, guid: 29bb128fd44268545802d1c3bbf54f2a, type: 2}

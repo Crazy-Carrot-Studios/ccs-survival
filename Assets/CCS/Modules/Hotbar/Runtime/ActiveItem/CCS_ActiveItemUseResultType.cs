@@ -42,6 +42,9 @@ namespace CCS.Modules.Hotbar
         TrapPlacementPreview = 27,
         TrapPlaced = 28,
         TrapPlacementFailed = 29,
-        TrapHarvestSuccess = 30
+        TrapHarvestSuccess = 30,
+        ShelterPlacementPreview = 31,
+        ShelterPlaced = 32,
+        ShelterPlacementFailed = 33
     }
 }

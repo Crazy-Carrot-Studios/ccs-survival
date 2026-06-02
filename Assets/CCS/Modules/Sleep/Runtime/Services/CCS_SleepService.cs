@@ -33,6 +33,7 @@ namespace CCS.Modules.Sleep
         private CCS_SurvivalCoreService survivalCoreService;
         private CCS_TimeOfDayService timeOfDayService;
         private CCS_ShelterService shelterService;
+        private CCS_CampService campService;
         private CCS_PlayerInventoryService inventoryService;
         private CCS_PlayerEquipmentService equipmentService;
         private CCS_CraftingService craftingService;
@@ -120,6 +121,11 @@ namespace CCS.Modules.Sleep
             shelterService = service;
         }
 
+        public void BindCampService(CCS_CampService service)
+        {
+            campService = service;
+        }
+
         public void BindInventoryService(CCS_PlayerInventoryService service)
         {
             inventoryService = service;
@@ -205,6 +211,11 @@ namespace CCS.Modules.Sleep
             float fatigueMultiplier = isSheltered
                 ? 1f
                 : activeProfile.UnshelteredFatigueRestoreMultiplier;
+            if (campService != null && campService.IsInitialized)
+            {
+                fatigueMultiplier *= campService.GetSleepBonusMultiplier();
+            }
+
             float fatigueRestored = activeProfile.FatigueRestorePerHour * sleepHours * fatigueMultiplier;
             bool usedPoorShelterPenalty = !isSheltered && fatigueMultiplier < 1f;
 
@@ -417,6 +428,29 @@ namespace CCS.Modules.Sleep
                 spawnRotation,
                 null,
                 markDynamicSpawn: true);
+        }
+
+        public bool TryGetNearestSleepSpotWithinRadius(Vector3 origin, float radius, out CCS_SleepSpot sleepSpot)
+        {
+            sleepSpot = null;
+            float nearestDistance = float.MaxValue;
+            foreach (KeyValuePair<string, CCS_SleepSpot> entry in registeredSleepSpots)
+            {
+                CCS_SleepSpot candidate = entry.Value;
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                float distance = Vector3.Distance(origin, candidate.transform.position);
+                if (distance <= radius && distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    sleepSpot = candidate;
+                }
+            }
+
+            return sleepSpot != null;
         }
 
         public bool TrySleepAtNearestSpot()

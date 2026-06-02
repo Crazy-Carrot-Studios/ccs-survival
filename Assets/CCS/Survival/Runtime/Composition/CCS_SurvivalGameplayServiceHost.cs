@@ -88,6 +88,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default trap profile used to register CCS_TrapService.")]
         [SerializeField] private CCS_TrapProfile trapProfile;
 
+        [Tooltip("Default camp definition catalog for frontier shelter placement and camp tier tracking.")]
+        [SerializeField] private CCS_CampDefinition campDefinition;
+
         [Tooltip("Default economy profile used to register currency and vendor services.")]
         [SerializeField] private CCS_EconomyProfile economyProfile;
 
@@ -178,6 +181,7 @@ namespace CCS.Survival.Composition
                 gatheringProfile,
                 fishingProfile,
                 trapProfile,
+                campDefinition,
                 economyProfile,
                 craftingProfile,
                 craftingProgressionProfile,

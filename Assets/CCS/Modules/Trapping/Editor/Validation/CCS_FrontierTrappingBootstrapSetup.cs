@@ -165,7 +165,7 @@ namespace CCS.Modules.Trapping.Editor
             if (economy != null)
             {
                 SerializedObject serialized = new SerializedObject(economy);
-                serialized.FindProperty("profileVersion").stringValue = "1.3.3";
+                serialized.FindProperty("profileVersion").stringValue = "1.4.0";
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(economy);
             }
@@ -173,7 +173,7 @@ namespace CCS.Modules.Trapping.Editor
             if (vendor != null)
             {
                 SerializedObject serialized = new SerializedObject(vendor);
-                serialized.FindProperty("profileVersion").stringValue = "1.3.3";
+                serialized.FindProperty("profileVersion").stringValue = "1.4.0";
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(vendor);
             }

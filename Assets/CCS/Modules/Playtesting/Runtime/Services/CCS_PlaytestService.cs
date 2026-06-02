@@ -17,6 +17,7 @@ using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.SurvivalCore;
 using CCS.Modules.Trapping;
+using CCS.Modules.Shelter;
 using CCS.Modules.Wildlife;
 using CCS.Survival;
 using CCS.Survival.Player;
@@ -68,6 +69,8 @@ namespace CCS.Modules.Playtesting
         private const string CookedTurkeyItemId = "ccs.survival.item.food.cookedturkey";
         private const string JerkyItemId = "ccs.survival.item.food.jerky";
         private const string DriedFishItemId = "ccs.survival.item.food.driedfish";
+        private const string LeanToKitItemId = "ccs.survival.item.frontier.leantokit";
+        private const string CampfirePieceId = "ccs.survival.building.campfire.test";
         private const string FoundationPieceId = "ccs.survival.building.primitive.foundation";
         private const string LegacyFoundationPieceId = "ccs.survival.building.test.foundation";
 
@@ -117,6 +120,7 @@ namespace CCS.Modules.Playtesting
         private float controllerPolishPreviousYaw;
         private bool controllerPolishYawInitialized;
         private CCS_InteractionService boundInteractionService;
+        private CCS_CampService boundCampService;
 
         #endregion
 
@@ -186,7 +190,8 @@ namespace CCS.Modules.Playtesting
             CCS_SurvivalCoreService survivalCore,
             CCS_InteractionService interactionService = null,
             CCS_CurrencyService currencyService = null,
-            CCS_VendorService vendorService = null)
+            CCS_VendorService vendorService = null,
+            CCS_CampService campService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -213,6 +218,7 @@ namespace CCS.Modules.Playtesting
             boundInteractionService = interactionService;
             boundCurrencyService = currencyService;
             boundVendorService = vendorService;
+            boundCampService = campService;
 
             if (boundVendorService != null)
             {
@@ -721,6 +727,8 @@ namespace CCS.Modules.Playtesting
             {
                 MarkStepFailed(activeState.Definition.StepId, "Step timed out.");
             }
+
+            TryEvaluateShelterCampPlaytestSteps();
         }
 
         #endregion
@@ -769,7 +777,13 @@ namespace CCS.Modules.Playtesting
                 if (IsGatherResourceItem(reward.itemDefinitionId))
                 {
                     IncrementActiveStepOfType(CCS_PlaytestStepType.GatherResource, reward.itemDefinitionId);
-                    return;
+                }
+
+                if (string.Equals(reward.itemDefinitionId, WoodItemId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.GatherWoodForShelter,
+                        "Wood gathered for frontier shelter.");
                 }
             }
         }
@@ -856,6 +870,7 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.LoadGame, "Load completed.");
                 EvaluateStorageCrateStepAfterLoad();
                 EvaluateBedrollStepAfterLoad();
+                EvaluateCampPersistenceAfterLoad();
             }
         }
 
@@ -909,6 +924,15 @@ namespace CCS.Modules.Playtesting
             controllerPolishBedrollDone = true;
             TryEvaluateControllerPolishCompletion();
             TryEvaluateBedrollStepCompletion();
+
+            if (boundCampService != null
+                && boundCampService.IsInitialized
+                && boundCampService.CurrentSnapshot.CampTier >= CCS_CampTier.TemporaryCamp)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SleepInFrontierCamp,
+                    "Slept in temporary frontier camp.");
+            }
         }
 
         private void HandleSleepRespawnPointAssigned(CCS_SleepEventArgs eventArgs)
@@ -949,6 +973,14 @@ namespace CCS.Modules.Playtesting
             if (MatchesTargetBuildingPiece(eventArgs))
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceBuilding, "Building piece placed.");
+            }
+
+            if (eventArgs?.PlacedInstance != null
+                && string.Equals(eventArgs.PlacedInstance.PieceId, CampfirePieceId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PlaceCampfireForCamp,
+                    "Campfire placed for frontier camp.");
             }
 
             TryCompleteShelterStepIfReady();
@@ -1302,6 +1334,11 @@ namespace CCS.Modules.Playtesting
             {
                 TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceTrapForTrapping, useResult.Message);
             }
+
+            if (useResult.ResultType == CCS_ActiveItemUseResultType.ShelterPlaced)
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.PlaceLeanToShelter, useResult.Message);
+            }
         }
 
         private void IncrementActiveStepOfType(CCS_PlaytestStepType stepType, string itemId)
@@ -1597,7 +1634,38 @@ namespace CCS.Modules.Playtesting
 
         public bool TryPlaytestBuyHatchet()
         {
-            return TryPlaytestBuyItemById(BoneHatchetItemId);
+            bool purchased = TryPlaytestBuyItemById(BoneHatchetItemId);
+            if (purchased)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyHatchetForShelter,
+                    "Bone hatchet acquired for shelter playtest.");
+            }
+
+            return purchased;
+        }
+
+        public bool TryGrantShelterCordage()
+        {
+            if (!harnessEnabled
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition cordage = FindItemDefinitionById(CordageItemId);
+            if (cordage == null)
+            {
+                return false;
+            }
+
+            inventoryService.AddItem(cordage, 4);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.AcquireCordageForShelter,
+                "Cordage granted for shelter playtest.");
+            return true;
         }
 
         private bool TryPlaytestBuyItemById(string itemId)
@@ -1640,6 +1708,48 @@ namespace CCS.Modules.Playtesting
             return boundCurrencyService != null
                 ? boundCurrencyService.GetBalance(TradeDollarsCurrencyId)
                 : 0;
+        }
+
+        private void TryEvaluateShelterCampPlaytestSteps()
+        {
+            if (HasInventoryItem(LeanToKitItemId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.CraftLeanToShelter,
+                    "Lean-To kit available in inventory.");
+            }
+
+            if (boundSleepService != null && boundSleepService.RegisteredSleepSpotCount > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PlaceBedrollForCamp,
+                    "Bedroll sleep spot registered in camp radius.");
+            }
+
+            if (boundCampService != null
+                && boundCampService.IsInitialized
+                && boundCampService.CurrentSnapshot.CampTier == CCS_CampTier.TemporaryCamp)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyTemporaryCampTier,
+                    "Temporary frontier camp tier verified.");
+            }
+        }
+
+        private void EvaluateCampPersistenceAfterLoad()
+        {
+            if (boundCampService == null || !boundCampService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_CampSnapshot snapshot = boundCampService.CurrentSnapshot;
+            if (snapshot.HasShelter && snapshot.CampTier >= CCS_CampTier.TemporaryCamp)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyCampPersistenceAfterLoad,
+                    "Camp tier and shelter state restored after load.");
+            }
         }
 
         private void TryEvaluateEconomyPlaytestSteps()

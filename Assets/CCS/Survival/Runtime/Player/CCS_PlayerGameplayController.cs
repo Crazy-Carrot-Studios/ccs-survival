@@ -45,6 +45,7 @@ namespace CCS.Survival.Player
         private CCS_CharacterMovementService movementService;
         private CCS_SurvivalCoreService survivalCoreService;
         private CCS_ShelterService shelterService;
+        private CCS_CampService campService;
         private bool cursorLocked;
         private bool servicesBound;
         private bool gameplayFrozen;
@@ -141,6 +142,7 @@ namespace CCS.Survival.Player
 
             runtimeHost.ServiceRegistry.TryGetService(out survivalCoreService);
             runtimeHost.ServiceRegistry.TryGetService(out shelterService);
+            runtimeHost.ServiceRegistry.TryGetService(out campService);
 
             CCS_ICharacterInputProvider provider = inputProvider != null
                 ? inputProvider
@@ -200,7 +202,12 @@ namespace CCS.Survival.Player
                 return;
             }
 
-            shelterService.SetSubjectPosition(transform.position);
+            Vector3 subjectPosition = transform.position;
+            shelterService.SetSubjectPosition(subjectPosition);
+            if (campService != null && campService.IsInitialized)
+            {
+                campService.SetSubjectPosition(subjectPosition);
+            }
         }
 
         #endregion

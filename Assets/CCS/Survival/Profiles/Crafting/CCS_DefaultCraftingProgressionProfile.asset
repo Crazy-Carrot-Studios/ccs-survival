@@ -41,4 +41,12 @@ MonoBehaviour:
     unlockTier: 2
   - recipeDefinition: {fileID: 11400000, guid: ddba1859fa2e3d843903de01d178ea2b, type: 2}
     unlockTier: 2
+  - recipeDefinition: {fileID: 11400000, guid: 47f16cf4dc402964f8646645c5d7cdc6, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 33b7abcb3786d4f4497650e575cec91d, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 3b5c7e374ee491e488f02d395ad16dfe, type: 2}
+    unlockTier: 1
+  - recipeDefinition: {fileID: 11400000, guid: 08866a34133c600419ac74d1f19b6893, type: 2}
+    unlockTier: 1
   workbenchPlaytestRecipeId: ccs.survival.recipe.progression.storagecrate

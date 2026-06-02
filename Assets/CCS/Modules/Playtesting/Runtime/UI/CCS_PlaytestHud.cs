@@ -253,7 +253,14 @@ namespace CCS.Modules.Playtesting
 
             if (Input.GetKeyDown(KeyCode.H))
             {
-                playtestService.TryPlaytestBuyHatchet();
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    playtestService.TryGrantShelterCordage();
+                }
+                else
+                {
+                    playtestService.TryPlaytestBuyHatchet();
+                }
             }
         }
 
