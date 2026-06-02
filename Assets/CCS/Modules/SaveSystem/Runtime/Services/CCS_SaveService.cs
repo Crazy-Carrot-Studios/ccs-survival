@@ -6,6 +6,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Gathering;
+using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
 using CCS.Modules.SurvivalCore;
 using CCS.Survival;
@@ -36,6 +37,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_BuildingService buildingService;
         private CCS_StorageService storageService;
         private CCS_SleepService sleepService;
+        private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
         private bool isInitialized;
@@ -101,6 +103,7 @@ namespace CCS.Modules.SaveSystem
             CCS_BuildingService building,
             CCS_StorageService storage,
             CCS_SleepService sleep,
+            CCS_CurrencyService currency,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -109,6 +112,7 @@ namespace CCS.Modules.SaveSystem
             buildingService = building;
             storageService = storage;
             sleepService = sleep;
+            currencyService = currency;
             playerTransform = playerRoot;
         }
 
@@ -264,6 +268,7 @@ namespace CCS.Modules.SaveSystem
             CaptureBuilding(saveData.building);
             CaptureStorage(saveData.storage);
             CaptureSleep(saveData.sleep);
+            CaptureEconomy(saveData.economy);
             return saveData;
         }
 
@@ -521,9 +526,57 @@ namespace CCS.Modules.SaveSystem
             return saveState;
         }
 
+        private void CaptureEconomy(CCS_SaveEconomyData economyData)
+        {
+            if (economyData == null || currencyService == null || !currencyService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_CurrencyBalance[] balances = currencyService.CaptureBalances();
+            CCS_SaveCurrencyBalanceData[] saveBalances = new CCS_SaveCurrencyBalanceData[balances.Length];
+            for (int index = 0; index < balances.Length; index++)
+            {
+                CCS_CurrencyBalance balance = balances[index];
+                saveBalances[index] = new CCS_SaveCurrencyBalanceData
+                {
+                    currencyId = balance?.currencyId ?? string.Empty,
+                    amount = balance != null ? balance.amount : 0
+                };
+            }
+
+            economyData.balances = saveBalances;
+        }
+
+        private void ApplyEconomy(CCS_SaveEconomyData economyData)
+        {
+            if (currencyService == null || !currencyService.IsInitialized)
+            {
+                return;
+            }
+
+            if (economyData?.balances == null || economyData.balances.Length == 0)
+            {
+                currencyService.ImportBalancesFromInventoryBacking();
+                return;
+            }
+
+            CCS_CurrencyBalance[] balances = new CCS_CurrencyBalance[economyData.balances.Length];
+            for (int index = 0; index < economyData.balances.Length; index++)
+            {
+                CCS_SaveCurrencyBalanceData source = economyData.balances[index];
+                balances[index] = new CCS_CurrencyBalance(
+                    source != null ? source.currencyId : string.Empty,
+                    source != null ? source.amount : 0);
+            }
+
+            currencyService.RestoreBalances(balances, syncInventoryBacking: true);
+        }
+
         private void ApplySaveData(CCS_SaveData saveData)
         {
             ApplyInventory(saveData.inventory);
+            ApplyEconomy(saveData.economy);
             ApplyNeeds(saveData.needs);
             ApplyBuilding(saveData.building);
             ApplyStorage(saveData.storage);

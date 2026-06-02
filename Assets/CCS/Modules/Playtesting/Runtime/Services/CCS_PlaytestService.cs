@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using CCS.Core;
 using CCS.Modules.Building;
 using CCS.Modules.Crafting;
+using CCS.Modules.Economy;
 using CCS.Modules.Combat;
 using CCS.Modules.Cooking;
 using CCS.Modules.Equipment;
@@ -49,6 +50,10 @@ namespace CCS.Modules.Playtesting
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
+        private const string RawFishItemId = "ccs.survival.item.resource.rawfish";
+        private const string CordageItemId = "ccs.survival.item.frontier.cordage";
+        private const string TradeDollarsCurrencyId = "ccs.survival.currency.tradedollars";
+        private const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         private const string StorageCrateRecipeId = "ccs.survival.recipe.progression.storagecrate";
         private const string CookedRabbitItemId = "ccs.survival.item.food.cookedrabbitmeat";
         private const string CookedVenisonItemId = "ccs.survival.item.food.cookedvenison";
@@ -74,6 +79,9 @@ namespace CCS.Modules.Playtesting
         private CCS_PlayerDeathService boundPlayerDeathService;
         private CCS_BuildingPlacementService boundBuildingPlacementService;
         private CCS_CraftingRecipeService boundCraftingRecipeService;
+        private CCS_CurrencyService boundCurrencyService;
+        private CCS_VendorService boundVendorService;
+        private int playtestCurrencyBaseline;
         private CCS_StorageService boundStorageService;
         private CCS_SleepService boundSleepService;
         private CCS_PlayerEquipmentService boundEquipmentService;
@@ -163,7 +171,9 @@ namespace CCS.Modules.Playtesting
             CCS_StorageService storageService,
             CCS_SleepService sleepService,
             CCS_SurvivalCoreService survivalCore,
-            CCS_InteractionService interactionService = null)
+            CCS_InteractionService interactionService = null,
+            CCS_CurrencyService currencyService = null,
+            CCS_VendorService vendorService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -187,6 +197,13 @@ namespace CCS.Modules.Playtesting
             boundEquipmentService = equipmentService;
             boundActiveItemService = activeItemService;
             boundInteractionService = interactionService;
+            boundCurrencyService = currencyService;
+            boundVendorService = vendorService;
+
+            if (boundVendorService != null)
+            {
+                boundVendorService.VendorTransactionCompleted += HandleVendorTransactionCompleted;
+            }
 
             if (boundInteractionService != null)
             {
@@ -360,6 +377,11 @@ namespace CCS.Modules.Playtesting
                 boundSleepService.SleepStateRestored -= HandleSleepStateRestored;
             }
 
+            if (boundVendorService != null)
+            {
+                boundVendorService.VendorTransactionCompleted -= HandleVendorTransactionCompleted;
+            }
+
             boundGatheringService = null;
             boundCombatService = null;
             boundWildlifeHarvestService = null;
@@ -373,6 +395,8 @@ namespace CCS.Modules.Playtesting
             boundSleepService = null;
             boundEquipmentService = null;
             boundActiveItemService = null;
+            boundCurrencyService = null;
+            boundVendorService = null;
 
             if (boundInteractionService != null)
             {
@@ -1305,6 +1329,187 @@ namespace CCS.Modules.Playtesting
             stepStates[index].SetStatus(CCS_PlaytestStepStatus.Active);
             RaiseStepChanged(stepStates[index], message);
             TryEvaluateFrontierRecipeValidationStep();
+            TryEvaluateEconomyPlaytestSteps();
+        }
+
+        public bool TryGrantPlaytestRawFish()
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || !TryAddInventoryItemById(inventoryService, RawFishItemId, 1))
+            {
+                return false;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ObtainFishForTrade,
+                "Raw fish available for vendor trade.");
+            return true;
+        }
+
+        public bool TryPlaytestSellRawFish()
+        {
+            if (!EnsureVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition rawFish = FindItemDefinitionById(RawFishItemId);
+            if (rawFish == null)
+            {
+                return false;
+            }
+
+            playtestCurrencyBaseline = GetTradeDollarsBalance();
+            CCS_VendorTransactionResult result = boundVendorService.TrySellActiveVendorItem(rawFish, 1);
+            return result.IsSuccess;
+        }
+
+        public bool TryPlaytestBuyCordage()
+        {
+            if (!EnsureVendorReadyForPlaytest())
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition cordage = FindItemDefinitionById(CordageItemId);
+            if (cordage == null)
+            {
+                return false;
+            }
+
+            CCS_VendorTransactionResult result = boundVendorService.TryBuyActiveVendorItem(cordage, 1);
+            return result.IsSuccess;
+        }
+
+        private bool EnsureVendorReadyForPlaytest()
+        {
+            if (!harnessEnabled
+                || boundVendorService == null
+                || !boundVendorService.IsInitialized)
+            {
+                return false;
+            }
+
+            if (!boundVendorService.TryGetVendor(GeneralStoreVendorId, out CCS_VendorDefinition vendor))
+            {
+                return false;
+            }
+
+            boundVendorService.SetActiveVendor(vendor);
+            return true;
+        }
+
+        private int GetTradeDollarsBalance()
+        {
+            return boundCurrencyService != null
+                ? boundCurrencyService.GetBalance(TradeDollarsCurrencyId)
+                : 0;
+        }
+
+        private void TryEvaluateEconomyPlaytestSteps()
+        {
+            if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
+            {
+                return;
+            }
+
+            CCS_PlaytestStepState state = stepStates[activeStepIndex];
+            if (state.Definition.StepType == CCS_PlaytestStepType.ObtainFishForTrade)
+            {
+                if (HasInventoryItem(RawFishItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.ObtainFishForTrade,
+                        "Raw fish obtained for trade.");
+                }
+            }
+        }
+
+        private void HandleVendorTransactionCompleted(CCS_VendorTransactionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (result.WasSell && result.ItemId == RawFishItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellFishAtVendor,
+                    "Sold fish at general store.");
+            }
+
+            if (result.WasSell)
+            {
+                int balance = result.CurrencyBalanceAfter;
+                if (balance > playtestCurrencyBaseline)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyCurrencyIncreased,
+                        $"Trade dollars increased to {balance}.");
+                }
+            }
+
+            if (!result.WasSell && result.ItemId == CordageItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyItemFromVendor,
+                    "Purchased cordage from general store.");
+
+                if (result.CurrencyAmount > 0)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyCurrencyDecreased,
+                        $"Trade dollars spent: {result.CurrencyAmount}.");
+                }
+
+                if (HasInventoryItem(CordageItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyVendorInventoryUpdated,
+                        "Cordage added to player inventory.");
+                }
+            }
+        }
+
+        private bool HasInventoryItem(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId)
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized)
+            {
+                return false;
+            }
+
+            CCS_ItemDefinition item = FindItemDefinitionById(itemId);
+            return item != null && inventoryService.GetQuantity(item) > 0;
+        }
+
+        private static CCS_ItemDefinition FindItemDefinitionById(string itemId)
+        {
+            if (!CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService?.ActiveProfile == null)
+            {
+                return null;
+            }
+
+            CCS_ItemDefinition[] definitions = inventoryService.ActiveProfile.SaveRestoreItemDefinitions;
+            if (definitions == null)
+            {
+                return null;
+            }
+
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_ItemDefinition definition = definitions[index];
+                if (definition != null && definition.ItemId == itemId)
+                {
+                    return definition;
+                }
+            }
+
+            return null;
         }
 
         private bool MatchesTargetItem(CCS_PlaytestStepType stepType, string itemId)

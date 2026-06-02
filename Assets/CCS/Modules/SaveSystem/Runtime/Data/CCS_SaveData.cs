@@ -39,7 +39,22 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveSleepWorldData sleep = new CCS_SaveSleepWorldData();
 
+        public CCS_SaveEconomyData economy = new CCS_SaveEconomyData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveEconomyData
+    {
+        public CCS_SaveCurrencyBalanceData[] balances = Array.Empty<CCS_SaveCurrencyBalanceData>();
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveCurrencyBalanceData
+    {
+        public string currencyId = string.Empty;
+        public int amount;
     }
 
     [Serializable]

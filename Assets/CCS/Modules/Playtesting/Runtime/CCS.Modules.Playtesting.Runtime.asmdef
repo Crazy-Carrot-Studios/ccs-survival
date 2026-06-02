@@ -11,6 +11,8 @@
         "CCS.Modules.Combat.Runtime",
         "CCS.Modules.Wildlife.Runtime",
         "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.Fishing.Runtime",
+        "CCS.Modules.Economy.Runtime",
         "CCS.Modules.SaveSystem.Runtime",
         "CCS.Modules.PlayerDeath.Runtime",
         "CCS.Modules.Building.Runtime",

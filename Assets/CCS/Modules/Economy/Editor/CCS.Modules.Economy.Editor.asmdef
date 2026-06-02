@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.Economy.Editor",
+    "rootNamespace": "CCS.Modules.Economy.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Player.Runtime",
+        "CCS.Survival.Composition",
+        "CCS.Survival.Editor",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Playtesting.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

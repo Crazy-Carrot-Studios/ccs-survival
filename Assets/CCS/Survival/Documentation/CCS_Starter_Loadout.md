@@ -1,4 +1,4 @@
-# CCS Starter Loadout — Western Frontier (1.2.6)
+# CCS Starter Loadout — Western Frontier (1.3.0)
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
@@ -44,3 +44,7 @@ Ingredients use practical sources from **1.2.4** (sapling, fiber, stick, wood, s
 ## Runtime
 
 `CCS_StarterLoadoutService` applies the profile when inventory is empty on first play. `CCS_SaveStartupLoader` skips duplicate grants after a save exists.
+
+## Economy (1.3.0)
+
+Starter Trade Dollars sync to `CCS_CurrencyService` after loadout via inventory backing. Fish and other goods can be sold at the frontier General Store to fund supply purchases. See `Assets/CCS/Modules/Economy/Documentation/CCS_Economy_Module.md`.

@@ -87,6 +87,19 @@ namespace CCS.Modules.Inventory
         [Tooltip("Optional icon sprite reference for future UI.")]
         [SerializeField] private Sprite icon;
 
+        [Header("Economy (Optional)")]
+        [Tooltip("When enabled, buy/sell values and vendor category are used by economy systems.")]
+        [SerializeField] private bool hasEconomyValues;
+
+        [Tooltip("Default vendor purchase price per unit. Zero means not buyable unless vendor override.")]
+        [SerializeField] private int buyValue;
+
+        [Tooltip("Default vendor sell price per unit. Zero means not sellable unless vendor override.")]
+        [SerializeField] private int sellValue;
+
+        [Tooltip("Optional vendor grouping for catalogs and future UI.")]
+        [SerializeField] private CCS_ItemVendorCategory vendorCategory = CCS_ItemVendorCategory.None;
+
         #endregion
 
         #region Properties
@@ -130,6 +143,14 @@ namespace CCS.Modules.Inventory
         public float MeleeRange => meleeRange;
 
         public Sprite Icon => icon;
+
+        public bool HasEconomyValues => hasEconomyValues;
+
+        public int BuyValue => hasEconomyValues ? buyValue : 0;
+
+        public int SellValue => hasEconomyValues ? sellValue : 0;
+
+        public CCS_ItemVendorCategory VendorCategory => vendorCategory;
 
         #endregion
     }

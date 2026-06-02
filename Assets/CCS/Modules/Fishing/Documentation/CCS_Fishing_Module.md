@@ -55,6 +55,10 @@ Fishing spots use:
 
 **Cooked Fish:** reserved for Cooking module integration.
 
+## Economy (1.3.0)
+
+Raw and small fish can be **sold** at the General Store for Trade Dollars (`ccs.survival.currency.tradedollars`). Purchase of fish at vendors is disabled in frontier bootstrap content.
+
 ## Bootstrap batch
 
 ```

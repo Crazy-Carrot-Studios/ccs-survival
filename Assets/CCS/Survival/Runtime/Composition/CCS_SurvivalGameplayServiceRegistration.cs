@@ -16,6 +16,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Fishing;
+using CCS.Modules.Economy;
 using CCS.Modules.Gathering;
 using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
@@ -58,6 +59,7 @@ namespace CCS.Survival.Composition
             CCS_ActiveItemProfile activeItemProfile,
             CCS_GatheringProfile gatheringProfile,
             CCS_FishingProfile fishingProfile,
+            CCS_EconomyProfile economyProfile,
             CCS_CraftingProfile craftingProfile,
             CCS_CraftingProgressionProfile craftingProgressionProfile,
             CCS_SaveLoadProfile saveLoadProfile,
@@ -229,6 +231,11 @@ namespace CCS.Survival.Composition
             CCS_StorageService storageService = CreateStorageService(storageProfile, inventoryService);
             RegisterService(runtimeHost, storageService, enableDebugLogs);
 
+            CCS_CurrencyService currencyService = CreateCurrencyService(economyProfile, inventoryService);
+            RegisterService(runtimeHost, currencyService, enableDebugLogs);
+            CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
+            RegisterService(runtimeHost, vendorService, enableDebugLogs);
+
             CCS_SaveService saveService = CreateSaveService(saveProfile);
             RegisterService(runtimeHost, saveService, enableDebugLogs);
             saveService.BindGameplayServices(
@@ -238,6 +245,7 @@ namespace CCS.Survival.Composition
                 buildingService,
                 storageService,
                 sleepService,
+                currencyService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -272,7 +280,9 @@ namespace CCS.Survival.Composition
                     storageService,
                     sleepService,
                     survivalCoreService,
-                    interactionService);
+                    interactionService,
+                    currencyService,
+                    vendorService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -888,6 +898,47 @@ namespace CCS.Survival.Composition
 
             service.InitializeFromProfile(profile);
             service.RegisterPrimitiveRecipes(craftingService);
+            return service;
+        }
+
+        private static CCS_CurrencyService CreateCurrencyService(
+            CCS_EconomyProfile profile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_CurrencyService service = new CCS_CurrencyService();
+            service.Initialize();
+
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized && inventoryService != null)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            return service;
+        }
+
+        private static CCS_VendorService CreateVendorService(
+            CCS_EconomyProfile profile,
+            CCS_CurrencyService currencyService,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_VendorService service = new CCS_VendorService();
+            service.Initialize();
+
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized)
+            {
+                service.BindServices(currencyService, inventoryService);
+            }
+
             return service;
         }
 

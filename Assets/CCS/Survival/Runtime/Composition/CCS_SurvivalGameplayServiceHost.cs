@@ -19,6 +19,7 @@ using CCS.Modules.Cooking;
 using CCS.Modules.Sleep;
 using CCS.Modules.Combat;
 using CCS.Modules.Fishing;
+using CCS.Modules.Economy;
 using CCS.Modules.Gathering;
 using CCS.Modules.Hotbar;
 using CCS.Modules.CharacterController;
@@ -82,6 +83,9 @@ namespace CCS.Survival.Composition
 
         [Tooltip("Default fishing profile used to register CCS_FishingService.")]
         [SerializeField] private CCS_FishingProfile fishingProfile;
+
+        [Tooltip("Default economy profile used to register currency and vendor services.")]
+        [SerializeField] private CCS_EconomyProfile economyProfile;
 
         [Tooltip("Default crafting profile used to register CCS_CraftingService.")]
         [SerializeField] private CCS_CraftingProfile craftingProfile;
@@ -169,6 +173,7 @@ namespace CCS.Survival.Composition
                 activeItemProfile,
                 gatheringProfile,
                 fishingProfile,
+                economyProfile,
                 craftingProfile,
                 craftingProgressionProfile,
                 saveLoadProfile,

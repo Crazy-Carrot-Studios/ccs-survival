@@ -38,6 +38,12 @@ namespace CCS.Modules.Playtesting
         EquipFishingPole = 23,
         UseFishingPoleOnSpot = 24,
         ValidateFrontierRecipe = 25,
-        EquipSpearRegression = 26
+        EquipSpearRegression = 26,
+        ObtainFishForTrade = 27,
+        SellFishAtVendor = 28,
+        VerifyCurrencyIncreased = 29,
+        BuyItemFromVendor = 30,
+        VerifyCurrencyDecreased = 31,
+        VerifyVendorInventoryUpdated = 32
     }
 }

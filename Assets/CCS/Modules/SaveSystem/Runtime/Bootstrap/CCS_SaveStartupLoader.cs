@@ -4,6 +4,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.Sleep;
 using CCS.Modules.Storage;
 using CCS.Modules.Gathering;
+using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
 using CCS.Modules.PlayerDeath;
 using CCS.Modules.SurvivalCore;
@@ -52,6 +53,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StorageService storageService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_SleepService sleepService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
 
             Transform playerTransform = ResolvePlayerTransform();
             saveService.BindGameplayServices(
@@ -61,6 +63,7 @@ namespace CCS.Modules.SaveSystem
                 buildingService,
                 storageService,
                 sleepService,
+                currencyService,
                 playerTransform);
 
             if (runtimeHost.ServiceRegistry.TryGetService(out CCS_PlayerDeathService playerDeathService)
@@ -85,6 +88,11 @@ namespace CCS.Modules.SaveSystem
             if (starterLoadoutService != null && inventoryService != null)
             {
                 starterLoadoutService.TryApplyStarterLoadout(inventoryService);
+            }
+
+            if (currencyService != null && currencyService.IsInitialized)
+            {
+                currencyService.ImportBalancesFromInventoryBacking();
             }
         }
 

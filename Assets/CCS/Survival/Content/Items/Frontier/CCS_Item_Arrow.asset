@@ -32,3 +32,7 @@ MonoBehaviour:
   meleeDamage: 0
   meleeRange: 2
   icon: {fileID: 0}
+  hasEconomyValues: 1
+  buyValue: 1
+  sellValue: 0
+  vendorCategory: 0

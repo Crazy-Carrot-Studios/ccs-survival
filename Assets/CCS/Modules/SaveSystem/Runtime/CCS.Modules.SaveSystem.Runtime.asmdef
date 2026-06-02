@@ -12,6 +12,7 @@
         "CCS.Modules.Sleep.Runtime",
         "CCS.Modules.SaveLoad.Runtime",
         "CCS.Modules.Cooking.Runtime",
+        "CCS.Modules.Economy.Runtime",
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.PlayerDeath.Runtime",
         "CCS.Survival.Player.Runtime"
