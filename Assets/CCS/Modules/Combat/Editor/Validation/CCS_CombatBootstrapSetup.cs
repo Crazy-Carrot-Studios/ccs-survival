@@ -18,7 +18,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Batch entry for 0.9.8 primitive combat foundation milestone.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Grants spear in starter loadout for bootstrap hunting verification.
+// NOTES: Spear remains regression content; starter loadout is frontier-themed (1.2.6).
 // =============================================================================
 
 namespace CCS.Modules.Combat.Editor
@@ -53,7 +53,7 @@ namespace CCS.Modules.Combat.Editor
             CCS_ItemDefinition knifeItem = UpdateKnifeItem();
             CCS_ItemDefinition spearItem = UpdateSpearItem();
             CCS_EquipmentItemDefinition spearEquipment = EnsureSpearEquipment(spearItem);
-            EnsureStarterLoadoutIncludesSpear(spearItem);
+            EnsureStarterLoadoutExcludesSpear(spearItem);
             CCS_CombatProfile combatProfile = EnsureDefaultProfile(wildlifeProfile, rabbitCarcass, deerCarcass);
             EnsureBootstrapPrefabProfile(combatProfile);
             EnsurePlayerCombatDriver();
@@ -92,8 +92,8 @@ namespace CCS.Modules.Combat.Editor
         {
             CCS_ItemDefinition knife = LoadRequiredAsset<CCS_ItemDefinition>(KnifeItemPath);
             SerializedObject serializedItem = new SerializedObject(knife);
-            serializedItem.FindProperty("meleeDamage").floatValue = 10f;
-            serializedItem.FindProperty("meleeRange").floatValue = 2f;
+            serializedItem.FindProperty("meleeDamage").floatValue = 8f;
+            serializedItem.FindProperty("meleeRange").floatValue = 1.8f;
             serializedItem.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(knife);
             return knife;
@@ -128,31 +128,20 @@ namespace CCS.Modules.Combat.Editor
             return equipment;
         }
 
-        private static void EnsureStarterLoadoutIncludesSpear(CCS_ItemDefinition spearItem)
+        private static void EnsureStarterLoadoutExcludesSpear(CCS_ItemDefinition spearItem)
         {
             CCS_StarterLoadoutProfile loadout = LoadRequiredAsset<CCS_StarterLoadoutProfile>(StarterLoadoutPath);
             SerializedObject serializedLoadout = new SerializedObject(loadout);
             SerializedProperty startingItems = serializedLoadout.FindProperty("startingItems");
-            bool hasSpear = false;
-            for (int index = 0; index < startingItems.arraySize; index++)
+            for (int index = startingItems.arraySize - 1; index >= 0; index--)
             {
                 SerializedProperty entry = startingItems.GetArrayElementAtIndex(index);
                 CCS_ItemDefinition item =
                     entry.FindPropertyRelative("itemDefinition").objectReferenceValue as CCS_ItemDefinition;
                 if (item == spearItem)
                 {
-                    hasSpear = true;
-                    break;
+                    startingItems.DeleteArrayElementAtIndex(index);
                 }
-            }
-
-            if (!hasSpear)
-            {
-                int newIndex = startingItems.arraySize;
-                startingItems.InsertArrayElementAtIndex(newIndex);
-                SerializedProperty entry = startingItems.GetArrayElementAtIndex(newIndex);
-                entry.FindPropertyRelative("itemDefinition").objectReferenceValue = spearItem;
-                entry.FindPropertyRelative("quantity").intValue = 1;
             }
 
             serializedLoadout.ApplyModifiedPropertiesWithoutUndo();

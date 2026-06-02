@@ -12,27 +12,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecec9d40e4451e84189d6be391a848a8, type: 3}
   m_Name: CCS_DefaultStarterLoadoutProfile
   m_EditorClassIdentifier: CCS.Survival.Player.Runtime::CCS.Survival.Player.Loadout.CCS_StarterLoadoutProfile
-  profileDisplayName: Default Starter Loadout
-  profileId: ccs.survival.profile.starterloadout.default
-  profileDescription: Starter loadout and progression profile updated for 0.9.2 tool
-    and weapon foundation.
-  profileVersion: 0.9.2
+  profileDisplayName: Frontier Traveler Starter Loadout
+  profileId: ccs.survival.profile.starterloadout.frontier
+  profileDescription: Western frontier traveler starter supplies for milestone 1.2.6.
+  profileVersion: 1.2.6
   enableDebugLogs: 0
   startingItems:
   - itemDefinition: {fileID: 11400000, guid: 196e681ce550b204b9de52033d55d868, type: 2}
     quantity: 1
-  - itemDefinition: {fileID: 11400000, guid: a43e2220ca1d1154eb04fa5add3c2f0e, type: 2}
-    quantity: 2
-  - itemDefinition: {fileID: 11400000, guid: f92602b1d1bfea94e98f84a27b1914c8, type: 2}
+  - itemDefinition: {fileID: 11400000, guid: 926c0f9b08e45a44ebf3657f330e7872, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: 5b569d0aca4b7174693a783408f05447, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: a1239b28675a60c44afe0539f512278c, type: 2}
+    quantity: 3
+  - itemDefinition: {fileID: 11400000, guid: 23059b452d30c5a43b2ade394a240aea, type: 2}
     quantity: 1
   currencyItemDefinition: {fileID: 11400000, guid: f79e92daebd51ba4eb8a49b557d23f91, type: 2}
   startingCurrencyAmount: 10
   applyWhenInventoryEmpty: 1
   primitiveRecipes:
-  - {fileID: 11400000, guid: 383b0bf8eb4155741b6bf4841ff3ace6, type: 2}
-  - {fileID: 11400000, guid: db563df545b857543b30c9dac84e24b8, type: 2}
-  - {fileID: 11400000, guid: 2cac8e16466252c41bbf389b43768e18, type: 2}
-  - {fileID: 11400000, guid: f63192917e3425d4480313bf52d55b6f, type: 2}
+  - {fileID: 11400000, guid: dbb860bcfbcc3554fa59c0cf0a08bf3e, type: 2}
+  - {fileID: 11400000, guid: 2b516d5bdc47541439a0d49d37a0600a, type: 2}
+  - {fileID: 11400000, guid: 799fb006255f67941b411a84f5de9d96, type: 2}
+  - {fileID: 11400000, guid: 78d0a9aec0bbdb94097c38c654739ffc, type: 2}
+  - {fileID: 11400000, guid: 8da64688c5049d344985e7cb9254209d, type: 2}
+  - {fileID: 11400000, guid: eb58ac911c09ff049865c0a9b902df6b, type: 2}
+  - {fileID: 11400000, guid: f1785f3ed8f03be4b8584571f16b7909, type: 2}
+  - {fileID: 11400000, guid: 664cb41ee1848874f8e3da610726d499, type: 2}
+  - {fileID: 11400000, guid: 5379707a8d9a1504f96893c5cf4b3a05, type: 2}
+  - {fileID: 11400000, guid: 6294030cdc42c004aa52861255fa9a53, type: 2}
+  - {fileID: 11400000, guid: dcaaaedfb79d18e4b87af0034b8deab1, type: 2}
   boneToolRecipes:
   - {fileID: 11400000, guid: be63804901d0a9d4190078c0e831edf9, type: 2}
   - {fileID: 11400000, guid: 25fd7cb0d211a494985b063daf869bd1, type: 2}

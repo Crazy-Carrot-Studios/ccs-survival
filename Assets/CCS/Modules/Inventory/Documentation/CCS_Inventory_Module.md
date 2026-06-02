@@ -95,22 +95,22 @@ No gameplay stats or equipment data in 0.4.0.
 
 ---
 
-## Starter loadout items (0.9.1)
+## Starter loadout items (1.2.6 frontier)
 
-Starter content lives under `Assets/CCS/Survival/Content/Items/Starter/`:
+See `Assets/CCS/Survival/Documentation/CCS_Starter_Loadout.md`.
 
-| Asset | Display Name | Role |
-|-------|--------------|------|
-| `CCS_Item_Knife` | Knife | Starter tool (`CCS_ItemToolType.Knife`) |
-| `CCS_Item_BasicFood` | Basic Food | Starter consumable placeholder |
-| `CCS_Item_Coin` | Coin | Currency placeholder (no economy yet) |
-| `CCS_Item_Branch` | Branch | Early harvest material |
-| `CCS_Item_Spear` | Spear | Primitive craft output placeholder |
-| `CCS_Item_BowStave` | Bow Stave | Bow component placeholder |
-| `CCS_Item_ArrowShaft` | Arrow Shaft | Arrow component placeholder |
-| `CCS_Item_CampfireKit` | Campfire Kit | Campfire kit placeholder |
+| Item ID | Display | Role |
+|---------|---------|------|
+| `ccs.survival.item.starter.knife` | Pocket Knife | Starter tool/weapon |
+| `ccs.survival.item.starter.bedroll` | Bedroll | Sleep placeholder |
+| `ccs.survival.item.starter.canteen` | Canteen | Water placeholder |
+| `ccs.survival.item.starter.hardtack` | Hardtack Ration | Food placeholder |
+| `ccs.survival.item.starter.dollars` | Trade Dollars | Currency (profile grants 10) |
+| `ccs.survival.item.starter.tinderbox` | Tinderbox | Fire-start placeholder |
 
-`CCS_StarterLoadoutService` grants Knife x1, Basic Food x2, and Coin x10 on fresh runtime when inventory is empty. Save restore skips duplicate grants.
+Frontier craft items live under `Assets/CCS/Survival/Content/Items/Frontier/` (cordage, bow, arrow, trap, etc.). Legacy `CCS_Item_Spear` remains for regression only.
+
+`CCS_StarterLoadoutService` applies the profile when inventory is empty. Save restore skips duplicate grants.
 
 ---
 

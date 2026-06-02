@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: CCS_Item_Knife
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
   itemId: ccs.survival.item.starter.knife
-  displayName: Knife
-  description: Primitive cutting tool and melee weapon foundation.
+  displayName: Pocket Knife
+  description: Frontier traveler's pocket knife for skinning, camp chores, and close
+    defense.
   category: 3
   maxStackSize: 1
   isStackable: 0
@@ -29,6 +30,6 @@ MonoBehaviour:
   weaponType: 1
   damageType: 1
   rangeType: 1
-  meleeDamage: 10
-  meleeRange: 2
+  meleeDamage: 8
+  meleeRange: 1.8
   icon: {fileID: 0}

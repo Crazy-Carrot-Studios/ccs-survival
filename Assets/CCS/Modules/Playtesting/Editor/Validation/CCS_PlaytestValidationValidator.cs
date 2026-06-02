@@ -103,12 +103,12 @@ namespace CCS.Modules.Playtesting.Editor
                     "Default playtest profile has harness disabled.");
             }
 
-            if (profile.ProfileVersion != "1.1.2")
+            if (profile.ProfileVersion != "1.2.6")
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Warning,
                     "Playtesting Profile",
-                    $"Expected profileVersion 1.1.2 but found '{profile.ProfileVersion}'.");
+                    $"Expected profileVersion 1.2.6 but found '{profile.ProfileVersion}'.");
             }
 
             ValidateRequiredStepTypes(report, profile);

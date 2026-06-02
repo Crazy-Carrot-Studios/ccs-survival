@@ -12,13 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8490a90abcdef1234560d, type: 3}
   m_Name: CCS_Item_Coin
   m_EditorClassIdentifier: CCS.Modules.Inventory.Runtime::CCS.Modules.Inventory.CCS_ItemDefinition
-  itemId: ccs.survival.item.starter.coin
-  displayName: Coin
-  description: Currency placeholder for future economy systems.
+  itemId: ccs.survival.item.starter.dollars
+  displayName: Trade Dollars
+  description: Frontier trade coin placeholder for future economy systems.
   category: 0
   maxStackSize: 999
   isStackable: 1
   weight: 0.01
+  gameplayKind: 0
   hasToolIdentity: 0
   toolType: 0
+  toolArchetype: 0
+  toolTier: 0
+  hasWeaponIdentity: 0
+  weaponArchetype: 0
+  weaponType: 0
+  damageType: 0
+  rangeType: 0
+  meleeDamage: 0
+  meleeRange: 2
   icon: {fileID: 0}

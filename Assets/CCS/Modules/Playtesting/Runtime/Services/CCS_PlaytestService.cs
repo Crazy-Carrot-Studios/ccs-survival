@@ -40,7 +40,12 @@ namespace CCS.Modules.Playtesting
         private const string WoodItemId = "ccs.survival.item.resource.wood";
         private const string StoneItemId = "ccs.survival.item.resource.stone";
         private const string FiberItemId = "ccs.survival.item.resource.fiber";
+        private const string SaplingItemId = "ccs.survival.item.resource.sapling";
+        private const string ScrapIronItemId = "ccs.survival.item.resource.scrapiron";
+        private const string PocketKnifeItemId = "ccs.survival.item.starter.knife";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string FrontierFishingPoleRecipeId = "ccs.survival.recipe.frontier.fishingpole";
+        private const string FrontierBowRecipeId = "ccs.survival.recipe.frontier.bow";
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
@@ -487,7 +492,17 @@ namespace CCS.Modules.Playtesting
             LogDebug("Forced hunger and thirst to zero for death playtest (F7).");
         }
 
+        public bool TryEquipPocketKnife()
+        {
+            return TryEquipItemForPlaytest(PocketKnifeItemId, "pocket knife", CCS_PlaytestStepType.EquipWeapon);
+        }
+
         public bool TryEquipStarterSpear()
+        {
+            return TryEquipItemForPlaytest(SpearItemId, "starter spear", CCS_PlaytestStepType.EquipSpearRegression);
+        }
+
+        private bool TryEquipItemForPlaytest(string itemId, string displayLabel, CCS_PlaytestStepType equipStepType)
         {
             if (!harnessEnabled || boundEquipmentService == null || !boundEquipmentService.IsInitialized)
             {
@@ -496,24 +511,24 @@ namespace CCS.Modules.Playtesting
 
             CCS_EquippedItem equippedMainHand =
                 boundEquipmentService.GetEquippedItem(CCS_EquipmentSlotType.MainHand);
-            if (equippedMainHand?.ItemDefinition?.ItemId == SpearItemId)
+            if (equippedMainHand?.ItemDefinition?.ItemId == itemId)
             {
                 int visualStepIndex = FindActiveStepIndexOfType(CCS_PlaytestStepType.ConfirmEquipmentVisual);
                 if (visualStepIndex >= 0 && stepStates[visualStepIndex].ProgressCount >= 1)
                 {
                     boundEquipmentService.UnequipItem(CCS_EquipmentSlotType.MainHand);
-                    LogDebug("Unequipped starter spear for equipment visual playtest (F6).");
+                    LogDebug($"Unequipped {displayLabel} for equipment visual playtest (F6).");
                     return true;
                 }
 
-                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear already equipped.");
+                TryCompleteActiveStepOfType(equipStepType, $"{displayLabel} already equipped.");
                 return true;
             }
 
-            CCS_EquipmentItemDefinition spearDefinition = FindEquipmentDefinitionForItemId(SpearItemId);
-            if (spearDefinition == null)
+            CCS_EquipmentItemDefinition equipmentDefinition = FindEquipmentDefinitionForItemId(itemId);
+            if (equipmentDefinition == null)
             {
-                LogDebug("Starter spear equipment definition was not found in the active equipment profile.");
+                LogDebug($"{displayLabel} equipment definition was not found in the active equipment profile.");
                 return false;
             }
 
@@ -522,13 +537,13 @@ namespace CCS.Modules.Playtesting
                 boundEquipmentService.UnequipItem(CCS_EquipmentSlotType.MainHand);
             }
 
-            if (!boundEquipmentService.EquipItem(spearDefinition))
+            if (!boundEquipmentService.EquipItem(equipmentDefinition))
             {
-                LogDebug("Failed to equip starter spear for playtest.");
+                LogDebug($"Failed to equip {displayLabel} for playtest.");
                 return false;
             }
 
-            LogDebug("Equipped starter spear for playtest (F6).");
+            LogDebug($"Equipped {displayLabel} for playtest (F6).");
             return true;
         }
 
@@ -1080,7 +1095,12 @@ namespace CCS.Modules.Playtesting
 
             if (MatchesTargetItem(CCS_PlaytestStepType.EquipWeapon, itemId))
             {
-                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Spear equipped.");
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipWeapon, "Pocket knife equipped.");
+            }
+
+            if (MatchesTargetItem(CCS_PlaytestStepType.EquipSpearRegression, itemId))
+            {
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.EquipSpearRegression, "Starter spear equipped (regression).");
             }
 
             if (MatchesTargetItem(CCS_PlaytestStepType.EquipFishingPole, itemId))
@@ -1284,6 +1304,7 @@ namespace CCS.Modules.Playtesting
             activeStepIndex = index;
             stepStates[index].SetStatus(CCS_PlaytestStepStatus.Active);
             RaiseStepChanged(stepStates[index], message);
+            TryEvaluateFrontierRecipeValidationStep();
         }
 
         private bool MatchesTargetItem(CCS_PlaytestStepType stepType, string itemId)
@@ -1305,6 +1326,11 @@ namespace CCS.Modules.Playtesting
                 }
 
                 if (stepType == CCS_PlaytestStepType.EquipWeapon)
+                {
+                    return itemId == PocketKnifeItemId;
+                }
+
+                if (stepType == CCS_PlaytestStepType.EquipSpearRegression)
                 {
                     return itemId == SpearItemId;
                 }
@@ -1693,7 +1719,46 @@ namespace CCS.Modules.Playtesting
 
         private static bool IsGatherResourceItem(string itemId)
         {
-            return itemId == StickItemId || itemId == WoodItemId;
+            return itemId == StickItemId
+                || itemId == WoodItemId
+                || itemId == FiberItemId
+                || itemId == SaplingItemId
+                || itemId == StoneItemId
+                || itemId == ScrapIronItemId;
+        }
+
+        private void TryEvaluateFrontierRecipeValidationStep()
+        {
+            if (activeStepIndex < 0 || activeStepIndex >= stepStates.Count)
+            {
+                return;
+            }
+
+            CCS_PlaytestStepState state = stepStates[activeStepIndex];
+            if (state.Definition.StepType != CCS_PlaytestStepType.ValidateFrontierRecipe)
+            {
+                return;
+            }
+
+            string recipeId = state.Definition.TargetItemId;
+            if (string.IsNullOrWhiteSpace(recipeId))
+            {
+                return;
+            }
+
+            CCS_CraftingRecipeService recipeService = boundCraftingRecipeService;
+            if (recipeService == null
+                && !CCS_CraftingRuntimeBridge.TryGetCraftingRecipeService(out recipeService))
+            {
+                return;
+            }
+
+            if (recipeService.TryGetRecipeById(recipeId, out _))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ValidateFrontierRecipe,
+                    $"Frontier recipe registered: {recipeId}.");
+            }
         }
 
         private static bool IsCookedFoodItem(string itemId)

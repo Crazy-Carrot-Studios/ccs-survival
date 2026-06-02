@@ -28,8 +28,10 @@ namespace CCS.Modules.Playtesting.Editor
         private const string ModuleDocPath = "Assets/CCS/Modules/Playtesting/Documentation/CCS_Playtesting_Module.md";
         private const string LogPrefix = "[CCS_PlaytestBootstrapSetup]";
 
-        private const string StickItemId = "ccs.survival.item.resource.stick";
+        private const string PocketKnifeItemId = "ccs.survival.item.starter.knife";
         private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string FrontierFishingPoleRecipeId = "ccs.survival.recipe.frontier.fishingpole";
+        private const string FrontierBowRecipeId = "ccs.survival.recipe.frontier.bow";
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
         private const string BonePickItemId = "ccs.survival.item.tool.pick.bone";
         private const string FishingPoleItemId = "ccs.survival.item.tool.fishingpole";
@@ -89,8 +91,8 @@ namespace CCS.Modules.Playtesting.Editor
             serializedProfile.FindProperty("profileDisplayName").stringValue = "Default Playtest Harness";
             serializedProfile.FindProperty("profileId").stringValue = "ccs.survival.profile.playtesting.default";
             serializedProfile.FindProperty("profileDescription").stringValue =
-                "Bootstrap manual playtest checklist for milestone 1.1.5.";
-            serializedProfile.FindProperty("profileVersion").stringValue = "1.1.5";
+                "Frontier starter progression playtest checklist for milestone 1.2.6.";
+            serializedProfile.FindProperty("profileVersion").stringValue = "1.2.6";
             serializedProfile.FindProperty("enableHarness").boolValue = true;
             serializedProfile.FindProperty("showDebugLogs").boolValue = true;
             serializedProfile.FindProperty("resetStepStateOnPlayStart").boolValue = true;
@@ -119,41 +121,42 @@ namespace CCS.Modules.Playtesting.Editor
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.gather",
-                "Gather sticks or wood",
+                "Gather frontier resource",
                 CCS_PlaytestStepType.GatherResource,
-                "Gather from CCS_TestGatheringSmallTree or CCS_TestGatheringBush (interact).",
+                "Gather fiber, sapling, stone, or scrap from CCS_TestFrontierTree, "
+                + "CCS_TestFrontierStoneOutcrop, or CCS_TestFrontierSalvageWagon (interact).",
                 string.Empty,
                 requiredCount: 1);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.equip",
-                "Equip spear",
+                "Equip pocket knife",
                 CCS_PlaytestStepType.EquipWeapon,
-                "Press F6 to equip the starter spear (or equip manually when UI exists).",
-                SpearItemId);
+                "Press F6 to equip the starter pocket knife (or equip manually when UI exists).",
+                PocketKnifeItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.equipment.visual",
                 "Confirm equipment visual",
                 CCS_PlaytestStepType.ConfirmEquipmentVisual,
-                "After equipping the spear, confirm a placeholder visual appears on the player. "
+                "After equipping the pocket knife, confirm a placeholder visual appears on the player. "
                 + "Press F6 again to unequip and confirm the visual is removed.",
-                SpearItemId,
+                PocketKnifeItemId,
                 requiredCount: 2);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.active.select",
                 "Select active item",
                 CCS_PlaytestStepType.SelectActiveItem,
-                "Press F6 to equip spear, then Alpha1 to select active item from main hand.",
-                SpearItemId);
+                "Press F6 to equip pocket knife, then Alpha1 to select active item from main hand.",
+                PocketKnifeItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.active.use",
                 "Use active item",
                 CCS_PlaytestStepType.UseActiveItem,
                 "Primary attack (left mouse) routes through active item. Hit wildlife or receive a safe no-target result.",
-                SpearItemId);
+                PocketKnifeItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.active.hatchet.tree",
@@ -176,6 +179,20 @@ namespace CCS.Modules.Playtesting.Editor
                 "Use pick on tree or hatchet on rock and confirm a safe WrongTool result (no error spam).");
             AddStep(
                 stepListProperty,
+                "ccs.survival.playtest.frontier.recipe.fishingpole",
+                "Validate fishing pole recipe",
+                CCS_PlaytestStepType.ValidateFrontierRecipe,
+                "Confirms frontier fishing pole recipe is registered on the crafting service (auto on step start).",
+                FrontierFishingPoleRecipeId);
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.frontier.recipe.bow",
+                "Validate bow recipe",
+                CCS_PlaytestStepType.ValidateFrontierRecipe,
+                "Confirms frontier bow recipe is registered (auto on step start). Optional ranged use remains unimplemented.",
+                FrontierBowRecipeId);
+            AddStep(
+                stepListProperty,
                 "ccs.survival.playtest.fishing.equip",
                 "Equip fishing pole",
                 CCS_PlaytestStepType.EquipFishingPole,
@@ -193,7 +210,14 @@ namespace CCS.Modules.Playtesting.Editor
                 "ccs.survival.playtest.hunt",
                 "Hunt wildlife",
                 CCS_PlaytestStepType.HuntWildlife,
-                "Kill CCS_TestRabbit or CCS_TestDeer with primary attack while spear is equipped.");
+                "Kill CCS_TestRabbit or CCS_TestDeer with primary attack while a weapon is equipped.");
+            AddStep(
+                stepListProperty,
+                "ccs.survival.playtest.spear.regression",
+                "Equip spear (regression)",
+                CCS_PlaytestStepType.EquipSpearRegression,
+                "Optional legacy regression: press F6 on this step to equip the starter spear.",
+                SpearItemId);
             AddStep(
                 stepListProperty,
                 "ccs.survival.playtest.harvest",
@@ -400,7 +424,7 @@ namespace CCS.Modules.Playtesting.Editor
             text = System.Text.RegularExpressions.Regex.Replace(
                 text,
                 @"bundleVersion: [0-9]+\.[0-9]+\.[0-9]+",
-                "bundleVersion: 1.1.3");
+                "bundleVersion: 1.2.6");
             File.WriteAllText(projectSettingsPath, text);
         }
 

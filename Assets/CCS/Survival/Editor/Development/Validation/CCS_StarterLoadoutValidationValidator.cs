@@ -16,7 +16,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-31
-// NOTES: Confirms primitive progression foundation for milestone 0.9.1.
+// NOTES: Confirms starter loadout wiring; frontier items/recipes validated by frontier validator (1.2.6).
 // =============================================================================
 
 namespace CCS.Survival.Editor.Development
@@ -26,7 +26,9 @@ namespace CCS.Survival.Editor.Development
         private const string SurvivalRoot = "Assets/CCS/Survival";
         private const string StarterItemsRoot = SurvivalRoot + "/Content/Items/Starter";
         private const string StarterProfilePath = SurvivalRoot + "/Profiles/StarterLoadout/CCS_DefaultStarterLoadoutProfile.asset";
-        private const string PrimitiveRecipesRoot = SurvivalRoot + "/Profiles/Crafting/PrimitiveRecipes";
+        private const string FrontierRecipesRoot = SurvivalRoot + "/Profiles/Crafting/FrontierPrimitiveRecipes";
+        private const string SpearItemId = "ccs.survival.item.starter.spear";
+        private const string PocketKnifeItemId = "ccs.survival.item.starter.knife";
         private const string TreeResourcePath = SurvivalRoot + "/Profiles/WorldResources/TestResources/CCS_TestResource_Tree.asset";
         private const string RegistrationPath = SurvivalRoot + "/Runtime/Composition/CCS_SurvivalGameplayServiceRegistration.cs";
         private const string BootstrapPrefabPath = SurvivalRoot + "/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab";
@@ -42,21 +44,19 @@ namespace CCS.Survival.Editor.Development
         public void Validate(CCS_SurvivalValidationReport report)
         {
             ValidateRequiredFolder(report, "Starter Items", StarterItemsRoot);
-            ValidateStarterItem(report, "CCS_Item_Knife", "Knife", true, CCS_ItemToolType.Knife);
-            ValidateStarterItem(report, "CCS_Item_BasicFood", "Basic Food", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_Coin", "Coin", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_Branch", "Branch", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_Spear", "Spear", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_BowStave", "Bow Stave", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_ArrowShaft", "Arrow Shaft", false, CCS_ItemToolType.None);
-            ValidateStarterItem(report, "CCS_Item_CampfireKit", "Campfire Kit", false, CCS_ItemToolType.None);
+            ValidateStarterItem(report, "CCS_Item_Knife", "Pocket Knife", true, CCS_ItemToolType.Knife);
+            ValidateStarterItem(report, "CCS_Item_Bedroll", "Bedroll", false, CCS_ItemToolType.None);
+            ValidateLegacyStarterItemOptional(report, "CCS_Item_Spear", SpearItemId);
+            ValidateLegacyStarterItemOptional(report, "CCS_Item_Branch", string.Empty);
+            ValidateLegacyStarterItemOptional(report, "CCS_Item_BowStave", string.Empty);
 
             ValidateRequiredScript(report, "CCS_StarterLoadoutProfile", SurvivalRoot + "/Runtime/Player/Loadout/CCS_StarterLoadoutProfile.cs");
             ValidateRequiredScript(report, "CCS_StarterLoadoutService", SurvivalRoot + "/Runtime/Player/Loadout/CCS_StarterLoadoutService.cs");
             ValidateRequiredScript(report, "CCS_InventoryToolUtility", "Assets/CCS/Modules/Inventory/Runtime/Utilities/CCS_InventoryToolUtility.cs");
 
             ValidateStarterLoadoutProfileAsset(report);
-            ValidatePrimitiveRecipes(report);
+            ValidateStarterLoadoutExcludesSpear(report);
+            ValidateFrontierRecipesFolder(report);
             ValidateTreeKnifeHarvest(report);
             ValidateCompositionWiring(report);
             ValidateBootstrapHostWiring(report);
@@ -206,44 +206,91 @@ namespace CCS.Survival.Editor.Development
                 $"Profile present: {StarterProfilePath}");
         }
 
-        private static void ValidatePrimitiveRecipes(CCS_SurvivalValidationReport report)
+        private static void ValidateLegacyStarterItemOptional(
+            CCS_SurvivalValidationReport report,
+            string assetName,
+            string expectedItemId)
         {
-            string[] recipeNames =
+            string assetPath = $"{StarterItemsRoot}/{assetName}.asset";
+            if (!File.Exists(assetPath))
             {
-                "CCS_PrimitiveSpearRecipe",
-                "CCS_PrimitiveBowStaveRecipe",
-                "CCS_PrimitiveArrowShaftRecipe",
-                "CCS_PrimitiveCampfireKitRecipe"
-            };
-
-            for (int index = 0; index < recipeNames.Length; index++)
-            {
-                string assetPath = $"{PrimitiveRecipesRoot}/{recipeNames[index]}.asset";
-                if (!File.Exists(assetPath))
-                {
-                    report.AddIssue(
-                        CCS_SurvivalValidationIssueSeverity.Error,
-                        "Primitive Crafting Recipes",
-                        $"Missing recipe asset: {assetPath}");
-                    continue;
-                }
-
-                CCS_CraftingRecipeDefinition recipe =
-                    AssetDatabase.LoadAssetAtPath<CCS_CraftingRecipeDefinition>(assetPath);
-                if (recipe == null || recipe.RequiredStationType != CCS_CraftingStationType.Hand)
-                {
-                    report.AddIssue(
-                        CCS_SurvivalValidationIssueSeverity.Error,
-                        "Primitive Crafting Recipes",
-                        $"{recipeNames[index]} must be a hand crafting recipe.");
-                    continue;
-                }
-
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Info,
-                    "Primitive Crafting Recipes",
-                    $"{recipeNames[index]} validated.");
+                    "Legacy Starter Items",
+                    $"Optional legacy asset not present: {assetPath}");
+                return;
             }
+
+            if (!string.IsNullOrWhiteSpace(expectedItemId))
+            {
+                CCS_ItemDefinition itemDefinition = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(assetPath);
+                if (itemDefinition != null && itemDefinition.ItemId == expectedItemId)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Legacy Starter Items",
+                        $"{assetName} remains available for regression content.");
+                }
+            }
+        }
+
+        private static void ValidateStarterLoadoutExcludesSpear(CCS_SurvivalValidationReport report)
+        {
+            CCS_StarterLoadoutProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_StarterLoadoutProfile>(StarterProfilePath);
+            if (profile == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < profile.StartingItems.Length; index++)
+            {
+                CCS_StarterLoadoutEntry entry = profile.StartingItems[index];
+                if (entry?.ItemDefinition != null && entry.ItemDefinition.ItemId == SpearItemId)
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Starter Loadout Profile",
+                        "Default starter loadout must not include spear (regression-only).");
+                    return;
+                }
+            }
+
+            bool hasKnife = false;
+            for (int index = 0; index < profile.StartingItems.Length; index++)
+            {
+                CCS_StarterLoadoutEntry entry = profile.StartingItems[index];
+                if (entry?.ItemDefinition?.ItemId == PocketKnifeItemId)
+                {
+                    hasKnife = true;
+                    break;
+                }
+            }
+
+            if (!hasKnife)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Starter Loadout Profile",
+                    "Default starter loadout must include pocket knife.");
+            }
+        }
+
+        private static void ValidateFrontierRecipesFolder(CCS_SurvivalValidationReport report)
+        {
+            if (!Directory.Exists(FrontierRecipesRoot))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Error,
+                    "Frontier Crafting Recipes",
+                    $"Missing folder: {FrontierRecipesRoot}");
+                return;
+            }
+
+            report.AddIssue(
+                CCS_SurvivalValidationIssueSeverity.Info,
+                "Frontier Crafting Recipes",
+                $"Frontier recipe folder present: {FrontierRecipesRoot}");
         }
 
         private static void ValidateTreeKnifeHarvest(CCS_SurvivalValidationReport report)
@@ -289,7 +336,9 @@ namespace CCS.Survival.Editor.Development
 
                 string itemId = drop.ItemDefinition.ItemId;
                 if (itemId.Contains("wood", System.StringComparison.OrdinalIgnoreCase)
-                    || itemId.Contains("branch", System.StringComparison.OrdinalIgnoreCase))
+                    || itemId.Contains("branch", System.StringComparison.OrdinalIgnoreCase)
+                    || itemId.Contains("sapling", System.StringComparison.OrdinalIgnoreCase)
+                    || itemId.Contains("fiber", System.StringComparison.OrdinalIgnoreCase))
                 {
                     dropsWoodMaterial = true;
                     break;
@@ -301,7 +350,7 @@ namespace CCS.Survival.Editor.Development
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Tree Harvest Foundation",
-                    "Test tree resource must drop wood or branch materials for primitive progression.");
+                    "Test tree resource must drop wood, branch, sapling, or fiber for frontier progression.");
                 return;
             }
 

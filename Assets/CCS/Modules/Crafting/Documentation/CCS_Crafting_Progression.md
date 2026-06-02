@@ -1,12 +1,16 @@
 # CCS Crafting Progression — Workstation Foundation
 
-**Milestone:** 1.1.1 — Crafting Progression + Workstation Foundation  
+**Milestone:** 1.2.6 — Frontier starter hand recipes + 1.1.1 workstation foundation  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-06-01
 
 ## Purpose
 
 Milestone **1.1.1** organizes primitive survival crafting into a clear progression path using existing inventory and crafting systems. Players gather resources, craft tools by hand, build shelter, then use campfire and workbench stations for stronger items.
+
+**1.2.6** adds Western frontier hand recipes under `Assets/CCS/Survival/Profiles/Crafting/FrontierPrimitiveRecipes/` (camp, cordage, fishing pole, bow/arrows, trap). Spear hand recipe is legacy/regression — not default starter progression.
+
+Design direction: CCS Survival progression is shifting toward realistic Western frontier survival: knife, camp, water, bow, fishing, traps, salvage, shelter, tools, and trade.
 
 No new art packs, item database editor, or multiplayer in this milestone.
 
@@ -28,7 +32,21 @@ No new art packs, item database editor, or multiplayer in this milestone.
 
 ## Recipe list
 
-### Hand
+### Hand — frontier starter (1.2.6)
+
+| Recipe ID | Output | Costs (summary) |
+|-----------|--------|-----------------|
+| `ccs.survival.recipe.frontier.fishingpole` | Fishing Pole | Sapling + Fishing Line + Crude Hook |
+| `ccs.survival.recipe.frontier.bow` | Bow | Sapling + Cordage |
+| `ccs.survival.recipe.frontier.arrow` | Arrow | Stick + Flint + Feather |
+| `ccs.survival.recipe.frontier.cordage` | Cordage | Fiber |
+| `ccs.survival.recipe.frontier.fishingline` | Fishing Line | Fiber |
+| `ccs.survival.recipe.frontier.simpletrap` | Simple Trap | Sapling + Cordage |
+| `ccs.survival.recipe.frontier.campfire` | Campfire Kit | Wood + Stone + Tinder Bundle |
+
+See `Assets/CCS/Survival/Documentation/CCS_Starter_Loadout.md` for the full frontier recipe list.
+
+### Hand — legacy progression (workbench path)
 
 | Recipe ID | Output | Costs |
 |-----------|--------|-------|

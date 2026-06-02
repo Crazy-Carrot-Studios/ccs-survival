@@ -1,4 +1,4 @@
-# CCS Fishing Module (1.2.5 Foundation)
+# CCS Fishing Module (1.2.5 Foundation, 1.2.6 Frontier Crafting)
 
 ## Summary
 
@@ -44,12 +44,16 @@ Fishing spots use:
 | Small Fish | `ccs.survival.item.resource.smallfish` |
 | Junk | `ccs.survival.item.resource.junk` |
 
-### Recipe intent (crafting wiring deferred)
+### Hand recipes (1.2.6 — `CCS_FrontierStarterProgressionBootstrapSetup`)
 
-- **Fishing Pole:** Sapling x1 + Plant Fiber or Rawhide Cord x1 + Crude Hook x1
-- **Crude Hook:** Bone x1 **or** Scrap Iron x1
-- **Line:** Plant Fiber x2 **or** Rawhide Cord x1
-- **Cooked Fish:** reserved for Cooking module integration
+| Recipe ID | Output | Costs |
+|-----------|--------|-------|
+| `ccs.survival.recipe.frontier.fishingline` | Fishing Line | Fiber x2 |
+| `ccs.survival.recipe.frontier.crudehook.bone` | Crude Hook | Bone x1 |
+| `ccs.survival.recipe.frontier.crudehook.scrap` | Crude Hook | Scrap Iron x1 |
+| `ccs.survival.recipe.frontier.fishingpole` | Fishing Pole | Sapling + Fishing Line + Crude Hook |
+
+**Cooked Fish:** reserved for Cooking module integration.
 
 ## Bootstrap batch
 

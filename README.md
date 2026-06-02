@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-1.2.5-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-1.2.6-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -25,7 +25,9 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
-**1.2.5** — Fishing Foundation
+**1.2.6** — Frontier Starter Progression Rework
+
+CCS Survival progression is shifting toward realistic Western frontier survival: knife, camp, water, bow, fishing, traps, salvage, shelter, tools, and trade.
 
 ---
 
@@ -68,6 +70,7 @@ Playable modular survival prototype foundation.
 
 | Version | Milestone |
 |---------|-----------|
+| **1.2.6** | Frontier Starter Progression Rework |
 | **1.2.5** | Fishing Foundation |
 | **1.2.4** | Frontier Resource Framework Audit |
 | **1.2.3** | Primitive Tool Use Routing Foundation |

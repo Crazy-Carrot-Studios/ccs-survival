@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9580f4fa601173b4f8496335df283d42, type: 3}
+  m_Name: CCS_FrontierFishingPoleRecipe
+  m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingRecipeDefinition
+  recipeId: ccs.survival.recipe.frontier.fishingpole
+  displayName: Fishing Pole
+  description: Frontier hand-crafting recipe using practical resource sources (1.2.6).
+  requiredStationType: 0
+  ingredients:
+  - itemDefinition: {fileID: 11400000, guid: 4f1c248a799aa09488681fae43dfcae7, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: 07ad78d5554b7cc4290d2956ff1d01c5, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: 5c286d00680517c4895e4206760d58c5, type: 2}
+    quantity: 1
+  results:
+  - itemDefinition: {fileID: 11400000, guid: a1c76aba0eea8af4aa1a1915f658dca2, type: 2}
+    quantity: 1
+  craftTimeSeconds: 0
+  isUnlockedByDefault: 1

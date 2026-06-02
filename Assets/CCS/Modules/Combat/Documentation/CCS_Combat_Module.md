@@ -40,7 +40,7 @@ Adds simple melee combat sufficient for hunting passive wildlife in the bootstra
 
 ## Bootstrap Verification Path
 
-Default starter loadout includes a **spear** for bootstrap hunting. Living `CCS_TestRabbit` and `CCS_TestDeer` agents retain passive flee AI; the player must close distance and attack until health reaches zero. Harvesting the spawned carcass uses the existing wildlife harvest flow.
+Default starter loadout includes a **pocket knife** for bootstrap hunting (1.2.6). The **spear** remains as optional regression content (`ccs.survival.item.starter.spear`) for playtest and legacy validation — not granted on fresh spawn. Living `CCS_TestRabbit` and `CCS_TestDeer` agents retain passive flee AI; the player must close distance and attack until health reaches zero. Harvesting the spawned carcass uses the existing wildlife harvest flow.
 
 ## Validation
 

@@ -90,7 +90,7 @@ namespace CCS.Modules.Combat.Editor
             ValidateRequiredAsset(report, "Default Combat Profile", DefaultProfilePath);
             ValidateWeaponItems(report);
             ValidateSpearEquipment(report);
-            ValidateStarterLoadoutSpear(report);
+            ValidateStarterLoadoutExcludesSpear(report);
             ValidateCombatProfileAsset(report);
             ValidateCompositionRegistration(report);
             ValidateBootstrapGameplayServiceHost(report);
@@ -107,7 +107,7 @@ namespace CCS.Modules.Combat.Editor
 
         private static void ValidateWeaponItems(CCS_SurvivalValidationReport report)
         {
-            ValidateMeleeWeaponItem(report, "Knife", KnifeItemPath, 10f, 2f);
+            ValidateMeleeWeaponItem(report, "Pocket Knife", KnifeItemPath, 8f, 1.8f);
             ValidateMeleeWeaponItem(report, "Spear", SpearItemPath, 20f, 3f);
         }
 
@@ -154,17 +154,26 @@ namespace CCS.Modules.Combat.Editor
                     : $"Missing or incomplete spear equipment: {SpearEquipmentPath}");
         }
 
-        private static void ValidateStarterLoadoutSpear(CCS_SurvivalValidationReport report)
+        private static void ValidateStarterLoadoutExcludesSpear(CCS_SurvivalValidationReport report)
         {
             CCS_StarterLoadoutProfile loadout =
                 AssetDatabase.LoadAssetAtPath<CCS_StarterLoadoutProfile>(StarterLoadoutPath);
             CCS_ItemDefinition spearItem = AssetDatabase.LoadAssetAtPath<CCS_ItemDefinition>(SpearItemPath);
-            if (loadout == null || spearItem == null)
+            if (loadout == null)
             {
                 report.AddIssue(
                     CCS_SurvivalValidationIssueSeverity.Error,
                     "Starter Loadout Spear",
-                    "Starter loadout or spear item asset is missing.");
+                    "Starter loadout profile is missing.");
+                return;
+            }
+
+            if (spearItem == null)
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Starter Loadout Spear",
+                    "Legacy spear item optional; default loadout is frontier-themed without spear.");
                 return;
             }
 
@@ -182,12 +191,12 @@ namespace CCS.Modules.Combat.Editor
 
             report.AddIssue(
                 includesSpear
-                    ? CCS_SurvivalValidationIssueSeverity.Info
-                    : CCS_SurvivalValidationIssueSeverity.Error,
+                    ? CCS_SurvivalValidationIssueSeverity.Error
+                    : CCS_SurvivalValidationIssueSeverity.Info,
                 "Starter Loadout Spear",
                 includesSpear
-                    ? "Default starter loadout grants spear for bootstrap hunting verification."
-                    : "Default starter loadout must include spear for bootstrap hunt path.");
+                    ? "Default starter loadout must not include spear (regression-only in 1.2.6)."
+                    : "Default starter loadout excludes spear; legacy spear remains for regression playtest.");
         }
 
         private static void ValidateCombatProfileAsset(CCS_SurvivalValidationReport report)

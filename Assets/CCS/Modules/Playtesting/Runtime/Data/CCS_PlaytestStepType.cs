@@ -36,6 +36,8 @@ namespace CCS.Modules.Playtesting
         UsePickOnRock = 21,
         UseWrongToolOnGatherTarget = 22,
         EquipFishingPole = 23,
-        UseFishingPoleOnSpot = 24
+        UseFishingPoleOnSpot = 24,
+        ValidateFrontierRecipe = 25,
+        EquipSpearRegression = 26
     }
 }

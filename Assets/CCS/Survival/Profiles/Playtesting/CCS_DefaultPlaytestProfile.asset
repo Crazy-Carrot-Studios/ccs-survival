@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Playtesting.Runtime::CCS.Modules.Playtesting.CCS_PlaytestProfile
   profileDisplayName: Default Playtest Harness
   profileId: ccs.survival.profile.playtesting.default
-  profileDescription: Bootstrap manual playtest checklist for milestone 1.1.5.
-  profileVersion: 1.1.5
+  profileDescription: Frontier starter progression playtest checklist for milestone
+    1.2.6.
+  profileVersion: 1.2.6
   enableDebugLogs: 0
   enableHarness: 1
   showDebugLogs: 1
@@ -41,38 +42,39 @@ MonoBehaviour:
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.gather
-    displayName: Gather sticks or wood
+    displayName: Gather frontier resource
     stepType: 1
-    instructionText: Gather from CCS_TestGatheringSmallTree or CCS_TestGatheringBush
-      (interact).
+    instructionText: Gather fiber, sapling, stone, or scrap from CCS_TestFrontierTree,
+      CCS_TestFrontierStoneOutcrop, or CCS_TestFrontierSalvageWagon (interact).
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.equip
-    displayName: Equip spear
+    displayName: Equip pocket knife
     stepType: 2
-    instructionText: Press F6 to equip the starter spear (or equip manually when
-      UI exists).
-    targetItemId: ccs.survival.item.starter.spear
+    instructionText: Press F6 to equip the starter pocket knife (or equip manually
+      when UI exists).
+    targetItemId: ccs.survival.item.starter.knife
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.equipment.visual
     displayName: Confirm equipment visual
     stepType: 17
-    instructionText: After equipping the spear, confirm a placeholder visual appears
-      on the player. Press F6 again to unequip and confirm the visual is removed.
-    targetItemId: ccs.survival.item.starter.spear
+    instructionText: After equipping the pocket knife, confirm a placeholder visual
+      appears on the player. Press F6 again to unequip and confirm the visual is
+      removed.
+    targetItemId: ccs.survival.item.starter.knife
     targetObjectId: 
     requiredCount: 2
     timeoutSeconds: 0
   - stepId: ccs.survival.playtest.active.select
     displayName: Select active item
     stepType: 18
-    instructionText: Press F6 to equip spear, then Alpha1 to select active item from
-      main hand.
-    targetItemId: ccs.survival.item.starter.spear
+    instructionText: Press F6 to equip pocket knife, then Alpha1 to select active
+      item from main hand.
+    targetItemId: ccs.survival.item.starter.knife
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
@@ -81,7 +83,7 @@ MonoBehaviour:
     stepType: 19
     instructionText: Primary attack (left mouse) routes through active item. Hit
       wildlife or receive a safe no-target result.
-    targetItemId: ccs.survival.item.starter.spear
+    targetItemId: ccs.survival.item.starter.knife
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
@@ -112,6 +114,24 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.frontier.recipe.fishingpole
+    displayName: Validate fishing pole recipe
+    stepType: 25
+    instructionText: Confirms frontier fishing pole recipe is registered on the crafting
+      service (auto on step start).
+    targetItemId: ccs.survival.recipe.frontier.fishingpole
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.frontier.recipe.bow
+    displayName: Validate bow recipe
+    stepType: 25
+    instructionText: Confirms frontier bow recipe is registered (auto on step start).
+      Optional ranged use remains unimplemented.
+    targetItemId: ccs.survival.recipe.frontier.bow
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
   - stepId: ccs.survival.playtest.fishing.equip
     displayName: Equip fishing pole
     stepType: 23
@@ -134,8 +154,17 @@ MonoBehaviour:
     displayName: Hunt wildlife
     stepType: 3
     instructionText: Kill CCS_TestRabbit or CCS_TestDeer with primary attack while
-      spear is equipped.
+      a weapon is equipped.
     targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.spear.regression
+    displayName: Equip spear (regression)
+    stepType: 26
+    instructionText: 'Optional legacy regression: press F6 on this step to equip
+      the starter spear.'
+    targetItemId: ccs.survival.item.starter.spear
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9580f4fa601173b4f8496335df283d42, type: 3}
+  m_Name: CCS_FrontierTorchRecipe
+  m_EditorClassIdentifier: CCS.Modules.Crafting.Runtime::CCS.Modules.Crafting.CCS_CraftingRecipeDefinition
+  recipeId: ccs.survival.recipe.frontier.torch
+  displayName: Primitive Torch
+  description: Frontier hand-crafting recipe using practical resource sources (1.2.6).
+  requiredStationType: 0
+  ingredients:
+  - itemDefinition: {fileID: 11400000, guid: 2183236ae8ad5604b81137728adb845d, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: 489bdc439317404468da43c743a19c52, type: 2}
+    quantity: 1
+  - itemDefinition: {fileID: 11400000, guid: bbf467d60eb94974d9ae40a4314c1012, type: 2}
+    quantity: 1
+  results:
+  - itemDefinition: {fileID: 11400000, guid: e3793cde3fa87fd48a59a8158000c910, type: 2}
+    quantity: 1
+  craftTimeSeconds: 0
+  isUnlockedByDefault: 1
