@@ -7,7 +7,8 @@
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.Settlements.Runtime",
         "CCS.Modules.Regions.Runtime",
-        "CCS.Modules.Ranching.Runtime"
+        "CCS.Modules.Ranching.Runtime",
+        "CCS.Modules.Farming.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

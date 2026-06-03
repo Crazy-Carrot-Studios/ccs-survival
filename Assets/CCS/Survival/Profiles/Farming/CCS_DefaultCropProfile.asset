@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e2201b355acbc24cbd457514f874015, type: 3}
+  m_Name: CCS_DefaultCropProfile
+  m_EditorClassIdentifier: CCS.Modules.Farming.Runtime::CCS.Modules.Farming.CCS_CropProfile
+  profileDisplayName: Default Crop Profile
+  profileId: ccs.survival.profile.farming.default
+  profileDescription: Frontier farming crop and farm plot catalog (2.2.0).
+  profileVersion: 0.0.1
+  enableDebugLogs: 0
+  cropDefinitions:
+  - {fileID: 11400000, guid: db4bc55f8d33e3b4abededc49a37a0f7, type: 2}
+  - {fileID: 11400000, guid: 1e04d19539023f744823b611958749fe, type: 2}
+  - {fileID: 11400000, guid: d00162740f5baec42a78aefdbadcad5a, type: 2}
+  - {fileID: 11400000, guid: 3c0b0806cf3a9e14aa08de2d813a1691, type: 2}
+  farmPlotDefinitions:
+  - {fileID: 11400000, guid: 0166902802deb7b45b6c9963586f44b0, type: 2}
+  enableDebugLogging: 1

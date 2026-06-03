@@ -73,4 +73,5 @@ Run `CCS_RanchingFoundationBootstrapSetup.ExecuteBatch()` to generate profile, c
 ## Future
 
 - `CCS_CampTier.LivestockRanch` placeholder tier (not required for 2.1.0)
+- **Feed placeholder (2.2.0):** corn and wheat crop definitions are tagged `isFutureLivestockFeed` for future ranch feed consumption (not implemented in 2.2.0)
 - Breeding, roaming AI, meat processing, final art and UI

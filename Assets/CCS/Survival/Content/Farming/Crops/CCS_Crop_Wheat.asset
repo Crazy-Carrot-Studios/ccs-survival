@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 342833ba5a581cd4b96734f35e7e3e5d, type: 3}
+  m_Name: CCS_Crop_Wheat
+  m_EditorClassIdentifier: CCS.Modules.Farming.Runtime::CCS.Modules.Farming.CCS_CropDefinition
+  cropId: ccs.survival.farming.crop.wheat
+  displayName: Wheat
+  seedItem: {fileID: 11400000, guid: 27d7ddc7aa6f13748896c06a87c772ad, type: 2}
+  harvestItem: {fileID: 11400000, guid: f661c226b7e27174b9db127fc16e153f, type: 2}
+  growthDurationSeconds: 45
+  seedReturnQuantity: 1
+  isFoodCrop: 1
+  isFutureLivestockFeed: 1
+  cropVisualPrefab: {fileID: 4548536680806559378, guid: 6191046a7d2f2f643abab827b3c30ff0, type: 3}
+  fallbackCropPrimitive: 2
+  matureCropColor: {r: 0.85, g: 0.75, b: 0.35, a: 1}

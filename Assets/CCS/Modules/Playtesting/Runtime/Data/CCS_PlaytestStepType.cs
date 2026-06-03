@@ -155,6 +155,16 @@ namespace CCS.Modules.Playtesting
         SellRanchEgg = 140,
         VerifyRanchFoodSupplyIncreased = 141,
         SaveRanchState = 142,
-        VerifyRanchStateAfterLoad = 143
+        VerifyRanchStateAfterLoad = 143,
+        BuyFarmPlotKit = 144,
+        PlaceFarmPlot = 145,
+        BuyCornSeed = 146,
+        PlantCornSeed = 147,
+        ForceCropGrowth = 148,
+        HarvestCrop = 149,
+        SellCrop = 150,
+        VerifyFarmFoodSupplyIncreased = 151,
+        SaveFarmState = 152,
+        VerifyFarmStateAfterLoad = 153
     }
 }

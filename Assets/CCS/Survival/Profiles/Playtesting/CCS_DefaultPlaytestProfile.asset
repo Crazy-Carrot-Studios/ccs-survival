@@ -1243,3 +1243,91 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.buy.plotkit
+    displayName: Buy farm plot kit from vendor
+    stepType: 144
+    instructionText: 'Farming playtest: Buy farm plot kit from vendor. Ctrl+Shift+P
+      shortcuts available.'
+    targetItemId: ccs.survival.farming.item.farmplotkit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.place.plot
+    displayName: Place farm plot
+    stepType: 145
+    instructionText: 'Farming playtest: Place farm plot. Ctrl+Shift+P shortcuts available.'
+    targetItemId: ccs.survival.farming.item.farmplotkit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.buy.cornseed
+    displayName: Buy corn seed from vendor
+    stepType: 146
+    instructionText: 'Farming playtest: Buy corn seed from vendor. Ctrl+Shift+P shortcuts
+      available.'
+    targetItemId: ccs.survival.farming.item.cornseed
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.plant.corn
+    displayName: Plant corn seed in farm plot
+    stepType: 147
+    instructionText: 'Farming playtest: Plant corn seed in farm plot. Ctrl+Shift+P
+      shortcuts available.'
+    targetItemId: ccs.survival.farming.item.cornseed
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.force.growth
+    displayName: Force crop growth
+    stepType: 148
+    instructionText: 'Farming playtest: Force crop growth. Ctrl+Shift+P shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.harvest
+    displayName: Harvest mature crop
+    stepType: 149
+    instructionText: 'Farming playtest: Harvest mature crop. Ctrl+Shift+P shortcuts
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.sell.crop
+    displayName: Sell harvested crop
+    stepType: 150
+    instructionText: 'Farming playtest: Sell harvested crop. Ctrl+Shift+P shortcuts
+      available.'
+    targetItemId: ccs.survival.farming.item.corn
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.verify.food
+    displayName: Verify farm food supply increased
+    stepType: 151
+    instructionText: 'Farming playtest: Verify farm food supply increased. Ctrl+Shift+P
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.save
+    displayName: Save farm state
+    stepType: 152
+    instructionText: 'Farming playtest: Save farm state. Ctrl+Shift+P shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.farming.verify.load
+    displayName: Verify farm state after load
+    stepType: 153
+    instructionText: 'Farming playtest: Verify farm state after load. Ctrl+Shift+P
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

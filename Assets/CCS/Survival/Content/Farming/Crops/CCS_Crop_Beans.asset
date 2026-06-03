@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 342833ba5a581cd4b96734f35e7e3e5d, type: 3}
+  m_Name: CCS_Crop_Beans
+  m_EditorClassIdentifier: CCS.Modules.Farming.Runtime::CCS.Modules.Farming.CCS_CropDefinition
+  cropId: ccs.survival.farming.crop.beans
+  displayName: Beans
+  seedItem: {fileID: 11400000, guid: 29b7aaed75c6ab343ac4508032d4fc7c, type: 2}
+  harvestItem: {fileID: 11400000, guid: 33f3979633682a54ea2c86756d9cc562, type: 2}
+  growthDurationSeconds: 45
+  seedReturnQuantity: 1
+  isFoodCrop: 1
+  isFutureLivestockFeed: 0
+  cropVisualPrefab: {fileID: 2094470281947499667, guid: d21b68df6e12ddf41b00aaf768ace555, type: 3}
+  fallbackCropPrimitive: 2
+  matureCropColor: {r: 0.35, g: 0.55, b: 0.25, a: 1}

@@ -111,6 +111,7 @@ MonoBehaviour:
   industryProfile: {fileID: 11400000, guid: 2802978dff1e64e41b10483e3a1dfe75, type: 2}
   mountProfile: {fileID: 11400000, guid: 6e0312d0be3a23b4389cf245649a015d, type: 2}
   livestockProfile: {fileID: 11400000, guid: ac5ef7b89454c7b4cacc8f1d4b60c18f, type: 2}
+  farmingProfile: {fileID: 11400000, guid: 6bda70d317d8ec84a802036cf164159e, type: 2}
   vehicleProfile: {fileID: 11400000, guid: e93c7630801e52940bc961137885e18a, type: 2}
   firearmProfile: {fileID: 11400000, guid: 5078f293ac94aca40870b24d0aa07d75, type: 2}
   settlementProfile: {fileID: 11400000, guid: 24f1e76a3fd09ed4d8cdfffa292d1b57, type: 2}

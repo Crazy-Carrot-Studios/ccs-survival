@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 2.1.0 — General Store and Stable sell livestock, feed, and ranch structure kits; General Store buys eggs and milk for world simulation Food supply.
+**Latest:** 2.2.0 — General Store sells farm plot kit and crop seeds; buys harvested corn, beans, potatoes, and wheat for world simulation Food supply.
+
+**2.1.0** — General Store and Stable sell livestock, feed, and ranch structure kits; General Store buys eggs and milk for world simulation Food supply.
 
 **1.7.0** — General Store and Gunsmith buy frontier mining goods (ore, coal, clay, scrap, nails)
 
@@ -103,6 +105,18 @@ Hunting and fishing both produce trade goods for the same General Store loop.
 **Intentional progression:** the bone hatchet (`ccs.survival.item.tool.hatchet.bone`, buy **18** Trade Dollars placeholder) is **not** in the knife-only starter loadout. Players earn currency (fish/salvage), sell goods, then purchase the hatchet as the first meaningful tool upgrade.
 
 Fish remain **sell-only** at the store (purchase disabled).
+
+### Farming trade (2.2.0)
+
+General Store **sells:** farm plot kit, corn/bean/potato/wheat seeds.
+
+General Store **buys:** corn, beans, potatoes, wheat (harvested crops).
+
+```text
+Buy Seeds → Place Farm Plot → Plant → Grow → Harvest → Sell → Settlement Food Supply
+```
+
+See `Assets/CCS/Modules/Farming/Documentation/CCS_Farming_Module.md`.
 
 ## Item values
 

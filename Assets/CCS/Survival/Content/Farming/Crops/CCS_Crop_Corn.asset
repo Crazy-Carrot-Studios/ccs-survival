@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 342833ba5a581cd4b96734f35e7e3e5d, type: 3}
+  m_Name: CCS_Crop_Corn
+  m_EditorClassIdentifier: CCS.Modules.Farming.Runtime::CCS.Modules.Farming.CCS_CropDefinition
+  cropId: ccs.survival.farming.crop.corn
+  displayName: Corn
+  seedItem: {fileID: 11400000, guid: 7649e2e97011e9444ab1950de805220f, type: 2}
+  harvestItem: {fileID: 11400000, guid: c79c3700131ec2d41a747eb4680d400c, type: 2}
+  growthDurationSeconds: 45
+  seedReturnQuantity: 1
+  isFoodCrop: 1
+  isFutureLivestockFeed: 1
+  cropVisualPrefab: {fileID: 2544280763580581710, guid: a9589e2cede912a44ba878b8062effb1, type: 3}
+  fallbackCropPrimitive: 2
+  matureCropColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}

@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.Farming.Editor",
+    "rootNamespace": "CCS.Modules.Farming.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Farming.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.WorldSimulation.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

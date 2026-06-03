@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.1.2-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.2.0** — Farming Foundation
+
+Generic **Farming** module: place farm plots, plant seeds, timer-based crop growth, harvest food, vendor buy/sell, World Simulation **Food** supply, and save/load plot state. Primitive crop prefabs only (Corn, Beans, Potatoes, Wheat).
+
+**Farming Loop:**
+
+```text
+Buy Seeds → Place Farm Plot → Plant Crop → Grow → Harvest Food → Sell / Supply Settlement
+```
 
 **2.1.2** — Play Mode Smoke + Bootstrap Scene Polish
 
@@ -272,8 +282,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **2.1.2** |
-| Output | `Builds/CCS_Survival_2.1.2_Windows/` (gitignored) |
+| Version | **2.2.0** |
+| Output | `Builds/CCS_Survival_2.2.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
@@ -294,7 +304,7 @@ Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Bui
 
 ### Bootstrap version policy
 
-1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **2.1.2**).
+1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **2.2.0**).
 2. **Bootstrap writes:** Every `*BootstrapSetup.cs` that touches `ProjectSettings.bundleVersion` must call `EnsureBundleVersionAtLeast(...)` so older scripts only bump forward, never downgrade.
 3. **Validators:** Check `bundleVersion >= CurrentMilestoneVersion` via `AddBundleVersionValidationIssue`. Do not pin exact milestone strings that break on the next release.
 4. **Log strings:** Historical milestone labels in `Debug.Log` or playtest copy may stay unchanged (e.g. wagon bootstrap still logs `1.5.2`).

@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **2.2.0** — Farming harvest goods (corn, beans, potatoes, wheat) route to settlement **Food** supply on vendor sell.
+
 Milestone **2.1.0** — Ranching goods (egg, milk, future meat placeholders) route to settlement **Food** supply on vendor sell.
 
 Milestone **2.0.0** — Frontier World Simulation Foundation
@@ -46,6 +48,7 @@ Region simulation does **not** generate resources.
 | Player action | Supply impact |
 |---------------|---------------|
 | Sell fish, meat, jerky, dried fish | Increase Food |
+| Sell corn, beans, potatoes, wheat | Increase Food |
 | Sell wood, lumber | Increase Building Materials (+ partial Fuel for wood/lumber) |
 | Sell charcoal | Increase Fuel |
 | Sell ore, refined iron, nails, tools | Increase Industrial Materials / Tools |

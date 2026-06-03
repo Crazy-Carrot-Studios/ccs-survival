@@ -28,6 +28,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
+using CCS.Modules.Farming;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -90,6 +91,7 @@ namespace CCS.Survival.Composition
             CCS_IndustryProfile industryProfile,
             CCS_MountProfile mountProfile,
             CCS_LivestockProfile livestockProfile,
+            CCS_CropProfile farmingProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
@@ -321,6 +323,9 @@ namespace CCS.Survival.Composition
             CCS_RanchService ranchService = CreateRanchService(runtimeHost, livestockProfile, inventoryService, campService);
             RegisterService(runtimeHost, ranchService, enableDebugLogs);
 
+            CCS_FarmService farmService = CreateFarmService(runtimeHost, farmingProfile, inventoryService, campService);
+            RegisterService(runtimeHost, farmService, enableDebugLogs);
+
             CCS_VehicleService vehicleService = CreateVehicleService(
                 runtimeHost,
                 vehicleProfile,
@@ -394,6 +399,23 @@ namespace CCS.Survival.Composition
                         (itemDefinition, placementRequest) =>
                             TryHandleFrontierRanchPlacement(
                                 ranchService,
+                                itemDefinition,
+                                placementRequest));
+                }
+
+                if (farmService != null && farmService.IsInitialized)
+                {
+                    activeItemService.BindFrontierFarmPlotPlacementHandler(
+                        (itemDefinition, placementRequest) =>
+                            TryHandleFrontierFarmPlotPlacement(
+                                farmService,
+                                itemDefinition,
+                                placementRequest));
+
+                    activeItemService.BindFrontierFarmSeedHandler(
+                        (itemDefinition, placementRequest) =>
+                            TryHandleFrontierFarmSeed(
+                                farmService,
                                 itemDefinition,
                                 placementRequest));
                 }
@@ -472,6 +494,7 @@ namespace CCS.Survival.Composition
                 regionService,
                 worldSimulationService,
                 ranchService,
+                farmService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -517,7 +540,8 @@ namespace CCS.Survival.Composition
                     settlementService,
                     regionService,
                     worldSimulationService,
-                    ranchService);
+                    ranchService,
+                    farmService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1088,6 +1112,136 @@ namespace CCS.Survival.Composition
             return new CCS_ActiveItemUseResult(
                 CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
                 placementResult.Message,
+                true,
+                itemDefinition.ItemId);
+        }
+
+        private static CCS_FarmService CreateFarmService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_CropProfile farmingProfile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_CampService campService)
+        {
+            CCS_FarmService service = new CCS_FarmService();
+            service.Initialize();
+
+            if (farmingProfile != null)
+            {
+                service.InitializeFromProfile(farmingProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            if (campService != null && campService.IsInitialized)
+            {
+                service.BindCampService(campService);
+            }
+
+            service.BindPlayerPositionProvider(() =>
+            {
+                CCS_PlayerGameplayController[] controllers =
+                    Object.FindObjectsByType<CCS_PlayerGameplayController>();
+                if (controllers != null && controllers.Length > 0 && controllers[0] != null)
+                {
+                    return controllers[0].transform.position;
+                }
+
+                return Vector3.zero;
+            });
+
+            CCS_FarmRuntimeBridge.Register(service);
+            if (runtimeHost?.RuntimeUpdateLoop != null)
+            {
+                runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(service);
+            }
+
+            return service;
+        }
+
+        private static CCS_ActiveItemUseResult TryHandleFrontierFarmPlotPlacement(
+            CCS_FarmService farmService,
+            CCS_ItemDefinition itemDefinition,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (farmService == null
+                || !farmService.IsInitialized
+                || itemDefinition == null
+                || !farmService.TryResolvePlotDefinitionForItem(itemDefinition, out CCS_FarmPlotDefinition plotDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a supported farm plot kit.",
+                    true,
+                    itemDefinition?.ItemId ?? string.Empty);
+            }
+
+            bool confirmPlacement = farmService.IsPlacementModeActive;
+            CCS_FarmPlacementRequest placementRequest = new CCS_FarmPlacementRequest(
+                plotDefinition.PlotDefinitionId,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_FarmPlacementResult placementResult = farmService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.HomesteadStructurePlacementPreview
+                        : CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                placementResult.Message,
+                true,
+                itemDefinition.ItemId);
+        }
+
+        private static CCS_ActiveItemUseResult TryHandleFrontierFarmSeed(
+            CCS_FarmService farmService,
+            CCS_ItemDefinition itemDefinition,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (farmService == null
+                || !farmService.IsInitialized
+                || itemDefinition == null
+                || !farmService.TryResolveCropDefinitionForSeedItem(itemDefinition, out CCS_CropDefinition _))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a supported crop seed.",
+                    true,
+                    itemDefinition?.ItemId ?? string.Empty);
+            }
+
+            if (!farmService.TryPlantSeedInNearestPlot(itemDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    "No empty farm plot nearby for planting.",
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                $"Planted {itemDefinition.DisplayName}.",
                 true,
                 itemDefinition.ItemId);
         }

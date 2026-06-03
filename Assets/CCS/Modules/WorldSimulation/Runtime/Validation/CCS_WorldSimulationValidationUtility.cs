@@ -1,6 +1,7 @@
 using System;
 using CCS.Modules.Economy;
 using CCS.Modules.Ranching;
+using CCS.Modules.Farming;
 using CCS.Survival;
 
 // =============================================================================
@@ -233,7 +234,11 @@ namespace CCS.Modules.WorldSimulation
                 || string.Equals(itemId, CCS_RanchingContentIds.EggItemId, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(itemId, CCS_RanchingContentIds.MilkItemId, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(itemId, CCS_RanchingContentIds.RawPorkItemId, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(itemId, CCS_RanchingContentIds.RawBeefItemId, StringComparison.OrdinalIgnoreCase);
+                || string.Equals(itemId, CCS_RanchingContentIds.RawBeefItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_FarmingContentIds.CornHarvestItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_FarmingContentIds.BeanHarvestItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_FarmingContentIds.PotatoHarvestItemId, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(itemId, CCS_FarmingContentIds.WheatHarvestItemId, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool TryResolveFuelOrBuildingItem(string itemId, out CCS_SettlementSupplyType supplyType)

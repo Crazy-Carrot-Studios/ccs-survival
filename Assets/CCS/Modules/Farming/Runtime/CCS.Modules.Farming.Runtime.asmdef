@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.Farming.Runtime",
+    "rootNamespace": "CCS.Modules.Farming",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Shelter.Runtime",
+        "CCS.Modules.Interaction.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

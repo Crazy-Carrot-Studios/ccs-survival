@@ -7,6 +7,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
+using CCS.Modules.Farming;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -75,6 +76,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_RegionService regionService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_WorldSimulationService worldSimulationService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_RanchService ranchService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_FarmService farmService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
@@ -101,6 +103,7 @@ namespace CCS.Modules.SaveSystem
                 regionService,
                 worldSimulationService,
                 ranchService,
+                farmService,
                 playerTransform);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)

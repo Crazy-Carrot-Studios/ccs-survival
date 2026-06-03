@@ -20,6 +20,7 @@ using CCS.Modules.Trapping;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
+using CCS.Modules.Farming;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -74,6 +75,9 @@ namespace CCS.Modules.Playtesting
         private const string ChickenItemId = CCS_RanchingContentIds.ChickenItemId;
         private const string EggItemId = CCS_RanchingContentIds.EggItemId;
         private const string ChickenCoopKitItemId = CCS_RanchingContentIds.ChickenCoopKitItemId;
+        private const string FarmPlotKitItemId = CCS_FarmingContentIds.FarmPlotKitItemId;
+        private const string CornSeedItemId = CCS_FarmingContentIds.CornSeedItemId;
+        private const string CornHarvestItemId = CCS_FarmingContentIds.CornHarvestItemId;
         private const string FrontierWagonItemId = CCS_VehicleContentIds.FrontierWagonItemId;
         private const string FrontierGunsmithVendorId = CCS_FirearmContentIds.FrontierGunsmithVendorId;
         private const string FrontierRevolverItemId = CCS_FirearmContentIds.FrontierRevolverItemId;
@@ -157,6 +161,7 @@ namespace CCS.Modules.Playtesting
         private CCS_RegionService boundRegionService;
         private CCS_WorldSimulationService boundWorldSimulationService;
         private CCS_RanchService boundRanchService;
+        private CCS_FarmService boundFarmService;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -166,6 +171,7 @@ namespace CCS.Modules.Playtesting
         private bool worldSimulationBaselinesCaptured;
         private int savedRanchLivestockCount;
         private int savedRanchStructureCount;
+        private int savedFarmPlotCount;
 
         #endregion
 
@@ -243,7 +249,8 @@ namespace CCS.Modules.Playtesting
             CCS_SettlementService settlementService = null,
             CCS_RegionService regionService = null,
             CCS_WorldSimulationService worldSimulationService = null,
-            CCS_RanchService ranchService = null)
+            CCS_RanchService ranchService = null,
+            CCS_FarmService farmService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -278,6 +285,7 @@ namespace CCS.Modules.Playtesting
             boundRegionService = regionService;
             boundWorldSimulationService = worldSimulationService;
             boundRanchService = ranchService;
+            boundFarmService = farmService;
 
             if (boundWorldSimulationService != null)
             {
@@ -307,6 +315,13 @@ namespace CCS.Modules.Playtesting
                 boundRanchService.RanchStructurePlaced += HandleRanchStructurePlaced;
                 boundRanchService.LivestockProductCollected += HandleLivestockProductCollected;
                 boundRanchService.LivestockProductionReady += HandleLivestockProductionReady;
+            }
+
+            if (boundFarmService != null)
+            {
+                boundFarmService.FarmPlotPlaced += HandleFarmPlotPlaced;
+                boundFarmService.CropPlanted += HandleCropPlanted;
+                boundFarmService.CropHarvested += HandleCropHarvested;
             }
 
             if (boundVehicleService != null)
@@ -556,6 +571,13 @@ namespace CCS.Modules.Playtesting
                 boundRanchService.LivestockProductionReady -= HandleLivestockProductionReady;
             }
 
+            if (boundFarmService != null)
+            {
+                boundFarmService.FarmPlotPlaced -= HandleFarmPlotPlaced;
+                boundFarmService.CropPlanted -= HandleCropPlanted;
+                boundFarmService.CropHarvested -= HandleCropHarvested;
+            }
+
             if (boundVehicleService != null)
             {
                 boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
@@ -569,6 +591,7 @@ namespace CCS.Modules.Playtesting
             boundRegionService = null;
             boundWorldSimulationService = null;
             boundRanchService = null;
+            boundFarmService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1036,6 +1059,15 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveRanchState,
                         "Ranch livestock and structure state saved.");
                 }
+
+                if (boundFarmService != null && boundFarmService.IsInitialized)
+                {
+                    savedFarmPlotCount = boundFarmService.GetPlotCount();
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveFarmState,
+                        "Farm plot state saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1098,6 +1130,22 @@ namespace CCS.Modules.Playtesting
                 EvaluateRegionDiscoveryAfterLoad();
                 EvaluateWorldSimulationAfterLoad();
                 EvaluateRanchStateAfterLoad();
+                EvaluateFarmStateAfterLoad();
+            }
+        }
+
+        private void EvaluateFarmStateAfterLoad()
+        {
+            if (boundFarmService == null || !boundFarmService.IsInitialized || savedFarmPlotCount <= 0)
+            {
+                return;
+            }
+
+            if (boundFarmService.GetPlotCount() >= savedFarmPlotCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFarmStateAfterLoad,
+                    "Farm plots restored after load.");
             }
         }
 
@@ -1931,6 +1979,20 @@ namespace CCS.Modules.Playtesting
                 {
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.PlaceChickenCoop,
+                        useResult.Message);
+                }
+
+                if (MatchesTargetItem(CCS_PlaytestStepType.PlaceFarmPlot, useResult.ActiveItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PlaceFarmPlot,
+                        useResult.Message);
+                }
+
+                if (MatchesTargetItem(CCS_PlaytestStepType.PlantCornSeed, useResult.ActiveItemId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PlantCornSeed,
                         useResult.Message);
                 }
 
@@ -3169,6 +3231,13 @@ namespace CCS.Modules.Playtesting
                     "Sold ranch egg at general store.");
             }
 
+            if (result.WasSell && result.ItemId == CornHarvestItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SellCrop,
+                    "Sold crop at general store.");
+            }
+
             if (result.WasSell && IsWorldSimulationFoodItem(result.ItemId))
             {
                 TryCompleteActiveStepOfType(
@@ -3933,6 +4002,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyRanchFoodSupplyIncreased,
                     $"Ranch goods increased settlement food supply to {foodAmount:0.##}.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFarmFoodSupplyIncreased,
+                    $"Farm crops increased settlement food supply to {foodAmount:0.##}.");
             }
 
             if (worldSimulationBaselinesCaptured && industryAmount > worldSimulationIndustryBaseline)
@@ -4012,7 +4084,50 @@ namespace CCS.Modules.Playtesting
                 || itemId == CookedMeatItemId
                 || itemId == JerkyItemId
                 || itemId == EggItemId
-                || itemId == CCS_RanchingContentIds.MilkItemId;
+                || itemId == CCS_RanchingContentIds.MilkItemId
+                || itemId == CornHarvestItemId
+                || itemId == CCS_FarmingContentIds.BeanHarvestItemId
+                || itemId == CCS_FarmingContentIds.PotatoHarvestItemId
+                || itemId == CCS_FarmingContentIds.WheatHarvestItemId;
+        }
+
+        private void HandleFarmPlotPlaced(CCS_FarmPlotInstance plot)
+        {
+            if (plot?.Definition == null)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.PlaceFarmPlot,
+                $"{plot.Definition.DisplayName} placed.");
+        }
+
+        private void HandleCropPlanted(CCS_FarmPlotInstance plot)
+        {
+            if (plot?.Crop?.Definition == null)
+            {
+                return;
+            }
+
+            if (plot.Crop.Definition.CropId == CCS_FarmingContentIds.CornCropId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PlantCornSeed,
+                    "Corn seed planted.");
+            }
+        }
+
+        private void HandleCropHarvested(CCS_FarmPlotInstance plot)
+        {
+            if (plot?.Crop?.Definition == null)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.HarvestCrop,
+                $"Harvested {plot.Crop.Definition.DisplayName}.");
         }
 
         private void HandleRanchStructurePlaced(CCS_RanchStructureInstance structure)
@@ -4126,6 +4241,68 @@ namespace CCS.Modules.Playtesting
             TryPlaytestAssignChickenToCoop();
             TryPlaytestForceRanchProduction();
             TryPlaytestCollectRanchProduct();
+            return true;
+        }
+
+        public bool TryPlaytestBuyFarmPlotKit()
+        {
+            return TryPlaytestBuyItemById(FarmPlotKitItemId);
+        }
+
+        public bool TryPlaytestBuyCornSeed()
+        {
+            bool purchased = TryPlaytestBuyItemById(CornSeedItemId);
+            if (purchased)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyCornSeed,
+                    "Corn seed purchased from general store.");
+            }
+
+            return purchased;
+        }
+
+        public bool TryPlaytestForceCropGrowth()
+        {
+            if (boundFarmService == null || !boundFarmService.IsInitialized)
+            {
+                return false;
+            }
+
+            bool forced = boundFarmService.TryForceFirstCropMatureForPlaytest();
+            if (forced)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceCropGrowth,
+                    "Forced first crop to mature.");
+            }
+
+            return forced;
+        }
+
+        public bool TryPlaytestHarvestCrop()
+        {
+            if (boundFarmService == null || !boundFarmService.IsInitialized)
+            {
+                return false;
+            }
+
+            return boundFarmService.TryHarvestNearestMaturePlot();
+        }
+
+        public bool TryPlaytestFarmingFoundationShortcut()
+        {
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 1500, "Playtest farming foundation funds");
+            }
+
+            GrantPlaytestItem(FarmPlotKitItemId, 1);
+            GrantPlaytestItem(CornSeedItemId, 3);
+            TryPlaytestBuyFarmPlotKit();
+            TryPlaytestBuyCornSeed();
+            TryPlaytestForceCropGrowth();
+            TryPlaytestHarvestCrop();
             return true;
         }
 

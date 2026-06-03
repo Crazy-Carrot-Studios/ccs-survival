@@ -44,6 +44,8 @@ namespace CCS.Modules.Hotbar
         private CCS_FrontierHomesteadStructureService frontierHomesteadStructureService;
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierStoragePlacementHandler;
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierRanchPlacementHandler;
+        private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierFarmPlotPlacementHandler;
+        private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierFarmSeedHandler;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -184,6 +186,18 @@ namespace CCS.Modules.Hotbar
             System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
         {
             frontierRanchPlacementHandler = handler;
+        }
+
+        public void BindFrontierFarmPlotPlacementHandler(
+            System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
+        {
+            frontierFarmPlotPlacementHandler = handler;
+        }
+
+        public void BindFrontierFarmSeedHandler(
+            System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
+        {
+            frontierFarmSeedHandler = handler;
         }
 
         public void UnbindEquipmentService()
@@ -594,6 +608,28 @@ namespace CCS.Modules.Hotbar
                 if (ranchResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
                 {
                     return ranchResult;
+                }
+            }
+
+            if (frontierFarmPlotPlacementHandler != null)
+            {
+                CCS_ActiveItemUseResult farmPlotResult = frontierFarmPlotPlacementHandler.Invoke(
+                    state.ItemDefinition,
+                    request);
+                if (farmPlotResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
+                {
+                    return farmPlotResult;
+                }
+            }
+
+            if (frontierFarmSeedHandler != null)
+            {
+                CCS_ActiveItemUseResult seedResult = frontierFarmSeedHandler.Invoke(
+                    state.ItemDefinition,
+                    request);
+                if (seedResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
+                {
+                    return seedResult;
                 }
             }
 
