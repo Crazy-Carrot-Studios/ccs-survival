@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementDefinition
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   displayName: Frontier Test Trading Post
-  description: Bootstrap trading post with general store, stable, gunsmith, and blacksmith
-    industry routing.
+  description: Bootstrap trading post with general store, stable, gunsmith, blacksmith,
+    bank, and land office routing.
   settlementType: 0
   defaultWorldPosition: {x: 24, y: 0, z: 20}
+  offersBankingServices: 1

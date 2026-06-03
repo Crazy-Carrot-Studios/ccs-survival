@@ -30,6 +30,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -94,6 +95,7 @@ namespace CCS.Survival.Composition
             CCS_LivestockProfile livestockProfile,
             CCS_CropProfile farmingProfile,
             CCS_LandClaimProfile landClaimProfile,
+            CCS_BankAccountProfile bankAccountProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
@@ -457,6 +459,11 @@ namespace CCS.Survival.Composition
 
             CCS_CurrencyService currencyService = CreateCurrencyService(economyProfile, inventoryService);
             RegisterService(runtimeHost, currencyService, enableDebugLogs);
+            CCS_BankingService bankingService = CreateBankingService(
+                bankAccountProfile,
+                currencyService,
+                landClaimService);
+            RegisterService(runtimeHost, bankingService, enableDebugLogs);
             CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
             RegisterService(runtimeHost, vendorService, enableDebugLogs);
 
@@ -530,6 +537,7 @@ namespace CCS.Survival.Composition
                 ranchService,
                 farmService,
                 landClaimService,
+                bankingService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -577,7 +585,8 @@ namespace CCS.Survival.Composition
                     worldSimulationService,
                     ranchService,
                     farmService,
-                    landClaimService);
+                    landClaimService,
+                    bankingService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1301,6 +1310,33 @@ namespace CCS.Survival.Composition
             }
 
             CCS_LandClaimRuntimeBridge.Register(service);
+            return service;
+        }
+
+        private static CCS_BankingService CreateBankingService(
+            CCS_BankAccountProfile bankAccountProfile,
+            CCS_CurrencyService currencyService,
+            CCS_LandClaimService landClaimService)
+        {
+            CCS_BankingService service = new CCS_BankingService();
+            service.Initialize();
+
+            if (bankAccountProfile != null)
+            {
+                service.InitializeFromProfile(bankAccountProfile);
+            }
+
+            if (currencyService != null && currencyService.IsInitialized)
+            {
+                service.BindCurrencyService(currencyService);
+            }
+
+            if (landClaimService != null && landClaimService.IsInitialized)
+            {
+                service.BindLandClaimService(landClaimService);
+            }
+
+            CCS_BankingRuntimeBridge.Register(service);
             return service;
         }
 

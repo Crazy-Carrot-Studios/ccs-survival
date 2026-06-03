@@ -171,6 +171,15 @@ namespace CCS.Modules.Playtesting
         PlaceStructureInsideClaim = 156,
         VerifyStructureAssociatedWithClaim = 157,
         SaveLandClaimState = 158,
-        VerifyLandClaimAfterLoad = 159
+        VerifyLandClaimAfterLoad = 159,
+        InteractBankServicePoint = 160,
+        InteractLandOfficeServicePoint = 161,
+        DepositBankCurrency = 162,
+        VerifyBankDepositBalances = 163,
+        WithdrawBankCurrency = 164,
+        VerifyBankWithdrawBalances = 165,
+        VerifyLandOfficeOwnedClaims = 166,
+        SaveBankState = 167,
+        VerifyBankBalanceAfterLoad = 168
     }
 }

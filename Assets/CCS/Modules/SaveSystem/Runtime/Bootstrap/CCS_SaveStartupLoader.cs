@@ -9,6 +9,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -79,6 +80,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_RanchService ranchService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_FarmService farmService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_LandClaimService landClaimService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_BankingService bankingService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
@@ -107,6 +109,7 @@ namespace CCS.Modules.SaveSystem
                 ranchService,
                 farmService,
                 landClaimService,
+                bankingService,
                 playerTransform);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)

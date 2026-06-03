@@ -30,6 +30,7 @@ namespace CCS.Modules.Playtesting
         WorldSimulation = 15,
         Ranching = 16,
         Farming = 17,
-        LandOwnership = 18
+        LandOwnership = 18,
+        Banking = 19
     }
 }

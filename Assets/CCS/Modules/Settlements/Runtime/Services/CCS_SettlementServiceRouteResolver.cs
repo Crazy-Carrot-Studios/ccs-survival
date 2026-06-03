@@ -1,3 +1,4 @@
+using CCS.Modules.Banking;
 using CCS.Modules.Economy;
 using CCS.Modules.Industry;
 using UnityEngine;
@@ -38,6 +39,16 @@ namespace CCS.Modules.Settlements
             if (servicePoint.ServicePointType == CCS_SettlementServicePointType.Blacksmith)
             {
                 return CCS_SettlementServiceRouteType.Industry;
+            }
+
+            if (servicePoint.ServicePointType == CCS_SettlementServicePointType.Bank)
+            {
+                return CCS_SettlementServiceRouteType.Bank;
+            }
+
+            if (servicePoint.ServicePointType == CCS_SettlementServicePointType.LandOffice)
+            {
+                return CCS_SettlementServiceRouteType.LandOffice;
             }
 
             if (servicePoint.ServicePointType == CCS_SettlementServicePointType.Other)
@@ -94,6 +105,10 @@ namespace CCS.Modules.Settlements
                     return TryActivateIndustryRoute(servicePoint);
                 case CCS_SettlementServiceRouteType.Placeholder:
                     return TryActivatePlaceholderRoute(servicePoint);
+                case CCS_SettlementServiceRouteType.Bank:
+                    return TryActivateBankRoute(servicePoint);
+                case CCS_SettlementServiceRouteType.LandOffice:
+                    return TryActivateLandOfficeRoute(servicePoint);
                 case CCS_SettlementServiceRouteType.Unknown:
                     CCS_SettlementDebugMessageHud.ShowMessage(
                         servicePoint.GetInteractionDisplayName(),
@@ -205,6 +220,40 @@ namespace CCS.Modules.Settlements
             return CCS_SettlementServiceActivationResult.Success(
                 CCS_SettlementServiceRouteType.Industry,
                 "Industry service summary opened.");
+        }
+
+        private static CCS_SettlementServiceActivationResult TryActivateBankRoute(CCS_SettlementServicePoint servicePoint)
+        {
+            if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
+                || !bankingService.IsInitialized)
+            {
+                return CCS_SettlementServiceActivationResult.Blocked(
+                    CCS_SettlementServiceRouteType.Bank,
+                    CCS_SettlementServiceActivationStatus.ServiceMissing,
+                    "Banking service is not ready.");
+            }
+
+            CCS_BankingDebugHud.NotifyBankActivated(servicePoint.GetInteractionDisplayName());
+            return CCS_SettlementServiceActivationResult.Success(
+                CCS_SettlementServiceRouteType.Bank,
+                "Bank debug panel opened.");
+        }
+
+        private static CCS_SettlementServiceActivationResult TryActivateLandOfficeRoute(CCS_SettlementServicePoint servicePoint)
+        {
+            if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
+                || !bankingService.IsInitialized)
+            {
+                return CCS_SettlementServiceActivationResult.Blocked(
+                    CCS_SettlementServiceRouteType.LandOffice,
+                    CCS_SettlementServiceActivationStatus.ServiceMissing,
+                    "Land office service is not ready.");
+            }
+
+            CCS_BankingDebugHud.NotifyLandOfficeActivated(servicePoint.GetInteractionDisplayName());
+            return CCS_SettlementServiceActivationResult.Success(
+                CCS_SettlementServiceRouteType.LandOffice,
+                "Land office debug panel opened.");
         }
 
         private static CCS_SettlementServiceActivationResult TryActivatePlaceholderRoute(CCS_SettlementServicePoint servicePoint)

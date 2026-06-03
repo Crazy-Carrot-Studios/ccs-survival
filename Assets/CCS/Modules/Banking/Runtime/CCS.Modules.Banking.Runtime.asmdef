@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.Banking.Runtime",
+    "rootNamespace": "CCS.Modules.Banking",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Land.Runtime",
+        "CCS.Modules.CharacterController.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

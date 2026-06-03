@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 1.8.1 — Settlement Services Polish + Blacksmith Routing  
+**Milestone:** 2.4.0 — Bank + Land Office service routing (debug HUD)  
 **Author:** James Schilz
 
 ## Purpose
@@ -22,7 +22,7 @@ No NPC AI, dialogue, quest systems, or final town art.
 ```text
 Discover Trading Post
   ↓
-Use Store / Stable / Gunsmith / Blacksmith
+Use Store / Stable / Gunsmith / Blacksmith / Bank / Land Office
   ↓
 Access Economy + Industry Services
   ↓

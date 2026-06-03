@@ -21,6 +21,7 @@ namespace CCS.Modules.Settlements
         Sheriff = 6,
         Bank = 7,
         FreightDepot = 8,
-        Other = 9
+        Other = 9,
+        LandOffice = 10
     }
 }

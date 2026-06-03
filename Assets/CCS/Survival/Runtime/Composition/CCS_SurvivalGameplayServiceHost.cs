@@ -30,6 +30,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -161,6 +162,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Frontier land claim profile for homestead deeds and ownership tracking.")]
         [SerializeField] private CCS_LandClaimProfile landClaimProfile;
 
+        [Tooltip("Frontier bank account profile for stored currency and land office services.")]
+        [SerializeField] private CCS_BankAccountProfile bankAccountProfile;
+
         [Tooltip("Frontier vehicle profile for wagon ownership, hitching, and cargo.")]
         [SerializeField] private CCS_VehicleProfile vehicleProfile;
 
@@ -245,6 +249,7 @@ namespace CCS.Survival.Composition
                 livestockProfile,
                 farmingProfile,
                 landClaimProfile,
+                bankAccountProfile,
                 vehicleProfile,
                 firearmProfile,
                 settlementProfile,

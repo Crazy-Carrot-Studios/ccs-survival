@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 2.3.0 — General Store sells Homestead Claim Deed for frontier land ownership foundation.
+**Latest:** 2.4.0 — Trade Dollars wallet syncs with `CCS_BankingService` deposit/withdraw at settlement Bank service points.
+
+**2.3.0** — General Store sells Homestead Claim Deed for frontier land ownership foundation.
 
 **2.2.0** — General Store sells farm plot kit and crop seeds; buys harvested corn, beans, potatoes, and wheat for world simulation Food supply.
 

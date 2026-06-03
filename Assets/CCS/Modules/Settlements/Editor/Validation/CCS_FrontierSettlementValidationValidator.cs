@@ -341,7 +341,9 @@ namespace CCS.Modules.Settlements.Editor
                 CCS_SettlementContentIds.GeneralStoreServicePointId,
                 CCS_SettlementContentIds.StableServicePointId,
                 CCS_SettlementContentIds.GunsmithServicePointId,
-                CCS_SettlementContentIds.BlacksmithServicePointId
+                CCS_SettlementContentIds.BlacksmithServicePointId,
+                CCS_SettlementContentIds.BankServicePointId,
+                CCS_SettlementContentIds.LandOfficeServicePointId
             };
 
             for (int index = 0; index < requiredIds.Length; index++)

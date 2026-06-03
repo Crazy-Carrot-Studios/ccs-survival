@@ -27,6 +27,7 @@
         "CCS.Modules.Ranching.Runtime",
         "CCS.Modules.Farming.Runtime",
         "CCS.Modules.Land.Runtime",
+        "CCS.Modules.Banking.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

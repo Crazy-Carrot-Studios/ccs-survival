@@ -11,6 +11,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -64,6 +65,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_RanchService ranchService;
         private CCS_FarmService farmService;
         private CCS_LandClaimService landClaimService;
+        private CCS_BankingService bankingService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -146,6 +148,7 @@ namespace CCS.Modules.SaveSystem
             CCS_RanchService ranching,
             CCS_FarmService farming,
             CCS_LandClaimService landClaim,
+            CCS_BankingService banking,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -170,6 +173,7 @@ namespace CCS.Modules.SaveSystem
             ranchService = ranching;
             farmService = farming;
             landClaimService = landClaim;
+            bankingService = banking;
             playerTransform = playerRoot;
         }
 
@@ -337,6 +341,7 @@ namespace CCS.Modules.SaveSystem
             CaptureRanching(saveData.ranching);
             CaptureFarming(saveData.farming);
             CaptureLand(saveData.land);
+            CaptureBanking(saveData.banking);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -662,6 +667,7 @@ namespace CCS.Modules.SaveSystem
             ApplyRanching(saveData.ranching);
             ApplyFarming(saveData.farming);
             ApplyLand(saveData.land);
+            ApplyBanking(saveData.banking);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1073,6 +1079,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             landClaimService.RestoreState(landData?.claims);
+        }
+
+        private void CaptureBanking(CCS_SaveBankingWorldData bankingData)
+        {
+            if (bankingData == null)
+            {
+                return;
+            }
+
+            bankingData.accounts = bankingService != null && bankingService.IsInitialized
+                ? bankingService.CaptureBankingState()
+                : Array.Empty<CCS_BankAccountSnapshot>();
+        }
+
+        private void ApplyBanking(CCS_SaveBankingWorldData bankingData)
+        {
+            if (bankingService == null || !bankingService.IsInitialized)
+            {
+                return;
+            }
+
+            bankingService.RestoreState(bankingData?.accounts);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

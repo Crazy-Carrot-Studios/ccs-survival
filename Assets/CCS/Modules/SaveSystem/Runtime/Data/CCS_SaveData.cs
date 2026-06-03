@@ -3,6 +3,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
@@ -73,7 +74,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveLandWorldData land = new CCS_SaveLandWorldData();
 
+        public CCS_SaveBankingWorldData banking = new CCS_SaveBankingWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveBankingWorldData
+    {
+        public CCS_BankAccountSnapshot[] accounts = Array.Empty<CCS_BankAccountSnapshot>();
     }
 
     [Serializable]

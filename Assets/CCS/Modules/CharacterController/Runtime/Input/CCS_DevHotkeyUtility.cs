@@ -59,6 +59,7 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.Alpha2),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.B),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.B, requiresControl: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.B, requiresControl: true, requiresShift: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.F4),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.F3),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.F2),
@@ -87,7 +88,9 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_SaveDebugController", KeyCode.F9),
             new DevHotkeyBinding("CCS_SaveDebugController", KeyCode.F8),
             new DevHotkeyBinding("CCS_PlayerActiveItemDriver", KeyCode.R),
-            new DevHotkeyBinding("CCS_VendorDebugHud", KeyCode.Escape)
+            new DevHotkeyBinding("CCS_VendorDebugHud", KeyCode.Escape),
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.D, requiresShift: true, allowShared: true),
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.W, requiresShift: true, allowShared: true)
         };
 
         public static IReadOnlyList<DevHotkeyBinding> GetKnownBindings()
@@ -194,6 +197,21 @@ namespace CCS.Modules.CharacterController
         public static bool WasCloseVendorDebugPanelPressed()
         {
             return CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.Escape);
+        }
+
+        public static bool WasCloseBankingDebugPanelPressed()
+        {
+            return CCS_KeyboardInputUtility.WasKeyPressedThisFrame(KeyCode.Escape);
+        }
+
+        public static bool WasBankDepositPressed()
+        {
+            return WasShiftPressed(KeyCode.D);
+        }
+
+        public static bool WasBankWithdrawPressed()
+        {
+            return WasShiftPressed(KeyCode.W);
         }
     }
 }

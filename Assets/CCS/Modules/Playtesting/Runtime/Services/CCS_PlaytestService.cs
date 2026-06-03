@@ -22,6 +22,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
+using CCS.Modules.Banking;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -165,6 +166,10 @@ namespace CCS.Modules.Playtesting
         private CCS_RanchService boundRanchService;
         private CCS_FarmService boundFarmService;
         private CCS_LandClaimService boundLandClaimService;
+        private CCS_BankingService boundBankingService;
+        private int playtestBankWalletBaseline;
+        private int playtestBankBalanceBaseline;
+        private int savedBankBalance;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -256,7 +261,8 @@ namespace CCS.Modules.Playtesting
             CCS_WorldSimulationService worldSimulationService = null,
             CCS_RanchService ranchService = null,
             CCS_FarmService farmService = null,
-            CCS_LandClaimService landClaimService = null)
+            CCS_LandClaimService landClaimService = null,
+            CCS_BankingService bankingService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -293,6 +299,7 @@ namespace CCS.Modules.Playtesting
             boundRanchService = ranchService;
             boundFarmService = farmService;
             boundLandClaimService = landClaimService;
+            boundBankingService = bankingService;
 
             if (boundWorldSimulationService != null)
             {
@@ -335,6 +342,11 @@ namespace CCS.Modules.Playtesting
             {
                 boundLandClaimService.LandClaimPlaced += HandleLandClaimPlaced;
                 boundLandClaimService.StructureAssociated += HandleLandStructureAssociated;
+            }
+
+            if (boundBankingService != null)
+            {
+                boundBankingService.BankTransactionCompleted += HandleBankTransactionCompleted;
             }
 
             if (boundVehicleService != null)
@@ -597,6 +609,11 @@ namespace CCS.Modules.Playtesting
                 boundLandClaimService.StructureAssociated -= HandleLandStructureAssociated;
             }
 
+            if (boundBankingService != null)
+            {
+                boundBankingService.BankTransactionCompleted -= HandleBankTransactionCompleted;
+            }
+
             if (boundVehicleService != null)
             {
                 boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
@@ -612,6 +629,7 @@ namespace CCS.Modules.Playtesting
             boundRanchService = null;
             boundFarmService = null;
             boundLandClaimService = null;
+            boundBankingService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1100,6 +1118,15 @@ namespace CCS.Modules.Playtesting
                         "Land claim state saved.");
                 }
 
+                if (boundBankingService != null && boundBankingService.IsInitialized)
+                {
+                    savedBankBalance = boundBankingService.GetDefaultAccountBalance(
+                        CCS_BankingContentIds.DefaultPlayerOwnerId);
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveBankState,
+                        "Bank balance saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1164,6 +1191,95 @@ namespace CCS.Modules.Playtesting
                 EvaluateRanchStateAfterLoad();
                 EvaluateFarmStateAfterLoad();
                 EvaluateLandClaimStateAfterLoad();
+                EvaluateBankBalanceAfterLoad();
+            }
+        }
+
+        private void EvaluateBankBalanceAfterLoad()
+        {
+            if (boundBankingService == null
+                || !boundBankingService.IsInitialized
+                || savedBankBalance <= 0)
+            {
+                return;
+            }
+
+            if (boundBankingService.GetDefaultAccountBalance(CCS_BankingContentIds.DefaultPlayerOwnerId)
+                >= savedBankBalance)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBankBalanceAfterLoad,
+                    "Bank balance restored after load.");
+            }
+        }
+
+        private void CaptureBankingPlaytestBaselines()
+        {
+            playtestBankWalletBaseline = boundCurrencyService != null && boundCurrencyService.IsInitialized
+                ? boundCurrencyService.GetBalance(TradeDollarsCurrencyId)
+                : 0;
+            playtestBankBalanceBaseline = boundBankingService != null && boundBankingService.IsInitialized
+                ? boundBankingService.GetDefaultAccountBalance(CCS_BankingContentIds.DefaultPlayerOwnerId)
+                : 0;
+        }
+
+        private void HandleBankTransactionCompleted(CCS_BankTransactionResult result)
+        {
+            if (result == null || !result.IsSuccess || result.Amount <= 0)
+            {
+                return;
+            }
+
+            if (result.Message.Contains("Deposited", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DepositBankCurrency,
+                    "Deposited trade dollars to bank account.");
+                if (result.WalletBalanceAfter == playtestBankWalletBaseline - result.Amount
+                    && result.BankBalanceAfter == playtestBankBalanceBaseline + result.Amount)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyBankDepositBalances,
+                        "Wallet decreased and bank balance increased.");
+                }
+
+                playtestBankWalletBaseline = result.WalletBalanceAfter;
+                playtestBankBalanceBaseline = result.BankBalanceAfter;
+                return;
+            }
+
+            if (result.Message.Contains("Withdrew", System.StringComparison.OrdinalIgnoreCase))
+            {
+                int walletBeforeWithdraw = result.WalletBalanceAfter - result.Amount;
+                int bankBeforeWithdraw = result.BankBalanceAfter + result.Amount;
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.WithdrawBankCurrency,
+                    "Withdrew trade dollars from bank account.");
+                if (result.WalletBalanceAfter == walletBeforeWithdraw + result.Amount
+                    && result.BankBalanceAfter == bankBeforeWithdraw - result.Amount)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyBankWithdrawBalances,
+                        "Wallet increased and bank balance decreased.");
+                }
+
+                playtestBankWalletBaseline = result.WalletBalanceAfter;
+                playtestBankBalanceBaseline = result.BankBalanceAfter;
+            }
+        }
+
+        private void EvaluateLandOfficeOwnedClaimsStep()
+        {
+            int claimCount = boundBankingService != null && boundBankingService.IsInitialized
+                ? boundBankingService.GetOwnedLandClaimCount()
+                : boundLandClaimService != null && boundLandClaimService.IsInitialized
+                    ? boundLandClaimService.GetClaimCount()
+                    : 0;
+            if (claimCount > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyLandOfficeOwnedClaims,
+                    "Land office sees owned land claims.");
             }
         }
 
@@ -1444,6 +1560,19 @@ namespace CCS.Modules.Playtesting
                             CCS_PlaytestStepType.VerifySettlementBlacksmithRouting,
                             "Blacksmith routed to industry service summary.");
                     }
+                    break;
+                case CCS_SettlementServicePointType.Bank:
+                    CaptureBankingPlaytestBaselines();
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractBankServicePoint,
+                        "Bank service point activated.");
+                    break;
+                case CCS_SettlementServicePointType.LandOffice:
+                    CaptureBankingPlaytestBaselines();
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractLandOfficeServicePoint,
+                        "Land office service point activated.");
+                    EvaluateLandOfficeOwnedClaimsStep();
                     break;
             }
         }
@@ -4196,6 +4325,7 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.PlaceLandClaim,
                 $"{claim.Definition.DisplayName} placed.");
+            EvaluateLandOfficeOwnedClaimsStep();
         }
 
         private void HandleLandStructureAssociated(CCS_LandClaimInstance claim, string structureInstanceId)
@@ -4400,6 +4530,30 @@ namespace CCS.Modules.Playtesting
         public bool TryPlaytestBuyHomesteadClaimDeed()
         {
             return TryPlaytestBuyItemById(HomesteadClaimDeedItemId);
+        }
+
+        public bool TryPlaytestBankingFoundationShortcut()
+        {
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 1000, "Playtest banking foundation funds");
+            }
+
+            CaptureBankingPlaytestBaselines();
+            if (boundBankingService != null
+                && boundBankingService.IsInitialized
+                && boundBankingService.ActiveProfile != null)
+            {
+                boundBankingService.TryOpenAccount(
+                    CCS_BankingContentIds.DefaultPlayerOwnerId,
+                    boundBankingService.ActiveProfile.DefaultAccountDefinitionId);
+                boundBankingService.TryDeposit(
+                    CCS_BankingContentIds.DefaultPlayerOwnerId,
+                    boundBankingService.ActiveProfile.DefaultAccountDefinitionId,
+                    50);
+            }
+
+            return true;
         }
 
         public bool TryPlaytestLandOwnershipFoundationShortcut()

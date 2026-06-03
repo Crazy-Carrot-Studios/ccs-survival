@@ -17,6 +17,8 @@ namespace CCS.Modules.Settlements
         Industry = 2,
         Placeholder = 3,
         Disabled = 4,
-        Unavailable = 5
+        Unavailable = 5,
+        Bank = 6,
+        LandOffice = 7
     }
 }

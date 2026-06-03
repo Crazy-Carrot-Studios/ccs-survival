@@ -1385,3 +1385,84 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.interact.bank
+    displayName: Interact with Bank service point
+    stepType: 160
+    instructionText: 'Banking playtest: Interact with Bank service point. Ctrl+Shift+B
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.interact.landoffice
+    displayName: Interact with Land Office service point
+    stepType: 161
+    instructionText: 'Banking playtest: Interact with Land Office service point.
+      Ctrl+Shift+B shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.deposit
+    displayName: Deposit trade dollars to bank
+    stepType: 162
+    instructionText: 'Banking playtest: Deposit trade dollars to bank. Ctrl+Shift+B
+      shortcut available.'
+    targetItemId: ccs.survival.currency.tradedollars
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.verify.deposit
+    displayName: Verify wallet decreases and bank balance increases
+    stepType: 163
+    instructionText: 'Banking playtest: Verify wallet decreases and bank balance
+      increases. Ctrl+Shift+B shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.withdraw
+    displayName: Withdraw trade dollars from bank
+    stepType: 164
+    instructionText: 'Banking playtest: Withdraw trade dollars from bank. Ctrl+Shift+B
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.verify.withdraw
+    displayName: Verify wallet increases and bank balance decreases
+    stepType: 165
+    instructionText: 'Banking playtest: Verify wallet increases and bank balance
+      decreases. Ctrl+Shift+B shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.verify.landoffice.claims
+    displayName: Verify land office sees owned claims
+    stepType: 166
+    instructionText: 'Banking playtest: Verify land office sees owned claims. Ctrl+Shift+B
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.save
+    displayName: Save bank balance
+    stepType: 167
+    instructionText: 'Banking playtest: Save bank balance. Ctrl+Shift+B shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.verify.load
+    displayName: Verify bank balance restored after load
+    stepType: 168
+    instructionText: 'Banking playtest: Verify bank balance restored after load.
+      Ctrl+Shift+B shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

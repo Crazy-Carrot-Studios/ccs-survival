@@ -8,6 +8,7 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.Industry.Runtime",
+        "CCS.Modules.Banking.Runtime",
         "CCS.Modules.CharacterController.Runtime"
     ],
     "includePlatforms": [],

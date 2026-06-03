@@ -101,9 +101,10 @@ namespace CCS.Modules.Settlements.Editor
             serialized.FindProperty("settlementId").stringValue = CCS_SettlementContentIds.TestTradingPostSettlementId;
             serialized.FindProperty("displayName").stringValue = "Frontier Test Trading Post";
             serialized.FindProperty("description").stringValue =
-                "Bootstrap trading post with general store, stable, gunsmith, and blacksmith industry routing.";
+                "Bootstrap trading post with general store, stable, gunsmith, blacksmith, bank, and land office routing.";
             serialized.FindProperty("settlementType").enumValueIndex = (int)CCS_SettlementType.TradingPost;
             serialized.FindProperty("defaultWorldPosition").vector3Value = new Vector3(24f, 0f, 20f);
+            serialized.FindProperty("offersBankingServices").boolValue = true;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
@@ -248,6 +249,38 @@ namespace CCS.Modules.Settlements.Editor
                 false,
                 -1,
                 CCS_SettlementServiceRouteType.Industry);
+
+            EnsureServicePoint(
+                tradingPostRoot.transform,
+                "CCS_TestTradingPost_Bank",
+                CCS_SettlementContentIds.BankServicePointId,
+                CCS_SettlementServicePointType.Bank,
+                location,
+                null,
+                string.Empty,
+                new Vector3(16f, 0.5f, 0f),
+                "Bank",
+                true,
+                string.Empty,
+                false,
+                -1,
+                CCS_SettlementServiceRouteType.Bank);
+
+            EnsureServicePoint(
+                tradingPostRoot.transform,
+                "CCS_TestTradingPost_LandOffice",
+                CCS_SettlementContentIds.LandOfficeServicePointId,
+                CCS_SettlementServicePointType.LandOffice,
+                location,
+                null,
+                string.Empty,
+                new Vector3(20f, 0.5f, 0f),
+                "Land Office",
+                true,
+                string.Empty,
+                false,
+                -1,
+                CCS_SettlementServiceRouteType.LandOffice);
 
             EditorUtility.SetDirty(tradingPostRoot);
             EditorSceneManager.MarkSceneDirty(scene);

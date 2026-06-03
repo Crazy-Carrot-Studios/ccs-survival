@@ -37,6 +37,10 @@ namespace CCS.Modules.Settlements
         [Tooltip("Default world position used for discovery map placeholder.")]
         [SerializeField] private Vector3 defaultWorldPosition;
 
+        [Header("Services")]
+        [Tooltip("Optional metadata: settlement offers banking and land office services.")]
+        [SerializeField] private bool offersBankingServices;
+
         #endregion
 
         #region Properties
@@ -50,6 +54,8 @@ namespace CCS.Modules.Settlements
         public CCS_SettlementType SettlementType => settlementType;
 
         public Vector3 DefaultWorldPosition => defaultWorldPosition;
+
+        public bool OffersBankingServices => offersBankingServices;
 
         #endregion
     }
