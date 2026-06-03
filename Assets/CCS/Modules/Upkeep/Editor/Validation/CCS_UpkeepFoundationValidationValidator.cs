@@ -16,7 +16,7 @@ using UnityEngine;
 // PLACEMENT: Registered on CCS_SurvivalValidationPipeline at editor load.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Milestone 2.5.0 tax and upkeep foundation.
+// NOTES: Milestone 2.5.0 tax and upkeep foundation; 2.5.1 release cleanup validation.
 // =============================================================================
 
 namespace CCS.Modules.Upkeep.Editor
@@ -24,8 +24,9 @@ namespace CCS.Modules.Upkeep.Editor
     public sealed class CCS_UpkeepFoundationValidationValidator : CCS_ISurvivalValidationValidator
     {
         private const string ValidatorContext = "ccs.survival.validation.upkeep";
-        private const string UpkeepMilestoneVersion = "2.5.0";
+        private const string UpkeepMilestoneVersion = "2.5.1";
         private const string ModuleRoot = "Assets/CCS/Modules/Upkeep";
+        private const string ModuleRootMetaPath = "Assets/CCS/Modules/Upkeep.meta";
         private const string RuntimeRoot = ModuleRoot + "/Runtime";
         private const string EditorRoot = ModuleRoot + "/Editor";
         private const string ModuleDocPath = ModuleRoot + "/Documentation/CCS_Upkeep_Module.md";
@@ -35,6 +36,10 @@ namespace CCS.Modules.Upkeep.Editor
         private const string SaveDataPath = "Assets/CCS/Modules/SaveSystem/Runtime/Data/CCS_SaveData.cs";
         private const string SaveServicePath = "Assets/CCS/Modules/SaveSystem/Runtime/Services/CCS_SaveService.cs";
         private const string BankingHudPath = "Assets/CCS/Modules/Banking/Runtime/UI/CCS_BankingDebugHud.cs";
+        private const string BankingServicePath = "Assets/CCS/Modules/Banking/Runtime/Services/CCS_BankingService.cs";
+        private const string UpkeepServicePath = RuntimeRoot + "/Services/CCS_UpkeepService.cs";
+        private const string ContentUpkeepMetaPath = "Assets/CCS/Survival/Content/Upkeep.meta";
+        private const string ProfileUpkeepMetaPath = "Assets/CCS/Survival/Profiles/Upkeep.meta";
         private const string DefaultPlaytestProfilePath = "Assets/CCS/Survival/Profiles/Playtesting/CCS_DefaultPlaytestProfile.asset";
 
         public string ValidatorId => ValidatorContext;
@@ -52,7 +57,13 @@ namespace CCS.Modules.Upkeep.Editor
 
             ValidateRequiredFile(report, "Runtime asmdef", RuntimeRoot + "/CCS.Modules.Upkeep.Runtime.asmdef");
             ValidateRequiredFile(report, "Editor asmdef", EditorRoot + "/CCS.Modules.Upkeep.Editor.asmdef");
-            ValidateRequiredScript(report, "CCS_UpkeepService", RuntimeRoot + "/Services/CCS_UpkeepService.cs");
+            ValidateModuleFolderMeta(report);
+            ValidateFolderMeta(report, "Runtime folder", RuntimeRoot + ".meta");
+            ValidateFolderMeta(report, "Editor folder", EditorRoot + ".meta");
+            ValidateFolderMeta(report, "Documentation folder", ModuleRoot + "/Documentation.meta");
+            ValidateFolderMeta(report, "Content/Upkeep folder", ContentUpkeepMetaPath);
+            ValidateFolderMeta(report, "Profiles/Upkeep folder", ProfileUpkeepMetaPath);
+            ValidateRequiredScript(report, "CCS_UpkeepService", UpkeepServicePath);
             ValidateRequiredScript(
                 report,
                 "CCS_UpkeepRuntimeBridge",
@@ -74,6 +85,7 @@ namespace CCS.Modules.Upkeep.Editor
             ValidateBankingIntegration(report);
             ValidateLandClaimIntegration(report);
             ValidateLandOfficeHud(report);
+            ValidateReleaseSafety(report);
             ValidatePlaytestSteps(report);
             ValidateDocumentation(report);
 
@@ -174,9 +186,8 @@ namespace CCS.Modules.Upkeep.Editor
 
         private static void ValidateBankingIntegration(CCS_SurvivalValidationReport report)
         {
-            string bankingServicePath = "Assets/CCS/Modules/Banking/Runtime/Services/CCS_BankingService.cs";
-            bool hasDebit = File.Exists(bankingServicePath)
-                && File.ReadAllText(bankingServicePath).Contains("TryDebitForUpkeep");
+            bool hasDebit = File.Exists(BankingServicePath)
+                && File.ReadAllText(BankingServicePath).Contains("TryDebitForUpkeep");
             report.AddIssue(
                 hasDebit
                     ? CCS_SurvivalValidationIssueSeverity.Info
@@ -185,6 +196,74 @@ namespace CCS.Modules.Upkeep.Editor
                 hasDebit
                     ? "Banking service exposes upkeep debit without wallet credit."
                     : "CCS_BankingService missing TryDebitForUpkeep for upkeep payments.");
+        }
+
+        private static void ValidateModuleFolderMeta(CCS_SurvivalValidationReport report)
+        {
+            bool exists = File.Exists(ModuleRootMetaPath);
+            report.AddIssue(
+                exists ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+                ValidatorContext,
+                exists
+                    ? "Upkeep module root folder .meta is present."
+                    : $"Missing module root meta: {ModuleRootMetaPath}");
+        }
+
+        private static void ValidateFolderMeta(
+            CCS_SurvivalValidationReport report,
+            string label,
+            string metaPath)
+        {
+            bool exists = File.Exists(metaPath);
+            report.AddIssue(
+                exists ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+                ValidatorContext,
+                exists ? $"{label} .meta is present." : $"Missing folder meta: {metaPath}");
+        }
+
+        private static void ValidateReleaseSafety(CCS_SurvivalValidationReport report)
+        {
+            CCS_SurvivalValidationResult result = CCS_UpkeepValidationUtility.ValidateReleaseSafetyContracts(
+                UpkeepServicePath,
+                SaveServicePath,
+                BankingServicePath);
+            report.AddIssue(
+                result.IsSuccess ? CCS_SurvivalValidationIssueSeverity.Info : CCS_SurvivalValidationIssueSeverity.Error,
+                ValidatorContext,
+                result.Message);
+
+            bool playtestSaveLoad = false;
+            CCS_PlaytestProfile profile = AssetDatabase.LoadAssetAtPath<CCS_PlaytestProfile>(DefaultPlaytestProfilePath);
+            if (profile != null)
+            {
+                System.Collections.Generic.IReadOnlyList<CCS_PlaytestStepDefinition> steps = profile.StepDefinitions;
+                bool hasRegister = false;
+                bool hasVerifyLoad = false;
+                for (int index = 0; index < steps.Count; index++)
+                {
+                    CCS_PlaytestStepType stepType = steps[index]?.StepType ?? CCS_PlaytestStepType.Spawn;
+                    if (stepType == CCS_PlaytestStepType.RegisterUpkeepForLandClaim)
+                    {
+                        hasRegister = true;
+                    }
+
+                    if (stepType == CCS_PlaytestStepType.VerifyUpkeepAfterLoad)
+                    {
+                        hasVerifyLoad = true;
+                    }
+                }
+
+                playtestSaveLoad = hasRegister && hasVerifyLoad;
+            }
+
+            report.AddIssue(
+                playtestSaveLoad
+                    ? CCS_SurvivalValidationIssueSeverity.Info
+                    : CCS_SurvivalValidationIssueSeverity.Error,
+                ValidatorContext,
+                playtestSaveLoad
+                    ? "Upkeep playtest covers land claim registration and save/load verification."
+                    : "Upkeep playtest missing register or save/load verification steps.");
         }
 
         private static void ValidateLandClaimIntegration(CCS_SurvivalValidationReport report)

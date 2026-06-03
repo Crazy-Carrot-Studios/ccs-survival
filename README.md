@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.5.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.5.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,10 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.5.1** — Upkeep Release Cleanup
+
+Release cleanup for the 2.5.0 Tax and Upkeep Foundation milestone: final `Upkeep.meta` tracking, upkeep release-safety validation (register, save/load, bank/wallet payment, safe failure, reconcile), and tag alignment. **v2.5.0** remains the feature milestone tag; **v2.5.1** points to the clean release tree on `main`.
 
 **2.5.0** — Tax and Upkeep Foundation
 

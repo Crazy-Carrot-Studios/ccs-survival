@@ -1,3 +1,4 @@
+using System.IO;
 using CCS.Modules.Banking;
 using CCS.Modules.Economy;
 using CCS.Modules.Land;
@@ -10,7 +11,7 @@ using CCS.Survival;
 // PLACEMENT: Used by CCS_UpkeepService and editor validators.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Milestone 2.5.0 tax and upkeep foundation.
+// NOTES: Milestone 2.5.0 tax and upkeep foundation; 2.5.1 release safety contracts.
 // =============================================================================
 
 namespace CCS.Modules.Upkeep
@@ -109,6 +110,64 @@ namespace CCS.Modules.Upkeep
             }
 
             return CCS_SurvivalValidationResult.Pass("Upkeep land claim binding validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateReleaseSafetyContracts(
+            string upkeepServiceSourcePath,
+            string saveServiceSourcePath,
+            string bankingServiceSourcePath)
+        {
+            if (!File.Exists(upkeepServiceSourcePath))
+            {
+                return CCS_SurvivalValidationResult.Fail("CCS_UpkeepService source missing for release safety validation.");
+            }
+
+            string upkeepSource = File.ReadAllText(upkeepServiceSourcePath);
+            if (!upkeepSource.Contains("TryRegisterLandClaimUpkeep")
+                || !upkeepSource.Contains("entriesByTargetId.ContainsKey")
+                || !upkeepSource.Contains("CaptureUpkeepState")
+                || !upkeepSource.Contains("RestoreState")
+                || !upkeepSource.Contains("ReconcileLandClaimEntries")
+                || !upkeepSource.Contains("TryPayUpkeep")
+                || !upkeepSource.Contains("CanDebitForUpkeep")
+                || !upkeepSource.Contains("RemoveCurrency")
+                || !upkeepSource.Contains("CCS_UpkeepState.Failed")
+                || !upkeepSource.Contains("CCS_UpkeepTransactionResultType.InsufficientFunds"))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Upkeep service missing required registration, save/load, payment, or safe-failure contracts.");
+            }
+
+            if (!File.Exists(saveServiceSourcePath))
+            {
+                return CCS_SurvivalValidationResult.Fail("CCS_SaveService source missing for upkeep save/load validation.");
+            }
+
+            string saveSource = File.ReadAllText(saveServiceSourcePath);
+            if (!saveSource.Contains("CaptureUpkeep")
+                || !saveSource.Contains("ApplyUpkeep")
+                || !saveSource.Contains("ReconcileLandClaimEntries"))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Save service missing upkeep capture, apply, or post-load reconcile paths.");
+            }
+
+            if (!File.Exists(bankingServiceSourcePath))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "CCS_BankingService source missing for upkeep bank debit validation.");
+            }
+
+            string bankingSource = File.ReadAllText(bankingServiceSourcePath);
+            if (!bankingSource.Contains("TryDebitForUpkeep")
+                || !bankingSource.Contains("CanDebitForUpkeep"))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Banking service missing upkeep debit contracts for bank-only upkeep payments.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass(
+                "Upkeep release safety contracts validated (register, save/load, bank/wallet pay, safe fail, reconcile).");
         }
     }
 }
