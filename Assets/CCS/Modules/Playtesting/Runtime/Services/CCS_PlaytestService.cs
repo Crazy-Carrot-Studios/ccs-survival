@@ -23,6 +23,7 @@ using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
+using CCS.Modules.Upkeep;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -167,9 +168,14 @@ namespace CCS.Modules.Playtesting
         private CCS_FarmService boundFarmService;
         private CCS_LandClaimService boundLandClaimService;
         private CCS_BankingService boundBankingService;
+        private CCS_UpkeepService boundUpkeepService;
         private int playtestBankWalletBaseline;
         private int playtestBankBalanceBaseline;
+        private int playtestUpkeepBankBaseline;
+        private int playtestUpkeepDueForceCount;
         private int savedBankBalance;
+        private int savedUpkeepLastPaidDay;
+        private int savedUpkeepEntryCount;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -262,7 +268,8 @@ namespace CCS.Modules.Playtesting
             CCS_RanchService ranchService = null,
             CCS_FarmService farmService = null,
             CCS_LandClaimService landClaimService = null,
-            CCS_BankingService bankingService = null)
+            CCS_BankingService bankingService = null,
+            CCS_UpkeepService upkeepService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -300,6 +307,7 @@ namespace CCS.Modules.Playtesting
             boundFarmService = farmService;
             boundLandClaimService = landClaimService;
             boundBankingService = bankingService;
+            boundUpkeepService = upkeepService;
 
             if (boundWorldSimulationService != null)
             {
@@ -347,6 +355,11 @@ namespace CCS.Modules.Playtesting
             if (boundBankingService != null)
             {
                 boundBankingService.BankTransactionCompleted += HandleBankTransactionCompleted;
+            }
+
+            if (boundUpkeepService != null)
+            {
+                boundUpkeepService.UpkeepTransactionCompleted += HandleUpkeepTransactionCompleted;
             }
 
             if (boundVehicleService != null)
@@ -614,6 +627,11 @@ namespace CCS.Modules.Playtesting
                 boundBankingService.BankTransactionCompleted -= HandleBankTransactionCompleted;
             }
 
+            if (boundUpkeepService != null)
+            {
+                boundUpkeepService.UpkeepTransactionCompleted -= HandleUpkeepTransactionCompleted;
+            }
+
             if (boundVehicleService != null)
             {
                 boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
@@ -630,6 +648,7 @@ namespace CCS.Modules.Playtesting
             boundFarmService = null;
             boundLandClaimService = null;
             boundBankingService = null;
+            boundUpkeepService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1127,6 +1146,21 @@ namespace CCS.Modules.Playtesting
                         "Bank balance saved.");
                 }
 
+                if (boundUpkeepService != null && boundUpkeepService.IsInitialized)
+                {
+                    string claimId = ResolveFirstLandClaimInstanceId();
+                    if (boundUpkeepService.TryGetEntryForTarget(claimId, out CCS_UpkeepEntry upkeepEntry)
+                        && upkeepEntry != null)
+                    {
+                        savedUpkeepLastPaidDay = upkeepEntry.lastPaidDay;
+                    }
+
+                    savedUpkeepEntryCount = boundUpkeepService.CaptureUpkeepState()?.Length ?? 0;
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveUpkeepState,
+                        "Upkeep state saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1192,6 +1226,32 @@ namespace CCS.Modules.Playtesting
                 EvaluateFarmStateAfterLoad();
                 EvaluateLandClaimStateAfterLoad();
                 EvaluateBankBalanceAfterLoad();
+                EvaluateUpkeepAfterLoad();
+            }
+        }
+
+        private void EvaluateUpkeepAfterLoad()
+        {
+            if (boundUpkeepService == null
+                || !boundUpkeepService.IsInitialized
+                || savedUpkeepEntryCount <= 0)
+            {
+                return;
+            }
+
+            string claimId = ResolveFirstLandClaimInstanceId();
+            if (!boundUpkeepService.TryGetEntryForTarget(claimId, out CCS_UpkeepEntry entry)
+                || entry == null)
+            {
+                return;
+            }
+
+            if (entry.lastPaidDay >= savedUpkeepLastPaidDay
+                && boundUpkeepService.CaptureUpkeepState()?.Length >= savedUpkeepEntryCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyUpkeepAfterLoad,
+                    "Upkeep state restored after load.");
             }
         }
 
@@ -1265,6 +1325,80 @@ namespace CCS.Modules.Playtesting
 
                 playtestBankWalletBaseline = result.WalletBalanceAfter;
                 playtestBankBalanceBaseline = result.BankBalanceAfter;
+
+                int bankBalance = result.BankBalanceAfter;
+                if (bankBalance == 0
+                    || bankBalance < playtestUpkeepBankBaseline)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.PrepareWalletUpkeepPayment,
+                        "Bank emptied or reduced for wallet upkeep payment.");
+                }
+            }
+        }
+
+        private void HandleUpkeepTransactionCompleted(CCS_UpkeepTransactionResult result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            if (result.IsSuccess
+                && result.Message.Contains("Registered upkeep", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.RegisterUpkeepForLandClaim,
+                    "Upkeep registered for land claim.");
+            }
+
+            if (result.IsSuccess && result.EntryState == CCS_UpkeepState.Due && result.Amount > 0)
+            {
+                playtestUpkeepDueForceCount++;
+                playtestUpkeepBankBaseline = boundBankingService != null && boundBankingService.IsInitialized
+                    ? boundBankingService.GetDefaultAccountBalance(CCS_BankingContentIds.DefaultPlayerOwnerId)
+                    : 0;
+
+                if (playtestUpkeepDueForceCount == 1)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.ForceUpkeepDue,
+                        "Upkeep marked due.");
+                }
+                else
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.ForceUpkeepDueAgain,
+                        "Upkeep marked due again.");
+                }
+            }
+
+            if (result.IsSuccess
+                && result.PaymentSource == CCS_UpkeepPaymentSource.Bank
+                && result.Amount > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PayUpkeepFromBank,
+                    "Upkeep paid from bank account.");
+
+                if (boundBankingService != null
+                    && boundBankingService.IsInitialized
+                    && boundBankingService.GetDefaultAccountBalance(CCS_BankingContentIds.DefaultPlayerOwnerId)
+                        == playtestUpkeepBankBaseline - result.Amount)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyUpkeepBankPayment,
+                        "Bank balance decreased after upkeep payment.");
+                }
+            }
+
+            if (result.IsSuccess
+                && result.PaymentSource == CCS_UpkeepPaymentSource.Wallet
+                && result.Amount > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PayUpkeepFromWallet,
+                    "Upkeep paid from wallet.");
             }
         }
 
@@ -4554,6 +4688,90 @@ namespace CCS.Modules.Playtesting
             }
 
             return true;
+        }
+
+        public bool TryPlaytestUpkeepFoundationShortcut()
+        {
+            TryPlaytestBankingFoundationShortcut();
+
+            string claimId = ResolveFirstLandClaimInstanceId();
+            if (boundUpkeepService == null
+                || !boundUpkeepService.IsInitialized
+                || string.IsNullOrWhiteSpace(claimId))
+            {
+                return false;
+            }
+
+            if (boundBankingService != null
+                && boundBankingService.IsInitialized
+                && boundBankingService.ActiveProfile != null)
+            {
+                boundBankingService.TryDeposit(
+                    CCS_BankingContentIds.DefaultPlayerOwnerId,
+                    boundBankingService.ActiveProfile.DefaultAccountDefinitionId,
+                    200);
+            }
+
+            boundUpkeepService.TryForceDue(claimId);
+            boundUpkeepService.TryPayUpkeep(claimId);
+            boundUpkeepService.TryForceDue(claimId);
+
+            if (boundBankingService != null
+                && boundBankingService.IsInitialized
+                && boundBankingService.ActiveProfile != null)
+            {
+                int bankBalance = boundBankingService.GetDefaultAccountBalance(
+                    CCS_BankingContentIds.DefaultPlayerOwnerId);
+                if (bankBalance > 0)
+                {
+                    boundBankingService.TryWithdraw(
+                        CCS_BankingContentIds.DefaultPlayerOwnerId,
+                        boundBankingService.ActiveProfile.DefaultAccountDefinitionId,
+                        bankBalance);
+                }
+            }
+
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 500, "Playtest upkeep wallet funds");
+            }
+
+            boundUpkeepService.TryPayUpkeep(claimId);
+            return true;
+        }
+
+        public bool TryPlaytestForceUpkeepDue()
+        {
+            if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
+            {
+                return false;
+            }
+
+            string claimId = ResolveFirstLandClaimInstanceId();
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                return false;
+            }
+
+            CCS_UpkeepTransactionResult result = boundUpkeepService.TryForceDue(claimId);
+            return result != null && result.IsSuccess;
+        }
+
+        public bool TryPlaytestPayUpkeep()
+        {
+            if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
+            {
+                return false;
+            }
+
+            string claimId = ResolveFirstLandClaimInstanceId();
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                return false;
+            }
+
+            CCS_UpkeepTransactionResult result = boundUpkeepService.TryPayUpkeep(claimId);
+            return result != null && result.IsSuccess;
         }
 
         public bool TryPlaytestLandOwnershipFoundationShortcut()

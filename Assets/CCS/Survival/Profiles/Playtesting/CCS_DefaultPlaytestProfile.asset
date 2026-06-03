@@ -1466,3 +1466,82 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.register
+    displayName: Register upkeep for land claim
+    stepType: 169
+    instructionText: 'Upkeep playtest: Register upkeep for land claim. Ctrl+Shift+U
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.force.due
+    displayName: Force upkeep due
+    stepType: 170
+    instructionText: 'Upkeep playtest: Force upkeep due. Ctrl+Shift+U shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.pay.bank
+    displayName: Pay upkeep from bank
+    stepType: 171
+    instructionText: 'Upkeep playtest: Pay upkeep from bank. Ctrl+Shift+U shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.verify.bank
+    displayName: Verify bank balance decreased after upkeep
+    stepType: 172
+    instructionText: 'Upkeep playtest: Verify bank balance decreased after upkeep.
+      Ctrl+Shift+U shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.force.due.again
+    displayName: Force upkeep due again
+    stepType: 173
+    instructionText: 'Upkeep playtest: Force upkeep due again. Ctrl+Shift+U shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.prepare.wallet
+    displayName: Empty bank or prepare wallet for upkeep
+    stepType: 174
+    instructionText: 'Upkeep playtest: Empty bank or prepare wallet for upkeep. Ctrl+Shift+U
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.pay.wallet
+    displayName: Pay upkeep from wallet
+    stepType: 175
+    instructionText: 'Upkeep playtest: Pay upkeep from wallet. Ctrl+Shift+U shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.save
+    displayName: Save upkeep state
+    stepType: 176
+    instructionText: 'Upkeep playtest: Save upkeep state. Ctrl+Shift+U shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.upkeep.verify.load
+    displayName: Verify upkeep restored after load
+    stepType: 177
+    instructionText: 'Upkeep playtest: Verify upkeep restored after load. Ctrl+Shift+U
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

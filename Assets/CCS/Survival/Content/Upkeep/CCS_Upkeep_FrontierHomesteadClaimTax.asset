@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09f9dc58b04bf6c4daeb379265f92aea, type: 3}
+  m_Name: CCS_Upkeep_FrontierHomesteadClaimTax
+  m_EditorClassIdentifier: CCS.Modules.Upkeep.Runtime::CCS.Modules.Upkeep.CCS_UpkeepDefinition
+  upkeepDefinitionId: ccs.survival.upkeep.land.frontierhomesteadtax
+  displayName: Frontier Homestead Claim Tax
+  targetType: 1
+  currencyId: ccs.survival.currency.tradedollars
+  amount: 25
+  intervalDaysPlaceholder: 7
+  gracePeriodDaysPlaceholder: 3
+  autoPayFromBank: 1
+  autoPayFromWallet: 1
+  enabled: 1

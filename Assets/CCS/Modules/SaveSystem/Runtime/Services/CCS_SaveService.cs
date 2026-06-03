@@ -12,6 +12,7 @@ using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
+using CCS.Modules.Upkeep;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -66,6 +67,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_FarmService farmService;
         private CCS_LandClaimService landClaimService;
         private CCS_BankingService bankingService;
+        private CCS_UpkeepService upkeepService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -149,6 +151,7 @@ namespace CCS.Modules.SaveSystem
             CCS_FarmService farming,
             CCS_LandClaimService landClaim,
             CCS_BankingService banking,
+            CCS_UpkeepService upkeep,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -174,6 +177,7 @@ namespace CCS.Modules.SaveSystem
             farmService = farming;
             landClaimService = landClaim;
             bankingService = banking;
+            upkeepService = upkeep;
             playerTransform = playerRoot;
         }
 
@@ -342,6 +346,7 @@ namespace CCS.Modules.SaveSystem
             CaptureFarming(saveData.farming);
             CaptureLand(saveData.land);
             CaptureBanking(saveData.banking);
+            CaptureUpkeep(saveData.upkeep);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -668,6 +673,7 @@ namespace CCS.Modules.SaveSystem
             ApplyFarming(saveData.farming);
             ApplyLand(saveData.land);
             ApplyBanking(saveData.banking);
+            ApplyUpkeep(saveData.upkeep);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1101,6 +1107,32 @@ namespace CCS.Modules.SaveSystem
             }
 
             bankingService.RestoreState(bankingData?.accounts);
+        }
+
+        private void CaptureUpkeep(CCS_SaveUpkeepWorldData upkeepData)
+        {
+            if (upkeepData == null)
+            {
+                return;
+            }
+
+            upkeepData.entries = upkeepService != null && upkeepService.IsInitialized
+                ? upkeepService.CaptureUpkeepState()
+                : Array.Empty<CCS_UpkeepEntry>();
+        }
+
+        private void ApplyUpkeep(CCS_SaveUpkeepWorldData upkeepData)
+        {
+            if (upkeepService == null || !upkeepService.IsInitialized)
+            {
+                return;
+            }
+
+            upkeepService.RestoreState(upkeepData?.entries);
+            if (landClaimService != null && landClaimService.IsInitialized)
+            {
+                upkeepService.ReconcileLandClaimEntries(landClaimService);
+            }
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

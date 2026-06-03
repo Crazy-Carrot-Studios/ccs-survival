@@ -4,6 +4,7 @@ using CCS.Modules.Mounts;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
+using CCS.Modules.Upkeep;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
@@ -76,7 +77,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveBankingWorldData banking = new CCS_SaveBankingWorldData();
 
+        public CCS_SaveUpkeepWorldData upkeep = new CCS_SaveUpkeepWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveUpkeepWorldData
+    {
+        public CCS_UpkeepEntry[] entries = Array.Empty<CCS_UpkeepEntry>();
     }
 
     [Serializable]

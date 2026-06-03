@@ -35,7 +35,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Ranching,
             CCS_PlaytestStepGroup.Farming,
             CCS_PlaytestStepGroup.LandOwnership,
-            CCS_PlaytestStepGroup.Banking
+            CCS_PlaytestStepGroup.Banking,
+            CCS_PlaytestStepGroup.Upkeep
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -87,6 +88,8 @@ namespace CCS.Modules.Playtesting
                     return "Land Ownership";
                 case CCS_PlaytestStepGroup.Banking:
                     return "Banking / Land Office";
+                case CCS_PlaytestStepGroup.Upkeep:
+                    return "Tax / Upkeep";
                 default:
                     return group.ToString();
             }
@@ -310,6 +313,17 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveBankState:
                 case CCS_PlaytestStepType.VerifyBankBalanceAfterLoad:
                     return CCS_PlaytestStepGroup.Banking;
+
+                case CCS_PlaytestStepType.RegisterUpkeepForLandClaim:
+                case CCS_PlaytestStepType.ForceUpkeepDue:
+                case CCS_PlaytestStepType.PayUpkeepFromBank:
+                case CCS_PlaytestStepType.VerifyUpkeepBankPayment:
+                case CCS_PlaytestStepType.ForceUpkeepDueAgain:
+                case CCS_PlaytestStepType.PrepareWalletUpkeepPayment:
+                case CCS_PlaytestStepType.PayUpkeepFromWallet:
+                case CCS_PlaytestStepType.SaveUpkeepState:
+                case CCS_PlaytestStepType.VerifyUpkeepAfterLoad:
+                    return CCS_PlaytestStepGroup.Upkeep;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

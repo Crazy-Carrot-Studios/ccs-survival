@@ -38,6 +38,7 @@ Prepare For Taxes / Loans / Expansion
 - Cannot deposit more than wallet balance.
 - Deposits remove currency from `CCS_CurrencyService` before increasing bank balance.
 - Withdrawals restore wallet through `CCS_CurrencyService` with rollback on failure.
+- **2.5.0:** `TryDebitForUpkeep` / `CanDebitForUpkeep` debit bank for upkeep only (no wallet credit).
 - No loans, taxes, interest, debt, or final bank UI in this milestone.
 
 ## Settlement Integration

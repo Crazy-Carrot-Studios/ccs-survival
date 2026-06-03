@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.4.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.5.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.5.0** — Tax and Upkeep Foundation
+
+Generic **Upkeep** module: recurring costs for land claims and future owned assets, Frontier Homestead Claim Tax definition, bank-then-wallet payment (no overdraft), save/load upkeep entries, Land Office debug HUD upkeep summary, and playtest harness steps. No debt, loans, foreclosure, or final tax UI yet.
+
+**Frontier Upkeep Loop:**
+
+```text
+Claim Land → Earn Money → Deposit Savings → Pay Claim Tax / Upkeep → Maintain Legal Frontier Presence
+```
 
 **2.4.0** — Banking and Land Office Foundation
 

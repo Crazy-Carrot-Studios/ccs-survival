@@ -9,7 +9,7 @@
 
 Generic land ownership framework for future homesteads, ranches, farms, towns, forts, mining claims, and rail camps. Players buy a claim deed, preview claim radius, confirm placement, and associate nearby placed structures with legal frontier presence.
 
-Not included in 2.3.0: full legal/tax systems, final deeds UI, final map UI, or multiplayer authority. **2.4.0** adds Land Office service point with owned-claim summary (no taxes or deed registry UI yet).
+Not included in 2.3.0: full legal/tax systems, final deeds UI, final map UI, or multiplayer authority. **2.4.0** adds Land Office service point with owned-claim summary. **2.5.0** registers Frontier Homestead Claim Tax upkeep on claim placement and restores entries on load via `CCS_UpkeepService`.
 
 ## Land claim loop
 

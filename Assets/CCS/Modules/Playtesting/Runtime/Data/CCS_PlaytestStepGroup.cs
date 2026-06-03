@@ -31,6 +31,7 @@ namespace CCS.Modules.Playtesting
         Ranching = 16,
         Farming = 17,
         LandOwnership = 18,
-        Banking = 19
+        Banking = 19,
+        Upkeep = 20
     }
 }

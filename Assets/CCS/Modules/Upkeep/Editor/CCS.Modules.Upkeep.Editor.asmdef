@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Modules.Upkeep.Editor",
+    "rootNamespace": "CCS.Modules.Upkeep.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Upkeep.Runtime",
+        "CCS.Modules.Banking.Runtime",
+        "CCS.Modules.Land.Runtime",
+        "CCS.Modules.Playtesting.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

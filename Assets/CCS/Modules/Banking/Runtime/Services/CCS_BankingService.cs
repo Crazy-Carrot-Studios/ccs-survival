@@ -338,6 +338,78 @@ namespace CCS.Modules.Banking
             return GetBalance(ownerId, activeProfile.DefaultAccountDefinitionId);
         }
 
+        public bool CanDebitForUpkeep(string ownerId, string accountDefinitionId, int amount)
+        {
+            if (amount <= 0)
+            {
+                return true;
+            }
+
+            string resolvedOwnerId = ResolveOwnerId(ownerId);
+            if (!TryResolveAccountDefinition(accountDefinitionId, out CCS_BankAccountDefinition definition))
+            {
+                return false;
+            }
+
+            string accountId = BuildAccountId(resolvedOwnerId, definition.AccountDefinitionId);
+            return accountsById.TryGetValue(accountId, out BankAccountInstance account)
+                && account.State == CCS_BankAccountState.Open
+                && account.Balance >= amount;
+        }
+
+        public CCS_BankTransactionResult TryDebitForUpkeep(
+            string ownerId,
+            string accountDefinitionId,
+            int amount,
+            string reason)
+        {
+            CCS_BankTransactionResult openResult = EnsureOpenAccount(ownerId, accountDefinitionId, out BankAccountInstance account);
+            if (!openResult.IsSuccess)
+            {
+                return openResult;
+            }
+
+            if (amount <= 0)
+            {
+                return Failure(
+                    CCS_BankTransactionResultType.InvalidAmount,
+                    account.AccountId,
+                    account.OwnerId,
+                    account.CurrencyId,
+                    "Upkeep debit amount must be greater than zero.");
+            }
+
+            if (account.Balance < amount)
+            {
+                return Failure(
+                    CCS_BankTransactionResultType.InsufficientBankFunds,
+                    account.AccountId,
+                    account.OwnerId,
+                    account.CurrencyId,
+                    "Bank balance is too low for upkeep payment.");
+            }
+
+            account.Balance -= amount;
+            RecordTransaction(
+                account,
+                -amount,
+                "UpkeepDebit",
+                reason ?? "Upkeep payment",
+                $"Upkeep debit {amount} {account.CurrencyId}");
+
+            int walletBalance = GetWalletBalance(account.CurrencyId);
+            CCS_BankTransactionResult result = CCS_BankTransactionResult.Success(
+                account.AccountId,
+                account.OwnerId,
+                account.CurrencyId,
+                amount,
+                walletBalance,
+                account.Balance,
+                $"Debited {amount} from bank for upkeep.");
+            NotifyTransactionCompleted(result);
+            return result;
+        }
+
         public int GetOwnedLandClaimCount()
         {
             return landClaimService != null && landClaimService.IsInitialized

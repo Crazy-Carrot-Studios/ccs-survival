@@ -114,6 +114,7 @@ MonoBehaviour:
   farmingProfile: {fileID: 11400000, guid: 6bda70d317d8ec84a802036cf164159e, type: 2}
   landClaimProfile: {fileID: 11400000, guid: 978546651d27c014d8c9c18504fa0733, type: 2}
   bankAccountProfile: {fileID: 11400000, guid: 8f6307548da04754d98ec3b7fd077887, type: 2}
+  upkeepProfile: {fileID: 11400000, guid: a77699c1a920fd74fa5259a38514b7c7, type: 2}
   vehicleProfile: {fileID: 11400000, guid: e93c7630801e52940bc961137885e18a, type: 2}
   firearmProfile: {fileID: 11400000, guid: 5078f293ac94aca40870b24d0aa07d75, type: 2}
   settlementProfile: {fileID: 11400000, guid: 24f1e76a3fd09ed4d8cdfffa292d1b57, type: 2}

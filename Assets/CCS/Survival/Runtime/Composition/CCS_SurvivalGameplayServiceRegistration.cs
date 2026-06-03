@@ -31,6 +31,7 @@ using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
+using CCS.Modules.Upkeep;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -96,6 +97,7 @@ namespace CCS.Survival.Composition
             CCS_CropProfile farmingProfile,
             CCS_LandClaimProfile landClaimProfile,
             CCS_BankAccountProfile bankAccountProfile,
+            CCS_UpkeepProfile upkeepProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
@@ -464,6 +466,13 @@ namespace CCS.Survival.Composition
                 currencyService,
                 landClaimService);
             RegisterService(runtimeHost, bankingService, enableDebugLogs);
+            CCS_UpkeepService upkeepService = CreateUpkeepService(
+                upkeepProfile,
+                currencyService,
+                bankingService,
+                timeOfDayService);
+            RegisterService(runtimeHost, upkeepService, enableDebugLogs);
+            WireUpkeepLandClaimIntegration(upkeepService, landClaimService);
             CCS_VendorService vendorService = CreateVendorService(economyProfile, currencyService, inventoryService);
             RegisterService(runtimeHost, vendorService, enableDebugLogs);
 
@@ -538,6 +547,7 @@ namespace CCS.Survival.Composition
                 farmService,
                 landClaimService,
                 bankingService,
+                upkeepService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -586,7 +596,8 @@ namespace CCS.Survival.Composition
                     ranchService,
                     farmService,
                     landClaimService,
-                    bankingService);
+                    bankingService,
+                    upkeepService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1338,6 +1349,120 @@ namespace CCS.Survival.Composition
 
             CCS_BankingRuntimeBridge.Register(service);
             return service;
+        }
+
+        private static CCS_UpkeepService CreateUpkeepService(
+            CCS_UpkeepProfile upkeepProfile,
+            CCS_CurrencyService currencyService,
+            CCS_BankingService bankingService,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            CCS_UpkeepService service = new CCS_UpkeepService();
+            service.Initialize();
+
+            if (upkeepProfile != null)
+            {
+                service.InitializeFromProfile(upkeepProfile);
+            }
+
+            if (currencyService != null && currencyService.IsInitialized)
+            {
+                service.BindCurrencyService(currencyService);
+            }
+
+            if (bankingService != null && bankingService.IsInitialized)
+            {
+                service.BindBankingService(bankingService);
+            }
+
+            if (timeOfDayService != null && timeOfDayService.IsInitialized)
+            {
+                service.BindCurrentDayProvider(() => timeOfDayService.CreateSnapshot().DayNumber);
+            }
+
+            CCS_UpkeepRuntimeBridge.Register(service);
+            WireUpkeepLandOfficeHud(service);
+            return service;
+        }
+
+        private static void WireUpkeepLandOfficeHud(CCS_UpkeepService service)
+        {
+            if (service == null)
+            {
+                return;
+            }
+
+            CCS_BankingDebugHud.BindUpkeepHandlers(
+                (string targetId, out string statusLabel, out int amountDue) =>
+                {
+                    statusLabel = "no entry";
+                    amountDue = 0;
+                    if (!service.TryGetEntryForTarget(targetId, out CCS_UpkeepEntry entry) || entry == null)
+                    {
+                        return false;
+                    }
+
+                    statusLabel = ((CCS_UpkeepState)entry.status).ToString();
+                    amountDue = entry.amountDue;
+                    return true;
+                },
+                (string targetId, out string summary) =>
+                {
+                    summary = string.Empty;
+                    if (string.IsNullOrWhiteSpace(targetId))
+                    {
+                        summary = "Pay upkeep failed: no nearby land claim selected.";
+                        return false;
+                    }
+
+                    CCS_UpkeepTransactionResult result = service.TryPayUpkeep(targetId);
+                    if (result == null)
+                    {
+                        summary = "Pay upkeep failed: null result.";
+                        return false;
+                    }
+
+                    summary =
+                        $"Upkeep: {result.ResultType} | state {result.EntryState} | amount {result.Amount} | "
+                        + $"source {result.PaymentSource} | {result.Message}";
+                    return result.IsSuccess;
+                });
+
+            service.UpkeepTransactionCompleted += result =>
+            {
+                if (result == null)
+                {
+                    CCS_BankingDebugHud.NotifyUpkeepSummary("Last upkeep: null result");
+                    return;
+                }
+
+                CCS_BankingDebugHud.NotifyUpkeepSummary(
+                    $"Upkeep: {result.ResultType} | state {result.EntryState} | amount {result.Amount} | "
+                    + $"source {result.PaymentSource} | {result.Message}");
+            };
+        }
+
+        private static void WireUpkeepLandClaimIntegration(
+            CCS_UpkeepService upkeepService,
+            CCS_LandClaimService landClaimService)
+        {
+            if (upkeepService == null
+                || !upkeepService.IsInitialized
+                || landClaimService == null
+                || !landClaimService.IsInitialized)
+            {
+                return;
+            }
+
+            landClaimService.LandClaimPlaced += claim =>
+            {
+                if (claim != null)
+                {
+                    upkeepService.TryRegisterLandClaimUpkeep(claim);
+                }
+            };
+
+            upkeepService.ReconcileLandClaimEntries(landClaimService);
         }
 
         private static void WireLandClaimStructureIntegration(

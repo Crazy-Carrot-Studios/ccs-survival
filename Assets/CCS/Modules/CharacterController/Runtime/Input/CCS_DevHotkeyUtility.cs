@@ -90,7 +90,9 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_PlayerActiveItemDriver", KeyCode.R),
             new DevHotkeyBinding("CCS_VendorDebugHud", KeyCode.Escape),
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.D, requiresShift: true, allowShared: true),
-            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.W, requiresShift: true, allowShared: true)
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.W, requiresShift: true, allowShared: true),
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.T, requiresShift: true, allowShared: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.U, requiresControl: true, requiresShift: true)
         };
 
         public static IReadOnlyList<DevHotkeyBinding> GetKnownBindings()
@@ -212,6 +214,11 @@ namespace CCS.Modules.CharacterController
         public static bool WasBankWithdrawPressed()
         {
             return WasShiftPressed(KeyCode.W);
+        }
+
+        public static bool WasUpkeepPayPressed()
+        {
+            return WasShiftPressed(KeyCode.T);
         }
     }
 }

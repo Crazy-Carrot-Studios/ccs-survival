@@ -180,6 +180,15 @@ namespace CCS.Modules.Playtesting
         VerifyBankWithdrawBalances = 165,
         VerifyLandOfficeOwnedClaims = 166,
         SaveBankState = 167,
-        VerifyBankBalanceAfterLoad = 168
+        VerifyBankBalanceAfterLoad = 168,
+        RegisterUpkeepForLandClaim = 169,
+        ForceUpkeepDue = 170,
+        PayUpkeepFromBank = 171,
+        VerifyUpkeepBankPayment = 172,
+        ForceUpkeepDueAgain = 173,
+        PrepareWalletUpkeepPayment = 174,
+        PayUpkeepFromWallet = 175,
+        SaveUpkeepState = 176,
+        VerifyUpkeepAfterLoad = 177
     }
 }

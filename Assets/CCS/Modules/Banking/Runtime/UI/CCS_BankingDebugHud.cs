@@ -30,6 +30,18 @@ namespace CCS.Modules.Banking
         private static string s_servicePointLabel = string.Empty;
         private static string s_lastTransactionSummary = "Last transaction: none";
         private static string s_landOfficeSummary = "Land office: inactive";
+        private static string s_lastUpkeepSummary = "Last upkeep: none";
+        private static string s_nearbyClaimId = string.Empty;
+
+        public delegate bool UpkeepPayHandler(string targetId, out string summary);
+
+        public delegate bool UpkeepSummaryHandler(
+            string targetId,
+            out string statusLabel,
+            out int amountDue);
+
+        private static UpkeepPayHandler s_upkeepPayHandler;
+        private static UpkeepSummaryHandler s_upkeepSummaryHandler;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureInstance()
@@ -79,6 +91,22 @@ namespace CCS.Modules.Banking
                 + $"bank {result.BankBalanceAfter} | {result.Message}";
         }
 
+        public static void NotifyUpkeepSummary(string summary)
+        {
+            s_lastUpkeepSummary = string.IsNullOrWhiteSpace(summary)
+                ? "Last upkeep: none"
+                : summary;
+            RefreshLandOfficeSummary(ResolvePlayerPosition(), includeNearbyClaim: true);
+        }
+
+        public static void BindUpkeepHandlers(
+            UpkeepSummaryHandler summaryHandler,
+            UpkeepPayHandler payHandler)
+        {
+            s_upkeepSummaryHandler = summaryHandler;
+            s_upkeepPayHandler = payHandler;
+        }
+
         private void Update()
         {
             if (s_panelMode == PanelMode.Hidden)
@@ -104,6 +132,11 @@ namespace CCS.Modules.Banking
             if (s_panelMode == PanelMode.LandOffice)
             {
                 RefreshLandOfficeSummary(ResolvePlayerPosition(), includeNearbyClaim: true);
+
+                if (CCS_DevHotkeyUtility.WasUpkeepPayPressed())
+                {
+                    TryPayNearbyUpkeep();
+                }
             }
         }
 
@@ -115,7 +148,7 @@ namespace CCS.Modules.Banking
             }
 
             const float width = 440f;
-            float height = s_panelMode == PanelMode.LandOffice ? 360f : 300f;
+            float height = s_panelMode == PanelMode.LandOffice ? 420f : 300f;
             Rect panel = new Rect(20f, Screen.height - height - 20f, width, height);
             GUI.Box(panel, GUIContent.none);
             GUILayout.BeginArea(new Rect(panel.x + 10f, panel.y + 10f, panel.width - 20f, panel.height - 20f));
@@ -125,14 +158,24 @@ namespace CCS.Modules.Banking
             DrawBalances();
             GUILayout.Label(s_lastTransactionSummary, GUILayout.MaxHeight(48f));
             GUILayout.Space(4f);
-            GUILayout.Label("Hotkeys: Shift+D deposit | Shift+W withdraw | Esc close");
+            string hotkeys = s_panelMode == PanelMode.LandOffice
+                ? "Hotkeys: Shift+D deposit | Shift+W withdraw | Shift+T pay upkeep | Esc close"
+                : "Hotkeys: Shift+D deposit | Shift+W withdraw | Esc close";
+            GUILayout.Label(hotkeys);
 
             if (s_panelMode == PanelMode.LandOffice)
             {
                 GUILayout.Space(6f);
                 GUILayout.Label("Land Office Summary");
-                GUILayout.Label(s_landOfficeSummary, GUILayout.MaxHeight(72f));
-                GUILayout.Label("Future: deed registry, tax ledger, mortgage filings (placeholders).");
+                GUILayout.Label(s_landOfficeSummary, GUILayout.MaxHeight(96f));
+                GUILayout.Label(s_lastUpkeepSummary, GUILayout.MaxHeight(48f));
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Pay Upkeep (nearby claim)"))
+                {
+                    TryPayNearbyUpkeep();
+                }
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.BeginHorizontal();
@@ -219,24 +262,57 @@ namespace CCS.Modules.Banking
             NotifyTransactionResult(result);
         }
 
+        private static void TryPayNearbyUpkeep()
+        {
+            if (string.IsNullOrWhiteSpace(s_nearbyClaimId))
+            {
+                s_lastUpkeepSummary = "Pay upkeep failed: no nearby land claim selected.";
+                return;
+            }
+
+            if (!s_upkeepPayHandler(
+                    s_nearbyClaimId,
+                    out string summary))
+            {
+                s_lastUpkeepSummary = string.IsNullOrWhiteSpace(summary)
+                    ? "Pay upkeep failed: no nearby land claim selected."
+                    : summary;
+                return;
+            }
+
+            s_lastUpkeepSummary = summary;
+        }
+
         private static void RefreshLandOfficeSummary(Vector3 worldPosition, bool includeNearbyClaim)
         {
             if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
                 || !bankingService.IsInitialized)
             {
                 s_landOfficeSummary = "Land office unavailable: banking service missing.";
+                s_nearbyClaimId = string.Empty;
                 return;
             }
 
             int claimCount = bankingService.GetOwnedLandClaimCount();
-            string nearbyClaimId = includeNearbyClaim
+            s_nearbyClaimId = includeNearbyClaim
                 ? bankingService.TryResolveNearbyLandClaimId(worldPosition)
                 : string.Empty;
-            string nearbyLabel = string.IsNullOrWhiteSpace(nearbyClaimId)
+            string nearbyLabel = string.IsNullOrWhiteSpace(s_nearbyClaimId)
                 ? "none nearby"
-                : nearbyClaimId;
+                : s_nearbyClaimId;
+
+            string upkeepStatus = "no entry";
+            int amountDue = 0;
+            if (!string.IsNullOrWhiteSpace(s_nearbyClaimId)
+                && s_upkeepSummaryHandler != null
+                && s_upkeepSummaryHandler(s_nearbyClaimId, out string statusLabel, out amountDue))
+            {
+                upkeepStatus = statusLabel;
+            }
+
             s_landOfficeSummary =
-                $"Owned claims: {claimCount}\nNearby claim id: {nearbyLabel}\nDeed registry: placeholder\nTax ledger: placeholder";
+                $"Owned claims: {claimCount}\nNearby claim id: {nearbyLabel}\n"
+                + $"Upkeep status: {upkeepStatus}\nAmount due: {amountDue}";
         }
 
         private static Vector3 ResolvePlayerPosition()

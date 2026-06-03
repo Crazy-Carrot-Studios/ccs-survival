@@ -287,6 +287,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestBankingFoundationShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.U))
+            {
+                playtestService.TryPlaytestUpkeepFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.W))
             {
                 playtestService.TryPlaytestGrantWagonCurrency();
