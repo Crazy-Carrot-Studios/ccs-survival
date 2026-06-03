@@ -498,7 +498,7 @@ namespace CCS.Modules.SaveLoad.Editor
             }
 
             SerializedObject serializedHarness = new SerializedObject(harness);
-            serializedHarness.FindProperty("enableHarness").boolValue = true;
+            serializedHarness.FindProperty("enableHarness").boolValue = false;
             serializedHarness.FindProperty("checkIntervalSeconds").floatValue = 2f;
             serializedHarness.FindProperty("campfireKitItem").objectReferenceValue = campfireKitItem;
             serializedHarness.FindProperty("campfireKitEquipment").objectReferenceValue = campfireKitEquipment;

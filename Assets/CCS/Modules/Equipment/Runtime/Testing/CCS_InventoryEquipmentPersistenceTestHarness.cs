@@ -11,6 +11,7 @@ using UnityEngine;
 // AUTHOR: James Schilz (Developer)
 // CREATED: 2026-05-28
 // NOTES: Logs pass/fail results. Uses manual save/load debug slot persistence_test.
+//        Milestone 2.1.2 — waiting-state logs emit once until state changes.
 // =============================================================================
 
 namespace CCS.Modules.Equipment
@@ -21,11 +22,24 @@ namespace CCS.Modules.Equipment
         private const string LogPrefix = "[CCS_InventoryEquipmentPersistenceTestHarness]";
         private const string PersistenceTestSlotId = "persistence_test";
 
+        private enum HarnessWaitingState
+        {
+            None = 0,
+            WaitingForServices = 1,
+            WaitingForCampfireKit = 2,
+            WaitingToEquip = 3,
+            WaitingForSave = 4,
+            WaitingForLoad = 5
+        }
+
         #region Variables
 
         [Header("Development Testing")]
         [Tooltip("When enabled, the harness runs harvest/craft/equip/save/load verification.")]
         [SerializeField] private bool enableHarness = false;
+
+        [Tooltip("When true, repeats waiting-state diagnostics after the check interval.")]
+        [SerializeField] private bool verboseWaitingLogs = false;
 
         [Tooltip("Seconds between harness state checks.")]
         [SerializeField] private float checkIntervalSeconds = 2f;
@@ -44,6 +58,7 @@ namespace CCS.Modules.Equipment
         private bool baselineCaptured;
         private int baselineCampfireKitQuantity;
         private bool baselineCampfireEquipped;
+        private HarnessWaitingState lastLoggedWaitingState = HarnessWaitingState.None;
 
         #endregion
 
@@ -78,8 +93,13 @@ namespace CCS.Modules.Equipment
                     out CCS_SaveLoadService saveLoadService,
                     out CCS_SaveLoadDebugController debugController))
             {
+                LogWaitingStateOnce(
+                    HarnessWaitingState.WaitingForServices,
+                    "Waiting for inventory, equipment, crafting, save/load services.");
                 return;
             }
+
+            ClearWaitingStateIfResolved(HarnessWaitingState.WaitingForServices);
 
             if (campfireKitItem == null || campfireKitEquipment == null)
             {
@@ -89,21 +109,32 @@ namespace CCS.Modules.Equipment
 
             if (!inventoryService.HasItem(campfireKitItem, 1))
             {
-                Debug.Log($"{LogPrefix} Waiting for crafted campfire kit in inventory.");
+                LogWaitingStateOnce(
+                    HarnessWaitingState.WaitingForCampfireKit,
+                    "Waiting for crafted campfire kit in inventory.");
                 return;
             }
+
+            ClearWaitingStateIfResolved(HarnessWaitingState.WaitingForCampfireKit);
 
             if (!equipmentService.IsSlotOccupied(campfireKitEquipment.AllowedSlot))
             {
                 bool equipSucceeded = equipmentService.EquipItem(campfireKitEquipment);
-                Debug.Log(equipSucceeded
-                    ? $"{LogPrefix} Equipped test campfire kit equipment."
-                    : $"{LogPrefix} Waiting to equip test campfire kit equipment.");
-                if (!equipSucceeded)
+                if (equipSucceeded)
                 {
+                    ClearWaitingStateIfResolved(HarnessWaitingState.WaitingToEquip);
+                    Debug.Log($"{LogPrefix} Equipped test campfire kit equipment.");
+                }
+                else
+                {
+                    LogWaitingStateOnce(
+                        HarnessWaitingState.WaitingToEquip,
+                        "Waiting to equip test campfire kit equipment.");
                     return;
                 }
             }
+
+            ClearWaitingStateIfResolved(HarnessWaitingState.WaitingToEquip);
 
             if (!baselineCaptured)
             {
@@ -195,6 +226,25 @@ namespace CCS.Modules.Equipment
             }
 
             return debugController != null && debugController.EnableDebugControls;
+        }
+
+        private void LogWaitingStateOnce(HarnessWaitingState waitingState, string message)
+        {
+            if (!verboseWaitingLogs && lastLoggedWaitingState == waitingState)
+            {
+                return;
+            }
+
+            lastLoggedWaitingState = waitingState;
+            Debug.Log($"{LogPrefix} {message}");
+        }
+
+        private void ClearWaitingStateIfResolved(HarnessWaitingState resolvedState)
+        {
+            if (lastLoggedWaitingState == resolvedState)
+            {
+                lastLoggedWaitingState = HarnessWaitingState.None;
+            }
         }
 
         #endregion

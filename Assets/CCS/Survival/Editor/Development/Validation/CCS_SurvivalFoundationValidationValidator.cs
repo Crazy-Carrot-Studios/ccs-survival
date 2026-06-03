@@ -59,6 +59,7 @@ namespace CCS.Survival.Editor.Development
             ValidateProjectVersion(report);
             ValidateInputAndObsoleteApiStandards(report);
             ValidateBootstrapScenePlayerIntegration(report);
+            ValidateBootstrapSceneOrganization(report);
             CCS_BootstrapSceneValidationUtility.ValidatePlayableGround(report);
 
             report.AddIssue(
@@ -291,6 +292,64 @@ namespace CCS.Survival.Editor.Development
                         "Bootstrap Gameplay Services",
                         "Bootstrap root is missing character controller profile assignment.");
                 }
+            }
+        }
+
+        private static void ValidateBootstrapSceneOrganization(CCS_SurvivalValidationReport report)
+        {
+            const string bootstrapScenePath = SurvivalRoot + "/Scenes/SCN_CCS_Survival_Bootstrap.unity";
+            if (!File.Exists(bootstrapScenePath))
+            {
+                return;
+            }
+
+            string sceneText = File.ReadAllText(bootstrapScenePath);
+            string[] requiredZones =
+            {
+                "CCS_BootstrapZone_PlayerSpawn",
+                "CCS_BootstrapZone_Resources",
+                "CCS_BootstrapZone_TradingPost",
+                "CCS_BootstrapZone_Homestead",
+                "CCS_BootstrapZone_Industry",
+                "CCS_BootstrapZone_Ranching",
+                "CCS_BootstrapZone_HorseWagon",
+                "CCS_BootstrapZone_Firearms",
+                "CCS_BootstrapZone_Regions",
+                "CCS_BootstrapZone_DevHarnesses"
+            };
+
+            for (int i = 0; i < requiredZones.Length; i++)
+            {
+                string zoneName = requiredZones[i];
+                if (sceneText.Contains(zoneName))
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Info,
+                        "Bootstrap Scene Organization",
+                        $"Bootstrap zone present: {zoneName}.");
+                }
+                else
+                {
+                    report.AddIssue(
+                        CCS_SurvivalValidationIssueSeverity.Error,
+                        "Bootstrap Scene Organization",
+                        $"Missing bootstrap zone: {zoneName}. Run CCS_BootstrapScenePolishSetup.ExecuteBatch.");
+                }
+            }
+
+            if (sceneText.Contains("CCS_BootstrapZoneLabel"))
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Info,
+                    "Bootstrap Scene Organization",
+                    "Bootstrap zone labels use CCS_BootstrapZoneLabel.");
+            }
+            else
+            {
+                report.AddIssue(
+                    CCS_SurvivalValidationIssueSeverity.Warning,
+                    "Bootstrap Scene Organization",
+                    "Bootstrap zone labels missing. Run CCS_BootstrapScenePolishSetup.ExecuteBatch.");
             }
         }
 
