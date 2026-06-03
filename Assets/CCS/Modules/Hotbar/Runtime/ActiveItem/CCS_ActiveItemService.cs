@@ -46,6 +46,7 @@ namespace CCS.Modules.Hotbar
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierRanchPlacementHandler;
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierFarmPlotPlacementHandler;
         private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierFarmSeedHandler;
+        private System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> frontierLandClaimPlacementHandler;
         private CCS_ActiveItemState activeState = CCS_ActiveItemState.Empty;
         private CCS_ActiveItemUseResult lastUseResult;
         private float lastUseTime = -999f;
@@ -198,6 +199,12 @@ namespace CCS.Modules.Hotbar
             System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
         {
             frontierFarmSeedHandler = handler;
+        }
+
+        public void BindFrontierLandClaimPlacementHandler(
+            System.Func<CCS_ItemDefinition, CCS_ActiveItemUseRequest, CCS_ActiveItemUseResult> handler)
+        {
+            frontierLandClaimPlacementHandler = handler;
         }
 
         public void UnbindEquipmentService()
@@ -597,6 +604,17 @@ namespace CCS.Modules.Hotbar
                 if (storageResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
                 {
                     return storageResult;
+                }
+            }
+
+            if (frontierLandClaimPlacementHandler != null)
+            {
+                CCS_ActiveItemUseResult landClaimResult = frontierLandClaimPlacementHandler.Invoke(
+                    state.ItemDefinition,
+                    request);
+                if (landClaimResult.ResultType != CCS_ActiveItemUseResultType.NoBehaviorRegistered)
+                {
+                    return landClaimResult;
                 }
             }
 

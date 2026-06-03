@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 2.2.0 — General Store sells farm plot kit and crop seeds; buys harvested corn, beans, potatoes, and wheat for world simulation Food supply.
+**Latest:** 2.3.0 — General Store sells Homestead Claim Deed for frontier land ownership foundation.
+
+**2.2.0** — General Store sells farm plot kit and crop seeds; buys harvested corn, beans, potatoes, and wheat for world simulation Food supply.
 
 **2.1.0** — General Store and Stable sell livestock, feed, and ranch structure kits; General Store buys eggs and milk for world simulation Food supply.
 
@@ -117,6 +119,16 @@ Buy Seeds → Place Farm Plot → Plant → Grow → Harvest → Sell → Settle
 ```
 
 See `Assets/CCS/Modules/Farming/Documentation/CCS_Farming_Module.md`.
+
+### Land ownership trade (2.3.0)
+
+General Store **sells:** Homestead Claim Deed.
+
+```text
+Earn Money → Buy Homestead Claim Deed → Claim Land → Build Inside Claim
+```
+
+See `Assets/CCS/Modules/Land/Documentation/CCS_Land_Module.md`.
 
 ## Item values
 

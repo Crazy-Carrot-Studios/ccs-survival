@@ -67,6 +67,7 @@ Corn and wheat are tagged **`isFutureLivestockFeed`** for future ranch integrati
 - **Economy:** General Store sells kit + seeds; buys harvest crops
 - **World Simulation:** harvest item IDs route to **Food** supply (same path as ranch eggs/milk)
 - **Save:** `CCS_SaveData.farming.plots[]` via `CCS_FarmPlotSnapshot` + nested `CCS_CropSnapshot`
+- **Land (2.3.0):** farm plots inside a claim radius associate via `CCS_LandClaimService` composition hooks
 - **Playtest:** Farming HUD group; Ctrl+Shift+P shortcut; 10 playtest steps
 
 ---

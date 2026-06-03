@@ -39,6 +39,7 @@
         "CCS.Modules.WorldSimulation.Runtime",
         "CCS.Modules.Ranching.Runtime",
         "CCS.Modules.Farming.Runtime",
+        "CCS.Modules.Land.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

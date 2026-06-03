@@ -1331,3 +1331,57 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.buy.deed
+    displayName: Buy homestead claim deed
+    stepType: 154
+    instructionText: 'Land ownership playtest: Buy homestead claim deed. Ctrl+Shift+L
+      shortcuts available.'
+    targetItemId: ccs.survival.land.item.homesteadclaimdeed
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.place.claim
+    displayName: Place land claim
+    stepType: 155
+    instructionText: 'Land ownership playtest: Place land claim. Ctrl+Shift+L shortcuts
+      available.'
+    targetItemId: ccs.survival.land.item.homesteadclaimdeed
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.place.structure
+    displayName: Place farm plot inside claim
+    stepType: 156
+    instructionText: 'Land ownership playtest: Place farm plot inside claim. Ctrl+Shift+L
+      shortcuts available.'
+    targetItemId: ccs.survival.farming.item.farmplotkit
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.verify.association
+    displayName: Verify structure associated with claim
+    stepType: 157
+    instructionText: 'Land ownership playtest: Verify structure associated with claim.
+      Ctrl+Shift+L shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.save
+    displayName: Save land claim state
+    stepType: 158
+    instructionText: 'Land ownership playtest: Save land claim state. Ctrl+Shift+L
+      shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.land.verify.load
+    displayName: Verify land claim restored after load
+    stepType: 159
+    instructionText: 'Land ownership playtest: Verify land claim restored after load.
+      Ctrl+Shift+L shortcuts available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

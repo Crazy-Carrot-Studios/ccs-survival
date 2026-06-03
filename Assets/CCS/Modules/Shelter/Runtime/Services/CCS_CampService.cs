@@ -16,6 +16,7 @@ namespace CCS.Modules.Shelter
         private Func<Vector3, float, bool> storageProximityQuery;
         private Func<Vector3, float, bool> mountPresenceQuery;
         private Func<Vector3, float, bool> ranchStructureProximityQuery;
+        private Func<Vector3, string> landClaimIdQuery;
         private CCS_BuildingService buildingService;
         private Func<Vector3, float, bool> bedrollProximityQuery;
         private CCS_ShelterService shelterService;
@@ -68,6 +69,12 @@ namespace CCS.Modules.Shelter
         public void BindRanchStructureProximityQuery(Func<Vector3, float, bool> query)
         {
             ranchStructureProximityQuery = query;
+            RecalculateCamp();
+        }
+
+        public void BindLandClaimQuery(Func<Vector3, string> query)
+        {
+            landClaimIdQuery = query;
             RecalculateCamp();
         }
 
@@ -204,6 +211,9 @@ namespace CCS.Modules.Shelter
             savedState.campCenterX = campCenter.x;
             savedState.campCenterY = campCenter.y;
             savedState.campCenterZ = campCenter.z;
+            savedState.landClaimId = landClaimIdQuery != null
+                ? landClaimIdQuery.Invoke(campCenter) ?? string.Empty
+                : savedState.landClaimId ?? string.Empty;
             savedState.structuresPresent = structuresPresent.ToArray();
 
             currentSnapshot = new CCS_CampSnapshot(
@@ -221,6 +231,7 @@ namespace CCS.Modules.Shelter
                 savedState.campCreationTimeUtcTicks,
                 campCenter,
                 structuresPresent,
+                savedState.landClaimId,
                 BuildTierMessage(tier));
         }
 

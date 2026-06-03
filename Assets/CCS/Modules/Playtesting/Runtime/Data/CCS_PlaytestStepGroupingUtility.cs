@@ -33,7 +33,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Region,
             CCS_PlaytestStepGroup.WorldSimulation,
             CCS_PlaytestStepGroup.Ranching,
-            CCS_PlaytestStepGroup.Farming
+            CCS_PlaytestStepGroup.Farming,
+            CCS_PlaytestStepGroup.LandOwnership
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -81,6 +82,8 @@ namespace CCS.Modules.Playtesting
                     return "Ranching";
                 case CCS_PlaytestStepGroup.Farming:
                     return "Farming";
+                case CCS_PlaytestStepGroup.LandOwnership:
+                    return "Land Ownership";
                 default:
                     return group.ToString();
             }
@@ -285,6 +288,14 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveFarmState:
                 case CCS_PlaytestStepType.VerifyFarmStateAfterLoad:
                     return CCS_PlaytestStepGroup.Farming;
+
+                case CCS_PlaytestStepType.BuyHomesteadClaimDeed:
+                case CCS_PlaytestStepType.PlaceLandClaim:
+                case CCS_PlaytestStepType.PlaceStructureInsideClaim:
+                case CCS_PlaytestStepType.VerifyStructureAssociatedWithClaim:
+                case CCS_PlaytestStepType.SaveLandClaimState:
+                case CCS_PlaytestStepType.VerifyLandClaimAfterLoad:
+                    return CCS_PlaytestStepGroup.LandOwnership;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

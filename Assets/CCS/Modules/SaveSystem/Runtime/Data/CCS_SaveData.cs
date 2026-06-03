@@ -2,6 +2,7 @@ using System;
 using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Farming;
+using CCS.Modules.Land;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
@@ -70,7 +71,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveFarmingWorldData farming = new CCS_SaveFarmingWorldData();
 
+        public CCS_SaveLandWorldData land = new CCS_SaveLandWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveLandWorldData
+    {
+        public CCS_LandClaimSnapshot[] claims = Array.Empty<CCS_LandClaimSnapshot>();
     }
 
     [Serializable]
@@ -179,6 +188,7 @@ namespace CCS.Modules.SaveSystem
         public bool hasCharcoalKiln;
         public bool hasPrimitiveForge;
         public long campCreationTimeUtcTicks;
+        public string landClaimId = string.Empty;
         public string[] structuresPresent = Array.Empty<string>();
     }
 

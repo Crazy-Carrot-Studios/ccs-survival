@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.Land.Editor",
+    "rootNamespace": "CCS.Modules.Land.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Land.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Farming.Runtime",
+        "CCS.Modules.Playtesting.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

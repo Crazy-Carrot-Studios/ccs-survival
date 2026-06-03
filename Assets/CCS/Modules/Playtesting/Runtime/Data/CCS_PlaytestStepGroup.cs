@@ -29,6 +29,7 @@ namespace CCS.Modules.Playtesting
         Region = 14,
         WorldSimulation = 15,
         Ranching = 16,
-        Farming = 17
+        Farming = 17,
+        LandOwnership = 18
     }
 }

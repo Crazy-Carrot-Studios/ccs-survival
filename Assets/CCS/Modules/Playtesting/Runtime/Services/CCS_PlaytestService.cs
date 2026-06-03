@@ -21,6 +21,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
+using CCS.Modules.Land;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -78,6 +79,7 @@ namespace CCS.Modules.Playtesting
         private const string FarmPlotKitItemId = CCS_FarmingContentIds.FarmPlotKitItemId;
         private const string CornSeedItemId = CCS_FarmingContentIds.CornSeedItemId;
         private const string CornHarvestItemId = CCS_FarmingContentIds.CornHarvestItemId;
+        private const string HomesteadClaimDeedItemId = CCS_LandContentIds.HomesteadClaimDeedItemId;
         private const string FrontierWagonItemId = CCS_VehicleContentIds.FrontierWagonItemId;
         private const string FrontierGunsmithVendorId = CCS_FirearmContentIds.FrontierGunsmithVendorId;
         private const string FrontierRevolverItemId = CCS_FirearmContentIds.FrontierRevolverItemId;
@@ -162,6 +164,7 @@ namespace CCS.Modules.Playtesting
         private CCS_WorldSimulationService boundWorldSimulationService;
         private CCS_RanchService boundRanchService;
         private CCS_FarmService boundFarmService;
+        private CCS_LandClaimService boundLandClaimService;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -172,6 +175,8 @@ namespace CCS.Modules.Playtesting
         private int savedRanchLivestockCount;
         private int savedRanchStructureCount;
         private int savedFarmPlotCount;
+        private int savedLandClaimCount;
+        private int savedLandAssociationCount;
 
         #endregion
 
@@ -250,7 +255,8 @@ namespace CCS.Modules.Playtesting
             CCS_RegionService regionService = null,
             CCS_WorldSimulationService worldSimulationService = null,
             CCS_RanchService ranchService = null,
-            CCS_FarmService farmService = null)
+            CCS_FarmService farmService = null,
+            CCS_LandClaimService landClaimService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -286,6 +292,7 @@ namespace CCS.Modules.Playtesting
             boundWorldSimulationService = worldSimulationService;
             boundRanchService = ranchService;
             boundFarmService = farmService;
+            boundLandClaimService = landClaimService;
 
             if (boundWorldSimulationService != null)
             {
@@ -322,6 +329,12 @@ namespace CCS.Modules.Playtesting
                 boundFarmService.FarmPlotPlaced += HandleFarmPlotPlaced;
                 boundFarmService.CropPlanted += HandleCropPlanted;
                 boundFarmService.CropHarvested += HandleCropHarvested;
+            }
+
+            if (boundLandClaimService != null)
+            {
+                boundLandClaimService.LandClaimPlaced += HandleLandClaimPlaced;
+                boundLandClaimService.StructureAssociated += HandleLandStructureAssociated;
             }
 
             if (boundVehicleService != null)
@@ -578,6 +591,12 @@ namespace CCS.Modules.Playtesting
                 boundFarmService.CropHarvested -= HandleCropHarvested;
             }
 
+            if (boundLandClaimService != null)
+            {
+                boundLandClaimService.LandClaimPlaced -= HandleLandClaimPlaced;
+                boundLandClaimService.StructureAssociated -= HandleLandStructureAssociated;
+            }
+
             if (boundVehicleService != null)
             {
                 boundVehicleService.VehicleStateChanged -= HandleVehicleStateChanged;
@@ -592,6 +611,7 @@ namespace CCS.Modules.Playtesting
             boundWorldSimulationService = null;
             boundRanchService = null;
             boundFarmService = null;
+            boundLandClaimService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1068,6 +1088,18 @@ namespace CCS.Modules.Playtesting
                         "Farm plot state saved.");
                 }
 
+                if (boundLandClaimService != null && boundLandClaimService.IsInitialized)
+                {
+                    savedLandClaimCount = boundLandClaimService.GetClaimCount();
+                    savedLandAssociationCount = savedLandClaimCount > 0
+                        ? boundLandClaimService.GetAssociatedStructureCount(
+                            ResolveFirstLandClaimInstanceId())
+                        : 0;
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveLandClaimState,
+                        "Land claim state saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1131,6 +1163,41 @@ namespace CCS.Modules.Playtesting
                 EvaluateWorldSimulationAfterLoad();
                 EvaluateRanchStateAfterLoad();
                 EvaluateFarmStateAfterLoad();
+                EvaluateLandClaimStateAfterLoad();
+            }
+        }
+
+        private string ResolveFirstLandClaimInstanceId()
+        {
+            if (boundLandClaimService == null || !boundLandClaimService.IsInitialized)
+            {
+                return string.Empty;
+            }
+
+            CCS_LandClaimSnapshot[] snapshots = boundLandClaimService.CaptureClaimState();
+            return snapshots != null && snapshots.Length > 0 ? snapshots[0].instanceId : string.Empty;
+        }
+
+        private void EvaluateLandClaimStateAfterLoad()
+        {
+            if (boundLandClaimService == null
+                || !boundLandClaimService.IsInitialized
+                || savedLandClaimCount <= 0)
+            {
+                return;
+            }
+
+            if (boundLandClaimService.GetClaimCount() >= savedLandClaimCount)
+            {
+                string claimId = ResolveFirstLandClaimInstanceId();
+                bool associationsRestored = savedLandAssociationCount <= 0
+                    || boundLandClaimService.GetAssociatedStructureCount(claimId) >= savedLandAssociationCount;
+                if (associationsRestored)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyLandClaimAfterLoad,
+                        "Land claim and structure associations restored after load.");
+                }
             }
         }
 
@@ -3238,6 +3305,13 @@ namespace CCS.Modules.Playtesting
                     "Sold crop at general store.");
             }
 
+            if (!result.WasSell && result.ItemId == HomesteadClaimDeedItemId)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BuyHomesteadClaimDeed,
+                    "Homestead claim deed purchased from general store.");
+            }
+
             if (result.WasSell && IsWorldSimulationFoodItem(result.ItemId))
             {
                 TryCompleteActiveStepOfType(
@@ -4101,6 +4175,39 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.PlaceFarmPlot,
                 $"{plot.Definition.DisplayName} placed.");
+
+            if (boundLandClaimService != null
+                && boundLandClaimService.IsInitialized
+                && boundLandClaimService.HasAssociatedStructure(plot.InstanceId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.PlaceStructureInsideClaim,
+                    "Farm plot placed inside land claim.");
+            }
+        }
+
+        private void HandleLandClaimPlaced(CCS_LandClaimInstance claim)
+        {
+            if (claim?.Definition == null)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.PlaceLandClaim,
+                $"{claim.Definition.DisplayName} placed.");
+        }
+
+        private void HandleLandStructureAssociated(CCS_LandClaimInstance claim, string structureInstanceId)
+        {
+            if (claim == null || string.IsNullOrWhiteSpace(structureInstanceId))
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.VerifyStructureAssociatedWithClaim,
+                $"Structure {structureInstanceId} associated with land claim.");
         }
 
         private void HandleCropPlanted(CCS_FarmPlotInstance plot)
@@ -4288,6 +4395,24 @@ namespace CCS.Modules.Playtesting
             }
 
             return boundFarmService.TryHarvestNearestMaturePlot();
+        }
+
+        public bool TryPlaytestBuyHomesteadClaimDeed()
+        {
+            return TryPlaytestBuyItemById(HomesteadClaimDeedItemId);
+        }
+
+        public bool TryPlaytestLandOwnershipFoundationShortcut()
+        {
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 2000, "Playtest land ownership foundation funds");
+            }
+
+            GrantPlaytestItem(HomesteadClaimDeedItemId, 1);
+            GrantPlaytestItem(FarmPlotKitItemId, 1);
+            TryPlaytestBuyHomesteadClaimDeed();
+            return true;
         }
 
         public bool TryPlaytestFarmingFoundationShortcut()

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69cef022857d27f4380f45c511dae807, type: 3}
+  m_Name: CCS_LandClaim_FrontierHomestead
+  m_EditorClassIdentifier: CCS.Modules.Land.Runtime::CCS.Modules.Land.CCS_LandClaimDefinition
+  claimDefinitionId: ccs.survival.land.claim.frontierhomestead
+  displayName: Frontier Homestead Claim
+  claimRadius: 14
+  maxStructuresPlaceholder: 32
+  allowedStructureKinds:
+  - shelter
+  - campfire
+  - bedroll
+  - storage
+  - workbench
+  - industry
+  - ranch
+  - farmplot
+  registrationCost: 250
+  optionalRegionId: 
+  claimDeedItem: {fileID: 11400000, guid: 5e93b1a48f3891b4bac2ee6e9243a62e, type: 2}
+  placementForwardDistance: 2
+  placementMaxGroundRayDistance: 12
+  placementMaxSlopeAngle: 30
+  minimumClaimSeparation: 4
+  previewColor: {r: 0.35, g: 0.65, b: 0.95, a: 0.35}
+  placedColor: {r: 0.25, g: 0.55, b: 0.85, a: 0.25}

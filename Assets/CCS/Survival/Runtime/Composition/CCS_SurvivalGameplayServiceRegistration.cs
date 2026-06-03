@@ -29,6 +29,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
+using CCS.Modules.Land;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
@@ -92,6 +93,7 @@ namespace CCS.Survival.Composition
             CCS_MountProfile mountProfile,
             CCS_LivestockProfile livestockProfile,
             CCS_CropProfile farmingProfile,
+            CCS_LandClaimProfile landClaimProfile,
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
@@ -326,6 +328,17 @@ namespace CCS.Survival.Composition
             CCS_FarmService farmService = CreateFarmService(runtimeHost, farmingProfile, inventoryService, campService);
             RegisterService(runtimeHost, farmService, enableDebugLogs);
 
+            CCS_LandClaimService landClaimService = CreateLandClaimService(
+                runtimeHost,
+                landClaimProfile,
+                inventoryService);
+            RegisterService(runtimeHost, landClaimService, enableDebugLogs);
+            WireLandClaimStructureIntegration(
+                landClaimService,
+                farmService,
+                ranchService,
+                frontierShelterService);
+
             CCS_VehicleService vehicleService = CreateVehicleService(
                 runtimeHost,
                 vehicleProfile,
@@ -379,10 +392,26 @@ namespace CCS.Survival.Composition
                     campService.BindRanchStructureProximityQuery(
                         (origin, radius) => ranchService.HasCampContributingStructureInRadius(origin, radius));
                 }
+
+                if (landClaimService != null && landClaimService.IsInitialized)
+                {
+                    campService.BindLandClaimQuery(
+                        origin => landClaimService.TryResolveClaimIdContainingPosition(origin));
+                }
             }
 
             if (activeItemService != null && activeItemService.IsInitialized)
             {
+                if (landClaimService != null && landClaimService.IsInitialized)
+                {
+                    activeItemService.BindFrontierLandClaimPlacementHandler(
+                        (itemDefinition, placementRequest) =>
+                            TryHandleFrontierLandClaimPlacement(
+                                landClaimService,
+                                itemDefinition,
+                                placementRequest));
+                }
+
                 if (frontierStoragePlacementService.IsInitialized)
                 {
                     activeItemService.BindFrontierStoragePlacementHandler(
@@ -436,6 +465,11 @@ namespace CCS.Survival.Composition
 
             CCS_RegionService regionService = CreateRegionService(regionProfile);
             RegisterService(runtimeHost, regionService, enableDebugLogs);
+
+            if (landClaimService != null && landClaimService.IsInitialized && regionService.IsInitialized)
+            {
+                landClaimService.BindRegionResolver(_ => regionService.CurrentRegionId);
+            }
 
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
@@ -495,6 +529,7 @@ namespace CCS.Survival.Composition
                 worldSimulationService,
                 ranchService,
                 farmService,
+                landClaimService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -541,7 +576,8 @@ namespace CCS.Survival.Composition
                     regionService,
                     worldSimulationService,
                     ranchService,
-                    farmService);
+                    farmService,
+                    landClaimService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -1242,6 +1278,210 @@ namespace CCS.Survival.Composition
             return new CCS_ActiveItemUseResult(
                 CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
                 $"Planted {itemDefinition.DisplayName}.",
+                true,
+                itemDefinition.ItemId);
+        }
+
+        private static CCS_LandClaimService CreateLandClaimService(
+            CCS_RuntimeHost runtimeHost,
+            CCS_LandClaimProfile landClaimProfile,
+            CCS_PlayerInventoryService inventoryService)
+        {
+            CCS_LandClaimService service = new CCS_LandClaimService();
+            service.Initialize();
+
+            if (landClaimProfile != null)
+            {
+                service.InitializeFromProfile(landClaimProfile);
+            }
+
+            if (inventoryService != null && inventoryService.IsInitialized)
+            {
+                service.BindInventoryService(inventoryService);
+            }
+
+            CCS_LandClaimRuntimeBridge.Register(service);
+            return service;
+        }
+
+        private static void WireLandClaimStructureIntegration(
+            CCS_LandClaimService landClaimService,
+            CCS_FarmService farmService,
+            CCS_RanchService ranchService,
+            CCS_FrontierShelterService frontierShelterService)
+        {
+            if (landClaimService == null || !landClaimService.IsInitialized)
+            {
+                return;
+            }
+
+            landClaimService.BindStructureScanProvider(() =>
+            {
+                System.Collections.Generic.List<CCS_LandClaimService.StructureRegistration> registrations =
+                    new System.Collections.Generic.List<CCS_LandClaimService.StructureRegistration>();
+
+                if (farmService != null && farmService.IsInitialized)
+                {
+                    CCS_FarmPlotSnapshot[] plots = farmService.CapturePlotState();
+                    for (int index = 0; index < plots.Length; index++)
+                    {
+                        CCS_FarmPlotSnapshot plot = plots[index];
+                        if (plot == null)
+                        {
+                            continue;
+                        }
+
+                        registrations.Add(new CCS_LandClaimService.StructureRegistration(
+                            plot.instanceId,
+                            new Vector3(plot.positionX, plot.positionY, plot.positionZ),
+                            plot.campOwnerId,
+                            CCS_LandClaimStructureKind.FarmPlot));
+                    }
+                }
+
+                if (ranchService != null && ranchService.IsInitialized)
+                {
+                    CCS_RanchStructureSnapshot[] structures = ranchService.CaptureStructureState();
+                    for (int index = 0; index < structures.Length; index++)
+                    {
+                        CCS_RanchStructureSnapshot structure = structures[index];
+                        if (structure == null)
+                        {
+                            continue;
+                        }
+
+                        registrations.Add(new CCS_LandClaimService.StructureRegistration(
+                            structure.instanceId,
+                            new Vector3(structure.positionX, structure.positionY, structure.positionZ),
+                            structure.campOwnerId,
+                            CCS_LandClaimStructureKind.RanchStructure));
+                    }
+                }
+
+                if (frontierShelterService != null && frontierShelterService.IsInitialized)
+                {
+                    CCS_FrontierShelterInstanceSaveState[] shelters = frontierShelterService.CaptureWorldState();
+                    for (int index = 0; index < shelters.Length; index++)
+                    {
+                        CCS_FrontierShelterInstanceSaveState shelter = shelters[index];
+                        if (shelter == null)
+                        {
+                            continue;
+                        }
+
+                        registrations.Add(new CCS_LandClaimService.StructureRegistration(
+                            shelter.InstanceId,
+                            shelter.Position,
+                            shelter.CampOwnerId,
+                            CCS_LandClaimStructureKind.Shelter));
+                    }
+                }
+
+                return registrations;
+            });
+
+            if (farmService != null && farmService.IsInitialized)
+            {
+                farmService.FarmPlotPlaced += plot =>
+                {
+                    if (plot == null)
+                    {
+                        return;
+                    }
+
+                    landClaimService.TryAssociateStructure(
+                        plot.InstanceId,
+                        plot.WorldPosition,
+                        plot.CampOwnerId,
+                        CCS_LandClaimStructureKind.FarmPlot);
+                };
+            }
+
+            if (ranchService != null && ranchService.IsInitialized)
+            {
+                ranchService.RanchStructurePlaced += structure =>
+                {
+                    if (structure == null)
+                    {
+                        return;
+                    }
+
+                    landClaimService.TryAssociateStructure(
+                        structure.InstanceId,
+                        structure.WorldPosition,
+                        CCS_LandContentIds.DefaultCampOwnerId,
+                        CCS_LandClaimStructureKind.RanchStructure);
+                };
+            }
+
+            if (frontierShelterService != null && frontierShelterService.IsInitialized)
+            {
+                frontierShelterService.ShelterPlaced += shelter =>
+                {
+                    if (shelter == null)
+                    {
+                        return;
+                    }
+
+                    landClaimService.TryAssociateStructure(
+                        shelter.InstanceId,
+                        shelter.WorldPosition,
+                        CCS_LandContentIds.DefaultCampOwnerId,
+                        CCS_LandClaimStructureKind.Shelter);
+                };
+            }
+        }
+
+        private static CCS_ActiveItemUseResult TryHandleFrontierLandClaimPlacement(
+            CCS_LandClaimService landClaimService,
+            CCS_ItemDefinition itemDefinition,
+            CCS_ActiveItemUseRequest request)
+        {
+            if (landClaimService == null
+                || !landClaimService.IsInitialized
+                || itemDefinition == null
+                || !landClaimService.TryResolveClaimDefinitionForDeedItem(
+                    itemDefinition,
+                    out CCS_LandClaimDefinition claimDefinition))
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.NoBehaviorRegistered,
+                    "Item is not a supported land claim deed.",
+                    true,
+                    itemDefinition?.ItemId ?? string.Empty);
+            }
+
+            bool confirmPlacement = landClaimService.IsPlacementModeActive;
+            CCS_LandClaimPlacementRequest placementRequest = new CCS_LandClaimPlacementRequest(
+                claimDefinition.ClaimDefinitionId,
+                request.UseOrigin,
+                request.UseDirection,
+                confirmPlacement);
+
+            CCS_LandClaimPlacementResult placementResult = landClaimService.HandlePlacementRequest(placementRequest);
+            if (!placementResult.IsSuccess)
+            {
+                return new CCS_ActiveItemUseResult(
+                    CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            if (placementResult.IsPreview)
+            {
+                return new CCS_ActiveItemUseResult(
+                    placementResult.IsValid
+                        ? CCS_ActiveItemUseResultType.HomesteadStructurePlacementPreview
+                        : CCS_ActiveItemUseResultType.HomesteadStructurePlacementFailed,
+                    placementResult.Message,
+                    true,
+                    itemDefinition.ItemId);
+            }
+
+            return new CCS_ActiveItemUseResult(
+                CCS_ActiveItemUseResultType.HomesteadStructurePlaced,
+                placementResult.Message,
                 true,
                 itemDefinition.ItemId);
         }

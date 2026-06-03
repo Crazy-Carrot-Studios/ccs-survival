@@ -63,6 +63,7 @@ Increase Settlement Food Supply
 | World Simulation | Egg and milk vendor sells map to settlement Food supply |
 | Camp | Ranch structures with `contributesToCampTier` register Livestock camp presence |
 | Save | `CCS_SaveRanchingWorldData` persists livestock and structure snapshots |
+| Land (2.3.0) | Ranch structures inside claim radius associate via `CCS_LandClaimService` hooks |
 | Active Item | `BindFrontierRanchPlacementHandler` routes ranch kit placement without Hotbar→Ranching asmdef dependency |
 | Playtest | Steps 135–143 cover buy → place → assign → produce → collect → sell → food supply → save/load |
 

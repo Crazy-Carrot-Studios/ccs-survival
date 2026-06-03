@@ -30,6 +30,7 @@ namespace CCS.Modules.Shelter
             long campCreationTimeUtcTicks,
             Vector3 campCenter,
             IReadOnlyList<string> structuresPresent,
+            string landClaimId,
             string message)
         {
             CampTier = campTier;
@@ -46,6 +47,7 @@ namespace CCS.Modules.Shelter
             CampCreationTimeUtcTicks = campCreationTimeUtcTicks;
             CampCenter = campCenter;
             StructuresPresent = structuresPresent ?? Array.Empty<string>();
+            LandClaimId = landClaimId ?? string.Empty;
             Message = message ?? string.Empty;
         }
 
@@ -85,6 +87,8 @@ namespace CCS.Modules.Shelter
 
         public IReadOnlyList<string> StructuresPresent { get; }
 
+        public string LandClaimId { get; }
+
         public string Message { get; }
 
         public static CCS_CampSnapshot Empty { get; } = new CCS_CampSnapshot(
@@ -102,6 +106,7 @@ namespace CCS.Modules.Shelter
             0L,
             Vector3.zero,
             Array.Empty<string>(),
+            string.Empty,
             "No camp.");
     }
 }

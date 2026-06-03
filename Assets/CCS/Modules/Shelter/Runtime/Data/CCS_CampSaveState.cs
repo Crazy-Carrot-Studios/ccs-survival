@@ -19,6 +19,7 @@ namespace CCS.Modules.Shelter
         public bool hasSawTable;
         public bool hasCharcoalKiln;
         public bool hasPrimitiveForge;
+        public string landClaimId = string.Empty;
         public string[] structuresPresent = Array.Empty<string>();
     }
 }

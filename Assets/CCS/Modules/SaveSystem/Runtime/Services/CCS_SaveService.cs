@@ -10,6 +10,7 @@ using CCS.Modules.Industry;
 using CCS.Modules.Mounts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
+using CCS.Modules.Land;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -62,6 +63,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_WorldSimulationService worldSimulationService;
         private CCS_RanchService ranchService;
         private CCS_FarmService farmService;
+        private CCS_LandClaimService landClaimService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -143,6 +145,7 @@ namespace CCS.Modules.SaveSystem
             CCS_WorldSimulationService worldSimulation,
             CCS_RanchService ranching,
             CCS_FarmService farming,
+            CCS_LandClaimService landClaim,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -166,6 +169,7 @@ namespace CCS.Modules.SaveSystem
             worldSimulationService = worldSimulation;
             ranchService = ranching;
             farmService = farming;
+            landClaimService = landClaim;
             playerTransform = playerRoot;
         }
 
@@ -332,6 +336,7 @@ namespace CCS.Modules.SaveSystem
             CaptureWorldSimulation(saveData.worldSimulation);
             CaptureRanching(saveData.ranching);
             CaptureFarming(saveData.farming);
+            CaptureLand(saveData.land);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -656,6 +661,7 @@ namespace CCS.Modules.SaveSystem
             ApplyWorldSimulation(saveData.worldSimulation);
             ApplyRanching(saveData.ranching);
             ApplyFarming(saveData.farming);
+            ApplyLand(saveData.land);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -904,6 +910,7 @@ namespace CCS.Modules.SaveSystem
                     hasCharcoalKiln = state.hasCharcoalKiln,
                     hasPrimitiveForge = state.hasPrimitiveForge,
                     campCreationTimeUtcTicks = state.campCreationTimeUtcTicks,
+                    landClaimId = state.landClaimId ?? string.Empty,
                     structuresPresent = state.structuresPresent ?? Array.Empty<string>()
                 };
             }
@@ -1044,6 +1051,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             farmService.RestoreState(farmingData?.plots);
+        }
+
+        private void CaptureLand(CCS_SaveLandWorldData landData)
+        {
+            if (landData == null)
+            {
+                return;
+            }
+
+            landData.claims = landClaimService != null && landClaimService.IsInitialized
+                ? landClaimService.CaptureClaimState()
+                : Array.Empty<CCS_LandClaimSnapshot>();
+        }
+
+        private void ApplyLand(CCS_SaveLandWorldData landData)
+        {
+            if (landClaimService == null || !landClaimService.IsInitialized)
+            {
+                return;
+            }
+
+            landClaimService.RestoreState(landData?.claims);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)
@@ -1320,6 +1349,7 @@ namespace CCS.Modules.SaveSystem
                     hasCharcoalKiln = campData.campState.hasCharcoalKiln,
                     hasPrimitiveForge = campData.campState.hasPrimitiveForge,
                     campCreationTimeUtcTicks = campData.campState.campCreationTimeUtcTicks,
+                    landClaimId = campData.campState.landClaimId,
                     structuresPresent = campData.campState.structuresPresent ?? Array.Empty<string>()
                 });
             }

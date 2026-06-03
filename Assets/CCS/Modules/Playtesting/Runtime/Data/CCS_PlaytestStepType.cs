@@ -165,6 +165,12 @@ namespace CCS.Modules.Playtesting
         SellCrop = 150,
         VerifyFarmFoodSupplyIncreased = 151,
         SaveFarmState = 152,
-        VerifyFarmStateAfterLoad = 153
+        VerifyFarmStateAfterLoad = 153,
+        BuyHomesteadClaimDeed = 154,
+        PlaceLandClaim = 155,
+        PlaceStructureInsideClaim = 156,
+        VerifyStructureAssociatedWithClaim = 157,
+        SaveLandClaimState = 158,
+        VerifyLandClaimAfterLoad = 159
     }
 }

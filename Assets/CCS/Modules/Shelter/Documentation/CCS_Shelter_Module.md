@@ -5,7 +5,7 @@
 **Namespace:** `CCS.Modules.Shelter` (editor: `CCS.Modules.Shelter.Editor`)  
 **Author:** James Schilz (Developer)  
 **Date:** 2026-05-31  
-**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters, homestead tier progression, storage, workbench, and industry workstation camp contributions (1.5.0).
+**Status:** Trigger volumes plus building contribution coverage (max protection within radius). Frontier placeable shelters, homestead tier progression, storage, workbench, and industry workstation camp contributions (1.5.0). **2.3.0:** `CCS_CampService` records `landClaimId` when camp center falls inside a placed land claim.
 
 ---
 
