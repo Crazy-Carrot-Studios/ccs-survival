@@ -92,6 +92,7 @@ namespace CCS.Modules.SaveSystem
     public sealed class CCS_SaveBankingWorldData
     {
         public CCS_BankAccountSnapshot[] accounts = Array.Empty<CCS_BankAccountSnapshot>();
+        public CCS_LoanSnapshot[] loans = Array.Empty<CCS_LoanSnapshot>();
     }
 
     [Serializable]

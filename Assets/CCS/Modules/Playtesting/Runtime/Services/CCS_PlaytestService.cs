@@ -176,6 +176,9 @@ namespace CCS.Modules.Playtesting
         private int savedBankBalance;
         private int savedUpkeepLastPaidDay;
         private int savedUpkeepEntryCount;
+        private int playtestLoanWalletBaseline;
+        private int savedLoanState;
+        private int savedLoanBalance;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -355,6 +358,7 @@ namespace CCS.Modules.Playtesting
             if (boundBankingService != null)
             {
                 boundBankingService.BankTransactionCompleted += HandleBankTransactionCompleted;
+                boundBankingService.LoanTransactionCompleted += HandleLoanTransactionCompleted;
             }
 
             if (boundUpkeepService != null)
@@ -625,6 +629,7 @@ namespace CCS.Modules.Playtesting
             if (boundBankingService != null)
             {
                 boundBankingService.BankTransactionCompleted -= HandleBankTransactionCompleted;
+                boundBankingService.LoanTransactionCompleted -= HandleLoanTransactionCompleted;
             }
 
             if (boundUpkeepService != null)
@@ -1161,6 +1166,40 @@ namespace CCS.Modules.Playtesting
                         "Upkeep state saved.");
                 }
 
+                if (boundBankingService != null && boundBankingService.IsInitialized)
+                {
+                    CCS_LoanSnapshot activeLoan = boundBankingService.GetActiveLoan(
+                        CCS_BankingContentIds.DefaultPlayerOwnerId,
+                        CCS_BankingContentIds.FrontierSmallLoanDefinitionId);
+                    if (activeLoan != null)
+                    {
+                        savedLoanState = activeLoan.loanState;
+                        savedLoanBalance = activeLoan.balance;
+                    }
+                    else
+                    {
+                        CCS_LoanSnapshot[] loanSnapshots = boundBankingService.CaptureLoanState();
+                        for (int loanIndex = 0; loanIndex < loanSnapshots.Length; loanIndex++)
+                        {
+                            CCS_LoanSnapshot snapshot = loanSnapshots[loanIndex];
+                            if (snapshot != null
+                                && string.Equals(
+                                    snapshot.loanDefinitionId,
+                                    CCS_BankingContentIds.FrontierSmallLoanDefinitionId,
+                                    System.StringComparison.OrdinalIgnoreCase))
+                            {
+                                savedLoanState = snapshot.loanState;
+                                savedLoanBalance = snapshot.balance;
+                                break;
+                            }
+                        }
+                    }
+
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveLoanState,
+                        "Loan state saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1227,6 +1266,40 @@ namespace CCS.Modules.Playtesting
                 EvaluateLandClaimStateAfterLoad();
                 EvaluateBankBalanceAfterLoad();
                 EvaluateUpkeepAfterLoad();
+                EvaluateLoanAfterLoad();
+            }
+        }
+
+        private void EvaluateLoanAfterLoad()
+        {
+            if (boundBankingService == null
+                || !boundBankingService.IsInitialized
+                || savedLoanState <= 0)
+            {
+                return;
+            }
+
+            CCS_LoanSnapshot[] loanSnapshots = boundBankingService.CaptureLoanState();
+            for (int index = 0; index < loanSnapshots.Length; index++)
+            {
+                CCS_LoanSnapshot snapshot = loanSnapshots[index];
+                if (snapshot == null
+                    || !string.Equals(
+                        snapshot.loanDefinitionId,
+                        CCS_BankingContentIds.FrontierSmallLoanDefinitionId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (snapshot.loanState == savedLoanState && snapshot.balance == savedLoanBalance)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyLoanAfterLoad,
+                        "Loan state restored after load.");
+                }
+
+                return;
             }
         }
 
@@ -1295,6 +1368,9 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.DepositBankCurrency,
                     "Deposited trade dollars to bank account.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DepositPartOfLoan,
+                    "Deposited part of loan proceeds.");
                 if (result.WalletBalanceAfter == playtestBankWalletBaseline - result.Amount
                     && result.BankBalanceAfter == playtestBankBalanceBaseline + result.Amount)
                 {
@@ -1334,6 +1410,48 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.PrepareWalletUpkeepPayment,
                         "Bank emptied or reduced for wallet upkeep payment.");
                 }
+            }
+        }
+
+        private void HandleLoanTransactionCompleted(CCS_LoanTransactionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (result.Message.Contains("Opened loan", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.BorrowSmallLoan,
+                    "Borrowed frontier small loan.");
+                if (result.WalletBalanceAfter >= playtestLoanWalletBaseline + result.Amount)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyWalletIncreasedAfterLoan,
+                        "Wallet increased after borrowing loan.");
+                }
+
+                playtestLoanWalletBaseline = result.WalletBalanceAfter;
+                playtestBankWalletBaseline = result.WalletBalanceAfter;
+                playtestBankBalanceBaseline = result.BankBalanceAfter;
+                return;
+            }
+
+            if (result.Message.Contains("Repaid loan", System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.RepayBankLoan,
+                    "Repaid frontier small loan.");
+                if (result.LoanStateAfter == CCS_LoanState.Paid)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyLoanPaid,
+                        "Loan state is paid.");
+                }
+
+                playtestBankWalletBaseline = result.WalletBalanceAfter;
+                playtestBankBalanceBaseline = result.BankBalanceAfter;
             }
         }
 
@@ -4737,6 +4855,39 @@ namespace CCS.Modules.Playtesting
             }
 
             boundUpkeepService.TryPayUpkeep(claimId);
+            return true;
+        }
+
+        public bool TryPlaytestLoansFoundationShortcut()
+        {
+            TryPlaytestBankingFoundationShortcut();
+
+            if (boundBankingService == null
+                || !boundBankingService.IsInitialized
+                || boundBankingService.ActiveLoanProfile == null)
+            {
+                return false;
+            }
+
+            playtestLoanWalletBaseline = boundCurrencyService != null && boundCurrencyService.IsInitialized
+                ? boundCurrencyService.GetBalance(TradeDollarsCurrencyId)
+                : 0;
+
+            boundBankingService.TryOpenLoan(
+                CCS_BankingContentIds.DefaultPlayerOwnerId,
+                boundBankingService.ActiveLoanProfile.DefaultLoanDefinitionId);
+
+            if (boundBankingService.ActiveProfile != null)
+            {
+                boundBankingService.TryDeposit(
+                    CCS_BankingContentIds.DefaultPlayerOwnerId,
+                    boundBankingService.ActiveProfile.DefaultAccountDefinitionId,
+                    100);
+            }
+
+            boundBankingService.TryRepayLoan(
+                CCS_BankingContentIds.DefaultPlayerOwnerId,
+                boundBankingService.ActiveLoanProfile.DefaultLoanDefinitionId);
             return true;
         }
 

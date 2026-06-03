@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.5.1-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.6.0** — Loans and Debt Foundation
+
+Generic **loan/debt** extension on the Banking module: `CCS_LoanDefinition`, `CCS_LoanProfile`, borrow/repay through `CCS_BankingService`, Frontier Small Loan content (500 principal / 550 repayment Trade Dollars), bank-then-wallet repayment, save/load loan snapshots, Bank debug HUD loan panel with **Shift+L** / **Shift+P** hotkeys, and playtest harness steps. No compound interest, foreclosure, credit score, final bank UI, or NPC bankers yet.
+
+**Frontier Loan Loop:**
+
+```text
+Need Capital → Borrow From Bank → Buy Supplies / Expand Claim → Earn Income → Repay Loan
+```
 
 **2.5.1** — Upkeep Release Cleanup
 
@@ -316,8 +326,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **2.4.0** |
-| Output | `Builds/CCS_Survival_2.4.0_Windows/` (gitignored) |
+| Version | **2.6.0** |
+| Output | `Builds/CCS_Survival_2.6.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

@@ -1097,6 +1097,9 @@ namespace CCS.Modules.SaveSystem
             bankingData.accounts = bankingService != null && bankingService.IsInitialized
                 ? bankingService.CaptureBankingState()
                 : Array.Empty<CCS_BankAccountSnapshot>();
+            bankingData.loans = bankingService != null && bankingService.IsInitialized
+                ? bankingService.CaptureLoanState()
+                : Array.Empty<CCS_LoanSnapshot>();
         }
 
         private void ApplyBanking(CCS_SaveBankingWorldData bankingData)
@@ -1107,6 +1110,7 @@ namespace CCS.Modules.SaveSystem
             }
 
             bankingService.RestoreState(bankingData?.accounts);
+            bankingService.RestoreLoanState(bankingData?.loans);
         }
 
         private void CaptureUpkeep(CCS_SaveUpkeepWorldData upkeepData)

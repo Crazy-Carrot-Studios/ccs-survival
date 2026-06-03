@@ -29,6 +29,8 @@ namespace CCS.Modules.Banking
         private static PanelMode s_panelMode = PanelMode.Hidden;
         private static string s_servicePointLabel = string.Empty;
         private static string s_lastTransactionSummary = "Last transaction: none";
+        private static string s_lastLoanTransactionSummary = "Last loan: none";
+        private static string s_loanSummary = "Loan: none";
         private static string s_landOfficeSummary = "Land office: inactive";
         private static string s_lastUpkeepSummary = "Last upkeep: none";
         private static string s_nearbyClaimId = string.Empty;
@@ -61,6 +63,7 @@ namespace CCS.Modules.Banking
             s_panelMode = PanelMode.Bank;
             s_servicePointLabel = servicePointLabel ?? "Bank";
             EnsureOpenDefaultAccount();
+            RefreshLoanSummary();
             RefreshLandOfficeSummary(Vector3.zero, includeNearbyClaim: false);
         }
 
@@ -89,6 +92,22 @@ namespace CCS.Modules.Banking
             s_lastTransactionSummary =
                 $"Last: {result.ResultType} | amount {result.Amount} | wallet {result.WalletBalanceAfter} | "
                 + $"bank {result.BankBalanceAfter} | {result.Message}";
+            RefreshLoanSummary();
+        }
+
+        public static void NotifyLoanTransactionResult(CCS_LoanTransactionResult result)
+        {
+            if (result == null)
+            {
+                s_lastLoanTransactionSummary = "Last loan: null result";
+                return;
+            }
+
+            s_lastLoanTransactionSummary =
+                $"Last loan: {result.ResultType} | amount {result.Amount} | wallet {result.WalletBalanceAfter} | "
+                + $"bank {result.BankBalanceAfter} | balance {result.LoanBalanceAfter} | "
+                + $"state {result.LoanStateAfter} | {result.Message}";
+            RefreshLoanSummary();
         }
 
         public static void NotifyUpkeepSummary(string summary)
@@ -129,6 +148,20 @@ namespace CCS.Modules.Banking
                 TryWithdraw(DefaultTransactionAmount);
             }
 
+            if (s_panelMode == PanelMode.Bank)
+            {
+                RefreshLoanSummary();
+
+                if (CCS_DevHotkeyUtility.WasBankBorrowLoanPressed())
+                {
+                    TryBorrowDefaultLoan();
+                }
+                else if (CCS_DevHotkeyUtility.WasBankRepayLoanPressed())
+                {
+                    TryRepayDefaultLoan();
+                }
+            }
+
             if (s_panelMode == PanelMode.LandOffice)
             {
                 RefreshLandOfficeSummary(ResolvePlayerPosition(), includeNearbyClaim: true);
@@ -148,7 +181,7 @@ namespace CCS.Modules.Banking
             }
 
             const float width = 440f;
-            float height = s_panelMode == PanelMode.LandOffice ? 420f : 300f;
+            float height = s_panelMode == PanelMode.LandOffice ? 420f : 380f;
             Rect panel = new Rect(20f, Screen.height - height - 20f, width, height);
             GUI.Box(panel, GUIContent.none);
             GUILayout.BeginArea(new Rect(panel.x + 10f, panel.y + 10f, panel.width - 20f, panel.height - 20f));
@@ -157,10 +190,15 @@ namespace CCS.Modules.Banking
             GUILayout.Label($"{modeLabel}: {s_servicePointLabel}");
             DrawBalances();
             GUILayout.Label(s_lastTransactionSummary, GUILayout.MaxHeight(48f));
+            if (s_panelMode == PanelMode.Bank)
+            {
+                GUILayout.Label(s_loanSummary, GUILayout.MaxHeight(72f));
+                GUILayout.Label(s_lastLoanTransactionSummary, GUILayout.MaxHeight(48f));
+            }
             GUILayout.Space(4f);
             string hotkeys = s_panelMode == PanelMode.LandOffice
                 ? "Hotkeys: Shift+D deposit | Shift+W withdraw | Shift+T pay upkeep | Esc close"
-                : "Hotkeys: Shift+D deposit | Shift+W withdraw | Esc close";
+                : "Hotkeys: Shift+D deposit | Shift+W withdraw | Shift+L borrow | Shift+P repay | Esc close";
             GUILayout.Label(hotkeys);
 
             if (s_panelMode == PanelMode.LandOffice)
@@ -189,6 +227,21 @@ namespace CCS.Modules.Banking
                 TryWithdraw(DefaultTransactionAmount);
             }
             GUILayout.EndHorizontal();
+
+            if (s_panelMode == PanelMode.Bank)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Borrow Small Loan"))
+                {
+                    TryBorrowDefaultLoan();
+                }
+
+                if (GUILayout.Button("Repay Loan"))
+                {
+                    TryRepayDefaultLoan();
+                }
+                GUILayout.EndHorizontal();
+            }
 
             GUILayout.EndArea();
         }
@@ -260,6 +313,66 @@ namespace CCS.Modules.Banking
                 bankingService.ActiveProfile.DefaultAccountDefinitionId,
                 amount);
             NotifyTransactionResult(result);
+        }
+
+        private static void TryBorrowDefaultLoan()
+        {
+            if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
+                || !bankingService.IsInitialized
+                || bankingService.ActiveLoanProfile == null)
+            {
+                s_lastLoanTransactionSummary = "Borrow failed: loan profile unavailable.";
+                return;
+            }
+
+            CCS_LoanTransactionResult result = bankingService.TryOpenLoan(
+                CCS_BankingContentIds.DefaultPlayerOwnerId,
+                bankingService.ActiveLoanProfile.DefaultLoanDefinitionId);
+            NotifyLoanTransactionResult(result);
+        }
+
+        private static void TryRepayDefaultLoan()
+        {
+            if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
+                || !bankingService.IsInitialized
+                || bankingService.ActiveLoanProfile == null)
+            {
+                s_lastLoanTransactionSummary = "Repay failed: loan profile unavailable.";
+                return;
+            }
+
+            CCS_LoanTransactionResult result = bankingService.TryRepayLoan(
+                CCS_BankingContentIds.DefaultPlayerOwnerId,
+                bankingService.ActiveLoanProfile.DefaultLoanDefinitionId);
+            NotifyLoanTransactionResult(result);
+        }
+
+        private static void RefreshLoanSummary()
+        {
+            if (!CCS_BankingRuntimeBridge.TryGetBankingService(out CCS_BankingService bankingService)
+                || !bankingService.IsInitialized
+                || bankingService.ActiveLoanProfile == null)
+            {
+                s_loanSummary = "Loan: profile unavailable";
+                return;
+            }
+
+            string loanDefinitionId = bankingService.ActiveLoanProfile.DefaultLoanDefinitionId;
+            CCS_LoanSnapshot activeLoan = bankingService.GetActiveLoan(
+                CCS_BankingContentIds.DefaultPlayerOwnerId,
+                loanDefinitionId);
+            if (activeLoan == null)
+            {
+                s_loanSummary = $"Loan id: {loanDefinitionId}\nState: none";
+                return;
+            }
+
+            s_loanSummary =
+                $"Loan id: {activeLoan.loanDefinitionId}\n"
+                + $"Principal: {activeLoan.principalAmount}\n"
+                + $"Repayment: {activeLoan.repaymentAmount}\n"
+                + $"Balance: {activeLoan.balance}\n"
+                + $"State: {(CCS_LoanState)activeLoan.loanState}";
         }
 
         private static void TryPayNearbyUpkeep()

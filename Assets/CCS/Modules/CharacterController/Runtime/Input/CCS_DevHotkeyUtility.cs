@@ -92,7 +92,10 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.D, requiresShift: true, allowShared: true),
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.W, requiresShift: true, allowShared: true),
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.T, requiresShift: true, allowShared: true),
-            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.U, requiresControl: true, requiresShift: true)
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.L, requiresShift: true, allowShared: true),
+            new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.P, requiresShift: true, allowShared: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.U, requiresControl: true, requiresShift: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.O, requiresControl: true, requiresShift: true)
         };
 
         public static IReadOnlyList<DevHotkeyBinding> GetKnownBindings()
@@ -219,6 +222,16 @@ namespace CCS.Modules.CharacterController
         public static bool WasUpkeepPayPressed()
         {
             return WasShiftPressed(KeyCode.T);
+        }
+
+        public static bool WasBankBorrowLoanPressed()
+        {
+            return WasShiftPressed(KeyCode.L);
+        }
+
+        public static bool WasBankRepayLoanPressed()
+        {
+            return WasShiftPressed(KeyCode.P);
         }
     }
 }

@@ -20,5 +20,9 @@ namespace CCS.Modules.Banking
         public const string DefaultBankProfilePath = "Assets/CCS/Survival/Profiles/Banking/CCS_DefaultBankAccountProfile.asset";
         public const string FrontierSavingsAccountDefinitionPath =
             "Assets/CCS/Survival/Content/Banking/Accounts/CCS_BankAccount_FrontierSavings.asset";
+        public const string FrontierSmallLoanDefinitionId = "ccs.survival.banking.loan.frontier.small";
+        public const string DefaultLoanProfilePath = "Assets/CCS/Survival/Profiles/Banking/CCS_DefaultLoanProfile.asset";
+        public const string FrontierSmallLoanDefinitionPath =
+            "Assets/CCS/Survival/Content/Banking/Loans/CCS_Loan_FrontierSmallLoan.asset";
     }
 }

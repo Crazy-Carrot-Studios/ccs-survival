@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81b6164f8277422489db800864dbe649, type: 3}
+  m_Name: CCS_DefaultLoanProfile
+  m_EditorClassIdentifier: CCS.Modules.Banking.Runtime::CCS.Modules.Banking.CCS_LoanProfile
+  profileDisplayName: Default Loan Profile
+  profileId: ccs.survival.profile.banking.loans.default
+  profileDescription: Frontier bank loan products for bootstrap trading post services.
+  profileVersion: 2.6.0
+  enableDebugLogs: 0
+  loanDefinitions:
+  - {fileID: 11400000, guid: e033fe47af0a54240a7f989fccdd572e, type: 2}
+  defaultLoanDefinitionId: ccs.survival.banking.loan.frontier.small
+  enableDebugLogging: 1

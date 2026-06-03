@@ -312,6 +312,13 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifyLandOfficeOwnedClaims:
                 case CCS_PlaytestStepType.SaveBankState:
                 case CCS_PlaytestStepType.VerifyBankBalanceAfterLoad:
+                case CCS_PlaytestStepType.BorrowSmallLoan:
+                case CCS_PlaytestStepType.VerifyWalletIncreasedAfterLoan:
+                case CCS_PlaytestStepType.DepositPartOfLoan:
+                case CCS_PlaytestStepType.RepayBankLoan:
+                case CCS_PlaytestStepType.VerifyLoanPaid:
+                case CCS_PlaytestStepType.SaveLoanState:
+                case CCS_PlaytestStepType.VerifyLoanAfterLoad:
                     return CCS_PlaytestStepGroup.Banking;
 
                 case CCS_PlaytestStepType.RegisterUpkeepForLandClaim:

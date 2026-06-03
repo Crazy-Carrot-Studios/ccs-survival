@@ -16,9 +16,10 @@ MonoBehaviour:
   profileId: ccs.survival.profile.banking.default
   profileDescription: Frontier stored-currency accounts for bootstrap trading post
     bank services.
-  profileVersion: 2.4.0
+  profileVersion: 2.6.0
   enableDebugLogs: 0
   accountDefinitions:
   - {fileID: 11400000, guid: a7deee6aa46466d48b8f11dc6f496416, type: 2}
   defaultAccountDefinitionId: ccs.survival.banking.account.frontier.savings
+  loanProfile: {fileID: 11400000, guid: ea3ca254240a92e40b874898699142be, type: 2}
   enableDebugLogging: 1

@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 2.5.0 — Land Office debug HUD shows upkeep status and pay action (Bank + Land Office service routing)  
+**Milestone:** 2.6.0 — Bank service points expose loan metadata (`OffersLoanServices`); Land Office debug HUD shows upkeep status and pay action  
 **Author:** James Schilz
 
 ## Purpose

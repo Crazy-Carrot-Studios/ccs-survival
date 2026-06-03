@@ -9,7 +9,7 @@ using CCS.Survival;
 // PLACEMENT: Used by CCS_BankingService and editor validators.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Milestone 2.4.0 banking and land office foundation.
+// NOTES: Milestone 2.6.0 banking, land office, and loan foundation.
 // =============================================================================
 
 namespace CCS.Modules.Banking
@@ -44,7 +44,86 @@ namespace CCS.Modules.Banking
                     $"Bank account profile default id '{profile.DefaultAccountDefinitionId}' was not found.");
             }
 
+            if (profile.LoanProfile != null)
+            {
+                CCS_SurvivalValidationResult loanProfileResult = ValidateLoanProfile(profile.LoanProfile);
+                if (!loanProfileResult.IsSuccess)
+                {
+                    return loanProfileResult;
+                }
+            }
+
             return CCS_SurvivalValidationResult.Pass("Bank account profile validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateLoanProfile(CCS_LoanProfile profile)
+        {
+            if (profile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Loan profile is null.");
+            }
+
+            CCS_LoanDefinition[] loans = profile.LoanDefinitions;
+            if (loans == null || loans.Length == 0)
+            {
+                return CCS_SurvivalValidationResult.Fail("Loan profile has no loan definitions.");
+            }
+
+            for (int index = 0; index < loans.Length; index++)
+            {
+                CCS_SurvivalValidationResult definitionResult = ValidateLoanDefinition(loans[index]);
+                if (!definitionResult.IsSuccess)
+                {
+                    return definitionResult;
+                }
+            }
+
+            if (!profile.TryGetLoanById(profile.DefaultLoanDefinitionId, out _))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Loan profile default id '{profile.DefaultLoanDefinitionId}' was not found.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Loan profile validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateLoanDefinition(CCS_LoanDefinition definition)
+        {
+            if (definition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Loan definition is null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(definition.LoanDefinitionId))
+            {
+                return CCS_SurvivalValidationResult.Fail("Loan definition is missing loanDefinitionId.");
+            }
+
+            if (string.IsNullOrWhiteSpace(definition.CurrencyId))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Loan '{definition.LoanDefinitionId}' is missing currencyId.");
+            }
+
+            if (definition.PrincipalAmount <= 0)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Loan '{definition.LoanDefinitionId}' principal must be greater than zero.");
+            }
+
+            if (definition.RepaymentAmount <= 0)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Loan '{definition.LoanDefinitionId}' repayment must be greater than zero.");
+            }
+
+            if (definition.MaxActiveLoans <= 0)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Loan '{definition.LoanDefinitionId}' maxActiveLoans must be greater than zero.");
+            }
+
+            return CCS_SurvivalValidationResult.Pass($"Loan '{definition.LoanDefinitionId}' validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateAccountDefinition(CCS_BankAccountDefinition definition)

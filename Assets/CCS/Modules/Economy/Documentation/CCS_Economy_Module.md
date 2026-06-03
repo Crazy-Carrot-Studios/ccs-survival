@@ -2,7 +2,9 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 2.4.0 — Trade Dollars wallet syncs with `CCS_BankingService` deposit/withdraw at settlement Bank service points.
+**Latest:** 2.6.0 — Trade Dollars wallet syncs with `CCS_BankingService` deposit/withdraw and loan borrow/repay at settlement Bank service points.
+
+**2.5.0** — Upkeep debits bank savings through `TryDebitForUpkeep` without wallet credit.
 
 **2.3.0** — General Store sells Homestead Claim Deed for frontier land ownership foundation.
 

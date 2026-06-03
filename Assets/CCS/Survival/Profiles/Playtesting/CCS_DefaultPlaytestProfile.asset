@@ -1545,3 +1545,65 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.borrow
+    displayName: Borrow frontier small loan
+    stepType: 178
+    instructionText: 'Loan playtest: Borrow frontier small loan. Ctrl+Shift+O shortcut
+      available.'
+    targetItemId: ccs.survival.banking.loan.frontier.small
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.verify.wallet
+    displayName: Verify wallet increased after loan
+    stepType: 179
+    instructionText: 'Loan playtest: Verify wallet increased after loan. Ctrl+Shift+O
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.deposit.part
+    displayName: Deposit part of loan proceeds
+    stepType: 180
+    instructionText: 'Loan playtest: Deposit part of loan proceeds. Ctrl+Shift+O
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.repay
+    displayName: Repay frontier small loan
+    stepType: 181
+    instructionText: 'Loan playtest: Repay frontier small loan. Ctrl+Shift+O shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.verify.paid
+    displayName: Verify loan state paid
+    stepType: 182
+    instructionText: 'Loan playtest: Verify loan state paid. Ctrl+Shift+O shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.save
+    displayName: Save loan state
+    stepType: 183
+    instructionText: 'Loan playtest: Save loan state. Ctrl+Shift+O shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.banking.loan.verify.load
+    displayName: Verify loan state restored after load
+    stepType: 184
+    instructionText: 'Loan playtest: Verify loan state restored after load. Ctrl+Shift+O
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

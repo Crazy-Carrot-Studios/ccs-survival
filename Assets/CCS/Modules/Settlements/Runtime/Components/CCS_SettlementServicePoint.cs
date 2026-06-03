@@ -73,6 +73,13 @@ namespace CCS.Modules.Settlements
 
         public string PlaceholderMessage => placeholderMessage ?? string.Empty;
 
+        public bool OffersLoanServices =>
+            servicePointType == CCS_SettlementServicePointType.Bank;
+
+        public bool OffersBankingServices =>
+            servicePointType == CCS_SettlementServicePointType.Bank
+            || servicePointType == CCS_SettlementServicePointType.LandOffice;
+
         #endregion
 
         #region Public Methods

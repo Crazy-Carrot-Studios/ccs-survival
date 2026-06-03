@@ -21,12 +21,15 @@ namespace CCS.Modules.Banking
     {
         [SerializeField] private CCS_BankAccountDefinition[] accountDefinitions = Array.Empty<CCS_BankAccountDefinition>();
         [SerializeField] private string defaultAccountDefinitionId = CCS_BankingContentIds.FrontierSavingsAccountDefinitionId;
+        [SerializeField] private CCS_LoanProfile loanProfile;
         [SerializeField] private bool enableDebugLogging = true;
 
         public CCS_BankAccountDefinition[] AccountDefinitions =>
             accountDefinitions ?? Array.Empty<CCS_BankAccountDefinition>();
 
         public string DefaultAccountDefinitionId => defaultAccountDefinitionId ?? string.Empty;
+
+        public CCS_LoanProfile LoanProfile => loanProfile;
 
         public bool EnableDebugLogging => enableDebugLogging;
 

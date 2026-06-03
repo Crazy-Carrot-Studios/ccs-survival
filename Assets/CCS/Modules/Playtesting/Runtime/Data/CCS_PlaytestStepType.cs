@@ -189,6 +189,13 @@ namespace CCS.Modules.Playtesting
         PrepareWalletUpkeepPayment = 174,
         PayUpkeepFromWallet = 175,
         SaveUpkeepState = 176,
-        VerifyUpkeepAfterLoad = 177
+        VerifyUpkeepAfterLoad = 177,
+        BorrowSmallLoan = 178,
+        VerifyWalletIncreasedAfterLoan = 179,
+        DepositPartOfLoan = 180,
+        RepayBankLoan = 181,
+        VerifyLoanPaid = 182,
+        SaveLoanState = 183,
+        VerifyLoanAfterLoad = 184
     }
 }

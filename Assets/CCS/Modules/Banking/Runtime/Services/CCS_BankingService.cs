@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Registered by CCS_SurvivalGameplayServiceRegistration.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Milestone 2.4.0 — no loans, taxes, interest, or debt yet.
+// NOTES: Milestone 2.6.0 — stored currency, upkeep debits, and simple loans.
 // =============================================================================
 
 namespace CCS.Modules.Banking
@@ -32,26 +32,53 @@ namespace CCS.Modules.Banking
             public CCS_BankAccountState State = CCS_BankAccountState.Closed;
         }
 
+        private sealed class LoanInstance
+        {
+            public string LoanId = string.Empty;
+            public string OwnerId = string.Empty;
+            public string LoanDefinitionId = string.Empty;
+            public string CurrencyId = string.Empty;
+            public int PrincipalAmount;
+            public int RepaymentAmount;
+            public int Balance;
+            public CCS_LoanState State = CCS_LoanState.None;
+        }
+
         private readonly Dictionary<string, BankAccountInstance> accountsById =
             new Dictionary<string, BankAccountInstance>(StringComparer.OrdinalIgnoreCase);
 
         private readonly Dictionary<string, CCS_BankAccountDefinition> accountDefinitionLookup =
             new Dictionary<string, CCS_BankAccountDefinition>(StringComparer.OrdinalIgnoreCase);
 
+        private readonly Dictionary<string, CCS_LoanDefinition> loanDefinitionLookup =
+            new Dictionary<string, CCS_LoanDefinition>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly Dictionary<string, LoanInstance> loansById =
+            new Dictionary<string, LoanInstance>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly List<CCS_LoanTransaction> loanTransactionHistory = new List<CCS_LoanTransaction>();
+
         private readonly List<CCS_BankTransaction> transactionHistory = new List<CCS_BankTransaction>();
 
         private CCS_BankAccountProfile activeProfile;
+        private CCS_LoanProfile activeLoanProfile;
         private CCS_CurrencyService currencyService;
         private CCS_LandClaimService landClaimService;
         private bool isInitialized;
 
         public event Action<CCS_BankTransactionResult> BankTransactionCompleted;
 
+        public event Action<CCS_LoanTransactionResult> LoanTransactionCompleted;
+
         public bool IsInitialized => isInitialized;
 
         public CCS_BankAccountProfile ActiveProfile => activeProfile;
 
+        public CCS_LoanProfile ActiveLoanProfile => activeLoanProfile;
+
         public IReadOnlyList<CCS_BankTransaction> TransactionHistory => transactionHistory;
+
+        public IReadOnlyList<CCS_LoanTransaction> LoanTransactionHistory => loanTransactionHistory;
 
         public void Initialize()
         {
@@ -61,7 +88,9 @@ namespace CCS.Modules.Banking
         public void InitializeFromProfile(CCS_BankAccountProfile profile)
         {
             activeProfile = profile;
+            activeLoanProfile = profile?.LoanProfile;
             accountDefinitionLookup.Clear();
+            loanDefinitionLookup.Clear();
 
             if (profile == null)
             {
@@ -75,6 +104,16 @@ namespace CCS.Modules.Banking
                 Debug.LogWarning($"{LogPrefix} Profile validation warning: {validation.Message}");
             }
 
+            if (activeLoanProfile != null)
+            {
+                CCS_SurvivalValidationResult loanValidation =
+                    CCS_BankingValidationUtility.ValidateLoanProfile(activeLoanProfile);
+                if (!loanValidation.IsSuccess)
+                {
+                    Debug.LogWarning($"{LogPrefix} Loan profile validation warning: {loanValidation.Message}");
+                }
+            }
+
             CCS_BankAccountDefinition[] definitions = profile.AccountDefinitions;
             for (int index = 0; index < definitions.Length; index++)
             {
@@ -85,6 +124,21 @@ namespace CCS.Modules.Banking
                 }
 
                 accountDefinitionLookup[definition.AccountDefinitionId] = definition;
+            }
+
+            if (activeLoanProfile != null)
+            {
+                CCS_LoanDefinition[] loanDefinitions = activeLoanProfile.LoanDefinitions;
+                for (int index = 0; index < loanDefinitions.Length; index++)
+                {
+                    CCS_LoanDefinition loanDefinition = loanDefinitions[index];
+                    if (loanDefinition == null || string.IsNullOrWhiteSpace(loanDefinition.LoanDefinitionId))
+                    {
+                        continue;
+                    }
+
+                    loanDefinitionLookup[loanDefinition.LoanDefinitionId] = loanDefinition;
+                }
             }
 
             isInitialized = validation.IsSuccess || accountDefinitionLookup.Count > 0;
@@ -427,6 +481,317 @@ namespace CCS.Modules.Banking
             return landClaimService.TryResolveClaimIdContainingPosition(worldPosition) ?? string.Empty;
         }
 
+        public bool CanBorrow(string ownerId, string loanDefinitionId)
+        {
+            if (!isInitialized)
+            {
+                return false;
+            }
+
+            if (!TryResolveLoanDefinition(loanDefinitionId, out CCS_LoanDefinition definition))
+            {
+                return false;
+            }
+
+            if (!definition.Enabled)
+            {
+                return false;
+            }
+
+            if (definition.PrincipalAmount <= 0 || definition.RepaymentAmount <= 0)
+            {
+                return false;
+            }
+
+            string resolvedOwnerId = ResolveOwnerId(ownerId);
+            return CountActiveLoans(resolvedOwnerId, definition.LoanDefinitionId) < definition.MaxActiveLoans;
+        }
+
+        public CCS_LoanTransactionResult TryOpenLoan(string ownerId, string loanDefinitionId)
+        {
+            if (!isInitialized)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.ServiceNotReady,
+                    string.Empty,
+                    ownerId,
+                    string.Empty,
+                    "Banking service is not initialized.");
+            }
+
+            if (!TryResolveLoanDefinition(loanDefinitionId, out CCS_LoanDefinition definition))
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InvalidLoan,
+                    string.Empty,
+                    ownerId,
+                    string.Empty,
+                    "Loan definition was not found.");
+            }
+
+            if (!definition.Enabled)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.LoanDisabled,
+                    string.Empty,
+                    ownerId,
+                    definition.CurrencyId,
+                    "Loan definition is disabled.");
+            }
+
+            if (definition.PrincipalAmount <= 0 || definition.RepaymentAmount <= 0)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InvalidAmount,
+                    string.Empty,
+                    ownerId,
+                    definition.CurrencyId,
+                    "Loan principal and repayment amounts must be greater than zero.");
+            }
+
+            string resolvedOwnerId = ResolveOwnerId(ownerId);
+            if (CountActiveLoans(resolvedOwnerId, definition.LoanDefinitionId) >= definition.MaxActiveLoans)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.MaxLoansReached,
+                    string.Empty,
+                    resolvedOwnerId,
+                    definition.CurrencyId,
+                    "Maximum active loans reached for this loan product.");
+            }
+
+            if (currencyService == null || !currencyService.IsInitialized)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.ServiceNotReady,
+                    string.Empty,
+                    resolvedOwnerId,
+                    definition.CurrencyId,
+                    "Currency service is not ready.");
+            }
+
+            CCS_CurrencyTransactionResult addResult = currencyService.AddCurrency(
+                definition.CurrencyId,
+                definition.PrincipalAmount,
+                $"Loan principal ({definition.DisplayName})");
+            if (!addResult.IsSuccess)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.UnknownFailure,
+                    string.Empty,
+                    resolvedOwnerId,
+                    definition.CurrencyId,
+                    addResult.Message);
+            }
+
+            string loanId = BuildLoanId(resolvedOwnerId, definition.LoanDefinitionId);
+            LoanInstance loan = new LoanInstance
+            {
+                LoanId = loanId,
+                OwnerId = resolvedOwnerId,
+                LoanDefinitionId = definition.LoanDefinitionId,
+                CurrencyId = definition.CurrencyId,
+                PrincipalAmount = definition.PrincipalAmount,
+                RepaymentAmount = definition.RepaymentAmount,
+                Balance = definition.RepaymentAmount,
+                State = CCS_LoanState.Active
+            };
+            loansById[loanId] = loan;
+
+            RecordLoanTransaction(
+                loan,
+                definition.PrincipalAmount,
+                "Borrow",
+                addResult.Message,
+                $"Borrowed {definition.PrincipalAmount} {definition.CurrencyId}");
+
+            int bankBalance = GetDefaultAccountBalance(resolvedOwnerId);
+            CCS_LoanTransactionResult result = CCS_LoanTransactionResult.Success(
+                loanId,
+                resolvedOwnerId,
+                definition.CurrencyId,
+                definition.PrincipalAmount,
+                addResult.BalanceAfter,
+                bankBalance,
+                loan.Balance,
+                loan.State,
+                $"Opened loan '{definition.DisplayName}'.");
+            NotifyLoanTransactionCompleted(result);
+            return result;
+        }
+
+        public CCS_LoanSnapshot GetActiveLoan(string ownerId, string loanDefinitionId)
+        {
+            string resolvedOwnerId = ResolveOwnerId(ownerId);
+            if (!TryResolveLoanDefinition(loanDefinitionId, out CCS_LoanDefinition definition))
+            {
+                return null;
+            }
+
+            string loanId = BuildLoanId(resolvedOwnerId, definition.LoanDefinitionId);
+            if (!loansById.TryGetValue(loanId, out LoanInstance loan)
+                || !IsRepayableLoanState(loan.State))
+            {
+                return null;
+            }
+
+            return BuildLoanSnapshot(loan);
+        }
+
+        public int GetLoanBalance(string ownerId, string loanDefinitionId)
+        {
+            CCS_LoanSnapshot snapshot = GetActiveLoan(ownerId, loanDefinitionId);
+            return snapshot?.balance ?? 0;
+        }
+
+        public CCS_LoanTransactionResult TryRepayLoan(string ownerId, string loanDefinitionId)
+        {
+            if (!isInitialized)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.ServiceNotReady,
+                    string.Empty,
+                    ownerId,
+                    string.Empty,
+                    "Banking service is not initialized.");
+            }
+
+            if (!TryResolveLoanDefinition(loanDefinitionId, out CCS_LoanDefinition definition))
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InvalidLoan,
+                    string.Empty,
+                    ownerId,
+                    string.Empty,
+                    "Loan definition was not found.");
+            }
+
+            string resolvedOwnerId = ResolveOwnerId(ownerId);
+            string loanId = BuildLoanId(resolvedOwnerId, definition.LoanDefinitionId);
+            if (!loansById.TryGetValue(loanId, out LoanInstance loan)
+                || !IsRepayableLoanState(loan.State))
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InvalidLoan,
+                    loanId,
+                    resolvedOwnerId,
+                    definition.CurrencyId,
+                    "No active loan is available for repayment.");
+            }
+
+            int amountDue = loan.Balance;
+            if (amountDue <= 0)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InvalidAmount,
+                    loanId,
+                    resolvedOwnerId,
+                    loan.CurrencyId,
+                    "Loan balance is already cleared.");
+            }
+
+            if (currencyService == null || !currencyService.IsInitialized)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.ServiceNotReady,
+                    loanId,
+                    resolvedOwnerId,
+                    loan.CurrencyId,
+                    "Currency service is not ready.");
+            }
+
+            int remaining = amountDue;
+            int walletBalance = GetWalletBalance(loan.CurrencyId);
+            int bankBalance = GetDefaultAccountBalance(resolvedOwnerId);
+
+            if (definition.AutoRepayFromBank && remaining > 0 && activeProfile != null)
+            {
+                int bankPayment = Mathf.Min(remaining, bankBalance);
+                if (bankPayment > 0)
+                {
+                    CCS_BankTransactionResult debitResult = TryDebitForUpkeep(
+                        resolvedOwnerId,
+                        activeProfile.DefaultAccountDefinitionId,
+                        bankPayment,
+                        $"Loan repayment ({definition.DisplayName})");
+                    if (!debitResult.IsSuccess)
+                    {
+                        return LoanFailure(
+                            CCS_LoanTransactionResultType.InsufficientFunds,
+                            loanId,
+                            resolvedOwnerId,
+                            loan.CurrencyId,
+                            debitResult.Message);
+                    }
+
+                    remaining -= bankPayment;
+                    bankBalance = debitResult.BankBalanceAfter;
+                }
+            }
+
+            if (remaining > 0 && definition.AutoRepayFromWallet)
+            {
+                if (!currencyService.CanAfford(loan.CurrencyId, remaining))
+                {
+                    return LoanFailure(
+                        CCS_LoanTransactionResultType.InsufficientFunds,
+                        loanId,
+                        resolvedOwnerId,
+                        loan.CurrencyId,
+                        "Insufficient bank and wallet funds for loan repayment.");
+                }
+
+                CCS_CurrencyTransactionResult removeResult = currencyService.RemoveCurrency(
+                    loan.CurrencyId,
+                    remaining,
+                    $"Loan repayment ({definition.DisplayName})");
+                if (!removeResult.IsSuccess)
+                {
+                    return LoanFailure(
+                        CCS_LoanTransactionResultType.UnknownFailure,
+                        loanId,
+                        resolvedOwnerId,
+                        loan.CurrencyId,
+                        removeResult.Message);
+                }
+
+                walletBalance = removeResult.BalanceAfter;
+                remaining = 0;
+            }
+
+            if (remaining > 0)
+            {
+                return LoanFailure(
+                    CCS_LoanTransactionResultType.InsufficientFunds,
+                    loanId,
+                    resolvedOwnerId,
+                    loan.CurrencyId,
+                    "Insufficient funds for loan repayment.");
+            }
+
+            loan.Balance = 0;
+            loan.State = CCS_LoanState.Paid;
+            RecordLoanTransaction(
+                loan,
+                -amountDue,
+                "Repay",
+                $"Repaid loan '{definition.DisplayName}'",
+                $"Repaid {amountDue} {loan.CurrencyId}");
+
+            CCS_LoanTransactionResult result = CCS_LoanTransactionResult.Success(
+                loanId,
+                resolvedOwnerId,
+                loan.CurrencyId,
+                amountDue,
+                walletBalance,
+                bankBalance,
+                loan.Balance,
+                loan.State,
+                $"Repaid loan '{definition.DisplayName}'.");
+            NotifyLoanTransactionCompleted(result);
+            return result;
+        }
+
         public CCS_BankAccountSnapshot[] CaptureBankingState()
         {
             if (accountsById.Count == 0)
@@ -454,6 +819,34 @@ namespace CCS.Modules.Banking
                     accountState = (int)account.State,
                     transactionSummaryPlaceholder = BuildTransactionSummaryPlaceholder(account)
                 };
+            }
+
+            if (index < snapshots.Length)
+            {
+                Array.Resize(ref snapshots, index);
+            }
+
+            return snapshots;
+        }
+
+        public CCS_LoanSnapshot[] CaptureLoanState()
+        {
+            if (loansById.Count == 0)
+            {
+                return Array.Empty<CCS_LoanSnapshot>();
+            }
+
+            CCS_LoanSnapshot[] snapshots = new CCS_LoanSnapshot[loansById.Count];
+            int index = 0;
+            foreach (KeyValuePair<string, LoanInstance> entry in loansById)
+            {
+                LoanInstance loan = entry.Value;
+                if (loan == null)
+                {
+                    continue;
+                }
+
+                snapshots[index++] = BuildLoanSnapshot(loan);
             }
 
             if (index < snapshots.Length)
@@ -494,6 +887,41 @@ namespace CCS.Modules.Banking
                         : CCS_BankAccountState.Open
                 };
                 accountsById[account.AccountId] = account;
+            }
+        }
+
+        public void RestoreLoanState(CCS_LoanSnapshot[] snapshots)
+        {
+            loansById.Clear();
+            loanTransactionHistory.Clear();
+
+            if (snapshots == null || snapshots.Length == 0)
+            {
+                return;
+            }
+
+            for (int index = 0; index < snapshots.Length; index++)
+            {
+                CCS_LoanSnapshot snapshot = snapshots[index];
+                if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.loanId))
+                {
+                    continue;
+                }
+
+                LoanInstance loan = new LoanInstance
+                {
+                    LoanId = snapshot.loanId,
+                    OwnerId = snapshot.ownerId ?? string.Empty,
+                    LoanDefinitionId = snapshot.loanDefinitionId ?? string.Empty,
+                    CurrencyId = snapshot.currencyId ?? string.Empty,
+                    PrincipalAmount = Mathf.Max(0, snapshot.principalAmount),
+                    RepaymentAmount = Mathf.Max(0, snapshot.repaymentAmount),
+                    Balance = Mathf.Max(0, snapshot.balance),
+                    State = Enum.IsDefined(typeof(CCS_LoanState), snapshot.loanState)
+                        ? (CCS_LoanState)snapshot.loanState
+                        : CCS_LoanState.None
+                };
+                loansById[loan.LoanId] = loan;
             }
         }
 
@@ -551,6 +979,60 @@ namespace CCS.Modules.Banking
             return accountDefinitionLookup.TryGetValue(accountDefinitionId, out definition);
         }
 
+        private bool TryResolveLoanDefinition(string loanDefinitionId, out CCS_LoanDefinition definition)
+        {
+            definition = null;
+            if (string.IsNullOrWhiteSpace(loanDefinitionId))
+            {
+                if (activeLoanProfile != null
+                    && activeLoanProfile.TryGetDefaultLoan(out definition))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return loanDefinitionLookup.TryGetValue(loanDefinitionId, out definition);
+        }
+
+        private int CountActiveLoans(string ownerId, string loanDefinitionId)
+        {
+            string loanId = BuildLoanId(ownerId, loanDefinitionId);
+            if (!loansById.TryGetValue(loanId, out LoanInstance loan))
+            {
+                return 0;
+            }
+
+            return IsRepayableLoanState(loan.State) ? 1 : 0;
+        }
+
+        private static bool IsRepayableLoanState(CCS_LoanState state)
+        {
+            return state == CCS_LoanState.Active || state == CCS_LoanState.Due;
+        }
+
+        private static string BuildLoanId(string ownerId, string loanDefinitionId)
+        {
+            return $"{ownerId}:{loanDefinitionId}";
+        }
+
+        private static CCS_LoanSnapshot BuildLoanSnapshot(LoanInstance loan)
+        {
+            return new CCS_LoanSnapshot
+            {
+                loanId = loan.LoanId,
+                ownerId = loan.OwnerId,
+                loanDefinitionId = loan.LoanDefinitionId,
+                currencyId = loan.CurrencyId,
+                principalAmount = loan.PrincipalAmount,
+                repaymentAmount = loan.RepaymentAmount,
+                balance = loan.Balance,
+                loanState = (int)loan.State,
+                transactionSummaryPlaceholder = BuildLoanTransactionSummaryPlaceholder(loan)
+            };
+        }
+
         private static string ResolveOwnerId(string ownerId)
         {
             return string.IsNullOrWhiteSpace(ownerId)
@@ -601,9 +1083,45 @@ namespace CCS.Modules.Banking
                 : $"Account {account.AccountId} balance {account.Balance} ({account.CurrencyId})";
         }
 
+        private void RecordLoanTransaction(
+            LoanInstance loan,
+            int deltaAmount,
+            string transactionKind,
+            string reason,
+            string summaryPlaceholder)
+        {
+            CCS_LoanTransaction transaction = new CCS_LoanTransaction(
+                loan.LoanId,
+                loan.OwnerId,
+                loan.CurrencyId,
+                deltaAmount,
+                loan.Balance,
+                transactionKind,
+                reason,
+                DateTime.UtcNow.ToString("o"),
+                summaryPlaceholder);
+            loanTransactionHistory.Add(transaction);
+            if (loanTransactionHistory.Count > MaxTransactionHistoryEntries)
+            {
+                loanTransactionHistory.RemoveAt(0);
+            }
+        }
+
+        private static string BuildLoanTransactionSummaryPlaceholder(LoanInstance loan)
+        {
+            return loan == null
+                ? string.Empty
+                : $"Loan {loan.LoanId} balance {loan.Balance} ({loan.CurrencyId}) state {loan.State}";
+        }
+
         private void NotifyTransactionCompleted(CCS_BankTransactionResult result)
         {
             BankTransactionCompleted?.Invoke(result);
+        }
+
+        private void NotifyLoanTransactionCompleted(CCS_LoanTransactionResult result)
+        {
+            LoanTransactionCompleted?.Invoke(result);
         }
 
         private static CCS_BankTransactionResult Failure(
@@ -614,6 +1132,16 @@ namespace CCS.Modules.Banking
             string message)
         {
             return CCS_BankTransactionResult.Failure(resultType, accountId, ownerId, currencyId, message);
+        }
+
+        private static CCS_LoanTransactionResult LoanFailure(
+            CCS_LoanTransactionResultType resultType,
+            string loanId,
+            string ownerId,
+            string currencyId,
+            string message)
+        {
+            return CCS_LoanTransactionResult.Failure(resultType, loanId, ownerId, currencyId, message);
         }
     }
 }
