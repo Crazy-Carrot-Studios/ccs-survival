@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90bb40cd9e74f3f49972d56f93f862c4, type: 3}
+  m_Name: CCS_DefaultReputationProfile
+  m_EditorClassIdentifier: CCS.Modules.Reputation.Runtime::CCS.Modules.Reputation.CCS_ReputationProfile
+  profileDisplayName: Default Reputation Profile
+  profileId: ccs.survival.profile.reputation.default
+  profileDescription: Frontier settlement trust for trade, obligations, and future
+    service access hooks.
+  profileVersion: 2.7.0
+  enableDebugLogs: 0
+  reputationDefinitions:
+  - {fileID: 11400000, guid: 6c37d448ee856ab46acb75970cf1592e, type: 2}
+  defaultSettlementReputationDefinitionId: ccs.survival.reputation.settlement.frontier.testtradingpost
+  defaultTradingPostSettlementId: ccs.survival.settlement.frontier.testtradingpost
+  enableGoodsSoldEvents: 1
+  enableLoanRepaidEvents: 1
+  enableUpkeepPaidEvents: 1
+  enableFailedUpkeepEvents: 1
+  enableSettlementDiscoveredEvents: 1
+  goodsSoldDelta: 2
+  loanRepaidDelta: 3
+  upkeepPaidDelta: 2
+  failedUpkeepDelta: -1
+  settlementDiscoveredDelta: 1
+  enableDebugLogging: 1

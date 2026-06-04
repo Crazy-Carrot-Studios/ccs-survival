@@ -9,7 +9,8 @@
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.Industry.Runtime",
         "CCS.Modules.Banking.Runtime",
-        "CCS.Modules.CharacterController.Runtime"
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Reputation.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

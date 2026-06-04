@@ -95,7 +95,8 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.L, requiresShift: true, allowShared: true),
             new DevHotkeyBinding("CCS_BankingDebugHud", KeyCode.P, requiresShift: true, allowShared: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.U, requiresControl: true, requiresShift: true),
-            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.O, requiresControl: true, requiresShift: true)
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.O, requiresControl: true, requiresShift: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.T, requiresControl: true, requiresShift: true)
         };
 
         public static IReadOnlyList<DevHotkeyBinding> GetKnownBindings()

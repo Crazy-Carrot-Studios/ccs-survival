@@ -93,10 +93,14 @@ Shortcuts:
 
 Bank HUD dev hotkeys: **Shift+L** borrow, **Shift+P** repay (via `CCS_DevHotkeyUtility`).
 
+## Reputation hooks (2.7.0)
+
+When enabled on the reputation profile, successful **loan repay** events (`LoanTransactionCompleted` with repaid message) apply conservative `LoanRepaid` settlement trust via `CCS_ReputationService.TryApplyLoanRepaid`. No credit score or loan restrictions in 2.7.0.
+
 ## Deferred
 
 - Compound interest and scheduled due enforcement
 - Foreclosure and collateral enforcement
-- Credit score / reputation
+- Credit score / reputation tiers affecting loan terms
 - Final bank UI and deed registry UI
 - Multiplayer authority

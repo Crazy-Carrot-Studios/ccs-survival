@@ -118,6 +118,7 @@ MonoBehaviour:
   vehicleProfile: {fileID: 11400000, guid: e93c7630801e52940bc961137885e18a, type: 2}
   firearmProfile: {fileID: 11400000, guid: 5078f293ac94aca40870b24d0aa07d75, type: 2}
   settlementProfile: {fileID: 11400000, guid: 24f1e76a3fd09ed4d8cdfffa292d1b57, type: 2}
+  reputationProfile: {fileID: 11400000, guid: 28debab5b35526a48b505851456b5329, type: 2}
   regionProfile: {fileID: 11400000, guid: 02c8e6f1486c9ed41855e5d280b068b3, type: 2}
   worldSimulationProfile: {fileID: 11400000, guid: 09aa5237151711549830ede700edbe6a, type: 2}
   characterControllerProfile: {fileID: 11400000, guid: 5edc05f571b3c6a48b6eeba09502dd60, type: 2}

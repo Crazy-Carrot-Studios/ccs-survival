@@ -152,6 +152,10 @@ Hotkeys (playtest HUD): **Shift+V** sell fish or hide (step-dependent), **V** bu
 
 Hunting playtest: bow → kill rabbit → knife harvest → sell hide → verify Trade Dollars.
 
+## Reputation hooks (2.7.0)
+
+When the reputation profile enables `enableGoodsSoldEvents`, successful player **sell** transactions routed through settlement vendors raise `GoodsSold` trust deltas via composition wiring (`VendorTransactionCompleted` → `CCS_ReputationService.TryApplyGoodsSold`). No vendor restrictions in 2.7.0.
+
 ## Debug vendor UI (temporary)
 
 `CCS_VendorDebugHud` shows vendor name, Trade Dollars balance, last transaction (item id, qty, currency delta, result), and buttons: Sell Raw Fish, Buy Cordage, Buy Bone Hatchet, Close. **Esc** closes. Not final shop UI.

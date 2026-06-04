@@ -5,6 +5,7 @@ using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
+using CCS.Modules.Reputation;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
@@ -79,7 +80,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveUpkeepWorldData upkeep = new CCS_SaveUpkeepWorldData();
 
+        public CCS_SaveReputationWorldData reputation = new CCS_SaveReputationWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveReputationWorldData
+    {
+        public CCS_ReputationSnapshot[] standings = Array.Empty<CCS_ReputationSnapshot>();
     }
 
     [Serializable]

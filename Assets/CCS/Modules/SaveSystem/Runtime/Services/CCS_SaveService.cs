@@ -13,6 +13,7 @@ using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
+using CCS.Modules.Reputation;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -68,6 +69,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_LandClaimService landClaimService;
         private CCS_BankingService bankingService;
         private CCS_UpkeepService upkeepService;
+        private CCS_ReputationService reputationService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -152,6 +154,7 @@ namespace CCS.Modules.SaveSystem
             CCS_LandClaimService landClaim,
             CCS_BankingService banking,
             CCS_UpkeepService upkeep,
+            CCS_ReputationService reputation,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -178,6 +181,7 @@ namespace CCS.Modules.SaveSystem
             landClaimService = landClaim;
             bankingService = banking;
             upkeepService = upkeep;
+            reputationService = reputation;
             playerTransform = playerRoot;
         }
 
@@ -347,6 +351,7 @@ namespace CCS.Modules.SaveSystem
             CaptureLand(saveData.land);
             CaptureBanking(saveData.banking);
             CaptureUpkeep(saveData.upkeep);
+            CaptureReputation(saveData.reputation);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -674,6 +679,7 @@ namespace CCS.Modules.SaveSystem
             ApplyLand(saveData.land);
             ApplyBanking(saveData.banking);
             ApplyUpkeep(saveData.upkeep);
+            ApplyReputation(saveData.reputation);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1137,6 +1143,28 @@ namespace CCS.Modules.SaveSystem
             {
                 upkeepService.ReconcileLandClaimEntries(landClaimService);
             }
+        }
+
+        private void CaptureReputation(CCS_SaveReputationWorldData reputationData)
+        {
+            if (reputationData == null)
+            {
+                return;
+            }
+
+            reputationData.standings = reputationService != null && reputationService.IsInitialized
+                ? reputationService.CaptureReputationState()
+                : Array.Empty<CCS_ReputationSnapshot>();
+        }
+
+        private void ApplyReputation(CCS_SaveReputationWorldData reputationData)
+        {
+            if (reputationService == null || !reputationService.IsInitialized)
+            {
+                return;
+            }
+
+            reputationService.RestoreState(reputationData?.standings);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

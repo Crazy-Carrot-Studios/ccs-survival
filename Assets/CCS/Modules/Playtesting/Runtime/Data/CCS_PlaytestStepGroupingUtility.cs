@@ -36,7 +36,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Farming,
             CCS_PlaytestStepGroup.LandOwnership,
             CCS_PlaytestStepGroup.Banking,
-            CCS_PlaytestStepGroup.Upkeep
+            CCS_PlaytestStepGroup.Upkeep,
+            CCS_PlaytestStepGroup.Reputation
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -90,6 +91,8 @@ namespace CCS.Modules.Playtesting
                     return "Banking / Land Office";
                 case CCS_PlaytestStepGroup.Upkeep:
                     return "Tax / Upkeep";
+                case CCS_PlaytestStepGroup.Reputation:
+                    return "Reputation / Trust";
                 default:
                     return group.ToString();
             }
@@ -331,6 +334,12 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveUpkeepState:
                 case CCS_PlaytestStepType.VerifyUpkeepAfterLoad:
                     return CCS_PlaytestStepGroup.Upkeep;
+
+                case CCS_PlaytestStepType.VerifyTradingPostReputationAfterSell:
+                case CCS_PlaytestStepType.VerifyReputationChangedAfterObligation:
+                case CCS_PlaytestStepType.SaveReputationState:
+                case CCS_PlaytestStepType.VerifyReputationAfterLoad:
+                    return CCS_PlaytestStepGroup.Reputation;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

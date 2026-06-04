@@ -1607,3 +1607,39 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.sell
+    displayName: Verify trading post reputation increased after sell
+    stepType: 185
+    instructionText: 'Reputation playtest: Verify trading post reputation increased
+      after sell. Ctrl+Shift+T shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.obligation
+    displayName: Verify reputation changed after loan or upkeep obligation
+    stepType: 186
+    instructionText: 'Reputation playtest: Verify reputation changed after loan or
+      upkeep obligation. Ctrl+Shift+T shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.save
+    displayName: Save reputation state
+    stepType: 187
+    instructionText: 'Reputation playtest: Save reputation state. Ctrl+Shift+T shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.load
+    displayName: Verify reputation restored after load
+    stepType: 188
+    instructionText: 'Reputation playtest: Verify reputation restored after load.
+      Ctrl+Shift+T shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

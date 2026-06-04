@@ -36,6 +36,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
+using CCS.Modules.Reputation;
 using CCS.Modules.WorldSimulation;
 using CCS.Survival.Player;
 using CCS.Survival.Player.Loadout;
@@ -101,6 +102,7 @@ namespace CCS.Survival.Composition
             CCS_VehicleProfile vehicleProfile,
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
+            CCS_ReputationProfile reputationProfile,
             CCS_RegionProfile regionProfile,
             CCS_WorldSimulationProfile worldSimulationProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
@@ -479,6 +481,13 @@ namespace CCS.Survival.Composition
             CCS_SettlementService settlementService = CreateSettlementService(settlementProfile);
             RegisterService(runtimeHost, settlementService, enableDebugLogs);
 
+            CCS_ReputationService reputationService = CreateReputationService(reputationProfile);
+            RegisterService(runtimeHost, reputationService, enableDebugLogs);
+            if (reputationService.IsInitialized)
+            {
+                settlementService.BindReputationService(reputationService);
+            }
+
             CCS_RegionService regionService = CreateRegionService(regionProfile);
             RegisterService(runtimeHost, regionService, enableDebugLogs);
 
@@ -498,6 +507,13 @@ namespace CCS.Survival.Composition
             {
                 vendorService.VendorTransactionCompleted += worldSimulationService.HandleVendorTransactionCompleted;
             }
+
+            WireReputationEventHooks(
+                reputationService,
+                vendorService,
+                bankingService,
+                upkeepService,
+                settlementService);
 
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
@@ -548,6 +564,7 @@ namespace CCS.Survival.Composition
                 landClaimService,
                 bankingService,
                 upkeepService,
+                reputationService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -597,7 +614,8 @@ namespace CCS.Survival.Composition
                     farmService,
                     landClaimService,
                     bankingService,
-                    upkeepService);
+                    upkeepService,
+                    reputationService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -2176,6 +2194,107 @@ namespace CCS.Survival.Composition
             }
 
             return service;
+        }
+
+        private static CCS_ReputationService CreateReputationService(CCS_ReputationProfile profile)
+        {
+            CCS_ReputationService service = new CCS_ReputationService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            CCS_ReputationRuntimeBridge.Register(service);
+            return service;
+        }
+
+        private static void WireReputationEventHooks(
+            CCS_ReputationService reputationService,
+            CCS_VendorService vendorService,
+            CCS_BankingService bankingService,
+            CCS_UpkeepService upkeepService,
+            CCS_SettlementService settlementService)
+        {
+            if (reputationService == null || !reputationService.IsInitialized)
+            {
+                return;
+            }
+
+            string activeSettlementId = reputationService.ActiveProfile != null
+                ? reputationService.ActiveProfile.DefaultTradingPostSettlementId
+                : CCS_ReputationContentIds.DefaultTradingPostSettlementId;
+
+            if (settlementService != null && settlementService.IsInitialized)
+            {
+                settlementService.SettlementDiscovered += snapshot =>
+                {
+                    if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.SettlementId))
+                    {
+                        return;
+                    }
+
+                    reputationService.TryApplySettlementDiscovered(snapshot.SettlementId);
+                };
+
+                settlementService.ServicePointActivated += activationArgs =>
+                {
+                    if (!string.IsNullOrWhiteSpace(activationArgs?.SettlementId))
+                    {
+                        activeSettlementId = activationArgs.SettlementId;
+                    }
+                };
+            }
+
+            if (vendorService != null && vendorService.IsInitialized)
+            {
+                vendorService.VendorTransactionCompleted += result =>
+                {
+                    if (result == null || !result.IsSuccess || !result.WasSell)
+                    {
+                        return;
+                    }
+
+                    reputationService.TryApplyGoodsSold(activeSettlementId);
+                };
+            }
+
+            if (bankingService != null && bankingService.IsInitialized)
+            {
+                bankingService.LoanTransactionCompleted += result =>
+                {
+                    if (result == null
+                        || !result.IsSuccess
+                        || !result.Message.Contains("Repaid loan", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
+
+                    reputationService.TryApplyLoanRepaid(activeSettlementId);
+                };
+            }
+
+            if (upkeepService != null && upkeepService.IsInitialized)
+            {
+                upkeepService.UpkeepTransactionCompleted += result =>
+                {
+                    if (result == null)
+                    {
+                        return;
+                    }
+
+                    if (result.IsSuccess && result.Amount > 0)
+                    {
+                        reputationService.TryApplyUpkeepPaid(activeSettlementId);
+                        return;
+                    }
+
+                    if (result.ResultType == CCS_UpkeepTransactionResultType.InsufficientFunds)
+                    {
+                        reputationService.TryApplyFailedUpkeep(activeSettlementId);
+                    }
+                };
+            }
         }
 
         private static CCS_RegionService CreateRegionService(CCS_RegionProfile profile)

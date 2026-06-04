@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CCS.Modules.Reputation;
 using CCS.Survival;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ namespace CCS.Modules.Settlements
             new Dictionary<string, CCS_SettlementDefinition>(StringComparer.OrdinalIgnoreCase);
 
         private CCS_SettlementProfile activeProfile;
+        private CCS_ReputationService reputationService;
         private bool isInitialized;
         private string lastActivatedServicePointId = string.Empty;
         private CCS_SettlementServicePointType lastActivatedServicePointType = CCS_SettlementServicePointType.Other;
@@ -36,6 +38,7 @@ namespace CCS.Modules.Settlements
 
         public event Action<CCS_SettlementSnapshot> SettlementDiscovered;
         public event Action<CCS_SettlementServicePointActivationArgs> ServicePointActivated;
+        public event Action<CCS_ReputationChangedEventArgs> SettlementReputationChanged;
 
         public bool IsInitialized => isInitialized;
 
@@ -93,6 +96,38 @@ namespace CCS.Modules.Settlements
             }
 
             isInitialized = true;
+        }
+
+        public void BindReputationService(CCS_ReputationService reputation)
+        {
+            if (reputationService != null)
+            {
+                reputationService.ReputationChanged -= HandleReputationChanged;
+            }
+
+            reputationService = reputation;
+            if (reputationService != null)
+            {
+                reputationService.ReputationChanged += HandleReputationChanged;
+            }
+        }
+
+        public bool TryGetSettlementReputation(string settlementId, out CCS_ReputationStanding standing)
+        {
+            standing = null;
+            return reputationService != null
+                && reputationService.IsInitialized
+                && reputationService.TryGetSettlementStanding(settlementId, out standing);
+        }
+
+        private void HandleReputationChanged(CCS_ReputationChangedEventArgs args)
+        {
+            if (args == null || args.ScopeType != CCS_ReputationScopeType.Settlement)
+            {
+                return;
+            }
+
+            SettlementReputationChanged?.Invoke(args);
         }
 
         public bool TryGetDefinition(string settlementId, out CCS_SettlementDefinition definition)

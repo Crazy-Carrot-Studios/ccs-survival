@@ -49,6 +49,15 @@ Maintain Legal Frontier Presence
 - **Land Office HUD:** owned claim count, nearby claim id, upkeep status, amount due, Shift+T pay hotkey
 - **Playtest:** steps 169–177; Ctrl+Shift+U foundation shortcut
 
+## Reputation hooks (2.7.0)
+
+Profile flags on `CCS_ReputationProfile` map upkeep outcomes to settlement trust:
+
+- Successful payment → `TryApplyUpkeepPaid`
+- Insufficient funds failure → `TryApplyFailedUpkeep` (conservative negative delta when enabled)
+
+Wired in composition from `UpkeepTransactionCompleted`. No foreclosure or service lockouts in 2.7.0.
+
 ## Editor
 
 - `CCS_UpkeepFoundationBootstrapSetup.ExecuteBatch` — content, profile, host wiring, playtest steps, version bump

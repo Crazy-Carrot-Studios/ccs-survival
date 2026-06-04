@@ -1,0 +1,24 @@
+{
+    "name": "CCS.Modules.Reputation.Editor",
+    "rootNamespace": "CCS.Modules.Reputation.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Reputation.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Settlements.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

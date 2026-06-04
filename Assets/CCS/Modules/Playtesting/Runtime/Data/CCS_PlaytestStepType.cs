@@ -196,6 +196,10 @@ namespace CCS.Modules.Playtesting
         RepayBankLoan = 181,
         VerifyLoanPaid = 182,
         SaveLoanState = 183,
-        VerifyLoanAfterLoad = 184
+        VerifyLoanAfterLoad = 184,
+        VerifyTradingPostReputationAfterSell = 185,
+        VerifyReputationChangedAfterObligation = 186,
+        SaveReputationState = 187,
+        VerifyReputationAfterLoad = 188
     }
 }

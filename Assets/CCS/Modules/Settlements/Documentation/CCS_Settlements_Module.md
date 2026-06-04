@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 2.6.0 — Bank service points expose loan metadata (`OffersLoanServices`); Land Office debug HUD shows upkeep status and pay action  
+**Milestone:** 2.7.0 — Settlement service exposes optional reputation query/events via `CCS_ReputationService` bind  
 **Author:** James Schilz
 
 ## Purpose
@@ -115,6 +115,17 @@ Activation events include `RouteType`, `ActivationStatus`, and `Message` for pla
 | `CCS_SettlementSnapshot` | Runtime discovery record |
 | `CCS_SettlementRuntimeBridge` | Service registry resolver |
 | `CCS_SettlementValidationUtility` | Profile validation |
+
+## Reputation integration (2.7.0)
+
+Optional bind to `CCS_ReputationService`:
+
+- `TryGetSettlementReputation(settlementId, out standing)` — current value and tier
+- `SettlementReputationChanged` — forwarded settlement-scope changes
+
+No vendor lockouts or service restrictions in 2.7.0. Trust is profile-driven and visible in debug HUD / validation only.
+
+See `Assets/CCS/Modules/Reputation/Documentation/CCS_Reputation_Module.md`.
 
 ## Bootstrap batch
 

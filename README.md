@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.7.0** — Reputation and Service Trust Foundation
+
+Generic **Reputation** module: settlement-scoped trust standings (`CCS_ReputationDefinition`, `CCS_ReputationProfile`, `CCS_ReputationService`), conservative event deltas from vendor sells, loan repay, upkeep pay/fail, and settlement discovery, save/load reputation snapshots, settlement service query/events, dev reputation debug HUD, and playtest harness steps. Scopes include Settlement (active), Region/Service placeholders, and FutureFaction/Global hooks. No factions, quests, law, vendor lockouts, or final reputation UI yet.
+
+**Frontier Trust Loop:**
+
+```text
+Discover Settlement → Trade / Pay Obligations → Settlement Trust Changes → Future Service Access / Discounts / Law Hooks
+```
 
 **2.6.0** — Loans and Debt Foundation
 

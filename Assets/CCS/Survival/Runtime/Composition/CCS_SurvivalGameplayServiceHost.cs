@@ -35,6 +35,7 @@ using CCS.Modules.Upkeep;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
+using CCS.Modules.Reputation;
 using CCS.Modules.Regions;
 using CCS.Modules.WorldSimulation;
 using CCS.Survival.Player.Loadout;
@@ -178,6 +179,9 @@ namespace CCS.Survival.Composition
         [Tooltip("Default settlement profile used to register CCS_SettlementService.")]
         [SerializeField] private CCS_SettlementProfile settlementProfile;
 
+        [Tooltip("Default reputation profile used to register CCS_ReputationService.")]
+        [SerializeField] private CCS_ReputationProfile reputationProfile;
+
         [Tooltip("Default region profile used to register CCS_RegionService.")]
         [SerializeField] private CCS_RegionProfile regionProfile;
 
@@ -258,6 +262,7 @@ namespace CCS.Survival.Composition
                 vehicleProfile,
                 firearmProfile,
                 settlementProfile,
+                reputationProfile,
                 regionProfile,
                 worldSimulationProfile,
                 characterControllerProfile,

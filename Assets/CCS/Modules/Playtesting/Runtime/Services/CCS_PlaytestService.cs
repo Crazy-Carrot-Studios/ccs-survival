@@ -24,6 +24,7 @@ using CCS.Modules.Farming;
 using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
+using CCS.Modules.Reputation;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -169,6 +170,7 @@ namespace CCS.Modules.Playtesting
         private CCS_LandClaimService boundLandClaimService;
         private CCS_BankingService boundBankingService;
         private CCS_UpkeepService boundUpkeepService;
+        private CCS_ReputationService boundReputationService;
         private int playtestBankWalletBaseline;
         private int playtestBankBalanceBaseline;
         private int playtestUpkeepBankBaseline;
@@ -179,6 +181,11 @@ namespace CCS.Modules.Playtesting
         private int playtestLoanWalletBaseline;
         private int savedLoanState;
         private int savedLoanBalance;
+        private int playtestReputationBaseline;
+        private int playtestReputationBeforeObligation;
+        private int savedReputationValue;
+        private CCS_ReputationTier savedReputationTier = CCS_ReputationTier.Neutral;
+        private bool playtestReputationBaselineCaptured;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -272,7 +279,8 @@ namespace CCS.Modules.Playtesting
             CCS_FarmService farmService = null,
             CCS_LandClaimService landClaimService = null,
             CCS_BankingService bankingService = null,
-            CCS_UpkeepService upkeepService = null)
+            CCS_UpkeepService upkeepService = null,
+            CCS_ReputationService reputationService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -311,6 +319,7 @@ namespace CCS.Modules.Playtesting
             boundLandClaimService = landClaimService;
             boundBankingService = bankingService;
             boundUpkeepService = upkeepService;
+            boundReputationService = reputationService;
 
             if (boundWorldSimulationService != null)
             {
@@ -654,6 +663,7 @@ namespace CCS.Modules.Playtesting
             boundLandClaimService = null;
             boundBankingService = null;
             boundUpkeepService = null;
+            boundReputationService = null;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1200,6 +1210,17 @@ namespace CCS.Modules.Playtesting
                         "Loan state saved.");
                 }
 
+                if (boundReputationService != null
+                    && boundReputationService.IsInitialized
+                    && TryGetPlaytestSettlementReputation(out int reputationValue, out CCS_ReputationTier reputationTier))
+                {
+                    savedReputationValue = reputationValue;
+                    savedReputationTier = reputationTier;
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveReputationState,
+                        "Reputation state saved.");
+                }
+
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.SaveWagonState,
                     "Wagon ownership, hitch, and cargo state saved.");
@@ -1267,6 +1288,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateBankBalanceAfterLoad();
                 EvaluateUpkeepAfterLoad();
                 EvaluateLoanAfterLoad();
+                EvaluateReputationAfterLoad();
             }
         }
 
@@ -1300,6 +1322,25 @@ namespace CCS.Modules.Playtesting
                 }
 
                 return;
+            }
+        }
+
+        private void EvaluateReputationAfterLoad()
+        {
+            if (boundReputationService == null
+                || !boundReputationService.IsInitialized
+                || !playtestReputationBaselineCaptured)
+            {
+                return;
+            }
+
+            if (TryGetPlaytestSettlementReputation(out int value, out CCS_ReputationTier tier)
+                && value == savedReputationValue
+                && tier == savedReputationTier)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyReputationAfterLoad,
+                    "Reputation restored after load.");
             }
         }
 
@@ -1452,6 +1493,7 @@ namespace CCS.Modules.Playtesting
 
                 playtestBankWalletBaseline = result.WalletBalanceAfter;
                 playtestBankBalanceBaseline = result.BankBalanceAfter;
+                EvaluateReputationAfterObligation();
             }
         }
 
@@ -1508,6 +1550,8 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.VerifyUpkeepBankPayment,
                         "Bank balance decreased after upkeep payment.");
                 }
+
+                EvaluateReputationAfterObligation();
             }
 
             if (result.IsSuccess
@@ -1517,6 +1561,7 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.PayUpkeepFromWallet,
                     "Upkeep paid from wallet.");
+                EvaluateReputationAfterObligation();
             }
         }
 
@@ -1754,6 +1799,7 @@ namespace CCS.Modules.Playtesting
                 CCS_PlaytestStepType.DiscoverTradingPost,
                 "Frontier trading post discovered.");
 
+            CapturePlaytestReputationBaselineIfNeeded();
             EvaluateWorldSimulationSettlementDiscovered();
         }
 
@@ -3860,6 +3906,11 @@ namespace CCS.Modules.Playtesting
                         "Bone hatchet added to player inventory.");
                 }
             }
+
+            if (result.WasSell)
+            {
+                EvaluateReputationAfterSell();
+            }
         }
 
         private bool HasInventoryItem(string itemId)
@@ -4891,6 +4942,30 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestReputationFoundationShortcut()
+        {
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && boundSettlementService.TryGetDefinition(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementDefinition tradingPostDefinition))
+            {
+                boundSettlementService.DiscoverSettlement(tradingPostDefinition, Vector3.zero);
+            }
+
+            CapturePlaytestReputationBaselineIfNeeded();
+
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                boundCurrencyService.AddCurrency(TradeDollarsCurrencyId, 500, "Playtest reputation foundation funds");
+            }
+
+            GrantPlaytestItem(HideItemId, 5);
+            TryPlaytestSellHide();
+            TryPlaytestLoansFoundationShortcut();
+            return true;
+        }
+
         public bool TryPlaytestForceUpkeepDue()
         {
             if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
@@ -4975,6 +5050,74 @@ namespace CCS.Modules.Playtesting
                 || itemId == CCS_ProspectingContentIds.NailsItemId
                 || itemId.Contains("refinediron", System.StringComparison.OrdinalIgnoreCase)
                 || itemId.Contains("ironbar", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void CapturePlaytestReputationBaselineIfNeeded()
+        {
+            if (playtestReputationBaselineCaptured
+                || !TryGetPlaytestSettlementReputation(out int value, out _))
+            {
+                return;
+            }
+
+            playtestReputationBaseline = value;
+            playtestReputationBaselineCaptured = true;
+        }
+
+        private bool TryGetPlaytestSettlementReputation(out int value, out CCS_ReputationTier tier)
+        {
+            value = 0;
+            tier = CCS_ReputationTier.Neutral;
+            if (boundReputationService == null || !boundReputationService.IsInitialized)
+            {
+                return false;
+            }
+
+            string settlementId = boundReputationService.ActiveProfile != null
+                ? boundReputationService.ActiveProfile.DefaultTradingPostSettlementId
+                : CCS_ReputationContentIds.DefaultTradingPostSettlementId;
+            if (boundReputationService.TryGetSettlementStanding(settlementId, out CCS_ReputationStanding standing)
+                && standing != null)
+            {
+                value = standing.CurrentValue;
+                tier = standing.DisplayTier;
+            }
+
+            return true;
+        }
+
+        private void EvaluateReputationAfterSell()
+        {
+            if (!TryGetPlaytestSettlementReputation(out int value, out _))
+            {
+                return;
+            }
+
+            if (value > playtestReputationBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyTradingPostReputationAfterSell,
+                    $"Trading post reputation increased to {value}.");
+                playtestReputationBeforeObligation = value;
+            }
+        }
+
+        private void EvaluateReputationAfterObligation()
+        {
+            if (!TryGetPlaytestSettlementReputation(out int value, out _))
+            {
+                return;
+            }
+
+            int baseline = playtestReputationBeforeObligation > playtestReputationBaseline
+                ? playtestReputationBeforeObligation
+                : playtestReputationBaseline;
+            if (value > baseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyReputationChangedAfterObligation,
+                    $"Settlement reputation increased to {value} after obligation.");
+            }
         }
 
         private void LogDebug(string message)
