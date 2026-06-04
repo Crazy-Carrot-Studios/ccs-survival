@@ -39,6 +39,7 @@ namespace CCS.Modules.Playtesting
         SettlementGrowth = 24,
         MultiSettlement = 25,
         TradeRoutesFreight = 26,
-        RouteRiskFreight = 27
+        RouteRiskFreight = 27,
+        Population = 28
     }
 }

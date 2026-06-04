@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.5.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.6.0** — Population Foundation
+
+Settlements gain living **population simulation** through `CCS_SettlementPopulationProfile`, workforce categories (Farmers, Ranchers, Miners, Lumber Workers, Merchants, Laborers), growth rate, stability, and capacity on `CCS_SettlementSimulationState` (persisted via world simulation save/load). Growth scales from contract completion, prosperity, food supply health, and settlement reputation tier. **Settlement growth** gates now include population: Outpost **0+**, Trading Post **50+** with prosperity **35+** and **1+** completed contracts. Playtest group **Population** with **Ctrl+Shift+K** shortcut (homestead supply crate kit moved to **Ctrl+Alt+K**).
+
+**Population Loop:**
+
+```text
+Supply Settlement → Population Grows → Workforce Expands → Production Improves → Settlement Develops
+```
 
 **3.5.0** — Route Risk and Freight Bonus Foundation
 
@@ -396,8 +406,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **3.5.0** |
-| Output | `Builds/CCS_Survival_3.5.0_Windows/` (gitignored) |
+| Version | **3.6.0** |
+| Output | `Builds/CCS_Survival_3.6.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

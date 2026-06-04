@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Content/Settlements/Growth/
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.2.0 — inactive definitions are placeholders for future milestones.
+// NOTES: Milestone 3.6.0 — minimum population gates active growth stages.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -32,6 +32,9 @@ namespace CCS.Modules.Settlements
 
         [SerializeField] private int minimumCompletedContracts;
 
+        [Tooltip("Minimum total population required to reach this growth stage.")]
+        [SerializeField] private int minimumPopulation;
+
         [SerializeField] private bool requiresRegionDiscovered;
 
         [SerializeField] private string requiredRegionId = string.Empty;
@@ -49,6 +52,8 @@ namespace CCS.Modules.Settlements
         public float MinimumIndustrialSupplyPercent => Mathf.Clamp(minimumIndustrialSupplyPercent, 0f, 100f);
 
         public int MinimumCompletedContracts => minimumCompletedContracts < 0 ? 0 : minimumCompletedContracts;
+
+        public int MinimumPopulation => minimumPopulation < 0 ? 0 : minimumPopulation;
 
         public bool RequiresRegionDiscovered => requiresRegionDiscovered;
 

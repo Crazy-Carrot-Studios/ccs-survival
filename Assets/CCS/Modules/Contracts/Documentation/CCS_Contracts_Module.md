@@ -1,5 +1,7 @@
 # CCS Contracts Module
 
+Milestone **3.6.0** — Contract completion at destination settlements drives population growth through `CCS_WorldSimulationService.HandleContractCompleted` (prosperity/supply unchanged from 3.4.0).
+
 Milestone **3.5.0** — Freight contracts with `linkedTradeRouteId` scale trade-dollar rewards by route base/distance and risk multipliers (`CCS_TradeRouteRewardModifierUtility`). `CCS_ContractCompletionResult` and `CCS_ContractDebugHud` expose base/route/risk/final reward breakdown. Local contracts unchanged; missing route service falls back to base reward.
 
 Milestone **3.4.0** — **FreightDelivery** contracts with origin/destination settlement boards, wagon-cargo-first completion (`CCS_ContractFreightUtility`), optional player-inventory fallback, destination prosperity/supply rewards, and linked trade route usage tracking.

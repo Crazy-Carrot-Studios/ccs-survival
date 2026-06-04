@@ -1,5 +1,7 @@
 # CCS Reputation Module
 
+Milestone **3.6.0** — settlement reputation tiers modify population growth rate (trusted/honored bonus, hostile/distrusted penalty) via `CCS_WorldSimulationService` and `CCS_SettlementPopulationUtility`.
+
 Milestone **2.8.0** — service access rules and vendor buy price modifiers driven by settlement trust.
 
 Milestone **2.7.0** — generic reputation and service trust foundation for frontier settlements.

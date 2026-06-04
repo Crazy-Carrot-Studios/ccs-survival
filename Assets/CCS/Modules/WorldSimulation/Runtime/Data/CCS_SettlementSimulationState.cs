@@ -7,7 +7,7 @@ using System;
 // PLACEMENT: Stored by CCS_WorldSimulationService and save payloads.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 2.0.0 frontier world simulation foundation.
+// NOTES: Milestone 3.6.0 — population capacity, growth rate, stability, and workforce breakdown.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -18,6 +18,15 @@ namespace CCS.Modules.WorldSimulation
         public string settlementId = string.Empty;
         public string regionId = string.Empty;
         public int population;
+        public int populationCapacity;
+        public float populationGrowthRate;
+        public float populationStability;
+        public int farmerCount;
+        public int rancherCount;
+        public int minerCount;
+        public int lumberWorkerCount;
+        public int merchantCount;
+        public int laborerCount;
         public float prosperity;
         public bool isDiscovered;
         public CCS_SettlementSupplyEntry[] supplies = Array.Empty<CCS_SettlementSupplyEntry>();

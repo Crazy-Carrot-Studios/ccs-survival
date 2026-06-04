@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.6.0 — Population foundation (workforce categories, growth, capacity, save/load)  
 **Milestone:** 3.5.0 — Route risk and freight bonus (risk rating, base/distance multipliers, reward utility)  
 **Milestone:** 3.4.0 — Trade routes and freight contracts (discovery, active, usage; outbound regional freight)  
 **Milestone:** 3.3.0 — Multi-settlement frontier network (4 independent settlements)
@@ -77,7 +78,30 @@ CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.Execu
 
 Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 
-## Settlement growth (3.2.0)
+## Population (3.6.0)
+
+| Type | Role |
+|------|------|
+| `CCS_SettlementPopulationCategory` | Farmers, Ranchers, Miners, Lumber Workers, Merchants, Laborers |
+| `CCS_SettlementPopulationProfile` | Growth modifiers, capacity, per-settlement starting population |
+| `CCS_SettlementPopulationUtility` | Growth, workforce distribution, validation (World Simulation assembly) |
+| `CCS_SettlementPopulationSnapshot` | Query snapshot for HUD and playtest |
+
+Bootstrap batch:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_SettlementPopulationFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Population** — shortcut **Ctrl+Shift+K**.
+
+**Population Loop:**
+
+```text
+Supply Settlement → Population Grows → Workforce Expands → Production Improves → Settlement Develops
+```
+
+## Settlement growth (3.2.0 / 3.6.0)
 
 | Type | Role |
 |------|------|
@@ -91,7 +115,7 @@ Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 
 `CCS_SettlementService` exposes `TryGetSettlementGrowthStage`, `TryGetGrowthSnapshot`, and `SettlementGrowthChanged`.
 
-Frontier Trading Post (`ccs.survival.settlement.tradingpost`) starts at **Outpost**. **TradingPost** requires prosperity ≥ 35, food supply ≥ 25%, and ≥ 1 completed contract.
+Frontier Trading Post (`ccs.survival.settlement.tradingpost`) starts at **Outpost**. **TradingPost** requires population ≥ 50, prosperity ≥ 35, food supply ≥ 25%, and ≥ 1 completed contract.
 
 Growth state persists on `CCS_SettlementSimulationState` (current/previous stage, progress %, completed contract count) through world simulation save/load.
 

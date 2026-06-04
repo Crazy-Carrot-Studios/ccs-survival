@@ -240,6 +240,11 @@ namespace CCS.Modules.Playtesting
         private int savedRouteRiskBrokenCreekUsageCount;
         private int savedRouteRiskIronRidgeUsageCount;
         private bool routeRiskSaveCaptured;
+        private int populationBaseline;
+        private int savedPopulationTotal;
+        private float savedPopulationGrowthRate;
+        private bool populationBaselinesCaptured;
+        private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
 
         #endregion
@@ -1388,6 +1393,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveRouteRiskFreightState,
                         "Route risk freight state saved.");
                 }
+
+                if (TryCapturePopulationSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SavePopulationState,
+                        "Population state saved.");
+                }
             }
         }
 
@@ -1419,6 +1431,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateMultiSettlementAfterLoad();
                 EvaluateFreightStateAfterLoad();
                 EvaluateRouteRiskFreightStateAfterLoad();
+                EvaluatePopulationStateAfterLoad();
             }
         }
 
@@ -6116,6 +6129,37 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestPopulationFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
+            CapturePopulationBaselinesIfNeeded();
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForPopulation,
+                "Trading Post discovered for population playtest.");
+
+            CCS_SettlementGrowthDebugHud.ShowSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompleteContractForPopulationGrowth,
+                        result.Message);
+                }
+            }
+
+            EvaluatePopulationPlaytestSteps();
+            EvaluateSettlementGrowthProgressSteps();
+            return true;
+        }
+
         public bool TryPlaytestSettlementGrowthFoundationShortcut()
         {
             if (boundSettlementService != null
@@ -6138,8 +6182,107 @@ namespace CCS.Modules.Playtesting
                 boundContractService.TryCompleteContract(CCS_SettlementGrowthContentIds.PlaytestCornContractId);
             }
 
+            EvaluatePopulationPlaytestSteps();
             EvaluateSettlementGrowthProgressSteps();
             return true;
+        }
+
+        private void CapturePopulationBaselinesIfNeeded()
+        {
+            if (populationBaselinesCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return;
+            }
+
+            if (boundSettlementService.TryGetPopulationSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementPopulationSnapshot snapshot)
+                && snapshot != null)
+            {
+                populationBaseline = snapshot.TotalPopulation;
+            }
+
+            populationBaselinesCaptured = true;
+        }
+
+        private void EvaluatePopulationPlaytestSteps()
+        {
+            if (boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetPopulationSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementPopulationSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            if (snapshot.TotalPopulation >= 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationNonNegative,
+                    $"Population is non-negative ({snapshot.TotalPopulation}).");
+            }
+
+            if (snapshot.PopulationGrowthRate >= 0f)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationGrowthRateValid,
+                    $"Population growth rate is {snapshot.PopulationGrowthRate:0.##}.");
+            }
+
+            if (snapshot.TotalPopulation > populationBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationIncreased,
+                    $"Population increased to {snapshot.TotalPopulation} (baseline {populationBaseline}).");
+            }
+        }
+
+        private bool TryCapturePopulationSaveState()
+        {
+            if (populationSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return populationSaveCaptured;
+            }
+
+            if (boundSettlementService.TryGetPopulationSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementPopulationSnapshot snapshot)
+                && snapshot != null)
+            {
+                savedPopulationTotal = snapshot.TotalPopulation;
+                savedPopulationGrowthRate = snapshot.PopulationGrowthRate;
+                populationSaveCaptured = savedPopulationTotal > 0;
+            }
+
+            return populationSaveCaptured;
+        }
+
+        private void EvaluatePopulationStateAfterLoad()
+        {
+            if (!populationSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return;
+            }
+
+            if (boundSettlementService.TryGetPopulationSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementPopulationSnapshot snapshot)
+                && snapshot != null
+                && snapshot.TotalPopulation == savedPopulationTotal
+                && Mathf.Approximately(snapshot.PopulationGrowthRate, savedPopulationGrowthRate))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationAfterLoad,
+                    "Population totals and growth rate restored after load.");
+            }
         }
 
         private bool TryCaptureSettlementGrowthSaveState()

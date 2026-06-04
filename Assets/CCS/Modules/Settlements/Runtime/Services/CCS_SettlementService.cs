@@ -40,6 +40,7 @@ namespace CCS.Modules.Settlements
         public event Action<CCS_SettlementServicePointActivationArgs> ServicePointActivated;
         public event Action<CCS_ReputationChangedEventArgs> SettlementReputationChanged;
         public event Action<CCS_SettlementGrowthChangedEventArgs> SettlementGrowthChanged;
+        public event Action<CCS_SettlementPopulationChangedEventArgs> SettlementPopulationChanged;
 
         public bool IsInitialized => isInitialized;
 
@@ -58,6 +59,7 @@ namespace CCS.Modules.Settlements
         public string LastActivationMessage => lastActivationMessage;
 
         private Func<string, CCS_SettlementGrowthSnapshot> growthSnapshotResolver;
+        private Func<string, CCS_SettlementPopulationSnapshot> populationSnapshotResolver;
 
         public void Initialize()
         {
@@ -104,6 +106,33 @@ namespace CCS.Modules.Settlements
         public void BindGrowthSnapshotResolver(Func<string, CCS_SettlementGrowthSnapshot> resolver)
         {
             growthSnapshotResolver = resolver;
+        }
+
+        public void BindPopulationSnapshotResolver(Func<string, CCS_SettlementPopulationSnapshot> resolver)
+        {
+            populationSnapshotResolver = resolver;
+        }
+
+        public bool TryGetPopulationSnapshot(string settlementId, out CCS_SettlementPopulationSnapshot snapshot)
+        {
+            snapshot = CCS_SettlementPopulationSnapshot.Empty;
+            if (string.IsNullOrWhiteSpace(settlementId) || populationSnapshotResolver == null)
+            {
+                return false;
+            }
+
+            snapshot = populationSnapshotResolver.Invoke(settlementId) ?? CCS_SettlementPopulationSnapshot.Empty;
+            return snapshot.IsValid;
+        }
+
+        public void NotifySettlementPopulationChanged(CCS_SettlementPopulationChangedEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return;
+            }
+
+            SettlementPopulationChanged?.Invoke(eventArgs);
         }
 
         public bool TryGetSettlementGrowthStage(

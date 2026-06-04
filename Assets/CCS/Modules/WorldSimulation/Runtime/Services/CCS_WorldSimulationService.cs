@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CCS.Modules.Economy;
+using CCS.Modules.Reputation;
 using CCS.Modules.Regions;
 using CCS.Modules.Settlements;
 using CCS.Survival;
@@ -33,19 +34,24 @@ namespace CCS.Modules.WorldSimulation
 
         private CCS_WorldSimulationProfile activeProfile;
         private CCS_SettlementGrowthProfile settlementGrowthProfile;
+        private CCS_SettlementPopulationProfile settlementPopulationProfile;
         private CCS_SettlementService settlementService;
         private CCS_RegionService regionService;
+        private CCS_ReputationService reputationService;
         private bool isInitialized;
 
         public event Action<CCS_SettlementSimulationState> SettlementSupplyChanged;
         public event Action<CCS_SettlementSimulationState> SettlementProsperityChanged;
         public event Action<CCS_SettlementGrowthChangedEventArgs> SettlementGrowthChanged;
+        public event Action<CCS_SettlementPopulationChangedEventArgs> SettlementPopulationChanged;
 
         public bool IsInitialized => isInitialized;
 
         public CCS_WorldSimulationProfile ActiveProfile => activeProfile;
 
         public CCS_SettlementGrowthProfile SettlementGrowthProfile => settlementGrowthProfile;
+
+        public CCS_SettlementPopulationProfile SettlementPopulationProfile => settlementPopulationProfile;
 
         public void Initialize()
         {
@@ -61,6 +67,7 @@ namespace CCS.Modules.WorldSimulation
         {
             activeProfile = profile;
             settlementGrowthProfile = profile?.SettlementGrowthProfile;
+            settlementPopulationProfile = profile?.SettlementPopulationProfile;
             settlementLookup.Clear();
             regionLookup.Clear();
             vendorRouteLookup.Clear();
@@ -122,11 +129,15 @@ namespace CCS.Modules.WorldSimulation
             isInitialized = true;
         }
 
-        public void BindGameplayServices(CCS_SettlementService settlements, CCS_RegionService regions)
+        public void BindGameplayServices(
+            CCS_SettlementService settlements,
+            CCS_RegionService regions,
+            CCS_ReputationService reputation = null)
         {
             UnbindGameplayServices();
             settlementService = settlements;
             regionService = regions;
+            reputationService = reputation;
 
             if (settlementService != null)
             {
@@ -136,6 +147,11 @@ namespace CCS.Modules.WorldSimulation
             if (regionService != null)
             {
                 regionService.RegionDiscovered += HandleRegionDiscovered;
+            }
+
+            if (reputationService != null)
+            {
+                reputationService.ReputationChanged += HandleReputationChanged;
             }
 
             SyncDiscoveryFromGameplayServices();
@@ -153,8 +169,14 @@ namespace CCS.Modules.WorldSimulation
                 regionService.RegionDiscovered -= HandleRegionDiscovered;
             }
 
+            if (reputationService != null)
+            {
+                reputationService.ReputationChanged -= HandleReputationChanged;
+            }
+
             settlementService = null;
             regionService = null;
+            reputationService = null;
         }
 
         public void HandleVendorTransactionCompleted(CCS_VendorTransactionResult transaction)
@@ -194,6 +216,7 @@ namespace CCS.Modules.WorldSimulation
             }
 
             RecalculateProsperity(settlementState);
+            EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
             EvaluateSettlementGrowth(settlementState);
             SettlementSupplyChanged?.Invoke(settlementState);
         }
@@ -225,8 +248,22 @@ namespace CCS.Modules.WorldSimulation
                 SettlementProsperityChanged?.Invoke(settlementState);
             }
 
+            EvaluatePopulation(settlementState, contractCompletedThisEvaluation: true);
             EvaluateSettlementGrowth(settlementState);
             SettlementSupplyChanged?.Invoke(settlementState);
+        }
+
+        public bool TryGetPopulationSnapshot(string settlementId, out CCS_SettlementPopulationSnapshot snapshot)
+        {
+            snapshot = CCS_SettlementPopulationSnapshot.Empty;
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return false;
+            }
+
+            snapshot = CCS_SettlementPopulationUtility.BuildSnapshot(settlementState);
+            return snapshot.IsValid;
         }
 
         public bool TryGetGrowthSnapshot(string settlementId, out CCS_SettlementGrowthSnapshot snapshot)
@@ -346,8 +383,48 @@ namespace CCS.Modules.WorldSimulation
 
             SyncDiscoveryFromGameplayServices();
             SyncRegionalEconomyMetadata();
+            EnsurePopulationMetricsMigratedForAllSettlements();
             RecalculateAllProsperity();
             EvaluateAllSettlementGrowth();
+        }
+
+        private void EnsurePopulationMetricsMigratedForAllSettlements()
+        {
+            foreach (KeyValuePair<string, CCS_SettlementSimulationState> pair in settlementLookup)
+            {
+                EnsurePopulationMetricsMigrated(pair.Value);
+            }
+        }
+
+        private void EnsurePopulationMetricsMigrated(CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState == null || settlementState.populationCapacity > 0)
+            {
+                return;
+            }
+
+            CCS_RegionSpecializationType specialization = ResolveSettlementRegionalSpecialization(settlementState);
+            settlementState.populationCapacity = CCS_SettlementPopulationUtility.ResolvePopulationCapacity(
+                settlementState.prosperity,
+                settlementPopulationProfile);
+            int workforceTotal = settlementState.farmerCount
+                + settlementState.rancherCount
+                + settlementState.minerCount
+                + settlementState.lumberWorkerCount
+                + settlementState.merchantCount
+                + settlementState.laborerCount;
+            if (settlementState.population > 0 && workforceTotal == 0)
+            {
+                CCS_SettlementPopulationUtility.DistributeWorkforce(settlementState, specialization);
+            }
+
+            CCS_SettlementPopulationUtility.RefreshDerivedMetrics(
+                settlementState,
+                settlementPopulationProfile,
+                ResolveSettlementReputationTier(settlementState.settlementId),
+                GetFillPercent(settlementState, CCS_SettlementSupplyType.Food),
+                GetFillPercent(settlementState, CCS_SettlementSupplyType.IndustrialMaterials),
+                false);
         }
 
         private void SyncRegionalEconomyMetadata()
@@ -486,7 +563,110 @@ namespace CCS.Modules.WorldSimulation
             float prosperity = (foodPercent + supplyPercent + productionPercent) / 3f;
             settlementState.prosperity = CCS_RegionEconomyUtility.ApplyProsperityModifier(prosperity, prosperityModifier);
             SettlementProsperityChanged?.Invoke(settlementState);
+            EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
             EvaluateSettlementGrowth(settlementState);
+        }
+
+        private void EvaluatePopulation(
+            CCS_SettlementSimulationState settlementState,
+            bool contractCompletedThisEvaluation)
+        {
+            if (settlementState == null || !settlementState.isDiscovered)
+            {
+                return;
+            }
+
+            int previousPopulation = settlementState.population;
+            float foodPercent = GetFillPercent(settlementState, CCS_SettlementSupplyType.Food);
+            float industrialPercent = GetFillPercent(settlementState, CCS_SettlementSupplyType.IndustrialMaterials);
+            CCS_ReputationTier reputationTier = ResolveSettlementReputationTier(settlementState.settlementId);
+            CCS_RegionSpecializationType specialization = ResolveSettlementRegionalSpecialization(settlementState);
+
+            float growthDelta = CCS_SettlementPopulationUtility.CalculateGrowthDelta(
+                settlementPopulationProfile,
+                settlementState.prosperity,
+                foodPercent,
+                contractCompletedThisEvaluation,
+                reputationTier);
+            CCS_SettlementPopulationUtility.ApplyPopulationGrowth(
+                settlementState,
+                growthDelta,
+                settlementPopulationProfile,
+                specialization);
+            CCS_SettlementPopulationUtility.RefreshDerivedMetrics(
+                settlementState,
+                settlementPopulationProfile,
+                reputationTier,
+                foodPercent,
+                industrialPercent,
+                false);
+
+            bool populationChanged = settlementState.population != previousPopulation;
+            if (!populationChanged && growthDelta <= 0f)
+            {
+                return;
+            }
+
+            CCS_SettlementPopulationChangedEventArgs eventArgs = new CCS_SettlementPopulationChangedEventArgs(
+                CCS_SettlementPopulationUtility.BuildSnapshot(settlementState),
+                previousPopulation,
+                populationChanged);
+            SettlementPopulationChanged?.Invoke(eventArgs);
+
+            if (activeProfile != null && activeProfile.EnableDebugLogging && populationChanged)
+            {
+                Debug.Log(
+                    $"{LogPrefix} Settlement '{settlementState.settlementId}' population "
+                    + $"{previousPopulation} -> {settlementState.population}.");
+            }
+        }
+
+        private void HandleReputationChanged(CCS_ReputationChangedEventArgs eventArgs)
+        {
+            if (eventArgs == null || eventArgs.ScopeType != CCS_ReputationScopeType.Settlement)
+            {
+                return;
+            }
+
+            if (!TryGetSettlementState(eventArgs.TargetId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null
+                || !settlementState.isDiscovered)
+            {
+                return;
+            }
+
+            EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
+            EvaluateSettlementGrowth(settlementState);
+        }
+
+        private CCS_ReputationTier ResolveSettlementReputationTier(string settlementId)
+        {
+            if (reputationService == null
+                || !reputationService.IsInitialized
+                || !reputationService.TryGetSettlementStanding(settlementId, out CCS_ReputationStanding standing)
+                || standing == null)
+            {
+                return CCS_ReputationTier.Neutral;
+            }
+
+            return standing.DisplayTier;
+        }
+
+        private CCS_RegionSpecializationType ResolveSettlementRegionalSpecialization(
+            CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState == null)
+            {
+                return CCS_RegionSpecializationType.FrontierMixed;
+            }
+
+            if (!string.IsNullOrWhiteSpace(settlementState.regionId)
+                && TryGetRegionState(settlementState.regionId, out CCS_RegionSimulationState regionState))
+            {
+                return CCS_SettlementPopulationUtility.ResolveRegionalSpecialization(settlementState, regionState);
+            }
+
+            return CCS_RegionSpecializationType.FrontierMixed;
         }
 
         private void EvaluateAllSettlementGrowth()
@@ -518,6 +698,7 @@ namespace CCS.Modules.WorldSimulation
                 foodPercent,
                 industrialPercent,
                 settlementState.completedContractsCount,
+                settlementState.population,
                 regionDiscovered,
                 regionId);
 
@@ -532,6 +713,7 @@ namespace CCS.Modules.WorldSimulation
                     foodPercent,
                     industrialPercent,
                     settlementState.completedContractsCount,
+                    settlementState.population,
                     regionDiscovered,
                     regionId);
             }
@@ -775,7 +957,7 @@ namespace CCS.Modules.WorldSimulation
                 settlementGrowthProfile.TryGetStartingStage(entry.settlementId, out startingStage);
             }
 
-            return new CCS_SettlementSimulationState
+            CCS_SettlementSimulationState state = new CCS_SettlementSimulationState
             {
                 settlementId = entry.settlementId,
                 regionId = entry.regionId ?? string.Empty,
@@ -790,6 +972,20 @@ namespace CCS.Modules.WorldSimulation
                 growthProgressPercent = 0f,
                 completedContractsCount = 0
             };
+
+            CCS_RegionSpecializationType specialization = CCS_RegionSpecializationType.FrontierMixed;
+            if (TryGetRegionState(state.regionId, out CCS_RegionSimulationState regionState))
+            {
+                specialization = CCS_SettlementPopulationUtility.ResolveRegionalSpecialization(state, regionState);
+            }
+
+            CCS_SettlementPopulationUtility.InitializePopulationState(
+                state,
+                settlementPopulationProfile,
+                specialization,
+                entry.population,
+                0);
+            return state;
         }
 
         private static CCS_RegionSimulationState CreateRegionStateFromProfile(CCS_WorldSimulationRegionProfileEntry entry)
@@ -897,11 +1093,20 @@ namespace CCS.Modules.WorldSimulation
                 return null;
             }
 
-            return new CCS_SettlementSimulationState
+            CCS_SettlementSimulationState clone = new CCS_SettlementSimulationState
             {
                 settlementId = source.settlementId,
                 regionId = source.regionId ?? string.Empty,
                 population = source.population,
+                populationCapacity = source.populationCapacity,
+                populationGrowthRate = source.populationGrowthRate,
+                populationStability = source.populationStability,
+                farmerCount = source.farmerCount,
+                rancherCount = source.rancherCount,
+                minerCount = source.minerCount,
+                lumberWorkerCount = source.lumberWorkerCount,
+                merchantCount = source.merchantCount,
+                laborerCount = source.laborerCount,
                 prosperity = source.prosperity,
                 isDiscovered = source.isDiscovered,
                 supplies = CloneSupplyEntries(source.supplies),
@@ -912,6 +1117,8 @@ namespace CCS.Modules.WorldSimulation
                 growthProgressPercent = source.growthProgressPercent,
                 completedContractsCount = source.completedContractsCount
             };
+            CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
+            return clone;
         }
 
         private static CCS_RegionSimulationState CloneRegionState(CCS_RegionSimulationState source)

@@ -258,6 +258,13 @@ namespace CCS.Modules.Playtesting
         CompleteModerateRiskFreightContract = 243,
         VerifyModerateRiskFreightHigherReward = 244,
         SaveRouteRiskFreightState = 245,
-        VerifyRouteRiskFreightStateAfterLoad = 246
+        VerifyRouteRiskFreightStateAfterLoad = 246,
+        DiscoverSettlementForPopulation = 247,
+        CompleteContractForPopulationGrowth = 248,
+        VerifyPopulationIncreased = 249,
+        VerifyPopulationNonNegative = 250,
+        VerifyPopulationGrowthRateValid = 251,
+        SavePopulationState = 252,
+        VerifyPopulationAfterLoad = 253
     }
 }

@@ -8,7 +8,8 @@
         "CCS.Modules.Settlements.Runtime",
         "CCS.Modules.Regions.Runtime",
         "CCS.Modules.Ranching.Runtime",
-        "CCS.Modules.Farming.Runtime"
+        "CCS.Modules.Farming.Runtime",
+        "CCS.Modules.Reputation.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

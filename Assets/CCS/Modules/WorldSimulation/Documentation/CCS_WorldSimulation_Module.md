@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.6.0** — Settlement **population simulation** on `CCS_SettlementSimulationState` (total, capacity, growth rate, stability, workforce breakdown). `CCS_SettlementPopulationUtility` applies growth from contracts, prosperity, food supply health, and reputation tier. Persisted through `CCS_SaveWorldSimulationData`. Wired to settlement growth population gates.
+
 Milestone **3.5.0** — Freight completion unchanged for prosperity/supply; optional conservative bonus destination reputation from route risk (`CCS_TradeRouteRewardModifierUtility.ResolveBonusReputation`). Route usage counts still persist via `CCS_TradeRouteService`; risk multipliers are profile-only.
 
 Milestone **3.4.0** — Freight contract completion applies destination prosperity and supply through `HandleContractCompleted` (no population changes). Trade route usage is tracked separately via `CCS_TradeRouteService`.

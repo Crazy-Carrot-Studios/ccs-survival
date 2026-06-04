@@ -8,7 +8,7 @@ using CCS.Survival;
 // PLACEMENT: Used by world simulation, validators, and bootstrap setup.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.2.0 settlement growth foundation.
+// NOTES: Milestone 3.6.0 — population thresholds gate settlement growth stages.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -100,6 +100,7 @@ namespace CCS.Modules.Settlements
             float foodSupplyPercent,
             float industrialSupplyPercent,
             int completedContractsCount,
+            int totalPopulation,
             bool isRegionDiscovered,
             string settlementRegionId)
         {
@@ -127,6 +128,7 @@ namespace CCS.Modules.Settlements
                         foodSupplyPercent,
                         industrialSupplyPercent,
                         completedContractsCount,
+                        totalPopulation,
                         isRegionDiscovered,
                         settlementRegionId))
                 {
@@ -162,6 +164,7 @@ namespace CCS.Modules.Settlements
             float foodSupplyPercent,
             float industrialSupplyPercent,
             int completedContractsCount,
+            int totalPopulation,
             bool isRegionDiscovered,
             string settlementRegionId)
         {
@@ -190,6 +193,11 @@ namespace CCS.Modules.Settlements
             AddRequirementProgress(
                 targetDefinition.MinimumCompletedContracts,
                 completedContractsCount,
+                ref totalWeight,
+                ref earnedWeight);
+            AddRequirementProgress(
+                targetDefinition.MinimumPopulation,
+                totalPopulation,
                 ref totalWeight,
                 ref earnedWeight);
 
@@ -264,6 +272,7 @@ namespace CCS.Modules.Settlements
             float foodSupplyPercent,
             float industrialSupplyPercent,
             int completedContractsCount,
+            int totalPopulation,
             bool isRegionDiscovered,
             string settlementRegionId)
         {
@@ -288,6 +297,11 @@ namespace CCS.Modules.Settlements
             }
 
             if (completedContractsCount < definition.MinimumCompletedContracts)
+            {
+                return false;
+            }
+
+            if (totalPopulation < definition.MinimumPopulation)
             {
                 return false;
             }

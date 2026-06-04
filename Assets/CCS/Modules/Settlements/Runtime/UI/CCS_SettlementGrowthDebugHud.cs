@@ -95,6 +95,18 @@ namespace CCS.Modules.Settlements
             GUILayout.Label($"Next stage: {CCS_SettlementGrowthUtility.GetDisplayName(snapshot.NextGrowthStage)}");
             GUILayout.Label($"Next stage progress: {snapshot.GrowthProgressPercent:0.##}%");
             GUILayout.Label($"Completed contracts: {snapshot.CompletedContractsCount}");
+
+            if (settlementService.TryGetPopulationSnapshot(s_settlementId, out CCS_SettlementPopulationSnapshot populationSnapshot)
+                && populationSnapshot.IsValid)
+            {
+                GUILayout.Label($"Population: {populationSnapshot.TotalPopulation}/{populationSnapshot.PopulationCapacity}");
+                GUILayout.Label($"Growth rate: {populationSnapshot.PopulationGrowthRate:0.##}");
+                GUILayout.Label($"Stability: {populationSnapshot.PopulationStability:0.##}%");
+                GUILayout.Label(
+                    $"Workforce F{populationSnapshot.FarmerCount} R{populationSnapshot.RancherCount} "
+                    + $"M{populationSnapshot.MinerCount} L{populationSnapshot.LumberWorkerCount} "
+                    + $"T{populationSnapshot.MerchantCount} W{populationSnapshot.LaborerCount}");
+            }
         }
     }
 }

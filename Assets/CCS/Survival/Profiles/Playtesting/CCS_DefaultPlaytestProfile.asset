@@ -2165,3 +2165,65 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.discover
+    displayName: Discover settlement for population
+    stepType: 247
+    instructionText: 'Population playtest: Discover settlement for population. Ctrl+Shift+K
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.contract
+    displayName: Complete contract for population growth
+    stepType: 248
+    instructionText: 'Population playtest: Complete contract for population growth. Ctrl+Shift+K
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.verify.increase
+    displayName: Verify population increased
+    stepType: 249
+    instructionText: 'Population playtest: Verify population increased. Ctrl+Shift+K shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.verify.nonnegative
+    displayName: Verify population non-negative
+    stepType: 250
+    instructionText: 'Population playtest: Verify population non-negative. Ctrl+Shift+K shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.verify.growthrate
+    displayName: Verify population growth rate valid
+    stepType: 251
+    instructionText: 'Population playtest: Verify population growth rate valid. Ctrl+Shift+K
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.save
+    displayName: Save population state
+    stepType: 252
+    instructionText: 'Population playtest: Save population state. Ctrl+Shift+K shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.population.load
+    displayName: Verify population after load
+    stepType: 253
+    instructionText: 'Population playtest: Verify population after load. Ctrl+Shift+K shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

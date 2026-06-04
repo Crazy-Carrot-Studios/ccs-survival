@@ -19,5 +19,6 @@ MonoBehaviour:
   minimumFoodSupplyPercent: 25
   minimumIndustrialSupplyPercent: 0
   minimumCompletedContracts: 1
+  minimumPopulation: 50
   requiresRegionDiscovered: 0
   requiredRegionId: 

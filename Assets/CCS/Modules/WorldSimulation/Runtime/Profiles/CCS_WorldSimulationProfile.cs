@@ -34,7 +34,11 @@ namespace CCS.Modules.WorldSimulation
 
         [SerializeField] private CCS_SettlementGrowthProfile settlementGrowthProfile;
 
+        [SerializeField] private CCS_SettlementPopulationProfile settlementPopulationProfile;
+
         public CCS_SettlementGrowthProfile SettlementGrowthProfile => settlementGrowthProfile;
+
+        public CCS_SettlementPopulationProfile SettlementPopulationProfile => settlementPopulationProfile;
 
         public CCS_WorldSimulationSettlementProfileEntry[] SettlementEntries =>
             settlementEntries ?? Array.Empty<CCS_WorldSimulationSettlementProfileEntry>();
