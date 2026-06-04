@@ -2093,3 +2093,75 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.accept.low
+    displayName: Accept low-risk freight contract
+    stepType: 239
+    instructionText: 'Route risk freight playtest: Accept low-risk freight contract.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.complete.low
+    displayName: Complete low-risk freight contract
+    stepType: 240
+    instructionText: 'Route risk freight playtest: Complete low-risk freight contract.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.verify.low.reward
+    displayName: Verify low-risk base and final reward
+    stepType: 241
+    instructionText: 'Route risk freight playtest: Verify low-risk base and final reward.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.accept.moderate
+    displayName: Accept moderate-risk freight contract
+    stepType: 242
+    instructionText: 'Route risk freight playtest: Accept moderate-risk freight contract.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.complete.moderate
+    displayName: Complete moderate-risk freight contract
+    stepType: 243
+    instructionText: 'Route risk freight playtest: Complete moderate-risk freight contract.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.verify.moderate.reward
+    displayName: Verify moderate-risk higher final reward
+    stepType: 244
+    instructionText: 'Route risk freight playtest: Verify moderate-risk higher final reward.
+      Ctrl+Shift+Q shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.save
+    displayName: Save route risk freight state
+    stepType: 245
+    instructionText: 'Route risk freight playtest: Save route risk freight state. Ctrl+Shift+Q
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.routerisk.load
+    displayName: Verify route state after load
+    stepType: 246
+    instructionText: 'Route risk freight playtest: Verify route state after load. Ctrl+Shift+Q
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

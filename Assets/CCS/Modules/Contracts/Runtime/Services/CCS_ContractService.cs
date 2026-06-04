@@ -435,22 +435,38 @@ namespace CCS.Modules.Contracts
             }
 
             CCS_ContractReward reward = definition.Reward;
+            int baseTradeDollars = reward.TradeDollars;
+            CCS_TradeRouteFreightRewardBreakdown freightRewardBreakdown =
+                CCS_TradeRouteFreightRewardBreakdown.Empty;
+            if (definition.IsFreightContract && baseTradeDollars > 0)
+            {
+                freightRewardBreakdown = CCS_TradeRouteRewardModifierUtility.TryCalculateForLinkedRoute(
+                    baseTradeDollars,
+                    definition.LinkedTradeRouteId,
+                    tradeRouteService);
+            }
+
+            int grantedTradeDollars = definition.IsFreightContract
+                ? freightRewardBreakdown.FinalTradeDollars
+                : baseTradeDollars;
+
             string currencyId = activeProfile?.DefaultCurrencyId ?? CCS_ContractContentIds.TradeDollarsCurrencyId;
-            if (reward.TradeDollars > 0)
+            if (grantedTradeDollars > 0)
             {
                 currencyService.AddCurrency(
                     currencyId,
-                    reward.TradeDollars,
+                    grantedTradeDollars,
                     $"Contract reward: {definition.DisplayName}");
             }
 
             int reputationApplied = 0;
-            if (reward.ReputationGain != 0
+            int destinationReputationGain = reward.ReputationGain + freightRewardBreakdown.BonusReputation;
+            if (destinationReputationGain != 0
                 && reputationService != null
                 && reputationService.IsInitialized
-                && reputationService.TryApplyContractReward(rewardSettlementId, reward.ReputationGain))
+                && reputationService.TryApplyContractReward(rewardSettlementId, destinationReputationGain))
             {
-                reputationApplied = reward.ReputationGain;
+                reputationApplied = destinationReputationGain;
             }
 
             if (definition.IsFreightContract
@@ -499,11 +515,16 @@ namespace CCS.Modules.Contracts
             CCS_ContractCompletionResult success = new CCS_ContractCompletionResult(
                 true,
                 contractId,
-                $"Completed contract: {definition.DisplayName}.",
-                reward.TradeDollars,
+                BuildCompletionMessage(definition, grantedTradeDollars, freightRewardBreakdown),
+                grantedTradeDollars,
                 reputationApplied,
                 prosperityApplied,
-                supplyApplied);
+                supplyApplied,
+                freightRewardBreakdown.BaseTradeDollars,
+                freightRewardBreakdown.RouteMultiplier,
+                freightRewardBreakdown.RiskMultiplier,
+                freightRewardBreakdown.LinkedRouteId,
+                freightRewardBreakdown.RiskLevel);
             LogDebug(success.Message);
             ContractCompleted?.Invoke(success);
             CCS_ContractDebugHud.NotifyContractCompleted(success, definition, completionLabel);
@@ -611,6 +632,21 @@ namespace CCS.Modules.Contracts
             }
 
             return false;
+        }
+
+        private static string BuildCompletionMessage(
+            CCS_ContractDefinition definition,
+            int grantedTradeDollars,
+            CCS_TradeRouteFreightRewardBreakdown breakdown)
+        {
+            if (definition == null || !definition.IsFreightContract || !breakdown.UsedRouteModifiers)
+            {
+                return $"Completed contract: {definition?.DisplayName}.";
+            }
+
+            return $"Completed freight: {definition.DisplayName}. Route {breakdown.LinkedRouteId} "
+                + $"({breakdown.RiskLevel}) paid {grantedTradeDollars} "
+                + $"(base {breakdown.BaseTradeDollars}, route x{breakdown.RouteMultiplier:0.##}, risk x{breakdown.RiskMultiplier:0.##}).";
         }
 
         private static CCS_ContractCompletionResult Success(string contractId, string message)

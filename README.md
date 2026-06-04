@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.4.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.5.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -25,9 +25,19 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 
 ## Current Version
 
+**3.5.0** — Route Risk and Freight Bonus Foundation
+
+Trade route definitions add **risk rating** (`CCS_TradeRouteRiskLevel`: Safe, Low, Moderate active; Dangerous/Severe placeholders), **base/distance freight multipliers**, and wagon/route-condition placeholders. **FreightDelivery** contracts with `linkedTradeRouteId` scale trade-dollar rewards via `CCS_TradeRouteRewardModifierUtility` (base × route × risk, clamped non-negative); local contracts unchanged. Completion results and contract debug HUD expose base/final reward breakdown. Higher-risk routes grant conservative bonus destination reputation. Route risk is profile data; **usage counts** remain runtime-persisted from 3.4.0. Playtest group **Route Risk / Freight** with **Ctrl+Shift+Q** shortcut.
+
+**Route Risk Freight Loop:**
+
+```text
+Accept Freight → Assess Route Risk → Load Wagon → Deliver Goods → Earn Risk-Adjusted Reward
+```
+
 **3.4.0** — Trade Routes and Freight Contracts
 
-Trade route metadata now includes **route difficulty**, **discovery/active** runtime state, and **usage counts** (`CCS_TradeRouteService`, save/load snapshots). **FreightDelivery** contracts link origin and destination settlement boards; completion prefers **wagon cargo** with safe failure when goods are missing. Destination boards apply trade dollars, destination reputation, optional origin reputation, and destination prosperity/supply updates. Outbound regional freight: Pine Ridge (lumber, charcoal), Broken Creek (corn, wheat), Iron Ridge (iron ore, coal) → Trading Post; Trading Post → camps mixed-supply placeholders. Playtest group **Trade Routes / Freight** with **Ctrl+Shift+F** shortcut.
+Trade route metadata includes **route difficulty**, **discovery/active** runtime state, and **usage counts** (`CCS_TradeRouteService`, save/load snapshots). **FreightDelivery** contracts link origin and destination settlement boards; completion prefers **wagon cargo** with safe failure when goods are missing. Outbound regional freight: Pine Ridge (lumber, charcoal), Broken Creek (corn, wheat), Iron Ridge (iron ore, coal) → Trading Post; Trading Post → camps mixed-supply placeholders. Playtest group **Trade Routes / Freight** with **Ctrl+Shift+F** shortcut.
 
 **Freight Loop:**
 
@@ -386,8 +396,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **3.4.0** |
-| Output | `Builds/CCS_Survival_3.4.0_Windows/` (gitignored) |
+| Version | **3.5.0** |
+| Output | `Builds/CCS_Survival_3.5.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

@@ -250,6 +250,14 @@ namespace CCS.Modules.Playtesting
         VerifyFreightDestinationProsperitySupply = 235,
         VerifyTradeRouteUsageCount = 236,
         SaveFreightRouteState = 237,
-        VerifyFreightRouteStateAfterLoad = 238
+        VerifyFreightRouteStateAfterLoad = 238,
+        AcceptLowRiskFreightContract = 239,
+        CompleteLowRiskFreightContract = 240,
+        VerifyLowRiskFreightReward = 241,
+        AcceptModerateRiskFreightContract = 242,
+        CompleteModerateRiskFreightContract = 243,
+        VerifyModerateRiskFreightHigherReward = 244,
+        SaveRouteRiskFreightState = 245,
+        VerifyRouteRiskFreightStateAfterLoad = 246
     }
 }

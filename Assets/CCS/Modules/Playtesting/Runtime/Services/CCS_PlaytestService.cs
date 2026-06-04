@@ -233,6 +233,13 @@ namespace CCS.Modules.Playtesting
         private int savedFreightRouteUsageCount;
         private float savedFreightTradingPostProsperity;
         private bool freightSaveCaptured;
+        private int routeRiskBrokenCreekUsageBaseline;
+        private int routeRiskIronRidgeUsageBaseline;
+        private int routeRiskLowFinalReward;
+        private bool routeRiskBaselinesCaptured;
+        private int savedRouteRiskBrokenCreekUsageCount;
+        private int savedRouteRiskIronRidgeUsageCount;
+        private bool routeRiskSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
 
         #endregion
@@ -1374,6 +1381,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveFreightRouteState,
                         "Freight and trade route state saved.");
                 }
+
+                if (TryCaptureRouteRiskFreightSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveRouteRiskFreightState,
+                        "Route risk freight state saved.");
+                }
             }
         }
 
@@ -1404,6 +1418,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateSettlementGrowthAfterLoad();
                 EvaluateMultiSettlementAfterLoad();
                 EvaluateFreightStateAfterLoad();
+                EvaluateRouteRiskFreightStateAfterLoad();
             }
         }
 
@@ -5440,6 +5455,265 @@ namespace CCS.Modules.Playtesting
                 CCS_PlaytestStepType.TravelToTradingPostFreightBoard,
                 "Freight delivery shortcut simulates travel to destination board.");
             return true;
+        }
+
+        public bool TryPlaytestRouteRiskFreightShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId);
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId);
+            CaptureRouteRiskBaselinesIfNeeded();
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekCornFreightContractId,
+                    CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId);
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptLowRiskFreightContract,
+                    "Accepted Broken Creek corn low-risk freight contract.");
+            }
+
+            EnsureWagonReadyForFreight();
+            TryLoadFreightItemIntoWagon(CCS_RegionEconomyUtility.CornItemId, 6);
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                CCS_ContractCompletionResult lowRiskResult = boundContractService.TryCompleteContract(
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekCornFreightContractId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId);
+                if (lowRiskResult != null && lowRiskResult.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompleteLowRiskFreightContract,
+                        lowRiskResult.Message);
+                    EvaluateRouteRiskLowRewardSteps(lowRiskResult);
+                }
+            }
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_TradeRoutesFreightContentIds.IronRidgeIronOreFreightContractId,
+                    CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId);
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptModerateRiskFreightContract,
+                    "Accepted Iron Ridge iron ore moderate-risk freight contract.");
+            }
+
+            EnsureWagonReadyForFreight();
+            TryLoadFreightItemIntoWagon(CCS_RegionEconomyUtility.IronOreItemId, 4);
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                CCS_ContractCompletionResult moderateRiskResult = boundContractService.TryCompleteContract(
+                    CCS_TradeRoutesFreightContentIds.IronRidgeIronOreFreightContractId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId);
+                if (moderateRiskResult != null && moderateRiskResult.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompleteModerateRiskFreightContract,
+                        moderateRiskResult.Message);
+                    EvaluateRouteRiskModerateRewardSteps(moderateRiskResult);
+                }
+            }
+
+            return true;
+        }
+
+        private void EnsureWagonReadyForFreight()
+        {
+            if (boundVehicleService == null || !boundVehicleService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundVehicleService.OwnsWagon)
+            {
+                boundVehicleService.TryGrantWagonOwnership();
+            }
+
+            boundVehicleService.TrySummonWagonNearPlayer();
+        }
+
+        private void TryLoadFreightItemIntoWagon(string itemId, int quantity)
+        {
+            if (boundVehicleService == null
+                || !boundVehicleService.IsInitialized
+                || boundStorageService == null
+                || !boundStorageService.IsInitialized
+                || quantity <= 0)
+            {
+                return;
+            }
+
+            string cargoInstanceId = boundVehicleService.ActiveCargoInstanceId;
+            if (string.IsNullOrWhiteSpace(cargoInstanceId)
+                || !boundStorageService.TryGetRegisteredContainer(cargoInstanceId, out CCS_StorageContainer container)
+                || container == null)
+            {
+                return;
+            }
+
+            CCS_ItemDefinition itemDefinition = FindItemDefinitionById(itemId);
+            if (itemDefinition == null)
+            {
+                return;
+            }
+
+            container.TryAddItem(itemDefinition, quantity, out int added);
+            if (added > 0)
+            {
+                LogDebug($"Loaded {added}x {itemId} into wagon cargo for route risk freight playtest.");
+            }
+        }
+
+        private void CaptureRouteRiskBaselinesIfNeeded()
+        {
+            if (routeRiskBaselinesCaptured)
+            {
+                return;
+            }
+
+            if (boundTradeRouteService != null && boundTradeRouteService.IsInitialized)
+            {
+                if (boundTradeRouteService.TryGetUsageCount(
+                        CCS_TradeRoutesFreightContentIds.BrokenCreekToTradingPostRouteId,
+                        out int brokenCreekUsage))
+                {
+                    routeRiskBrokenCreekUsageBaseline = brokenCreekUsage;
+                }
+
+                if (boundTradeRouteService.TryGetUsageCount(
+                        CCS_TradeRoutesFreightContentIds.IronRidgeToTradingPostRouteId,
+                        out int ironRidgeUsage))
+                {
+                    routeRiskIronRidgeUsageBaseline = ironRidgeUsage;
+                }
+            }
+
+            routeRiskBaselinesCaptured = true;
+        }
+
+        private void EvaluateRouteRiskLowRewardSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null
+                || !result.IsSuccess
+                || !string.Equals(
+                    result.ContractId,
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekCornFreightContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            routeRiskLowFinalReward = result.TradeDollarsGranted;
+            bool rewardValid = result.HasFreightRewardBreakdown
+                && result.BaseTradeDollarsReward > 0
+                && result.TradeDollarsGranted >= result.BaseTradeDollarsReward
+                && result.TradeDollarsGranted >= 0;
+            if (rewardValid)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyLowRiskFreightReward,
+                    $"Low-risk reward base={result.BaseTradeDollarsReward} final={result.TradeDollarsGranted} " +
+                    $"(route x{result.RouteRewardMultiplier:0.###}, risk x{result.RiskRewardMultiplier:0.###}).");
+            }
+        }
+
+        private void EvaluateRouteRiskModerateRewardSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null
+                || !result.IsSuccess
+                || !string.Equals(
+                    result.ContractId,
+                    CCS_TradeRoutesFreightContentIds.IronRidgeIronOreFreightContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            bool higherThanLow = routeRiskLowFinalReward > 0
+                && result.TradeDollarsGranted > routeRiskLowFinalReward;
+            bool rewardValid = result.HasFreightRewardBreakdown
+                && result.BaseTradeDollarsReward > 0
+                && result.TradeDollarsGranted >= result.BaseTradeDollarsReward;
+            if (rewardValid && higherThanLow)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyModerateRiskFreightHigherReward,
+                    $"Moderate-risk final={result.TradeDollarsGranted} exceeds low-risk final={routeRiskLowFinalReward}.");
+            }
+        }
+
+        private bool TryCaptureRouteRiskFreightSaveState()
+        {
+            if (routeRiskSaveCaptured)
+            {
+                return false;
+            }
+
+            if (boundTradeRouteService != null && boundTradeRouteService.IsInitialized)
+            {
+                if (boundTradeRouteService.TryGetUsageCount(
+                        CCS_TradeRoutesFreightContentIds.BrokenCreekToTradingPostRouteId,
+                        out int brokenCreekUsage))
+                {
+                    savedRouteRiskBrokenCreekUsageCount = brokenCreekUsage;
+                }
+
+                if (boundTradeRouteService.TryGetUsageCount(
+                        CCS_TradeRoutesFreightContentIds.IronRidgeToTradingPostRouteId,
+                        out int ironRidgeUsage))
+                {
+                    savedRouteRiskIronRidgeUsageCount = ironRidgeUsage;
+                }
+            }
+
+            routeRiskSaveCaptured = savedRouteRiskBrokenCreekUsageCount > routeRiskBrokenCreekUsageBaseline
+                || savedRouteRiskIronRidgeUsageCount > routeRiskIronRidgeUsageBaseline;
+            return routeRiskSaveCaptured;
+        }
+
+        private void EvaluateRouteRiskFreightStateAfterLoad()
+        {
+            if (!routeRiskSaveCaptured)
+            {
+                return;
+            }
+
+            bool brokenCreekUsageRestored = boundTradeRouteService != null
+                && boundTradeRouteService.IsInitialized
+                && boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekToTradingPostRouteId,
+                    out int brokenCreekUsage)
+                && brokenCreekUsage == savedRouteRiskBrokenCreekUsageCount;
+
+            bool ironRidgeUsageRestored = boundTradeRouteService != null
+                && boundTradeRouteService.IsInitialized
+                && boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.IronRidgeToTradingPostRouteId,
+                    out int ironRidgeUsage)
+                && ironRidgeUsage == savedRouteRiskIronRidgeUsageCount;
+
+            bool cornCompleted = boundContractService != null
+                && boundContractService.IsInitialized
+                && boundContractService.GetContractState(
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekCornFreightContractId)
+                    == CCS_ContractState.Completed;
+
+            bool ironCompleted = boundContractService != null
+                && boundContractService.IsInitialized
+                && boundContractService.GetContractState(
+                    CCS_TradeRoutesFreightContentIds.IronRidgeIronOreFreightContractId)
+                    == CCS_ContractState.Completed;
+
+            if (brokenCreekUsageRestored && ironRidgeUsageRestored && cornCompleted && ironCompleted)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRouteRiskFreightStateAfterLoad,
+                    "Route risk freight contracts and route usage counts restored after load.");
+            }
         }
 
         private void TryLoadLumberIntoWagonCargoForFreight()

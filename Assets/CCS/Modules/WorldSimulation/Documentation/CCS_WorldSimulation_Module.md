@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.5.0** — Freight completion unchanged for prosperity/supply; optional conservative bonus destination reputation from route risk (`CCS_TradeRouteRewardModifierUtility.ResolveBonusReputation`). Route usage counts still persist via `CCS_TradeRouteService`; risk multipliers are profile-only.
+
 Milestone **3.4.0** — Freight contract completion applies destination prosperity and supply through `HandleContractCompleted` (no population changes). Trade route usage is tracked separately via `CCS_TradeRouteService`.
 
 Milestone **3.2.0** — Settlement growth evaluation after contract completion, major supply updates, prosperity recalculation, and save/load restore. Growth profile on `CCS_WorldSimulationProfile.settlementGrowthProfile`.

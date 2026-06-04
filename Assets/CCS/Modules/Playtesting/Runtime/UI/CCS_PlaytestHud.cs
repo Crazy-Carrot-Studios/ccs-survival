@@ -272,6 +272,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestTradeRoutesFreightShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.Q))
+            {
+                playtestService.TryPlaytestRouteRiskFreightShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.M))
             {
                 playtestService.TryPlaytestMiningFoundationShortcut();

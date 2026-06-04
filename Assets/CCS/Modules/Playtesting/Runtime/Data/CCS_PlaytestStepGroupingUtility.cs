@@ -42,7 +42,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.RegionalEconomy,
             CCS_PlaytestStepGroup.SettlementGrowth,
             CCS_PlaytestStepGroup.MultiSettlement,
-            CCS_PlaytestStepGroup.TradeRoutesFreight
+            CCS_PlaytestStepGroup.TradeRoutesFreight,
+            CCS_PlaytestStepGroup.RouteRiskFreight
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -108,6 +109,8 @@ namespace CCS.Modules.Playtesting
                     return "Multi-Settlement";
                 case CCS_PlaytestStepGroup.TradeRoutesFreight:
                     return "Trade Routes / Freight";
+                case CCS_PlaytestStepGroup.RouteRiskFreight:
+                    return "Route Risk / Freight";
                 default:
                     return group.ToString();
             }
@@ -415,6 +418,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveFreightRouteState:
                 case CCS_PlaytestStepType.VerifyFreightRouteStateAfterLoad:
                     return CCS_PlaytestStepGroup.TradeRoutesFreight;
+
+                case CCS_PlaytestStepType.AcceptLowRiskFreightContract:
+                case CCS_PlaytestStepType.CompleteLowRiskFreightContract:
+                case CCS_PlaytestStepType.VerifyLowRiskFreightReward:
+                case CCS_PlaytestStepType.AcceptModerateRiskFreightContract:
+                case CCS_PlaytestStepType.CompleteModerateRiskFreightContract:
+                case CCS_PlaytestStepType.VerifyModerateRiskFreightHigherReward:
+                case CCS_PlaytestStepType.SaveRouteRiskFreightState:
+                case CCS_PlaytestStepType.VerifyRouteRiskFreightStateAfterLoad:
+                    return CCS_PlaytestStepGroup.RouteRiskFreight;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

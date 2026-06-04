@@ -1,4 +1,5 @@
 using CCS.Modules.CharacterController;
+using CCS.Modules.Settlements;
 using UnityEngine;
 
 // =============================================================================
@@ -8,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Auto-created at runtime; opened from settlement contract board routes.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.0.0 frontier contracts foundation.
+// NOTES: Milestone 3.5.0 — freight route risk and reward preview on debug contract board.
 // =============================================================================
 
 namespace CCS.Modules.Contracts
@@ -79,9 +80,20 @@ namespace CCS.Modules.Contracts
             }
 
             string label = definition != null ? definition.DisplayName : result.ContractId;
-            s_lastSummary =
-                $"{result.Message} | dollars +{result.TradeDollarsGranted} | rep +{result.ReputationGainApplied} | "
-                + $"prosperity +{result.ProsperityGainApplied:0.0} | supply +{result.SupplyAmountApplied:0.0} | {settlementId}";
+            if (result.HasFreightRewardBreakdown)
+            {
+                s_lastSummary =
+                    $"{result.Message} | route {result.LinkedTradeRouteId} ({result.RouteRiskLevel}) | "
+                    + $"base {result.BaseTradeDollarsReward} -> final {result.TradeDollarsGranted} | "
+                    + $"mult route x{result.RouteRewardMultiplier:0.##} risk x{result.RiskRewardMultiplier:0.##} | "
+                    + $"rep +{result.ReputationGainApplied} | {settlementId}";
+            }
+            else
+            {
+                s_lastSummary =
+                    $"{result.Message} | dollars +{result.TradeDollarsGranted} | rep +{result.ReputationGainApplied} | "
+                    + $"prosperity +{result.ProsperityGainApplied:0.0} | supply +{result.SupplyAmountApplied:0.0} | {settlementId}";
+            }
         }
 
         private void Update()
@@ -105,7 +117,7 @@ namespace CCS.Modules.Contracts
             }
 
             const float width = 460f;
-            const float height = 420f;
+            const float height = 480f;
             Rect panel = new Rect(Screen.width - width - 20f, 20f, width, height);
             GUI.Box(panel, GUIContent.none);
             GUILayout.BeginArea(new Rect(panel.x + 10f, panel.y + 10f, panel.width - 20f, panel.height - 20f));
@@ -237,6 +249,11 @@ namespace CCS.Modules.Contracts
             string routeLabel = definition.IsFreightContract
                 ? $" {definition.FreightSourceSettlementId} -> {definition.FreightDestinationSettlementId}"
                 : string.Empty;
+            if (definition.IsFreightContract)
+            {
+                DrawFreightRouteRewardInfo(definition);
+            }
+
             GUILayout.BeginHorizontal();
             GUILayout.Label($"{definition.DisplayName}{routeLabel} [{state}]", GUILayout.Width(300f));
             if (state == CCS_ContractState.Available
@@ -259,6 +276,35 @@ namespace CCS.Modules.Contracts
             }
 
             GUILayout.EndHorizontal();
+        }
+
+        private static void DrawFreightRouteRewardInfo(CCS_ContractDefinition definition)
+        {
+            if (definition == null)
+            {
+                return;
+            }
+
+            CCS_TradeRouteService tradeRouteService = null;
+            CCS_TradeRouteRuntimeBridge.TryGetTradeRouteService(out tradeRouteService);
+
+            CCS_TradeRouteFreightRewardBreakdown breakdown =
+                CCS_TradeRouteRewardModifierUtility.TryCalculateForLinkedRoute(
+                    definition.Reward.TradeDollars,
+                    definition.LinkedTradeRouteId,
+                    tradeRouteService);
+
+            int usageCount = 0;
+            bool hasUsage = tradeRouteService != null
+                && tradeRouteService.IsInitialized
+                && !string.IsNullOrWhiteSpace(definition.LinkedTradeRouteId)
+                && tradeRouteService.TryGetUsageCount(definition.LinkedTradeRouteId, out usageCount);
+
+            string usageLabel = hasUsage ? usageCount.ToString() : "n/a";
+            GUILayout.Label(
+                $"Route: {breakdown.LinkedRouteId} | Risk: {breakdown.RiskLevel} | Base: {breakdown.BaseTradeDollars} | "
+                + $"Final: {breakdown.FinalTradeDollars} | Mult: route x{breakdown.RouteMultiplier:0.##} "
+                + $"risk x{breakdown.RiskMultiplier:0.##} | Usage: {usageLabel}");
         }
     }
 }

@@ -1,5 +1,7 @@
 # CCS Contracts Module
 
+Milestone **3.5.0** — Freight contracts with `linkedTradeRouteId` scale trade-dollar rewards by route base/distance and risk multipliers (`CCS_TradeRouteRewardModifierUtility`). `CCS_ContractCompletionResult` and `CCS_ContractDebugHud` expose base/route/risk/final reward breakdown. Local contracts unchanged; missing route service falls back to base reward.
+
 Milestone **3.4.0** — **FreightDelivery** contracts with origin/destination settlement boards, wagon-cargo-first completion (`CCS_ContractFreightUtility`), optional player-inventory fallback, destination prosperity/supply rewards, and linked trade route usage tracking.
 
 Milestone **3.2.0** — Contract completion increments settlement `completedContractsCount` and triggers world simulation growth evaluation (rewards unchanged; no duplicate prosperity logic).
@@ -28,17 +30,24 @@ Generic settlement **contract / job** system for item-delivery requests in excha
 - Stable Supply
 - Trading Post Supply
 - Land Office Supply
-- Freight Delivery (3.4.0)
+- Freight Delivery (3.4.0+)
 
-## Freight delivery (3.4.0)
+## Freight delivery (3.4.0 / 3.5.0)
 
 - Accept at **source** settlement contract board
 - Complete at **destination** contract board
 - `GetSettlementBoardContracts` lists local supply, outbound freight, and inbound accepted freight
 - Rewards apply at destination; optional `OriginReputationGain` at source
 - Bootstrap: `CCS_TradeRoutesFreightFoundationBootstrapSetup.ExecuteBatch`
+- Route risk bootstrap: `CCS_TradeRoutesRiskFoundationBootstrapSetup.ExecuteBatch`
 
-**Freight loop:** Produce Regional Goods → Load Wagon → Travel Route → Deliver To Destination → Increase Prosperity + Reputation
+**Freight loop (3.4.0):** Produce Regional Goods → Load Wagon → Travel Route → Deliver To Destination → Increase Prosperity + Reputation
+
+**Route risk freight loop (3.5.0):**
+
+```text
+Accept Freight → Assess Route Risk → Load Wagon → Deliver Goods → Earn Risk-Adjusted Reward
+```
 
 ## Requirements
 
@@ -52,7 +61,7 @@ Each contract supports:
 
 Conservative values only:
 
-- Trade Dollars (`CCS_CurrencyService`)
+- Trade Dollars (`CCS_CurrencyService`) — freight with linked route: `base × routeMultiplier × riskMultiplier` (non-negative)
 - Reputation gain (`CCS_ReputationService.TryApplyContractReward`)
 - Settlement prosperity + supply category (`CCS_WorldSimulationService.HandleContractCompleted`)
 - Settlement growth progress (`completedContractsCount` + `EvaluateSettlementGrowth`)

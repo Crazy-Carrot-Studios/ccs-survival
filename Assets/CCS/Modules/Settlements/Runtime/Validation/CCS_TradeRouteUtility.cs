@@ -8,7 +8,7 @@ using CCS.Survival;
 // PLACEMENT: Used by validators, save capture, and future trade route services.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.4.0 — discovery, active, usage snapshots for freight.
+// NOTES: Milestone 3.5.0 — discovery, active, usage, and risk snapshot fields for freight.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -66,6 +66,13 @@ namespace CCS.Modules.Settlements
                     return CCS_SurvivalValidationResult.Fail(
                         $"Trade route '{definition.RouteId}' distance must be greater than zero.");
                 }
+
+                CCS_SurvivalValidationResult rewardValidation =
+                    CCS_TradeRouteRewardModifierUtility.ValidateRouteRewardFields(definition);
+                if (!rewardValidation.IsSuccess)
+                {
+                    return rewardValidation;
+                }
             }
 
             return CCS_SurvivalValidationResult.Pass("Trade route profile validated.");
@@ -105,6 +112,9 @@ namespace CCS.Modules.Settlements
                 preferredGoods = definition.PreferredGoods,
                 distance = definition.Distance,
                 routeDifficulty = (int)definition.RouteDifficulty,
+                riskRating = (int)definition.RiskRating,
+                baseFreightMultiplier = definition.BaseFreightMultiplier,
+                distanceMultiplier = definition.DistanceMultiplier,
                 isDiscovered = isDiscovered,
                 isActive = isActive,
                 usageCount = usageCount < 0 ? 0 : usageCount

@@ -23,3 +23,8 @@ MonoBehaviour:
   routeDifficulty: 3
   startsDiscovered: 0
   startsActive: 1
+  riskRating: 3
+  baseFreightMultiplier: 1.12
+  distanceMultiplier: 1.12
+  preferredWagonRequirementPlaceholder: ccs.survival.vehicle.wagon.frontier
+  routeConditionPlaceholder: frontier.dust

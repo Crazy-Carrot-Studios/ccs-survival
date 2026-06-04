@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Content/TradeRoutes/
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.4.0 — metadata + discovery/active defaults; no transport simulation.
+// NOTES: Milestone 3.5.0 — route risk and freight reward modifiers; no encounter simulation.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -33,6 +33,22 @@ namespace CCS.Modules.Settlements
         [Tooltip("Whether this route starts active when discovered and no save state exists.")]
         [SerializeField] private bool startsActive = true;
 
+        [Header("Freight Risk And Rewards")]
+        [Tooltip("Route risk band for freight reward scaling.")]
+        [SerializeField] private CCS_TradeRouteRiskLevel riskRating = CCS_TradeRouteRiskLevel.Safe;
+
+        [Tooltip("Regional or cargo freight bonus multiplier.")]
+        [SerializeField] private float baseFreightMultiplier = 1f;
+
+        [Tooltip("Distance-based freight multiplier applied with base freight multiplier.")]
+        [SerializeField] private float distanceMultiplier = 1f;
+
+        [Tooltip("Placeholder preferred wagon requirement for future freight gates.")]
+        [SerializeField] private string preferredWagonRequirementPlaceholder = string.Empty;
+
+        [Tooltip("Placeholder route condition tag for future weather or event modifiers.")]
+        [SerializeField] private string routeConditionPlaceholder = string.Empty;
+
         public string RouteId => routeId ?? string.Empty;
         public string DisplayName => displayName ?? string.Empty;
         public string OriginSettlementId => originSettlementId ?? string.Empty;
@@ -45,5 +61,15 @@ namespace CCS.Modules.Settlements
         public bool StartsDiscovered => startsDiscovered;
 
         public bool StartsActive => startsActive;
+
+        public CCS_TradeRouteRiskLevel RiskRating => riskRating;
+
+        public float BaseFreightMultiplier => baseFreightMultiplier < 0f ? 0f : baseFreightMultiplier;
+
+        public float DistanceMultiplier => distanceMultiplier < 0f ? 0f : distanceMultiplier;
+
+        public string PreferredWagonRequirementPlaceholder => preferredWagonRequirementPlaceholder ?? string.Empty;
+
+        public string RouteConditionPlaceholder => routeConditionPlaceholder ?? string.Empty;
     }
 }

@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.5.0 — Route risk and freight bonus (risk rating, base/distance multipliers, reward utility)  
 **Milestone:** 3.4.0 — Trade routes and freight contracts (discovery, active, usage; outbound regional freight)  
 **Milestone:** 3.3.0 — Multi-settlement frontier network (4 independent settlements)
 
@@ -46,8 +47,19 @@ Each settlement maintains independent discovery, prosperity, supply, growth stag
 Trade route metadata (no transport simulation):
 
 - `CCS_TradeRouteDefinition` / `CCS_TradeRouteProfile` / `CCS_TradeRouteSnapshot`
+- Risk: `CCS_TradeRouteRiskLevel` (Safe, Low, Moderate active; Dangerous/Severe placeholders)
+- Rewards: `baseFreightMultiplier`, `distanceMultiplier`, `CCS_TradeRouteRewardModifierUtility`
+- Placeholders: `preferredWagonRequirementPlaceholder`, `routeConditionPlaceholder`
 - Runtime: `CCS_TradeRouteService` (discovery, active, usage count)
-- Persisted through `CCS_SaveTradeRoutesWorldData`
+- Persisted usage through `CCS_SaveTradeRoutesWorldData` (risk fields are profile data)
+
+Route risk bootstrap batch:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_TradeRoutesRiskFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Route Risk / Freight** — shortcut **Ctrl+Shift+Q**.
 
 Freight bootstrap batch:
 

@@ -2,6 +2,10 @@
 
 Generic vehicle framework for hand carts, wagons, stagecoaches, and future mine carts.
 
+## Milestone 3.5.0 — Route risk freight
+
+Wagon cargo remains the delivery path for risk-adjusted freight rewards. Trade routes store `preferredWagonRequirementPlaceholder` (e.g. frontier wagon id) for future enforcement — not validated in 3.5.0.
+
 ## Milestone 3.4.0 — Freight cargo
 
 `CCS_VehicleService.ActiveCargoInstanceId` resolves the summoned wagon storage instance for `CCS_ContractFreightUtility` (prefer wagon cargo; remove goods on freight delivery). No loading UI in this milestone.
