@@ -18,6 +18,10 @@ namespace CCS.Modules.Settlements
 
         public string Message { get; set; } = string.Empty;
 
+        public string ServiceAccessResultType { get; set; } = string.Empty;
+
+        public string MissingRequirementMessage { get; set; } = string.Empty;
+
         public bool IsSuccess => Status == CCS_SettlementServiceActivationStatus.Succeeded;
 
         public static CCS_SettlementServiceActivationResult Success(

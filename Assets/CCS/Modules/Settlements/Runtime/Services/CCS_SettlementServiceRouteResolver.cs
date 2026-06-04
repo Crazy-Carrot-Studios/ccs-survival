@@ -1,6 +1,7 @@
 using CCS.Modules.Banking;
 using CCS.Modules.Economy;
 using CCS.Modules.Industry;
+using CCS.Modules.Reputation;
 using UnityEngine;
 
 // =============================================================================
@@ -163,9 +164,66 @@ namespace CCS.Modules.Settlements
                     ResolveUnavailableMessage(servicePoint, "Industry services are not available."));
             }
 
+            CCS_ServiceAccessResult accessResult = EvaluateServiceAccess(servicePoint);
+            if (!accessResult.IsAllowed)
+            {
+                return BlockedFromAccessResult(servicePoint, accessResult);
+            }
+
             return CCS_SettlementServiceActivationResult.Success(
                 ResolveRouteType(servicePoint),
                 "Service point is available.");
+        }
+
+        public static CCS_ServiceAccessResult EvaluateServiceAccess(CCS_SettlementServicePoint servicePoint)
+        {
+            if (servicePoint == null)
+            {
+                return CCS_ServiceAccessResult.Denied(
+                    CCS_ServiceAccessResultType.DeniedUnavailable,
+                    "Service point is missing.");
+            }
+
+            CCS_ReputationService reputationService = null;
+            CCS_ReputationRuntimeBridge.TryGetReputationService(out reputationService);
+            return servicePoint.EvaluateServiceAccess(reputationService);
+        }
+
+        private static CCS_SettlementServiceActivationResult BlockedFromAccessResult(
+            CCS_SettlementServicePoint servicePoint,
+            CCS_ServiceAccessResult accessResult)
+        {
+            CCS_SettlementServiceActivationStatus status = MapAccessResultToStatus(accessResult.ResultType);
+            string displayName = servicePoint.GetInteractionDisplayName();
+            CCS_SettlementDebugMessageHud.ShowServiceAccessResult(
+                displayName,
+                accessResult.ResultType.ToString(),
+                accessResult.Message,
+                accessResult.MissingRequirementPlaceholder);
+
+            CCS_SettlementServiceActivationResult blocked = CCS_SettlementServiceActivationResult.Blocked(
+                CCS_SettlementServiceRouteType.Unavailable,
+                status,
+                accessResult.Message);
+            blocked.ServiceAccessResultType = accessResult.ResultType.ToString();
+            blocked.MissingRequirementMessage = accessResult.MissingRequirementPlaceholder;
+            return blocked;
+        }
+
+        private static CCS_SettlementServiceActivationStatus MapAccessResultToStatus(
+            CCS_ServiceAccessResultType resultType)
+        {
+            switch (resultType)
+            {
+                case CCS_ServiceAccessResultType.DeniedReputation:
+                    return CCS_SettlementServiceActivationStatus.DeniedReputation;
+                case CCS_ServiceAccessResultType.DeniedDisabled:
+                    return CCS_SettlementServiceActivationStatus.Disabled;
+                case CCS_ServiceAccessResultType.MissingRequirement:
+                    return CCS_SettlementServiceActivationStatus.MissingRequirement;
+                default:
+                    return CCS_SettlementServiceActivationStatus.Unavailable;
+            }
         }
 
         private static CCS_SettlementServiceActivationResult TryActivateVendorRoute(CCS_SettlementServicePoint servicePoint)
@@ -188,8 +246,8 @@ namespace CCS.Modules.Settlements
                     "Vendor service is not ready.");
             }
 
-            vendorService.SetActiveVendor(vendorDefinition);
-            CCS_VendorDebugHud.NotifyVendorActivated(vendorDefinition);
+            vendorService.SetActiveVendor(vendorDefinition, servicePoint.ResolveSettlementId());
+            CCS_VendorDebugHud.NotifyVendorActivated(vendorDefinition, servicePoint.ResolveSettlementId());
             return CCS_SettlementServiceActivationResult.Success(
                 CCS_SettlementServiceRouteType.Vendor,
                 $"Vendor route active: {vendorDefinition.DisplayName}.");

@@ -17,6 +17,7 @@ namespace CCS.Modules.Reputation.Editor
         static CCS_ReputationValidationRegistration()
         {
             CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_ReputationFoundationValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_ServiceAccessFoundationValidationValidator());
         }
     }
 }

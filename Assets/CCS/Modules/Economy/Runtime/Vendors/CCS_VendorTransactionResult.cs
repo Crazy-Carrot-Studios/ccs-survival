@@ -7,6 +7,7 @@ using CCS.Modules.Inventory;
 // PLACEMENT: Returned by CCS_VendorService and raised on completion events.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
+// NOTES: Milestone 2.8.0 adds base/final unit price and reputation modifier fields.
 // =============================================================================
 
 namespace CCS.Modules.Economy
@@ -21,7 +22,11 @@ namespace CCS.Modules.Economy
             int currencyAmount,
             int currencyBalanceAfter,
             bool wasSell,
-            string message)
+            string message,
+            int baseUnitPrice = 0,
+            int finalUnitPrice = 0,
+            float reputationPriceModifier = 1f,
+            string settlementId = "")
         {
             ResultType = resultType;
             VendorId = vendorId ?? string.Empty;
@@ -32,6 +37,10 @@ namespace CCS.Modules.Economy
             WasSell = wasSell;
             Message = message ?? string.Empty;
             CurrencyDelta = wasSell ? currencyAmount : -currencyAmount;
+            BaseUnitPrice = baseUnitPrice;
+            FinalUnitPrice = finalUnitPrice;
+            ReputationPriceModifier = reputationPriceModifier;
+            SettlementId = settlementId ?? string.Empty;
         }
 
         public CCS_VendorTransactionResultType ResultType { get; }
@@ -52,6 +61,14 @@ namespace CCS.Modules.Economy
         public bool WasSell { get; }
 
         public string Message { get; }
+
+        public int BaseUnitPrice { get; }
+
+        public int FinalUnitPrice { get; }
+
+        public float ReputationPriceModifier { get; }
+
+        public string SettlementId { get; }
 
         public bool IsSuccess => ResultType == CCS_VendorTransactionResultType.Success;
 

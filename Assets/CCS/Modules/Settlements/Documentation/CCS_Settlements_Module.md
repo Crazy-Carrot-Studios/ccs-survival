@@ -116,14 +116,29 @@ Activation events include `RouteType`, `ActivationStatus`, and `Message` for pla
 | `CCS_SettlementRuntimeBridge` | Service registry resolver |
 | `CCS_SettlementValidationUtility` | Profile validation |
 
-## Reputation integration (2.7.0)
+## Reputation integration (2.7.0+)
 
 Optional bind to `CCS_ReputationService`:
 
 - `TryGetSettlementReputation(settlementId, out standing)` — current value and tier
 - `SettlementReputationChanged` — forwarded settlement-scope changes
 
-No vendor lockouts or service restrictions in 2.7.0. Trust is profile-driven and visible in debug HUD / validation only.
+### Service access (2.8.0)
+
+`CCS_SettlementServiceRouteResolver.EvaluateAvailability` calls `CCS_ServiceAccessEvaluationUtility` before routing.
+
+`CCS_SettlementServicePoint.EvaluateServiceAccess` supports profile-driven rules:
+
+- Minimum reputation tier / value (active)
+- Required discovered settlement
+- Camp tier / land claim placeholders
+- Enabled / disabled rules
+
+Access results: Allowed, DeniedReputation, DeniedUnavailable, DeniedDisabled, MissingRequirement.
+
+Default content keeps core services allowed at Neutral. Blacksmith advanced access may require Trusted (non-essential).
+
+Settlement debug HUD shows access result and missing requirement message.
 
 See `Assets/CCS/Modules/Reputation/Documentation/CCS_Reputation_Module.md`.
 

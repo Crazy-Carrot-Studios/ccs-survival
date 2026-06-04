@@ -1,27 +1,37 @@
 # CCS Reputation Module
 
+Milestone **2.8.0** — service access rules and vendor buy price modifiers driven by settlement trust.
+
 Milestone **2.7.0** — generic reputation and service trust foundation for frontier settlements.
 
 ## Purpose
 
-Tracks player standing by scope (settlement, region, service, future faction, global) for future discounts, access rules, law systems, faction hooks, and quests. Western-specific reputation naming lives in Survival content assets under `Assets/CCS/Survival/Content/Reputation/`.
+Tracks player standing by scope (settlement, region, service, future faction, global) for discounts, service access rules, law systems, faction hooks, and quests. Western-specific reputation naming lives in Survival content assets under `Assets/CCS/Survival/Content/Reputation/`.
 
-## Frontier Trust Loop
+## Frontier Trust Service Loop
 
-Discover Settlement  
-↓  
-Trade / Pay Obligations  
-↓  
-Settlement Trust Changes  
-↓  
-Future Service Access / Discounts / Law Hooks  
+```text
+Trade / Pay Obligations
+  ↓
+Settlement Trust Improves
+  ↓
+Better Service Terms
+  ↓
+Future Service Access Rules
+```
 
 ## Runtime Types
 
 | Type | Role |
 |------|------|
 | `CCS_ReputationDefinition` | ScriptableObject standing track (scope, target id, min/max/default) |
-| `CCS_ReputationProfile` | Profile catalog, event hook flags, conservative deltas |
+| `CCS_ReputationProfile` | Profile catalog, event hooks, price modifiers, service access profile |
+| `CCS_ServiceAccessRule` | ScriptableObject access requirement for settlement service points |
+| `CCS_ServiceAccessProfile` | Catalog of service access rules |
+| `CCS_ServiceAccessRequirement` | Min tier/value, discovery, camp tier, land claim placeholders |
+| `CCS_ServiceAccessResult` | Allowed / denied access with missing requirement message |
+| `CCS_ServiceAccessEvaluationUtility` | Evaluates rules against reputation and settlement context |
+| `CCS_ReputationPriceModifierUtility` | Resolves buy/sell modifiers by tier (fallback 1.0) |
 | `CCS_ReputationScopeType` | Settlement, Region, Service, FutureFaction, Global |
 | `CCS_ReputationTier` | Hostile, Distrusted, Neutral, Trusted, Honored |
 | `CCS_ReputationStanding` | Runtime query result (value + tier) |
@@ -30,25 +40,31 @@ Future Service Access / Discounts / Law Hooks
 | `CCS_ReputationChangedEventArgs` | Event payload when standing changes |
 | `CCS_ReputationService` | Standings, event application, save/restore |
 | `CCS_ReputationRuntimeBridge` | Service resolution for HUD and settlement integration |
-| `CCS_ReputationValidationUtility` | Shared profile/content validation |
+| `CCS_ReputationValidationUtility` | Shared profile/content/access/modifier validation |
 | `CCS_ReputationDebugHud` | Dev-only settlement trust summary |
 
-## Rules (2.7.0)
+## Rules (2.8.0)
 
-- Default range **-100 to +100**; new standings start **Neutral (0)**.
-- **Settlement** scope is active; Region/Service placeholders exist; factions deferred.
-- Profile-enabled hooks only — no forced reputation changes when flags are off.
-- Conservative deltas: goods sold +2, loan repaid +3, upkeep paid +2, failed upkeep -1 (profile tunable).
-- No service lockouts, final UI, quests, law, or NPC AI in this milestone.
+- **Service access:** profile-driven rules via `CCS_ServiceAccessProfile`; reputation tier/value checks active; camp tier and land claim are placeholders.
+- **Default:** core services allowed at Neutral; no rule configured means allowed.
+- **Blacksmith advanced placeholder:** optional Trusted tier requirement (non-essential service).
+- **Buy price modifiers:** Neutral 1.0, Trusted 0.95, Honored 0.90, Distrusted 1.10, Hostile 1.25 (profile tunable).
+- **Sell modifiers:** optional/conservative; disabled by default in default profile.
+- **Missing reputation service:** vendor modifiers fall back to 1.0; access evaluation allows when service unavailable.
 
 ## Settlement Integration
 
-`CCS_SettlementService` exposes:
+`CCS_SettlementServiceRouteResolver` evaluates `CCS_ServiceAccessEvaluationUtility` before activation.
 
-- `TryGetSettlementReputation(settlementId, out CCS_ReputationStanding standing)`
-- `SettlementReputationChanged` — forwarded from `CCS_ReputationService` for settlement scope
+`CCS_SettlementServicePoint.EvaluateServiceAccess` returns structured access results.
 
-Service points do not restrict access in 2.7.0.
+Activation statuses include `DeniedReputation` and `MissingRequirement`.
+
+## Economy Integration
+
+`CCS_VendorService` binds `CCS_ReputationService`, tracks active settlement id from service points, and applies buy/sell modifiers through `CCS_ReputationPriceModifierUtility`.
+
+`CCS_VendorTransactionResult` includes base unit price, final unit price, reputation modifier, and settlement id.
 
 ## Economy / Banking / Upkeep Hooks
 
@@ -68,18 +84,16 @@ Wired in composition when profile flags are enabled:
 
 ## Bootstrap
 
-Run **`CCS_ReputationFoundationBootstrapSetup.ExecuteBatch`** for Frontier Trading Post trust content, profile host wiring, and playtest steps.
+Run **`CCS_ReputationFoundationBootstrapSetup.ExecuteBatch`** for Frontier Trading Post trust content (2.7.0).
+
+Run **`CCS_ServiceAccessFoundationBootstrapSetup.ExecuteBatch`** for service access profile, blacksmith rule, price modifier wiring, and playtest steps (2.8.0).
 
 ## Playtest
 
-Reputation playtest group (`CCS_PlaytestStepGroup.Reputation`) covers sell trust increase, obligation trust change, save, and load verification.
+Reputation playtest group covers sell trust increase, obligation trust change, reputation standing, vendor buy modifier, service access check, save/load stability.
 
-Shortcut: **Ctrl+Shift+T** (`TryPlaytestReputationFoundationShortcut`).
+Shortcuts: **Ctrl+Shift+T** (reputation foundation), **Ctrl+Shift+Y** (service access foundation).
 
 ## Deferred
 
-- Factions and faction-wide standing
-- Quest reputation gates
-- Law/crime and bounty systems
-- Service lockouts and dynamic pricing
-- Final reputation UI
+Factions, quests, law/crime, NPC AI, final UI, aggressive service lockouts, sell price balancing, camp tier and land claim enforcement.

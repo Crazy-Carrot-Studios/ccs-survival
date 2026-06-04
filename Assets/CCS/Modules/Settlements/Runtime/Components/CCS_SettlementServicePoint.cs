@@ -1,5 +1,6 @@
 using CCS.Modules.Economy;
 using CCS.Modules.Interaction;
+using CCS.Modules.Reputation;
 using UnityEngine;
 
 // =============================================================================
@@ -126,6 +127,42 @@ namespace CCS.Modules.Settlements
             CCS_SettlementServiceActivationResult result = CCS_SettlementServiceRouteResolver.TryActivate(this);
             settlementLocation?.NotifyServicePointUsed(this, result);
             return result.IsSuccess;
+        }
+
+        public CCS_ServiceAccessResult EvaluateServiceAccess(CCS_ReputationService reputationService)
+        {
+            string settlementId = ResolveSettlementId();
+            bool isDiscovered = IsSettlementDiscovered();
+            return CCS_ServiceAccessEvaluationUtility.EvaluateForServicePoint(
+                reputationService,
+                settlementId,
+                ServicePointId,
+                (int)ServicePointType,
+                isDiscovered);
+        }
+
+        public string ResolveSettlementId()
+        {
+            if (settlementLocation == null)
+            {
+                settlementLocation = GetComponentInParent<CCS_SettlementLocation>();
+            }
+
+            return settlementLocation?.SettlementDefinition != null
+                ? settlementLocation.SettlementDefinition.SettlementId
+                : string.Empty;
+        }
+
+        private bool IsSettlementDiscovered()
+        {
+            if (settlementLocation?.SettlementDefinition == null
+                || !CCS_SettlementRuntimeBridge.TryGetSettlementService(out CCS_SettlementService settlementService)
+                || !settlementService.IsInitialized)
+            {
+                return false;
+            }
+
+            return settlementService.IsDiscovered(settlementLocation.SettlementDefinition.SettlementId);
         }
 
         #endregion

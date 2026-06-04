@@ -44,6 +44,60 @@ namespace CCS.Modules.Reputation
 
         [SerializeField] private bool enableDebugLogging = true;
 
+        [Header("Service Access")]
+        [SerializeField] private CCS_ServiceAccessProfile serviceAccessProfile;
+
+        [Header("Vendor Price Modifiers")]
+        [SerializeField] private bool enableBuyPriceModifiers = true;
+
+        [SerializeField] private bool enableSellPriceModifiers;
+
+        [SerializeField] private float neutralBuyPriceModifier = 1f;
+
+        [SerializeField] private float trustedBuyPriceModifier = 0.95f;
+
+        [SerializeField] private float honoredBuyPriceModifier = 0.9f;
+
+        [SerializeField] private float distrustedBuyPriceModifier = 1.1f;
+
+        [SerializeField] private float hostileBuyPriceModifier = 1.25f;
+
+        [SerializeField] private float neutralSellPriceModifier = 1f;
+
+        [SerializeField] private float trustedSellPriceModifier = 1f;
+
+        [SerializeField] private float honoredSellPriceModifier = 1f;
+
+        [SerializeField] private float distrustedSellPriceModifier = 1f;
+
+        [SerializeField] private float hostileSellPriceModifier = 1f;
+
+        public CCS_ServiceAccessProfile ServiceAccessProfile => serviceAccessProfile;
+
+        public bool EnableBuyPriceModifiers => enableBuyPriceModifiers;
+
+        public bool EnableSellPriceModifiers => enableSellPriceModifiers;
+
+        public float NeutralBuyPriceModifier => neutralBuyPriceModifier;
+
+        public float TrustedBuyPriceModifier => trustedBuyPriceModifier;
+
+        public float HonoredBuyPriceModifier => honoredBuyPriceModifier;
+
+        public float DistrustedBuyPriceModifier => distrustedBuyPriceModifier;
+
+        public float HostileBuyPriceModifier => hostileBuyPriceModifier;
+
+        public float NeutralSellPriceModifier => neutralSellPriceModifier;
+
+        public float TrustedSellPriceModifier => trustedSellPriceModifier;
+
+        public float HonoredSellPriceModifier => honoredSellPriceModifier;
+
+        public float DistrustedSellPriceModifier => distrustedSellPriceModifier;
+
+        public float HostileSellPriceModifier => hostileSellPriceModifier;
+
         public CCS_ReputationDefinition[] ReputationDefinitions =>
             reputationDefinitions ?? Array.Empty<CCS_ReputationDefinition>();
 

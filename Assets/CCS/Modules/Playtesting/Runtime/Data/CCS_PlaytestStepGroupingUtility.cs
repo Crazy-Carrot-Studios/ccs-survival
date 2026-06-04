@@ -339,6 +339,11 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifyReputationChangedAfterObligation:
                 case CCS_PlaytestStepType.SaveReputationState:
                 case CCS_PlaytestStepType.VerifyReputationAfterLoad:
+                case CCS_PlaytestStepType.VerifySettlementReputationStanding:
+                case CCS_PlaytestStepType.VerifyVendorBuyPriceModifier:
+                case CCS_PlaytestStepType.VerifySettlementServiceAccess:
+                case CCS_PlaytestStepType.SaveServiceAccessState:
+                case CCS_PlaytestStepType.VerifyServiceAccessAfterLoad:
                     return CCS_PlaytestStepGroup.Reputation;
 
                 default:

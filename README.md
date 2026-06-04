@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-2.8.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**2.8.0** — Service Access and Price Modifier Foundation
+
+Settlement **service access rules** (`CCS_ServiceAccessRule`, `CCS_ServiceAccessProfile`, `CCS_ServiceAccessEvaluationUtility`) evaluate reputation tier/value before service activation. **Vendor buy price modifiers** (`CCS_ReputationPriceModifierUtility`) apply conservative tier discounts/markups from settlement trust; `CCS_VendorTransactionResult` reports base/final price and modifier. Missing reputation service falls back safely to modifier 1.0. Debug HUD shows access results and price breakdown. Playtest steps and **Ctrl+Shift+Y** shortcut cover access/modifier save-load stability. No factions, quests, law, NPC AI, or final UI.
+
+**Frontier Trust Service Loop:**
+
+```text
+Trade / Pay Obligations → Settlement Trust Improves → Better Service Terms → Future Service Access Rules
+```
 
 **2.7.0** — Reputation and Service Trust Foundation
 

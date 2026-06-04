@@ -2,7 +2,11 @@
 
 **Author:** James Schilz  
 **Date:** 2026-06-01  
-**Latest:** 2.6.0 — Trade Dollars wallet syncs with `CCS_BankingService` deposit/withdraw and loan borrow/repay at settlement Bank service points.
+**Latest:** 2.8.0 — Vendor buy prices apply settlement reputation modifiers via `CCS_ReputationPriceModifierUtility`; active settlement id passed from service points; transaction results include base/final unit price and modifier; safe 1.0 fallback when reputation service is missing.
+
+**2.7.0** — Reputation event hooks from vendor sells feed settlement trust (no price modifiers yet).
+
+**2.6.0** — Trade Dollars wallet syncs with `CCS_BankingService` deposit/withdraw and loan borrow/repay at settlement Bank service points.
 
 **2.5.0** — Upkeep debits bank savings through `TryDebitForUpkeep` without wallet credit.
 
@@ -20,7 +24,7 @@
 
 Generic economy framework for any currency type and vendor buy/sell loop. Western frontier content (Trade Dollars, General Store) lives in Survival profiles under `Assets/CCS/Survival/Profiles/Economy/` and `Assets/CCS/Survival/Content/Vendors/`.
 
-No final vendor UI, NPC AI, reputation, or dynamic pricing in this milestone. **Settlement service routing (1.8.0+):** `CCS_SettlementServicePoint` activates existing vendor definitions — economy logic stays in `CCS_VendorService`. **Blacksmith (1.8.1):** routes to industry summary panel, not a duplicate vendor.
+No final vendor UI, NPC AI, or dynamic market simulation. **Settlement service routing (1.8.0+):** `CCS_SettlementServicePoint` activates existing vendor definitions — economy logic stays in `CCS_VendorService`. **Reputation buy modifiers (2.8.0):** settlement trust adjusts buy prices conservatively; sell modifiers optional. **Blacksmith (1.8.1):** routes to industry summary panel, not a duplicate vendor.
 
 ## Frontier progression philosophy
 

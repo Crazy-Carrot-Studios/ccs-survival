@@ -186,6 +186,8 @@ namespace CCS.Modules.Playtesting
         private int savedReputationValue;
         private CCS_ReputationTier savedReputationTier = CCS_ReputationTier.Neutral;
         private bool playtestReputationBaselineCaptured;
+        private float savedBuyPriceModifier = 1f;
+        private bool savedServiceAccessAllowed = true;
         private float worldSimulationFoodBaseline;
         private float worldSimulationIndustryBaseline;
         private float worldSimulationProsperityBaseline;
@@ -1219,6 +1221,11 @@ namespace CCS.Modules.Playtesting
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.SaveReputationState,
                         "Reputation state saved.");
+                    savedBuyPriceModifier = ResolvePlaytestBuyPriceModifier();
+                    savedServiceAccessAllowed = EvaluatePlaytestGeneralStoreAccessAllowed();
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveServiceAccessState,
+                        "Service access and price modifier state saved.");
                 }
 
                 TryCompleteActiveStepOfType(
@@ -1341,6 +1348,26 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyReputationAfterLoad,
                     "Reputation restored after load.");
+            }
+
+            EvaluateServiceAccessAfterLoad();
+        }
+
+        private void EvaluateServiceAccessAfterLoad()
+        {
+            if (boundReputationService == null || !boundReputationService.IsInitialized)
+            {
+                return;
+            }
+
+            float currentModifier = ResolvePlaytestBuyPriceModifier();
+            bool currentAccessAllowed = EvaluatePlaytestGeneralStoreAccessAllowed();
+            if (Mathf.Approximately(currentModifier, savedBuyPriceModifier)
+                && currentAccessAllowed == savedServiceAccessAllowed)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyServiceAccessAfterLoad,
+                    "Service access and buy price modifier stable after load.");
             }
         }
 
@@ -3911,6 +3938,10 @@ namespace CCS.Modules.Playtesting
             {
                 EvaluateReputationAfterSell();
             }
+            else if (result.IsSuccess)
+            {
+                EvaluateReputationAfterBuy(result);
+            }
         }
 
         private bool HasInventoryItem(string itemId)
@@ -4966,6 +4997,14 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestServiceAccessFoundationShortcut()
+        {
+            TryPlaytestReputationFoundationShortcut();
+            EvaluateSettlementReputationStanding();
+            EvaluateSettlementServiceAccess();
+            return true;
+        }
+
         public bool TryPlaytestForceUpkeepDue()
         {
             if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
@@ -5088,7 +5127,7 @@ namespace CCS.Modules.Playtesting
 
         private void EvaluateReputationAfterSell()
         {
-            if (!TryGetPlaytestSettlementReputation(out int value, out _))
+            if (!TryGetPlaytestSettlementReputation(out int value, out CCS_ReputationTier tier))
             {
                 return;
             }
@@ -5100,6 +5139,74 @@ namespace CCS.Modules.Playtesting
                     $"Trading post reputation increased to {value}.");
                 playtestReputationBeforeObligation = value;
             }
+
+            EvaluateSettlementReputationStanding();
+        }
+
+        private void EvaluateSettlementReputationStanding()
+        {
+            if (!TryGetPlaytestSettlementReputation(out int value, out CCS_ReputationTier tier))
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.VerifySettlementReputationStanding,
+                $"Settlement reputation standing: {tier} ({value}).");
+        }
+
+        private void EvaluateReputationAfterBuy(CCS_VendorTransactionResult result)
+        {
+            if (result == null || result.WasSell || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (result.BaseUnitPrice > 0
+                && result.FinalUnitPrice == CCS_ReputationPriceModifierUtility.ApplyModifier(
+                    result.BaseUnitPrice,
+                    result.ReputationPriceModifier))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyVendorBuyPriceModifier,
+                    $"Buy modifier {result.ReputationPriceModifier:0.00} applied "
+                    + $"(base {result.BaseUnitPrice}, final {result.FinalUnitPrice}).");
+            }
+        }
+
+        private void EvaluateSettlementServiceAccess()
+        {
+            if (!EvaluatePlaytestGeneralStoreAccessAllowed())
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.VerifySettlementServiceAccess,
+                "General store service access allowed.");
+        }
+
+        private bool EvaluatePlaytestGeneralStoreAccessAllowed()
+        {
+            if (boundReputationService == null || !boundReputationService.IsInitialized)
+            {
+                return true;
+            }
+
+            CCS_ServiceAccessResult accessResult = CCS_ServiceAccessEvaluationUtility.EvaluateForServicePoint(
+                boundReputationService,
+                CCS_ReputationContentIds.DefaultTradingPostSettlementId,
+                string.Empty,
+                (int)CCS_SettlementServicePointType.GeneralStore,
+                true);
+            return accessResult.IsAllowed;
+        }
+
+        private float ResolvePlaytestBuyPriceModifier()
+        {
+            return CCS_ReputationPriceModifierUtility.ResolveBuyPriceModifier(
+                boundReputationService,
+                CCS_ReputationContentIds.DefaultTradingPostSettlementId);
         }
 
         private void EvaluateReputationAfterObligation()

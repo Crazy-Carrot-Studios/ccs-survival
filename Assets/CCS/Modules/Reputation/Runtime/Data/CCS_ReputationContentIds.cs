@@ -20,5 +20,17 @@ namespace CCS.Modules.Reputation
             "Assets/CCS/Survival/Content/Reputation/CCS_Reputation_FrontierTradingPost.asset";
         public const string DefaultTradingPostSettlementId =
             "ccs.survival.settlement.frontier.testtradingpost";
+
+        public const string DefaultServiceAccessProfilePath =
+            "Assets/CCS/Survival/Profiles/Reputation/CCS_DefaultServiceAccessProfile.asset";
+
+        public const string DefaultServiceAccessProfileId =
+            "ccs.survival.profile.reputation.serviceaccess.default";
+
+        public const string BlacksmithAdvancedAccessRulePath =
+            "Assets/CCS/Survival/Content/Reputation/Access/CCS_ServiceAccessRule_BlacksmithAdvanced.asset";
+
+        public const string BlacksmithAdvancedAccessRuleId =
+            "ccs.survival.reputation.access.blacksmith.advanced";
     }
 }

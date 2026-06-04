@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3e5778444f12c48a0a2e3c11ed8337, type: 3}
+  m_Name: CCS_ServiceAccessRule_BlacksmithAdvanced
+  m_EditorClassIdentifier: CCS.Modules.Reputation.Runtime::CCS.Modules.Reputation.CCS_ServiceAccessRule
+  ruleId: ccs.survival.reputation.access.blacksmith.advanced
+  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  servicePointId: 
+  servicePointTypeFilter: 3
+  requirement:
+    enabled: 1
+    minimumReputationTier: 3
+    minimumReputationValue: 0
+    requireDiscoveredSettlement: 0
+    requiredCampTier: -1
+    requireLandClaim: 0
+    futureHookPlaceholder: service.access.blacksmith.advanced

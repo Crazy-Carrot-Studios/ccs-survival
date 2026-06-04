@@ -1,5 +1,6 @@
 using CCS.Modules.CharacterController;
 using CCS.Modules.Inventory;
+using CCS.Modules.Reputation;
 using UnityEngine;
 
 // =============================================================================
@@ -9,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: Bootstrap harness or vendor test object.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-01
-// NOTES: Dev hotkeys route through CCS_DevHotkeyUtility (Input System keyboard reads).
+// NOTES: Milestone 2.8.0 shows reputation price modifier and settlement standing.
 // =============================================================================
 
 namespace CCS.Modules.Economy
@@ -21,8 +22,10 @@ namespace CCS.Modules.Economy
         private const string BoneHatchetItemId = "ccs.survival.item.tool.hatchet.bone";
 
         private static CCS_VendorDefinition s_activeVendorDefinition;
+        private static string s_activeSettlementId = string.Empty;
         private static bool s_showPanel;
         private static string s_lastTransactionSummary = "Last transaction: none";
+        private static string s_reputationSummary = "Reputation: unavailable";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureInstance()
@@ -37,14 +40,16 @@ namespace CCS.Modules.Economy
             DontDestroyOnLoad(host);
         }
 
-        public static void NotifyVendorActivated(CCS_VendorDefinition vendorDefinition)
+        public static void NotifyVendorActivated(CCS_VendorDefinition vendorDefinition, string settlementId = "")
         {
             s_activeVendorDefinition = vendorDefinition;
+            s_activeSettlementId = settlementId ?? string.Empty;
             s_showPanel = vendorDefinition != null;
+            RefreshReputationSummary();
             if (vendorDefinition != null
                 && CCS_EconomyRuntimeBridge.TryGetVendorService(out CCS_VendorService vendorService))
             {
-                vendorService.SetActiveVendor(vendorDefinition);
+                vendorService.SetActiveVendor(vendorDefinition, s_activeSettlementId);
             }
         }
 
@@ -58,15 +63,21 @@ namespace CCS.Modules.Economy
 
             string itemLabel = string.IsNullOrEmpty(result.ItemId) ? "n/a" : result.ItemId;
             string action = result.WasSell ? "Sell" : "Buy";
+            string priceDetail = result.IsSuccess
+                ? $" | base {result.BaseUnitPrice} | mod {result.ReputationPriceModifier:0.00} | final {result.FinalUnitPrice}"
+                : string.Empty;
             s_lastTransactionSummary =
-                $"Last: {result.ResultType} | {action} {result.Quantity}x {itemLabel} | "
+                $"Last: {result.ResultType} | {action} {result.Quantity}x {itemLabel}{priceDetail} | "
                 + $"currency {result.CurrencyDelta:+#;-#;0} | balance {result.CurrencyBalanceAfter} | {result.Message}";
+            RefreshReputationSummary();
         }
 
         public static void HidePanel()
         {
             s_showPanel = false;
             s_activeVendorDefinition = null;
+            s_activeSettlementId = string.Empty;
+            s_reputationSummary = "Reputation: unavailable";
             if (CCS_EconomyRuntimeBridge.TryGetVendorService(out CCS_VendorService vendorService))
             {
                 vendorService.ClearActiveVendor();
@@ -108,14 +119,21 @@ namespace CCS.Modules.Economy
             }
 
             const float width = 420f;
-            const float height = 320f;
+            const float height = 360f;
             Rect panel = new Rect(20f, Screen.height - height - 20f, width, height);
             GUI.Box(panel, GUIContent.none);
             GUILayout.BeginArea(new Rect(panel.x + 10f, panel.y + 10f, panel.width - 20f, panel.height - 20f));
 
             GUILayout.Label($"Vendor: {s_activeVendorDefinition.DisplayName}");
+            if (!string.IsNullOrWhiteSpace(s_activeSettlementId))
+            {
+                GUILayout.Label($"Settlement: {s_activeSettlementId}");
+            }
+
             DrawCurrencyBalance();
-            GUILayout.Label(s_lastTransactionSummary, GUILayout.MaxHeight(48f));
+            DrawPriceModifierPreview();
+            GUILayout.Label(s_reputationSummary);
+            GUILayout.Label(s_lastTransactionSummary, GUILayout.MaxHeight(56f));
             GUILayout.Space(4f);
             GUILayout.Label("Hotkeys: Shift+V sell fish | V buy cordage | H buy hatchet | Esc close");
 
@@ -157,6 +175,37 @@ namespace CCS.Modules.Economy
                 $"{s_activeVendorDefinition.CurrencyDefinition.DisplayName}: {balance}");
         }
 
+        private static void DrawPriceModifierPreview()
+        {
+            if (!CCS_EconomyRuntimeBridge.TryGetVendorService(out CCS_VendorService vendorService))
+            {
+                return;
+            }
+
+            float buyModifier = vendorService.ResolveBuyPriceModifier();
+            GUILayout.Label($"Buy price modifier: {buyModifier:0.00}");
+        }
+
+        private static void RefreshReputationSummary()
+        {
+            if (string.IsNullOrWhiteSpace(s_activeSettlementId)
+                || !CCS_ReputationRuntimeBridge.TryGetReputationService(out CCS_ReputationService reputationService))
+            {
+                s_reputationSummary = "Reputation: unavailable (fallback modifier 1.00)";
+                return;
+            }
+
+            if (reputationService.TryGetSettlementStanding(s_activeSettlementId, out CCS_ReputationStanding standing)
+                && standing != null)
+            {
+                s_reputationSummary =
+                    $"Reputation: {standing.DisplayTier} ({standing.CurrentValue})";
+                return;
+            }
+
+            s_reputationSummary = "Reputation: neutral fallback (0)";
+        }
+
         private static void TryTransactionByItemId(string itemId, bool isSell)
         {
             if (string.IsNullOrWhiteSpace(itemId)
@@ -166,7 +215,7 @@ namespace CCS.Modules.Economy
                 return;
             }
 
-            vendorService.SetActiveVendor(s_activeVendorDefinition);
+            vendorService.SetActiveVendor(s_activeVendorDefinition, s_activeSettlementId);
             CCS_ItemDefinition item = FindItemDefinition(inventoryService, itemId);
             if (item == null)
             {

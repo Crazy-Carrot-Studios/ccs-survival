@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CCS.Modules.Inventory;
+using CCS.Modules.Reputation;
 using CCS.Survival;
 using UnityEngine;
 
@@ -27,7 +28,9 @@ namespace CCS.Modules.Economy
         private CCS_EconomyProfile activeProfile;
         private CCS_CurrencyService currencyService;
         private CCS_PlayerInventoryService inventoryService;
+        private CCS_ReputationService reputationService;
         private CCS_VendorDefinition activeVendor;
+        private string activeSettlementId = string.Empty;
         private bool isInitialized;
 
         #endregion
@@ -45,6 +48,8 @@ namespace CCS.Modules.Economy
         public CCS_EconomyProfile ActiveProfile => activeProfile;
 
         public CCS_VendorDefinition ActiveVendor => activeVendor;
+
+        public string ActiveSettlementId => activeSettlementId ?? string.Empty;
 
         public bool HasActiveVendor => activeVendor != null;
 
@@ -96,6 +101,11 @@ namespace CCS.Modules.Economy
             inventoryService = inventory;
         }
 
+        public void BindReputationService(CCS_ReputationService reputation)
+        {
+            reputationService = reputation;
+        }
+
         public void RegisterVendorDefinition(CCS_VendorDefinition definition)
         {
             if (definition == null || string.IsNullOrWhiteSpace(definition.VendorId))
@@ -117,18 +127,24 @@ namespace CCS.Modules.Economy
             return vendorLookup.TryGetValue(vendorId, out definition);
         }
 
-        public void SetActiveVendor(CCS_VendorDefinition vendorDefinition)
+        public void SetActiveVendor(CCS_VendorDefinition vendorDefinition, string settlementId = "")
         {
             activeVendor = vendorDefinition;
+            activeSettlementId = settlementId ?? string.Empty;
             if (activeVendor != null)
             {
-                LogDebug($"Active vendor set: {activeVendor.DisplayName} ({activeVendor.VendorId}).");
+                LogDebug(
+                    $"Active vendor set: {activeVendor.DisplayName} ({activeVendor.VendorId})"
+                    + (string.IsNullOrWhiteSpace(activeSettlementId)
+                        ? "."
+                        : $" at settlement {activeSettlementId}."));
             }
         }
 
         public void ClearActiveVendor()
         {
             activeVendor = null;
+            activeSettlementId = string.Empty;
         }
 
         public CCS_VendorTransactionResult TryBuy(CCS_VendorTransactionRequest request)
@@ -177,6 +193,30 @@ namespace CCS.Modules.Economy
 
         public int ResolveBuyPrice(CCS_VendorDefinition vendor, CCS_VendorItemEntry entry)
         {
+            int basePrice = ResolveBaseBuyPrice(vendor, entry);
+            if (basePrice <= 0)
+            {
+                return 0;
+            }
+
+            float modifier = ResolveBuyPriceModifier();
+            return CCS_ReputationPriceModifierUtility.ApplyModifier(basePrice, modifier);
+        }
+
+        public int ResolveSellPrice(CCS_VendorDefinition vendor, CCS_VendorItemEntry entry)
+        {
+            int basePrice = ResolveBaseSellPrice(vendor, entry);
+            if (basePrice <= 0)
+            {
+                return 0;
+            }
+
+            float modifier = ResolveSellPriceModifier();
+            return CCS_ReputationPriceModifierUtility.ApplyModifier(basePrice, modifier);
+        }
+
+        public int ResolveBaseBuyPrice(CCS_VendorDefinition vendor, CCS_VendorItemEntry entry)
+        {
             if (entry == null)
             {
                 return 0;
@@ -190,7 +230,7 @@ namespace CCS.Modules.Economy
             return entry.ItemDefinition != null ? entry.ItemDefinition.BuyValue : 0;
         }
 
-        public int ResolveSellPrice(CCS_VendorDefinition vendor, CCS_VendorItemEntry entry)
+        public int ResolveBaseSellPrice(CCS_VendorDefinition vendor, CCS_VendorItemEntry entry)
         {
             if (entry == null)
             {
@@ -203,6 +243,20 @@ namespace CCS.Modules.Economy
             }
 
             return entry.ItemDefinition != null ? entry.ItemDefinition.SellValue : 0;
+        }
+
+        public float ResolveBuyPriceModifier()
+        {
+            return CCS_ReputationPriceModifierUtility.ResolveBuyPriceModifier(
+                reputationService,
+                activeSettlementId);
+        }
+
+        public float ResolveSellPriceModifier()
+        {
+            return CCS_ReputationPriceModifierUtility.ResolveSellPriceModifier(
+                reputationService,
+                activeSettlementId);
         }
 
         public bool TryFindCatalogEntry(
@@ -327,7 +381,20 @@ namespace CCS.Modules.Economy
                     "Item cannot be purchased from this vendor.");
             }
 
-            int unitPrice = ResolveBuyPrice(vendor, entry);
+            int baseUnitPrice = ResolveBaseBuyPrice(vendor, entry);
+            if (baseUnitPrice <= 0)
+            {
+                return Failure(
+                    CCS_VendorTransactionResultType.CannotBuy,
+                    vendor.VendorId,
+                    entry.ItemDefinition,
+                    quantity,
+                    false,
+                    "Item has no buy price.");
+            }
+
+            float modifier = ResolveBuyPriceModifier();
+            int unitPrice = CCS_ReputationPriceModifierUtility.ApplyModifier(baseUnitPrice, modifier);
             if (unitPrice <= 0)
             {
                 return Failure(
@@ -396,7 +463,11 @@ namespace CCS.Modules.Economy
                 totalCost,
                 removeResult.BalanceAfter,
                 false,
-                $"Purchased {added}x {entry.ItemDefinition.DisplayName} for {totalCost} {currencyId}.");
+                $"Purchased {added}x {entry.ItemDefinition.DisplayName} for {totalCost} {currencyId}.",
+                baseUnitPrice,
+                unitPrice,
+                modifier,
+                activeSettlementId);
             RaiseCompleted(success);
             return success;
         }
@@ -418,7 +489,20 @@ namespace CCS.Modules.Economy
                     "Item cannot be sold to this vendor.");
             }
 
-            int unitPrice = ResolveSellPrice(vendor, entry);
+            int baseUnitPrice = ResolveBaseSellPrice(vendor, entry);
+            if (baseUnitPrice <= 0)
+            {
+                return Failure(
+                    CCS_VendorTransactionResultType.CannotSell,
+                    vendor.VendorId,
+                    entry.ItemDefinition,
+                    quantity,
+                    true,
+                    "Item has no sell value.");
+            }
+
+            float modifier = ResolveSellPriceModifier();
+            int unitPrice = CCS_ReputationPriceModifierUtility.ApplyModifier(baseUnitPrice, modifier);
             if (unitPrice <= 0)
             {
                 return Failure(
@@ -476,7 +560,11 @@ namespace CCS.Modules.Economy
                 payout,
                 addResult.BalanceAfter,
                 true,
-                $"Sold {removed}x {entry.ItemDefinition.DisplayName} for {payout} {currencyId}.");
+                $"Sold {removed}x {entry.ItemDefinition.DisplayName} for {payout} {currencyId}.",
+                baseUnitPrice,
+                unitPrice,
+                modifier,
+                activeSettlementId);
             RaiseCompleted(success);
             return success;
         }
@@ -488,7 +576,11 @@ namespace CCS.Modules.Economy
             int currencyAmount,
             int balanceAfter,
             bool wasSell,
-            string message)
+            string message,
+            int baseUnitPrice = 0,
+            int finalUnitPrice = 0,
+            float reputationPriceModifier = 1f,
+            string settlementId = "")
         {
             LogDebug(message);
             return new CCS_VendorTransactionResult(
@@ -499,7 +591,11 @@ namespace CCS.Modules.Economy
                 currencyAmount,
                 balanceAfter,
                 wasSell,
-                message);
+                message,
+                baseUnitPrice,
+                finalUnitPrice,
+                reputationPriceModifier,
+                settlementId);
         }
 
         private CCS_VendorTransactionResult Failure(

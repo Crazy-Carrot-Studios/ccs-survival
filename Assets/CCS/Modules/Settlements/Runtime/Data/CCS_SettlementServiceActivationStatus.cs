@@ -17,6 +17,8 @@ namespace CCS.Modules.Settlements
         Disabled = 2,
         ServiceMissing = 3,
         UnknownRoute = 4,
-        Failed = 5
+        Failed = 5,
+        DeniedReputation = 6,
+        MissingRequirement = 7
     }
 }

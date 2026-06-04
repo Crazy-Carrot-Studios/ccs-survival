@@ -486,6 +486,10 @@ namespace CCS.Survival.Composition
             if (reputationService.IsInitialized)
             {
                 settlementService.BindReputationService(reputationService);
+                if (vendorService != null && vendorService.IsInitialized)
+                {
+                    vendorService.BindReputationService(reputationService);
+                }
             }
 
             CCS_RegionService regionService = CreateRegionService(regionProfile);

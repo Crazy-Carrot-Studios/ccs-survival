@@ -1643,3 +1643,48 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.standing
+    displayName: Verify settlement reputation tier and value
+    stepType: 189
+    instructionText: 'Service access playtest: Verify settlement reputation tier
+      and value. Ctrl+Shift+Y shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.buy.modifier
+    displayName: Verify vendor buy price reputation modifier
+    stepType: 190
+    instructionText: 'Service access playtest: Verify vendor buy price reputation
+      modifier. Ctrl+Shift+Y shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.service.access
+    displayName: Verify settlement service access check
+    stepType: 191
+    instructionText: 'Service access playtest: Verify settlement service access check.
+      Ctrl+Shift+Y shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.save.access
+    displayName: Save service access and price modifier state
+    stepType: 192
+    instructionText: 'Service access playtest: Save service access and price modifier
+      state. Ctrl+Shift+Y shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.reputation.verify.access.load
+    displayName: Verify service access and modifier after load
+    stepType: 193
+    instructionText: 'Service access playtest: Verify service access and modifier
+      after load. Ctrl+Shift+Y shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

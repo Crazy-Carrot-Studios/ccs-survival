@@ -200,6 +200,11 @@ namespace CCS.Modules.Playtesting
         VerifyTradingPostReputationAfterSell = 185,
         VerifyReputationChangedAfterObligation = 186,
         SaveReputationState = 187,
-        VerifyReputationAfterLoad = 188
+        VerifyReputationAfterLoad = 188,
+        VerifySettlementReputationStanding = 189,
+        VerifyVendorBuyPriceModifier = 190,
+        VerifySettlementServiceAccess = 191,
+        SaveServiceAccessState = 192,
+        VerifyServiceAccessAfterLoad = 193
     }
 }
