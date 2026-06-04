@@ -133,6 +133,13 @@ namespace CCS.Modules.Settlements
         public CCS_ServiceAccessResult EvaluateServiceAccess(CCS_ReputationService reputationService)
         {
             string settlementId = ResolveSettlementId();
+            if (!CCS_BusinessRuntimeBridge.TryIsServicePointActive(settlementId, ServicePointType))
+            {
+                return CCS_ServiceAccessResult.Denied(
+                    CCS_ServiceAccessResultType.DeniedUnavailable,
+                    "This business is not yet active at the settlement.");
+            }
+
             bool isDiscovered = IsSettlementDiscovered();
             return CCS_ServiceAccessEvaluationUtility.EvaluateForServicePoint(
                 reputationService,

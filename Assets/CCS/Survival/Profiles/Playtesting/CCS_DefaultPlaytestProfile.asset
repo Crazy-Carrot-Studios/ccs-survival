@@ -2114,8 +2114,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.routerisk.verify.low.reward
     displayName: Verify low-risk base and final reward
     stepType: 241
-    instructionText: 'Route risk freight playtest: Verify low-risk base and final reward.
-      Ctrl+Shift+Q shortcut available.'
+    instructionText: 'Route risk freight playtest: Verify low-risk base and final
+      reward. Ctrl+Shift+Q shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2132,8 +2132,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.routerisk.complete.moderate
     displayName: Complete moderate-risk freight contract
     stepType: 243
-    instructionText: 'Route risk freight playtest: Complete moderate-risk freight contract.
-      Ctrl+Shift+Q shortcut available.'
+    instructionText: 'Route risk freight playtest: Complete moderate-risk freight
+      contract. Ctrl+Shift+Q shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2141,8 +2141,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.routerisk.verify.moderate.reward
     displayName: Verify moderate-risk higher final reward
     stepType: 244
-    instructionText: 'Route risk freight playtest: Verify moderate-risk higher final reward.
-      Ctrl+Shift+Q shortcut available.'
+    instructionText: 'Route risk freight playtest: Verify moderate-risk higher final
+      reward. Ctrl+Shift+Q shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2150,8 +2150,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.routerisk.save
     displayName: Save route risk freight state
     stepType: 245
-    instructionText: 'Route risk freight playtest: Save route risk freight state. Ctrl+Shift+Q
-      shortcut available.'
+    instructionText: 'Route risk freight playtest: Save route risk freight state.
+      Ctrl+Shift+Q shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2159,8 +2159,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.routerisk.load
     displayName: Verify route state after load
     stepType: 246
-    instructionText: 'Route risk freight playtest: Verify route state after load. Ctrl+Shift+Q
-      shortcut available.'
+    instructionText: 'Route risk freight playtest: Verify route state after load.
+      Ctrl+Shift+Q shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2177,8 +2177,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.population.contract
     displayName: Complete contract for population growth
     stepType: 248
-    instructionText: 'Population playtest: Complete contract for population growth. Ctrl+Shift+K
-      shortcut available.'
+    instructionText: 'Population playtest: Complete contract for population growth.
+      Ctrl+Shift+K shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2186,8 +2186,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.population.verify.increase
     displayName: Verify population increased
     stepType: 249
-    instructionText: 'Population playtest: Verify population increased. Ctrl+Shift+K shortcut
-      available.'
+    instructionText: 'Population playtest: Verify population increased. Ctrl+Shift+K
+      shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2195,8 +2195,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.population.verify.nonnegative
     displayName: Verify population non-negative
     stepType: 250
-    instructionText: 'Population playtest: Verify population non-negative. Ctrl+Shift+K shortcut
-      available.'
+    instructionText: 'Population playtest: Verify population non-negative. Ctrl+Shift+K
+      shortcut available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2213,7 +2213,8 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.population.save
     displayName: Save population state
     stepType: 252
-    instructionText: 'Population playtest: Save population state. Ctrl+Shift+K shortcut available.'
+    instructionText: 'Population playtest: Save population state. Ctrl+Shift+K shortcut
+      available.'
     targetItemId: 
     targetObjectId: 
     requiredCount: 1
@@ -2221,8 +2222,57 @@ MonoBehaviour:
   - stepId: ccs.survival.playtest.population.load
     displayName: Verify population after load
     stepType: 253
-    instructionText: 'Population playtest: Verify population after load. Ctrl+Shift+K shortcut
-      available.'
+    instructionText: 'Population playtest: Verify population after load. Ctrl+Shift+K
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.discover
+    displayName: Discover settlement for businesses
+    stepType: 254
+    instructionText: Discover settlement for businesses. Ctrl+Shift+J shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.contract
+    displayName: Complete contract for business activation
+    stepType: 255
+    instructionText: Complete contract for business activation. Ctrl+Shift+J shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.verify.active
+    displayName: Verify business activated
+    stepType: 256
+    instructionText: Verify business activated. Ctrl+Shift+J shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.verify.catalog
+    displayName: Verify settlement business catalog
+    stepType: 257
+    instructionText: Verify settlement business catalog. Ctrl+Shift+J shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.save
+    displayName: Save business state
+    stepType: 258
+    instructionText: Save business state. Ctrl+Shift+J shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.business.load
+    displayName: Verify business state after load
+    stepType: 259
+    instructionText: Verify business state after load. Ctrl+Shift+J shortcut available.
     targetItemId: 
     targetObjectId: 
     requiredCount: 1

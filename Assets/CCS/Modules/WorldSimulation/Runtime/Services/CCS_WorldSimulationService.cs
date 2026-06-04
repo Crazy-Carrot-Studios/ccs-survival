@@ -35,6 +35,8 @@ namespace CCS.Modules.WorldSimulation
         private CCS_WorldSimulationProfile activeProfile;
         private CCS_SettlementGrowthProfile settlementGrowthProfile;
         private CCS_SettlementPopulationProfile settlementPopulationProfile;
+        private CCS_BusinessProfile settlementBusinessProfile;
+        private CCS_BusinessService businessService;
         private CCS_SettlementService settlementService;
         private CCS_RegionService regionService;
         private CCS_ReputationService reputationService;
@@ -53,6 +55,8 @@ namespace CCS.Modules.WorldSimulation
 
         public CCS_SettlementPopulationProfile SettlementPopulationProfile => settlementPopulationProfile;
 
+        public CCS_BusinessProfile SettlementBusinessProfile => settlementBusinessProfile;
+
         public void Initialize()
         {
             if (isInitialized)
@@ -68,6 +72,7 @@ namespace CCS.Modules.WorldSimulation
             activeProfile = profile;
             settlementGrowthProfile = profile?.SettlementGrowthProfile;
             settlementPopulationProfile = profile?.SettlementPopulationProfile;
+            settlementBusinessProfile = profile?.SettlementBusinessProfile;
             settlementLookup.Clear();
             regionLookup.Clear();
             vendorRouteLookup.Clear();
@@ -132,12 +137,14 @@ namespace CCS.Modules.WorldSimulation
         public void BindGameplayServices(
             CCS_SettlementService settlements,
             CCS_RegionService regions,
-            CCS_ReputationService reputation = null)
+            CCS_ReputationService reputation = null,
+            CCS_BusinessService businesses = null)
         {
             UnbindGameplayServices();
             settlementService = settlements;
             regionService = regions;
             reputationService = reputation;
+            businessService = businesses;
 
             if (settlementService != null)
             {
@@ -250,7 +257,24 @@ namespace CCS.Modules.WorldSimulation
 
             EvaluatePopulation(settlementState, contractCompletedThisEvaluation: true);
             EvaluateSettlementGrowth(settlementState);
+            EvaluateBusinesses(settlementState);
             SettlementSupplyChanged?.Invoke(settlementState);
+        }
+
+        public bool TryGetBusinessSnapshot(string settlementId, out CCS_BusinessSnapshot snapshot)
+        {
+            snapshot = CCS_BusinessSnapshot.Empty;
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return false;
+            }
+
+            snapshot = CCS_BusinessValidationUtility.BuildSnapshot(
+                settlementState,
+                settlementBusinessProfile,
+                ResolveSettlementReputationTier(settlementId));
+            return snapshot.IsValid;
         }
 
         public bool TryGetPopulationSnapshot(string settlementId, out CCS_SettlementPopulationSnapshot snapshot)
@@ -384,8 +408,10 @@ namespace CCS.Modules.WorldSimulation
             SyncDiscoveryFromGameplayServices();
             SyncRegionalEconomyMetadata();
             EnsurePopulationMetricsMigratedForAllSettlements();
+            EnsureBusinessStateMigratedForAllSettlements();
             RecalculateAllProsperity();
             EvaluateAllSettlementGrowth();
+            EvaluateAllBusinesses();
         }
 
         private void EnsurePopulationMetricsMigratedForAllSettlements()
@@ -460,6 +486,7 @@ namespace CCS.Modules.WorldSimulation
             if (TryGetSettlementState(snapshot.SettlementId, out CCS_SettlementSimulationState state))
             {
                 state.isDiscovered = true;
+                EvaluateBusinesses(state);
             }
         }
 
@@ -565,6 +592,7 @@ namespace CCS.Modules.WorldSimulation
             SettlementProsperityChanged?.Invoke(settlementState);
             EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
             EvaluateSettlementGrowth(settlementState);
+            EvaluateBusinesses(settlementState);
         }
 
         private void EvaluatePopulation(
@@ -602,6 +630,7 @@ namespace CCS.Modules.WorldSimulation
                 false);
 
             bool populationChanged = settlementState.population != previousPopulation;
+            EvaluateBusinesses(settlementState);
             if (!populationChanged && growthDelta <= 0f)
             {
                 return;
@@ -637,6 +666,67 @@ namespace CCS.Modules.WorldSimulation
 
             EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
             EvaluateSettlementGrowth(settlementState);
+            EvaluateBusinesses(settlementState);
+        }
+
+        private void EvaluateAllBusinesses()
+        {
+            foreach (KeyValuePair<string, CCS_SettlementSimulationState> pair in settlementLookup)
+            {
+                EvaluateBusinesses(pair.Value);
+            }
+        }
+
+        private void EnsureBusinessStateMigratedForAllSettlements()
+        {
+            if (settlementBusinessProfile == null)
+            {
+                return;
+            }
+
+            foreach (KeyValuePair<string, CCS_SettlementSimulationState> pair in settlementLookup)
+            {
+                CCS_BusinessValidationUtility.EnsureBusinessStateMigrated(pair.Value, settlementBusinessProfile);
+            }
+        }
+
+        private void EvaluateBusinesses(CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState == null
+                || !settlementState.isDiscovered
+                || settlementBusinessProfile == null
+                || businessService == null
+                || !businessService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_ReputationTier reputationTier = ResolveSettlementReputationTier(settlementState.settlementId);
+            CCS_BusinessValidationUtility.BusinessEvaluationChanges changes =
+                CCS_BusinessValidationUtility.EvaluateSettlementBusinesses(
+                    settlementState,
+                    settlementBusinessProfile,
+                    reputationTier);
+            if (!changes.HasChanges)
+            {
+                return;
+            }
+
+            CCS_BusinessSnapshot snapshot = CCS_BusinessValidationUtility.BuildSnapshot(
+                settlementState,
+                settlementBusinessProfile,
+                reputationTier);
+            businessService.DispatchBusinessEvaluation(
+                snapshot,
+                changes.Activated,
+                changes.Deactivated);
+
+            if (activeProfile != null && activeProfile.EnableDebugLogging)
+            {
+                Debug.Log(
+                    $"{LogPrefix} Settlement '{settlementState.settlementId}' business evaluation: "
+                    + $"{changes.Activated.Count} activated, {changes.Deactivated.Count} deactivated.");
+            }
         }
 
         private CCS_ReputationTier ResolveSettlementReputationTier(string settlementId)
@@ -722,6 +812,8 @@ namespace CCS.Modules.WorldSimulation
             settlementState.previousGrowthStage = (int)previousStage;
             settlementState.currentGrowthStage = (int)resolvedStage;
             settlementState.growthProgressPercent = progressPercent;
+
+            EvaluateBusinesses(settlementState);
 
             if (!stageChanged)
             {
@@ -985,6 +1077,7 @@ namespace CCS.Modules.WorldSimulation
                 specialization,
                 entry.population,
                 0);
+            CCS_BusinessValidationUtility.InitializeBusinessState(state, settlementBusinessProfile);
             return state;
         }
 
@@ -1115,9 +1208,33 @@ namespace CCS.Modules.WorldSimulation
                 currentGrowthStage = source.currentGrowthStage,
                 previousGrowthStage = source.previousGrowthStage,
                 growthProgressPercent = source.growthProgressPercent,
-                completedContractsCount = source.completedContractsCount
+                completedContractsCount = source.completedContractsCount,
+                businessStates = CloneBusinessStates(source.businessStates)
             };
             CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
+            return clone;
+        }
+
+        private static CCS_BusinessState[] CloneBusinessStates(CCS_BusinessState[] source)
+        {
+            if (source == null || source.Length == 0)
+            {
+                return Array.Empty<CCS_BusinessState>();
+            }
+
+            CCS_BusinessState[] clone = new CCS_BusinessState[source.Length];
+            for (int index = 0; index < source.Length; index++)
+            {
+                CCS_BusinessState entry = source[index];
+                clone[index] = entry == null
+                    ? new CCS_BusinessState()
+                    : new CCS_BusinessState
+                    {
+                        businessType = entry.businessType,
+                        isActive = entry.isActive
+                    };
+            }
+
             return clone;
         }
 

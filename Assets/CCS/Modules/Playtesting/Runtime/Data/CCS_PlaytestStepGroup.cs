@@ -40,6 +40,7 @@ namespace CCS.Modules.Playtesting
         MultiSettlement = 25,
         TradeRoutesFreight = 26,
         RouteRiskFreight = 27,
-        Population = 28
+        Population = 28,
+        Businesses = 29
     }
 }

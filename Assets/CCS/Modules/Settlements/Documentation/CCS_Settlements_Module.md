@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
 **Milestone:** 3.6.0 — Population foundation (workforce categories, growth, capacity, save/load)  
 **Milestone:** 3.5.0 — Route risk and freight bonus (risk rating, base/distance multipliers, reward utility)  
 **Milestone:** 3.4.0 — Trade routes and freight contracts (discovery, active, usage; outbound regional freight)  
@@ -77,6 +78,31 @@ CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.Execu
 ```
 
 Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
+
+## Businesses (3.7.0)
+
+| Type | Role |
+|------|------|
+| `CCS_BusinessType` | General Store, Stable, Gunsmith, Bank, Farm Supply, Mining Supplier, Lumber Yard, Contract Office, Blacksmith |
+| `CCS_BusinessProfile` | Threshold definitions and per-settlement catalogs |
+| `CCS_BusinessService` | Activation events and snapshot resolver |
+| `CCS_BusinessRuntimeBridge` | Service point gating from simulation state |
+
+See [CCS_Businesses_Module.md](CCS_Businesses_Module.md).
+
+Bootstrap:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_FrontierBusinessesFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Businesses** — shortcut **Ctrl+Shift+J**.
+
+**Business Loop:**
+
+```text
+Population → Businesses Open → Services Expand → Prosperity Improves → Settlement Grows
+```
 
 ## Population (3.6.0)
 

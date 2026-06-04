@@ -265,6 +265,12 @@ namespace CCS.Modules.Playtesting
         VerifyPopulationNonNegative = 250,
         VerifyPopulationGrowthRateValid = 251,
         SavePopulationState = 252,
-        VerifyPopulationAfterLoad = 253
+        VerifyPopulationAfterLoad = 253,
+        DiscoverSettlementForBusinesses = 254,
+        CompleteContractForBusinessActivation = 255,
+        VerifyBusinessActivated = 256,
+        VerifySettlementBusinessCatalog = 257,
+        SaveBusinessState = 258,
+        VerifyBusinessStateAfterLoad = 259
     }
 }

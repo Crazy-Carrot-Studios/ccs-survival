@@ -62,6 +62,7 @@ namespace CCS.Modules.CharacterController
                 case KeyCode.G: key = Key.G; return true;
                 case KeyCode.H: key = Key.H; return true;
                 case KeyCode.I: key = Key.I; return true;
+                case KeyCode.J: key = Key.J; return true;
                 case KeyCode.K: key = Key.K; return true;
                 case KeyCode.M: key = Key.M; return true;
                 case KeyCode.R: key = Key.R; return true;

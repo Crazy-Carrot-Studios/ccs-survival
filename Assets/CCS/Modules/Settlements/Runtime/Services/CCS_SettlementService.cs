@@ -42,6 +42,10 @@ namespace CCS.Modules.Settlements
         public event Action<CCS_SettlementGrowthChangedEventArgs> SettlementGrowthChanged;
         public event Action<CCS_SettlementPopulationChangedEventArgs> SettlementPopulationChanged;
 
+        public event Action<CCS_BusinessActivatedEventArgs> BusinessActivated;
+
+        public event Action<CCS_BusinessDeactivatedEventArgs> BusinessDeactivated;
+
         public bool IsInitialized => isInitialized;
 
         public CCS_SettlementProfile ActiveProfile => activeProfile;
@@ -60,6 +64,7 @@ namespace CCS.Modules.Settlements
 
         private Func<string, CCS_SettlementGrowthSnapshot> growthSnapshotResolver;
         private Func<string, CCS_SettlementPopulationSnapshot> populationSnapshotResolver;
+        private Func<string, CCS_BusinessSnapshot> businessSnapshotResolver;
 
         public void Initialize()
         {
@@ -133,6 +138,43 @@ namespace CCS.Modules.Settlements
             }
 
             SettlementPopulationChanged?.Invoke(eventArgs);
+        }
+
+        public void BindBusinessSnapshotResolver(Func<string, CCS_BusinessSnapshot> resolver)
+        {
+            businessSnapshotResolver = resolver;
+        }
+
+        public bool TryGetBusinessSnapshot(string settlementId, out CCS_BusinessSnapshot snapshot)
+        {
+            snapshot = CCS_BusinessSnapshot.Empty;
+            if (string.IsNullOrWhiteSpace(settlementId) || businessSnapshotResolver == null)
+            {
+                return false;
+            }
+
+            snapshot = businessSnapshotResolver.Invoke(settlementId) ?? CCS_BusinessSnapshot.Empty;
+            return snapshot.IsValid;
+        }
+
+        public void NotifyBusinessActivated(CCS_BusinessActivatedEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return;
+            }
+
+            BusinessActivated?.Invoke(eventArgs);
+        }
+
+        public void NotifyBusinessDeactivated(CCS_BusinessDeactivatedEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return;
+            }
+
+            BusinessDeactivated?.Invoke(eventArgs);
         }
 
         public bool TryGetSettlementGrowthStage(

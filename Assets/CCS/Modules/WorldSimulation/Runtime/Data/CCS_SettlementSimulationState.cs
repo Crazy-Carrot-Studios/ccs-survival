@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Settlements;
 
 // =============================================================================
 // SCRIPT: CCS_SettlementSimulationState
@@ -7,7 +8,7 @@ using System;
 // PLACEMENT: Stored by CCS_WorldSimulationService and save payloads.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 3.6.0 — population capacity, growth rate, stability, and workforce breakdown.
+// NOTES: Milestone 3.7.0 — business activation state persisted with world simulation save/load.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -17,6 +18,7 @@ namespace CCS.Modules.WorldSimulation
     {
         public string settlementId = string.Empty;
         public string regionId = string.Empty;
+        public CCS_BusinessState[] businessStates = Array.Empty<CCS_BusinessState>();
         public int population;
         public int populationCapacity;
         public float populationGrowthRate;

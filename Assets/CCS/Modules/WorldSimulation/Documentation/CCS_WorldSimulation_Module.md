@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.7.0** — Settlement **business activation** on `CCS_SettlementSimulationState.businessStates`. `CCS_BusinessValidationUtility` evaluates catalog entries when population, prosperity, or growth stage changes. `CCS_BusinessService` raises activation events; profile wired on `CCS_WorldSimulationProfile.settlementBusinessProfile`.
+
 Milestone **3.6.0** — Settlement **population simulation** on `CCS_SettlementSimulationState` (total, capacity, growth rate, stability, workforce breakdown). `CCS_SettlementPopulationUtility` applies growth from contracts, prosperity, food supply health, and reputation tier. Persisted through `CCS_SaveWorldSimulationData`. Wired to settlement growth population gates.
 
 Milestone **3.5.0** — Freight completion unchanged for prosperity/supply; optional conservative bonus destination reputation from route risk (`CCS_TradeRouteRewardModifierUtility.ResolveBonusReputation`). Route usage counts still persist via `CCS_TradeRouteService`; risk multipliers are profile-only.
@@ -33,6 +35,7 @@ Provides a framework-level simulation layer for frontier settlements and regions
 Each discovered settlement tracks:
 
 - Population
+- Business activation (`businessStates`, persisted)
 - Prosperity (0–100, persisted)
 - Supply categories: Food, Water, Fuel, BuildingMaterials, IndustrialMaterials, Tools, TradeGoods
 - Demand and production entries (profile-driven)

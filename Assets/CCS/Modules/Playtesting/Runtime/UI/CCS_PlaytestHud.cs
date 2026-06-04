@@ -287,6 +287,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestPopulationFoundationShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.J))
+            {
+                playtestService.TryPlaytestBusinessesFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.K))
             {
                 playtestService.TryGrantHomesteadSupplyCrateKit();

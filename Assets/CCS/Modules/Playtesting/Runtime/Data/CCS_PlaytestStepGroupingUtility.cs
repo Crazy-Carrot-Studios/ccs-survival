@@ -44,7 +44,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.MultiSettlement,
             CCS_PlaytestStepGroup.TradeRoutesFreight,
             CCS_PlaytestStepGroup.RouteRiskFreight,
-            CCS_PlaytestStepGroup.Population
+            CCS_PlaytestStepGroup.Population,
+            CCS_PlaytestStepGroup.Businesses
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -114,6 +115,8 @@ namespace CCS.Modules.Playtesting
                     return "Route Risk / Freight";
                 case CCS_PlaytestStepGroup.Population:
                     return "Population";
+                case CCS_PlaytestStepGroup.Businesses:
+                    return "Businesses";
                 default:
                     return group.ToString();
             }
@@ -440,6 +443,14 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SavePopulationState:
                 case CCS_PlaytestStepType.VerifyPopulationAfterLoad:
                     return CCS_PlaytestStepGroup.Population;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForBusinesses:
+                case CCS_PlaytestStepType.CompleteContractForBusinessActivation:
+                case CCS_PlaytestStepType.VerifyBusinessActivated:
+                case CCS_PlaytestStepType.VerifySettlementBusinessCatalog:
+                case CCS_PlaytestStepType.SaveBusinessState:
+                case CCS_PlaytestStepType.VerifyBusinessStateAfterLoad:
+                    return CCS_PlaytestStepGroup.Businesses;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

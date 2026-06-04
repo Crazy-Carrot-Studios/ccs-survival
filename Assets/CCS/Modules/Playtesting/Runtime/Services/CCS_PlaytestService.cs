@@ -243,6 +243,8 @@ namespace CCS.Modules.Playtesting
         private int populationBaseline;
         private int savedPopulationTotal;
         private float savedPopulationGrowthRate;
+        private int savedActiveBusinessCount;
+        private bool businessSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1400,6 +1402,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SavePopulationState,
                         "Population state saved.");
                 }
+
+                if (TryCaptureBusinessSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveBusinessState,
+                        "Business activation state saved.");
+                }
             }
         }
 
@@ -1432,6 +1441,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateFreightStateAfterLoad();
                 EvaluateRouteRiskFreightStateAfterLoad();
                 EvaluatePopulationStateAfterLoad();
+                EvaluateBusinessStateAfterLoad();
             }
         }
 
@@ -6129,6 +6139,33 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestBusinessesFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForBusinesses,
+                "Trading Post discovered for business playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompleteContractForBusinessActivation,
+                        result.Message);
+                }
+            }
+
+            EvaluateBusinessPlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
@@ -6238,6 +6275,78 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyPopulationIncreased,
                     $"Population increased to {snapshot.TotalPopulation} (baseline {populationBaseline}).");
+            }
+        }
+
+        private void EvaluateBusinessPlaytestSteps()
+        {
+            if (boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetBusinessSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_BusinessSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            int catalogCount = snapshot.ActiveBusinesses.Length
+                + snapshot.InactiveBusinesses.Length
+                + snapshot.AvailableBusinesses.Length;
+            if (catalogCount >= 5)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementBusinessCatalog,
+                    $"Trading Post catalog lists {catalogCount} business entries.");
+            }
+
+            if (snapshot.ActiveBusinesses.Length > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBusinessActivated,
+                    $"Active businesses: {snapshot.ActiveBusinesses.Length}.");
+            }
+        }
+
+        private bool TryCaptureBusinessSaveState()
+        {
+            if (businessSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return businessSaveCaptured;
+            }
+
+            if (boundSettlementService.TryGetBusinessSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_BusinessSnapshot snapshot)
+                && snapshot != null)
+            {
+                savedActiveBusinessCount = snapshot.ActiveBusinesses.Length;
+                businessSaveCaptured = savedActiveBusinessCount > 0;
+            }
+
+            return businessSaveCaptured;
+        }
+
+        private void EvaluateBusinessStateAfterLoad()
+        {
+            if (!businessSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return;
+            }
+
+            if (boundSettlementService.TryGetBusinessSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_BusinessSnapshot snapshot)
+                && snapshot != null
+                && snapshot.ActiveBusinesses.Length == savedActiveBusinessCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBusinessStateAfterLoad,
+                    "Business activation counts restored after load.");
             }
         }
 

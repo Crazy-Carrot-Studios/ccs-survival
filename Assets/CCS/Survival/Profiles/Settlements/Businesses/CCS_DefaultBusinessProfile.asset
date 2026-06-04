@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f7f10b631606e2439a4ad6954358918, type: 3}
+  m_Name: CCS_DefaultBusinessProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessProfile
+  profileDisplayName: Default Frontier Business Profile
+  profileId: ccs.survival.profile.business.default
+  profileDescription: Settlement business activation thresholds and per-settlement
+    catalogs.
+  profileVersion: 3.7.0
+  enableDebugLogs: 0
+  businessDefinitions:
+  - businessId: ccs.survival.business.generalstore
+    displayName: General Store
+    businessType: 1
+    minimumPopulation: 8
+    minimumProsperity: 10
+    minimumGrowthStage: 1
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.blacksmith
+    displayName: Blacksmith
+    businessType: 2
+    minimumPopulation: 20
+    minimumProsperity: 25
+    minimumGrowthStage: 2
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.stable
+    displayName: Stable
+    businessType: 3
+    minimumPopulation: 12
+    minimumProsperity: 15
+    minimumGrowthStage: 1
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.gunsmith
+    displayName: Gunsmith
+    businessType: 4
+    minimumPopulation: 18
+    minimumProsperity: 22
+    minimumGrowthStage: 2
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.bank
+    displayName: Bank
+    businessType: 5
+    minimumPopulation: 22
+    minimumProsperity: 30
+    minimumGrowthStage: 2
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.farmsupply
+    displayName: Farm Supply
+    businessType: 6
+    minimumPopulation: 6
+    minimumProsperity: 15
+    minimumGrowthStage: 1
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.miningsupplier
+    displayName: Mining Supplier
+    businessType: 7
+    minimumPopulation: 6
+    minimumProsperity: 15
+    minimumGrowthStage: 1
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.lumberyard
+    displayName: Lumber Yard
+    businessType: 8
+    minimumPopulation: 6
+    minimumProsperity: 15
+    minimumGrowthStage: 1
+    minimumReputationTier: -1
+  - businessId: ccs.survival.business.contractoffice
+    displayName: Contract Office
+    businessType: 9
+    minimumPopulation: 10
+    minimumProsperity: 12
+    minimumGrowthStage: 1
+    minimumReputationTier: 2
+  settlementCatalog:
+  - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessTypes: 0100000003000000040000000500000009000000
+  - settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    businessTypes: 06000000
+  - settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    businessTypes: 07000000
+  - settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    businessTypes: 08000000

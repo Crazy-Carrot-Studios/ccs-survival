@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.7.0** — Frontier Businesses Foundation
+
+Settlements gain a simulation-level **business framework** (`CCS_BusinessProfile`, `CCS_BusinessService`, `CCS_BusinessValidationUtility`) that activates General Store, Stable, Gunsmith, Bank, Contract Office, Farm Supply, Mining Supplier, and Lumber Yard businesses from population, prosperity, growth stage, and optional reputation thresholds. Business activation persists on `CCS_SettlementSimulationState.businessStates` via world simulation save/load. Service points respect simulation activation through `CCS_BusinessRuntimeBridge`. Playtest group **Businesses** with **Ctrl+Shift+J** shortcut.
+
+**Business Loop:**
+
+```text
+Population → Businesses Open → Services Expand → Prosperity Improves → Settlement Grows
+```
 
 **3.6.0** — Population Foundation
 
