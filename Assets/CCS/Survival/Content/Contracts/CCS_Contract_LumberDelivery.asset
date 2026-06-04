@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.generalstore.lumber
   displayName: Lumber Delivery
   contractType: 0
+  regionSpecialization: 4
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.item.resource.lumber

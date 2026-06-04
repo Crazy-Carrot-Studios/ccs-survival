@@ -22,3 +22,8 @@ MonoBehaviour:
   - ccs.survival.resource.ironore
   - ccs.survival.resource.coal
   - ccs.survival.resource.stone
+  specializationType: 3
+  productionModifier:
+    productionBonus: 1.35
+    prosperityModifier: 1.2
+    preferredContractCategories: 0300000005000000

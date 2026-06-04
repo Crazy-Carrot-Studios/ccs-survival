@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.stable.feed
   displayName: Feed Delivery
   contractType: 2
+  regionSpecialization: 2
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.item.ranch.feed

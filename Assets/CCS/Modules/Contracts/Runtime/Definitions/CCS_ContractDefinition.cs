@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Regions;
 using UnityEngine;
 
 // =============================================================================
@@ -24,6 +25,9 @@ namespace CCS.Modules.Contracts
 
         [SerializeField] private CCS_ContractType contractType = CCS_ContractType.TradingPostSupply;
 
+        [Tooltip("Regional economic category favored by this contract.")]
+        [SerializeField] private CCS_RegionSpecializationType regionSpecialization = CCS_RegionSpecializationType.Unknown;
+
         [Tooltip("Optional settlement restriction for accepting this contract.")]
         [SerializeField] private string settlementId = string.Empty;
 
@@ -39,6 +43,8 @@ namespace CCS.Modules.Contracts
 
         public CCS_ContractType ContractType => contractType;
 
+        public CCS_RegionSpecializationType RegionSpecialization => ResolveRegionSpecialization();
+
         public string SettlementId => settlementId ?? string.Empty;
 
         public CCS_ContractRequirement[] Requirements => requirements ?? Array.Empty<CCS_ContractRequirement>();
@@ -51,6 +57,33 @@ namespace CCS.Modules.Contracts
         {
             return string.IsNullOrWhiteSpace(SettlementId)
                 || string.Equals(SettlementId, resolvedSettlementId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public CCS_RegionSpecializationType ResolveRegionSpecialization()
+        {
+            if (regionSpecialization != CCS_RegionSpecializationType.Unknown)
+            {
+                return regionSpecialization;
+            }
+
+            CCS_ContractRequirement[] contractRequirements = Requirements;
+            for (int index = 0; index < contractRequirements.Length; index++)
+            {
+                CCS_ContractRequirement requirement = contractRequirements[index];
+                if (requirement == null || string.IsNullOrWhiteSpace(requirement.ItemId))
+                {
+                    continue;
+                }
+
+                if (CCS_RegionEconomyUtility.TryResolveSpecializationForItem(
+                        requirement.ItemId,
+                        out CCS_RegionSpecializationType resolved))
+                {
+                    return resolved;
+                }
+            }
+
+            return CCS_RegionSpecializationType.Unknown;
         }
     }
 }

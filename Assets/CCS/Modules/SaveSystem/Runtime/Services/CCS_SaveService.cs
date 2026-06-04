@@ -1365,7 +1365,13 @@ namespace CCS.Modules.SaveSystem
                     discovered = source != null && source.discovered,
                     positionX = source != null ? source.positionX : 0f,
                     positionY = source != null ? source.positionY : 0f,
-                    positionZ = source != null ? source.positionZ : 0f
+                    positionZ = source != null ? source.positionZ : 0f,
+                    specializationType = source != null ? source.specializationType : 0,
+                    dominantIndustry = source != null ? source.dominantIndustry : 0,
+                    foodSupplyStrength = source != null ? source.foodSupplyStrength : 0f,
+                    industrialSupplyStrength = source != null ? source.industrialSupplyStrength : 0f,
+                    buildingSupplyStrength = source != null ? source.buildingSupplyStrength : 0f,
+                    tradeSupplyStrength = source != null ? source.tradeSupplyStrength : 0f
                 };
             }
 
@@ -1398,7 +1404,13 @@ namespace CCS.Modules.SaveSystem
                     discovered = source != null && source.discovered,
                     positionX = source != null ? source.positionX : 0f,
                     positionY = source != null ? source.positionY : 0f,
-                    positionZ = source != null ? source.positionZ : 0f
+                    positionZ = source != null ? source.positionZ : 0f,
+                    specializationType = source != null ? source.specializationType : 0,
+                    dominantIndustry = source != null ? source.dominantIndustry : 0,
+                    foodSupplyStrength = source != null ? source.foodSupplyStrength : 0f,
+                    industrialSupplyStrength = source != null ? source.industrialSupplyStrength : 0f,
+                    buildingSupplyStrength = source != null ? source.buildingSupplyStrength : 0f,
+                    tradeSupplyStrength = source != null ? source.tradeSupplyStrength : 0f
                 };
             }
 

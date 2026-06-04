@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.gunsmith.charcoal
   displayName: Charcoal Delivery
   contractType: 1
+  regionSpecialization: 4
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.item.progression.charcoal

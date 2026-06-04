@@ -22,3 +22,8 @@ MonoBehaviour:
   - ccs.survival.resource.wood
   - ccs.survival.resource.wildlife
   - ccs.survival.resource.herbs
+  specializationType: 4
+  productionModifier:
+    productionBonus: 1.25
+    prosperityModifier: 1.1
+    preferredContractCategories: 0400000005000000

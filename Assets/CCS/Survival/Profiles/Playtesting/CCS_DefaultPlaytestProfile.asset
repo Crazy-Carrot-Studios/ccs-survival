@@ -1778,3 +1778,75 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.discover
+    displayName: Discover regions
+    stepType: 204
+    instructionText: 'Regional economy playtest: Discover regions. Ctrl+Shift+E shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.verify.specialization
+    displayName: Verify region specialization
+    stepType: 205
+    instructionText: 'Regional economy playtest: Verify region specialization. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.accept
+    displayName: Accept region contract
+    stepType: 206
+    instructionText: 'Regional economy playtest: Accept region contract. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.gather
+    displayName: Gather regional contract goods
+    stepType: 207
+    instructionText: 'Regional economy playtest: Gather regional contract goods.
+      Ctrl+Shift+E shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.complete
+    displayName: Complete specialized contract
+    stepType: 208
+    instructionText: 'Regional economy playtest: Complete specialized contract. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.verify.prosperity
+    displayName: Verify prosperity increase
+    stepType: 209
+    instructionText: 'Regional economy playtest: Verify prosperity increase. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.save
+    displayName: Save region state
+    stepType: 210
+    instructionText: 'Regional economy playtest: Save region state. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.regionaleconomy.verify.load
+    displayName: Verify after load
+    stepType: 211
+    instructionText: 'Regional economy playtest: Verify after load. Ctrl+Shift+E
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

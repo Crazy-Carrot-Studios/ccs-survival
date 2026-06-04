@@ -158,6 +158,7 @@ namespace CCS.Modules.Regions
                 existing.DisplayName = definition.DisplayName;
                 existing.RegionType = definition.RegionType;
                 existing.Position = resolvedPosition;
+                ApplyDefinitionEconomyToSnapshot(existing, definition);
                 return false;
             }
 
@@ -169,6 +170,7 @@ namespace CCS.Modules.Regions
                 Discovered = true,
                 Position = resolvedPosition
             };
+            ApplyDefinitionEconomyToSnapshot(snapshot, definition);
 
             discoveryLookup[definition.RegionId] = snapshot;
 
@@ -249,6 +251,50 @@ namespace CCS.Modules.Regions
             return resourceMetadataTags != null && resourceMetadataTags.Length > 0;
         }
 
+        public bool TryGetSpecializationForRegion(
+            string regionId,
+            out CCS_RegionSpecializationType specializationType)
+        {
+            specializationType = CCS_RegionSpecializationType.Unknown;
+            if (TryGetSnapshot(regionId, out CCS_RegionSnapshot snapshot)
+                && snapshot != null
+                && snapshot.SpecializationType != CCS_RegionSpecializationType.Unknown)
+            {
+                specializationType = snapshot.SpecializationType;
+                return true;
+            }
+
+            if (TryGetDefinition(regionId, out CCS_RegionDefinition definition) && definition != null)
+            {
+                specializationType = definition.SpecializationType;
+                return specializationType != CCS_RegionSpecializationType.Unknown;
+            }
+
+            return false;
+        }
+
+        public void ApplyRegionalEconomyMetadata(
+            string regionId,
+            CCS_RegionSpecializationType dominantIndustry,
+            float foodSupplyStrength,
+            float industrialSupplyStrength,
+            float buildingSupplyStrength,
+            float tradeSupplyStrength)
+        {
+            if (string.IsNullOrWhiteSpace(regionId)
+                || !discoveryLookup.TryGetValue(regionId, out CCS_RegionSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            snapshot.DominantIndustry = dominantIndustry;
+            snapshot.FoodSupplyStrength = foodSupplyStrength;
+            snapshot.IndustrialSupplyStrength = industrialSupplyStrength;
+            snapshot.BuildingSupplyStrength = buildingSupplyStrength;
+            snapshot.TradeSupplyStrength = tradeSupplyStrength;
+        }
+
         public CCS_RegionSaveState[] CaptureState()
         {
             if (discoveryLookup.Count == 0)
@@ -274,7 +320,13 @@ namespace CCS.Modules.Regions
                     discovered = snapshot.Discovered,
                     positionX = snapshot.Position.x,
                     positionY = snapshot.Position.y,
-                    positionZ = snapshot.Position.z
+                    positionZ = snapshot.Position.z,
+                    specializationType = (int)snapshot.SpecializationType,
+                    dominantIndustry = (int)snapshot.DominantIndustry,
+                    foodSupplyStrength = snapshot.FoodSupplyStrength,
+                    industrialSupplyStrength = snapshot.IndustrialSupplyStrength,
+                    buildingSupplyStrength = snapshot.BuildingSupplyStrength,
+                    tradeSupplyStrength = snapshot.TradeSupplyStrength
                 };
             }
 
@@ -316,9 +368,38 @@ namespace CCS.Modules.Regions
                     DisplayName = record.displayName ?? string.Empty,
                     RegionType = regionType,
                     Discovered = true,
-                    Position = new Vector3(record.positionX, record.positionY, record.positionZ)
+                    Position = new Vector3(record.positionX, record.positionY, record.positionZ),
+                    SpecializationType = ResolveSpecializationType(record.specializationType),
+                    DominantIndustry = ResolveSpecializationType(record.dominantIndustry),
+                    FoodSupplyStrength = record.foodSupplyStrength,
+                    IndustrialSupplyStrength = record.industrialSupplyStrength,
+                    BuildingSupplyStrength = record.buildingSupplyStrength,
+                    TradeSupplyStrength = record.tradeSupplyStrength
                 };
             }
+        }
+
+        private static void ApplyDefinitionEconomyToSnapshot(
+            CCS_RegionSnapshot snapshot,
+            CCS_RegionDefinition definition)
+        {
+            if (snapshot == null || definition == null)
+            {
+                return;
+            }
+
+            snapshot.SpecializationType = definition.SpecializationType;
+            if (snapshot.DominantIndustry == CCS_RegionSpecializationType.Unknown)
+            {
+                snapshot.DominantIndustry = definition.SpecializationType;
+            }
+        }
+
+        private static CCS_RegionSpecializationType ResolveSpecializationType(int rawValue)
+        {
+            return Enum.IsDefined(typeof(CCS_RegionSpecializationType), rawValue)
+                ? (CCS_RegionSpecializationType)rawValue
+                : CCS_RegionSpecializationType.Unknown;
         }
 
         private void RegisterSettlementOwnership(CCS_RegionDefinition definition)
@@ -363,6 +444,12 @@ namespace CCS.Modules.Regions
         public float positionX;
         public float positionY;
         public float positionZ;
+        public int specializationType;
+        public int dominantIndustry;
+        public float foodSupplyStrength;
+        public float industrialSupplyStrength;
+        public float buildingSupplyStrength;
+        public float tradeSupplyStrength;
     }
 
     public sealed class CCS_RegionEventArgs

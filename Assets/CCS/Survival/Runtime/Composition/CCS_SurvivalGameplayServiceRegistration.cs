@@ -526,7 +526,8 @@ namespace CCS.Survival.Composition
                 inventoryService,
                 currencyService,
                 reputationService,
-                worldSimulationService);
+                worldSimulationService,
+                regionService);
             RegisterService(runtimeHost, contractService, enableDebugLogs);
 
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
@@ -2230,7 +2231,8 @@ namespace CCS.Survival.Composition
             CCS_PlayerInventoryService inventoryService,
             CCS_CurrencyService currencyService,
             CCS_ReputationService reputationService,
-            CCS_WorldSimulationService worldSimulationService)
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_RegionService regionService)
         {
             CCS_ContractService service = new CCS_ContractService();
             service.Initialize();
@@ -2245,7 +2247,8 @@ namespace CCS.Survival.Composition
                     inventoryService,
                     currencyService,
                     reputationService,
-                    worldSimulationService);
+                    worldSimulationService,
+                    regionService);
             }
 
             CCS_ContractRuntimeBridge.Register(service);

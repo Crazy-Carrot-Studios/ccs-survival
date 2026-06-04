@@ -208,6 +208,12 @@ namespace CCS.Modules.Playtesting
         private bool playtestContractBaselinesCaptured;
         private string savedContractDefinitionId = string.Empty;
         private int savedContractState;
+        private int savedRegionalSpecializationType;
+        private int savedRegionalDominantIndustry;
+        private float savedRegionalFoodSupplyStrength;
+        private bool regionalEconomySaveCaptured;
+        private float playtestRegionalProsperityBaseline;
+        private bool playtestRegionalProsperityBaselineCaptured;
 
         #endregion
 
@@ -690,6 +696,8 @@ namespace CCS.Modules.Playtesting
             boundReputationService = null;
             boundContractService = null;
             playtestContractBaselinesCaptured = false;
+            playtestRegionalProsperityBaselineCaptured = false;
+            regionalEconomySaveCaptured = false;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1309,6 +1317,16 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveContractState,
                         "Contract state saved.");
                 }
+
+                if (boundRegionService != null
+                    && boundRegionService.IsInitialized
+                    && AreAllBootstrapRegionsDiscovered()
+                    && TryCaptureRegionalEconomySaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveRegionalEconomyState,
+                        "Regional economy state saved.");
+                }
             }
         }
 
@@ -1335,6 +1353,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateLoanAfterLoad();
                 EvaluateReputationAfterLoad();
                 EvaluateContractStateAfterLoad();
+                EvaluateRegionalEconomyAfterLoad();
             }
         }
 
@@ -1833,6 +1852,53 @@ namespace CCS.Modules.Playtesting
             }
 
             EvaluateAllRegionsDiscoveredStep();
+            EvaluateRegionalEconomyDiscoverySteps(snapshot);
+        }
+
+        private void EvaluateRegionalEconomyDiscoverySteps(CCS_RegionSnapshot snapshot)
+        {
+            if (AreAllBootstrapRegionsDiscovered())
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverRegionsForRegionalEconomy,
+                    "All bootstrap regions discovered for regional economy playtest.");
+            }
+
+            if (snapshot != null
+                && snapshot.SpecializationType != CCS_RegionSpecializationType.Unknown
+                && AllBootstrapRegionsHaveSpecialization())
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRegionSpecialization,
+                    "All bootstrap regions have economic specialization.");
+            }
+        }
+
+        private bool AllBootstrapRegionsHaveSpecialization()
+        {
+            if (boundRegionService == null || !boundRegionService.IsInitialized)
+            {
+                return false;
+            }
+
+            return HasRegionSpecialization(CCS_RegionContentIds.PineRidgeForestRegionId, CCS_RegionSpecializationType.Timber)
+                && HasRegionSpecialization(CCS_RegionContentIds.BrokenCreekRegionId, CCS_RegionSpecializationType.Agriculture)
+                && HasRegionSpecialization(CCS_RegionContentIds.IronRidgeMineRegionId, CCS_RegionSpecializationType.Mining)
+                && HasRegionSpecialization(
+                    CCS_RegionContentIds.FrontierTradingPostRegionId,
+                    CCS_RegionSpecializationType.FrontierMixed);
+        }
+
+        private bool HasRegionSpecialization(string regionId, CCS_RegionSpecializationType expected)
+        {
+            if (!boundRegionService.TryGetSnapshot(regionId, out CCS_RegionSnapshot snapshot)
+                || snapshot == null)
+            {
+                return boundRegionService.TryGetSpecializationForRegion(regionId, out CCS_RegionSpecializationType resolved)
+                    && resolved == expected;
+            }
+
+            return snapshot.SpecializationType == expected;
         }
 
         private void EvaluateSettlementDiscoveryAfterLoad()
@@ -5093,6 +5159,148 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestRegionalEconomyFoundationShortcut()
+        {
+            DiscoverAllBootstrapRegionsForPlaytest();
+            CapturePlaytestRegionalProsperityBaselineIfNeeded();
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            TryEvaluateRegionalContractGoodsStep();
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId,
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestSettlementId);
+            }
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryCompleteContract(
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId);
+            }
+
+            return true;
+        }
+
+        private void DiscoverAllBootstrapRegionsForPlaytest()
+        {
+            if (boundRegionService == null || !boundRegionService.IsInitialized)
+            {
+                return;
+            }
+
+            DiscoverPlaytestRegionIfKnown(CCS_RegionContentIds.PineRidgeForestRegionId);
+            DiscoverPlaytestRegionIfKnown(CCS_RegionContentIds.BrokenCreekRegionId);
+            DiscoverPlaytestRegionIfKnown(CCS_RegionContentIds.IronRidgeMineRegionId);
+            DiscoverPlaytestRegionIfKnown(CCS_RegionContentIds.FrontierTradingPostRegionId);
+        }
+
+        private void DiscoverPlaytestRegionIfKnown(string regionId)
+        {
+            if (boundRegionService.TryGetDefinition(regionId, out CCS_RegionDefinition definition)
+                && definition != null)
+            {
+                boundRegionService.DiscoverRegion(definition, definition.DefaultWorldPosition);
+            }
+        }
+
+        private void CapturePlaytestRegionalProsperityBaselineIfNeeded()
+        {
+            if (playtestRegionalProsperityBaselineCaptured)
+            {
+                return;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                playtestRegionalProsperityBaseline = settlementState.prosperity;
+                playtestRegionalProsperityBaselineCaptured = true;
+            }
+        }
+
+        private void TryEvaluateRegionalContractGoodsStep()
+        {
+            if (boundContractService == null || !boundContractService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundContractService.TryGetDefinition(
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId,
+                    out CCS_ContractDefinition definition)
+                || definition == null)
+            {
+                return;
+            }
+
+            CCS_ContractRequirement[] requirements = definition.Requirements;
+            for (int index = 0; index < requirements.Length; index++)
+            {
+                CCS_ContractRequirement requirement = requirements[index];
+                if (requirement == null)
+                {
+                    continue;
+                }
+
+                if (ResolvePlaytestItemQuantity(requirement.ItemId) < requirement.Quantity)
+                {
+                    return;
+                }
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.GatherRegionalContractGoods,
+                "Regional contract delivery goods gathered.");
+        }
+
+        private bool TryCaptureRegionalEconomySaveState()
+        {
+            if (regionalEconomySaveCaptured
+                || !boundRegionService.TryGetSnapshot(
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestRegionId,
+                    out CCS_RegionSnapshot snapshot)
+                || snapshot == null)
+            {
+                return regionalEconomySaveCaptured;
+            }
+
+            savedRegionalSpecializationType = (int)snapshot.SpecializationType;
+            savedRegionalDominantIndustry = (int)snapshot.DominantIndustry;
+            savedRegionalFoodSupplyStrength = snapshot.FoodSupplyStrength;
+            regionalEconomySaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateRegionalEconomyAfterLoad()
+        {
+            if (!regionalEconomySaveCaptured || boundRegionService == null || !boundRegionService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundRegionService.TryGetSnapshot(
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestRegionId,
+                    out CCS_RegionSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            if ((int)snapshot.SpecializationType == savedRegionalSpecializationType
+                && (int)snapshot.DominantIndustry == savedRegionalDominantIndustry
+                && Mathf.Approximately(snapshot.FoodSupplyStrength, savedRegionalFoodSupplyStrength))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRegionalEconomyAfterLoad,
+                    "Regional economy metadata restored after load.");
+            }
+        }
+
         public bool TryPlaytestForceUpkeepDue()
         {
             if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
@@ -5325,6 +5533,15 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.AcceptFrontierContract,
                 $"Accepted contract {result.ContractId}.");
+            if (string.Equals(
+                    result.ContractId,
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptRegionalSpecialtyContract,
+                    $"Accepted regional specialty contract {result.ContractId}.");
+            }
         }
 
         private void HandleContractCompleted(CCS_ContractCompletionResult result)
@@ -5337,7 +5554,45 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.CompleteFrontierContract,
                 $"Completed contract {result.ContractId}.");
+            if (string.Equals(
+                    result.ContractId,
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.CompleteRegionalSpecialtyContract,
+                    $"Completed regional specialty contract {result.ContractId}.");
+            }
+
             EvaluateContractRewardSteps(result);
+            EvaluateRegionalProsperityRewardStep(result);
+        }
+
+        private void EvaluateRegionalProsperityRewardStep(CCS_ContractCompletionResult result)
+        {
+            if (result == null
+                || !result.IsSuccess
+                || !string.Equals(
+                    result.ContractId,
+                    CCS_RegionSpecializationContentIds.RegionalEconomyPlaytestCornContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            CapturePlaytestRegionalProsperityBaselineIfNeeded();
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && settlementState.prosperity > playtestRegionalProsperityBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRegionalProsperityIncrease,
+                    $"Regional prosperity increased to {settlementState.prosperity:0.##}.");
+            }
         }
 
         private void CapturePlaytestContractBaselinesIfNeeded()

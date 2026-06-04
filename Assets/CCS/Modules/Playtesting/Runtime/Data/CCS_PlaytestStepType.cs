@@ -215,6 +215,14 @@ namespace CCS.Modules.Playtesting
         VerifyContractReputationReward = 200,
         VerifyContractProsperityReward = 201,
         SaveContractState = 202,
-        VerifyContractStateAfterLoad = 203
+        VerifyContractStateAfterLoad = 203,
+        DiscoverRegionsForRegionalEconomy = 204,
+        VerifyRegionSpecialization = 205,
+        AcceptRegionalSpecialtyContract = 206,
+        GatherRegionalContractGoods = 207,
+        CompleteRegionalSpecialtyContract = 208,
+        VerifyRegionalProsperityIncrease = 209,
+        SaveRegionalEconomyState = 210,
+        VerifyRegionalEconomyAfterLoad = 211
     }
 }

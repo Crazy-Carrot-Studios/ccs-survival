@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.gunsmith.ironore
   displayName: Iron Ore Delivery
   contractType: 1
+  regionSpecialization: 3
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.item.resource.ironore

@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.generalstore.corn
   displayName: Corn Delivery
   contractType: 0
+  regionSpecialization: 1
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.farming.item.corn

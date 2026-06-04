@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
+using CCS.Modules.Regions;
 using CCS.Modules.Reputation;
 using CCS.Modules.WorldSimulation;
 using CCS.Survival;
@@ -40,6 +41,7 @@ namespace CCS.Modules.Contracts
         private CCS_CurrencyService currencyService;
         private CCS_ReputationService reputationService;
         private CCS_WorldSimulationService worldSimulationService;
+        private CCS_RegionService regionService;
         private bool isInitialized;
 
         public event Action<CCS_ContractCompletionResult> ContractAccepted;
@@ -86,12 +88,14 @@ namespace CCS.Modules.Contracts
             CCS_PlayerInventoryService inventory,
             CCS_CurrencyService currency,
             CCS_ReputationService reputation,
-            CCS_WorldSimulationService worldSimulation)
+            CCS_WorldSimulationService worldSimulation,
+            CCS_RegionService regions)
         {
             inventoryService = inventory;
             currencyService = currency;
             reputationService = reputation;
             worldSimulationService = worldSimulation;
+            regionService = regions;
         }
 
         public void RegisterDefinition(CCS_ContractDefinition definition)
@@ -134,6 +138,8 @@ namespace CCS.Modules.Contracts
         public CCS_ContractDefinition[] GetBoardContracts(string settlementId, CCS_ContractType contractType)
         {
             List<CCS_ContractDefinition> results = new List<CCS_ContractDefinition>();
+            ResolveRegionalBoardContext(settlementId, out CCS_RegionSpecializationType regionSpecialization, out CCS_RegionProductionModifier regionModifier);
+
             foreach (KeyValuePair<string, CCS_ContractDefinition> entry in definitionLookup)
             {
                 CCS_ContractDefinition definition = entry.Value;
@@ -148,7 +154,53 @@ namespace CCS.Modules.Contracts
                 results.Add(definition);
             }
 
+            results.Sort((left, right) =>
+            {
+                if (left == null && right == null)
+                {
+                    return 0;
+                }
+
+                if (left == null)
+                {
+                    return 1;
+                }
+
+                if (right == null)
+                {
+                    return -1;
+                }
+
+                return CCS_RegionEconomyUtility.CompareContractRegionalPreference(
+                    left.ResolveRegionSpecialization(),
+                    right.ResolveRegionSpecialization(),
+                    regionSpecialization,
+                    regionModifier);
+            });
+
             return results.ToArray();
+        }
+
+        private void ResolveRegionalBoardContext(
+            string settlementId,
+            out CCS_RegionSpecializationType regionSpecialization,
+            out CCS_RegionProductionModifier regionModifier)
+        {
+            regionSpecialization = CCS_RegionSpecializationType.Unknown;
+            regionModifier = null;
+            if (regionService == null || !regionService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!regionService.TryGetOwningRegionForSettlement(settlementId, out CCS_RegionDefinition definition)
+                || definition == null)
+            {
+                return;
+            }
+
+            regionSpecialization = definition.SpecializationType;
+            regionModifier = definition.ProductionModifier;
         }
 
         public CCS_ContractCompletionResult TryAcceptContract(string contractId, string settlementId)

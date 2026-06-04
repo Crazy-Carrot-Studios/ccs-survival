@@ -26,6 +26,18 @@ namespace CCS.Modules.Regions
 
         public Vector3 Position { get; set; }
 
+        public CCS_RegionSpecializationType SpecializationType { get; set; }
+
+        public CCS_RegionSpecializationType DominantIndustry { get; set; }
+
+        public float FoodSupplyStrength { get; set; }
+
+        public float IndustrialSupplyStrength { get; set; }
+
+        public float BuildingSupplyStrength { get; set; }
+
+        public float TradeSupplyStrength { get; set; }
+
         public bool IsValid =>
             !string.IsNullOrWhiteSpace(RegionId)
             && !string.IsNullOrWhiteSpace(DisplayName);

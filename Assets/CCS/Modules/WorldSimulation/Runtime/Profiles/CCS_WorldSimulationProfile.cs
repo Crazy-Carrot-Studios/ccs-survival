@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.Regions;
 using CCS.Survival;
 using UnityEngine;
 
@@ -46,6 +47,7 @@ namespace CCS.Modules.WorldSimulation
     public sealed class CCS_WorldSimulationSettlementProfileEntry
     {
         public string settlementId = string.Empty;
+        public string regionId = string.Empty;
         public int population = 25;
         public CCS_SettlementSupplyEntry[] supplies = Array.Empty<CCS_SettlementSupplyEntry>();
         public CCS_SettlementDemandEntry[] demands = Array.Empty<CCS_SettlementDemandEntry>();
@@ -56,10 +58,14 @@ namespace CCS.Modules.WorldSimulation
     public sealed class CCS_WorldSimulationRegionProfileEntry
     {
         public string regionId = string.Empty;
+        public int specializationType;
         public float foodPotential;
         public float wildlifePotential;
         public float miningPotential;
         public float industryPotential;
+        public float productionBonus = 1f;
+        public float prosperityModifier = 1f;
+        public int[] preferredContractCategories = Array.Empty<int>();
     }
 
     [Serializable]

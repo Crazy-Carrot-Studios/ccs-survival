@@ -111,6 +111,7 @@ namespace CCS.Modules.WorldSimulation
             }
 
             SyncDiscoveryFromGameplayServices();
+            SyncRegionalEconomyMetadata();
             RecalculateAllProsperity();
             isInitialized = true;
         }
@@ -322,7 +323,31 @@ namespace CCS.Modules.WorldSimulation
             }
 
             SyncDiscoveryFromGameplayServices();
+            SyncRegionalEconomyMetadata();
             RecalculateAllProsperity();
+        }
+
+        private void SyncRegionalEconomyMetadata()
+        {
+            foreach (KeyValuePair<string, CCS_RegionSimulationState> pair in regionLookup)
+            {
+                CCS_RegionSimulationState state = pair.Value;
+                if (state == null || string.IsNullOrWhiteSpace(state.regionId))
+                {
+                    continue;
+                }
+
+                if (regionService != null && regionService.IsInitialized)
+                {
+                    regionService.ApplyRegionalEconomyMetadata(
+                        state.regionId,
+                        (CCS_RegionSpecializationType)state.dominantIndustry,
+                        state.foodSupplyStrength,
+                        state.industrialSupplyStrength,
+                        state.buildingSupplyStrength,
+                        state.tradeSupplyStrength);
+                }
+            }
         }
 
         private void HandleSettlementDiscovered(CCS_SettlementSnapshot snapshot)
@@ -348,6 +373,16 @@ namespace CCS.Modules.WorldSimulation
             if (TryGetRegionState(snapshot.RegionId, out CCS_RegionSimulationState state))
             {
                 state.isDiscovered = true;
+                if (regionService != null && regionService.IsInitialized)
+                {
+                    regionService.ApplyRegionalEconomyMetadata(
+                        snapshot.RegionId,
+                        (CCS_RegionSpecializationType)state.dominantIndustry,
+                        state.foodSupplyStrength,
+                        state.industrialSupplyStrength,
+                        state.buildingSupplyStrength,
+                        state.tradeSupplyStrength);
+                }
             }
         }
 
@@ -423,9 +458,55 @@ namespace CCS.Modules.WorldSimulation
             float foodPercent = GetFillPercent(settlementState, CCS_SettlementSupplyType.Food);
             float supplyPercent = GetAverageSupplyFillPercent(settlementState);
             float productionPercent = GetProductionFillPercent(settlementState);
+            ResolveRegionalProductionBonus(settlementState, out float productionBonus, out float prosperityModifier);
+            productionPercent = Mathf.Clamp(productionPercent * productionBonus, 0f, 100f);
             float prosperity = (foodPercent + supplyPercent + productionPercent) / 3f;
-            settlementState.prosperity = Mathf.Clamp(prosperity, 0f, 100f);
+            settlementState.prosperity = CCS_RegionEconomyUtility.ApplyProsperityModifier(prosperity, prosperityModifier);
             SettlementProsperityChanged?.Invoke(settlementState);
+        }
+
+        private void ResolveRegionalProductionBonus(
+            CCS_SettlementSimulationState settlementState,
+            out float productionBonus,
+            out float prosperityModifier)
+        {
+            productionBonus = 1f;
+            prosperityModifier = 1f;
+            if (settlementState == null)
+            {
+                return;
+            }
+
+            string regionId = settlementState.regionId;
+            if (string.IsNullOrWhiteSpace(regionId)
+                && regionService != null
+                && regionService.TryGetOwningRegionForSettlement(
+                    settlementState.settlementId,
+                    out CCS_RegionDefinition regionDefinition)
+                && regionDefinition != null)
+            {
+                regionId = regionDefinition.RegionId;
+            }
+
+            if (string.IsNullOrWhiteSpace(regionId))
+            {
+                return;
+            }
+
+            if (TryGetRegionState(regionId, out CCS_RegionSimulationState regionState) && regionState != null)
+            {
+                productionBonus = regionState.productionBonus > 0f ? regionState.productionBonus : 1f;
+                prosperityModifier = regionState.prosperityModifier > 0f ? regionState.prosperityModifier : 1f;
+                return;
+            }
+
+            if (regionService != null
+                && regionService.TryGetDefinition(regionId, out CCS_RegionDefinition definition)
+                && definition?.ProductionModifier != null)
+            {
+                productionBonus = definition.ProductionModifier.ProductionBonus;
+                prosperityModifier = definition.ProductionModifier.ProsperityModifier;
+            }
         }
 
         private static float GetFillPercent(CCS_SettlementSimulationState settlementState, CCS_SettlementSupplyType supplyType)
@@ -531,6 +612,7 @@ namespace CCS.Modules.WorldSimulation
             return new CCS_SettlementSimulationState
             {
                 settlementId = entry.settlementId,
+                regionId = entry.regionId ?? string.Empty,
                 population = entry.population,
                 prosperity = 0f,
                 isDiscovered = false,
@@ -542,14 +624,46 @@ namespace CCS.Modules.WorldSimulation
 
         private static CCS_RegionSimulationState CreateRegionStateFromProfile(CCS_WorldSimulationRegionProfileEntry entry)
         {
+            CCS_RegionSpecializationType specialization = Enum.IsDefined(
+                typeof(CCS_RegionSpecializationType),
+                entry.specializationType)
+                ? (CCS_RegionSpecializationType)entry.specializationType
+                : CCS_RegionSpecializationType.Unknown;
+
+            CCS_RegionSpecializationType dominantIndustry = CCS_RegionEconomyUtility.ResolveDominantIndustry(
+                specialization,
+                entry.foodPotential,
+                entry.wildlifePotential,
+                entry.miningPotential,
+                entry.industryPotential);
+
+            CCS_RegionEconomyUtility.ResolveRegionalSupplyStrengths(
+                specialization,
+                entry.foodPotential,
+                entry.wildlifePotential,
+                entry.miningPotential,
+                entry.industryPotential,
+                out float foodStrength,
+                out float industrialStrength,
+                out float buildingStrength,
+                out float tradeStrength);
+
             return new CCS_RegionSimulationState
             {
                 regionId = entry.regionId,
                 isDiscovered = false,
+                specializationType = (int)specialization,
+                dominantIndustry = (int)dominantIndustry,
                 foodPotential = entry.foodPotential,
                 wildlifePotential = entry.wildlifePotential,
                 miningPotential = entry.miningPotential,
-                industryPotential = entry.industryPotential
+                industryPotential = entry.industryPotential,
+                productionBonus = entry.productionBonus > 0f ? entry.productionBonus : 1f,
+                prosperityModifier = entry.prosperityModifier > 0f ? entry.prosperityModifier : 1f,
+                foodSupplyStrength = foodStrength,
+                industrialSupplyStrength = industrialStrength,
+                buildingSupplyStrength = buildingStrength,
+                tradeSupplyStrength = tradeStrength
             };
         }
 
@@ -616,6 +730,7 @@ namespace CCS.Modules.WorldSimulation
             return new CCS_SettlementSimulationState
             {
                 settlementId = source.settlementId,
+                regionId = source.regionId ?? string.Empty,
                 population = source.population,
                 prosperity = source.prosperity,
                 isDiscovered = source.isDiscovered,
@@ -636,10 +751,18 @@ namespace CCS.Modules.WorldSimulation
             {
                 regionId = source.regionId,
                 isDiscovered = source.isDiscovered,
+                specializationType = source.specializationType,
+                dominantIndustry = source.dominantIndustry,
                 foodPotential = source.foodPotential,
                 wildlifePotential = source.wildlifePotential,
                 miningPotential = source.miningPotential,
-                industryPotential = source.industryPotential
+                industryPotential = source.industryPotential,
+                productionBonus = source.productionBonus,
+                prosperityModifier = source.prosperityModifier,
+                foodSupplyStrength = source.foodSupplyStrength,
+                industrialSupplyStrength = source.industrialSupplyStrength,
+                buildingSupplyStrength = source.buildingSupplyStrength,
+                tradeSupplyStrength = source.tradeSupplyStrength
             };
         }
 

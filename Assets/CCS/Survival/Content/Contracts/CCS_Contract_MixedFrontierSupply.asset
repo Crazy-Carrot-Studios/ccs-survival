@@ -15,6 +15,7 @@ MonoBehaviour:
   contractId: ccs.survival.contract.tradingpost.mixed
   displayName: Mixed Frontier Supply
   contractType: 3
+  regionSpecialization: 5
   settlementId: ccs.survival.settlement.frontier.testtradingpost
   requirements:
   - itemId: ccs.survival.item.resource.hide

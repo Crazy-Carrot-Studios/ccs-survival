@@ -16,10 +16,11 @@ MonoBehaviour:
   profileId: ccs.survival.profile.worldsimulation.default
   profileDescription: Frontier settlement and region simulation defaults for bootstrap
     trading post.
-  profileVersion: 2.0.0
+  profileVersion: 3.1.0
   enableDebugLogs: 0
   settlementEntries:
   - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    regionId: ccs.survival.region.frontier.tradingpost
     population: 48
     supplies:
     - supplyType: 0
@@ -59,25 +60,41 @@ MonoBehaviour:
       currentProduction: 12
   regionEntries:
   - regionId: ccs.survival.region.frontier.pineridgeforest
+    specializationType: 4
     foodPotential: 0.85
     wildlifePotential: 0.75
     miningPotential: 0.15
     industryPotential: 0.2
+    productionBonus: 1.25
+    prosperityModifier: 1.1
+    preferredContractCategories: 0400000005000000
   - regionId: ccs.survival.region.frontier.brokencreek
+    specializationType: 1
     foodPotential: 0.7
     wildlifePotential: 0.65
     miningPotential: 0.1
     industryPotential: 0.15
+    productionBonus: 1.3
+    prosperityModifier: 1.15
+    preferredContractCategories: 0100000002000000
   - regionId: ccs.survival.region.frontier.ironridgemine
+    specializationType: 3
     foodPotential: 0.2
     wildlifePotential: 0.15
     miningPotential: 0.9
     industryPotential: 0.75
+    productionBonus: 1.35
+    prosperityModifier: 1.2
+    preferredContractCategories: 0300000005000000
   - regionId: ccs.survival.region.frontier.tradingpost
+    specializationType: 5
     foodPotential: 0.35
     wildlifePotential: 0.25
     miningPotential: 0.3
     industryPotential: 0.8
+    productionBonus: 1.1
+    prosperityModifier: 1.25
+    preferredContractCategories: 0500000001000000020000000300000004000000
   vendorRoutes:
   - vendorId: ccs.survival.vendor.frontier.generalstore
     settlementId: ccs.survival.settlement.frontier.testtradingpost

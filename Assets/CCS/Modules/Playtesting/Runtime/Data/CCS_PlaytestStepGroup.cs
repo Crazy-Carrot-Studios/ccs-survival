@@ -34,6 +34,7 @@ namespace CCS.Modules.Playtesting
         Banking = 19,
         Upkeep = 20,
         Reputation = 21,
-        Contracts = 22
+        Contracts = 22,
+        RegionalEconomy = 23
     }
 }

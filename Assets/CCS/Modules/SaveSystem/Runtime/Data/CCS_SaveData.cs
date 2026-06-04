@@ -155,6 +155,12 @@ namespace CCS.Modules.SaveSystem
         public float positionX;
         public float positionY;
         public float positionZ;
+        public int specializationType;
+        public int dominantIndustry;
+        public float foodSupplyStrength;
+        public float industrialSupplyStrength;
+        public float buildingSupplyStrength;
+        public float tradeSupplyStrength;
     }
 
     [Serializable]

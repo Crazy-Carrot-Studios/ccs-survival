@@ -16,6 +16,7 @@ namespace CCS.Modules.WorldSimulation
     public sealed class CCS_SettlementSimulationState
     {
         public string settlementId = string.Empty;
+        public string regionId = string.Empty;
         public int population;
         public float prosperity;
         public bool isDiscovered;

@@ -22,3 +22,8 @@ MonoBehaviour:
   - ccs.survival.resource.fish
   - ccs.survival.resource.clay
   - ccs.survival.resource.water
+  specializationType: 1
+  productionModifier:
+    productionBonus: 1.3
+    prosperityModifier: 1.15
+    preferredContractCategories: 0100000002000000

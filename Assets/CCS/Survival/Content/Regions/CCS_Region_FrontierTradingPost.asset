@@ -23,3 +23,8 @@ MonoBehaviour:
   - ccs.survival.resource.trade
   - ccs.survival.resource.supplies
   - ccs.survival.resource.services
+  specializationType: 5
+  productionModifier:
+    productionBonus: 1.1
+    prosperityModifier: 1.25
+    preferredContractCategories: 0500000001000000020000000300000004000000

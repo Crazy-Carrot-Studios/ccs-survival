@@ -38,7 +38,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Banking,
             CCS_PlaytestStepGroup.Upkeep,
             CCS_PlaytestStepGroup.Reputation,
-            CCS_PlaytestStepGroup.Contracts
+            CCS_PlaytestStepGroup.Contracts,
+            CCS_PlaytestStepGroup.RegionalEconomy
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -96,6 +97,8 @@ namespace CCS.Modules.Playtesting
                     return "Reputation / Trust";
                 case CCS_PlaytestStepGroup.Contracts:
                     return "Contracts";
+                case CCS_PlaytestStepGroup.RegionalEconomy:
+                    return "Regional Economy";
                 default:
                     return group.ToString();
             }
@@ -360,6 +363,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveContractState:
                 case CCS_PlaytestStepType.VerifyContractStateAfterLoad:
                     return CCS_PlaytestStepGroup.Contracts;
+
+                case CCS_PlaytestStepType.DiscoverRegionsForRegionalEconomy:
+                case CCS_PlaytestStepType.VerifyRegionSpecialization:
+                case CCS_PlaytestStepType.AcceptRegionalSpecialtyContract:
+                case CCS_PlaytestStepType.GatherRegionalContractGoods:
+                case CCS_PlaytestStepType.CompleteRegionalSpecialtyContract:
+                case CCS_PlaytestStepType.VerifyRegionalProsperityIncrease:
+                case CCS_PlaytestStepType.SaveRegionalEconomyState:
+                case CCS_PlaytestStepType.VerifyRegionalEconomyAfterLoad:
+                    return CCS_PlaytestStepGroup.RegionalEconomy;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

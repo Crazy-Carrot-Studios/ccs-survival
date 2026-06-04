@@ -51,6 +51,19 @@ namespace CCS.Modules.Regions
                     return CCS_SurvivalValidationResult.Fail(
                         $"Region definition '{definition.RegionId}' displayName is required.");
                 }
+
+                if (definition.SpecializationType == CCS_RegionSpecializationType.Unknown)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Region definition '{definition.RegionId}' requires specializationType.");
+                }
+
+                CCS_RegionProductionModifier modifier = definition.ProductionModifier;
+                if (modifier == null || modifier.ProductionBonus <= 0f || modifier.ProsperityModifier <= 0f)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Region definition '{definition.RegionId}' has invalid production modifiers.");
+                }
             }
 
             return CCS_SurvivalValidationResult.Pass("Region profile validated.");

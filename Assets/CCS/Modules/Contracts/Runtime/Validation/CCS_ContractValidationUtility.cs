@@ -1,3 +1,4 @@
+using CCS.Modules.Regions;
 using CCS.Survival;
 
 // =============================================================================
@@ -98,7 +99,36 @@ namespace CCS.Modules.Contracts
                     $"Contract '{definition.ContractId}' trade dollar reward cannot be negative.");
             }
 
+            if (definition.ResolveRegionSpecialization() == CCS_RegionSpecializationType.Unknown
+                && !HasResolvableItemCategory(definition))
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Contract '{definition.ContractId}' has no regional specialization mapping.");
+            }
+
             return CCS_SurvivalValidationResult.Pass($"Contract '{definition.ContractId}' validated.");
+        }
+
+        private static bool HasResolvableItemCategory(CCS_ContractDefinition definition)
+        {
+            CCS_ContractRequirement[] requirements = definition.Requirements;
+            for (int index = 0; index < requirements.Length; index++)
+            {
+                CCS_ContractRequirement requirement = requirements[index];
+                if (requirement == null || string.IsNullOrWhiteSpace(requirement.ItemId))
+                {
+                    continue;
+                }
+
+                if (CCS_RegionEconomyUtility.TryResolveSpecializationForItem(
+                        requirement.ItemId,
+                        out _))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

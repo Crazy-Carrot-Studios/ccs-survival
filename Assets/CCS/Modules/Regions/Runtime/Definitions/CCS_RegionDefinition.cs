@@ -44,6 +44,13 @@ namespace CCS.Modules.Regions
         [Tooltip("Resource metadata tags available in this region.")]
         [SerializeField] private string[] resourceMetadataTags = new string[0];
 
+        [Header("Regional Economy")]
+        [Tooltip("Primary economic identity for contracts, prosperity, and trade.")]
+        [SerializeField] private CCS_RegionSpecializationType specializationType = CCS_RegionSpecializationType.Unknown;
+
+        [Tooltip("Production and prosperity modifiers plus preferred contract categories.")]
+        [SerializeField] private CCS_RegionProductionModifier productionModifier = new CCS_RegionProductionModifier();
+
         #endregion
 
         #region Properties
@@ -61,6 +68,10 @@ namespace CCS.Modules.Regions
         public string[] SettlementIds => settlementIds ?? new string[0];
 
         public string[] ResourceMetadataTags => resourceMetadataTags ?? new string[0];
+
+        public CCS_RegionSpecializationType SpecializationType => specializationType;
+
+        public CCS_RegionProductionModifier ProductionModifier => productionModifier;
 
         #endregion
     }

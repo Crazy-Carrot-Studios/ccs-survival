@@ -8,7 +8,9 @@
         "CCS.Survival.Composition",
         "CCS.Modules.Regions.Runtime",
         "CCS.Modules.Settlements.Runtime",
-        "CCS.Modules.Playtesting.Runtime"
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Contracts.Runtime",
+        "CCS.Modules.WorldSimulation.Runtime"
     ],
     "includePlatforms": [
         "Editor"
