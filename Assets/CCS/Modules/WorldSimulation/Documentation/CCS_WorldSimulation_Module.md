@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.8.0** — **Business presence** markers in bootstrap scene derive visual state from `CCS_BusinessSnapshot` via `CCS_BusinessPresenceValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementBusinessPresenceProfile`.
+
 Milestone **3.7.0** — Settlement **business activation** on `CCS_SettlementSimulationState.businessStates`. `CCS_BusinessValidationUtility` evaluates catalog entries when population, prosperity, or growth stage changes. `CCS_BusinessService` raises activation events; profile wired on `CCS_WorldSimulationProfile.settlementBusinessProfile`.
 
 Milestone **3.6.0** — Settlement **population simulation** on `CCS_SettlementSimulationState` (total, capacity, growth rate, stability, workforce breakdown). `CCS_SettlementPopulationUtility` applies growth from contracts, prosperity, food supply health, and reputation tier. Persisted through `CCS_SaveWorldSimulationData`. Wired to settlement growth population gates.

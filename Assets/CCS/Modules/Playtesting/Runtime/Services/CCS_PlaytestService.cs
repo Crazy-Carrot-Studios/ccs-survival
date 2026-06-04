@@ -245,6 +245,8 @@ namespace CCS.Modules.Playtesting
         private float savedPopulationGrowthRate;
         private int savedActiveBusinessCount;
         private bool businessSaveCaptured;
+        private int savedGeneralStorePresenceStatus = -1;
+        private bool businessPresenceSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1409,6 +1411,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveBusinessState,
                         "Business activation state saved.");
                 }
+
+                if (TryCaptureBusinessPresenceSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveBusinessPresenceState,
+                        "Business presence marker state saved.");
+                }
             }
         }
 
@@ -1442,6 +1451,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateRouteRiskFreightStateAfterLoad();
                 EvaluatePopulationStateAfterLoad();
                 EvaluateBusinessStateAfterLoad();
+                EvaluateBusinessPresenceStateAfterLoad();
             }
         }
 
@@ -6139,6 +6149,36 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestBusinessPresenceFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForBusinessPresence,
+                "Trading Post discovered for business presence playtest.");
+
+            EvaluateBusinessPresencePlaytestSteps();
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.TriggerBusinessActivationForMarkers,
+                        result.Message);
+                }
+            }
+
+            CCS_BusinessPresenceRuntimeBridge.RefreshAllAnchors();
+            EvaluateBusinessPresencePlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestBusinessesFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
@@ -6275,6 +6315,60 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyPopulationIncreased,
                     $"Population increased to {snapshot.TotalPopulation} (baseline {populationBaseline}).");
+            }
+        }
+
+        private void EvaluateBusinessPresencePlaytestSteps()
+        {
+            int anchorCount = CCS_BusinessPresenceRuntimeBridge.GetRegisteredAnchorCount();
+            if (anchorCount >= 5)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBusinessMarkersExist,
+                    $"Found {anchorCount} business presence anchors in scene.");
+            }
+
+            CCS_BusinessPresenceStatus status = CCS_BusinessPresenceRuntimeBridge.ResolvePresenceStatus(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_BusinessType.GeneralStore);
+            if (status == CCS_BusinessPresenceStatus.Active)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBusinessMarkerActive,
+                    "General Store presence marker is Active.");
+            }
+        }
+
+        private bool TryCaptureBusinessPresenceSaveState()
+        {
+            if (businessPresenceSaveCaptured)
+            {
+                return businessPresenceSaveCaptured;
+            }
+
+            savedGeneralStorePresenceStatus = (int)CCS_BusinessPresenceRuntimeBridge.ResolvePresenceStatus(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_BusinessType.GeneralStore);
+            businessPresenceSaveCaptured = savedGeneralStorePresenceStatus >= 0;
+            return businessPresenceSaveCaptured;
+        }
+
+        private void EvaluateBusinessPresenceStateAfterLoad()
+        {
+            if (!businessPresenceSaveCaptured)
+            {
+                return;
+            }
+
+            CCS_BusinessPresenceRuntimeBridge.RefreshAllAnchors();
+            int restoredStatus = (int)CCS_BusinessPresenceRuntimeBridge.ResolvePresenceStatus(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_BusinessType.GeneralStore);
+            if (restoredStatus == savedGeneralStorePresenceStatus)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBusinessPresenceAfterLoad,
+                    "Business presence marker state restored from simulation after load.");
             }
         }
 

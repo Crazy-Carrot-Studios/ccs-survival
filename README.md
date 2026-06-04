@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.8.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.8.0** — Visible Business Presence Foundation
+
+Active businesses gain **visible placeholder presence** in the bootstrap world through `CCS_BusinessPresenceAnchor`, `CCS_BusinessPresenceMarker`, and `CCS_BusinessPresenceLabel` components. Markers derive state from business simulation (`CCS_BusinessService` / `CCS_BusinessSnapshot`) and update on `BusinessActivated` / `BusinessDeactivated`. Linked settlement service points tint from presence status without duplicating access gating. Playtest group **Business Presence** with **Ctrl+Shift+V** shortcut.
+
+**Business Presence Loop:**
+
+```text
+Population Grows → Business Activates → World Marker Updates → Settlement Feels More Developed
+```
 
 **3.7.0** — Frontier Businesses Foundation
 

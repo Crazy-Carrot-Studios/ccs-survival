@@ -63,3 +63,22 @@ Business flags persist on `CCS_SettlementSimulationState` inside world simulatio
 ## Bootstrap
 
 Run `CCS_FrontierBusinessesFoundationBootstrapSetup.ExecuteBatch` to create `CCS_DefaultBusinessProfile.asset` and wire the world simulation profile.
+
+## Visible presence (3.8.0)
+
+| Type | Role |
+|------|------|
+| `CCS_BusinessPresenceProfile` | Anchor catalog for validation and bootstrap |
+| `CCS_BusinessPresenceAnchor` | World anchor linking settlement + business to marker/label |
+| `CCS_BusinessPresenceMarker` | Primitive active/inactive/locked visual |
+| `CCS_BusinessPresenceLabel` | TextMesh name + status |
+| `CCS_BusinessPresenceService` | Refreshes markers from business snapshots |
+| `CCS_BusinessPresenceValidationUtility` | Status resolution and profile validation |
+
+Run `CCS_BusinessPresenceFoundationBootstrapSetup.ExecuteBatch` for scene anchors and playtest steps. Shortcut: **Ctrl+Shift+V**.
+
+**Business Presence Loop:**
+
+```text
+Population Grows → Business Activates → World Marker Updates → Settlement Feels More Developed
+```

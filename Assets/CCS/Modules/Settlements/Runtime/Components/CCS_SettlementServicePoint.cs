@@ -161,6 +161,23 @@ namespace CCS.Modules.Settlements
                 : string.Empty;
         }
 
+        public void ApplyBusinessPresenceVisual(CCS_BusinessPresenceStatus status)
+        {
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                return;
+            }
+
+            Color color = status switch
+            {
+                CCS_BusinessPresenceStatus.Active => new Color(0.55f, 0.85f, 0.95f, 1f),
+                CCS_BusinessPresenceStatus.Inactive => new Color(0.85f, 0.75f, 0.35f, 1f),
+                _ => new Color(0.4f, 0.4f, 0.42f, 1f)
+            };
+            renderer.sharedMaterial.color = color;
+        }
+
         private bool IsSettlementDiscovered()
         {
             if (settlementLocation?.SettlementDefinition == null

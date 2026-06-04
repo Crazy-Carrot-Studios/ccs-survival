@@ -271,6 +271,12 @@ namespace CCS.Modules.Playtesting
         VerifyBusinessActivated = 256,
         VerifySettlementBusinessCatalog = 257,
         SaveBusinessState = 258,
-        VerifyBusinessStateAfterLoad = 259
+        VerifyBusinessStateAfterLoad = 259,
+        DiscoverSettlementForBusinessPresence = 260,
+        VerifyBusinessMarkersExist = 261,
+        TriggerBusinessActivationForMarkers = 262,
+        VerifyBusinessMarkerActive = 263,
+        SaveBusinessPresenceState = 264,
+        VerifyBusinessPresenceAfterLoad = 265
     }
 }

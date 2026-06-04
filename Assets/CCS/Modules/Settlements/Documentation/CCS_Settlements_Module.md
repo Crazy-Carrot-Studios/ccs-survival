@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
 **Milestone:** 3.6.0 — Population foundation (workforce categories, growth, capacity, save/load)  
 **Milestone:** 3.5.0 — Route risk and freight bonus (risk rating, base/distance multipliers, reward utility)  
@@ -78,6 +79,14 @@ CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.Execu
 ```
 
 Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
+
+## Business presence (3.8.0)
+
+Primitive labeled markers at each settlement business anchor; visuals derive from `CCS_BusinessSnapshot` (no separate save section). Service points linked by business type tint from presence status.
+
+Bootstrap: `CCS.Modules.Settlements.Editor.CCS_BusinessPresenceFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Business Presence** — **Ctrl+Shift+V**
 
 ## Businesses (3.7.0)
 

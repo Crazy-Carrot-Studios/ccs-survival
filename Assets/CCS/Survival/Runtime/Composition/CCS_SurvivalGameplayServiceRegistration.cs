@@ -505,6 +505,10 @@ namespace CCS.Survival.Composition
             CCS_BusinessService businessService = CreateBusinessService(worldSimulationProfile?.SettlementBusinessProfile);
             RegisterService(runtimeHost, businessService, enableDebugLogs);
 
+            CCS_BusinessPresenceService businessPresenceService =
+                CreateBusinessPresenceService(worldSimulationProfile?.SettlementBusinessPresenceProfile);
+            RegisterService(runtimeHost, businessPresenceService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -519,6 +523,11 @@ namespace CCS.Survival.Composition
             WireSettlementGrowth(settlementService, worldSimulationService);
             WireSettlementPopulation(settlementService, worldSimulationService);
             WireSettlementBusinesses(settlementService, worldSimulationService, businessService);
+            WireBusinessPresence(
+                settlementService,
+                businessService,
+                businessPresenceService,
+                worldSimulationService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
             {
@@ -2402,6 +2411,50 @@ namespace CCS.Survival.Composition
             }
 
             return service;
+        }
+
+        private static CCS_BusinessPresenceService CreateBusinessPresenceService(CCS_BusinessPresenceProfile profile)
+        {
+            CCS_BusinessPresenceService service = new CCS_BusinessPresenceService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireBusinessPresence(
+            CCS_SettlementService settlementService,
+            CCS_BusinessService businessService,
+            CCS_BusinessPresenceService businessPresenceService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (settlementService == null || businessPresenceService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            businessPresenceService.BindBusinessSnapshotResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetBusinessSnapshot(settlementId, out CCS_BusinessSnapshot snapshot))
+                {
+                    return snapshot;
+                }
+
+                return CCS_BusinessSnapshot.Empty;
+            });
+
+            if (businessService != null && businessService.IsInitialized)
+            {
+                businessService.BusinessActivated += businessPresenceService.HandleBusinessActivated;
+                businessService.BusinessDeactivated += businessPresenceService.HandleBusinessDeactivated;
+            }
+
+            settlementService.SettlementDiscovered += businessPresenceService.HandleSettlementDiscovered;
+
+            businessPresenceService.RefreshAllAnchors();
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

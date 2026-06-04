@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06f9b41bd855f514995557f437d36066, type: 3}
+  m_Name: CCS_DefaultBusinessPresenceProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceProfile
+  profileDisplayName: Default Business Presence Profile
+  profileId: ccs.survival.profile.businesspresence.default
+  profileDescription: Bootstrap anchors mapping business activation to visible world
+    markers.
+  profileVersion: 3.8.0
+  enableDebugLogs: 0
+  anchorDefinitions:
+  - anchorId: ccs.survival.businesspresence.testtradingpost.generalstore
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.generalstore
+    businessType: 1
+    displayName: General Store
+  - anchorId: ccs.survival.businesspresence.testtradingpost.stable
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.stable
+    businessType: 3
+    displayName: Stable
+  - anchorId: ccs.survival.businesspresence.testtradingpost.gunsmith
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.gunsmith
+    businessType: 4
+    displayName: Gunsmith
+  - anchorId: ccs.survival.businesspresence.testtradingpost.bank
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.bank
+    businessType: 5
+    displayName: Bank
+  - anchorId: ccs.survival.businesspresence.testtradingpost.contractoffice
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.contractoffice
+    businessType: 9
+    displayName: Contract Office
+  - anchorId: ccs.survival.businesspresence.brokencreek.farmsupply
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    businessId: ccs.survival.business.farmsupply
+    businessType: 6
+    displayName: Farm Supply
+  - anchorId: ccs.survival.businesspresence.ironridge.miningsupplier
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    businessId: ccs.survival.business.miningsupplier
+    businessType: 7
+    displayName: Mining Supplier
+  - anchorId: ccs.survival.businesspresence.pineridge.lumberyard
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    businessId: ccs.survival.business.lumberyard
+    businessType: 8
+    displayName: Lumber Yard

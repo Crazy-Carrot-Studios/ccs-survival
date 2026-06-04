@@ -2277,3 +2277,53 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.discover
+    displayName: Discover settlement for business presence
+    stepType: 260
+    instructionText: Discover settlement for business presence. Ctrl+Shift+V shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.verify.markers
+    displayName: Verify business markers exist
+    stepType: 261
+    instructionText: Verify business markers exist. Ctrl+Shift+V shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.activate
+    displayName: Trigger business activation for markers
+    stepType: 262
+    instructionText: Trigger business activation for markers. Ctrl+Shift+V shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.verify.active
+    displayName: Verify marker shows active
+    stepType: 263
+    instructionText: Verify marker shows active. Ctrl+Shift+V shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.save
+    displayName: Save business presence state
+    stepType: 264
+    instructionText: Save business presence state. Ctrl+Shift+V shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.businesspresence.load
+    displayName: Verify marker restored after load
+    stepType: 265
+    instructionText: Verify marker restored after load. Ctrl+Shift+V shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
