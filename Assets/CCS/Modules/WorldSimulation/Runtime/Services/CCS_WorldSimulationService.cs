@@ -190,6 +190,35 @@ namespace CCS.Modules.WorldSimulation
             SettlementSupplyChanged?.Invoke(settlementState);
         }
 
+        public void HandleContractCompleted(
+            string settlementId,
+            CCS_SettlementSupplyType supplyType,
+            float supplyAmount,
+            float prosperityBonus)
+        {
+            if (!isInitialized || string.IsNullOrWhiteSpace(settlementId) || supplyAmount <= 0f)
+            {
+                return;
+            }
+
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null
+                || !settlementState.isDiscovered)
+            {
+                return;
+            }
+
+            ApplySupplyDelta(settlementState, supplyType, supplyAmount);
+            RecalculateProsperity(settlementState);
+            if (prosperityBonus > 0f)
+            {
+                settlementState.prosperity = Mathf.Clamp(settlementState.prosperity + prosperityBonus, 0f, 100f);
+                SettlementProsperityChanged?.Invoke(settlementState);
+            }
+
+            SettlementSupplyChanged?.Invoke(settlementState);
+        }
+
         public bool TryGetSnapshot(out CCS_WorldSimulationSnapshot snapshot)
         {
             snapshot = BuildSnapshot();

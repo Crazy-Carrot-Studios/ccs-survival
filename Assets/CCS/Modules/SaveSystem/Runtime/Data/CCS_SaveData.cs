@@ -6,6 +6,7 @@ using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
 using CCS.Modules.Reputation;
+using CCS.Modules.Contracts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
@@ -82,7 +83,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveReputationWorldData reputation = new CCS_SaveReputationWorldData();
 
+        public CCS_SaveContractsWorldData contracts = new CCS_SaveContractsWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveContractsWorldData
+    {
+        public CCS_ContractSnapshot[] contractInstances = Array.Empty<CCS_ContractSnapshot>();
     }
 
     [Serializable]

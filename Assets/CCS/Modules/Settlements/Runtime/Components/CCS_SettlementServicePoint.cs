@@ -98,6 +98,7 @@ namespace CCS.Modules.Settlements
                 CCS_SettlementServicePointType.Stable => "Stable",
                 CCS_SettlementServicePointType.Gunsmith => "Gunsmith",
                 CCS_SettlementServicePointType.Blacksmith => "Blacksmith",
+                CCS_SettlementServicePointType.ContractBoard => "Contract Board",
                 _ => "Settlement Service"
             };
         }

@@ -52,6 +52,11 @@ namespace CCS.Modules.Settlements
                 return CCS_SettlementServiceRouteType.LandOffice;
             }
 
+            if (servicePoint.ServicePointType == CCS_SettlementServicePointType.ContractBoard)
+            {
+                return CCS_SettlementServiceRouteType.ContractBoard;
+            }
+
             if (servicePoint.ServicePointType == CCS_SettlementServicePointType.Other)
             {
                 return CCS_SettlementServiceRouteType.Unknown;
@@ -110,6 +115,8 @@ namespace CCS.Modules.Settlements
                     return TryActivateBankRoute(servicePoint);
                 case CCS_SettlementServiceRouteType.LandOffice:
                     return TryActivateLandOfficeRoute(servicePoint);
+                case CCS_SettlementServiceRouteType.ContractBoard:
+                    return TryActivateContractBoardRoute(servicePoint);
                 case CCS_SettlementServiceRouteType.Unknown:
                     CCS_SettlementDebugMessageHud.ShowMessage(
                         servicePoint.GetInteractionDisplayName(),
@@ -312,6 +319,19 @@ namespace CCS.Modules.Settlements
             return CCS_SettlementServiceActivationResult.Success(
                 CCS_SettlementServiceRouteType.LandOffice,
                 "Land office debug panel opened.");
+        }
+
+        private static CCS_SettlementServiceActivationResult TryActivateContractBoardRoute(CCS_SettlementServicePoint servicePoint)
+        {
+            if (CCS_SettlementContractBoardActivationBridge.TryActivate(servicePoint, out CCS_SettlementServiceActivationResult result))
+            {
+                return result;
+            }
+
+            return CCS_SettlementServiceActivationResult.Blocked(
+                CCS_SettlementServiceRouteType.ContractBoard,
+                CCS_SettlementServiceActivationStatus.ServiceMissing,
+                "Contract service is not ready.");
         }
 
         private static CCS_SettlementServiceActivationResult TryActivatePlaceholderRoute(CCS_SettlementServicePoint servicePoint)

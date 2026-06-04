@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b0f92bb00d7dd46b1d6e8fc57e1b4e, type: 3}
+  m_Name: CCS_DefaultContractProfile
+  m_EditorClassIdentifier: CCS.Modules.Contracts.Runtime::CCS.Modules.Contracts.CCS_ContractProfile
+  profileDisplayName: Default Contract Profile
+  profileId: ccs.survival.profile.contracts.default
+  profileDescription: Frontier settlement delivery contracts for general store, stable,
+    gunsmith, and trading post boards.
+  profileVersion: 3.0.0
+  enableDebugLogs: 0
+  defaultSettlementId: ccs.survival.settlement.frontier.testtradingpost
+  defaultCurrencyId: ccs.survival.currency.tradedollars
+  contractDefinitions:
+  - {fileID: 11400000, guid: 2a7a4456d2c7fa647ae10bc973a61142, type: 2}
+  - {fileID: 11400000, guid: 8da1bf61033424d4c8fab875c4e61cd1, type: 2}
+  - {fileID: 11400000, guid: b6e81a1a8b58d9e4ba1a64f6b79f69eb, type: 2}
+  - {fileID: 11400000, guid: 6af91c2f310b27a40bf823671826b279, type: 2}
+  - {fileID: 11400000, guid: 35d6e9c26ac4d0c4f809796be15459f5, type: 2}
+  - {fileID: 11400000, guid: f7988a489f63ae8498bc6e5bb8650177, type: 2}
+  - {fileID: 11400000, guid: 84468773749c35944aaf0e32931573ab, type: 2}
+  - {fileID: 11400000, guid: 7d7966e353035734c8b3ebbd59a48845, type: 2}
+  - {fileID: 11400000, guid: d7b0b2b178495674dac5fe580eb7e232, type: 2}
+  enableDebugLogging: 1

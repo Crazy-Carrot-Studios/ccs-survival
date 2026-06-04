@@ -42,6 +42,8 @@ namespace CCS.Modules.Reputation
         [SerializeField] private int failedUpkeepDelta = -1;
         [SerializeField] private int settlementDiscoveredDelta = 1;
 
+        [SerializeField] private bool enableContractCompletedEvents = true;
+
         [SerializeField] private bool enableDebugLogging = true;
 
         [Header("Service Access")]
@@ -125,6 +127,8 @@ namespace CCS.Modules.Reputation
         public int FailedUpkeepDelta => failedUpkeepDelta;
 
         public int SettlementDiscoveredDelta => settlementDiscoveredDelta;
+
+        public bool EnableContractCompletedEvents => enableContractCompletedEvents;
 
         public bool EnableDebugLogging => enableDebugLogging;
 

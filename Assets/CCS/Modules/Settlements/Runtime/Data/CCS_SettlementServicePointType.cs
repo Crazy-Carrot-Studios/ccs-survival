@@ -22,6 +22,7 @@ namespace CCS.Modules.Settlements
         Bank = 7,
         FreightDepot = 8,
         Other = 9,
-        LandOffice = 10
+        LandOffice = 10,
+        ContractBoard = 11
     }
 }

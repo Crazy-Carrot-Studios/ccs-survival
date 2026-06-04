@@ -19,6 +19,7 @@ namespace CCS.Modules.Settlements
         Disabled = 4,
         Unavailable = 5,
         Bank = 6,
-        LandOffice = 7
+        LandOffice = 7,
+        ContractBoard = 8
     }
 }

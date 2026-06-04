@@ -205,6 +205,16 @@ namespace CCS.Modules.Playtesting
         VerifyVendorBuyPriceModifier = 190,
         VerifySettlementServiceAccess = 191,
         SaveServiceAccessState = 192,
-        VerifyServiceAccessAfterLoad = 193
+        VerifyServiceAccessAfterLoad = 193,
+        DiscoverTradingPostForContracts = 194,
+        InteractContractBoard = 195,
+        AcceptFrontierContract = 196,
+        GatherContractGoods = 197,
+        CompleteFrontierContract = 198,
+        VerifyContractMoneyReward = 199,
+        VerifyContractReputationReward = 200,
+        VerifyContractProsperityReward = 201,
+        SaveContractState = 202,
+        VerifyContractStateAfterLoad = 203
     }
 }

@@ -18,6 +18,7 @@ namespace CCS.Modules.Reputation
         UpkeepPaid = 3,
         SettlementDiscovered = 4,
         FailedUpkeep = 5,
-        PlaceholderFuture = 6
+        PlaceholderFuture = 6,
+        ContractCompleted = 7
     }
 }

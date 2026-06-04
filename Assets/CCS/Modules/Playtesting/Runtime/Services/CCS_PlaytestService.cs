@@ -25,6 +25,7 @@ using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
 using CCS.Modules.Reputation;
+using CCS.Modules.Contracts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
@@ -171,6 +172,7 @@ namespace CCS.Modules.Playtesting
         private CCS_BankingService boundBankingService;
         private CCS_UpkeepService boundUpkeepService;
         private CCS_ReputationService boundReputationService;
+        private CCS_ContractService boundContractService;
         private int playtestBankWalletBaseline;
         private int playtestBankBalanceBaseline;
         private int playtestUpkeepBankBaseline;
@@ -200,6 +202,12 @@ namespace CCS.Modules.Playtesting
         private int savedFarmPlotCount;
         private int savedLandClaimCount;
         private int savedLandAssociationCount;
+        private int playtestContractCurrencyBaseline;
+        private int playtestContractReputationBaseline;
+        private float playtestContractProsperityBaseline;
+        private bool playtestContractBaselinesCaptured;
+        private string savedContractDefinitionId = string.Empty;
+        private int savedContractState;
 
         #endregion
 
@@ -282,7 +290,8 @@ namespace CCS.Modules.Playtesting
             CCS_LandClaimService landClaimService = null,
             CCS_BankingService bankingService = null,
             CCS_UpkeepService upkeepService = null,
-            CCS_ReputationService reputationService = null)
+            CCS_ReputationService reputationService = null,
+            CCS_ContractService contractService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -322,6 +331,7 @@ namespace CCS.Modules.Playtesting
             boundBankingService = bankingService;
             boundUpkeepService = upkeepService;
             boundReputationService = reputationService;
+            boundContractService = contractService;
 
             if (boundWorldSimulationService != null)
             {
@@ -386,6 +396,12 @@ namespace CCS.Modules.Playtesting
             if (boundVendorService != null)
             {
                 boundVendorService.VendorTransactionCompleted += HandleVendorTransactionCompleted;
+            }
+
+            if (boundContractService != null)
+            {
+                boundContractService.ContractAccepted += HandleContractAccepted;
+                boundContractService.ContractCompleted += HandleContractCompleted;
             }
 
             if (boundInteractionService != null)
@@ -579,6 +595,12 @@ namespace CCS.Modules.Playtesting
                 boundVendorService.VendorTransactionCompleted -= HandleVendorTransactionCompleted;
             }
 
+            if (boundContractService != null)
+            {
+                boundContractService.ContractAccepted -= HandleContractAccepted;
+                boundContractService.ContractCompleted -= HandleContractCompleted;
+            }
+
             if (boundSettlementService != null)
             {
                 boundSettlementService.SettlementDiscovered -= HandleSettlementDiscovered;
@@ -666,6 +688,8 @@ namespace CCS.Modules.Playtesting
             boundBankingService = null;
             boundUpkeepService = null;
             boundReputationService = null;
+            boundContractService = null;
+            playtestContractBaselinesCaptured = false;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1271,6 +1295,20 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveWorldSimulationState,
                         "World simulation state saved.");
                 }
+
+                if (boundContractService != null && boundContractService.IsInitialized)
+                {
+                    CCS_ContractSnapshot[] contractSnapshots = boundContractService.CaptureContractsState();
+                    if (contractSnapshots != null && contractSnapshots.Length > 0)
+                    {
+                        savedContractDefinitionId = contractSnapshots[0].contractDefinitionId ?? string.Empty;
+                        savedContractState = contractSnapshots[0].contractState;
+                    }
+
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveContractState,
+                        "Contract state saved.");
+                }
             }
         }
 
@@ -1296,6 +1334,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateUpkeepAfterLoad();
                 EvaluateLoanAfterLoad();
                 EvaluateReputationAfterLoad();
+                EvaluateContractStateAfterLoad();
             }
         }
 
@@ -1825,6 +1864,9 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.DiscoverTradingPost,
                 "Frontier trading post discovered.");
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverTradingPostForContracts,
+                "Trading post discovered for contract board.");
 
             CapturePlaytestReputationBaselineIfNeeded();
             EvaluateWorldSimulationSettlementDiscovered();
@@ -1898,6 +1940,11 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.InteractLandOfficeServicePoint,
                         "Land office service point activated.");
                     EvaluateLandOfficeOwnedClaimsStep();
+                    break;
+                case CCS_SettlementServicePointType.ContractBoard:
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractContractBoard,
+                        "Contract board service point activated.");
                     break;
             }
         }
@@ -5005,6 +5052,47 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestContractsFoundationShortcut()
+        {
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && boundSettlementService.TryGetDefinition(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementDefinition tradingPostDefinition))
+            {
+                boundSettlementService.DiscoverSettlement(tradingPostDefinition, Vector3.zero);
+            }
+
+            CapturePlaytestContractBaselinesIfNeeded();
+            GrantPlaytestItem(CCS_ContractContentIds.HideItemId, 3);
+            GrantPlaytestItem(CCS_ContractContentIds.CordageItemId, 2);
+            TryEvaluateContractGoodsStep();
+
+            if (boundContractService != null
+                && boundContractService.IsInitialized
+                && playtestContractCurrencyBaseline <= 0
+                && boundCurrencyService != null
+                && boundCurrencyService.IsInitialized)
+            {
+                playtestContractCurrencyBaseline =
+                    boundCurrencyService.GetBalance(TradeDollarsCurrencyId);
+            }
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_ContractContentIds.MixedFrontierSupplyContractId,
+                    CCS_ContractContentIds.DefaultTradingPostSettlementId);
+            }
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryCompleteContract(CCS_ContractContentIds.MixedFrontierSupplyContractId);
+            }
+
+            return true;
+        }
+
         public bool TryPlaytestForceUpkeepDue()
         {
             if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
@@ -5224,6 +5312,189 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyReputationChangedAfterObligation,
                     $"Settlement reputation increased to {value} after obligation.");
+            }
+        }
+
+        private void HandleContractAccepted(CCS_ContractCompletionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.AcceptFrontierContract,
+                $"Accepted contract {result.ContractId}.");
+        }
+
+        private void HandleContractCompleted(CCS_ContractCompletionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.CompleteFrontierContract,
+                $"Completed contract {result.ContractId}.");
+            EvaluateContractRewardSteps(result);
+        }
+
+        private void CapturePlaytestContractBaselinesIfNeeded()
+        {
+            if (playtestContractBaselinesCaptured)
+            {
+                return;
+            }
+
+            if (boundCurrencyService != null && boundCurrencyService.IsInitialized)
+            {
+                playtestContractCurrencyBaseline =
+                    boundCurrencyService.GetBalance(TradeDollarsCurrencyId);
+            }
+
+            if (TryGetPlaytestSettlementReputation(out int reputationValue, out _))
+            {
+                playtestContractReputationBaseline = reputationValue;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                playtestContractProsperityBaseline = settlementState.prosperity;
+            }
+
+            playtestContractBaselinesCaptured = true;
+        }
+
+        private void TryEvaluateContractGoodsStep()
+        {
+            if (boundContractService == null || !boundContractService.IsInitialized)
+            {
+                return;
+            }
+
+            if (!boundContractService.TryGetDefinition(
+                    CCS_ContractContentIds.MixedFrontierSupplyContractId,
+                    out CCS_ContractDefinition definition)
+                || definition == null)
+            {
+                return;
+            }
+
+            CCS_ContractRequirement[] requirements = definition.Requirements;
+            for (int index = 0; index < requirements.Length; index++)
+            {
+                CCS_ContractRequirement requirement = requirements[index];
+                if (requirement == null)
+                {
+                    continue;
+                }
+
+                int owned = ResolvePlaytestItemQuantity(requirement.ItemId);
+                if (owned < requirement.Quantity)
+                {
+                    return;
+                }
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.GatherContractGoods,
+                "Contract delivery goods gathered.");
+        }
+
+        private int ResolvePlaytestItemQuantity(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId)
+                || !CCS_CraftingRuntimeBridge.TryGetInventoryService(out CCS_PlayerInventoryService inventoryService)
+                || inventoryService == null
+                || !inventoryService.IsInitialized
+                || inventoryService.ActiveProfile?.SaveRestoreItemDefinitions == null)
+            {
+                return 0;
+            }
+
+            CCS_ItemDefinition[] definitions = inventoryService.ActiveProfile.SaveRestoreItemDefinitions;
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                CCS_ItemDefinition definition = definitions[index];
+                if (definition != null
+                    && string.Equals(definition.ItemId, itemId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return inventoryService.GetQuantity(definition);
+                }
+            }
+
+            return 0;
+        }
+
+        private void EvaluateContractRewardSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (boundCurrencyService != null
+                && boundCurrencyService.IsInitialized
+                && result.TradeDollarsGranted > 0)
+            {
+                int balance = boundCurrencyService.GetBalance(TradeDollarsCurrencyId);
+                if (balance >= playtestContractCurrencyBaseline + result.TradeDollarsGranted)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyContractMoneyReward,
+                        $"Contract trade dollars reward granted ({result.TradeDollarsGranted}).");
+                }
+            }
+
+            if (result.ReputationGainApplied > 0
+                && TryGetPlaytestSettlementReputation(out int reputationValue, out _))
+            {
+                if (reputationValue >= playtestContractReputationBaseline + result.ReputationGainApplied)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyContractReputationReward,
+                        $"Contract reputation reward applied (+{result.ReputationGainApplied}).");
+                }
+            }
+
+            if (result.ProsperityGainApplied > 0f
+                && boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_WorldSimulationContentIds.TradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && settlementState.prosperity > playtestContractProsperityBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyContractProsperityReward,
+                    $"Settlement prosperity increased to {settlementState.prosperity:0.##}.");
+            }
+        }
+
+        private void EvaluateContractStateAfterLoad()
+        {
+            if (boundContractService == null
+                || !boundContractService.IsInitialized
+                || string.IsNullOrWhiteSpace(savedContractDefinitionId)
+                || savedContractState <= 0)
+            {
+                return;
+            }
+
+            CCS_ContractState currentState =
+                boundContractService.GetContractState(savedContractDefinitionId);
+            if ((int)currentState == savedContractState)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyContractStateAfterLoad,
+                    "Contract state restored after load.");
             }
         }
 

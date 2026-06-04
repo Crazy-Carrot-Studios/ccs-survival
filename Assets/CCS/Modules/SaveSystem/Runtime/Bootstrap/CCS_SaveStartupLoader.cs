@@ -15,6 +15,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Reputation;
+using CCS.Modules.Contracts;
 using CCS.Modules.Regions;
 using CCS.Modules.WorldSimulation;
 using CCS.Modules.Shelter;
@@ -85,6 +86,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_BankingService bankingService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_UpkeepService upkeepService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_ReputationService reputationService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_ContractService contractService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CurrencyService currencyService);
@@ -116,6 +118,7 @@ namespace CCS.Modules.SaveSystem
                 bankingService,
                 upkeepService,
                 reputationService,
+                contractService,
                 playerTransform);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)

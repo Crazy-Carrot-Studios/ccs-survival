@@ -216,6 +216,26 @@ namespace CCS.Modules.Reputation
                 "Settlement discovery registered trust baseline.");
         }
 
+        public bool TryApplyContractReward(string settlementId, int reputationGain)
+        {
+            if (!isInitialized
+                || activeProfile == null
+                || !activeProfile.EnableContractCompletedEvents
+                || reputationGain == 0)
+            {
+                return false;
+            }
+
+            string resolvedSettlementId = ResolveSettlementId(settlementId);
+            EnsureStandingForScope(CCS_ReputationScopeType.Settlement, resolvedSettlementId);
+            return TryApplyDelta(
+                CCS_ReputationEventType.ContractCompleted,
+                CCS_ReputationScopeType.Settlement,
+                resolvedSettlementId,
+                reputationGain,
+                "Frontier contract completed.");
+        }
+
         public bool TryResolveSettlementForVendor(string vendorId, out string settlementId)
         {
             settlementId = ResolveSettlementId(string.Empty);

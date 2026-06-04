@@ -14,6 +14,7 @@ using CCS.Modules.Land;
 using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
 using CCS.Modules.Reputation;
+using CCS.Modules.Contracts;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Shelter;
@@ -70,6 +71,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_BankingService bankingService;
         private CCS_UpkeepService upkeepService;
         private CCS_ReputationService reputationService;
+        private CCS_ContractService contractService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -155,6 +157,7 @@ namespace CCS.Modules.SaveSystem
             CCS_BankingService banking,
             CCS_UpkeepService upkeep,
             CCS_ReputationService reputation,
+            CCS_ContractService contracts,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -182,6 +185,7 @@ namespace CCS.Modules.SaveSystem
             bankingService = banking;
             upkeepService = upkeep;
             reputationService = reputation;
+            contractService = contracts;
             playerTransform = playerRoot;
         }
 
@@ -352,6 +356,7 @@ namespace CCS.Modules.SaveSystem
             CaptureBanking(saveData.banking);
             CaptureUpkeep(saveData.upkeep);
             CaptureReputation(saveData.reputation);
+            CaptureContracts(saveData.contracts);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -680,6 +685,7 @@ namespace CCS.Modules.SaveSystem
             ApplyBanking(saveData.banking);
             ApplyUpkeep(saveData.upkeep);
             ApplyReputation(saveData.reputation);
+            ApplyContracts(saveData.contracts);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1165,6 +1171,28 @@ namespace CCS.Modules.SaveSystem
             }
 
             reputationService.RestoreState(reputationData?.standings);
+        }
+
+        private void CaptureContracts(CCS_SaveContractsWorldData contractsData)
+        {
+            if (contractsData == null)
+            {
+                return;
+            }
+
+            contractsData.contractInstances = contractService != null && contractService.IsInitialized
+                ? contractService.CaptureContractsState()
+                : Array.Empty<CCS_ContractSnapshot>();
+        }
+
+        private void ApplyContracts(CCS_SaveContractsWorldData contractsData)
+        {
+            if (contractService == null || !contractService.IsInitialized)
+            {
+                return;
+            }
+
+            contractService.RestoreState(contractsData?.contractInstances);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

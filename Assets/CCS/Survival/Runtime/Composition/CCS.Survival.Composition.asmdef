@@ -43,6 +43,7 @@
         "CCS.Modules.Banking.Runtime",
         "CCS.Modules.Upkeep.Runtime",
         "CCS.Modules.Reputation.Runtime",
+        "CCS.Modules.Contracts.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

@@ -19,6 +19,8 @@ namespace CCS.Modules.Settlements
         public const string BlacksmithServicePointId = "ccs.survival.settlement.service.blacksmith";
         public const string BankServicePointId = "ccs.survival.settlement.service.bank";
         public const string LandOfficeServicePointId = "ccs.survival.settlement.service.landoffice";
+        public const string ContractBoardServicePointId = "ccs.survival.settlement.service.contractboard";
         public const string TestTradingPostObjectName = "CCS_TestTradingPost";
+        public const string TestTradingPostContractBoardObjectName = "CCS_TestTradingPost_ContractBoard";
     }
 }

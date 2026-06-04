@@ -37,7 +37,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.LandOwnership,
             CCS_PlaytestStepGroup.Banking,
             CCS_PlaytestStepGroup.Upkeep,
-            CCS_PlaytestStepGroup.Reputation
+            CCS_PlaytestStepGroup.Reputation,
+            CCS_PlaytestStepGroup.Contracts
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -93,6 +94,8 @@ namespace CCS.Modules.Playtesting
                     return "Tax / Upkeep";
                 case CCS_PlaytestStepGroup.Reputation:
                     return "Reputation / Trust";
+                case CCS_PlaytestStepGroup.Contracts:
+                    return "Contracts";
                 default:
                     return group.ToString();
             }
@@ -345,6 +348,18 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveServiceAccessState:
                 case CCS_PlaytestStepType.VerifyServiceAccessAfterLoad:
                     return CCS_PlaytestStepGroup.Reputation;
+
+                case CCS_PlaytestStepType.DiscoverTradingPostForContracts:
+                case CCS_PlaytestStepType.InteractContractBoard:
+                case CCS_PlaytestStepType.AcceptFrontierContract:
+                case CCS_PlaytestStepType.GatherContractGoods:
+                case CCS_PlaytestStepType.CompleteFrontierContract:
+                case CCS_PlaytestStepType.VerifyContractMoneyReward:
+                case CCS_PlaytestStepType.VerifyContractReputationReward:
+                case CCS_PlaytestStepType.VerifyContractProsperityReward:
+                case CCS_PlaytestStepType.SaveContractState:
+                case CCS_PlaytestStepType.VerifyContractStateAfterLoad:
+                    return CCS_PlaytestStepGroup.Contracts;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

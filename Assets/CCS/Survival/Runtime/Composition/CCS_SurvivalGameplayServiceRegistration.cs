@@ -37,6 +37,7 @@ using CCS.Modules.Firearms;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
 using CCS.Modules.Reputation;
+using CCS.Modules.Contracts;
 using CCS.Modules.WorldSimulation;
 using CCS.Survival.Player;
 using CCS.Survival.Player.Loadout;
@@ -103,6 +104,7 @@ namespace CCS.Survival.Composition
             CCS_FirearmProfile firearmProfile,
             CCS_SettlementProfile settlementProfile,
             CCS_ReputationProfile reputationProfile,
+            CCS_ContractProfile contractsProfile,
             CCS_RegionProfile regionProfile,
             CCS_WorldSimulationProfile worldSimulationProfile,
             CCS_CharacterControllerProfile characterControllerProfile,
@@ -519,6 +521,14 @@ namespace CCS.Survival.Composition
                 upkeepService,
                 settlementService);
 
+            CCS_ContractService contractService = CreateContractService(
+                contractsProfile,
+                inventoryService,
+                currencyService,
+                reputationService,
+                worldSimulationService);
+            RegisterService(runtimeHost, contractService, enableDebugLogs);
+
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += result =>
@@ -569,6 +579,7 @@ namespace CCS.Survival.Composition
                 bankingService,
                 upkeepService,
                 reputationService,
+                contractService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -619,7 +630,8 @@ namespace CCS.Survival.Composition
                     landClaimService,
                     bankingService,
                     upkeepService,
-                    reputationService);
+                    reputationService,
+                    contractService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -2211,6 +2223,70 @@ namespace CCS.Survival.Composition
 
             CCS_ReputationRuntimeBridge.Register(service);
             return service;
+        }
+
+        private static CCS_ContractService CreateContractService(
+            CCS_ContractProfile profile,
+            CCS_PlayerInventoryService inventoryService,
+            CCS_CurrencyService currencyService,
+            CCS_ReputationService reputationService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            CCS_ContractService service = new CCS_ContractService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized)
+            {
+                service.BindServices(
+                    inventoryService,
+                    currencyService,
+                    reputationService,
+                    worldSimulationService);
+            }
+
+            CCS_ContractRuntimeBridge.Register(service);
+            WireContractBoardActivation(service);
+            return service;
+        }
+
+        private static void WireContractBoardActivation(CCS_ContractService contractService)
+        {
+            CCS_SettlementContractBoardActivationBridge.ActivateHandler = servicePoint =>
+            {
+                if (contractService == null || !contractService.IsInitialized || servicePoint == null)
+                {
+                    return CCS_SettlementServiceActivationResult.Blocked(
+                        CCS_SettlementServiceRouteType.ContractBoard,
+                        CCS_SettlementServiceActivationStatus.ServiceMissing,
+                        "Contract service is not ready.");
+                }
+
+                string settlementId = servicePoint.ResolveSettlementId();
+                CCS_ContractType boardType = ResolveContractBoardType(servicePoint);
+                CCS_ContractDebugHud.ShowBoard(
+                    servicePoint.GetInteractionDisplayName(),
+                    settlementId,
+                    boardType);
+                return CCS_SettlementServiceActivationResult.Success(
+                    CCS_SettlementServiceRouteType.ContractBoard,
+                    "Contract board debug panel opened.");
+            };
+        }
+
+        private static CCS_ContractType ResolveContractBoardType(CCS_SettlementServicePoint servicePoint)
+        {
+            return servicePoint.ServicePointType switch
+            {
+                CCS_SettlementServicePointType.GeneralStore => CCS_ContractType.GeneralStoreSupply,
+                CCS_SettlementServicePointType.Stable => CCS_ContractType.StableSupply,
+                CCS_SettlementServicePointType.Gunsmith => CCS_ContractType.GunsmithSupply,
+                CCS_SettlementServicePointType.LandOffice => CCS_ContractType.LandOfficeSupply,
+                _ => CCS_ContractType.TradingPostSupply
+            };
         }
 
         private static void WireReputationEventHooks(

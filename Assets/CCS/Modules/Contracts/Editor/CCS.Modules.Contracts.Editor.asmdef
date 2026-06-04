@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.Contracts.Editor",
+    "rootNamespace": "CCS.Modules.Contracts.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Survival.Editor",
+        "CCS.Survival.Composition",
+        "CCS.Modules.Contracts.Runtime",
+        "CCS.Modules.Playtesting.Runtime",
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Reputation.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.WorldSimulation.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

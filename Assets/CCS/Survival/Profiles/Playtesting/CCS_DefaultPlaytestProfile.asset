@@ -1688,3 +1688,93 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.discover
+    displayName: Discover trading post for contracts
+    stepType: 194
+    instructionText: 'Contracts playtest: Discover trading post for contracts. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.interact.board
+    displayName: Interact with contract board
+    stepType: 195
+    instructionText: 'Contracts playtest: Interact with contract board. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.accept
+    displayName: Accept frontier contract
+    stepType: 196
+    instructionText: 'Contracts playtest: Accept frontier contract. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.gather
+    displayName: Gather contract delivery goods
+    stepType: 197
+    instructionText: 'Contracts playtest: Gather contract delivery goods. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.complete
+    displayName: Complete frontier contract
+    stepType: 198
+    instructionText: 'Contracts playtest: Complete frontier contract. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.verify.money
+    displayName: Verify contract money reward
+    stepType: 199
+    instructionText: 'Contracts playtest: Verify contract money reward. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.verify.reputation
+    displayName: Verify contract reputation reward
+    stepType: 200
+    instructionText: 'Contracts playtest: Verify contract reputation reward. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.verify.prosperity
+    displayName: Verify contract prosperity reward
+    stepType: 201
+    instructionText: 'Contracts playtest: Verify contract prosperity reward. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.save
+    displayName: Save contract state
+    stepType: 202
+    instructionText: 'Contracts playtest: Save contract state. Ctrl+Shift+C shortcut
+      available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.contracts.verify.load
+    displayName: Verify contract state after load
+    stepType: 203
+    instructionText: 'Contracts playtest: Verify contract state after load. Ctrl+Shift+C
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

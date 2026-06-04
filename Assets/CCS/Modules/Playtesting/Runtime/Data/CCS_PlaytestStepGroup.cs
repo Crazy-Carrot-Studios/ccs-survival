@@ -33,6 +33,7 @@ namespace CCS.Modules.Playtesting
         LandOwnership = 18,
         Banking = 19,
         Upkeep = 20,
-        Reputation = 21
+        Reputation = 21,
+        Contracts = 22
     }
 }

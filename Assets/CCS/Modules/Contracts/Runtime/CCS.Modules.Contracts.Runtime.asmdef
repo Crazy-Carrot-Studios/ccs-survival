@@ -1,0 +1,22 @@
+{
+    "name": "CCS.Modules.Contracts.Runtime",
+    "rootNamespace": "CCS.Modules.Contracts",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Survival.Runtime",
+        "CCS.Modules.Inventory.Runtime",
+        "CCS.Modules.Economy.Runtime",
+        "CCS.Modules.Reputation.Runtime",
+        "CCS.Modules.WorldSimulation.Runtime",
+        "CCS.Modules.CharacterController.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-2.8.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.0.0** — Frontier Contracts Foundation
+
+Generic **Contracts** module: settlement delivery jobs (`CCS_ContractDefinition`, `CCS_ContractProfile`, `CCS_ContractService`) with item requirements, trade dollar / reputation / prosperity rewards, `ContractBoard` settlement routing, debug contract panel, save/load contract snapshots, and playtest harness group with **Ctrl+Shift+C** shortcut. Conservative starter catalog for general store, stable, gunsmith, and trading post boards. No factions, quests, law, NPC AI, or final contract UI.
+
+**Frontier Contract Loop:**
+
+```text
+Discover Settlement → Accept Contract → Deliver Goods → Earn Rewards → Improve Settlement Prosperity / Supply
+```
 
 **2.8.0** — Service Access and Price Modifier Foundation
 

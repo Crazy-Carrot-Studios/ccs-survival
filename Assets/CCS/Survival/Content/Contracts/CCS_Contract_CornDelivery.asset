@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d04759416fb244bb1972900626b133, type: 3}
+  m_Name: CCS_Contract_CornDelivery
+  m_EditorClassIdentifier: CCS.Modules.Contracts.Runtime::CCS.Modules.Contracts.CCS_ContractDefinition
+  contractId: ccs.survival.contract.generalstore.corn
+  displayName: Corn Delivery
+  contractType: 0
+  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  requirements:
+  - itemId: ccs.survival.farming.item.corn
+    quantity: 5
+    settlementIdRestriction: 
+  reward:
+    tradeDollars: 12
+    reputationGain: 2
+    prosperityGain: 1
+    supplyType: 0
+    supplyAmount: 1
+  enabled: 1
