@@ -37,6 +37,7 @@ namespace CCS.Modules.Playtesting
         Contracts = 22,
         RegionalEconomy = 23,
         SettlementGrowth = 24,
-        MultiSettlement = 25
+        MultiSettlement = 25,
+        TradeRoutesFreight = 26
     }
 }

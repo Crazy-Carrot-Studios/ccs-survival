@@ -99,7 +99,25 @@ namespace CCS.Modules.Contracts
                     $"Contract '{definition.ContractId}' trade dollar reward cannot be negative.");
             }
 
-            if (definition.ResolveRegionSpecialization() == CCS_RegionSpecializationType.Unknown
+            if (definition.IsFreightContract)
+            {
+                if (string.IsNullOrWhiteSpace(definition.FreightSourceSettlementId)
+                    || string.IsNullOrWhiteSpace(definition.FreightDestinationSettlementId))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Freight contract '{definition.ContractId}' requires source and destination settlement ids.");
+                }
+
+                if (string.Equals(
+                        definition.FreightSourceSettlementId,
+                        definition.FreightDestinationSettlementId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        $"Freight contract '{definition.ContractId}' source and destination must differ.");
+                }
+            }
+            else if (definition.ResolveRegionSpecialization() == CCS_RegionSpecializationType.Unknown
                 && !HasResolvableItemCategory(definition))
             {
                 return CCS_SurvivalValidationResult.Fail(

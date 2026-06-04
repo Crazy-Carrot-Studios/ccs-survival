@@ -72,6 +72,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_UpkeepService upkeepService;
         private CCS_ReputationService reputationService;
         private CCS_ContractService contractService;
+        private CCS_TradeRouteService tradeRouteService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
         private float autoSaveTimer;
@@ -158,6 +159,7 @@ namespace CCS.Modules.SaveSystem
             CCS_UpkeepService upkeep,
             CCS_ReputationService reputation,
             CCS_ContractService contracts,
+            CCS_TradeRouteService tradeRoutes,
             Transform playerRoot)
         {
             inventoryService = inventory;
@@ -186,6 +188,7 @@ namespace CCS.Modules.SaveSystem
             upkeepService = upkeep;
             reputationService = reputation;
             contractService = contracts;
+            tradeRouteService = tradeRoutes;
             playerTransform = playerRoot;
         }
 
@@ -1204,6 +1207,12 @@ namespace CCS.Modules.SaveSystem
                 return;
             }
 
+            if (tradeRouteService != null && tradeRouteService.IsInitialized)
+            {
+                tradeRoutesData.routes = tradeRouteService.CaptureRouteState();
+                return;
+            }
+
             if (settlementService == null
                 || !settlementService.IsInitialized
                 || settlementService.ActiveProfile?.TradeRouteProfile == null)
@@ -1218,7 +1227,12 @@ namespace CCS.Modules.SaveSystem
 
         private void ApplyTradeRoutes(CCS_SaveTradeRoutesWorldData tradeRoutesData)
         {
-            // Trade routes are metadata-only in 3.3.0; snapshots persist for save/load verification.
+            if (tradeRouteService == null || !tradeRouteService.IsInitialized)
+            {
+                return;
+            }
+
+            tradeRouteService.RestoreRouteState(tradeRoutesData?.routes);
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

@@ -4,6 +4,9 @@ using CCS.Modules.Economy;
 using CCS.Modules.Inventory;
 using CCS.Modules.Regions;
 using CCS.Modules.Reputation;
+using CCS.Modules.Settlements;
+using CCS.Modules.Storage;
+using CCS.Modules.Vehicles;
 using CCS.Modules.WorldSimulation;
 using CCS.Survival;
 using UnityEngine;
@@ -42,6 +45,9 @@ namespace CCS.Modules.Contracts
         private CCS_ReputationService reputationService;
         private CCS_WorldSimulationService worldSimulationService;
         private CCS_RegionService regionService;
+        private CCS_StorageService storageService;
+        private CCS_VehicleService vehicleService;
+        private CCS_TradeRouteService tradeRouteService;
         private bool isInitialized;
 
         public event Action<CCS_ContractCompletionResult> ContractAccepted;
@@ -89,13 +95,19 @@ namespace CCS.Modules.Contracts
             CCS_CurrencyService currency,
             CCS_ReputationService reputation,
             CCS_WorldSimulationService worldSimulation,
-            CCS_RegionService regions)
+            CCS_RegionService regions,
+            CCS_StorageService storage,
+            CCS_VehicleService vehicles,
+            CCS_TradeRouteService tradeRoutes)
         {
             inventoryService = inventory;
             currencyService = currency;
             reputationService = reputation;
             worldSimulationService = worldSimulation;
             regionService = regions;
+            storageService = storage;
+            vehicleService = vehicles;
+            tradeRouteService = tradeRoutes;
         }
 
         public void RegisterDefinition(CCS_ContractDefinition definition)
@@ -181,6 +193,50 @@ namespace CCS.Modules.Contracts
             return results.ToArray();
         }
 
+        public CCS_ContractDefinition[] GetSettlementBoardContracts(string settlementId)
+        {
+            List<CCS_ContractDefinition> results = new List<CCS_ContractDefinition>();
+            foreach (KeyValuePair<string, CCS_ContractDefinition> entry in definitionLookup)
+            {
+                CCS_ContractDefinition definition = entry.Value;
+                if (definition == null || !definition.Enabled)
+                {
+                    continue;
+                }
+
+                if (ShouldShowOnSettlementBoard(definition, settlementId))
+                {
+                    results.Add(definition);
+                }
+            }
+
+            results.Sort((left, right) => string.Compare(
+                left?.DisplayName,
+                right?.DisplayName,
+                StringComparison.OrdinalIgnoreCase));
+            return results.ToArray();
+        }
+
+        private static bool ShouldShowOnSettlementBoard(CCS_ContractDefinition definition, string settlementId)
+        {
+            if (definition == null || string.IsNullOrWhiteSpace(settlementId))
+            {
+                return false;
+            }
+
+            if (!definition.IsFreightContract)
+            {
+                return definition.MatchesSettlement(settlementId);
+            }
+
+            if (string.Equals(definition.FreightSourceSettlementId, settlementId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return string.Equals(definition.FreightDestinationSettlementId, settlementId, StringComparison.OrdinalIgnoreCase);
+        }
+
         private void ResolveRegionalBoardContext(
             string settlementId,
             out CCS_RegionSpecializationType regionSpecialization,
@@ -220,7 +276,7 @@ namespace CCS.Modules.Contracts
                 return Failure(contractId, "Contract is disabled.");
             }
 
-            if (!definition.MatchesSettlement(settlementId))
+            if (!definition.CanAcceptAtSettlement(settlementId))
             {
                 return Failure(contractId, "Contract is not available at this settlement.");
             }
@@ -248,6 +304,11 @@ namespace CCS.Modules.Contracts
 
         public CCS_ContractCompletionResult TryCompleteContract(string contractId)
         {
+            return TryCompleteContract(contractId, string.Empty);
+        }
+
+        public CCS_ContractCompletionResult TryCompleteContract(string contractId, string completionSettlementId)
+        {
             if (!isInitialized
                 || inventoryService == null
                 || !inventoryService.IsInitialized
@@ -268,9 +329,24 @@ namespace CCS.Modules.Contracts
                 return Failure(contractId, "Contract must be accepted before completion.");
             }
 
-            string settlementId = string.IsNullOrWhiteSpace(instance.AcceptedSettlementId)
+            string acceptedSettlementId = string.IsNullOrWhiteSpace(instance.AcceptedSettlementId)
                 ? activeProfile.DefaultSettlementId
                 : instance.AcceptedSettlementId;
+
+            string rewardSettlementId = acceptedSettlementId;
+            if (definition.IsFreightContract)
+            {
+                rewardSettlementId = definition.FreightDestinationSettlementId;
+                if (string.IsNullOrWhiteSpace(completionSettlementId))
+                {
+                    return Failure(contractId, "Freight must be completed at the destination contract board.");
+                }
+
+                if (!definition.CanCompleteAtSettlement(completionSettlementId))
+                {
+                    return Failure(contractId, "Freight delivery must be completed at the destination settlement.");
+                }
+            }
 
             CCS_ContractRequirement[] requirements = definition.Requirements;
             for (int index = 0; index < requirements.Length; index++)
@@ -281,22 +357,47 @@ namespace CCS.Modules.Contracts
                     continue;
                 }
 
-                if (!requirement.MatchesSettlement(settlementId))
-                {
-                    return Failure(contractId, "Contract requirement settlement restriction failed.");
-                }
-
                 if (!TryFindItemDefinition(requirement.ItemId, out CCS_ItemDefinition itemDefinition))
                 {
                     return Failure(contractId, $"Required item not found: {requirement.ItemId}.");
                 }
 
-                int owned = inventoryService.GetQuantity(itemDefinition);
-                if (owned < requirement.Quantity)
+                if (definition.IsFreightContract)
+                {
+                    if (!CCS_ContractFreightUtility.TryGetOwnedQuantity(
+                            definition,
+                            requirement,
+                            itemDefinition,
+                            inventoryService,
+                            storageService,
+                            vehicleService,
+                            out int owned,
+                            out _))
+                    {
+                        return Failure(contractId, $"Freight cargo missing: {requirement.ItemId}.");
+                    }
+
+                    if (owned < requirement.Quantity)
+                    {
+                        return Failure(
+                            contractId,
+                            $"Need {requirement.Quantity}x {requirement.ItemId} in wagon cargo (found {owned}).");
+                    }
+
+                    continue;
+                }
+
+                if (!requirement.MatchesSettlement(acceptedSettlementId))
+                {
+                    return Failure(contractId, "Contract requirement settlement restriction failed.");
+                }
+
+                int inventoryOwned = inventoryService.GetQuantity(itemDefinition);
+                if (inventoryOwned < requirement.Quantity)
                 {
                     return Failure(
                         contractId,
-                        $"Need {requirement.Quantity}x {requirement.ItemId} (owned {owned}).");
+                        $"Need {requirement.Quantity}x {requirement.ItemId} (owned {inventoryOwned}).");
                 }
             }
 
@@ -306,6 +407,23 @@ namespace CCS.Modules.Contracts
                 if (requirement == null
                     || !TryFindItemDefinition(requirement.ItemId, out CCS_ItemDefinition itemDefinition))
                 {
+                    continue;
+                }
+
+                if (definition.IsFreightContract)
+                {
+                    if (!CCS_ContractFreightUtility.TryRemoveFreightGoods(
+                            definition,
+                            requirement,
+                            itemDefinition,
+                            inventoryService,
+                            storageService,
+                            vehicleService,
+                            out _))
+                    {
+                        return Failure(contractId, "Failed to remove required freight goods.");
+                    }
+
                     continue;
                 }
 
@@ -330,9 +448,19 @@ namespace CCS.Modules.Contracts
             if (reward.ReputationGain != 0
                 && reputationService != null
                 && reputationService.IsInitialized
-                && reputationService.TryApplyContractReward(settlementId, reward.ReputationGain))
+                && reputationService.TryApplyContractReward(rewardSettlementId, reward.ReputationGain))
             {
                 reputationApplied = reward.ReputationGain;
+            }
+
+            if (definition.IsFreightContract
+                && reward.OriginReputationGain != 0
+                && reputationService != null
+                && reputationService.IsInitialized)
+            {
+                reputationService.TryApplyContractReward(
+                    definition.FreightSourceSettlementId,
+                    reward.OriginReputationGain);
             }
 
             float supplyApplied = 0f;
@@ -342,7 +470,7 @@ namespace CCS.Modules.Contracts
                 && reward.SupplyAmount > 0f)
             {
                 worldSimulationService.HandleContractCompleted(
-                    settlementId,
+                    rewardSettlementId,
                     reward.SupplyType,
                     reward.SupplyAmount,
                     reward.ProsperityGain);
@@ -350,7 +478,24 @@ namespace CCS.Modules.Contracts
                 prosperityApplied = reward.ProsperityGain;
             }
 
+            if (definition.IsFreightContract && tradeRouteService != null && tradeRouteService.IsInitialized)
+            {
+                if (!string.IsNullOrWhiteSpace(definition.LinkedTradeRouteId))
+                {
+                    tradeRouteService.RecordFreightUsage(definition.LinkedTradeRouteId);
+                }
+                else
+                {
+                    tradeRouteService.RecordFreightUsageForSettlements(
+                        definition.FreightSourceSettlementId,
+                        definition.FreightDestinationSettlementId);
+                }
+            }
+
             instance.State = CCS_ContractState.Completed;
+            string completionLabel = definition.IsFreightContract
+                ? completionSettlementId
+                : acceptedSettlementId;
             CCS_ContractCompletionResult success = new CCS_ContractCompletionResult(
                 true,
                 contractId,
@@ -361,7 +506,7 @@ namespace CCS.Modules.Contracts
                 supplyApplied);
             LogDebug(success.Message);
             ContractCompleted?.Invoke(success);
-            CCS_ContractDebugHud.NotifyContractCompleted(success, definition, settlementId);
+            CCS_ContractDebugHud.NotifyContractCompleted(success, definition, completionLabel);
             return success;
         }
 

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e173f7aacca0b24a9d552e3d8dacc21, type: 3}
+  m_Name: CCS_TradeRoute_PineRidge_TradingPost
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_TradeRouteDefinition
+  routeId: ccs.survival.traderoute.frontier.pineridge.tradingpost
+  displayName: Pine Ridge to Trading Post
+  originSettlementId: ccs.survival.settlement.frontier.pineridgecamp
+  destinationSettlementId: ccs.survival.settlement.frontier.testtradingpost
+  preferredGoods:
+  - ccs.survival.item.resource.lumber
+  - ccs.survival.item.progression.charcoal
+  distance: 18
+  routeDifficulty: 2
+  startsDiscovered: 0
+  startsActive: 1

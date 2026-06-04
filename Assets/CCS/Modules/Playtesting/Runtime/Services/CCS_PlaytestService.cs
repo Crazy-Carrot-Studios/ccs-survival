@@ -227,6 +227,13 @@ namespace CCS.Modules.Playtesting
         private int savedMultiSettlementDiscoveryCount;
         private int savedMultiSettlementTradeRouteCount;
         private bool multiSettlementSaveCaptured;
+        private float freightTradingPostProsperityBaseline;
+        private int freightRouteUsageBaseline;
+        private bool freightBaselinesCaptured;
+        private int savedFreightRouteUsageCount;
+        private float savedFreightTradingPostProsperity;
+        private bool freightSaveCaptured;
+        private CCS_TradeRouteService boundTradeRouteService;
 
         #endregion
 
@@ -310,7 +317,8 @@ namespace CCS.Modules.Playtesting
             CCS_BankingService bankingService = null,
             CCS_UpkeepService upkeepService = null,
             CCS_ReputationService reputationService = null,
-            CCS_ContractService contractService = null)
+            CCS_ContractService contractService = null,
+            CCS_TradeRouteService tradeRouteService = null)
         {
             UnbindEventListeners();
             survivalCoreService = survivalCore;
@@ -351,6 +359,7 @@ namespace CCS.Modules.Playtesting
             boundUpkeepService = upkeepService;
             boundReputationService = reputationService;
             boundContractService = contractService;
+            boundTradeRouteService = tradeRouteService;
 
             if (boundWorldSimulationService != null)
             {
@@ -708,6 +717,7 @@ namespace CCS.Modules.Playtesting
             boundUpkeepService = null;
             boundReputationService = null;
             boundContractService = null;
+            boundTradeRouteService = null;
             playtestContractBaselinesCaptured = false;
             playtestRegionalProsperityBaselineCaptured = false;
             regionalEconomySaveCaptured = false;
@@ -1357,6 +1367,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveMultiSettlementState,
                         "Multi-settlement state saved.");
                 }
+
+                if (TryCaptureFreightSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveFreightRouteState,
+                        "Freight and trade route state saved.");
+                }
             }
         }
 
@@ -1386,6 +1403,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateRegionalEconomyAfterLoad();
                 EvaluateSettlementGrowthAfterLoad();
                 EvaluateMultiSettlementAfterLoad();
+                EvaluateFreightStateAfterLoad();
             }
         }
 
@@ -5371,6 +5389,179 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestTradeRoutesFreightShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.PineRidgeCampSettlementId);
+            CaptureFreightBaselinesIfNeeded();
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeLumberFreightContractId,
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId);
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptPineRidgeLumberFreightContract,
+                    "Accepted Pine Ridge lumber freight contract.");
+            }
+
+            if (boundVehicleService != null && boundVehicleService.IsInitialized)
+            {
+                if (!boundVehicleService.OwnsWagon)
+                {
+                    boundVehicleService.TryGrantWagonOwnership();
+                }
+
+                boundVehicleService.TrySummonWagonNearPlayer();
+                TryCompleteActiveStepOfType(CCS_PlaytestStepType.SummonWagonForFreight, "Wagon ready for freight haul.");
+            }
+
+            TryLoadLumberIntoWagonCargoForFreight();
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                CCS_ContractCompletionResult deliveryResult = boundContractService.TryCompleteContract(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeLumberFreightContractId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId);
+                if (deliveryResult != null && deliveryResult.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompletePineRidgeLumberFreightDelivery,
+                        deliveryResult.Message);
+                    EvaluateFreightWorldSimulationSteps();
+                    EvaluateFreightRouteUsageSteps();
+                }
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverFreightRouteSettlements,
+                "Pine Ridge and Trading Post discovered for freight loop.");
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.TravelToTradingPostFreightBoard,
+                "Freight delivery shortcut simulates travel to destination board.");
+            return true;
+        }
+
+        private void TryLoadLumberIntoWagonCargoForFreight()
+        {
+            if (boundVehicleService == null
+                || !boundVehicleService.IsInitialized
+                || boundStorageService == null
+                || !boundStorageService.IsInitialized)
+            {
+                return;
+            }
+
+            string cargoInstanceId = boundVehicleService.ActiveCargoInstanceId;
+            if (string.IsNullOrWhiteSpace(cargoInstanceId)
+                || !boundStorageService.TryGetRegisteredContainer(cargoInstanceId, out CCS_StorageContainer container)
+                || container == null)
+            {
+                return;
+            }
+
+            CCS_ItemDefinition lumber = FindItemDefinitionById(CCS_ContractContentIds.LumberItemId);
+            if (lumber == null)
+            {
+                return;
+            }
+
+            container.TryAddItem(lumber, 8, out int added);
+            if (added > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadLumberIntoWagonCargoForFreight,
+                    $"Loaded {added} lumber into wagon cargo.");
+            }
+        }
+
+        private void CaptureFreightBaselinesIfNeeded()
+        {
+            if (freightBaselinesCaptured)
+            {
+                return;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                freightTradingPostProsperityBaseline = settlementState.prosperity;
+            }
+
+            if (boundTradeRouteService != null
+                && boundTradeRouteService.IsInitialized
+                && boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeToTradingPostRouteId,
+                    out int usageCount))
+            {
+                freightRouteUsageBaseline = usageCount;
+            }
+
+            freightBaselinesCaptured = true;
+        }
+
+        private void EvaluateFreightContractSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null
+                || !result.IsSuccess
+                || !string.Equals(
+                    result.ContractId,
+                    CCS_TradeRoutesFreightContentIds.PineRidgeLumberFreightContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.CompletePineRidgeLumberFreightDelivery,
+                $"Completed freight contract {result.ContractId}.");
+            EvaluateFreightWorldSimulationSteps();
+            EvaluateFreightRouteUsageSteps();
+        }
+
+        private void EvaluateFreightWorldSimulationSteps()
+        {
+            if (boundWorldSimulationService == null
+                || !boundWorldSimulationService.IsInitialized
+                || !boundWorldSimulationService.TryGetSettlementState(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return;
+            }
+
+            if (settlementState.prosperity > freightTradingPostProsperityBaseline + 0.01f)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFreightDestinationProsperitySupply,
+                    $"Trading Post prosperity {settlementState.prosperity:0.##} increased from freight delivery.");
+            }
+        }
+
+        private void EvaluateFreightRouteUsageSteps()
+        {
+            if (boundTradeRouteService == null
+                || !boundTradeRouteService.IsInitialized
+                || !boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeToTradingPostRouteId,
+                    out int usageCount))
+            {
+                return;
+            }
+
+            if (usageCount > freightRouteUsageBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyTradeRouteUsageCount,
+                    $"Trade route usage count is {usageCount}.");
+            }
+        }
+
         public bool TryPlaytestMultiSettlementFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.PineRidgeCampSettlementId);
@@ -5582,6 +5773,72 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyMultiSettlementAfterLoad,
                     "Multi-settlement discovery, prosperity, reputation, and trade routes restored after load.");
+            }
+        }
+
+        private bool TryCaptureFreightSaveState()
+        {
+            if (freightSaveCaptured)
+            {
+                return false;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                savedFreightTradingPostProsperity = settlementState.prosperity;
+            }
+
+            if (boundTradeRouteService != null
+                && boundTradeRouteService.IsInitialized
+                && boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeToTradingPostRouteId,
+                    out int usageCount))
+            {
+                savedFreightRouteUsageCount = usageCount;
+            }
+
+            freightSaveCaptured = savedFreightRouteUsageCount > 0 || savedFreightTradingPostProsperity > 0f;
+            return freightSaveCaptured;
+        }
+
+        private void EvaluateFreightStateAfterLoad()
+        {
+            if (!freightSaveCaptured)
+            {
+                return;
+            }
+
+            bool prosperityRestored = boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && Mathf.Approximately(settlementState.prosperity, savedFreightTradingPostProsperity);
+
+            bool routeUsageRestored = boundTradeRouteService != null
+                && boundTradeRouteService.IsInitialized
+                && boundTradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeToTradingPostRouteId,
+                    out int usageCount)
+                && usageCount == savedFreightRouteUsageCount;
+
+            bool contractCompleted = boundContractService != null
+                && boundContractService.IsInitialized
+                && boundContractService.GetContractState(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeLumberFreightContractId)
+                    == CCS_ContractState.Completed;
+
+            if (prosperityRestored && routeUsageRestored && contractCompleted)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyFreightRouteStateAfterLoad,
+                    "Freight contract, route usage, and destination prosperity restored after load.");
             }
         }
 
@@ -5907,6 +6164,16 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.AcceptMultiSettlementRegionalContract,
                     $"Accepted regional contract {result.ContractId}.");
             }
+
+            if (string.Equals(
+                    result.ContractId,
+                    CCS_TradeRoutesFreightContentIds.PineRidgeLumberFreightContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptPineRidgeLumberFreightContract,
+                    $"Accepted freight contract {result.ContractId}.");
+            }
         }
 
         private void HandleContractCompleted(CCS_ContractCompletionResult result)
@@ -5933,6 +6200,7 @@ namespace CCS.Modules.Playtesting
             EvaluateRegionalProsperityRewardStep(result);
             EvaluateSettlementGrowthContractSteps(result);
             EvaluateMultiSettlementContractSteps(result);
+            EvaluateFreightContractSteps(result);
         }
 
         private void EvaluateSettlementGrowthContractSteps(CCS_ContractCompletionResult result)

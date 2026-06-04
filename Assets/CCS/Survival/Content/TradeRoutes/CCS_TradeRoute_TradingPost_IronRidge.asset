@@ -21,3 +21,6 @@ MonoBehaviour:
   - ccs.survival.item.resource.coal
   - ccs.survival.item.resource.refinediron
   distance: 26
+  routeDifficulty: 2
+  startsDiscovered: 0
+  startsActive: 1

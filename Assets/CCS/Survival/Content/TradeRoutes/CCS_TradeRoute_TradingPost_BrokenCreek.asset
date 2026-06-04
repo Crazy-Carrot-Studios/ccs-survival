@@ -21,3 +21,6 @@ MonoBehaviour:
   - ccs.survival.farming.item.wheat
   - ccs.survival.farming.item.potatoes
   distance: 22
+  routeDifficulty: 1
+  startsDiscovered: 0
+  startsActive: 1

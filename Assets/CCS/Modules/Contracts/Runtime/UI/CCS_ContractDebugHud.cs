@@ -19,6 +19,7 @@ namespace CCS.Modules.Contracts
         private static string s_boardTitle = "Contract Board";
         private static string s_settlementId = string.Empty;
         private static CCS_ContractType s_boardType = CCS_ContractType.TradingPostSupply;
+        private static bool s_useSettlementBoard;
         private static string s_lastSummary = "Last contract action: none";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -39,6 +40,15 @@ namespace CCS.Modules.Contracts
             s_boardTitle = string.IsNullOrWhiteSpace(boardTitle) ? "Contract Board" : boardTitle;
             s_settlementId = settlementId ?? string.Empty;
             s_boardType = boardType;
+            s_useSettlementBoard = false;
+            s_showPanel = true;
+        }
+
+        public static void ShowSettlementBoard(string boardTitle, string settlementId)
+        {
+            s_boardTitle = string.IsNullOrWhiteSpace(boardTitle) ? "Contract Board" : boardTitle;
+            s_settlementId = settlementId ?? string.Empty;
+            s_useSettlementBoard = true;
             s_showPanel = true;
         }
 
@@ -109,13 +119,24 @@ namespace CCS.Modules.Contracts
             {
                 GUILayout.Label("Contract service unavailable.");
             }
+            else if (s_useSettlementBoard)
+            {
+                CCS_ContractDefinition[] contracts = contractService.GetSettlementBoardContracts(s_settlementId);
+                DrawBoardSection(contractService, "Local supply", contracts, CCS_ContractBoardSectionKind.LocalSupply);
+                DrawBoardSection(contractService, "Outbound freight", contracts, CCS_ContractBoardSectionKind.OutboundFreight);
+                DrawBoardSection(
+                    contractService,
+                    "Inbound freight delivery",
+                    contracts,
+                    CCS_ContractBoardSectionKind.InboundFreight);
+            }
             else
             {
                 CCS_ContractDefinition[] contracts =
                     contractService.GetBoardContracts(s_settlementId, s_boardType);
                 for (int index = 0; index < contracts.Length; index++)
                 {
-                    DrawContractRow(contractService, contracts[index]);
+                    DrawContractRow(contractService, contracts[index], s_settlementId);
                 }
             }
 
@@ -127,7 +148,85 @@ namespace CCS.Modules.Contracts
             GUILayout.EndArea();
         }
 
-        private static void DrawContractRow(CCS_ContractService contractService, CCS_ContractDefinition definition)
+        private enum CCS_ContractBoardSectionKind
+        {
+            LocalSupply = 0,
+            OutboundFreight = 1,
+            InboundFreight = 2
+        }
+
+        private static void DrawBoardSection(
+            CCS_ContractService contractService,
+            string sectionTitle,
+            CCS_ContractDefinition[] contracts,
+            CCS_ContractBoardSectionKind sectionKind)
+        {
+            bool drewHeader = false;
+            for (int index = 0; index < contracts.Length; index++)
+            {
+                CCS_ContractDefinition definition = contracts[index];
+                if (!ShouldDrawInSection(contractService, definition, sectionKind))
+                {
+                    continue;
+                }
+
+                if (!drewHeader)
+                {
+                    GUILayout.Label(sectionTitle, GUI.skin.box);
+                    drewHeader = true;
+                }
+
+                DrawContractRow(contractService, definition, s_settlementId);
+            }
+        }
+
+        private static bool ShouldDrawInSection(
+            CCS_ContractService contractService,
+            CCS_ContractDefinition definition,
+            CCS_ContractBoardSectionKind sectionKind)
+        {
+            if (definition == null || contractService == null)
+            {
+                return false;
+            }
+
+            switch (sectionKind)
+            {
+                case CCS_ContractBoardSectionKind.LocalSupply:
+                    return !definition.IsFreightContract;
+                case CCS_ContractBoardSectionKind.OutboundFreight:
+                    if (!definition.IsFreightContract)
+                    {
+                        return false;
+                    }
+
+                    CCS_ContractState outboundState = contractService.GetContractState(definition.ContractId);
+                    return string.Equals(
+                               definition.FreightSourceSettlementId,
+                               s_settlementId,
+                               System.StringComparison.OrdinalIgnoreCase)
+                        && outboundState != CCS_ContractState.Completed;
+                case CCS_ContractBoardSectionKind.InboundFreight:
+                    if (!definition.IsFreightContract)
+                    {
+                        return false;
+                    }
+
+                    CCS_ContractState inboundState = contractService.GetContractState(definition.ContractId);
+                    return string.Equals(
+                               definition.FreightDestinationSettlementId,
+                               s_settlementId,
+                               System.StringComparison.OrdinalIgnoreCase)
+                        && inboundState == CCS_ContractState.Accepted;
+                default:
+                    return false;
+            }
+        }
+
+        private static void DrawContractRow(
+            CCS_ContractService contractService,
+            CCS_ContractDefinition definition,
+            string settlementId)
         {
             if (definition == null)
             {
@@ -135,21 +234,28 @@ namespace CCS.Modules.Contracts
             }
 
             CCS_ContractState state = contractService.GetContractState(definition.ContractId);
+            string routeLabel = definition.IsFreightContract
+                ? $" {definition.FreightSourceSettlementId} -> {definition.FreightDestinationSettlementId}"
+                : string.Empty;
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"{definition.DisplayName} [{state}]", GUILayout.Width(220f));
+            GUILayout.Label($"{definition.DisplayName}{routeLabel} [{state}]", GUILayout.Width(300f));
             if (state == CCS_ContractState.Available
+                && definition.CanAcceptAtSettlement(settlementId)
                 && GUILayout.Button("Accept", GUILayout.Width(70f)))
             {
                 CCS_ContractCompletionResult result =
-                    contractService.TryAcceptContract(definition.ContractId, s_settlementId);
+                    contractService.TryAcceptContract(definition.ContractId, settlementId);
                 s_lastSummary = result.Message;
             }
 
-            if (state == CCS_ContractState.Accepted
-                && GUILayout.Button("Complete", GUILayout.Width(70f)))
+            bool canComplete = state == CCS_ContractState.Accepted
+                && (!definition.IsFreightContract || definition.CanCompleteAtSettlement(settlementId));
+            if (canComplete && GUILayout.Button("Complete", GUILayout.Width(70f)))
             {
-                CCS_ContractCompletionResult result = contractService.TryCompleteContract(definition.ContractId);
-                NotifyContractCompleted(result, definition, s_settlementId);
+                CCS_ContractCompletionResult result = definition.IsFreightContract
+                    ? contractService.TryCompleteContract(definition.ContractId, settlementId)
+                    : contractService.TryCompleteContract(definition.ContractId);
+                NotifyContractCompleted(result, definition, settlementId);
             }
 
             GUILayout.EndHorizontal();

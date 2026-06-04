@@ -104,6 +104,17 @@ namespace CCS.Modules.Storage
             }
         }
 
+        public bool TryGetRegisteredContainer(string instanceId, out CCS_StorageContainer container)
+        {
+            container = null;
+            if (string.IsNullOrWhiteSpace(instanceId))
+            {
+                return false;
+            }
+
+            return registeredContainers.TryGetValue(instanceId, out container) && container != null;
+        }
+
         public void RegisterContainer(CCS_StorageContainer container)
         {
             if (container == null || string.IsNullOrWhiteSpace(container.InstanceId))

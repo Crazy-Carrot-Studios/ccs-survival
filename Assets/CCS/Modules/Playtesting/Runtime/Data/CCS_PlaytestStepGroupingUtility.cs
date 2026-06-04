@@ -40,7 +40,9 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Reputation,
             CCS_PlaytestStepGroup.Contracts,
             CCS_PlaytestStepGroup.RegionalEconomy,
-            CCS_PlaytestStepGroup.SettlementGrowth
+            CCS_PlaytestStepGroup.SettlementGrowth,
+            CCS_PlaytestStepGroup.MultiSettlement,
+            CCS_PlaytestStepGroup.TradeRoutesFreight
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -102,6 +104,10 @@ namespace CCS.Modules.Playtesting
                     return "Regional Economy";
                 case CCS_PlaytestStepGroup.SettlementGrowth:
                     return "Settlement Growth";
+                case CCS_PlaytestStepGroup.MultiSettlement:
+                    return "Multi-Settlement";
+                case CCS_PlaytestStepGroup.TradeRoutesFreight:
+                    return "Trade Routes / Freight";
                 default:
                     return group.ToString();
             }
@@ -397,6 +403,18 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveMultiSettlementState:
                 case CCS_PlaytestStepType.VerifyMultiSettlementAfterLoad:
                     return CCS_PlaytestStepGroup.MultiSettlement;
+
+                case CCS_PlaytestStepType.DiscoverFreightRouteSettlements:
+                case CCS_PlaytestStepType.AcceptPineRidgeLumberFreightContract:
+                case CCS_PlaytestStepType.SummonWagonForFreight:
+                case CCS_PlaytestStepType.LoadLumberIntoWagonCargoForFreight:
+                case CCS_PlaytestStepType.TravelToTradingPostFreightBoard:
+                case CCS_PlaytestStepType.CompletePineRidgeLumberFreightDelivery:
+                case CCS_PlaytestStepType.VerifyFreightDestinationProsperitySupply:
+                case CCS_PlaytestStepType.VerifyTradeRouteUsageCount:
+                case CCS_PlaytestStepType.SaveFreightRouteState:
+                case CCS_PlaytestStepType.VerifyFreightRouteStateAfterLoad:
+                    return CCS_PlaytestStepGroup.TradeRoutesFreight;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

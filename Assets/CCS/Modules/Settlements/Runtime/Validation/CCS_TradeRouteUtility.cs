@@ -8,7 +8,7 @@ using CCS.Survival;
 // PLACEMENT: Used by validators, save capture, and future trade route services.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.3.0 multi-settlement foundation.
+// NOTES: Milestone 3.4.0 — discovery, active, usage snapshots for freight.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -78,6 +78,24 @@ namespace CCS.Modules.Settlements
                 return new CCS_TradeRouteSnapshot();
             }
 
+            return BuildSnapshot(
+                definition,
+                definition.StartsDiscovered,
+                definition.StartsActive && definition.StartsDiscovered,
+                0);
+        }
+
+        public static CCS_TradeRouteSnapshot BuildSnapshot(
+            CCS_TradeRouteDefinition definition,
+            bool isDiscovered,
+            bool isActive,
+            int usageCount)
+        {
+            if (definition == null)
+            {
+                return new CCS_TradeRouteSnapshot();
+            }
+
             return new CCS_TradeRouteSnapshot
             {
                 routeId = definition.RouteId,
@@ -85,7 +103,11 @@ namespace CCS.Modules.Settlements
                 originSettlementId = definition.OriginSettlementId,
                 destinationSettlementId = definition.DestinationSettlementId,
                 preferredGoods = definition.PreferredGoods,
-                distance = definition.Distance
+                distance = definition.Distance,
+                routeDifficulty = (int)definition.RouteDifficulty,
+                isDiscovered = isDiscovered,
+                isActive = isActive,
+                usageCount = usageCount < 0 ? 0 : usageCount
             };
         }
 

@@ -1,5 +1,7 @@
 # CCS Contracts Module
 
+Milestone **3.4.0** — **FreightDelivery** contracts with origin/destination settlement boards, wagon-cargo-first completion (`CCS_ContractFreightUtility`), optional player-inventory fallback, destination prosperity/supply rewards, and linked trade route usage tracking.
+
 Milestone **3.2.0** — Contract completion increments settlement `completedContractsCount` and triggers world simulation growth evaluation (rewards unchanged; no duplicate prosperity logic).
 
 Milestone **3.0.0** — Frontier Contracts Foundation
@@ -26,6 +28,17 @@ Generic settlement **contract / job** system for item-delivery requests in excha
 - Stable Supply
 - Trading Post Supply
 - Land Office Supply
+- Freight Delivery (3.4.0)
+
+## Freight delivery (3.4.0)
+
+- Accept at **source** settlement contract board
+- Complete at **destination** contract board
+- `GetSettlementBoardContracts` lists local supply, outbound freight, and inbound accepted freight
+- Rewards apply at destination; optional `OriginReputationGain` at source
+- Bootstrap: `CCS_TradeRoutesFreightFoundationBootstrapSetup.ExecuteBatch`
+
+**Freight loop:** Produce Regional Goods → Load Wagon → Travel Route → Deliver To Destination → Increase Prosperity + Reputation
 
 ## Requirements
 

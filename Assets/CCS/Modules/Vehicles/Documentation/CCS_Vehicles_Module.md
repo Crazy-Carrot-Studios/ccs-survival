@@ -2,6 +2,10 @@
 
 Generic vehicle framework for hand carts, wagons, stagecoaches, and future mine carts.
 
+## Milestone 3.4.0 — Freight cargo
+
+`CCS_VehicleService.ActiveCargoInstanceId` resolves the summoned wagon storage instance for `CCS_ContractFreightUtility` (prefer wagon cargo; remove goods on freight delivery). No loading UI in this milestone.
+
 ## Milestone 1.7.0 — Mining haul
 
 Dense ore/coal item weights encourage wagon cargo for bulk mining hauls (placeholder logistics; slot-based cargo unchanged).

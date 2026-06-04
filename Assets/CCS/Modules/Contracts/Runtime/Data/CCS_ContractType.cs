@@ -16,6 +16,7 @@ namespace CCS.Modules.Contracts
         GunsmithSupply = 1,
         StableSupply = 2,
         TradingPostSupply = 3,
-        LandOfficeSupply = 4
+        LandOfficeSupply = 4,
+        FreightDelivery = 5
     }
 }

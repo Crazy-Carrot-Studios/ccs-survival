@@ -2003,3 +2003,93 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.discover
+    displayName: Discover Pine Ridge and Trading Post
+    stepType: 229
+    instructionText: 'Trade routes / freight playtest: Discover Pine Ridge and Trading
+      Post. Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.accept.lumber
+    displayName: Accept Pine Ridge lumber freight contract
+    stepType: 230
+    instructionText: 'Trade routes / freight playtest: Accept Pine Ridge lumber freight
+      contract. Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.wagon
+    displayName: Place or summon wagon
+    stepType: 231
+    instructionText: 'Trade routes / freight playtest: Place or summon wagon. Ctrl+Shift+F
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.load
+    displayName: Put lumber in wagon cargo
+    stepType: 232
+    instructionText: 'Trade routes / freight playtest: Put lumber in wagon cargo.
+      Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.travel
+    displayName: Travel to Trading Post contract board
+    stepType: 233
+    instructionText: 'Trade routes / freight playtest: Travel to Trading Post contract
+      board. Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.complete
+    displayName: Complete freight delivery
+    stepType: 234
+    instructionText: 'Trade routes / freight playtest: Complete freight delivery.
+      Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.verify.sim
+    displayName: Verify destination prosperity and supply
+    stepType: 235
+    instructionText: 'Trade routes / freight playtest: Verify destination prosperity
+      and supply. Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.verify.route
+    displayName: Verify route usage count
+    stepType: 236
+    instructionText: 'Trade routes / freight playtest: Verify route usage count.
+      Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.save
+    displayName: Save freight and route state
+    stepType: 237
+    instructionText: 'Trade routes / freight playtest: Save freight and route state.
+      Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.freight.load.verify
+    displayName: Verify route and freight state after load
+    stepType: 238
+    instructionText: 'Trade routes / freight playtest: Verify route and freight state
+      after load. Ctrl+Shift+F shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

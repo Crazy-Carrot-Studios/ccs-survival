@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.4.0** — Freight contract completion applies destination prosperity and supply through `HandleContractCompleted` (no population changes). Trade route usage is tracked separately via `CCS_TradeRouteService`.
+
 Milestone **3.2.0** — Settlement growth evaluation after contract completion, major supply updates, prosperity recalculation, and save/load restore. Growth profile on `CCS_WorldSimulationProfile.settlementGrowthProfile`.
 
 Milestone **2.2.0** — Farming harvest goods (corn, beans, potatoes, wheat) route to settlement **Food** supply on vendor sell.

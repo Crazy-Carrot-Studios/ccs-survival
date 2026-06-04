@@ -37,6 +37,22 @@ namespace CCS.Modules.Contracts
 
         [SerializeField] private bool enabled = true;
 
+        [Header("Freight Delivery")]
+        [Tooltip("Origin settlement where freight contracts are accepted.")]
+        [SerializeField] private string freightSourceSettlementId = string.Empty;
+
+        [Tooltip("Destination settlement contract board where freight is delivered.")]
+        [SerializeField] private string freightDestinationSettlementId = string.Empty;
+
+        [Tooltip("Optional linked trade route id for usage tracking.")]
+        [SerializeField] private string linkedTradeRouteId = string.Empty;
+
+        [Tooltip("When true, wagon cargo is checked before player inventory.")]
+        [SerializeField] private bool preferWagonCargo = true;
+
+        [Tooltip("When true, player inventory may satisfy freight if wagon cargo is insufficient.")]
+        [SerializeField] private bool allowPlayerInventoryFallback;
+
         public string ContractId => contractId ?? string.Empty;
 
         public string DisplayName => displayName ?? string.Empty;
@@ -53,10 +69,51 @@ namespace CCS.Modules.Contracts
 
         public bool Enabled => enabled;
 
+        public bool IsFreightContract => contractType == CCS_ContractType.FreightDelivery;
+
+        public string FreightSourceSettlementId => freightSourceSettlementId ?? string.Empty;
+
+        public string FreightDestinationSettlementId => freightDestinationSettlementId ?? string.Empty;
+
+        public string LinkedTradeRouteId => linkedTradeRouteId ?? string.Empty;
+
+        public bool PreferWagonCargo => preferWagonCargo;
+
+        public bool AllowPlayerInventoryFallback => allowPlayerInventoryFallback;
+
         public bool MatchesSettlement(string resolvedSettlementId)
         {
+            if (IsFreightContract)
+            {
+                return string.Equals(FreightSourceSettlementId, resolvedSettlementId, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(
+                        FreightDestinationSettlementId,
+                        resolvedSettlementId,
+                        StringComparison.OrdinalIgnoreCase);
+            }
+
             return string.IsNullOrWhiteSpace(SettlementId)
                 || string.Equals(SettlementId, resolvedSettlementId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public bool CanAcceptAtSettlement(string settlementId)
+        {
+            if (!IsFreightContract)
+            {
+                return MatchesSettlement(settlementId);
+            }
+
+            return string.Equals(FreightSourceSettlementId, settlementId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public bool CanCompleteAtSettlement(string settlementId)
+        {
+            if (!IsFreightContract)
+            {
+                return true;
+            }
+
+            return string.Equals(FreightDestinationSettlementId, settlementId, StringComparison.OrdinalIgnoreCase);
         }
 
         public CCS_RegionSpecializationType ResolveRegionSpecialization()

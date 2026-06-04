@@ -20,3 +20,6 @@ MonoBehaviour:
   - ccs.survival.item.resource.lumber
   - ccs.survival.item.resource.poles
   distance: 18
+  routeDifficulty: 1
+  startsDiscovered: 0
+  startsActive: 1

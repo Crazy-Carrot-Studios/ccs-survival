@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d04759416fb244bb1972900626b133, type: 3}
+  m_Name: CCS_Contract_Freight_PineRidge_Charcoal
+  m_EditorClassIdentifier: CCS.Modules.Contracts.Runtime::CCS.Modules.Contracts.CCS_ContractDefinition
+  contractId: ccs.survival.contract.freight.pineridge.charcoal
+  displayName: Pine Ridge Charcoal Freight
+  contractType: 5
+  regionSpecialization: 4
+  settlementId: 
+  requirements:
+  - itemId: ccs.survival.item.progression.charcoal
+    quantity: 4
+    settlementIdRestriction: 
+  reward:
+    tradeDollars: 20
+    reputationGain: 3
+    originReputationGain: 1
+    prosperityGain: 1.5
+    supplyType: 6
+    supplyAmount: 2
+  enabled: 1
+  freightSourceSettlementId: ccs.survival.settlement.frontier.pineridgecamp
+  freightDestinationSettlementId: ccs.survival.settlement.frontier.testtradingpost
+  linkedTradeRouteId: ccs.survival.traderoute.frontier.pineridge.tradingpost
+  preferWagonCargo: 1
+  allowPlayerInventoryFallback: 0

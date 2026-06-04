@@ -47,6 +47,8 @@ namespace CCS.Modules.Vehicles
 
         public string ActiveVehicleInstanceId => ownedVehicle?.InstanceId ?? string.Empty;
 
+        public string ActiveCargoInstanceId => ownedVehicle?.CargoInstanceId ?? string.Empty;
+
         public string WagonDisplayName => ownedVehicle?.DisplayName ?? string.Empty;
 
         public CCS_VehicleSnapshot CurrentSnapshot => CaptureSnapshot();

@@ -15,9 +15,12 @@ MonoBehaviour:
   profileDisplayName: Default Trade Route Profile
   profileId: ccs.survival.profile.traderoutes.default
   profileDescription: Metadata-only frontier trade routes between bootstrap settlements.
-  profileVersion: 3.3.0
+  profileVersion: 3.4.0
   enableDebugLogs: 0
   tradeRouteDefinitions:
   - {fileID: 11400000, guid: 37f7bc479dd1cc847baeeb07d6953724, type: 2}
   - {fileID: 11400000, guid: e2a98564bebb8744484edb2995e52632, type: 2}
   - {fileID: 11400000, guid: 06fb8aaaad48d1447a48b3349433b0f9, type: 2}
+  - {fileID: 11400000, guid: 19e9317018be4f84d9008a1e42507479, type: 2}
+  - {fileID: 11400000, guid: e67386dbfa6b9db4980072ac50e5bf95, type: 2}
+  - {fileID: 11400000, guid: 59cb24be1461c39458fd7cd3ae052414, type: 2}

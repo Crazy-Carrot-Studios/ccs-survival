@@ -9,7 +9,10 @@
         "CCS.Modules.Reputation.Runtime",
         "CCS.Modules.WorldSimulation.Runtime",
         "CCS.Modules.Regions.Runtime",
-        "CCS.Modules.CharacterController.Runtime"
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Storage.Runtime",
+        "CCS.Modules.Vehicles.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

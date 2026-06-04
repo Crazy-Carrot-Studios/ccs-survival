@@ -240,6 +240,16 @@ namespace CCS.Modules.Playtesting
         VerifyMultiSettlementProsperityChanged = 225,
         VerifyMultiSettlementReputationChanged = 226,
         SaveMultiSettlementState = 227,
-        VerifyMultiSettlementAfterLoad = 228
+        VerifyMultiSettlementAfterLoad = 228,
+        DiscoverFreightRouteSettlements = 229,
+        AcceptPineRidgeLumberFreightContract = 230,
+        SummonWagonForFreight = 231,
+        LoadLumberIntoWagonCargoForFreight = 232,
+        TravelToTradingPostFreightBoard = 233,
+        CompletePineRidgeLumberFreightDelivery = 234,
+        VerifyFreightDestinationProsperitySupply = 235,
+        VerifyTradeRouteUsageCount = 236,
+        SaveFreightRouteState = 237,
+        VerifyFreightRouteStateAfterLoad = 238
     }
 }

@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.4.0 — Trade routes and freight contracts (discovery, active, usage; outbound regional freight)  
 **Milestone:** 3.3.0 — Multi-settlement frontier network (4 independent settlements)
 
 **Milestone:** 3.2.0 — Settlement growth foundation (Outpost → TradingPost active)  
@@ -45,9 +46,18 @@ Each settlement maintains independent discovery, prosperity, supply, growth stag
 Trade route metadata (no transport simulation):
 
 - `CCS_TradeRouteDefinition` / `CCS_TradeRouteProfile` / `CCS_TradeRouteSnapshot`
+- Runtime: `CCS_TradeRouteService` (discovery, active, usage count)
 - Persisted through `CCS_SaveTradeRoutesWorldData`
 
-Bootstrap batch:
+Freight bootstrap batch:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_TradeRoutesFreightFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Trade Routes / Freight** — shortcut **Ctrl+Shift+F**.
+
+Multi-settlement bootstrap batch:
 
 ```text
 CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.ExecuteBatch

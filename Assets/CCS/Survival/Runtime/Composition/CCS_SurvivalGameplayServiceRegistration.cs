@@ -523,13 +523,21 @@ namespace CCS.Survival.Composition
                 upkeepService,
                 settlementService);
 
+            CCS_TradeRouteService tradeRouteService = CreateTradeRouteService(
+                settlementProfile?.TradeRouteProfile,
+                settlementService);
+            RegisterService(runtimeHost, tradeRouteService, enableDebugLogs);
+
             CCS_ContractService contractService = CreateContractService(
                 contractsProfile,
                 inventoryService,
                 currencyService,
                 reputationService,
                 worldSimulationService,
-                regionService);
+                regionService,
+                storageService,
+                vehicleService,
+                tradeRouteService);
             RegisterService(runtimeHost, contractService, enableDebugLogs);
 
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
@@ -583,6 +591,7 @@ namespace CCS.Survival.Composition
                 upkeepService,
                 reputationService,
                 contractService,
+                tradeRouteService,
                 null);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
@@ -634,7 +643,8 @@ namespace CCS.Survival.Composition
                     bankingService,
                     upkeepService,
                     reputationService,
-                    contractService);
+                    contractService,
+                    tradeRouteService);
                 RegisterPlaytestUpdatable(runtimeHost, playtestService);
             }
         }
@@ -2228,13 +2238,36 @@ namespace CCS.Survival.Composition
             return service;
         }
 
+        private static CCS_TradeRouteService CreateTradeRouteService(
+            CCS_TradeRouteProfile profile,
+            CCS_SettlementService settlementService)
+        {
+            CCS_TradeRouteService service = new CCS_TradeRouteService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized)
+            {
+                service.BindSettlementService(settlementService);
+            }
+
+            CCS_TradeRouteRuntimeBridge.Register(service);
+            return service;
+        }
+
         private static CCS_ContractService CreateContractService(
             CCS_ContractProfile profile,
             CCS_PlayerInventoryService inventoryService,
             CCS_CurrencyService currencyService,
             CCS_ReputationService reputationService,
             CCS_WorldSimulationService worldSimulationService,
-            CCS_RegionService regionService)
+            CCS_RegionService regionService,
+            CCS_StorageService storageService,
+            CCS_VehicleService vehicleService,
+            CCS_TradeRouteService tradeRouteService)
         {
             CCS_ContractService service = new CCS_ContractService();
             service.Initialize();
@@ -2250,7 +2283,10 @@ namespace CCS.Survival.Composition
                     currencyService,
                     reputationService,
                     worldSimulationService,
-                    regionService);
+                    regionService,
+                    storageService,
+                    vehicleService,
+                    tradeRouteService);
             }
 
             CCS_ContractRuntimeBridge.Register(service);
@@ -2293,11 +2329,20 @@ namespace CCS.Survival.Composition
                 }
 
                 string settlementId = servicePoint.ResolveSettlementId();
-                CCS_ContractType boardType = ResolveContractBoardType(servicePoint);
-                CCS_ContractDebugHud.ShowBoard(
-                    servicePoint.GetInteractionDisplayName(),
-                    settlementId,
-                    boardType);
+                if (servicePoint.ServicePointType == CCS_SettlementServicePointType.ContractBoard)
+                {
+                    CCS_ContractDebugHud.ShowSettlementBoard(
+                        servicePoint.GetInteractionDisplayName(),
+                        settlementId);
+                }
+                else
+                {
+                    CCS_ContractType boardType = ResolveContractBoardType(servicePoint);
+                    CCS_ContractDebugHud.ShowBoard(
+                        servicePoint.GetInteractionDisplayName(),
+                        settlementId,
+                        boardType);
+                }
                 return CCS_SettlementServiceActivationResult.Success(
                     CCS_SettlementServiceRouteType.ContractBoard,
                     "Contract board debug panel opened.");
