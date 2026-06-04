@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Charcoal Delivery
   contractType: 1
   regionSpecialization: 4
-  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  settlementId: ccs.survival.settlement.frontier.pineridgecamp
   requirements:
   - itemId: ccs.survival.item.progression.charcoal
     quantity: 3

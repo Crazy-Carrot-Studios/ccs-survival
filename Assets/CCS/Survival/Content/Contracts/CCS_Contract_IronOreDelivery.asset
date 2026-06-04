@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Iron Ore Delivery
   contractType: 1
   regionSpecialization: 3
-  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
   requirements:
   - itemId: ccs.survival.item.resource.ironore
     quantity: 3

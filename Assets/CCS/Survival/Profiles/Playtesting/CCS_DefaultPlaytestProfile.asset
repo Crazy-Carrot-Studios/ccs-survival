@@ -1922,3 +1922,84 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.discover.pine
+    displayName: Discover Pine Ridge Camp
+    stepType: 220
+    instructionText: 'Multi-settlement playtest: Discover Pine Ridge Camp. Ctrl+Shift+N
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.discover.broken
+    displayName: Discover Broken Creek Farmstead
+    stepType: 221
+    instructionText: 'Multi-settlement playtest: Discover Broken Creek Farmstead.
+      Ctrl+Shift+N shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.discover.iron
+    displayName: Discover Iron Ridge Mining Camp
+    stepType: 222
+    instructionText: 'Multi-settlement playtest: Discover Iron Ridge Mining Camp.
+      Ctrl+Shift+N shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.accept
+    displayName: Accept regional contract
+    stepType: 223
+    instructionText: 'Multi-settlement playtest: Accept regional contract. Ctrl+Shift+N
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.complete
+    displayName: Complete regional contract
+    stepType: 224
+    instructionText: 'Multi-settlement playtest: Complete regional contract. Ctrl+Shift+N
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.prosperity
+    displayName: Verify settlement prosperity changed
+    stepType: 225
+    instructionText: 'Multi-settlement playtest: Verify settlement prosperity changed.
+      Ctrl+Shift+N shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.reputation
+    displayName: Verify settlement reputation changed
+    stepType: 226
+    instructionText: 'Multi-settlement playtest: Verify settlement reputation changed.
+      Ctrl+Shift+N shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.save
+    displayName: Save multi-settlement state
+    stepType: 227
+    instructionText: 'Multi-settlement playtest: Save multi-settlement state. Ctrl+Shift+N
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.multisettlement.load
+    displayName: Verify multi-settlement after load
+    stepType: 228
+    instructionText: 'Multi-settlement playtest: Verify multi-settlement after load.
+      Ctrl+Shift+N shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

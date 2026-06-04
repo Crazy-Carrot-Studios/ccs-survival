@@ -219,6 +219,14 @@ namespace CCS.Modules.Playtesting
         private float savedSettlementGrowthProgressPercent;
         private int savedSettlementCompletedContractsCount = -1;
         private bool settlementGrowthSaveCaptured;
+        private float multiSettlementPineProsperityBaseline;
+        private int multiSettlementPineReputationBaseline;
+        private bool multiSettlementBaselinesCaptured;
+        private int savedMultiSettlementPineReputation;
+        private float savedMultiSettlementPineProsperity;
+        private int savedMultiSettlementDiscoveryCount;
+        private int savedMultiSettlementTradeRouteCount;
+        private bool multiSettlementSaveCaptured;
 
         #endregion
 
@@ -704,6 +712,8 @@ namespace CCS.Modules.Playtesting
             playtestRegionalProsperityBaselineCaptured = false;
             regionalEconomySaveCaptured = false;
             settlementGrowthSaveCaptured = false;
+            multiSettlementBaselinesCaptured = false;
+            multiSettlementSaveCaptured = false;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1340,6 +1350,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveSettlementGrowthState,
                         "Settlement growth state saved.");
                 }
+
+                if (TryCaptureMultiSettlementSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveMultiSettlementState,
+                        "Multi-settlement state saved.");
+                }
             }
         }
 
@@ -1368,6 +1385,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateContractStateAfterLoad();
                 EvaluateRegionalEconomyAfterLoad();
                 EvaluateSettlementGrowthAfterLoad();
+                EvaluateMultiSettlementAfterLoad();
             }
         }
 
@@ -1932,27 +1950,62 @@ namespace CCS.Modules.Playtesting
 
         private void HandleSettlementDiscovered(CCS_SettlementSnapshot snapshot)
         {
-            if (snapshot == null
-                || !string.Equals(
-                    snapshot.SettlementId,
-                    CCS_SettlementContentIds.TestTradingPostSettlementId,
-                    System.StringComparison.OrdinalIgnoreCase))
+            if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.SettlementId))
             {
                 return;
             }
 
-            TryCompleteActiveStepOfType(
-                CCS_PlaytestStepType.DiscoverTradingPost,
-                "Frontier trading post discovered.");
-            TryCompleteActiveStepOfType(
-                CCS_PlaytestStepType.DiscoverTradingPostForContracts,
-                "Trading post discovered for contract board.");
-            TryCompleteActiveStepOfType(
-                CCS_PlaytestStepType.DiscoverTradingPostForSettlementGrowth,
-                "Trading post discovered for settlement growth.");
+            if (string.Equals(
+                    snapshot.SettlementId,
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverTradingPost,
+                    "Frontier trading post discovered.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverTradingPostForContracts,
+                    "Trading post discovered for contract board.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverTradingPostForSettlementGrowth,
+                    "Trading post discovered for settlement growth.");
+                CapturePlaytestReputationBaselineIfNeeded();
+                EvaluateWorldSimulationSettlementDiscovered();
+                return;
+            }
 
-            CapturePlaytestReputationBaselineIfNeeded();
-            EvaluateWorldSimulationSettlementDiscovered();
+            if (string.Equals(
+                    snapshot.SettlementId,
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverPineRidgeCampSettlement,
+                    "Pine Ridge Camp discovered.");
+                CaptureMultiSettlementBaselinesIfNeeded();
+                return;
+            }
+
+            if (string.Equals(
+                    snapshot.SettlementId,
+                    CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverBrokenCreekFarmsteadSettlement,
+                    "Broken Creek Farmstead discovered.");
+                return;
+            }
+
+            if (string.Equals(
+                    snapshot.SettlementId,
+                    CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.DiscoverIronRidgeMiningCampSettlement,
+                    "Iron Ridge Mining Camp discovered.");
+            }
         }
 
         private void EvaluateWorldSimulationSettlementDiscovered()
@@ -5318,6 +5371,220 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestMultiSettlementFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.PineRidgeCampSettlementId);
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId);
+            DiscoverPlaytestSettlement(CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId);
+            GrantPlaytestItem(CCS_RegionEconomyUtility.LumberItemId, 5);
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_ContractContentIds.LumberDeliveryContractId,
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId);
+                boundContractService.TryCompleteContract(CCS_ContractContentIds.LumberDeliveryContractId);
+            }
+
+            return true;
+        }
+
+        private void DiscoverPlaytestSettlement(string settlementId)
+        {
+            if (boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetDefinition(settlementId, out CCS_SettlementDefinition definition))
+            {
+                return;
+            }
+
+            boundSettlementService.DiscoverSettlement(definition, definition.DefaultWorldPosition);
+        }
+
+        private void CaptureMultiSettlementBaselinesIfNeeded()
+        {
+            if (multiSettlementBaselinesCaptured)
+            {
+                return;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                multiSettlementPineProsperityBaseline = settlementState.prosperity;
+            }
+
+            if (boundReputationService != null
+                && boundReputationService.IsInitialized
+                && boundReputationService.TryGetSettlementStanding(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_ReputationStanding standing)
+                && standing != null)
+            {
+                multiSettlementPineReputationBaseline = standing.CurrentValue;
+            }
+
+            multiSettlementBaselinesCaptured = true;
+        }
+
+        private void EvaluateMultiSettlementContractSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (!string.Equals(
+                    result.ContractId,
+                    CCS_ContractContentIds.LumberDeliveryContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.CompleteMultiSettlementRegionalContract,
+                $"Completed regional contract {result.ContractId}.");
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && settlementState.prosperity > multiSettlementPineProsperityBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyMultiSettlementProsperityChanged,
+                    $"Pine Ridge prosperity increased to {settlementState.prosperity:0.##}.");
+            }
+
+            if (boundReputationService != null
+                && boundReputationService.IsInitialized
+                && boundReputationService.TryGetSettlementStanding(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_ReputationStanding standing)
+                && standing != null
+                && standing.CurrentValue > multiSettlementPineReputationBaseline)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyMultiSettlementReputationChanged,
+                    $"Pine Ridge reputation increased to {standing.CurrentValue}.");
+            }
+        }
+
+        private bool TryCaptureMultiSettlementSaveState()
+        {
+            if (multiSettlementSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return multiSettlementSaveCaptured;
+            }
+
+            savedMultiSettlementDiscoveryCount = 0;
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.PineRidgeCampSettlementId))
+            {
+                savedMultiSettlementDiscoveryCount++;
+            }
+
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId))
+            {
+                savedMultiSettlementDiscoveryCount++;
+            }
+
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId))
+            {
+                savedMultiSettlementDiscoveryCount++;
+            }
+
+            if (boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null)
+            {
+                savedMultiSettlementPineProsperity = settlementState.prosperity;
+            }
+
+            if (boundReputationService != null
+                && boundReputationService.IsInitialized
+                && boundReputationService.TryGetSettlementStanding(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_ReputationStanding standing)
+                && standing != null)
+            {
+                savedMultiSettlementPineReputation = standing.CurrentValue;
+            }
+
+            savedMultiSettlementTradeRouteCount = boundSettlementService.ActiveProfile?.TradeRouteProfile != null
+                ? boundSettlementService.ActiveProfile.TradeRouteProfile.TradeRouteDefinitions.Length
+                : 0;
+            multiSettlementSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateMultiSettlementAfterLoad()
+        {
+            if (!multiSettlementSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized)
+            {
+                return;
+            }
+
+            int discoveryCount = 0;
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.PineRidgeCampSettlementId))
+            {
+                discoveryCount++;
+            }
+
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.BrokenCreekFarmsteadSettlementId))
+            {
+                discoveryCount++;
+            }
+
+            if (boundSettlementService.IsDiscovered(CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId))
+            {
+                discoveryCount++;
+            }
+
+            bool prosperityRestored = boundWorldSimulationService != null
+                && boundWorldSimulationService.IsInitialized
+                && boundWorldSimulationService.TryGetSettlementState(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_SettlementSimulationState settlementState)
+                && settlementState != null
+                && Mathf.Approximately(settlementState.prosperity, savedMultiSettlementPineProsperity);
+
+            bool reputationRestored = boundReputationService != null
+                && boundReputationService.IsInitialized
+                && boundReputationService.TryGetSettlementStanding(
+                    CCS_MultiSettlementContentIds.PineRidgeCampSettlementId,
+                    out CCS_ReputationStanding standing)
+                && standing != null
+                && standing.CurrentValue == savedMultiSettlementPineReputation;
+
+            int routeCount = boundSettlementService.ActiveProfile?.TradeRouteProfile != null
+                ? boundSettlementService.ActiveProfile.TradeRouteProfile.TradeRouteDefinitions.Length
+                : 0;
+
+            if (discoveryCount == savedMultiSettlementDiscoveryCount
+                && prosperityRestored
+                && reputationRestored
+                && routeCount == savedMultiSettlementTradeRouteCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyMultiSettlementAfterLoad,
+                    "Multi-settlement discovery, prosperity, reputation, and trade routes restored after load.");
+            }
+        }
+
         public bool TryPlaytestSettlementGrowthFoundationShortcut()
         {
             if (boundSettlementService != null
@@ -5630,6 +5897,16 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.AcceptRegionalSpecialtyContract,
                     $"Accepted regional specialty contract {result.ContractId}.");
             }
+
+            if (string.Equals(
+                    result.ContractId,
+                    CCS_ContractContentIds.LumberDeliveryContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.AcceptMultiSettlementRegionalContract,
+                    $"Accepted regional contract {result.ContractId}.");
+            }
         }
 
         private void HandleContractCompleted(CCS_ContractCompletionResult result)
@@ -5655,6 +5932,7 @@ namespace CCS.Modules.Playtesting
             EvaluateContractRewardSteps(result);
             EvaluateRegionalProsperityRewardStep(result);
             EvaluateSettlementGrowthContractSteps(result);
+            EvaluateMultiSettlementContractSteps(result);
         }
 
         private void EvaluateSettlementGrowthContractSteps(CCS_ContractCompletionResult result)

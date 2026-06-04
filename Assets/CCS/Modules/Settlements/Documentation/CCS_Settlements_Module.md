@@ -1,6 +1,8 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.3.0 — Multi-settlement frontier network (4 independent settlements)
+
 **Milestone:** 3.2.0 — Settlement growth foundation (Outpost → TradingPost active)  
 **Author:** James Schilz
 
@@ -28,6 +30,30 @@ Access Economy + Industry Services
   ↓
 Expand Frontier Progression
 ```
+
+## Multi-settlement network (3.3.0)
+
+| Settlement | Region specialization | Contract board focus |
+|------------|----------------------|----------------------|
+| Frontier Trading Post | FrontierMixed | Mixed frontier supply |
+| Pine Ridge Camp | Timber | Lumber, poles, charcoal |
+| Broken Creek Farmstead | Agriculture | Corn, wheat, potatoes, milk |
+| Iron Ridge Mining Camp | Mining | Iron ore, coal, refined iron |
+
+Each settlement maintains independent discovery, prosperity, supply, growth stage, reputation, and simulation state.
+
+Trade route metadata (no transport simulation):
+
+- `CCS_TradeRouteDefinition` / `CCS_TradeRouteProfile` / `CCS_TradeRouteSnapshot`
+- Persisted through `CCS_SaveTradeRoutesWorldData`
+
+Bootstrap batch:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 
 ## Settlement growth (3.2.0)
 

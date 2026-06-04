@@ -79,6 +79,7 @@ namespace CCS.Modules.CharacterController
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.H, requiresShift: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.H, requiresControl: true, requiresShift: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.G, requiresControl: true, requiresShift: true),
+            new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.N, requiresControl: true, requiresShift: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.G, requiresControl: true, requiresAlt: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.M, requiresControl: true, requiresShift: true),
             new DevHotkeyBinding("CCS_PlaytestHud", KeyCode.K, requiresControl: true, requiresShift: true),

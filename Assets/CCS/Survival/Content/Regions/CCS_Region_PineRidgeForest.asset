@@ -17,7 +17,8 @@ MonoBehaviour:
   description: Timber-rich forest region with frontier wood and wildlife resources.
   regionType: 0
   defaultWorldPosition: {x: -16, y: 0, z: -12}
-  settlementIds: []
+  settlementIds:
+  - ccs.survival.settlement.frontier.pineridgecamp
   resourceMetadataTags:
   - ccs.survival.resource.wood
   - ccs.survival.resource.wildlife

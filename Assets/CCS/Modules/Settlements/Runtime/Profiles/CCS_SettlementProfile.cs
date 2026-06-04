@@ -28,6 +28,10 @@ namespace CCS.Modules.Settlements
         [Tooltip("Default radius used when a location omits an explicit discover radius.")]
         [SerializeField] private float defaultDiscoverRadius = 12f;
 
+        [Header("Trade Routes")]
+        [Tooltip("Metadata-only trade routes between frontier settlements.")]
+        [SerializeField] private CCS_TradeRouteProfile tradeRouteProfile;
+
         [Header("Diagnostics")]
         [Tooltip("Emit settlement service debug logs.")]
         [SerializeField] private bool enableDebugLogging = true;
@@ -38,6 +42,8 @@ namespace CCS.Modules.Settlements
 
         public CCS_SettlementDefinition[] SettlementDefinitions =>
             settlementDefinitions ?? new CCS_SettlementDefinition[0];
+
+        public CCS_TradeRouteProfile TradeRouteProfile => tradeRouteProfile;
 
         public float DefaultDiscoverRadius => defaultDiscoverRadius < 1f ? 12f : defaultDiscoverRadius;
 

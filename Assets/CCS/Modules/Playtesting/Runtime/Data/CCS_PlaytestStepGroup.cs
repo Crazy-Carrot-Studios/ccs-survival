@@ -36,6 +36,7 @@ namespace CCS.Modules.Playtesting
         Reputation = 21,
         Contracts = 22,
         RegionalEconomy = 23,
-        SettlementGrowth = 24
+        SettlementGrowth = 24,
+        MultiSettlement = 25
     }
 }

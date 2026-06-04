@@ -16,7 +16,7 @@ MonoBehaviour:
   profileId: ccs.survival.profile.contracts.default
   profileDescription: Frontier settlement delivery contracts for general store, stable,
     gunsmith, and trading post boards.
-  profileVersion: 3.0.0
+  profileVersion: 3.3.0
   enableDebugLogs: 0
   defaultSettlementId: ccs.survival.settlement.frontier.testtradingpost
   defaultCurrencyId: ccs.survival.currency.tradedollars
@@ -30,4 +30,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 84468773749c35944aaf0e32931573ab, type: 2}
   - {fileID: 11400000, guid: 7d7966e353035734c8b3ebbd59a48845, type: 2}
   - {fileID: 11400000, guid: d7b0b2b178495674dac5fe580eb7e232, type: 2}
+  - {fileID: 11400000, guid: 15f1d616110757b4688ac5b06d7cca65, type: 2}
+  - {fileID: 11400000, guid: 7fb56765cd3a05943a30d387fffbccda, type: 2}
+  - {fileID: 11400000, guid: 7d82c616890840c48b9142cce7d2d6f5, type: 2}
   enableDebugLogging: 1

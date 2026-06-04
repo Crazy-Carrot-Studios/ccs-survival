@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.3.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.3.0** — Multi-Settlement Foundation
+
+Four independent frontier settlements (**Frontier Trading Post**, **Pine Ridge Camp**, **Broken Creek Farmstead**, **Iron Ridge Mining Camp**) with per-settlement world simulation, reputation, growth, and contract boards. Regional contract boards prioritize Timber, Agriculture, and Mining specialties. Metadata-only **trade routes** (`CCS_TradeRouteDefinition`, `CCS_TradeRouteProfile`, `CCS_TradeRouteSnapshot`) link settlements without transport simulation. Independent discovery — finding one settlement does not reveal others. Playtest group **Multi-Settlement** with **Ctrl+Shift+N** shortcut.
+
+**Frontier Settlement Network:**
+
+```text
+Discover Settlement → Accept Regional Contract → Improve Prosperity + Reputation → Independent Save/Load
+```
 
 **3.2.0** — Settlement Growth Foundation
 
@@ -366,8 +376,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **3.2.0** |
-| Output | `Builds/CCS_Survival_3.2.0_Windows/` (gitignored) |
+| Version | **3.3.0** |
+| Output | `Builds/CCS_Survival_3.3.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

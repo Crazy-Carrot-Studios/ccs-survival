@@ -387,6 +387,17 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifySettlementGrowthAfterLoad:
                     return CCS_PlaytestStepGroup.SettlementGrowth;
 
+                case CCS_PlaytestStepType.DiscoverPineRidgeCampSettlement:
+                case CCS_PlaytestStepType.DiscoverBrokenCreekFarmsteadSettlement:
+                case CCS_PlaytestStepType.DiscoverIronRidgeMiningCampSettlement:
+                case CCS_PlaytestStepType.AcceptMultiSettlementRegionalContract:
+                case CCS_PlaytestStepType.CompleteMultiSettlementRegionalContract:
+                case CCS_PlaytestStepType.VerifyMultiSettlementProsperityChanged:
+                case CCS_PlaytestStepType.VerifyMultiSettlementReputationChanged:
+                case CCS_PlaytestStepType.SaveMultiSettlementState:
+                case CCS_PlaytestStepType.VerifyMultiSettlementAfterLoad:
+                    return CCS_PlaytestStepGroup.MultiSettlement;
+
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");
             }

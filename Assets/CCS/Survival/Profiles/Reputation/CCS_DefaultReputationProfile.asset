@@ -16,10 +16,13 @@ MonoBehaviour:
   profileId: ccs.survival.profile.reputation.default
   profileDescription: Frontier settlement trust for trade, obligations, and future
     service access hooks.
-  profileVersion: 2.8.0
+  profileVersion: 3.3.0
   enableDebugLogs: 0
   reputationDefinitions:
   - {fileID: 11400000, guid: 6c37d448ee856ab46acb75970cf1592e, type: 2}
+  - {fileID: 11400000, guid: a8f49b43f864ab844ba1bf6d3e484289, type: 2}
+  - {fileID: 11400000, guid: 099ed18a9cda3c7429bf5374de7ae5f8, type: 2}
+  - {fileID: 11400000, guid: 1d5dabc6f02ff7a41aa92ec47d1d8197, type: 2}
   defaultSettlementReputationDefinitionId: ccs.survival.reputation.settlement.frontier.testtradingpost
   defaultTradingPostSettlementId: ccs.survival.settlement.frontier.testtradingpost
   enableGoodsSoldEvents: 1
@@ -32,6 +35,7 @@ MonoBehaviour:
   upkeepPaidDelta: 2
   failedUpkeepDelta: -1
   settlementDiscoveredDelta: 1
+  enableContractCompletedEvents: 1
   enableDebugLogging: 1
   serviceAccessProfile: {fileID: 11400000, guid: c9b2d9998c6f8af4585243aede75c62e, type: 2}
   enableBuyPriceModifiers: 1

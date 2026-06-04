@@ -357,6 +357,7 @@ namespace CCS.Modules.SaveSystem
             CaptureUpkeep(saveData.upkeep);
             CaptureReputation(saveData.reputation);
             CaptureContracts(saveData.contracts);
+            CaptureTradeRoutes(saveData.tradeRoutes);
             CaptureEconomy(saveData.economy);
             return saveData;
         }
@@ -686,6 +687,7 @@ namespace CCS.Modules.SaveSystem
             ApplyUpkeep(saveData.upkeep);
             ApplyReputation(saveData.reputation);
             ApplyContracts(saveData.contracts);
+            ApplyTradeRoutes(saveData.tradeRoutes);
             ApplyGathering(saveData.gathering);
             ApplyCooking(saveData.cooking);
             ApplyPlayerTransform(saveData.player);
@@ -1193,6 +1195,30 @@ namespace CCS.Modules.SaveSystem
             }
 
             contractService.RestoreState(contractsData?.contractInstances);
+        }
+
+        private void CaptureTradeRoutes(CCS_SaveTradeRoutesWorldData tradeRoutesData)
+        {
+            if (tradeRoutesData == null)
+            {
+                return;
+            }
+
+            if (settlementService == null
+                || !settlementService.IsInitialized
+                || settlementService.ActiveProfile?.TradeRouteProfile == null)
+            {
+                tradeRoutesData.routes = Array.Empty<CCS_TradeRouteSnapshot>();
+                return;
+            }
+
+            tradeRoutesData.routes = CCS_TradeRouteUtility.BuildSnapshots(
+                settlementService.ActiveProfile.TradeRouteProfile);
+        }
+
+        private void ApplyTradeRoutes(CCS_SaveTradeRoutesWorldData tradeRoutesData)
+        {
+            // Trade routes are metadata-only in 3.3.0; snapshots persist for save/load verification.
         }
 
         private void CaptureMounts(CCS_SaveMountsWorldData mountsData)

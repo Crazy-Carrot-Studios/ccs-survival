@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Refined Iron Delivery
   contractType: 1
   regionSpecialization: 3
-  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
   requirements:
   - itemId: ccs.survival.item.resource.refinediron
     quantity: 2

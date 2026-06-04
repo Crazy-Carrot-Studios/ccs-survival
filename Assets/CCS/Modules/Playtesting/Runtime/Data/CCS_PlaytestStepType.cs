@@ -231,6 +231,15 @@ namespace CCS.Modules.Playtesting
         ReachTradingPostGrowthStage = 216,
         VerifySettlementGrowthStageChanged = 217,
         SaveSettlementGrowthState = 218,
-        VerifySettlementGrowthAfterLoad = 219
+        VerifySettlementGrowthAfterLoad = 219,
+        DiscoverPineRidgeCampSettlement = 220,
+        DiscoverBrokenCreekFarmsteadSettlement = 221,
+        DiscoverIronRidgeMiningCampSettlement = 222,
+        AcceptMultiSettlementRegionalContract = 223,
+        CompleteMultiSettlementRegionalContract = 224,
+        VerifyMultiSettlementProsperityChanged = 225,
+        VerifyMultiSettlementReputationChanged = 226,
+        SaveMultiSettlementState = 227,
+        VerifyMultiSettlementAfterLoad = 228
     }
 }

@@ -17,7 +17,8 @@ MonoBehaviour:
   description: Mining region with iron, coal, and stone frontier deposits.
   regionType: 2
   defaultWorldPosition: {x: 48, y: 0, z: 32}
-  settlementIds: []
+  settlementIds:
+  - ccs.survival.settlement.frontier.ironridgeminingcamp
   resourceMetadataTags:
   - ccs.survival.resource.ironore
   - ccs.survival.resource.coal

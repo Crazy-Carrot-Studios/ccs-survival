@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Potato Delivery
   contractType: 0
   regionSpecialization: 1
-  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
   requirements:
   - itemId: ccs.survival.farming.item.potatoes
     quantity: 5

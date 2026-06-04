@@ -16,7 +16,7 @@ MonoBehaviour:
   profileId: ccs.survival.profile.worldsimulation.default
   profileDescription: Frontier settlement and region simulation defaults for bootstrap
     trading post.
-  profileVersion: 3.2.0
+  profileVersion: 3.3.0
   enableDebugLogs: 0
   settlementEntries:
   - settlementId: ccs.survival.settlement.frontier.testtradingpost
@@ -38,11 +38,116 @@ MonoBehaviour:
     - supplyType: 4
       currentAmount: 6
       desiredAmount: 30
-    - supplyType: 5
-      currentAmount: 4
-      desiredAmount: 20
     - supplyType: 6
       currentAmount: 15
+      desiredAmount: 45
+    demands:
+    - supplyType: 0
+      currentDemand: 18
+    - supplyType: 4
+      currentDemand: 12
+    - supplyType: 6
+      currentDemand: 10
+    productions:
+    - supplyType: 0
+      currentProduction: 8
+    - supplyType: 4
+      currentProduction: 5
+    - supplyType: 6
+      currentProduction: 12
+  - settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    regionId: ccs.survival.region.frontier.pineridgeforest
+    population: 18
+    supplies:
+    - supplyType: 0
+      currentAmount: 6
+      desiredAmount: 40
+    - supplyType: 1
+      currentAmount: 10
+      desiredAmount: 40
+    - supplyType: 2
+      currentAmount: 14
+      desiredAmount: 30
+    - supplyType: 3
+      currentAmount: 8
+      desiredAmount: 35
+    - supplyType: 4
+      currentAmount: 4
+      desiredAmount: 30
+    - supplyType: 6
+      currentAmount: 6
+      desiredAmount: 45
+    demands:
+    - supplyType: 0
+      currentDemand: 18
+    - supplyType: 4
+      currentDemand: 12
+    - supplyType: 6
+      currentDemand: 10
+    productions:
+    - supplyType: 0
+      currentProduction: 8
+    - supplyType: 4
+      currentProduction: 5
+    - supplyType: 6
+      currentProduction: 12
+  - settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    regionId: ccs.survival.region.frontier.brokencreek
+    population: 22
+    supplies:
+    - supplyType: 0
+      currentAmount: 14
+      desiredAmount: 40
+    - supplyType: 1
+      currentAmount: 12
+      desiredAmount: 40
+    - supplyType: 2
+      currentAmount: 4
+      desiredAmount: 30
+    - supplyType: 3
+      currentAmount: 5
+      desiredAmount: 35
+    - supplyType: 4
+      currentAmount: 3
+      desiredAmount: 30
+    - supplyType: 6
+      currentAmount: 4
+      desiredAmount: 45
+    demands:
+    - supplyType: 0
+      currentDemand: 18
+    - supplyType: 4
+      currentDemand: 12
+    - supplyType: 6
+      currentDemand: 10
+    productions:
+    - supplyType: 0
+      currentProduction: 8
+    - supplyType: 4
+      currentProduction: 5
+    - supplyType: 6
+      currentProduction: 12
+  - settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    regionId: ccs.survival.region.frontier.ironridgemine
+    population: 16
+    supplies:
+    - supplyType: 0
+      currentAmount: 4
+      desiredAmount: 40
+    - supplyType: 1
+      currentAmount: 4
+      desiredAmount: 40
+    - supplyType: 2
+      currentAmount: 6
+      desiredAmount: 30
+    - supplyType: 3
+      currentAmount: 12
+      desiredAmount: 35
+    - supplyType: 4
+      currentAmount: 10
+      desiredAmount: 30
+    - supplyType: 6
+      currentAmount: 5
       desiredAmount: 45
     demands:
     - supplyType: 0

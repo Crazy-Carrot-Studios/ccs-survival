@@ -17,7 +17,8 @@ MonoBehaviour:
   description: Creek region with fishing, clay, and frontier water resources.
   regionType: 1
   defaultWorldPosition: {x: -30, y: 0, z: 8}
-  settlementIds: []
+  settlementIds:
+  - ccs.survival.settlement.frontier.brokencreekfarmstead
   resourceMetadataTags:
   - ccs.survival.resource.fish
   - ccs.survival.resource.clay

@@ -16,7 +16,7 @@ MonoBehaviour:
   profileId: ccs.survival.profile.settlementgrowth.default
   profileDescription: Frontier settlement growth thresholds for bootstrap trading
     post.
-  profileVersion: 3.2.0
+  profileVersion: 3.3.0
   enableDebugLogs: 0
   growthDefinitions:
   - {fileID: 11400000, guid: d422bf5520e4bf24abec470c56755d55, type: 2}
@@ -25,4 +25,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7bfc0f56d04eec64788dc77ffc4a741a, type: 2}
   startingEntries:
   - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    startingGrowthStage: 1
+  - settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    startingGrowthStage: 1
+  - settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    startingGrowthStage: 1
+  - settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
     startingGrowthStage: 1

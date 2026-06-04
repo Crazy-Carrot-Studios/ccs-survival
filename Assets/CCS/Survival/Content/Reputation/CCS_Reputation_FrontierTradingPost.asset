@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45b674b95bb78f044a32c07c81d01365, type: 3}
   m_Name: CCS_Reputation_FrontierTradingPost
   m_EditorClassIdentifier: CCS.Modules.Reputation.Runtime::CCS.Modules.Reputation.CCS_ReputationDefinition
-  reputationDefinitionId: ccs.survival.reputation.settlement.frontier.testtradingpost
+  reputationDefinitionId: ccs.survival.reputation.settlement.tradingpost
   displayName: Frontier Trading Post Trust
   scopeType: 0
   targetId: ccs.survival.settlement.frontier.testtradingpost

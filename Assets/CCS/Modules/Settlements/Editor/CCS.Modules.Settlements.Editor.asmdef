@@ -13,7 +13,9 @@
         "CCS.Modules.Mounts.Runtime",
         "CCS.Modules.Firearms.Runtime",
         "CCS.Modules.WorldSimulation.Runtime",
-        "CCS.Modules.Contracts.Runtime"
+        "CCS.Modules.Contracts.Runtime",
+        "CCS.Modules.Regions.Runtime",
+        "CCS.Modules.Reputation.Runtime"
     ],
     "includePlatforms": [
         "Editor"

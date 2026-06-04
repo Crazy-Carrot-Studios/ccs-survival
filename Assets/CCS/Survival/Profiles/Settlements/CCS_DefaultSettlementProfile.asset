@@ -15,9 +15,13 @@ MonoBehaviour:
   profileDisplayName: Default Settlement Profile
   profileId: ccs.survival.profile.settlements.default
   profileDescription: Frontier settlement catalog for bootstrap trading post discovery.
-  profileVersion: 1.8.1
+  profileVersion: 3.3.0
   enableDebugLogs: 0
   settlementDefinitions:
   - {fileID: 11400000, guid: 8e20c124328513646a79103c716d61eb, type: 2}
+  - {fileID: 11400000, guid: 2ef222daa713b5c4083df9b5d740cf3a, type: 2}
+  - {fileID: 11400000, guid: 4e68f6749f5587744ba68286e07e960a, type: 2}
+  - {fileID: 11400000, guid: 7f344e3253488554eb7796f842b9c6d6, type: 2}
   defaultDiscoverRadius: 14
+  tradeRouteProfile: {fileID: 11400000, guid: 05aefb2a2a526f24dae41bcdcf9de419, type: 2}
   enableDebugLogging: 1

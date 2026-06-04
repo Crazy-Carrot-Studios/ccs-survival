@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e173f7aacca0b24a9d552e3d8dacc21, type: 3}
+  m_Name: CCS_TradeRoute_TradingPost_BrokenCreek
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_TradeRouteDefinition
+  routeId: ccs.survival.traderoute.frontier.tradingpost.brokencreek
+  displayName: Trading Post to Broken Creek
+  originSettlementId: ccs.survival.settlement.frontier.testtradingpost
+  destinationSettlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+  preferredGoods:
+  - ccs.survival.farming.item.corn
+  - ccs.survival.farming.item.wheat
+  - ccs.survival.farming.item.potatoes
+  distance: 22

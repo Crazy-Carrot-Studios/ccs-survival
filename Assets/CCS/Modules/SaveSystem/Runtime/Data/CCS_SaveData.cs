@@ -10,6 +10,7 @@ using CCS.Modules.Contracts;
 using CCS.Modules.Ranching;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.Settlements;
 using CCS.Modules.WorldSimulation;
 
 // =============================================================================
@@ -85,7 +86,15 @@ namespace CCS.Modules.SaveSystem
 
         public CCS_SaveContractsWorldData contracts = new CCS_SaveContractsWorldData();
 
+        public CCS_SaveTradeRoutesWorldData tradeRoutes = new CCS_SaveTradeRoutesWorldData();
+
         #endregion
+    }
+
+    [Serializable]
+    public sealed class CCS_SaveTradeRoutesWorldData
+    {
+        public CCS_TradeRouteSnapshot[] routes = Array.Empty<CCS_TradeRouteSnapshot>();
     }
 
     [Serializable]
