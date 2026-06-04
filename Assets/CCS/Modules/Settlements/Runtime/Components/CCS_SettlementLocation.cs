@@ -28,6 +28,17 @@ namespace CCS.Modules.Settlements
 
         [SerializeField] private bool autoDiscoverOnProximity = true;
 
+        [Header("Growth Debug Visual")]
+        [SerializeField] private Renderer growthStageRenderer;
+
+        [SerializeField] private Color outpostColor = new Color(0.55f, 0.45f, 0.3f, 1f);
+
+        [SerializeField] private Color tradingPostColor = new Color(0.2f, 0.55f, 0.85f, 1f);
+
+        [SerializeField] private Color frontierTownColor = new Color(0.35f, 0.75f, 0.35f, 1f);
+
+        [SerializeField] private Color establishedTownColor = new Color(0.85f, 0.75f, 0.25f, 1f);
+
         private bool hasDiscoveredThisSession;
 
         #endregion
@@ -69,6 +80,25 @@ namespace CCS.Modules.Settlements
         #endregion
 
         #region Public Methods
+
+        public void ApplyGrowthStageVisual(CCS_SettlementGrowthStage growthStage)
+        {
+            Renderer renderer = growthStageRenderer != null
+                ? growthStageRenderer
+                : GetComponentInChildren<Renderer>();
+            if (renderer == null)
+            {
+                return;
+            }
+
+            Material material = renderer.material;
+            if (material == null)
+            {
+                return;
+            }
+
+            material.color = ResolveGrowthColor(growthStage);
+        }
 
         public bool TryDiscover(Vector3 worldPosition)
         {
@@ -121,6 +151,21 @@ namespace CCS.Modules.Settlements
         #endregion
 
         #region Private Methods
+
+        private Color ResolveGrowthColor(CCS_SettlementGrowthStage growthStage)
+        {
+            switch (growthStage)
+            {
+                case CCS_SettlementGrowthStage.TradingPost:
+                    return tradingPostColor;
+                case CCS_SettlementGrowthStage.FrontierTown:
+                    return frontierTownColor;
+                case CCS_SettlementGrowthStage.EstablishedTown:
+                    return establishedTownColor;
+                default:
+                    return outpostColor;
+            }
+        }
 
         private static bool TryGetPlayerPosition(out Vector3 playerPosition)
         {

@@ -1,7 +1,8 @@
 using System;
 using CCS.Modules.Economy;
-using CCS.Modules.Ranching;
 using CCS.Modules.Farming;
+using CCS.Modules.Ranching;
+using CCS.Modules.Settlements;
 using CCS.Survival;
 
 // =============================================================================
@@ -65,6 +66,18 @@ namespace CCS.Modules.WorldSimulation
                 {
                     return CCS_SurvivalValidationResult.Fail($"Region simulation entry at index {index} is invalid.");
                 }
+            }
+
+            if (profile.SettlementGrowthProfile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("World simulation profile is missing settlementGrowthProfile.");
+            }
+
+            CCS_SurvivalValidationResult growthValidation =
+                CCS_SettlementGrowthUtility.ValidateProfile(profile.SettlementGrowthProfile);
+            if (!growthValidation.IsSuccess)
+            {
+                return growthValidation;
             }
 
             return CCS_SurvivalValidationResult.Pass("World simulation profile validated.");

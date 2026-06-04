@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-3.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**3.2.0** — Settlement Growth Foundation
+
+Generic **settlement growth** stages (`CCS_SettlementGrowthStage`, `CCS_SettlementGrowthDefinition`, `CCS_SettlementGrowthProfile`, `CCS_SettlementGrowthUtility`) evaluated from prosperity, food/industrial supply health, completed contracts, and region placeholder. **Outpost** and **TradingPost** are active; **FrontierTown** and **EstablishedTown** are placeholders. `CCS_WorldSimulationService` evaluates growth after contract completion, supply updates, prosperity recalc, and save/load restore. Frontier Trading Post starts as **Outpost** and can advance to **TradingPost** (prosperity ≥ 35, food supply ≥ 25%, completed contracts ≥ 1). Debug HUD shows growth stage and next-stage progress; location primitive color shifts on upgrade. Playtest group **Settlement Growth** with **Ctrl+Shift+G** shortcut. No NPC AI, quests, factions, procedural towns, or final town art.
+
+**Settlement Growth Loop:**
+
+```text
+Complete Contracts → Improve Supply + Prosperity → Settlement Growth Progress → New Growth Stage → Future Services / Expansion
+```
 
 **3.0.0** — Frontier Contracts Foundation
 
@@ -356,8 +366,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **2.6.0** |
-| Output | `Builds/CCS_Survival_2.6.0_Windows/` (gitignored) |
+| Version | **3.2.0** |
+| Output | `Builds/CCS_Survival_3.2.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

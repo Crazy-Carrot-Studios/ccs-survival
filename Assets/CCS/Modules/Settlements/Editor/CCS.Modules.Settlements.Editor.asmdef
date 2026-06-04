@@ -11,7 +11,9 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Playtesting.Runtime",
         "CCS.Modules.Mounts.Runtime",
-        "CCS.Modules.Firearms.Runtime"
+        "CCS.Modules.Firearms.Runtime",
+        "CCS.Modules.WorldSimulation.Runtime",
+        "CCS.Modules.Contracts.Runtime"
     ],
     "includePlatforms": [
         "Editor"

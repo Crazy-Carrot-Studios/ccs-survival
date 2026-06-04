@@ -223,6 +223,14 @@ namespace CCS.Modules.Playtesting
         CompleteRegionalSpecialtyContract = 208,
         VerifyRegionalProsperityIncrease = 209,
         SaveRegionalEconomyState = 210,
-        VerifyRegionalEconomyAfterLoad = 211
+        VerifyRegionalEconomyAfterLoad = 211,
+        DiscoverTradingPostForSettlementGrowth = 212,
+        CompleteContractForSettlementGrowth = 213,
+        VerifySettlementGrowthSupplyProsperity = 214,
+        VerifySettlementGrowthProgress = 215,
+        ReachTradingPostGrowthStage = 216,
+        VerifySettlementGrowthStageChanged = 217,
+        SaveSettlementGrowthState = 218,
+        VerifySettlementGrowthAfterLoad = 219
     }
 }

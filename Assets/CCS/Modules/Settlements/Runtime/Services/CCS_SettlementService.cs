@@ -39,6 +39,7 @@ namespace CCS.Modules.Settlements
         public event Action<CCS_SettlementSnapshot> SettlementDiscovered;
         public event Action<CCS_SettlementServicePointActivationArgs> ServicePointActivated;
         public event Action<CCS_ReputationChangedEventArgs> SettlementReputationChanged;
+        public event Action<CCS_SettlementGrowthChangedEventArgs> SettlementGrowthChanged;
 
         public bool IsInitialized => isInitialized;
 
@@ -55,6 +56,8 @@ namespace CCS.Modules.Settlements
         public CCS_SettlementServiceActivationStatus LastActivationStatus => lastActivationStatus;
 
         public string LastActivationMessage => lastActivationMessage;
+
+        private Func<string, CCS_SettlementGrowthSnapshot> growthSnapshotResolver;
 
         public void Initialize()
         {
@@ -96,6 +99,49 @@ namespace CCS.Modules.Settlements
             }
 
             isInitialized = true;
+        }
+
+        public void BindGrowthSnapshotResolver(Func<string, CCS_SettlementGrowthSnapshot> resolver)
+        {
+            growthSnapshotResolver = resolver;
+        }
+
+        public bool TryGetSettlementGrowthStage(
+            string settlementId,
+            out CCS_SettlementGrowthStage growthStage)
+        {
+            growthStage = CCS_SettlementGrowthStage.Unknown;
+            if (!TryGetGrowthSnapshot(settlementId, out CCS_SettlementGrowthSnapshot snapshot)
+                || snapshot == null)
+            {
+                return false;
+            }
+
+            growthStage = snapshot.CurrentGrowthStage;
+            return growthStage != CCS_SettlementGrowthStage.Unknown;
+        }
+
+        public bool TryGetGrowthSnapshot(string settlementId, out CCS_SettlementGrowthSnapshot snapshot)
+        {
+            snapshot = CCS_SettlementGrowthSnapshot.Empty;
+            if (string.IsNullOrWhiteSpace(settlementId) || growthSnapshotResolver == null)
+            {
+                return false;
+            }
+
+            snapshot = growthSnapshotResolver.Invoke(settlementId) ?? CCS_SettlementGrowthSnapshot.Empty;
+            return snapshot.IsValid;
+        }
+
+        public void NotifySettlementGrowthChanged(CCS_SettlementGrowthChangedEventArgs eventArgs)
+        {
+            if (eventArgs == null)
+            {
+                return;
+            }
+
+            SettlementGrowthChanged?.Invoke(eventArgs);
+            CCS_SettlementGrowthRuntimeBridge.NotifyGrowthStageChanged(eventArgs.Snapshot);
         }
 
         public void BindReputationService(CCS_ReputationService reputation)

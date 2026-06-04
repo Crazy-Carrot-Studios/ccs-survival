@@ -1,5 +1,6 @@
 using System;
 using CCS.Modules.Regions;
+using CCS.Modules.Settlements;
 using CCS.Survival;
 using UnityEngine;
 
@@ -30,6 +31,10 @@ namespace CCS.Modules.WorldSimulation
             Array.Empty<CCS_WorldSimulationVendorRouteEntry>();
 
         [SerializeField] private bool enableDebugLogging = true;
+
+        [SerializeField] private CCS_SettlementGrowthProfile settlementGrowthProfile;
+
+        public CCS_SettlementGrowthProfile SettlementGrowthProfile => settlementGrowthProfile;
 
         public CCS_WorldSimulationSettlementProfileEntry[] SettlementEntries =>
             settlementEntries ?? Array.Empty<CCS_WorldSimulationSettlementProfileEntry>();

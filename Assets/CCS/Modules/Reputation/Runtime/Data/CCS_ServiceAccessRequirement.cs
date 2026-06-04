@@ -30,6 +30,9 @@ namespace CCS.Modules.Reputation
 
         [SerializeField] private string futureHookPlaceholder = "service.access.placeholder";
 
+        [Tooltip("-1 disables growth stage checks. Placeholder for future service gating.")]
+        [SerializeField] private int minimumGrowthStage = -1;
+
         public bool Enabled => enabled;
 
         public CCS_ReputationTier MinimumReputationTier => minimumReputationTier;
@@ -43,5 +46,7 @@ namespace CCS.Modules.Reputation
         public bool RequireLandClaim => requireLandClaim;
 
         public string FutureHookPlaceholder => futureHookPlaceholder ?? string.Empty;
+
+        public int MinimumGrowthStage => minimumGrowthStage;
     }
 }

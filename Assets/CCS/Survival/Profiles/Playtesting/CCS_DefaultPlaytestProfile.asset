@@ -1850,3 +1850,75 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.discover
+    displayName: Discover trading post
+    stepType: 212
+    instructionText: 'Settlement growth playtest: Discover trading post. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.contract
+    displayName: Complete one contract
+    stepType: 213
+    instructionText: 'Settlement growth playtest: Complete one contract. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.verify.supply
+    displayName: Verify prosperity/supply update
+    stepType: 214
+    instructionText: 'Settlement growth playtest: Verify prosperity/supply update.
+      Ctrl+Shift+G shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.verify.progress
+    displayName: Verify growth progress
+    stepType: 215
+    instructionText: 'Settlement growth playtest: Verify growth progress. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.reach
+    displayName: Reach TradingPost stage
+    stepType: 216
+    instructionText: 'Settlement growth playtest: Reach TradingPost stage. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.verify.stage
+    displayName: Verify growth stage changed
+    stepType: 217
+    instructionText: 'Settlement growth playtest: Verify growth stage changed. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.save
+    displayName: Save settlement growth
+    stepType: 218
+    instructionText: 'Settlement growth playtest: Save settlement growth. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementgrowth.verify.load
+    displayName: Verify growth after load
+    stepType: 219
+    instructionText: 'Settlement growth playtest: Verify growth after load. Ctrl+Shift+G
+      shortcut available.'
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

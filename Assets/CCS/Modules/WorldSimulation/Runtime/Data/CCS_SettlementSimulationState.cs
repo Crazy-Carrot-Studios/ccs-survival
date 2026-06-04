@@ -23,5 +23,9 @@ namespace CCS.Modules.WorldSimulation
         public CCS_SettlementSupplyEntry[] supplies = Array.Empty<CCS_SettlementSupplyEntry>();
         public CCS_SettlementDemandEntry[] demands = Array.Empty<CCS_SettlementDemandEntry>();
         public CCS_SettlementProductionEntry[] productions = Array.Empty<CCS_SettlementProductionEntry>();
+        public int currentGrowthStage;
+        public int previousGrowthStage;
+        public float growthProgressPercent;
+        public int completedContractsCount;
     }
 }

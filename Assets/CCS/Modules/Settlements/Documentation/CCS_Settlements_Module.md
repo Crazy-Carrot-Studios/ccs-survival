@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 2.7.0 — Settlement service exposes optional reputation query/events via `CCS_ReputationService` bind  
+**Milestone:** 3.2.0 — Settlement growth foundation (Outpost → TradingPost active)  
 **Author:** James Schilz
 
 ## Purpose
@@ -28,6 +28,38 @@ Access Economy + Industry Services
   ↓
 Expand Frontier Progression
 ```
+
+## Settlement growth (3.2.0)
+
+| Type | Role |
+|------|------|
+| `CCS_SettlementGrowthStage` | Outpost, TradingPost (active), FrontierTown, EstablishedTown (placeholders) |
+| `CCS_SettlementGrowthDefinition` | Per-stage thresholds (prosperity, food %, industrial %, contracts, region placeholder) |
+| `CCS_SettlementGrowthProfile` | Definition catalog + per-settlement starting stage |
+| `CCS_SettlementGrowthSnapshot` | Runtime query snapshot |
+| `CCS_SettlementGrowthUtility` | Validation, stage resolution, progress % |
+| `CCS_SettlementGrowthDebugHud` | Prosperity, supply health, stage, next-stage progress |
+| `CCS_SettlementGrowthRuntimeBridge` | Forwards growth events to location visuals |
+
+`CCS_SettlementService` exposes `TryGetSettlementGrowthStage`, `TryGetGrowthSnapshot`, and `SettlementGrowthChanged`.
+
+Frontier Trading Post (`ccs.survival.settlement.tradingpost`) starts at **Outpost**. **TradingPost** requires prosperity ≥ 35, food supply ≥ 25%, and ≥ 1 completed contract.
+
+Growth state persists on `CCS_SettlementSimulationState` (current/previous stage, progress %, completed contract count) through world simulation save/load.
+
+**Settlement Growth Loop:**
+
+```text
+Complete Contracts → Improve Supply + Prosperity → Settlement Growth Progress → New Growth Stage → Future Services / Expansion
+```
+
+Bootstrap batch:
+
+```text
+CCS.Modules.Settlements.Editor.CCS_SettlementGrowthFoundationBootstrapSetup.ExecuteBatch
+```
+
+Playtest group: **Settlement Growth** — shortcut **Ctrl+Shift+G**.
 
 ## Bootstrap test settlement
 

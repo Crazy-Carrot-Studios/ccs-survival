@@ -39,7 +39,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.Upkeep,
             CCS_PlaytestStepGroup.Reputation,
             CCS_PlaytestStepGroup.Contracts,
-            CCS_PlaytestStepGroup.RegionalEconomy
+            CCS_PlaytestStepGroup.RegionalEconomy,
+            CCS_PlaytestStepGroup.SettlementGrowth
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -99,6 +100,8 @@ namespace CCS.Modules.Playtesting
                     return "Contracts";
                 case CCS_PlaytestStepGroup.RegionalEconomy:
                     return "Regional Economy";
+                case CCS_PlaytestStepGroup.SettlementGrowth:
+                    return "Settlement Growth";
                 default:
                     return group.ToString();
             }
@@ -373,6 +376,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveRegionalEconomyState:
                 case CCS_PlaytestStepType.VerifyRegionalEconomyAfterLoad:
                     return CCS_PlaytestStepGroup.RegionalEconomy;
+
+                case CCS_PlaytestStepType.DiscoverTradingPostForSettlementGrowth:
+                case CCS_PlaytestStepType.CompleteContractForSettlementGrowth:
+                case CCS_PlaytestStepType.VerifySettlementGrowthSupplyProsperity:
+                case CCS_PlaytestStepType.VerifySettlementGrowthProgress:
+                case CCS_PlaytestStepType.ReachTradingPostGrowthStage:
+                case CCS_PlaytestStepType.VerifySettlementGrowthStageChanged:
+                case CCS_PlaytestStepType.SaveSettlementGrowthState:
+                case CCS_PlaytestStepType.VerifySettlementGrowthAfterLoad:
+                    return CCS_PlaytestStepGroup.SettlementGrowth;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

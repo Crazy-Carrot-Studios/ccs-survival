@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12598ebd8d7bbba418fd652fdc197e59, type: 3}
+  m_Name: CCS_DefaultSettlementGrowthProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementGrowthProfile
+  profileDisplayName: Default Settlement Growth Profile
+  profileId: ccs.survival.profile.settlementgrowth.default
+  profileDescription: Frontier settlement growth thresholds for bootstrap trading
+    post.
+  profileVersion: 3.2.0
+  enableDebugLogs: 0
+  growthDefinitions:
+  - {fileID: 11400000, guid: d422bf5520e4bf24abec470c56755d55, type: 2}
+  - {fileID: 11400000, guid: 55fe1139ac8eb664094cf26fc43234f7, type: 2}
+  - {fileID: 11400000, guid: a69e03d23f7bafd479fe4365e159e68b, type: 2}
+  - {fileID: 11400000, guid: 7bfc0f56d04eec64788dc77ffc4a741a, type: 2}
+  startingEntries:
+  - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    startingGrowthStage: 1

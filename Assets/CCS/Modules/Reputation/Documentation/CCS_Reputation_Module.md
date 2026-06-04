@@ -46,6 +46,7 @@ Future Service Access Rules
 ## Rules (2.8.0)
 
 - **Service access:** profile-driven rules via `CCS_ServiceAccessProfile`; reputation tier/value checks active; camp tier and land claim are placeholders.
+- **Settlement growth (3.2.0):** `CCS_ServiceAccessRequirement.minimumGrowthStage` placeholder (-1 = disabled); no core services locked in default content.
 - **Default:** core services allowed at Neutral; no rule configured means allowed.
 - **Blacksmith advanced placeholder:** optional Trusted tier requirement (non-essential service).
 - **Buy price modifiers:** Neutral 1.0, Trusted 0.95, Honored 0.90, Distrusted 1.10, Hostile 1.25 (profile tunable).

@@ -252,9 +252,14 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestBuyHatchet();
             }
 
-            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.G))
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.G))
             {
                 playtestService.TryPlaytestFirearmFoundationShortcut();
+            }
+
+            if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.G))
+            {
+                playtestService.TryPlaytestSettlementGrowthFoundationShortcut();
             }
 
             if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.M))

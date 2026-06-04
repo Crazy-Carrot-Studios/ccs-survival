@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **3.2.0** — Settlement growth evaluation after contract completion, major supply updates, prosperity recalculation, and save/load restore. Growth profile on `CCS_WorldSimulationProfile.settlementGrowthProfile`.
+
 Milestone **2.2.0** — Farming harvest goods (corn, beans, potatoes, wheat) route to settlement **Food** supply on vendor sell.
 
 Milestone **2.1.0** — Ranching goods (egg, milk, future meat placeholders) route to settlement **Food** supply on vendor sell.
@@ -28,8 +30,11 @@ Each discovered settlement tracks:
 - Prosperity (0–100, persisted)
 - Supply categories: Food, Water, Fuel, BuildingMaterials, IndustrialMaterials, Tools, TradeGoods
 - Demand and production entries (profile-driven)
+- Growth: `currentGrowthStage`, `previousGrowthStage`, `growthProgressPercent`, `completedContractsCount`
 
 Prosperity is derived from food fill %, average supply fill %, and production vs demand %.
+
+`CCS_WorldSimulationService` evaluates settlement growth via `CCS_SettlementGrowthUtility` and raises `SettlementGrowthChanged` when stage or progress updates.
 
 ## Region Simulation
 
@@ -80,7 +85,8 @@ World Simulation checklist group (steps 127–134):
 - Region entries: Pine Ridge Forest, Broken Creek, Iron Ridge Mine, Frontier Trading Post Region
 - General store vendor route
 
-Batch setup: `CCS.Modules.WorldSimulation.Editor.CCS_WorldSimulationBootstrapSetup.ExecuteBatch`
+Batch setup: `CCS.Modules.WorldSimulation.Editor.CCS_WorldSimulationBootstrapSetup.ExecuteBatch`  
+Growth content: `CCS.Modules.Settlements.Editor.CCS_SettlementGrowthFoundationBootstrapSetup.ExecuteBatch`
 
 ## Frontier World Simulation Loop
 

@@ -509,6 +509,8 @@ namespace CCS.Survival.Composition
                 worldSimulationService.BindGameplayServices(settlementService, regionService);
             }
 
+            WireSettlementGrowth(settlementService, worldSimulationService);
+
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += worldSimulationService.HandleVendorTransactionCompleted;
@@ -2254,6 +2256,28 @@ namespace CCS.Survival.Composition
             CCS_ContractRuntimeBridge.Register(service);
             WireContractBoardActivation(service);
             return service;
+        }
+
+        private static void WireSettlementGrowth(
+            CCS_SettlementService settlementService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (settlementService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            settlementService.BindGrowthSnapshotResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetGrowthSnapshot(settlementId, out CCS_SettlementGrowthSnapshot snapshot))
+                {
+                    return snapshot;
+                }
+
+                return CCS_SettlementGrowthSnapshot.Empty;
+            });
+
+            worldSimulationService.SettlementGrowthChanged += settlementService.NotifySettlementGrowthChanged;
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

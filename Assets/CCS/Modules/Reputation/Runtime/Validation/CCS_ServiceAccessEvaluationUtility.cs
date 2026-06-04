@@ -72,6 +72,14 @@ namespace CCS.Modules.Reputation
                     requirement.FutureHookPlaceholder);
             }
 
+            if (requirement.MinimumGrowthStage >= 0)
+            {
+                return CCS_ServiceAccessResult.Denied(
+                    CCS_ServiceAccessResultType.MissingRequirement,
+                    $"Requires settlement growth stage {requirement.MinimumGrowthStage} (future requirement).",
+                    requirement.FutureHookPlaceholder);
+            }
+
             if (reputationService == null || !reputationService.IsInitialized)
             {
                 return CCS_ServiceAccessResult.Allowed("Reputation service unavailable; access allowed by fallback.");

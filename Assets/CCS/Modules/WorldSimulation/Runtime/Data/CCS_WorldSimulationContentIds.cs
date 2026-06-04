@@ -8,6 +8,8 @@
 // NOTES: Western-specific ids for Survival content assets.
 // =============================================================================
 
+using CCS.Modules.Settlements;
+
 namespace CCS.Modules.WorldSimulation
 {
     public static class CCS_WorldSimulationContentIds
@@ -15,5 +17,7 @@ namespace CCS.Modules.WorldSimulation
         public const string DefaultProfileId = "ccs.survival.profile.worldsimulation.default";
         public const string GeneralStoreVendorId = "ccs.survival.vendor.frontier.generalstore";
         public const string TradingPostSettlementId = "ccs.survival.settlement.frontier.testtradingpost";
+
+        public const string DefaultGrowthProfilePath = CCS_SettlementGrowthContentIds.DefaultGrowthProfilePath;
     }
 }

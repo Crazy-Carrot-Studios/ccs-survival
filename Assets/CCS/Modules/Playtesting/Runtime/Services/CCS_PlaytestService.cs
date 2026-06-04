@@ -214,6 +214,11 @@ namespace CCS.Modules.Playtesting
         private bool regionalEconomySaveCaptured;
         private float playtestRegionalProsperityBaseline;
         private bool playtestRegionalProsperityBaselineCaptured;
+        private int savedSettlementGrowthStage = -1;
+        private int savedSettlementPreviousGrowthStage = -1;
+        private float savedSettlementGrowthProgressPercent;
+        private int savedSettlementCompletedContractsCount = -1;
+        private bool settlementGrowthSaveCaptured;
 
         #endregion
 
@@ -698,6 +703,7 @@ namespace CCS.Modules.Playtesting
             playtestContractBaselinesCaptured = false;
             playtestRegionalProsperityBaselineCaptured = false;
             regionalEconomySaveCaptured = false;
+            settlementGrowthSaveCaptured = false;
             worldSimulationBaselinesCaptured = false;
 
             if (boundInteractionService != null)
@@ -1327,6 +1333,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveRegionalEconomyState,
                         "Regional economy state saved.");
                 }
+
+                if (TryCaptureSettlementGrowthSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveSettlementGrowthState,
+                        "Settlement growth state saved.");
+                }
             }
         }
 
@@ -1354,6 +1367,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateReputationAfterLoad();
                 EvaluateContractStateAfterLoad();
                 EvaluateRegionalEconomyAfterLoad();
+                EvaluateSettlementGrowthAfterLoad();
             }
         }
 
@@ -1933,6 +1947,9 @@ namespace CCS.Modules.Playtesting
             TryCompleteActiveStepOfType(
                 CCS_PlaytestStepType.DiscoverTradingPostForContracts,
                 "Trading post discovered for contract board.");
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverTradingPostForSettlementGrowth,
+                "Trading post discovered for settlement growth.");
 
             CapturePlaytestReputationBaselineIfNeeded();
             EvaluateWorldSimulationSettlementDiscovered();
@@ -5301,6 +5318,77 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestSettlementGrowthFoundationShortcut()
+        {
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && boundSettlementService.TryGetDefinition(
+                    CCS_SettlementContentIds.TestTradingPostSettlementId,
+                    out CCS_SettlementDefinition tradingPostDefinition))
+            {
+                boundSettlementService.DiscoverSettlement(tradingPostDefinition, Vector3.zero);
+            }
+
+            CCS_SettlementGrowthDebugHud.ShowSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                boundContractService.TryCompleteContract(CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+            }
+
+            EvaluateSettlementGrowthProgressSteps();
+            return true;
+        }
+
+        private bool TryCaptureSettlementGrowthSaveState()
+        {
+            if (settlementGrowthSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetGrowthSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementGrowthSnapshot snapshot)
+                || snapshot == null)
+            {
+                return settlementGrowthSaveCaptured;
+            }
+
+            savedSettlementGrowthStage = (int)snapshot.CurrentGrowthStage;
+            savedSettlementPreviousGrowthStage = (int)snapshot.PreviousGrowthStage;
+            savedSettlementGrowthProgressPercent = snapshot.GrowthProgressPercent;
+            savedSettlementCompletedContractsCount = snapshot.CompletedContractsCount;
+            settlementGrowthSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateSettlementGrowthAfterLoad()
+        {
+            if (!settlementGrowthSaveCaptured
+                || boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetGrowthSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementGrowthSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            if ((int)snapshot.CurrentGrowthStage == savedSettlementGrowthStage
+                && (int)snapshot.PreviousGrowthStage == savedSettlementPreviousGrowthStage
+                && Mathf.Approximately(snapshot.GrowthProgressPercent, savedSettlementGrowthProgressPercent)
+                && snapshot.CompletedContractsCount == savedSettlementCompletedContractsCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementGrowthAfterLoad,
+                    "Settlement growth state restored after load.");
+            }
+        }
+
         public bool TryPlaytestForceUpkeepDue()
         {
             if (boundUpkeepService == null || !boundUpkeepService.IsInitialized)
@@ -5566,6 +5654,67 @@ namespace CCS.Modules.Playtesting
 
             EvaluateContractRewardSteps(result);
             EvaluateRegionalProsperityRewardStep(result);
+            EvaluateSettlementGrowthContractSteps(result);
+        }
+
+        private void EvaluateSettlementGrowthContractSteps(CCS_ContractCompletionResult result)
+        {
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (string.Equals(
+                    result.ContractId,
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.CompleteContractForSettlementGrowth,
+                    $"Completed settlement growth contract {result.ContractId}.");
+            }
+
+            EvaluateSettlementGrowthProgressSteps();
+        }
+
+        private void EvaluateSettlementGrowthProgressSteps()
+        {
+            if (boundSettlementService == null
+                || !boundSettlementService.IsInitialized
+                || !boundSettlementService.TryGetGrowthSnapshot(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    out CCS_SettlementGrowthSnapshot snapshot)
+                || snapshot == null)
+            {
+                return;
+            }
+
+            if (snapshot.Prosperity > 0f
+                || snapshot.FoodSupplyHealthPercent > 0f
+                || snapshot.IndustrialSupplyHealthPercent > 0f)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementGrowthSupplyProsperity,
+                    $"Settlement prosperity {snapshot.Prosperity:0.##}, food {snapshot.FoodSupplyHealthPercent:0.##}%, "
+                    + $"industrial {snapshot.IndustrialSupplyHealthPercent:0.##}%.");
+            }
+
+            if (snapshot.GrowthProgressPercent > 0f)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementGrowthProgress,
+                    $"Settlement growth progress {snapshot.GrowthProgressPercent:0.##}%.");
+            }
+
+            if (snapshot.CurrentGrowthStage == CCS_SettlementGrowthStage.TradingPost)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ReachTradingPostGrowthStage,
+                    "Settlement reached TradingPost growth stage.");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementGrowthStageChanged,
+                    "Settlement growth stage advanced to TradingPost.");
+            }
         }
 
         private void EvaluateRegionalProsperityRewardStep(CCS_ContractCompletionResult result)

@@ -1,5 +1,7 @@
 # CCS Contracts Module
 
+Milestone **3.2.0** — Contract completion increments settlement `completedContractsCount` and triggers world simulation growth evaluation (rewards unchanged; no duplicate prosperity logic).
+
 Milestone **3.0.0** — Frontier Contracts Foundation
 
 ## Purpose
@@ -40,6 +42,7 @@ Conservative values only:
 - Trade Dollars (`CCS_CurrencyService`)
 - Reputation gain (`CCS_ReputationService.TryApplyContractReward`)
 - Settlement prosperity + supply category (`CCS_WorldSimulationService.HandleContractCompleted`)
+- Settlement growth progress (`completedContractsCount` + `EvaluateSettlementGrowth`)
 
 ## Settlement integration
 
