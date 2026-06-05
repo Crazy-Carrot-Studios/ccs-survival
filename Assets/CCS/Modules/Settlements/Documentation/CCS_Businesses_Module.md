@@ -1,5 +1,7 @@
 # CCS Businesses Module
 
+**Milestone 4.0.0** — Population placeholder actors may anchor near business zones (visual only; business activation unchanged).
+
 **Milestone 3.7.0 — Frontier Businesses Foundation**
 
 Simulation-level business activation connects population, prosperity, settlement growth, and optional reputation to frontier settlement services.

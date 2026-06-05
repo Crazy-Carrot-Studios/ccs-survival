@@ -471,6 +471,14 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifyVisualGrowthAfterLoad:
                     return CCS_PlaytestStepGroup.SettlementVisualGrowth;
 
+                case CCS_PlaytestStepType.DiscoverSettlementForPopulationPresence:
+                case CCS_PlaytestStepType.VerifyLowPopulationPlaceholderActors:
+                case CCS_PlaytestStepType.TriggerPopulationGrowthForPlaceholders:
+                case CCS_PlaytestStepType.VerifyPopulationPlaceholderActorsVisible:
+                case CCS_PlaytestStepType.SavePopulationPresenceState:
+                case CCS_PlaytestStepType.VerifyPopulationPresenceAfterLoad:
+                    return CCS_PlaytestStepGroup.PopulationPresence;
+
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");
             }

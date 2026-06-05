@@ -249,6 +249,8 @@ namespace CCS.Modules.Playtesting
         private bool businessPresenceSaveCaptured;
         private int savedTradingPostTradingSignVisualStatus = -1;
         private bool visualGrowthSaveCaptured;
+        private int savedMerchantPlaceholderActorCount = -1;
+        private bool populationPresenceSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1427,6 +1429,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveVisualGrowthState,
                         "Settlement visual growth marker state saved.");
                 }
+
+                if (TryCapturePopulationPresenceSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SavePopulationPresenceState,
+                        "Population presence placeholder actor state saved.");
+                }
             }
         }
 
@@ -1462,6 +1471,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateBusinessStateAfterLoad();
                 EvaluateBusinessPresenceStateAfterLoad();
                 EvaluateVisualGrowthStateAfterLoad();
+                EvaluatePopulationPresenceStateAfterLoad();
             }
         }
 
@@ -6159,6 +6169,37 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestPopulationPresenceFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForPopulationPresence,
+                "Trading Post discovered for population presence playtest.");
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            EvaluatePopulationPresencePlaytestSteps();
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.TriggerPopulationGrowthForPlaceholders,
+                        result.Message);
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            EvaluatePopulationPresencePlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestSettlementVisualGrowthFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6357,6 +6398,67 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyPopulationIncreased,
                     $"Population increased to {snapshot.TotalPopulation} (baseline {populationBaseline}).");
+            }
+        }
+
+        private void EvaluatePopulationPresencePlaytestSteps()
+        {
+            int anchorCount = CCS_PopulationPresenceRuntimeBridge.GetRegisteredAnchorCount();
+            if (anchorCount >= 2)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyLowPopulationPlaceholderActors,
+                    $"Found {anchorCount} population presence anchors in scene.");
+            }
+
+            int merchantSpawned = CCS_PopulationPresenceRuntimeBridge.GetSpawnedActorCount(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementPopulationCategory.Merchants);
+            if (merchantSpawned <= 1)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyLowPopulationPlaceholderActors,
+                    $"Merchant placeholder actor count is low ({merchantSpawned}).");
+            }
+
+            if (merchantSpawned > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationPlaceholderActorsVisible,
+                    $"Merchant placeholder actors visible ({merchantSpawned}).");
+            }
+        }
+
+        private bool TryCapturePopulationPresenceSaveState()
+        {
+            if (populationPresenceSaveCaptured)
+            {
+                return populationPresenceSaveCaptured;
+            }
+
+            savedMerchantPlaceholderActorCount = CCS_PopulationPresenceRuntimeBridge.GetSpawnedActorCount(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementPopulationCategory.Merchants);
+            populationPresenceSaveCaptured = savedMerchantPlaceholderActorCount >= 0;
+            return populationPresenceSaveCaptured;
+        }
+
+        private void EvaluatePopulationPresenceStateAfterLoad()
+        {
+            if (!populationPresenceSaveCaptured)
+            {
+                return;
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            int restoredCount = CCS_PopulationPresenceRuntimeBridge.GetSpawnedActorCount(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementPopulationCategory.Merchants);
+            if (restoredCount == savedMerchantPlaceholderActorCount)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationPresenceAfterLoad,
+                    "Population placeholder actors restored from simulation after load.");
             }
         }
 

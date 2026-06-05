@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3c3a1e36e5c8c6498b0d258d78025d1, type: 3}
+  m_Name: CCS_DefaultPopulationPresenceProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceProfile
+  profileDisplayName: Default Population Presence Profile
+  profileId: ccs.survival.profile.populationpresence.default
+  profileDescription: Bootstrap anchors mapping workforce population to visible placeholder
+    actors.
+  profileVersion: 4.0.0
+  enableDebugLogs: 0
+  anchorDefinitions:
+  - anchorId: ccs.survival.populationpresence.tradingpost.merchants
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    workforceCategory: 5
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: ccs.survival.business.generalstore
+    requiredGrowthStage: 0
+    displayName: Merchants
+  - anchorId: ccs.survival.populationpresence.tradingpost.laborers
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    workforceCategory: 6
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 3
+    businessId: 
+    requiredGrowthStage: 0
+    displayName: Laborers
+  - anchorId: ccs.survival.populationpresence.brokencreek.farmers
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    workforceCategory: 1
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: ccs.survival.business.farmsupply
+    requiredGrowthStage: 0
+    displayName: Farmers
+  - anchorId: ccs.survival.populationpresence.brokencreek.ranchers
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    workforceCategory: 2
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: ccs.survival.business.stable
+    requiredGrowthStage: 0
+    displayName: Ranchers
+  - anchorId: ccs.survival.populationpresence.ironridge.miners
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    workforceCategory: 3
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: ccs.survival.business.miningsupplier
+    requiredGrowthStage: 0
+    displayName: Miners
+  - anchorId: ccs.survival.populationpresence.ironridge.laborers
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    workforceCategory: 6
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: 
+    requiredGrowthStage: 0
+    displayName: Laborers
+  - anchorId: ccs.survival.populationpresence.pineridge.lumberworkers
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    workforceCategory: 4
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: ccs.survival.business.lumberyard
+    requiredGrowthStage: 0
+    displayName: Lumber Workers
+  - anchorId: ccs.survival.populationpresence.pineridge.laborers
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    workforceCategory: 6
+    minimumPopulationCount: 1
+    maxVisibleActors: 4
+    spawnRadius: 2.5
+    businessId: 
+    requiredGrowthStage: 0
+    displayName: Laborers

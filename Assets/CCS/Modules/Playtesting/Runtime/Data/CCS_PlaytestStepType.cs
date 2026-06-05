@@ -283,6 +283,12 @@ namespace CCS.Modules.Playtesting
         TriggerTradingPostGrowthForVisuals = 268,
         VerifyTradingPostVisualMarkersActive = 269,
         SaveVisualGrowthState = 270,
-        VerifyVisualGrowthAfterLoad = 271
+        VerifyVisualGrowthAfterLoad = 271,
+        DiscoverSettlementForPopulationPresence = 272,
+        VerifyLowPopulationPlaceholderActors = 273,
+        TriggerPopulationGrowthForPlaceholders = 274,
+        VerifyPopulationPlaceholderActorsVisible = 275,
+        SavePopulationPresenceState = 276,
+        VerifyPopulationPresenceAfterLoad = 277
     }
 }

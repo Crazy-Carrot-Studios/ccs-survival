@@ -2377,3 +2377,55 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.discover
+    displayName: Discover settlement for population presence
+    stepType: 272
+    instructionText: Discover settlement for population presence. Ctrl+Shift+X shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.verify.low
+    displayName: Verify low placeholder actor count at low population
+    stepType: 273
+    instructionText: Verify low placeholder actor count at low population. Ctrl+Shift+X
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.grow
+    displayName: Trigger population growth for placeholders
+    stepType: 274
+    instructionText: Trigger population growth for placeholders. Ctrl+Shift+X shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.verify.visible
+    displayName: Verify placeholder actors appear
+    stepType: 275
+    instructionText: Verify placeholder actors appear. Ctrl+Shift+X shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.save
+    displayName: Save population presence state
+    stepType: 276
+    instructionText: Save population presence state. Ctrl+Shift+X shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.populationpresence.load
+    displayName: Verify population presence restored after load
+    stepType: 277
+    instructionText: Verify population presence restored after load. Ctrl+Shift+X
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

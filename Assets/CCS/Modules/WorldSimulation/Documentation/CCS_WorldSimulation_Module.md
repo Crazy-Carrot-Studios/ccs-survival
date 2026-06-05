@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **4.0.0** — **Population presence** placeholder actors derive visible counts from `CCS_SettlementPopulationSnapshot` via `CCS_PopulationPresenceValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementPopulationPresenceProfile`. Population changes refresh anchors through `CCS_PopulationPresenceService`.
+
 Milestone **3.9.0** — **Settlement visual growth** markers derive state from `CCS_SettlementGrowthSnapshot` via `CCS_SettlementVisualGrowthValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementVisualGrowthProfile`. Growth stage changes refresh anchors through `CCS_SettlementVisualGrowthService`.
 
 Milestone **3.8.0** — **Business presence** markers in bootstrap scene derive visual state from `CCS_BusinessSnapshot` via `CCS_BusinessPresenceValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementBusinessPresenceProfile`.

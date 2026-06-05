@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 4.0.0 — Population presence (workforce placeholder actors from population simulation)  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
@@ -80,6 +81,24 @@ CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.Execu
 ```
 
 Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
+
+## Population presence (4.0.0)
+
+| Type | Role |
+|------|------|
+| `CCS_PopulationPresenceProfile` | Workforce anchor catalog per settlement |
+| `CCS_PopulationPresenceAnchor` | Spawns capped idle capsule placeholders |
+| `CCS_PopulationPlaceholderActor` | Category-colored primitive worker (no AI) |
+| `CCS_PopulationPresenceLabel` | Dev label: category, source count, visible count |
+| `CCS_PopulationPresenceService` | Refreshes actors from population snapshots |
+
+Bootstrap anchors: Trading Post (Merchants, Laborers); Broken Creek (Farmers, Ranchers); Iron Ridge (Miners, Laborers); Pine Ridge (Lumber Workers, Laborers).
+
+Visual state derives from world simulation population — no separate save section.
+
+Bootstrap: `CCS.Modules.Settlements.Editor.CCS_PopulationPresenceFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Population Presence** — **Ctrl+Shift+X**
 
 ## Settlement visual growth (3.9.0)
 

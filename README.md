@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-3.9.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.0.0** — NPC Population Placeholder Foundation
+
+Settlement **workforce population** drives idle primitive placeholder actors (`CCS_PopulationPresenceAnchor`, `CCS_PopulationPlaceholderActor`, `CCS_PopulationPresenceLabel`) capped by category counts from `CCS_SettlementPopulationSnapshot`. No AI, dialogue, schedules, or final character art. Playtest group **Population Presence** with **Ctrl+Shift+X** shortcut.
+
+**Population Presence Loop:**
+
+```text
+Supply Settlement → Population Grows → Workforce Count Increases → Placeholder Workers Appear → Settlement Feels Alive
+```
 
 **3.9.0** — Settlement Visual Growth Foundation
 
