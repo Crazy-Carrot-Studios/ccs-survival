@@ -2327,3 +2327,53 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.discover
+    displayName: Discover settlement for visual growth
+    stepType: 266
+    instructionText: Discover settlement for visual growth. Ctrl+Shift+Z shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.verify.outpost
+    displayName: Verify Outpost visual markers
+    stepType: 267
+    instructionText: Verify Outpost visual markers. Ctrl+Shift+Z shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.trigger.tradingpost
+    displayName: Trigger TradingPost growth visuals
+    stepType: 268
+    instructionText: Trigger TradingPost growth visuals. Ctrl+Shift+Z shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.verify.tradingpost
+    displayName: Verify TradingPost markers active
+    stepType: 269
+    instructionText: Verify TradingPost markers active. Ctrl+Shift+Z shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.save
+    displayName: Save visual growth state
+    stepType: 270
+    instructionText: Save visual growth state. Ctrl+Shift+Z shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.visualgrowth.load
+    displayName: Verify visual growth restored after load
+    stepType: 271
+    instructionText: Verify visual growth restored after load. Ctrl+Shift+Z shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
 **Milestone:** 3.6.0 — Population foundation (workforce categories, growth, capacity, save/load)  
@@ -80,9 +81,33 @@ CCS.Modules.Settlements.Editor.CCS_MultiSettlementFoundationBootstrapSetup.Execu
 
 Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 
+## Settlement visual growth (3.9.0)
+
+| Type | Role |
+|------|------|
+| `CCS_SettlementVisualGrowthMarkerType` | Camp, supply crates, signs, service hub, hitching rail, placeholders |
+| `CCS_SettlementVisualGrowthProfile` | Anchor catalog per settlement and required growth stage |
+| `CCS_SettlementVisualGrowthService` | Refreshes markers from `CCS_SettlementGrowthSnapshot` |
+| `CCS_SettlementVisualGrowthRuntimeBridge` | Safe anchor registry when services are missing |
+| `CCS_SettlementVisualGrowthAnchor` | World anchor with marker + label children |
+
+Bootstrap scene anchors: Trading Post (Outpost + TradingPost + future placeholders); Broken Creek, Iron Ridge, Pine Ridge (Outpost + TradingPost markers).
+
+Visual state is **not** saved separately — restored from settlement growth simulation on load.
+
+Bootstrap: `CCS.Modules.Settlements.Editor.CCS_SettlementVisualGrowthFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Settlement Visual Growth** — **Ctrl+Shift+Z**
+
+**Settlement Visual Growth Loop:**
+
+```text
+Complete Contracts → Settlement Grows → Stage Markers Activate → World Visibly Changes
+```
+
 ## Business presence (3.8.0)
 
-Primitive labeled markers at each settlement business anchor; visuals derive from `CCS_BusinessSnapshot` (no separate save section). Service points linked by business type tint from presence status.
+Primitive labeled markers at each settlement business anchor; visuals derive from `CCS_BusinessSnapshot` (no separate save section). Service points linked by business type tint from presence status. Independent from visual growth zone markers.
 
 Bootstrap: `CCS.Modules.Settlements.Editor.CCS_BusinessPresenceFoundationBootstrapSetup.ExecuteBatch`
 

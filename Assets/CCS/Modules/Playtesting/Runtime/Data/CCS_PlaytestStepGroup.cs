@@ -42,6 +42,7 @@ namespace CCS.Modules.Playtesting
         RouteRiskFreight = 27,
         Population = 28,
         Businesses = 29,
-        BusinessPresence = 30
+        BusinessPresence = 30,
+        SettlementVisualGrowth = 31
     }
 }

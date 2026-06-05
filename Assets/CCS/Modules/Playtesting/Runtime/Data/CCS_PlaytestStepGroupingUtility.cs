@@ -463,6 +463,14 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifyBusinessPresenceAfterLoad:
                     return CCS_PlaytestStepGroup.BusinessPresence;
 
+                case CCS_PlaytestStepType.DiscoverSettlementForVisualGrowth:
+                case CCS_PlaytestStepType.VerifyOutpostVisualMarkers:
+                case CCS_PlaytestStepType.TriggerTradingPostGrowthForVisuals:
+                case CCS_PlaytestStepType.VerifyTradingPostVisualMarkersActive:
+                case CCS_PlaytestStepType.SaveVisualGrowthState:
+                case CCS_PlaytestStepType.VerifyVisualGrowthAfterLoad:
+                    return CCS_PlaytestStepGroup.SettlementVisualGrowth;
+
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");
             }

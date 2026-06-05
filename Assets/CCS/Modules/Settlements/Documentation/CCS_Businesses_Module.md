@@ -77,6 +77,8 @@ Run `CCS_FrontierBusinessesFoundationBootstrapSetup.ExecuteBatch` to create `CCS
 
 Run `CCS_BusinessPresenceFoundationBootstrapSetup.ExecuteBatch` for scene anchors and playtest steps. Shortcut: **Ctrl+Shift+V**.
 
+Business presence markers are independent from settlement visual growth zone markers (3.9.0) but may share settlement root transforms in the bootstrap scene.
+
 **Business Presence Loop:**
 
 ```text

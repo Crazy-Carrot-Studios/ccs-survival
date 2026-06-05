@@ -1,0 +1,210 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abab4b89d6b863f439758dec5485d621, type: 3}
+  m_Name: CCS_DefaultSettlementVisualGrowthProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthProfile
+  profileDisplayName: Default Settlement Visual Growth Profile
+  profileId: ccs.survival.profile.settlementvisualgrowth.default
+  profileDescription: Bootstrap anchors mapping settlement growth stages to visible
+    world markers.
+  profileVersion: 3.9.0
+  enableDebugLogs: 0
+  anchorDefinitions:
+  - anchorId: ccs.survival.visualgrowth.tradingpost.outpost.camp
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 1
+    markerType: 1
+    displayName: Camp Marker
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.outpost.supply
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 1
+    markerType: 2
+    displayName: Supply Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.outpost.sign
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 1
+    markerType: 3
+    displayName: Settlement Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.tradingpost.sign
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 2
+    markerType: 4
+    displayName: Trading Post Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.tradingpost.crates
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 2
+    markerType: 5
+    displayName: Trade Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.tradingpost.servicehub
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 2
+    markerType: 6
+    displayName: Service Hub
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.tradingpost.hitching
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 2
+    markerType: 7
+    displayName: Hitching Rail
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.frontiertown.placeholder
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 3
+    markerType: 11
+    displayName: Frontier Town Placeholder
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.tradingpost.establishedtown.placeholder
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    requiredGrowthStage: 4
+    markerType: 12
+    displayName: Established Town Placeholder
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.outpost.camp
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 1
+    markerType: 1
+    displayName: Camp Marker
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.outpost.supply
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 1
+    markerType: 2
+    displayName: Supply Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.outpost.sign
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 1
+    markerType: 3
+    displayName: Settlement Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.tradingpost.sign
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 2
+    markerType: 4
+    displayName: Trading Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.tradingpost.crates
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 2
+    markerType: 5
+    displayName: Trade Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.brokencreek.tradingpost.servicehub
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    requiredGrowthStage: 2
+    markerType: 6
+    displayName: Service Hub
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.outpost.camp
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 1
+    markerType: 1
+    displayName: Camp Marker
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.outpost.supply
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 1
+    markerType: 2
+    displayName: Supply Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.outpost.sign
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 1
+    markerType: 3
+    displayName: Settlement Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.tradingpost.sign
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 2
+    markerType: 4
+    displayName: Trading Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.tradingpost.crates
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 2
+    markerType: 5
+    displayName: Trade Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.ironridge.tradingpost.servicehub
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    requiredGrowthStage: 2
+    markerType: 6
+    displayName: Service Hub
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.outpost.camp
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 1
+    markerType: 1
+    displayName: Camp Marker
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.outpost.supply
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 1
+    markerType: 2
+    displayName: Supply Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.outpost.sign
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 1
+    markerType: 3
+    displayName: Settlement Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.tradingpost.sign
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 2
+    markerType: 4
+    displayName: Trading Sign
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.tradingpost.crates
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 2
+    markerType: 5
+    displayName: Trade Crates
+    businessId: 
+    servicePointId: 
+  - anchorId: ccs.survival.visualgrowth.pineridge.tradingpost.servicehub
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    requiredGrowthStage: 2
+    markerType: 6
+    displayName: Service Hub
+    businessId: 
+    servicePointId: 

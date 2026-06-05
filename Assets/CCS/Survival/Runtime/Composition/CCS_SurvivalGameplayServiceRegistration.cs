@@ -509,6 +509,10 @@ namespace CCS.Survival.Composition
                 CreateBusinessPresenceService(worldSimulationProfile?.SettlementBusinessPresenceProfile);
             RegisterService(runtimeHost, businessPresenceService, enableDebugLogs);
 
+            CCS_SettlementVisualGrowthService settlementVisualGrowthService =
+                CreateSettlementVisualGrowthService(worldSimulationProfile?.SettlementVisualGrowthProfile);
+            RegisterService(runtimeHost, settlementVisualGrowthService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -527,6 +531,10 @@ namespace CCS.Survival.Composition
                 settlementService,
                 businessService,
                 businessPresenceService,
+                worldSimulationService);
+            WireSettlementVisualGrowth(
+                settlementService,
+                settlementVisualGrowthService,
                 worldSimulationService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2455,6 +2463,48 @@ namespace CCS.Survival.Composition
             settlementService.SettlementDiscovered += businessPresenceService.HandleSettlementDiscovered;
 
             businessPresenceService.RefreshAllAnchors();
+        }
+
+        private static CCS_SettlementVisualGrowthService CreateSettlementVisualGrowthService(
+            CCS_SettlementVisualGrowthProfile profile)
+        {
+            CCS_SettlementVisualGrowthService service = new CCS_SettlementVisualGrowthService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireSettlementVisualGrowth(
+            CCS_SettlementService settlementService,
+            CCS_SettlementVisualGrowthService visualGrowthService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (settlementService == null || visualGrowthService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            visualGrowthService.BindGrowthSnapshotResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetGrowthSnapshot(settlementId, out CCS_SettlementGrowthSnapshot snapshot))
+                {
+                    return snapshot;
+                }
+
+                return CCS_SettlementGrowthSnapshot.Empty;
+            });
+
+            visualGrowthService.BindSettlementDiscoveredResolver(settlementId =>
+                settlementService.IsInitialized && settlementService.IsDiscovered(settlementId));
+
+            settlementService.SettlementGrowthChanged += visualGrowthService.HandleSettlementGrowthChanged;
+            settlementService.SettlementDiscovered += visualGrowthService.HandleSettlementDiscovered;
+
+            visualGrowthService.RefreshAllAnchors();
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

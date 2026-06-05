@@ -45,6 +45,11 @@ namespace CCS.Modules.Settlements
         [Tooltip("Placeholder message for non-vendor, non-industry services.")]
         [SerializeField] private string placeholderMessage = "Service coming soon.";
 
+        [Header("Visual Growth (optional)")]
+        [Tooltip("When set, service point tint reflects settlement growth stage (visual only).")]
+        [SerializeField] private CCS_SettlementGrowthStage minimumGrowthStageForVisual =
+            CCS_SettlementGrowthStage.Unknown;
+
         [Header("Interaction")]
         [SerializeField] private float interactionDistance = 3f;
 
@@ -174,6 +179,31 @@ namespace CCS.Modules.Settlements
                 CCS_BusinessPresenceStatus.Active => new Color(0.55f, 0.85f, 0.95f, 1f),
                 CCS_BusinessPresenceStatus.Inactive => new Color(0.85f, 0.75f, 0.35f, 1f),
                 _ => new Color(0.4f, 0.4f, 0.42f, 1f)
+            };
+            renderer.sharedMaterial.color = color;
+        }
+
+        public void ApplyVisualGrowthVisual(
+            CCS_SettlementVisualGrowthStatus status,
+            CCS_SettlementGrowthStage anchorMinimumGrowthStage)
+        {
+            if (minimumGrowthStageForVisual == CCS_SettlementGrowthStage.Unknown
+                && anchorMinimumGrowthStage == CCS_SettlementGrowthStage.Unknown)
+            {
+                return;
+            }
+
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                return;
+            }
+
+            Color color = status switch
+            {
+                CCS_SettlementVisualGrowthStatus.Active => new Color(0.45f, 0.8f, 0.55f, 1f),
+                CCS_SettlementVisualGrowthStatus.Inactive => new Color(0.8f, 0.7f, 0.3f, 1f),
+                _ => new Color(0.38f, 0.38f, 0.4f, 1f)
             };
             renderer.sharedMaterial.color = color;
         }

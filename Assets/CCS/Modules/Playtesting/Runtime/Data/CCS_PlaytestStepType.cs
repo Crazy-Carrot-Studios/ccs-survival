@@ -277,6 +277,12 @@ namespace CCS.Modules.Playtesting
         TriggerBusinessActivationForMarkers = 262,
         VerifyBusinessMarkerActive = 263,
         SaveBusinessPresenceState = 264,
-        VerifyBusinessPresenceAfterLoad = 265
+        VerifyBusinessPresenceAfterLoad = 265,
+        DiscoverSettlementForVisualGrowth = 266,
+        VerifyOutpostVisualMarkers = 267,
+        TriggerTradingPostGrowthForVisuals = 268,
+        VerifyTradingPostVisualMarkersActive = 269,
+        SaveVisualGrowthState = 270,
+        VerifyVisualGrowthAfterLoad = 271
     }
 }

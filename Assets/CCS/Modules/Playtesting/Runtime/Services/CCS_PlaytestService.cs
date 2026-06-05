@@ -247,6 +247,8 @@ namespace CCS.Modules.Playtesting
         private bool businessSaveCaptured;
         private int savedGeneralStorePresenceStatus = -1;
         private bool businessPresenceSaveCaptured;
+        private int savedTradingPostTradingSignVisualStatus = -1;
+        private bool visualGrowthSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1418,6 +1420,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveBusinessPresenceState,
                         "Business presence marker state saved.");
                 }
+
+                if (TryCaptureVisualGrowthSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveVisualGrowthState,
+                        "Settlement visual growth marker state saved.");
+                }
             }
         }
 
@@ -1452,6 +1461,7 @@ namespace CCS.Modules.Playtesting
                 EvaluatePopulationStateAfterLoad();
                 EvaluateBusinessStateAfterLoad();
                 EvaluateBusinessPresenceStateAfterLoad();
+                EvaluateVisualGrowthStateAfterLoad();
             }
         }
 
@@ -6149,6 +6159,38 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestSettlementVisualGrowthFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForVisualGrowth,
+                "Trading Post discovered for settlement visual growth playtest.");
+
+            CCS_SettlementVisualGrowthRuntimeBridge.RefreshAllAnchors();
+            EvaluateSettlementVisualGrowthPlaytestSteps();
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.TriggerTradingPostGrowthForVisuals,
+                        result.Message);
+                }
+            }
+
+            CCS_SettlementVisualGrowthRuntimeBridge.RefreshAllAnchors();
+            EvaluateSettlementVisualGrowthPlaytestSteps();
+            EvaluateSettlementGrowthProgressSteps();
+            return true;
+        }
+
         public bool TryPlaytestBusinessPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementContentIds.TestTradingPostSettlementId);
@@ -6315,6 +6357,72 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyPopulationIncreased,
                     $"Population increased to {snapshot.TotalPopulation} (baseline {populationBaseline}).");
+            }
+        }
+
+        private void EvaluateSettlementVisualGrowthPlaytestSteps()
+        {
+            int anchorCount = CCS_SettlementVisualGrowthRuntimeBridge.GetRegisteredAnchorCount();
+            if (anchorCount >= 3)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyOutpostVisualMarkers,
+                    $"Found {anchorCount} settlement visual growth anchors in scene.");
+            }
+
+            CCS_SettlementVisualGrowthStatus outpostCampStatus =
+                CCS_SettlementVisualGrowthRuntimeBridge.ResolveVisualStatus(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    CCS_SettlementGrowthStage.Outpost);
+            if (outpostCampStatus == CCS_SettlementVisualGrowthStatus.Active)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyOutpostVisualMarkers,
+                    "Outpost visual markers are Active at default growth stage.");
+            }
+
+            CCS_SettlementVisualGrowthStatus tradingSignStatus =
+                CCS_SettlementVisualGrowthRuntimeBridge.ResolveVisualStatus(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    CCS_SettlementGrowthStage.TradingPost);
+            if (tradingSignStatus == CCS_SettlementVisualGrowthStatus.Active)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyTradingPostVisualMarkersActive,
+                    "Trading Post visual markers are Active after growth advance.");
+            }
+        }
+
+        private bool TryCaptureVisualGrowthSaveState()
+        {
+            if (visualGrowthSaveCaptured)
+            {
+                return visualGrowthSaveCaptured;
+            }
+
+            savedTradingPostTradingSignVisualStatus = (int)CCS_SettlementVisualGrowthRuntimeBridge.ResolveVisualStatus(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementGrowthStage.TradingPost);
+            visualGrowthSaveCaptured = savedTradingPostTradingSignVisualStatus >= 0;
+            return visualGrowthSaveCaptured;
+        }
+
+        private void EvaluateVisualGrowthStateAfterLoad()
+        {
+            if (!visualGrowthSaveCaptured)
+            {
+                return;
+            }
+
+            CCS_SettlementVisualGrowthRuntimeBridge.RefreshAllAnchors();
+            int restoredStatus = (int)CCS_SettlementVisualGrowthRuntimeBridge.ResolveVisualStatus(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementGrowthStage.TradingPost);
+            if (restoredStatus == savedTradingPostTradingSignVisualStatus)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyVisualGrowthAfterLoad,
+                    "Settlement visual growth markers restored from growth state after load.");
             }
         }
 
