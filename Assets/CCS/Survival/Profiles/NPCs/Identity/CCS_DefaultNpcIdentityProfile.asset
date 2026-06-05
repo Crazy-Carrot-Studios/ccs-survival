@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c0863a94ad06fa4f8b200caa4c46f55, type: 3}
+  m_Name: CCS_DefaultNpcIdentityProfile
+  m_EditorClassIdentifier: CCS.Modules.NPCs.Runtime::CCS.Modules.NPCs.CCS_NpcIdentityProfile
+  profileDisplayName: Default NPC Identity Profile
+  profileId: ccs.survival.profile.npcidentity.default
+  profileDescription: Name pools and workforce/business role mappings for population
+    placeholder NPCs.
+  profileVersion: 4.1.0
+  enableDebugLogs: 0
+  defaultFirstNamePool:
+  - Elias
+  - Clara
+  - Jonah
+  - Mae
+  - Silas
+  - Ada
+  - Cole
+  - Iris
+  - Levi
+  - Nora
+  defaultLastNamePool:
+  - Carter
+  - Whitfield
+  - Hawthorne
+  - McAllister
+  - Langston
+  - Pike
+  - Dalton
+  - Mercer
+  - Sutton
+  - Reed
+  settlementDefinitions:
+  - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    firstNamePool:
+    - Elias
+    - Clara
+    - Jonah
+    - Mae
+    - Silas
+    lastNamePool:
+    - Carter
+    - Whitfield
+    - Hawthorne
+    - McAllister
+    - Langston
+  - settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    firstNamePool:
+    - Elias
+    - Clara
+    - Jonah
+    - Mae
+    - Silas
+    lastNamePool:
+    - Carter
+    - Whitfield
+    - Hawthorne
+    - McAllister
+    - Langston
+  - settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    firstNamePool:
+    - Elias
+    - Clara
+    - Jonah
+    - Mae
+    - Silas
+    lastNamePool:
+    - Carter
+    - Whitfield
+    - Hawthorne
+    - McAllister
+    - Langston
+  - settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    firstNamePool:
+    - Elias
+    - Clara
+    - Jonah
+    - Mae
+    - Silas
+    lastNamePool:
+    - Carter
+    - Whitfield
+    - Hawthorne
+    - McAllister
+    - Langston
+  roleAssignments:
+  - settlementId: 
+    workforceCategory: 5
+    businessId: ccs.survival.business.generalstore
+    roleType: 1
+  - settlementId: 
+    workforceCategory: 2
+    businessId: ccs.survival.business.stable
+    roleType: 3
+  - settlementId: 
+    workforceCategory: 1
+    businessId: ccs.survival.business.farmsupply
+    roleType: 6
+  - settlementId: 
+    workforceCategory: 3
+    businessId: ccs.survival.business.miningsupplier
+    roleType: 8
+  - settlementId: 
+    workforceCategory: 4
+    businessId: ccs.survival.business.lumberyard
+    roleType: 9
+  - settlementId: 
+    workforceCategory: 5
+    businessId: 
+    roleType: 1
+  - settlementId: 
+    workforceCategory: 1
+    businessId: 
+    roleType: 6
+  - settlementId: 
+    workforceCategory: 2
+    businessId: 
+    roleType: 7
+  - settlementId: 
+    workforceCategory: 3
+    businessId: 
+    roleType: 8
+  - settlementId: 
+    workforceCategory: 4
+    businessId: 
+    roleType: 9
+  - settlementId: 
+    workforceCategory: 6
+    businessId: 
+    roleType: 10
+  - settlementId: ccs.survival.settlement.frontier.testtradingpost
+    workforceCategory: 6
+    businessId: 
+    roleType: 11
+  roleDisplayNames:
+  - roleType: 1
+    displayName: Merchant
+  - roleType: 2
+    displayName: Banker
+  - roleType: 3
+    displayName: Stable Hand
+  - roleType: 4
+    displayName: Gunsmith
+  - roleType: 5
+    displayName: Blacksmith
+  - roleType: 6
+    displayName: Farmer
+  - roleType: 7
+    displayName: Rancher
+  - roleType: 8
+    displayName: Miner
+  - roleType: 9
+    displayName: Lumber Worker
+  - roleType: 10
+    displayName: Laborer
+  - roleType: 11
+    displayName: Clerk
+  - roleType: 12
+    displayName: Doctor (Placeholder)
+  - roleType: 13
+    displayName: Sheriff (Placeholder)

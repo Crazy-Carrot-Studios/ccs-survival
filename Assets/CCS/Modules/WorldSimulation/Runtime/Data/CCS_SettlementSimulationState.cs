@@ -1,4 +1,5 @@
 using System;
+using CCS.Modules.NPCs;
 using CCS.Modules.Settlements;
 
 // =============================================================================
@@ -8,7 +9,7 @@ using CCS.Modules.Settlements;
 // PLACEMENT: Stored by CCS_WorldSimulationService and save payloads.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 3.7.0 — business activation state persisted with world simulation save/load.
+// NOTES: Milestone 4.1.0 — NPC identity states persisted with world simulation save/load.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -19,6 +20,7 @@ namespace CCS.Modules.WorldSimulation
         public string settlementId = string.Empty;
         public string regionId = string.Empty;
         public CCS_BusinessState[] businessStates = Array.Empty<CCS_BusinessState>();
+        public CCS_NpcIdentityState[] npcIdentityStates = Array.Empty<CCS_NpcIdentityState>();
         public int population;
         public int populationCapacity;
         public float populationGrowthRate;

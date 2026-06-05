@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.1.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.1.0** — NPC Identity and Role Foundation
+
+Population placeholder actors receive **stable names and roles** through `CCS_NpcIdentityService`, `CCS_NpcIdentityProfile`, and `CCS_NpcRuntimeBridge`. Identities persist on `CCS_SettlementSimulationState.npcIdentityStates` via world simulation save/load. Labels show dev-readable text (e.g. `Elias Carter — Miner`). No AI, dialogue, schedules, quests, or pathfinding. Playtest group **NPC Identity** with **Ctrl+Shift+E** shortcut.
+
+**NPC Identity Loop:**
+
+```text
+Population Grows → Placeholder Workers Appear → Workers Receive Names + Roles → Settlements Feel More Human
+```
 
 **4.0.0** — NPC Population Placeholder Foundation
 

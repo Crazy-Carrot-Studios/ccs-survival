@@ -9,7 +9,8 @@
         "CCS.Modules.Regions.Runtime",
         "CCS.Modules.Ranching.Runtime",
         "CCS.Modules.Farming.Runtime",
-        "CCS.Modules.Reputation.Runtime"
+        "CCS.Modules.Reputation.Runtime",
+        "CCS.Modules.NPCs.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

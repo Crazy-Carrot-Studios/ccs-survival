@@ -479,6 +479,14 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.VerifyPopulationPresenceAfterLoad:
                     return CCS_PlaytestStepGroup.PopulationPresence;
 
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcIdentity:
+                case CCS_PlaytestStepType.TriggerPopulationPresenceForNpcIdentity:
+                case CCS_PlaytestStepType.VerifyPlaceholderActorHasIdentity:
+                case CCS_PlaytestStepType.VerifyNpcRoleMatchesWorkforce:
+                case CCS_PlaytestStepType.SaveNpcIdentityState:
+                case CCS_PlaytestStepType.VerifyNpcIdentityAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcIdentity;
+
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");
             }

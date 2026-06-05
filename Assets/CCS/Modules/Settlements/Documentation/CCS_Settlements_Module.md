@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 4.0.0 — Population presence (workforce placeholder actors from population simulation)  
+**Milestone:** 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
@@ -88,7 +88,7 @@ Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 |------|------|
 | `CCS_PopulationPresenceProfile` | Workforce anchor catalog per settlement |
 | `CCS_PopulationPresenceAnchor` | Spawns capped idle capsule placeholders |
-| `CCS_PopulationPlaceholderActor` | Category-colored primitive worker (no AI) |
+| `CCS_PopulationPlaceholderActor` | Category-colored worker with NPC name/role label (4.1.0) |
 | `CCS_PopulationPresenceLabel` | Dev label: category, source count, visible count |
 | `CCS_PopulationPresenceService` | Refreshes actors from population snapshots |
 
@@ -99,6 +99,12 @@ Visual state derives from world simulation population — no separate save secti
 Bootstrap: `CCS.Modules.Settlements.Editor.CCS_PopulationPresenceFoundationBootstrapSetup.ExecuteBatch`
 
 Playtest: **Population Presence** — **Ctrl+Shift+X**
+
+## NPC identity on placeholders (4.1.0)
+
+Population anchors call `CCS_NpcRuntimeBridge` after spawning actors. Each slot gets a stable `npcIdentityId`, display name, role, settlement id, optional business id, and workforce category. See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
+
+Playtest: **NPC Identity** — **Ctrl+Shift+E**
 
 ## Settlement visual growth (3.9.0)
 

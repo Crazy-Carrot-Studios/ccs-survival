@@ -289,6 +289,12 @@ namespace CCS.Modules.Playtesting
         TriggerPopulationGrowthForPlaceholders = 274,
         VerifyPopulationPlaceholderActorsVisible = 275,
         SavePopulationPresenceState = 276,
-        VerifyPopulationPresenceAfterLoad = 277
+        VerifyPopulationPresenceAfterLoad = 277,
+        DiscoverSettlementForNpcIdentity = 278,
+        TriggerPopulationPresenceForNpcIdentity = 279,
+        VerifyPlaceholderActorHasIdentity = 280,
+        VerifyNpcRoleMatchesWorkforce = 281,
+        SaveNpcIdentityState = 282,
+        VerifyNpcIdentityAfterLoad = 283
     }
 }

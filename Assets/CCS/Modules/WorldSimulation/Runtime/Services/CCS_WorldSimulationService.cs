@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CCS.Modules.Economy;
+using CCS.Modules.NPCs;
 using CCS.Modules.Reputation;
 using CCS.Modules.Regions;
 using CCS.Modules.Settlements;
@@ -1209,7 +1210,8 @@ namespace CCS.Modules.WorldSimulation
                 previousGrowthStage = source.previousGrowthStage,
                 growthProgressPercent = source.growthProgressPercent,
                 completedContractsCount = source.completedContractsCount,
-                businessStates = CloneBusinessStates(source.businessStates)
+                businessStates = CloneBusinessStates(source.businessStates),
+                npcIdentityStates = CCS_NpcIdentityValidationUtility.CloneStates(source.npcIdentityStates)
             };
             CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
             return clone;

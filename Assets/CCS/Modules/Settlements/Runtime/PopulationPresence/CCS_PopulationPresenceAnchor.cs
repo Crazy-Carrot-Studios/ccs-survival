@@ -89,6 +89,7 @@ namespace CCS.Modules.Settlements
                 growthMet);
 
             SyncPlaceholderActors(visibleCount);
+            ApplyIdentitiesToSpawnedActors();
             string labelName = string.IsNullOrWhiteSpace(displayName)
                 ? WorkforceCategory.ToString()
                 : displayName;
@@ -192,6 +193,30 @@ namespace CCS.Modules.Settlements
             }
 
             placeholder.Configure(WorkforceCategory);
+            placeholder.BindAnchorContext(AnchorId, index, SettlementId, businessId);
+            placeholder.RefreshIdentityFromBridge();
+        }
+
+        private void ApplyIdentitiesToSpawnedActors()
+        {
+            if (actorsContainer == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < actorsContainer.childCount; index++)
+            {
+                Transform actorTransform = actorsContainer.GetChild(index);
+                CCS_PopulationPlaceholderActor placeholder =
+                    actorTransform.GetComponent<CCS_PopulationPlaceholderActor>();
+                if (placeholder == null)
+                {
+                    continue;
+                }
+
+                placeholder.BindAnchorContext(AnchorId, index, SettlementId, businessId);
+                placeholder.RefreshIdentityFromBridge();
+            }
         }
 
         private Vector3 ResolveSpawnOffset(int index, int totalSlots)

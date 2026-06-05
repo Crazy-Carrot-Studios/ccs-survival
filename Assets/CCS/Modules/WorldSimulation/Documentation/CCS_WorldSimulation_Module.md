@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **4.1.0** — **NPC identity** for population placeholders persists on `CCS_SettlementSimulationState.npcIdentityStates` (names, roles, settlement/business ids, workforce category). Profile wired on `CCS_WorldSimulationProfile.settlementNpcIdentityProfile`. `CCS_NpcIdentityService` resolves identities through `CCS_NpcRuntimeBridge`.
+
 Milestone **4.0.0** — **Population presence** placeholder actors derive visible counts from `CCS_SettlementPopulationSnapshot` via `CCS_PopulationPresenceValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementPopulationPresenceProfile`. Population changes refresh anchors through `CCS_PopulationPresenceService`.
 
 Milestone **3.9.0** — **Settlement visual growth** markers derive state from `CCS_SettlementGrowthSnapshot` via `CCS_SettlementVisualGrowthValidationUtility`. Profile wired on `CCS_WorldSimulationProfile.settlementVisualGrowthProfile`. Growth stage changes refresh anchors through `CCS_SettlementVisualGrowthService`.

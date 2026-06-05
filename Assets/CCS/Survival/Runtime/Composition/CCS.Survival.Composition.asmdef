@@ -44,6 +44,7 @@
         "CCS.Modules.Upkeep.Runtime",
         "CCS.Modules.Reputation.Runtime",
         "CCS.Modules.Contracts.Runtime",
+        "CCS.Modules.NPCs.Runtime",
         "CCS.Survival.Player.Runtime"
     ],
     "includePlatforms": [],

@@ -44,6 +44,7 @@ namespace CCS.Modules.Playtesting
         Businesses = 29,
         BusinessPresence = 30,
         SettlementVisualGrowth = 31,
-        PopulationPresence = 32
+        PopulationPresence = 32,
+        NpcIdentity = 33
     }
 }

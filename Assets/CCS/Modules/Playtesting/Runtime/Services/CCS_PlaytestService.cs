@@ -30,6 +30,7 @@ using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
+using CCS.Modules.NPCs;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
 using CCS.Modules.WorldSimulation;
@@ -251,6 +252,10 @@ namespace CCS.Modules.Playtesting
         private bool visualGrowthSaveCaptured;
         private int savedMerchantPlaceholderActorCount = -1;
         private bool populationPresenceSaveCaptured;
+        private string savedNpcIdentityId = string.Empty;
+        private string savedNpcDisplayName = string.Empty;
+        private int savedNpcRoleType = -1;
+        private bool npcIdentitySaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1436,6 +1441,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SavePopulationPresenceState,
                         "Population presence placeholder actor state saved.");
                 }
+
+                if (TryCaptureNpcIdentitySaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcIdentityState,
+                        "NPC identity state saved.");
+                }
             }
         }
 
@@ -1472,6 +1484,7 @@ namespace CCS.Modules.Playtesting
                 EvaluateBusinessPresenceStateAfterLoad();
                 EvaluateVisualGrowthStateAfterLoad();
                 EvaluatePopulationPresenceStateAfterLoad();
+                EvaluateNpcIdentityStateAfterLoad();
             }
         }
 
@@ -6169,6 +6182,37 @@ namespace CCS.Modules.Playtesting
             }
         }
 
+        public bool TryPlaytestNpcIdentityFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcIdentity,
+                "Trading Post discovered for NPC identity playtest.");
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.TriggerPopulationPresenceForNpcIdentity,
+                        result.Message);
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            EvaluateNpcIdentityPlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6459,6 +6503,81 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyPopulationPresenceAfterLoad,
                     "Population placeholder actors restored from simulation after load.");
+            }
+        }
+
+        private void EvaluateNpcIdentityPlaytestSteps()
+        {
+            int withIdentity = CCS_NpcRuntimeBridge.GetPlaceholderCountWithIdentity(
+                CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                CCS_SettlementPopulationCategory.Merchants);
+            if (withIdentity > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPlaceholderActorHasIdentity,
+                    $"Merchant placeholders have NPC identity ({withIdentity}).");
+            }
+
+            if (CCS_NpcRuntimeBridge.TryGetFirstPlaceholderIdentity(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    CCS_SettlementPopulationCategory.Merchants,
+                    out CCS_NpcIdentitySnapshot snapshot)
+                && CCS_NpcIdentityValidationUtility.RoleMatchesWorkforce(snapshot.Role, snapshot.WorkforceCategory))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcRoleMatchesWorkforce,
+                    $"Role '{snapshot.Role}' matches workforce '{snapshot.WorkforceCategory}'.");
+            }
+        }
+
+        private bool TryCaptureNpcIdentitySaveState()
+        {
+            if (npcIdentitySaveCaptured)
+            {
+                return npcIdentitySaveCaptured;
+            }
+
+            if (!CCS_NpcRuntimeBridge.TryGetFirstPlaceholderIdentity(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    CCS_SettlementPopulationCategory.Merchants,
+                    out CCS_NpcIdentitySnapshot snapshot)
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedNpcIdentityId = snapshot.NpcIdentityId;
+            savedNpcDisplayName = snapshot.DisplayName;
+            savedNpcRoleType = (int)snapshot.Role;
+            npcIdentitySaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcIdentityStateAfterLoad()
+        {
+            if (!npcIdentitySaveCaptured)
+            {
+                return;
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            if (!CCS_NpcRuntimeBridge.TryGetFirstPlaceholderIdentity(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    CCS_SettlementPopulationCategory.Merchants,
+                    out CCS_NpcIdentitySnapshot snapshot))
+            {
+                return;
+            }
+
+            bool restored = string.Equals(snapshot.NpcIdentityId, savedNpcIdentityId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(snapshot.DisplayName, savedNpcDisplayName, System.StringComparison.Ordinal)
+                && (int)snapshot.Role == savedNpcRoleType;
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcIdentityAfterLoad,
+                    "NPC identity restored after load.");
             }
         }
 

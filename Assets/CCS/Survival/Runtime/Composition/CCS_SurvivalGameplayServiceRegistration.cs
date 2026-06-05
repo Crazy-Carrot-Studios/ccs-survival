@@ -34,6 +34,7 @@ using CCS.Modules.Banking;
 using CCS.Modules.Upkeep;
 using CCS.Modules.Vehicles;
 using CCS.Modules.Firearms;
+using CCS.Modules.NPCs;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
 using CCS.Modules.Reputation;
@@ -517,6 +518,10 @@ namespace CCS.Survival.Composition
                 CreatePopulationPresenceService(worldSimulationProfile?.SettlementPopulationPresenceProfile);
             RegisterService(runtimeHost, populationPresenceService, enableDebugLogs);
 
+            CCS_NpcIdentityService npcIdentityService =
+                CreateNpcIdentityService(worldSimulationProfile?.SettlementNpcIdentityProfile);
+            RegisterService(runtimeHost, npcIdentityService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -543,6 +548,11 @@ namespace CCS.Survival.Composition
             WirePopulationPresence(
                 settlementService,
                 populationPresenceService,
+                worldSimulationService);
+            WireNpcIdentity(
+                settlementService,
+                populationPresenceService,
+                npcIdentityService,
                 worldSimulationService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2566,6 +2576,59 @@ namespace CCS.Survival.Composition
             settlementService.SettlementDiscovered += populationPresenceService.HandleSettlementDiscovered;
 
             populationPresenceService.RefreshAllAnchors();
+        }
+
+        private static CCS_NpcIdentityService CreateNpcIdentityService(CCS_NpcIdentityProfile profile)
+        {
+            CCS_NpcIdentityService service = new CCS_NpcIdentityService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcIdentity(
+            CCS_SettlementService settlementService,
+            CCS_PopulationPresenceService populationPresenceService,
+            CCS_NpcIdentityService npcIdentityService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (settlementService == null || populationPresenceService == null
+                || npcIdentityService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            npcIdentityService.BindSettlementNpcStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(settlementId, out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcIdentityStates ?? new CCS_NpcIdentityState[0];
+                    }
+
+                    return new CCS_NpcIdentityState[0];
+                },
+                (settlementId, states) =>
+                {
+                    if (!worldSimulationService.TryGetSettlementState(settlementId, out CCS_SettlementSimulationState state)
+                        || state == null)
+                    {
+                        return;
+                    }
+
+                    state.npcIdentityStates = states ?? new CCS_NpcIdentityState[0];
+                });
+
+            settlementService.SettlementPopulationChanged += npcIdentityService.HandleSettlementPopulationChanged;
+            settlementService.SettlementDiscovered += npcIdentityService.HandleSettlementDiscovered;
+
+            populationPresenceService.RefreshAllAnchors();
+            npcIdentityService.RefreshAllPlaceholderIdentities();
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

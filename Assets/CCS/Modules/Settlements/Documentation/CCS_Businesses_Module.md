@@ -1,5 +1,7 @@
 # CCS Businesses Module
 
+**Milestone 4.1.0** — NPC identity role mappings use business ids (e.g. General Store → Merchant, Stable → Stable Hand).
+
 **Milestone 4.0.0** — Population placeholder actors may anchor near business zones (visual only; business activation unchanged).
 
 **Milestone 3.7.0 — Frontier Businesses Foundation**

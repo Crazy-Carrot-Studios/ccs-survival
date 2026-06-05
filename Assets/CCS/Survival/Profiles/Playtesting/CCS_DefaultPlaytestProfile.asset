@@ -2429,3 +2429,56 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.discover
+    displayName: Discover settlement for NPC identity
+    stepType: 278
+    instructionText: Discover settlement for NPC identity. Ctrl+Shift+E shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.population
+    displayName: Trigger population presence for NPC identity
+    stepType: 279
+    instructionText: Trigger population presence for NPC identity. Ctrl+Shift+E shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.verify.identity
+    displayName: Verify placeholder actor has identity
+    stepType: 280
+    instructionText: Verify placeholder actor has identity. Ctrl+Shift+E shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.verify.role
+    displayName: Verify NPC role matches workforce category
+    stepType: 281
+    instructionText: Verify NPC role matches workforce category. Ctrl+Shift+E shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.save
+    displayName: Save NPC identity state
+    stepType: 282
+    instructionText: Save NPC identity state. Ctrl+Shift+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcidentity.load
+    displayName: Verify NPC identity restored after load
+    stepType: 283
+    instructionText: Verify NPC identity restored after load. Ctrl+Shift+E shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
