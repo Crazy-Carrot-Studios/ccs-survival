@@ -105,8 +105,10 @@ namespace CCS.Modules.NPCs.Editor
 
         private static void ValidateUtility(CCS_SurvivalValidationReport report)
         {
+            CCS_NpcIdentityProfile identityProfile = AssetDatabase.LoadAssetAtPath<CCS_NpcIdentityProfile>(
+                CCS_NpcIdentityContentIds.DefaultIdentityProfilePath);
             CCS_NpcRoleType role = CCS_NpcIdentityValidationUtility.ResolveRole(
-                null,
+                identityProfile,
                 CCS_SettlementGrowthContentIds.TradingPostSettlementId,
                 CCS_SettlementPopulationCategory.Merchants,
                 "ccs.survival.business.generalstore");

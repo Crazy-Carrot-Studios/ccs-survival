@@ -35,6 +35,10 @@ namespace CCS.Modules.Settlements
 
         [SerializeField] private int slotIndex;
 
+        [SerializeField] private bool isServiceRepresentative;
+
+        [SerializeField] private string representativeTitle = string.Empty;
+
         [SerializeField] private float labelHeight = 1.35f;
 
         [SerializeField] private Color farmerColor = new Color(0.55f, 0.75f, 0.35f, 1f);
@@ -66,6 +70,10 @@ namespace CCS.Modules.Settlements
         public int WorkforceCategoryValue => (int)workforceCategory;
 
         public bool HasIdentity => !string.IsNullOrWhiteSpace(npcIdentityId) && !string.IsNullOrWhiteSpace(displayName);
+
+        public bool IsServiceRepresentative => isServiceRepresentative;
+
+        public string RepresentativeTitle => representativeTitle ?? string.Empty;
 
         public void Configure(CCS_SettlementPopulationCategory category)
         {
@@ -103,6 +111,20 @@ namespace CCS.Modules.Settlements
             businessId = anchorBusinessId ?? string.Empty;
             workforceCategory = (CCS_SettlementPopulationCategory)resolvedWorkforceCategory;
             ApplyCategoryColor();
+            ApplyIdentityLabel();
+        }
+
+        public void ApplyServiceRepresentativePresentation(string title)
+        {
+            isServiceRepresentative = true;
+            representativeTitle = title ?? string.Empty;
+            ApplyIdentityLabel();
+        }
+
+        public void ClearServiceRepresentativePresentation()
+        {
+            isServiceRepresentative = false;
+            representativeTitle = string.Empty;
             ApplyIdentityLabel();
         }
 
@@ -169,6 +191,12 @@ namespace CCS.Modules.Settlements
             if (!HasIdentity)
             {
                 identityLabel.text = workforceCategory.ToString();
+                return;
+            }
+
+            if (isServiceRepresentative && !string.IsNullOrWhiteSpace(representativeTitle))
+            {
+                identityLabel.text = $"{displayName}\n{representativeTitle}";
                 return;
             }
 

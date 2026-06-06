@@ -256,6 +256,11 @@ namespace CCS.Modules.Playtesting
         private string savedNpcDisplayName = string.Empty;
         private int savedNpcRoleType = -1;
         private bool npcIdentitySaveCaptured;
+        private string savedGeneralStoreRepresentativeId = string.Empty;
+        private string savedBankRepresentativeId = string.Empty;
+        private string savedGeneralStoreRepresentativeIdentityId = string.Empty;
+        private string savedBankRepresentativeIdentityId = string.Empty;
+        private bool npcServiceRepresentativeSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1448,6 +1453,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcIdentityState,
                         "NPC identity state saved.");
                 }
+
+                if (TryCaptureNpcServiceRepresentativeSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcServiceRepresentativeState,
+                        "NPC service representative state saved.");
+                }
             }
         }
 
@@ -1485,6 +1497,10 @@ namespace CCS.Modules.Playtesting
                 EvaluateVisualGrowthStateAfterLoad();
                 EvaluatePopulationPresenceStateAfterLoad();
                 EvaluateNpcIdentityStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcServiceRepresentativeState,
+                    "Load completed for NPC service representative restore.");
+                EvaluateNpcServiceRepresentativeStateAfterLoad();
             }
         }
 
@@ -2140,6 +2156,16 @@ namespace CCS.Modules.Playtesting
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.InteractGeneralStoreServicePoint,
                         "General Store service point activated.");
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractGeneralStoreRepresentative,
+                        "General Store representative routed to service point.");
+                    if (activationArgs.IsSuccess
+                        && activationArgs.RouteType == CCS_SettlementServiceRouteType.Vendor)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifyGeneralStoreRepresentativeVendorRoute,
+                            "General Store representative opened vendor route.");
+                    }
                     break;
                 case CCS_SettlementServicePointType.Stable:
                     TryCompleteActiveStepOfType(
@@ -2168,6 +2194,16 @@ namespace CCS.Modules.Playtesting
                     TryCompleteActiveStepOfType(
                         CCS_PlaytestStepType.InteractBankServicePoint,
                         "Bank service point activated.");
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.InteractBankRepresentative,
+                        "Bank representative routed to service point.");
+                    if (activationArgs.IsSuccess
+                        && activationArgs.RouteType == CCS_SettlementServiceRouteType.Bank)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifyBankRepresentativeBankRoute,
+                            "Bank representative opened banking route.");
+                    }
                     break;
                 case CCS_SettlementServicePointType.LandOffice:
                     CaptureBankingPlaytestBaselines();
@@ -6213,6 +6249,54 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestNpcServiceRepresentativeFoundationShortcut()
+        {
+            const string generalStoreBusinessId = "ccs.survival.business.generalstore";
+            const string bankBusinessId = "ccs.survival.business.bank";
+
+            DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcServiceRepresentatives,
+                "Trading Post discovered for NPC service representative playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 5);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                boundContractService.TryAcceptContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                    CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                if (result != null && result.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.TriggerPopulationAndBusinessForNpcServiceRepresentatives,
+                        result.Message);
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            EvaluateNpcServiceRepresentativePlaytestSteps();
+
+            if (CCS_NpcServiceRepresentativeRuntimeBridge.TrySimulateRepresentativeInteraction(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    generalStoreBusinessId))
+            {
+                EvaluateNpcServiceRepresentativePlaytestSteps();
+            }
+
+            if (CCS_NpcServiceRepresentativeRuntimeBridge.TrySimulateRepresentativeInteraction(
+                    CCS_SettlementGrowthContentIds.TradingPostSettlementId,
+                    bankBusinessId))
+            {
+                EvaluateNpcServiceRepresentativePlaytestSteps();
+            }
+
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6578,6 +6662,121 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcIdentityAfterLoad,
                     "NPC identity restored after load.");
+            }
+        }
+
+        private void EvaluateNpcServiceRepresentativePlaytestSteps()
+        {
+            const string generalStoreBusinessId = "ccs.survival.business.generalstore";
+            const string bankBusinessId = "ccs.survival.business.bank";
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+
+            if (CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    generalStoreBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot generalStoreSnapshot)
+                && generalStoreSnapshot.IsActive)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyGeneralStoreRepresentativeAssigned,
+                    $"General Store representative assigned: {generalStoreSnapshot.DisplayName}.");
+            }
+
+            if (CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    bankBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot bankSnapshot)
+                && bankSnapshot.IsActive)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyBankRepresentativeAssigned,
+                    $"Bank representative assigned: {bankSnapshot.DisplayName}.");
+            }
+        }
+
+        private bool TryCaptureNpcServiceRepresentativeSaveState()
+        {
+            if (npcServiceRepresentativeSaveCaptured)
+            {
+                return npcServiceRepresentativeSaveCaptured;
+            }
+
+            const string generalStoreBusinessId = "ccs.survival.business.generalstore";
+            const string bankBusinessId = "ccs.survival.business.bank";
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+
+            if (!CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    generalStoreBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot generalStoreSnapshot)
+                || !generalStoreSnapshot.IsValid)
+            {
+                return false;
+            }
+
+            if (!CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    bankBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot bankSnapshot)
+                || !bankSnapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedGeneralStoreRepresentativeId = generalStoreSnapshot.RepresentativeId;
+            savedGeneralStoreRepresentativeIdentityId = generalStoreSnapshot.AssignedNpcIdentityId;
+            savedBankRepresentativeId = bankSnapshot.RepresentativeId;
+            savedBankRepresentativeIdentityId = bankSnapshot.AssignedNpcIdentityId;
+            npcServiceRepresentativeSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcServiceRepresentativeStateAfterLoad()
+        {
+            if (!npcServiceRepresentativeSaveCaptured)
+            {
+                return;
+            }
+
+            const string generalStoreBusinessId = "ccs.survival.business.generalstore";
+            const string bankBusinessId = "ccs.survival.business.bank";
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+
+            bool generalStoreRestored = CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    generalStoreBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot generalStoreSnapshot)
+                && string.Equals(
+                    generalStoreSnapshot.RepresentativeId,
+                    savedGeneralStoreRepresentativeId,
+                    System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(
+                    generalStoreSnapshot.AssignedNpcIdentityId,
+                    savedGeneralStoreRepresentativeIdentityId,
+                    System.StringComparison.OrdinalIgnoreCase);
+
+            bool bankRestored = CCS_NpcServiceRepresentativeRuntimeBridge.TryGetActiveRepresentativeSnapshot(
+                    settlementId,
+                    bankBusinessId,
+                    out CCS_NpcServiceRepresentativeSnapshot bankSnapshot)
+                && string.Equals(
+                    bankSnapshot.RepresentativeId,
+                    savedBankRepresentativeId,
+                    System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(
+                    bankSnapshot.AssignedNpcIdentityId,
+                    savedBankRepresentativeIdentityId,
+                    System.StringComparison.OrdinalIgnoreCase);
+
+            if (generalStoreRestored && bankRestored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcServiceRepresentativeAfterLoad,
+                    "NPC service representative assignments restored after load.");
             }
         }
 

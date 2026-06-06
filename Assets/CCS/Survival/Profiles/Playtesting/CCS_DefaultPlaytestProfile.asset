@@ -2482,3 +2482,98 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.discover
+    displayName: Discover trading post for NPC service representatives
+    stepType: 284
+    instructionText: Discover trading post for NPC service representatives. Ctrl+Alt+R
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.trigger
+    displayName: Trigger population and business presence for representatives
+    stepType: 285
+    instructionText: Trigger population and business presence for representatives.
+      Ctrl+Alt+R shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.verify.generalstore
+    displayName: Verify General Store representative assigned
+    stepType: 286
+    instructionText: Verify General Store representative assigned. Ctrl+Alt+R shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.interact.generalstore
+    displayName: Interact with General Store representative
+    stepType: 287
+    instructionText: Interact with General Store representative. Ctrl+Alt+R shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.verify.vendor
+    displayName: Verify General Store representative vendor route
+    stepType: 288
+    instructionText: Verify General Store representative vendor route. Ctrl+Alt+R
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.verify.bank
+    displayName: Verify Bank representative assigned
+    stepType: 289
+    instructionText: Verify Bank representative assigned. Ctrl+Alt+R shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.interact.bank
+    displayName: Interact with Bank representative
+    stepType: 290
+    instructionText: Interact with Bank representative. Ctrl+Alt+R shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.verify.banking
+    displayName: Verify Bank representative banking route
+    stepType: 291
+    instructionText: Verify Bank representative banking route. Ctrl+Alt+R shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.save
+    displayName: Save NPC service representative state
+    stepType: 292
+    instructionText: Save NPC service representative state. Ctrl+Alt+R shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.load
+    displayName: Load NPC service representative state
+    stepType: 293
+    instructionText: Load NPC service representative state. Ctrl+Alt+R shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcservicerepresentative.verify.load
+    displayName: Verify representative assignment restored after load
+    stepType: 294
+    instructionText: Verify representative assignment restored after load. Ctrl+Alt+R
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

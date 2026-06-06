@@ -1211,7 +1211,9 @@ namespace CCS.Modules.WorldSimulation
                 growthProgressPercent = source.growthProgressPercent,
                 completedContractsCount = source.completedContractsCount,
                 businessStates = CloneBusinessStates(source.businessStates),
-                npcIdentityStates = CCS_NpcIdentityValidationUtility.CloneStates(source.npcIdentityStates)
+                npcIdentityStates = CCS_NpcIdentityValidationUtility.CloneStates(source.npcIdentityStates),
+                npcServiceRepresentativeStates =
+                    CCS_NpcServiceRepresentativeUtility.CloneStates(source.npcServiceRepresentativeStates)
             };
             CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
             return clone;

@@ -46,7 +46,11 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.RouteRiskFreight,
             CCS_PlaytestStepGroup.Population,
             CCS_PlaytestStepGroup.Businesses,
-            CCS_PlaytestStepGroup.BusinessPresence
+            CCS_PlaytestStepGroup.BusinessPresence,
+            CCS_PlaytestStepGroup.SettlementVisualGrowth,
+            CCS_PlaytestStepGroup.PopulationPresence,
+            CCS_PlaytestStepGroup.NpcIdentity,
+            CCS_PlaytestStepGroup.NpcServiceRepresentatives
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -120,6 +124,12 @@ namespace CCS.Modules.Playtesting
                     return "Businesses";
                 case CCS_PlaytestStepGroup.BusinessPresence:
                     return "Business Presence";
+                case CCS_PlaytestStepGroup.SettlementVisualGrowth:
+                    return "Settlement Visual Growth";
+                case CCS_PlaytestStepGroup.NpcIdentity:
+                    return "NPC Identity";
+                case CCS_PlaytestStepGroup.NpcServiceRepresentatives:
+                    return "NPC Service Representatives";
                 default:
                     return group.ToString();
             }
@@ -486,6 +496,19 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.SaveNpcIdentityState:
                 case CCS_PlaytestStepType.VerifyNpcIdentityAfterLoad:
                     return CCS_PlaytestStepGroup.NpcIdentity;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcServiceRepresentatives:
+                case CCS_PlaytestStepType.TriggerPopulationAndBusinessForNpcServiceRepresentatives:
+                case CCS_PlaytestStepType.VerifyGeneralStoreRepresentativeAssigned:
+                case CCS_PlaytestStepType.InteractGeneralStoreRepresentative:
+                case CCS_PlaytestStepType.VerifyGeneralStoreRepresentativeVendorRoute:
+                case CCS_PlaytestStepType.VerifyBankRepresentativeAssigned:
+                case CCS_PlaytestStepType.InteractBankRepresentative:
+                case CCS_PlaytestStepType.VerifyBankRepresentativeBankRoute:
+                case CCS_PlaytestStepType.SaveNpcServiceRepresentativeState:
+                case CCS_PlaytestStepType.LoadNpcServiceRepresentativeState:
+                case CCS_PlaytestStepType.VerifyNpcServiceRepresentativeAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcServiceRepresentatives;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

@@ -4,7 +4,8 @@
     "references": [
         "CCS.Core.Runtime",
         "CCS.Survival.Runtime",
-        "CCS.Modules.Settlements.Runtime"
+        "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Interaction.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

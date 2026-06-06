@@ -522,6 +522,11 @@ namespace CCS.Survival.Composition
                 CreateNpcIdentityService(worldSimulationProfile?.SettlementNpcIdentityProfile);
             RegisterService(runtimeHost, npcIdentityService, enableDebugLogs);
 
+            CCS_NpcServiceRepresentativeService npcServiceRepresentativeService =
+                CreateNpcServiceRepresentativeService(
+                    worldSimulationProfile?.SettlementNpcServiceRepresentativeProfile);
+            RegisterService(runtimeHost, npcServiceRepresentativeService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -553,6 +558,12 @@ namespace CCS.Survival.Composition
                 settlementService,
                 populationPresenceService,
                 npcIdentityService,
+                worldSimulationService);
+            WireNpcServiceRepresentatives(
+                businessService,
+                populationPresenceService,
+                npcIdentityService,
+                npcServiceRepresentativeService,
                 worldSimulationService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2629,6 +2640,62 @@ namespace CCS.Survival.Composition
 
             populationPresenceService.RefreshAllAnchors();
             npcIdentityService.RefreshAllPlaceholderIdentities();
+        }
+
+        private static CCS_NpcServiceRepresentativeService CreateNpcServiceRepresentativeService(
+            CCS_NpcServiceRepresentativeProfile profile)
+        {
+            CCS_NpcServiceRepresentativeService service = new CCS_NpcServiceRepresentativeService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcServiceRepresentatives(
+            CCS_BusinessService businessService,
+            CCS_PopulationPresenceService populationPresenceService,
+            CCS_NpcIdentityService npcIdentityService,
+            CCS_NpcServiceRepresentativeService representativeService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (businessService == null || populationPresenceService == null
+                || npcIdentityService == null || representativeService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            representativeService.BindIdentityService(npcIdentityService);
+            representativeService.BindRepresentativeStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(settlementId, out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcServiceRepresentativeStates ?? new CCS_NpcServiceRepresentativeState[0];
+                    }
+
+                    return new CCS_NpcServiceRepresentativeState[0];
+                },
+                (settlementId, states) =>
+                {
+                    if (!worldSimulationService.TryGetSettlementState(settlementId, out CCS_SettlementSimulationState state)
+                        || state == null)
+                    {
+                        return;
+                    }
+
+                    state.npcServiceRepresentativeStates = states ?? new CCS_NpcServiceRepresentativeState[0];
+                });
+
+            businessService.BusinessActivated += representativeService.HandleBusinessActivated;
+            businessService.BusinessDeactivated += representativeService.HandleBusinessDeactivated;
+
+            populationPresenceService.RefreshAllAnchors();
+            representativeService.RefreshAllRepresentatives();
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

@@ -28,6 +28,10 @@ namespace CCS.Survival
 
         bool HasIdentity { get; }
 
+        bool IsServiceRepresentative { get; }
+
+        string RepresentativeTitle { get; }
+
         void BindAnchorContext(string anchorId, int slotIndex, string settlementId, string businessId);
 
         void ApplyIdentityData(
@@ -38,6 +42,10 @@ namespace CCS.Survival
             string anchorSettlementId,
             string anchorBusinessId,
             int workforceCategory);
+
+        void ApplyServiceRepresentativePresentation(string title);
+
+        void ClearServiceRepresentativePresentation();
 
         void RefreshIdentityFromBridge();
     }

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.1.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.3.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.3.0** — NPC Service Representatives Foundation
+
+Active settlement businesses assign **named NPC service representatives** through `CCS_NpcServiceRepresentativeService`. Representatives use population placeholder actors (or synced anchors near service points) with **name + title** labels. Interaction routes through existing `CCS_SettlementServiceRouteResolver` (vendor, bank, industry, contract board). Service point cubes remain fallback. State persists on `CCS_SettlementSimulationState.npcServiceRepresentativeStates`. No AI, dialogue, schedules, quests, or pathfinding. Playtest group **NPC Service Representatives** with **Ctrl+Alt+R** shortcut.
+
+**Service Representative Loop:**
+
+```text
+Business Activates → Representative Assigned → Player Talks To Named NPC → Existing Service Opens → Town Feels Human
+```
 
 **4.1.0** — NPC Identity and Role Foundation
 

@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e26ab56c9a32f624fa51396b4e0f482d, type: 3}
+  m_Name: CCS_DefaultNpcServiceRepresentativeProfile
+  m_EditorClassIdentifier: CCS.Modules.NPCs.Runtime::CCS.Modules.NPCs.CCS_NpcServiceRepresentativeProfile
+  profileDisplayName: Default NPC Service Representative Profile
+  profileId: ccs.survival.profile.npcservicerepresentative.default
+  profileDescription: Maps active settlement businesses to named NPC service representatives
+    and service points.
+  profileVersion: 4.3.0
+  enableDebugLogs: 0
+  representativeDefinitions:
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.generalstore
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.generalstore
+    servicePointId: ccs.survival.settlement.service.generalstore
+    requiredRole: 1
+    displayTitle: Frontier Merchant
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.bank
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.bank
+    servicePointId: ccs.survival.settlement.service.bank
+    requiredRole: 2
+    displayTitle: Frontier Banker
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.stable
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.stable
+    servicePointId: ccs.survival.settlement.service.stable
+    requiredRole: 3
+    displayTitle: Settlement Stable Hand
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.gunsmith
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.gunsmith
+    servicePointId: ccs.survival.settlement.service.gunsmith
+    requiredRole: 4
+    displayTitle: Settlement Gunsmith
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.blacksmith
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.blacksmith
+    servicePointId: ccs.survival.settlement.service.blacksmith
+    requiredRole: 5
+    displayTitle: Settlement Blacksmith
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 
+  - representativeId: ccs.survival.npc.representative.ccs.survival.settlement.frontier.testtradingpost.ccs.survival.business.contractoffice
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    businessId: ccs.survival.business.contractoffice
+    servicePointId: ccs.survival.settlement.service.contractboard
+    requiredRole: 11
+    displayTitle: Settlement Clerk
+    fallbackToServicePoint: 1
+    populationPresenceAnchorId: 

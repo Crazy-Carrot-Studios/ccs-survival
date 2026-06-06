@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
+**Milestone:** 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
@@ -105,6 +105,20 @@ Playtest: **Population Presence** — **Ctrl+Shift+X**
 Population anchors call `CCS_NpcRuntimeBridge` after spawning actors. Each slot gets a stable `npcIdentityId`, display name, role, settlement id, optional business id, and workforce category. See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 
 Playtest: **NPC Identity** — **Ctrl+Shift+E**
+
+## NPC service representatives (4.3.0)
+
+Active businesses assign named representatives from population placeholders (or synced anchors at service points). Labels use **name + title** for representatives; workers keep `Name — Role`. Interaction routes through existing `CCS_SettlementServicePoint` resolver; service cubes remain fallback.
+
+See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
+
+Playtest: **NPC Service Representatives** — **Ctrl+Alt+R**
+
+**Service Representative Loop:**
+
+```text
+Business Activates → Representative Assigned → Player Talks To Named NPC → Existing Service Opens → Town Feels Human
+```
 
 ## Settlement visual growth (3.9.0)
 

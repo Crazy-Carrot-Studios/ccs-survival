@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CCS.Modules.CharacterController;
+using CCS.Modules.NPCs;
 using CCS.Survival.Player;
 using UnityEngine;
 
@@ -58,6 +59,7 @@ namespace CCS.Modules.Playtesting
             }
 
             DrawHarnessPanel();
+            CCS_NpcServiceRepresentativeDebugHud.DrawIfVisible();
         }
 
         #endregion
@@ -310,6 +312,11 @@ namespace CCS.Modules.Playtesting
             if (CCS_DevHotkeyUtility.WasControlShiftPressed(KeyCode.E))
             {
                 playtestService.TryPlaytestNpcIdentityFoundationShortcut();
+            }
+
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.R))
+            {
+                playtestService.TryPlaytestNpcServiceRepresentativeFoundationShortcut();
             }
 
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.K))

@@ -179,6 +179,42 @@ namespace CCS.Survival
 
             return false;
         }
+
+        public static bool TryGetFirstHostByBusinessId(
+            string settlementId,
+            string businessId,
+            out CCS_IPopulationPlaceholderIdentityHost host)
+        {
+            host = null;
+            if (string.IsNullOrWhiteSpace(settlementId) || string.IsNullOrWhiteSpace(businessId))
+            {
+                return false;
+            }
+
+            for (int index = 0; index < RegisteredHosts.Count; index++)
+            {
+                CCS_IPopulationPlaceholderIdentityHost candidate = RegisteredHosts[index];
+                if (candidate == null || !candidate.HasIdentity)
+                {
+                    continue;
+                }
+
+                if (!string.Equals(candidate.SettlementId, settlementId, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (!string.Equals(candidate.BusinessId, businessId, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                host = candidate;
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public sealed class CCS_PopulationPlaceholderIdentityData

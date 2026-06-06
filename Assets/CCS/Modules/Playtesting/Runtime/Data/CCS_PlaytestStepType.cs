@@ -295,6 +295,17 @@ namespace CCS.Modules.Playtesting
         VerifyPlaceholderActorHasIdentity = 280,
         VerifyNpcRoleMatchesWorkforce = 281,
         SaveNpcIdentityState = 282,
-        VerifyNpcIdentityAfterLoad = 283
+        VerifyNpcIdentityAfterLoad = 283,
+        DiscoverSettlementForNpcServiceRepresentatives = 284,
+        TriggerPopulationAndBusinessForNpcServiceRepresentatives = 285,
+        VerifyGeneralStoreRepresentativeAssigned = 286,
+        InteractGeneralStoreRepresentative = 287,
+        VerifyGeneralStoreRepresentativeVendorRoute = 288,
+        VerifyBankRepresentativeAssigned = 289,
+        InteractBankRepresentative = 290,
+        VerifyBankRepresentativeBankRoute = 291,
+        SaveNpcServiceRepresentativeState = 292,
+        LoadNpcServiceRepresentativeState = 293,
+        VerifyNpcServiceRepresentativeAfterLoad = 294
     }
 }

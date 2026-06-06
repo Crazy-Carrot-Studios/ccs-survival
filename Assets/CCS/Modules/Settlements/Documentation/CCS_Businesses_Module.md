@@ -1,5 +1,7 @@
 # CCS Businesses Module
 
+**Milestone 4.3.0** — Active businesses assign named NPC service representatives through `CCS_NpcServiceRepresentativeService` on `BusinessActivated` / `BusinessDeactivated`. Representatives route to existing vendor, bank, industry, and contract services; service point cubes remain fallback.
+
 **Milestone 4.1.0** — NPC identity role mappings use business ids (e.g. General Store → Merchant, Stable → Stable Hand).
 
 **Milestone 4.0.0** — Population placeholder actors may anchor near business zones (visual only; business activation unchanged).
@@ -52,11 +54,15 @@ Each settlement simulation state stores `businessStates[]` with activation flags
 - Minimum growth stage  
 - Optional minimum reputation tier  
 
-`CCS_WorldSimulationService` re-evaluates businesses when population, prosperity, or growth stage changes. `CCS_BusinessService` raises `BusinessActivated` and `BusinessDeactivated`.
+`CCS_WorldSimulationService` re-evaluates businesses when population, prosperity, or growth stage changes. `CCS_BusinessService` raises `BusinessActivated` and `BusinessDeactivated`. Representative assignments sync on those events via `CCS_NpcServiceRepresentativeService` (persisted on `npcServiceRepresentativeStates`).
+
+## Service representatives (4.3.0)
+
+When a business activates, a named NPC representative is assigned (identity + title) and wired to the linked service point interactable. Deactivation clears representative presentation. Service cubes remain valid fallback.
 
 ## Save / load
 
-Business flags persist on `CCS_SettlementSimulationState` inside world simulation save payloads.
+Business flags persist on `CCS_SettlementSimulationState` inside world simulation save payloads. Representative assignments persist on `npcServiceRepresentativeStates`.
 
 ## Playtest
 

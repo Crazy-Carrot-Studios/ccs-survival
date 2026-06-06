@@ -208,6 +208,16 @@ namespace CCS.Modules.Settlements
             renderer.sharedMaterial.color = color;
         }
 
+        private void OnEnable()
+        {
+            CCS_SettlementServicePointRuntimeBridge.RegisterServicePoint(this);
+        }
+
+        private void OnDisable()
+        {
+            CCS_SettlementServicePointRuntimeBridge.UnregisterServicePoint(this);
+        }
+
         private bool IsSettlementDiscovered()
         {
             if (settlementLocation?.SettlementDefinition == null

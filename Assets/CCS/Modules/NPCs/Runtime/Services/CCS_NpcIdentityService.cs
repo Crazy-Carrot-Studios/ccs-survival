@@ -118,6 +118,57 @@ namespace CCS.Modules.NPCs
             return snapshot.IsValid;
         }
 
+        public bool TryResolveRepresentativeIdentity(
+            string anchorId,
+            string settlementId,
+            CCS_NpcRoleType requiredRole,
+            string businessId,
+            out CCS_NpcIdentitySnapshot snapshot)
+        {
+            snapshot = CCS_NpcIdentitySnapshot.Empty;
+            if (activeProfile == null || requiredRole == CCS_NpcRoleType.Unknown
+                || string.IsNullOrWhiteSpace(anchorId) || string.IsNullOrWhiteSpace(settlementId))
+            {
+                return false;
+            }
+
+            CCS_SettlementPopulationCategory workforceCategory =
+                CCS_NpcServiceRepresentativeUtility.ResolveWorkforceCategory(requiredRole);
+            string identityId = CCS_NpcIdentityValidationUtility.BuildIdentityId(anchorId, 0);
+            CCS_NpcIdentityState[] states = getSettlementNpcStates?.Invoke(settlementId) ?? Array.Empty<CCS_NpcIdentityState>();
+            CCS_NpcIdentityState existing = CCS_NpcIdentityValidationUtility.TryFindState(states, identityId);
+            if (existing != null)
+            {
+                snapshot = CCS_NpcIdentityValidationUtility.BuildSnapshotFromState(existing, activeProfile);
+                snapshot.Role = requiredRole;
+                snapshot.RoleDisplayName =
+                    CCS_NpcIdentityValidationUtility.ResolveRoleDisplayName(activeProfile, requiredRole);
+                return snapshot.IsValid;
+            }
+
+            string displayName = CCS_NpcIdentityValidationUtility.ResolveDisplayName(
+                activeProfile,
+                settlementId,
+                identityId);
+            snapshot = new CCS_NpcIdentitySnapshot
+            {
+                NpcIdentityId = identityId,
+                DisplayName = displayName,
+                Role = requiredRole,
+                RoleDisplayName = CCS_NpcIdentityValidationUtility.ResolveRoleDisplayName(activeProfile, requiredRole),
+                SettlementId = settlementId,
+                BusinessId = businessId ?? string.Empty,
+                WorkforceCategory = workforceCategory
+            };
+
+            CCS_NpcIdentityState persisted =
+                CCS_NpcIdentityValidationUtility.BuildStateFromSnapshot(snapshot, anchorId, 0);
+            persisted.roleType = (int)requiredRole;
+            CCS_NpcIdentityState[] merged = CCS_NpcIdentityValidationUtility.UpsertState(states, persisted);
+            setSettlementNpcStates?.Invoke(settlementId, merged);
+            return snapshot.IsValid;
+        }
+
         public void RefreshAllPlaceholderIdentities()
         {
             CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
@@ -146,6 +197,26 @@ namespace CCS.Modules.NPCs
             }
 
             RefreshSettlement(eventArgs.Snapshot.SettlementId);
+        }
+
+        public bool TryGetDisplayNameForIdentity(string settlementId, string identityId, out string displayName)
+        {
+            displayName = string.Empty;
+            if (string.IsNullOrWhiteSpace(settlementId) || string.IsNullOrWhiteSpace(identityId))
+            {
+                return false;
+            }
+
+            CCS_NpcIdentityState state = CCS_NpcIdentityValidationUtility.TryFindState(
+                getSettlementNpcStates?.Invoke(settlementId) ?? Array.Empty<CCS_NpcIdentityState>(),
+                identityId);
+            if (state == null || string.IsNullOrWhiteSpace(state.displayName))
+            {
+                return false;
+            }
+
+            displayName = state.displayName;
+            return true;
         }
     }
 }

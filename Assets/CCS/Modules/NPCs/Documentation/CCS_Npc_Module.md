@@ -1,10 +1,26 @@
 # CCS NPC Module
 
+**Milestone 4.3.0** — NPC service representatives foundation for settlement businesses.
+
 **Milestone 4.1.0** — NPC identity and role foundation for population placeholder actors.
 
 ## Purpose
 
-Generic NPC identity framework for future workers, merchants, lawmen, doctors, bankers, ranchers, miners, and quest givers. Assigns stable names, roles, and settlement affiliation to `CCS_PopulationPlaceholderActor` instances without AI, dialogue, schedules, pathfinding, or combat.
+Generic NPC identity and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, and business-facing titles to population placeholders without AI, dialogue, schedules, pathfinding, or combat.
+
+## Service Representative Loop
+
+```text
+Business Activates
+↓
+Representative Assigned
+↓
+Player Talks To Named NPC
+↓
+Existing Service Opens
+↓
+Town Feels Human
+```
 
 ## NPC Identity Loop
 
@@ -23,39 +39,65 @@ Settlements Feel More Human
 | Type | Role |
 |------|------|
 | `CCS_NpcIdentityProfile` | Name pools, role display names, workforce/business mappings |
-| `CCS_NpcIdentityDefinition` | Per-settlement first/last name pools |
-| `CCS_NpcRoleAssignment` | Maps workforce + optional business id → `CCS_NpcRoleType` |
-| `CCS_NpcIdentityState` | Persisted identity on `CCS_SettlementSimulationState` |
-| `CCS_NpcIdentitySnapshot` | Runtime identity applied to placeholders |
 | `CCS_NpcIdentityService` | Resolve/create/persist identities |
-| `CCS_NpcRuntimeBridge` | Bridge to population placeholder actors |
-| `CCS_NpcIdentityValidationUtility` | Profile, persistence, and role validation |
+| `CCS_NpcServiceRepresentativeProfile` | Business → service point → representative role/title mappings |
+| `CCS_NpcServiceRepresentativeDefinition` | Per-business representative mapping row |
+| `CCS_NpcServiceRepresentativeState` | Persisted assignment on settlement simulation state |
+| `CCS_NpcServiceRepresentativeSnapshot` | Runtime representative resolved for interaction/debug |
+| `CCS_NpcServiceRepresentativeAssignment` | Transient assignment payload during business sync |
+| `CCS_NpcServiceRepresentativeService` | Business activate/deactivate sync, actor wiring |
+| `CCS_NpcServiceRepresentativeRuntimeBridge` | Spawned rep roots, display names, playtest bridge |
+| `CCS_NpcServiceRepresentativeInteractable` | Routes interaction through `CCS_SettlementServiceRouteResolver` |
+| `CCS_NpcServiceRepresentativeDebugHud` | Dev HUD for route/fallback status |
+| `CCS_NpcServiceRepresentativeUtility` | Id building, role→route mapping, state helpers |
+| `CCS_NpcServiceRepresentativeValidationUtility` | Profile, persistence, routing validation |
 
-## Active Roles (4.1.0)
+## Active Roles
 
 Merchant, Banker, StableHand, Gunsmith, Blacksmith, Farmer, Rancher, Miner, LumberWorker, Laborer, Clerk.
 
 **Placeholders only:** Doctor, Sheriff (defined but not workforce-assigned).
 
+## Representative Routing
+
+| Role | Route |
+|------|-------|
+| Merchant, StableHand, Gunsmith, Farmer, Miner, LumberWorker | Vendor |
+| Banker | Bank |
+| Blacksmith | Industry |
+| Clerk | ContractBoard |
+
+Representatives call the same `CCS_SettlementServiceRouteResolver.TryActivate` path as `CCS_SettlementServicePoint`. Service cubes remain valid fallback when a representative is missing or inactive.
+
+## Labels
+
+- **Workers:** `Elias Carter — Miner`
+- **Representatives:** `Samuel Reed` + title line `Frontier Banker` (name + title)
+
 ## Integration
 
-- **Population presence:** `CCS_PopulationPresenceAnchor` assigns identity per anchor slot after spawning placeholders.
-- **Labels:** `CCS_PopulationPlaceholderActor` shows `Name — Role` and workforce category (e.g. `Elias Carter — Miner`).
-- **Save/load:** `CCS_SettlementSimulationState.npcIdentityStates` via world simulation capture/restore.
-- **Business mapping:** Merchants at General Store, Stable Hand at Stable, Farmers at Farm Supply, Miners at Mining Supplier, Lumber Workers at Lumber Yard.
+- **Business activation:** `CCS_BusinessService` events → `CCS_NpcServiceRepresentativeService.HandleBusinessActivated/Deactivated`
+- **Population placeholders:** Prefer existing anchor actor by `businessId`; else spawn/sync near service point
+- **Save/load:** `CCS_SettlementSimulationState.npcServiceRepresentativeStates` and `npcIdentityStates` via world simulation
+- **Business mapping:** General Store → Merchant, Bank → Banker, Stable → Stable Hand, Gunsmith → Gunsmith, Blacksmith → Blacksmith, Contract Office → Clerk
 
 ## Wiring
 
-- Profile: `Assets/CCS/Survival/Profiles/NPCs/Identity/CCS_DefaultNpcIdentityProfile.asset`
-- World simulation: `CCS_WorldSimulationProfile.settlementNpcIdentityProfile`
-- Services: `CCS_SurvivalGameplayServiceRegistration` → `CreateNpcIdentityService` / `WireNpcIdentity`
+- Identity profile: `Assets/CCS/Survival/Profiles/NPCs/Identity/CCS_DefaultNpcIdentityProfile.asset`
+- Representative profile: `Assets/CCS/Survival/Profiles/NPCs/ServiceRepresentatives/CCS_DefaultNpcServiceRepresentativeProfile.asset`
+- World simulation: `settlementNpcIdentityProfile`, `settlementNpcServiceRepresentativeProfile`
+- Services: `CCS_SurvivalGameplayServiceRegistration` → identity + representative create/wire
 
 ## Playtest
 
-- Group: **NPC Identity**
-- Shortcut: **Ctrl+Shift+E** (Ctrl+Shift+I is reserved for playtest HUD)
-- Bootstrap: `CCS.Modules.NPCs.Editor.CCS_NpcIdentityFoundationBootstrapSetup.ExecuteBatch`
+| Group | Shortcut | Bootstrap |
+|-------|----------|-----------|
+| NPC Identity | Ctrl+Shift+E | `CCS_NpcIdentityFoundationBootstrapSetup.ExecuteBatch` |
+| NPC Service Representatives | Ctrl+Alt+R | `CCS_NpcServiceRepresentativeFoundationBootstrapSetup.ExecuteBatch` |
 
 ## Validation
 
-Registered via `CCS_NpcValidationRegistration` → `CCS_NpcIdentityFoundationValidationValidator`.
+Registered via `CCS_NpcValidationRegistration`:
+
+- `CCS_NpcIdentityFoundationValidationValidator` (4.1.0)
+- `CCS_NpcServiceRepresentativeFoundationValidationValidator` (4.3.0)
