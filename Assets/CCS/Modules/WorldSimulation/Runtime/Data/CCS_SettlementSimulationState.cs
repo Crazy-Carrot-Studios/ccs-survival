@@ -9,7 +9,7 @@ using CCS.Modules.Settlements;
 // PLACEMENT: Stored by CCS_WorldSimulationService and save payloads.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 4.4.0 — housing states persisted with world simulation save/load.
+// NOTES: Milestone 4.5.0 — movement states persisted with world simulation save/load.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -24,6 +24,7 @@ namespace CCS.Modules.WorldSimulation
         public CCS_NpcServiceRepresentativeState[] npcServiceRepresentativeStates =
             Array.Empty<CCS_NpcServiceRepresentativeState>();
         public CCS_SettlementHousingState[] housingStates = Array.Empty<CCS_SettlementHousingState>();
+        public CCS_NpcMovementState[] npcMovementStates = Array.Empty<CCS_NpcMovementState>();
         public int population;
         public int populationCapacity;
         public float populationGrowthRate;

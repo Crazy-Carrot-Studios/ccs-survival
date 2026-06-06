@@ -51,7 +51,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.PopulationPresence,
             CCS_PlaytestStepGroup.NpcIdentity,
             CCS_PlaytestStepGroup.NpcServiceRepresentatives,
-            CCS_PlaytestStepGroup.SettlementHousing
+            CCS_PlaytestStepGroup.SettlementHousing,
+            CCS_PlaytestStepGroup.NpcMovement
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -133,6 +134,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Service Representatives";
                 case CCS_PlaytestStepGroup.SettlementHousing:
                     return "Settlement Housing";
+                case CCS_PlaytestStepGroup.NpcMovement:
+                    return "NPC Movement";
                 default:
                     return group.ToString();
             }
@@ -522,6 +525,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadSettlementHousingState:
                 case CCS_PlaytestStepType.VerifySettlementHousingAfterLoad:
                     return CCS_PlaytestStepGroup.SettlementHousing;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcMovement:
+                case CCS_PlaytestStepType.VerifyWorkerMovementActive:
+                case CCS_PlaytestStepType.VerifyRepresentativeMovementActive:
+                case CCS_PlaytestStepType.VerifyScheduleTransitionToHome:
+                case CCS_PlaytestStepType.VerifyScheduleTransitionToWork:
+                case CCS_PlaytestStepType.SaveNpcMovementState:
+                case CCS_PlaytestStepType.LoadNpcMovementState:
+                case CCS_PlaytestStepType.VerifyNpcMovementAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcMovement;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

@@ -531,6 +531,10 @@ namespace CCS.Survival.Composition
                 CreateSettlementHousingService(worldSimulationProfile?.SettlementHousingProfile);
             RegisterService(runtimeHost, settlementHousingService, enableDebugLogs);
 
+            CCS_NpcMovementService npcMovementService =
+                CreateNpcMovementService(worldSimulationProfile?.SettlementNpcMovementProfile);
+            RegisterService(runtimeHost, npcMovementService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -573,6 +577,14 @@ namespace CCS.Survival.Composition
                 settlementService,
                 settlementHousingService,
                 worldSimulationService);
+            WireNpcMovement(
+                settlementService,
+                npcIdentityService,
+                npcMovementService,
+                worldSimulationService,
+                timeOfDayService,
+                worldSimulationProfile?.SettlementHousingProfile);
+            RegisterNpcMovementUpdatable(runtimeHost, npcMovementService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
             {
@@ -2781,6 +2793,106 @@ namespace CCS.Survival.Composition
             settlementService.SettlementDiscovered += housingService.HandleSettlementDiscovered;
 
             housingService.RefreshAllAnchors();
+        }
+
+        private static CCS_NpcMovementService CreateNpcMovementService(CCS_NpcMovementProfile profile)
+        {
+            CCS_NpcMovementService service = new CCS_NpcMovementService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcMovement(
+            CCS_SettlementService settlementService,
+            CCS_NpcIdentityService npcIdentityService,
+            CCS_NpcMovementService movementService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_SettlementHousingProfile housingProfile)
+        {
+            if (settlementService == null || npcIdentityService == null
+                || movementService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            movementService.BindMovementStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcMovementStates ?? new CCS_NpcMovementState[0];
+                    }
+
+                    return new CCS_NpcMovementState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetMovementStates(settlementId, states);
+                });
+
+            movementService.BindIdentityStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcIdentityStates ?? new CCS_NpcIdentityState[0];
+                    }
+
+                    return new CCS_NpcIdentityState[0];
+                },
+                (settlementId, states) =>
+                {
+                    if (!worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        || state == null)
+                    {
+                        return;
+                    }
+
+                    state.npcIdentityStates = states ?? new CCS_NpcIdentityState[0];
+                });
+
+            movementService.BindScheduleHourResolver(() =>
+            {
+                if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                {
+                    return 12;
+                }
+
+                return timeOfDayService.CreateSnapshot().Hour;
+            });
+
+            movementService.BindHousingProfileResolver(() => housingProfile);
+
+            settlementService.SettlementDiscovered += movementService.HandleSettlementDiscovered;
+            settlementService.SettlementPopulationChanged += movementService.HandleSettlementPopulationChanged;
+
+            movementService.ResyncAllFromSchedule();
+        }
+
+        private static void RegisterNpcMovementUpdatable(
+            CCS_RuntimeHost runtimeHost,
+            CCS_NpcMovementService movementService)
+        {
+            if (runtimeHost == null || movementService == null || !movementService.IsInitialized)
+            {
+                return;
+            }
+
+            runtimeHost.RuntimeUpdateLoop.RegisterUpdatable(movementService);
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

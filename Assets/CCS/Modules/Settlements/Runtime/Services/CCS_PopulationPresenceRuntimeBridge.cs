@@ -162,5 +162,16 @@ namespace CCS.Modules.Settlements
 
             return ResolveGrowthSnapshot.Invoke(settlementId) ?? CCS_SettlementGrowthSnapshot.Empty;
         }
+
+        public static bool TryFindAnchor(string anchorId, out CCS_PopulationPresenceAnchor anchor)
+        {
+            anchor = null;
+            if (string.IsNullOrWhiteSpace(anchorId))
+            {
+                return false;
+            }
+
+            return AnchorLookup.TryGetValue(anchorId, out anchor) && anchor != null;
+        }
     }
 }

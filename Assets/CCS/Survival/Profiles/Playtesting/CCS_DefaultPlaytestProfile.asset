@@ -2642,3 +2642,68 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.discover
+    displayName: Discover settlement for NPC movement
+    stepType: 303
+    instructionText: Discover settlement for NPC movement. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.verify.worker
+    displayName: Verify worker movement active
+    stepType: 304
+    instructionText: Verify worker movement active. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.verify.representative
+    displayName: Verify representative movement active
+    stepType: 305
+    instructionText: Verify representative movement active. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.verify.home
+    displayName: Verify schedule transition to home
+    stepType: 306
+    instructionText: Verify schedule transition to home. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.verify.work
+    displayName: Verify schedule transition to work
+    stepType: 307
+    instructionText: Verify schedule transition to work. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.save
+    displayName: Save NPC movement state
+    stepType: 308
+    instructionText: Save NPC movement state. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.load
+    displayName: Load NPC movement state
+    stepType: 309
+    instructionText: Load NPC movement state. Ctrl+Alt+M shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcmovement.verify.load
+    displayName: Verify NPC movement restored after load
+    stepType: 310
+    instructionText: Verify NPC movement restored after load. Ctrl+Alt+M shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

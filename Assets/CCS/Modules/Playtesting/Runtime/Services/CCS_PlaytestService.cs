@@ -31,6 +31,7 @@ using CCS.Modules.Firearms;
 using CCS.Modules.Prospecting;
 using CCS.Modules.Shelter;
 using CCS.Modules.NPCs;
+using CCS.Modules.TimeOfDay;
 using CCS.Modules.Settlements;
 using CCS.Modules.Regions;
 using CCS.Modules.WorldSimulation;
@@ -265,6 +266,9 @@ namespace CCS.Modules.Playtesting
         private int savedActiveHousingCount = -1;
         private bool savedBoardingHouseActive;
         private bool settlementHousingSaveCaptured;
+        private int savedNpcMovementStatus = -1;
+        private string savedNpcMovementTargetAnchorId = string.Empty;
+        private bool npcMovementSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1471,6 +1475,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveSettlementHousingState,
                         "Settlement housing state saved.");
                 }
+
+                if (TryCaptureNpcMovementSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcMovementState,
+                        "NPC movement state saved.");
+                }
             }
         }
 
@@ -1516,6 +1527,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadSettlementHousingState,
                     "Load completed for settlement housing restore.");
                 EvaluateSettlementHousingStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcMovementState,
+                    "Load completed for NPC movement restore.");
+                EvaluateNpcMovementStateAfterLoad();
             }
         }
 
@@ -6347,6 +6362,47 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestNpcMovementFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcMovement,
+                "Trading Post discovered for NPC movement playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+            SetPlaytestScheduleHour(10);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcMovementPlaytestSteps();
+            SetPlaytestScheduleHour(20);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcMovementPlaytestSteps();
+            SetPlaytestScheduleHour(10);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcMovementPlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6812,6 +6868,143 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.VerifySettlementHousingAfterLoad,
                     "Settlement housing capacity and activation restored after load.");
             }
+        }
+
+        private void EvaluateNpcMovementPlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot workerSnapshot)
+                && workerSnapshot.IsValid
+                && IsNpcMovementActiveStatus(workerSnapshot.Status))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyWorkerMovementActive,
+                    $"Worker movement active ({workerSnapshot.Status}).");
+            }
+
+            if (CCS_NpcMovementRuntimeBridge.TryGetRepresentativeHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot representativeSnapshot)
+                && representativeSnapshot.IsValid
+                && IsNpcMovementActiveStatus(representativeSnapshot.Status))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRepresentativeMovementActive,
+                    $"Representative movement active ({representativeSnapshot.Status}).");
+            }
+
+            if (CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot homeSnapshot)
+                && homeSnapshot.IsValid
+                && IsNpcMovementHomeStatus(homeSnapshot.Status))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyScheduleTransitionToHome,
+                    $"Schedule transitioned to home ({homeSnapshot.Status}).");
+            }
+
+            if (CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot workSnapshot)
+                && workSnapshot.IsValid
+                && IsNpcMovementWorkStatus(workSnapshot.Status))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyScheduleTransitionToWork,
+                    $"Schedule transitioned to work ({workSnapshot.Status}).");
+            }
+        }
+
+        private bool TryCaptureNpcMovementSaveState()
+        {
+            if (npcMovementSaveCaptured)
+            {
+                return npcMovementSaveCaptured;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot snapshot)
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedNpcMovementStatus = (int)snapshot.Status;
+            savedNpcMovementTargetAnchorId = snapshot.TargetAnchorId ?? string.Empty;
+            npcMovementSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcMovementStateAfterLoad()
+        {
+            if (!npcMovementSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+
+            bool restored = CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot snapshot)
+                && snapshot.IsValid
+                && (int)snapshot.Status == savedNpcMovementStatus
+                && string.Equals(
+                    snapshot.TargetAnchorId,
+                    savedNpcMovementTargetAnchorId,
+                    System.StringComparison.OrdinalIgnoreCase);
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcMovementAfterLoad,
+                    "NPC movement state restored after load.");
+            }
+        }
+
+        private static bool IsNpcMovementActiveStatus(CCS_NpcMovementStatus status)
+        {
+            return status == CCS_NpcMovementStatus.TravelingToWork
+                || status == CCS_NpcMovementStatus.Working
+                || status == CCS_NpcMovementStatus.TravelingHome
+                || status == CCS_NpcMovementStatus.AtHome;
+        }
+
+        private static bool IsNpcMovementHomeStatus(CCS_NpcMovementStatus status)
+        {
+            return status == CCS_NpcMovementStatus.TravelingHome
+                || status == CCS_NpcMovementStatus.AtHome;
+        }
+
+        private static bool IsNpcMovementWorkStatus(CCS_NpcMovementStatus status)
+        {
+            return status == CCS_NpcMovementStatus.TravelingToWork
+                || status == CCS_NpcMovementStatus.Working;
+        }
+
+        private static void SetPlaytestScheduleHour(int hour)
+        {
+            if (!CCS_TimeOfDayRuntimeBridge.TryGetTimeOfDayService(out CCS_TimeOfDayService timeOfDayService)
+                || timeOfDayService == null
+                || !timeOfDayService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_GameTimeSnapshot snapshot = timeOfDayService.CreateSnapshot();
+            timeOfDayService.SetTime(snapshot.DayNumber, hour, 0);
         }
 
         private void EvaluateNpcServiceRepresentativePlaytestSteps()

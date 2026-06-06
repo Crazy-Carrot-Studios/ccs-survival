@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace CCS.Modules.Settlements
 {
-    public sealed class CCS_PopulationPlaceholderActor : MonoBehaviour, CCS_IPopulationPlaceholderIdentityHost
+    public sealed class CCS_PopulationPlaceholderActor : MonoBehaviour, CCS_IPopulationPlaceholderIdentityHost, CCS_INpcMovementHost
     {
         [SerializeField] private CCS_SettlementPopulationCategory workforceCategory =
             CCS_SettlementPopulationCategory.Unknown;
@@ -76,6 +76,12 @@ namespace CCS.Modules.Settlements
         public bool IsServiceRepresentative => isServiceRepresentative;
 
         public string RepresentativeTitle => representativeTitle ?? string.Empty;
+
+        public string WorkforceAnchorId => anchorId ?? string.Empty;
+
+        public string HomeHousingId => homeHousingId ?? string.Empty;
+
+        public Transform MovementTransform => transform;
 
         public void Configure(CCS_SettlementPopulationCategory category)
         {

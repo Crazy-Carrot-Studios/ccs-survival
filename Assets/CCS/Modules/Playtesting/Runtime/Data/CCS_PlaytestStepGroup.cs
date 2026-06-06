@@ -47,6 +47,7 @@ namespace CCS.Modules.Playtesting
         PopulationPresence = 32,
         NpcIdentity = 33,
         NpcServiceRepresentatives = 34,
-        SettlementHousing = 35
+        SettlementHousing = 35,
+        NpcMovement = 36
     }
 }

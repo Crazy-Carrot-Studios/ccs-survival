@@ -193,7 +193,7 @@ namespace CCS.Modules.Playtesting
 
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.M))
             {
-                playtestService.TryGrantPlaytestRawMeat();
+                playtestService.TryPlaytestNpcMovementFoundationShortcut();
             }
 
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.T))

@@ -314,6 +314,14 @@ namespace CCS.Modules.Playtesting
         VerifyPopulationRespectsTotalCapacity = 299,
         SaveSettlementHousingState = 300,
         LoadSettlementHousingState = 301,
-        VerifySettlementHousingAfterLoad = 302
+        VerifySettlementHousingAfterLoad = 302,
+        DiscoverSettlementForNpcMovement = 303,
+        VerifyWorkerMovementActive = 304,
+        VerifyRepresentativeMovementActive = 305,
+        VerifyScheduleTransitionToHome = 306,
+        VerifyScheduleTransitionToWork = 307,
+        SaveNpcMovementState = 308,
+        LoadNpcMovementState = 309,
+        VerifyNpcMovementAfterLoad = 310
     }
 }

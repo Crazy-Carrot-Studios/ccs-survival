@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_PopulationPlaceholderIdentityBridge
@@ -215,6 +216,44 @@ namespace CCS.Survival
             }
 
             return false;
+        }
+
+        public static int GetRegisteredHostCount()
+        {
+            return RegisteredHosts.Count;
+        }
+
+        public static void ForEachHost(Action<CCS_IPopulationPlaceholderIdentityHost> visitor)
+        {
+            if (visitor == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < RegisteredHosts.Count; index++)
+            {
+                CCS_IPopulationPlaceholderIdentityHost host = RegisteredHosts[index];
+                if (host != null)
+                {
+                    visitor.Invoke(host);
+                }
+            }
+        }
+
+        public static void ForEachMovementHost(Action<CCS_INpcMovementHost> visitor)
+        {
+            if (visitor == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < RegisteredHosts.Count; index++)
+            {
+                if (RegisteredHosts[index] is CCS_INpcMovementHost movementHost)
+                {
+                    visitor.Invoke(movementHost);
+                }
+            }
         }
     }
 
