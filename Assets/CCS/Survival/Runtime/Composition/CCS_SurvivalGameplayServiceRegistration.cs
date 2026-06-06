@@ -527,6 +527,10 @@ namespace CCS.Survival.Composition
                     worldSimulationProfile?.SettlementNpcServiceRepresentativeProfile);
             RegisterService(runtimeHost, npcServiceRepresentativeService, enableDebugLogs);
 
+            CCS_SettlementHousingService settlementHousingService =
+                CreateSettlementHousingService(worldSimulationProfile?.SettlementHousingProfile);
+            RegisterService(runtimeHost, settlementHousingService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -564,6 +568,10 @@ namespace CCS.Survival.Composition
                 populationPresenceService,
                 npcIdentityService,
                 npcServiceRepresentativeService,
+                worldSimulationService);
+            WireSettlementHousing(
+                settlementService,
+                settlementHousingService,
                 worldSimulationService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2696,6 +2704,83 @@ namespace CCS.Survival.Composition
 
             populationPresenceService.RefreshAllAnchors();
             representativeService.RefreshAllRepresentatives();
+        }
+
+        private static CCS_SettlementHousingService CreateSettlementHousingService(
+            CCS_SettlementHousingProfile profile)
+        {
+            CCS_SettlementHousingService service = new CCS_SettlementHousingService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireSettlementHousing(
+            CCS_SettlementService settlementService,
+            CCS_SettlementHousingService housingService,
+            CCS_WorldSimulationService worldSimulationService)
+        {
+            if (settlementService == null || housingService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            housingService.BindHousingStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.housingStates ?? new CCS_SettlementHousingState[0];
+                    }
+
+                    return new CCS_SettlementHousingState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetHousingStates(settlementId, states);
+                });
+
+            housingService.BindGrowthSnapshotResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetGrowthSnapshot(settlementId, out CCS_SettlementGrowthSnapshot snapshot))
+                {
+                    return snapshot;
+                }
+
+                return CCS_SettlementGrowthSnapshot.Empty;
+            });
+
+            housingService.BindSettlementDiscoveredResolver(settlementId =>
+                settlementService.IsInitialized && settlementService.IsDiscovered(settlementId));
+
+            housingService.BindProsperityResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetSettlementState(
+                        settlementId,
+                        out CCS_SettlementSimulationState state)
+                    && state != null)
+                {
+                    return state.prosperity;
+                }
+
+                return 0f;
+            });
+
+            housingService.BindPopulationProfileResolver(() => worldSimulationService.SettlementPopulationProfile);
+            housingService.BindPopulationMetricsRefreshCallback(
+                worldSimulationService.RefreshSettlementPopulationMetrics);
+
+            settlementService.SettlementGrowthChanged += housingService.HandleSettlementGrowthChanged;
+            settlementService.SettlementDiscovered += housingService.HandleSettlementDiscovered;
+
+            housingService.RefreshAllAnchors();
         }
 
         private static void WireContractBoardActivation(CCS_ContractService contractService)

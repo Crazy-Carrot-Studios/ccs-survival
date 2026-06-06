@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.3.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.4.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.4.0** — Settlement Housing Foundation
+
+Settlement-owned housing contributes **population capacity** through `CCS_SettlementHousingService` and primitive labeled markers (`CCS_SettlementHousingAnchor`). Total capacity = base population capacity + active housing capacity. Housing types: Worker Cabin (+10), Farmhouse (+12), Boarding House (+20), Mining Barracks (+25). Activation gates by growth stage (Outpost vs TradingPost). State persists on `CCS_SettlementSimulationState.housingStates`. Optional `homeHousingId` placeholder on NPC identity. No player housing, schedules, pathfinding, or final art. Playtest group **Settlement Housing** with **Ctrl+Alt+H** shortcut.
+
+**Settlement Housing Loop:**
+
+```text
+Population Grows → Housing Capacity Matters → Housing Markers Show Settlement Life → Future NPC Homes / Schedules Ready
+```
 
 **4.3.0** — NPC Service Representatives Foundation
 

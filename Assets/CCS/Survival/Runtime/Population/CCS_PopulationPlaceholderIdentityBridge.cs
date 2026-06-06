@@ -71,7 +71,8 @@ namespace CCS.Survival
                 data.RoleDisplayName,
                 data.SettlementId,
                 data.BusinessId,
-                data.WorkforceCategory);
+                data.WorkforceCategory,
+                data.HomeHousingId);
             return true;
         }
 
@@ -232,6 +233,8 @@ namespace CCS.Survival
         public string BusinessId { get; set; } = string.Empty;
 
         public int WorkforceCategory { get; set; }
+
+        public string HomeHousingId { get; set; } = string.Empty;
 
         public bool IsValid =>
             !string.IsNullOrWhiteSpace(NpcIdentityId)

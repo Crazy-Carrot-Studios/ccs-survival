@@ -60,7 +60,7 @@ namespace CCS.Modules.Settlements
             }
 
             const float width = 420f;
-            Rect panelRect = new Rect(16f, Screen.height - 220f, width, 200f);
+            Rect panelRect = new Rect(16f, Screen.height - 280f, width, 260f);
             GUI.Box(panelRect, "Settlement Growth");
 
             GUILayout.BeginArea(new Rect(panelRect.x + 10f, panelRect.y + 24f, panelRect.width - 20f, panelRect.height - 34f));
@@ -99,7 +99,23 @@ namespace CCS.Modules.Settlements
             if (settlementService.TryGetPopulationSnapshot(s_settlementId, out CCS_SettlementPopulationSnapshot populationSnapshot)
                 && populationSnapshot.IsValid)
             {
-                GUILayout.Label($"Population: {populationSnapshot.TotalPopulation}/{populationSnapshot.PopulationCapacity}");
+                GUILayout.Label(
+                    $"Population: {populationSnapshot.TotalPopulation}/{populationSnapshot.PopulationCapacity}");
+                GUILayout.Label(
+                    $"Capacity base: {populationSnapshot.BasePopulationCapacity} + housing: "
+                    + $"{populationSnapshot.HousingCapacityContribution} = "
+                    + $"{populationSnapshot.PopulationCapacity}");
+                if (populationSnapshot.ActiveHousingCount > 0)
+                {
+                    GUILayout.Label(
+                        $"Active housing ({populationSnapshot.ActiveHousingCount}): "
+                        + string.Join(", ", populationSnapshot.ActiveHousingNames));
+                }
+                else
+                {
+                    GUILayout.Label("Active housing: none");
+                }
+
                 GUILayout.Label($"Growth rate: {populationSnapshot.PopulationGrowthRate:0.##}");
                 GUILayout.Label($"Stability: {populationSnapshot.PopulationStability:0.##}%");
                 GUILayout.Label(

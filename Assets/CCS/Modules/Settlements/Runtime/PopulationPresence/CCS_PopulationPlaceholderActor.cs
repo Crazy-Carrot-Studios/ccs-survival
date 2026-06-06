@@ -39,6 +39,8 @@ namespace CCS.Modules.Settlements
 
         [SerializeField] private string representativeTitle = string.Empty;
 
+        [SerializeField] private string homeHousingId = string.Empty;
+
         [SerializeField] private float labelHeight = 1.35f;
 
         [SerializeField] private Color farmerColor = new Color(0.55f, 0.75f, 0.35f, 1f);
@@ -101,7 +103,8 @@ namespace CCS.Modules.Settlements
             string resolvedRoleDisplayName,
             string anchorSettlementId,
             string anchorBusinessId,
-            int resolvedWorkforceCategory)
+            int resolvedWorkforceCategory,
+            string assignedHomeHousingId = "")
         {
             npcIdentityId = identityId ?? string.Empty;
             displayName = name ?? string.Empty;
@@ -110,6 +113,7 @@ namespace CCS.Modules.Settlements
             settlementId = anchorSettlementId ?? string.Empty;
             businessId = anchorBusinessId ?? string.Empty;
             workforceCategory = (CCS_SettlementPopulationCategory)resolvedWorkforceCategory;
+            homeHousingId = assignedHomeHousingId ?? string.Empty;
             ApplyCategoryColor();
             ApplyIdentityLabel();
         }
@@ -197,6 +201,12 @@ namespace CCS.Modules.Settlements
             if (isServiceRepresentative && !string.IsNullOrWhiteSpace(representativeTitle))
             {
                 identityLabel.text = $"{displayName}\n{representativeTitle}";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(homeHousingId))
+            {
+                identityLabel.text = $"{displayName} — {roleDisplayName}\nHome: {homeHousingId}";
                 return;
             }
 

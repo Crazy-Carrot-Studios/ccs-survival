@@ -32,6 +32,8 @@ namespace CCS.Modules.NPCs
 
         public int slotIndex;
 
+        public string homeHousingId = string.Empty;
+
         public CCS_NpcRoleType ResolvedRoleType =>
             Enum.IsDefined(typeof(CCS_NpcRoleType), roleType)
                 ? (CCS_NpcRoleType)roleType

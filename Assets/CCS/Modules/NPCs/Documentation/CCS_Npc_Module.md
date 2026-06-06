@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 4.4.0** — Optional `homeHousingId` placeholder on `CCS_NpcIdentityState` / `CCS_NpcIdentitySnapshot` for future home assignment (debug label on placeholders when set).
+
 **Milestone 4.3.0** — NPC service representatives foundation for settlement businesses.
 
 **Milestone 4.1.0** — NPC identity and role foundation for population placeholder actors.

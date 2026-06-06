@@ -270,7 +270,8 @@ namespace CCS.Modules.NPCs
                 RoleDisplayName = ResolveRoleDisplayName(profile, role),
                 SettlementId = state.settlementId ?? string.Empty,
                 BusinessId = state.businessId ?? string.Empty,
-                WorkforceCategory = state.ResolvedWorkforceCategory
+                WorkforceCategory = state.ResolvedWorkforceCategory,
+                HomeHousingId = state.homeHousingId ?? string.Empty
             };
         }
 
@@ -288,7 +289,8 @@ namespace CCS.Modules.NPCs
                 businessId = snapshot.BusinessId ?? string.Empty,
                 workforceCategory = (int)snapshot.WorkforceCategory,
                 anchorId = anchorId ?? string.Empty,
-                slotIndex = slotIndex
+                slotIndex = slotIndex,
+                homeHousingId = snapshot.HomeHousingId ?? string.Empty
             };
         }
 
@@ -314,7 +316,8 @@ namespace CCS.Modules.NPCs
                         businessId = entry.businessId,
                         workforceCategory = entry.workforceCategory,
                         anchorId = entry.anchorId,
-                        slotIndex = entry.slotIndex
+                        slotIndex = entry.slotIndex,
+                        homeHousingId = entry.homeHousingId
                     };
             }
 

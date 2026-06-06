@@ -51,7 +51,8 @@ namespace CCS.Modules.NPCs
                         RoleDisplayName = snapshot.RoleDisplayName,
                         SettlementId = snapshot.SettlementId,
                         BusinessId = snapshot.BusinessId,
-                        WorkforceCategory = (int)snapshot.WorkforceCategory
+                        WorkforceCategory = (int)snapshot.WorkforceCategory,
+                        HomeHousingId = snapshot.HomeHousingId
                     };
                 };
         }

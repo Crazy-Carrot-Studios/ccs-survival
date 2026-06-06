@@ -41,7 +41,8 @@ namespace CCS.Survival
             string roleDisplayName,
             string anchorSettlementId,
             string anchorBusinessId,
-            int workforceCategory);
+            int workforceCategory,
+            string assignedHomeHousingId = "");
 
         void ApplyServiceRepresentativePresentation(string title);
 

@@ -1,7 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
-**Milestone:** 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
+**Milestone:** 4.4.0 — Settlement housing capacity + markers; 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
 **Milestone:** 3.7.0 — Frontier businesses foundation (activation from population, prosperity, growth, reputation)  
@@ -99,6 +99,26 @@ Visual state derives from world simulation population — no separate save secti
 Bootstrap: `CCS.Modules.Settlements.Editor.CCS_PopulationPresenceFoundationBootstrapSetup.ExecuteBatch`
 
 Playtest: **Population Presence** — **Ctrl+Shift+X**
+
+## Settlement housing (4.4.0)
+
+Settlement-owned housing adds population capacity and dev-readable world markers:
+
+- `CCS_SettlementHousingProfile` / `CCS_SettlementHousingService`
+- Bootstrap housing: Boarding House (Trading Post), Farmhouse (Broken Creek), Worker Cabin (Pine Ridge), Mining Barracks (Iron Ridge)
+- Total capacity = base population capacity + active housing capacity
+- Persisted on `CCS_SettlementSimulationState.housingStates`
+- Debug HUD shows base / housing / total capacity and active housing names
+
+**Settlement Housing Loop:**
+
+```text
+Population Grows → Housing Capacity Matters → Housing Markers Show Settlement Life → Future NPC Homes / Schedules Ready
+```
+
+Bootstrap: `CCS_SettlementHousingFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Settlement Housing** — **Ctrl+Alt+H**
 
 ## NPC identity on placeholders (4.1.0)
 

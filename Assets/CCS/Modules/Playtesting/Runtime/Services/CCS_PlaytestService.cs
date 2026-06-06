@@ -261,6 +261,10 @@ namespace CCS.Modules.Playtesting
         private string savedGeneralStoreRepresentativeIdentityId = string.Empty;
         private string savedBankRepresentativeIdentityId = string.Empty;
         private bool npcServiceRepresentativeSaveCaptured;
+        private int savedHousingCapacityContribution = -1;
+        private int savedActiveHousingCount = -1;
+        private bool savedBoardingHouseActive;
+        private bool settlementHousingSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1460,6 +1464,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcServiceRepresentativeState,
                         "NPC service representative state saved.");
                 }
+
+                if (TryCaptureSettlementHousingSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveSettlementHousingState,
+                        "Settlement housing state saved.");
+                }
             }
         }
 
@@ -1501,6 +1512,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcServiceRepresentativeState,
                     "Load completed for NPC service representative restore.");
                 EvaluateNpcServiceRepresentativeStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadSettlementHousingState,
+                    "Load completed for settlement housing restore.");
+                EvaluateSettlementHousingStateAfterLoad();
             }
         }
 
@@ -6297,6 +6312,41 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestSettlementHousingFoundationShortcut()
+        {
+            DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForSettlementHousing,
+                "Trading Post discovered for settlement housing playtest.");
+
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+            EvaluateSettlementHousingPlaytestSteps();
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        CCS_SettlementGrowthContentIds.TradingPostSettlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.IncreasePopulationForHousingCapacity,
+                            result.Message);
+                    }
+                }
+            }
+
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+            EvaluateSettlementHousingPlaytestSteps();
+            EvaluatePopulationPlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6662,6 +6712,105 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcIdentityAfterLoad,
                     "NPC identity restored after load.");
+            }
+        }
+
+        private void EvaluateSettlementHousingPlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_SettlementHousingRuntimeBridge.GetRegisteredAnchorCount() >= 4
+                && CCS_SettlementHousingRuntimeBridge.TryFindAnchorForHousing(
+                    settlementId,
+                    CCS_SettlementHousingContentIds.TradingPostBoardingHouseId,
+                    out _))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyHousingMarkerExists,
+                    "Settlement housing marker exists for Trading Post Boarding House.");
+            }
+
+            if (CCS_SettlementHousingRuntimeBridge.TryGetHousingSnapshot(
+                    settlementId,
+                    out CCS_SettlementHousingSnapshot housingSnapshot)
+                && housingSnapshot.IsValid
+                && housingSnapshot.HousingCapacityContribution > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyHousingCapacityContribution,
+                    $"Housing contributes +{housingSnapshot.HousingCapacityContribution} population capacity.");
+            }
+
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && boundSettlementService.TryGetPopulationSnapshot(settlementId, out CCS_SettlementPopulationSnapshot populationSnapshot)
+                && populationSnapshot != null
+                && populationSnapshot.TotalPopulation <= populationSnapshot.PopulationCapacity
+                && populationSnapshot.PopulationCapacity
+                    >= populationSnapshot.BasePopulationCapacity + populationSnapshot.HousingCapacityContribution)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyPopulationRespectsTotalCapacity,
+                    $"Population {populationSnapshot.TotalPopulation} respects total capacity "
+                    + $"{populationSnapshot.PopulationCapacity}.");
+            }
+        }
+
+        private bool TryCaptureSettlementHousingSaveState()
+        {
+            if (settlementHousingSaveCaptured)
+            {
+                return settlementHousingSaveCaptured;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_SettlementHousingRuntimeBridge.TryGetHousingSnapshot(
+                    settlementId,
+                    out CCS_SettlementHousingSnapshot housingSnapshot)
+                || !housingSnapshot.IsValid
+                || housingSnapshot.HousingCapacityContribution <= 0)
+            {
+                return false;
+            }
+
+            savedHousingCapacityContribution = housingSnapshot.HousingCapacityContribution;
+            savedActiveHousingCount = housingSnapshot.ActiveHousingCount;
+            savedBoardingHouseActive = housingSnapshot.ActiveHousingCount > 0;
+            settlementHousingSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateSettlementHousingStateAfterLoad()
+        {
+            if (!settlementHousingSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+
+            bool restored = CCS_SettlementHousingRuntimeBridge.TryGetHousingSnapshot(
+                    settlementId,
+                    out CCS_SettlementHousingSnapshot housingSnapshot)
+                && housingSnapshot.IsValid
+                && housingSnapshot.HousingCapacityContribution == savedHousingCapacityContribution
+                && housingSnapshot.ActiveHousingCount == savedActiveHousingCount
+                && housingSnapshot.ActiveHousingCount > 0 == savedBoardingHouseActive;
+
+            if (boundSettlementService != null
+                && boundSettlementService.IsInitialized
+                && boundSettlementService.TryGetPopulationSnapshot(settlementId, out CCS_SettlementPopulationSnapshot populationSnapshot)
+                && populationSnapshot != null
+                && populationSnapshot.HousingCapacityContribution == savedHousingCapacityContribution)
+            {
+                restored = restored && populationSnapshot.TotalPopulation <= populationSnapshot.PopulationCapacity;
+            }
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementHousingAfterLoad,
+                    "Settlement housing capacity and activation restored after load.");
             }
         }
 

@@ -2577,3 +2577,68 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.discover
+    displayName: Discover settlement for housing
+    stepType: 295
+    instructionText: Discover settlement for housing. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.verify.marker
+    displayName: Verify housing marker exists
+    stepType: 296
+    instructionText: Verify housing marker exists. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.verify.capacity
+    displayName: Verify housing capacity contribution
+    stepType: 297
+    instructionText: Verify housing capacity contribution. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.increase.population
+    displayName: Increase population toward capacity
+    stepType: 298
+    instructionText: Increase population toward capacity. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.verify.respects.capacity
+    displayName: Verify population respects total capacity
+    stepType: 299
+    instructionText: Verify population respects total capacity. Ctrl+Alt+H shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.save
+    displayName: Save settlement housing state
+    stepType: 300
+    instructionText: Save settlement housing state. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.load
+    displayName: Load settlement housing state
+    stepType: 301
+    instructionText: Load settlement housing state. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementhousing.verify.load
+    displayName: Verify housing restored after load
+    stepType: 302
+    instructionText: Verify housing restored after load. Ctrl+Alt+H shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

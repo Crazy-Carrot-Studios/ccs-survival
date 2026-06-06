@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Used by CCS_WorldSimulationService, validators, and debug HUD.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.6.0 — integrates prosperity, supply, contracts, and reputation.
+// NOTES: Milestone 4.4.0 — integrates prosperity, supply, contracts, reputation, and housing capacity.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -80,20 +80,32 @@ namespace CCS.Modules.WorldSimulation
             settlementState.laborerCount = 0;
 
             DistributeWorkforce(settlementState, regionalSpecialization);
-            RefreshDerivedMetrics(settlementState, profile, CCS_ReputationTier.Neutral, 0f, 0f, false);
+            RefreshDerivedMetrics(
+                settlementState,
+                profile,
+                settlementState.housingStates,
+                CCS_ReputationTier.Neutral,
+                0f,
+                0f,
+                false);
         }
 
         public static int ResolvePopulationCapacity(
             float prosperity,
             CCS_SettlementPopulationProfile profile)
         {
-            if (profile == null)
-            {
-                return Mathf.Max(0, Mathf.RoundToInt(prosperity));
-            }
+            return CCS_SettlementHousingValidationUtility.ResolveBasePopulationCapacity(prosperity, profile);
+        }
 
-            float capacity = profile.BasePopulationCapacity + prosperity * profile.CapacityPerProsperityPoint;
-            return Mathf.Max(0, Mathf.RoundToInt(capacity));
+        public static int ResolveTotalPopulationCapacity(
+            float prosperity,
+            CCS_SettlementPopulationProfile profile,
+            CCS_SettlementHousingState[] housingStates)
+        {
+            return CCS_SettlementHousingValidationUtility.ResolveTotalPopulationCapacity(
+                prosperity,
+                profile,
+                housingStates);
         }
 
         public static float CalculateGrowthDelta(
@@ -164,7 +176,10 @@ namespace CCS.Modules.WorldSimulation
                 return;
             }
 
-            int capacity = ResolvePopulationCapacity(settlementState.prosperity, profile);
+            int capacity = ResolveTotalPopulationCapacity(
+                settlementState.prosperity,
+                profile,
+                settlementState.housingStates);
             if (settlementState.populationCapacity > 0)
             {
                 capacity = Mathf.Max(capacity, settlementState.populationCapacity);
@@ -180,6 +195,7 @@ namespace CCS.Modules.WorldSimulation
         public static void RefreshDerivedMetrics(
             CCS_SettlementSimulationState settlementState,
             CCS_SettlementPopulationProfile profile,
+            CCS_SettlementHousingState[] housingStates,
             CCS_ReputationTier reputationTier,
             float foodSupplyPercent,
             float industrialSupplyPercent,
@@ -190,7 +206,15 @@ namespace CCS.Modules.WorldSimulation
                 return;
             }
 
-            settlementState.populationCapacity = ResolvePopulationCapacity(settlementState.prosperity, profile);
+            CCS_SettlementHousingState[] resolvedHousingStates = housingStates ?? settlementState.housingStates;
+            int baseCapacity = ResolvePopulationCapacity(settlementState.prosperity, profile);
+            int housingCapacity = CCS_SettlementHousingValidationUtility.ResolveActiveHousingCapacity(resolvedHousingStates);
+            settlementState.populationCapacity = baseCapacity + housingCapacity;
+            if (settlementState.population > settlementState.populationCapacity)
+            {
+                settlementState.population = settlementState.populationCapacity;
+            }
+
             settlementState.populationGrowthRate = CalculateGrowthDelta(
                 profile,
                 settlementState.prosperity,
@@ -200,6 +224,11 @@ namespace CCS.Modules.WorldSimulation
             settlementState.populationStability = CalculatePopulationStability(
                 foodSupplyPercent,
                 industrialSupplyPercent);
+            if (settlementState.population >= settlementState.populationCapacity)
+            {
+                settlementState.populationGrowthRate = 0f;
+            }
+
             ClampPopulationNonNegative(settlementState);
         }
 
@@ -281,11 +310,19 @@ namespace CCS.Modules.WorldSimulation
             }
 
             ClampPopulationNonNegative(settlementState);
+            int housingCapacity = CCS_SettlementHousingValidationUtility.ResolveActiveHousingCapacity(
+                settlementState.housingStates);
+            int baseCapacity = Mathf.Max(0, settlementState.populationCapacity - housingCapacity);
+            string[] activeHousingNames = BuildActiveHousingNames(settlementState.housingStates);
             return new CCS_SettlementPopulationSnapshot
             {
                 SettlementId = settlementState.settlementId ?? string.Empty,
                 TotalPopulation = settlementState.population,
                 PopulationCapacity = settlementState.populationCapacity,
+                BasePopulationCapacity = baseCapacity,
+                HousingCapacityContribution = housingCapacity,
+                ActiveHousingCount = activeHousingNames.Length,
+                ActiveHousingNames = activeHousingNames,
                 PopulationGrowthRate = settlementState.populationGrowthRate,
                 PopulationStability = settlementState.populationStability,
                 FarmerCount = settlementState.farmerCount,
@@ -314,6 +351,26 @@ namespace CCS.Modules.WorldSimulation
             }
 
             return CCS_RegionSpecializationType.FrontierMixed;
+        }
+
+        private static string[] BuildActiveHousingNames(CCS_SettlementHousingState[] housingStates)
+        {
+            if (housingStates == null || housingStates.Length == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            System.Collections.Generic.List<string> names = new System.Collections.Generic.List<string>();
+            for (int index = 0; index < housingStates.Length; index++)
+            {
+                CCS_SettlementHousingState state = housingStates[index];
+                if (state != null && state.isActive && !string.IsNullOrWhiteSpace(state.displayName))
+                {
+                    names.Add(state.displayName);
+                }
+            }
+
+            return names.ToArray();
         }
 
         private static void ResolveWorkforceWeights(

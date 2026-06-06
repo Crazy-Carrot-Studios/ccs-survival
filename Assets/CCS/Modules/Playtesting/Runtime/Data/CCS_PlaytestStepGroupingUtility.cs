@@ -50,7 +50,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.SettlementVisualGrowth,
             CCS_PlaytestStepGroup.PopulationPresence,
             CCS_PlaytestStepGroup.NpcIdentity,
-            CCS_PlaytestStepGroup.NpcServiceRepresentatives
+            CCS_PlaytestStepGroup.NpcServiceRepresentatives,
+            CCS_PlaytestStepGroup.SettlementHousing
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -130,6 +131,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Identity";
                 case CCS_PlaytestStepGroup.NpcServiceRepresentatives:
                     return "NPC Service Representatives";
+                case CCS_PlaytestStepGroup.SettlementHousing:
+                    return "Settlement Housing";
                 default:
                     return group.ToString();
             }
@@ -509,6 +512,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadNpcServiceRepresentativeState:
                 case CCS_PlaytestStepType.VerifyNpcServiceRepresentativeAfterLoad:
                     return CCS_PlaytestStepGroup.NpcServiceRepresentatives;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForSettlementHousing:
+                case CCS_PlaytestStepType.VerifyHousingMarkerExists:
+                case CCS_PlaytestStepType.VerifyHousingCapacityContribution:
+                case CCS_PlaytestStepType.IncreasePopulationForHousingCapacity:
+                case CCS_PlaytestStepType.VerifyPopulationRespectsTotalCapacity:
+                case CCS_PlaytestStepType.SaveSettlementHousingState:
+                case CCS_PlaytestStepType.LoadSettlementHousingState:
+                case CCS_PlaytestStepType.VerifySettlementHousingAfterLoad:
+                    return CCS_PlaytestStepGroup.SettlementHousing;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

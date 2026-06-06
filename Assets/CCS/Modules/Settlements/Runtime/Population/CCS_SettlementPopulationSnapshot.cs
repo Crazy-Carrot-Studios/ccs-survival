@@ -5,7 +5,7 @@
 // PLACEMENT: Built by CCS_SettlementPopulationUtility from simulation state.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 3.6.0 population foundation.
+// NOTES: Milestone 4.4.0 — includes housing capacity breakdown fields.
 // =============================================================================
 
 namespace CCS.Modules.Settlements
@@ -19,6 +19,14 @@ namespace CCS.Modules.Settlements
         public int TotalPopulation { get; set; }
 
         public int PopulationCapacity { get; set; }
+
+        public int BasePopulationCapacity { get; set; }
+
+        public int HousingCapacityContribution { get; set; }
+
+        public int ActiveHousingCount { get; set; }
+
+        public string[] ActiveHousingNames { get; set; } = System.Array.Empty<string>();
 
         public float PopulationGrowthRate { get; set; }
 

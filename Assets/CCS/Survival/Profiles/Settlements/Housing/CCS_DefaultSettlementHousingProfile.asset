@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae5ad83ca81ffe14c9919b4ab9e03bad, type: 3}
+  m_Name: CCS_DefaultSettlementHousingProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementHousingProfile
+  profileDisplayName: Default Settlement Housing Profile
+  profileId: ccs.survival.profile.settlementhousing.default
+  profileDescription: Bootstrap settlement-owned housing contributing to population
+    capacity.
+  profileVersion: 4.4.0
+  enableDebugLogs: 0
+  housingDefinitions:
+  - housingId: ccs.survival.settlement.housing.tradingpost.boardinghouse
+    settlementId: ccs.survival.settlement.frontier.testtradingpost
+    anchorId: ccs.survival.settlement.housinganchor.tradingpost.boardinghouse
+    displayName: Boarding House
+    housingType: 3
+    capacityContribution: 20
+    requiredGrowthStage: 2
+    workforceAffinity: 5
+  - housingId: ccs.survival.settlement.housing.brokencreek.farmhouse
+    settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+    anchorId: ccs.survival.settlement.housinganchor.brokencreek.farmhouse
+    displayName: Farmhouse
+    housingType: 2
+    capacityContribution: 12
+    requiredGrowthStage: 1
+    workforceAffinity: 1
+  - housingId: ccs.survival.settlement.housing.pineridge.workercabin
+    settlementId: ccs.survival.settlement.frontier.pineridgecamp
+    anchorId: ccs.survival.settlement.housinganchor.pineridge.workercabin
+    displayName: Worker Cabin
+    housingType: 1
+    capacityContribution: 10
+    requiredGrowthStage: 1
+    workforceAffinity: 6
+  - housingId: ccs.survival.settlement.housing.ironridge.miningbarracks
+    settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+    anchorId: ccs.survival.settlement.housinganchor.ironridge.miningbarracks
+    displayName: Mining Barracks
+    housingType: 4
+    capacityContribution: 25
+    requiredGrowthStage: 1
+    workforceAffinity: 3

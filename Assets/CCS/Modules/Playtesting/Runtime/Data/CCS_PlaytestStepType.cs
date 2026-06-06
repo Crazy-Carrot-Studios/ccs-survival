@@ -306,6 +306,14 @@ namespace CCS.Modules.Playtesting
         VerifyBankRepresentativeBankRoute = 291,
         SaveNpcServiceRepresentativeState = 292,
         LoadNpcServiceRepresentativeState = 293,
-        VerifyNpcServiceRepresentativeAfterLoad = 294
+        VerifyNpcServiceRepresentativeAfterLoad = 294,
+        DiscoverSettlementForSettlementHousing = 295,
+        VerifyHousingMarkerExists = 296,
+        VerifyHousingCapacityContribution = 297,
+        IncreasePopulationForHousingCapacity = 298,
+        VerifyPopulationRespectsTotalCapacity = 299,
+        SaveSettlementHousingState = 300,
+        LoadSettlementHousingState = 301,
+        VerifySettlementHousingAfterLoad = 302
     }
 }

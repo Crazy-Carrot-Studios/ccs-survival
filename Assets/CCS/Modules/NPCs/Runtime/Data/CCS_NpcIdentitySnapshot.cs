@@ -31,6 +31,8 @@ namespace CCS.Modules.NPCs
         public CCS_SettlementPopulationCategory WorkforceCategory { get; set; } =
             CCS_SettlementPopulationCategory.Unknown;
 
+        public string HomeHousingId { get; set; } = string.Empty;
+
         public bool IsValid =>
             !string.IsNullOrWhiteSpace(NpcIdentityId)
             && !string.IsNullOrWhiteSpace(DisplayName)
