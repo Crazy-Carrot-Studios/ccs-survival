@@ -16,8 +16,6 @@ namespace CCS.Modules.Settlements
     {
         [SerializeField] private float labelHeight = 2.2f;
 
-        [SerializeField] private float characterSize = 0.12f;
-
         [SerializeField] private Color activeColor = new Color(0.3f, 1f, 0.45f, 1f);
 
         [SerializeField] private Color inactiveColor = new Color(1f, 0.9f, 0.35f, 1f);
@@ -57,25 +55,8 @@ namespace CCS.Modules.Settlements
 
         private void EnsureLabel()
         {
-            if (textMesh == null)
-            {
-                textMesh = GetComponentInChildren<TextMesh>(true);
-            }
-
-            if (textMesh != null)
-            {
-                return;
-            }
-
-            GameObject labelObject = new GameObject("BusinessPresenceLabel");
-            labelObject.transform.SetParent(transform, false);
-            labelObject.transform.localPosition = new Vector3(0f, labelHeight, 0f);
-            labelObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            textMesh = labelObject.AddComponent<TextMesh>();
-            textMesh.anchor = TextAnchor.MiddleCenter;
-            textMesh.alignment = TextAlignment.Center;
-            textMesh.fontSize = 48;
-            textMesh.characterSize = characterSize;
+            textMesh = CCS_SettlementMarkerLabelUtility.EnsureTextMeshOnHost(this, ref textMesh);
+            CCS_SettlementMarkerLabelUtility.ApplyStandardLayout(transform, textMesh, labelHeight);
         }
     }
 }

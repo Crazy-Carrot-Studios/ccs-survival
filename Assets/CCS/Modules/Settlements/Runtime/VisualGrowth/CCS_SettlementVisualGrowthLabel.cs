@@ -16,8 +16,6 @@ namespace CCS.Modules.Settlements
     {
         [SerializeField] private float labelHeight = 2.2f;
 
-        [SerializeField] private int fontSize = 28;
-
         private TextMesh textMesh;
 
         private void Awake()
@@ -48,22 +46,8 @@ namespace CCS.Modules.Settlements
 
         private void EnsureTextMesh()
         {
-            if (textMesh != null)
-            {
-                return;
-            }
-
-            textMesh = GetComponent<TextMesh>();
-            if (textMesh == null)
-            {
-                textMesh = gameObject.AddComponent<TextMesh>();
-            }
-
-            textMesh.anchor = TextAnchor.MiddleCenter;
-            textMesh.alignment = TextAlignment.Center;
-            textMesh.fontSize = fontSize;
-            textMesh.characterSize = 0.08f;
-            transform.localPosition = new Vector3(0f, labelHeight, 0f);
+            textMesh = CCS_SettlementMarkerLabelUtility.EnsureTextMeshOnHost(this, ref textMesh);
+            CCS_SettlementMarkerLabelUtility.ApplyStandardLayout(transform, textMesh, labelHeight);
         }
     }
 }
