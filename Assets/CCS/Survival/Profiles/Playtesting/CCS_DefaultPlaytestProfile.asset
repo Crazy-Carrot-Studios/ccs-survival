@@ -2790,3 +2790,92 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.discover
+    displayName: Discover settlement for NPC activity
+    stepType: 321
+    instructionText: Discover settlement for NPC activity. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.spawn
+    displayName: Spawn named NPC for activity
+    stepType: 322
+    instructionText: Spawn named NPC for activity. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.force.work
+    displayName: Force work/service block for activity
+    stepType: 323
+    instructionText: Force work/service block for activity. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.verify.work
+    displayName: Verify NPC activity Working/Serving
+    stepType: 324
+    instructionText: Verify NPC activity Working/Serving. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.force.home
+    displayName: Force home/sleep block for activity
+    stepType: 325
+    instructionText: Force home/sleep block for activity. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.verify.home
+    displayName: Verify NPC activity Resting/Sleeping
+    stepType: 326
+    instructionText: Verify NPC activity Resting/Sleeping. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.force.travel
+    displayName: Force NPC movement for activity
+    stepType: 327
+    instructionText: Force NPC movement for activity. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.verify.travel
+    displayName: Verify NPC activity Traveling
+    stepType: 328
+    instructionText: Verify NPC activity Traveling. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.save
+    displayName: Save NPC activity state
+    stepType: 329
+    instructionText: Save NPC activity state. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.load
+    displayName: Load NPC activity state
+    stepType: 330
+    instructionText: Load NPC activity state. Ctrl+Alt+A shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcactivity.verify.load
+    displayName: Verify NPC activity restored after load
+    stepType: 331
+    instructionText: Verify NPC activity restored after load. Ctrl+Alt+A shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

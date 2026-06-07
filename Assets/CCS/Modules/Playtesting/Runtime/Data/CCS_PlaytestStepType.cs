@@ -332,6 +332,17 @@ namespace CCS.Modules.Playtesting
         VerifyNpcScheduleHousingTarget = 317,
         SaveNpcScheduleState = 318,
         LoadNpcScheduleState = 319,
-        VerifyNpcScheduleAfterLoad = 320
+        VerifyNpcScheduleAfterLoad = 320,
+        DiscoverSettlementForNpcActivity = 321,
+        SpawnNamedNpcForActivity = 322,
+        ForceNpcActivityWorkBlock = 323,
+        VerifyNpcActivityWorkingOrServing = 324,
+        ForceNpcActivityHomeBlock = 325,
+        VerifyNpcActivityRestingOrSleeping = 326,
+        ForceNpcActivityTraveling = 327,
+        VerifyNpcActivityTraveling = 328,
+        SaveNpcActivityState = 329,
+        LoadNpcActivityState = 330,
+        VerifyNpcActivityAfterLoad = 331
     }
 }

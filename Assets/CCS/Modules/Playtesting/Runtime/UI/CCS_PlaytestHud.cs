@@ -201,6 +201,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestNpcScheduleFoundationShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.A))
+            {
+                playtestService.TryPlaytestNpcActivityFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.T))
             {
                 playtestService.TryGrantPlaytestTrap();

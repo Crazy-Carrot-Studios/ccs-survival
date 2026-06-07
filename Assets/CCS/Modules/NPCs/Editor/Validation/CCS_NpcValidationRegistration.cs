@@ -26,6 +26,8 @@ namespace CCS.Modules.NPCs.Editor
                 new CCS_NpcMovementFoundationValidationValidator());
             CCS_SurvivalValidationPipeline.RegisterValidator(
                 new CCS_NpcScheduleFoundationValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(
+                new CCS_NpcActivityFoundationValidationValidator());
         }
     }
 }

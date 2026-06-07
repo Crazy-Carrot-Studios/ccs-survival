@@ -539,6 +539,10 @@ namespace CCS.Survival.Composition
                 CreateNpcScheduleService(worldSimulationProfile?.SettlementNpcScheduleProfile);
             RegisterService(runtimeHost, npcScheduleService, enableDebugLogs);
 
+            CCS_NpcActivityService npcActivityService =
+                CreateNpcActivityService(worldSimulationProfile?.SettlementNpcActivityProfile);
+            RegisterService(runtimeHost, npcActivityService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -594,6 +598,13 @@ namespace CCS.Survival.Composition
                 worldSimulationService,
                 timeOfDayService,
                 worldSimulationProfile?.SettlementHousingProfile);
+            WireNpcActivity(
+                settlementService,
+                npcActivityService,
+                npcMovementService,
+                npcScheduleService,
+                worldSimulationService,
+                timeOfDayService);
             RegisterNpcMovementUpdatable(runtimeHost, npcMovementService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2885,6 +2896,73 @@ namespace CCS.Survival.Composition
             settlementService.SettlementPopulationChanged += scheduleService.HandleSettlementPopulationChanged;
 
             scheduleService.RefreshAllSchedules();
+        }
+
+        private static CCS_NpcActivityService CreateNpcActivityService(CCS_NpcActivityProfile profile)
+        {
+            CCS_NpcActivityService service = new CCS_NpcActivityService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcActivity(
+            CCS_SettlementService settlementService,
+            CCS_NpcActivityService activityService,
+            CCS_NpcMovementService movementService,
+            CCS_NpcScheduleService scheduleService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            if (settlementService == null || activityService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            activityService.BindActivityStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcActivityStates ?? new CCS_NpcActivityState[0];
+                    }
+
+                    return new CCS_NpcActivityState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetActivityStates(settlementId, states);
+                });
+
+            activityService.BindScheduleHourResolver(() =>
+            {
+                if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                {
+                    return 12;
+                }
+
+                return timeOfDayService.CreateSnapshot().Hour;
+            });
+
+            activityService.BindScheduleServiceAvailability(scheduleService != null && scheduleService.IsInitialized);
+            activityService.BindMovementServiceAvailability(movementService != null && movementService.IsInitialized);
+
+            if (movementService != null)
+            {
+                movementService.BindActivityHostUpdatedCallback(activityService.EvaluateForHost);
+            }
+
+            settlementService.SettlementDiscovered += activityService.HandleSettlementDiscovered;
+            settlementService.SettlementPopulationChanged += activityService.HandleSettlementPopulationChanged;
+
+            activityService.RefreshAllActivities();
         }
 
         private static void WireNpcMovement(

@@ -275,6 +275,9 @@ namespace CCS.Modules.Playtesting
         private string savedNpcScheduleTargetId = string.Empty;
         private int savedNpcScheduleEvaluatedHour = -1;
         private bool npcScheduleSaveCaptured;
+        private int savedNpcActivityType = -1;
+        private int savedNpcActivityEvaluatedHour = -1;
+        private bool npcActivitySaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1495,6 +1498,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcScheduleState,
                         "NPC schedule state saved.");
                 }
+
+                if (TryCaptureNpcActivitySaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcActivityState,
+                        "NPC activity state saved.");
+                }
             }
         }
 
@@ -1548,6 +1558,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcScheduleState,
                     "Load completed for NPC schedule restore.");
                 EvaluateNpcScheduleStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcActivityState,
+                    "Load completed for NPC activity restore.");
+                EvaluateNpcActivityStateAfterLoad();
             }
         }
 
@@ -6490,6 +6504,83 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestNpcActivityFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcActivity,
+                "Trading Post discovered for NPC activity playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+
+            CCS_INpcMovementHost activityHost = null;
+            if (CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out activityHost,
+                    out _)
+                && activityHost != null)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SpawnNamedNpcForActivity,
+                    $"Named NPC ready for activity playtest ({activityHost.NpcIdentityId}).");
+            }
+
+            string npcIdentityId = activityHost?.NpcIdentityId ?? string.Empty;
+            SetPlaytestScheduleHour(10);
+            CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                settlementId,
+                npcIdentityId,
+                CCS_NpcScheduleBlockType.Work,
+                10);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+            EvaluateNpcActivityPlaytestSteps();
+
+            SetPlaytestScheduleHour(20);
+            CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                settlementId,
+                npcIdentityId,
+                CCS_NpcScheduleBlockType.Home,
+                20);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+            EvaluateNpcActivityPlaytestSteps();
+
+            SetPlaytestScheduleHour(10);
+            CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                settlementId,
+                npcIdentityId,
+                CCS_NpcScheduleBlockType.Work,
+                10);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+            EvaluateNpcActivityPlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -7157,6 +7248,112 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcScheduleAfterLoad,
                     $"NPC schedule restored ({snapshot.ActiveScheduleId}, {snapshot.CurrentBlockType}).");
+            }
+        }
+
+        private void EvaluateNpcActivityPlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcActivitySnapshot workSnapshot)
+                && workSnapshot.IsValid
+                && (workSnapshot.CurrentActivityType == CCS_NpcActivityType.Working
+                    || workSnapshot.CurrentActivityType == CCS_NpcActivityType.Serving))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceNpcActivityWorkBlock,
+                    $"Work/service block active ({workSnapshot.ScheduleBlockType}).");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcActivityWorkingOrServing,
+                    $"Activity verified ({workSnapshot.CurrentActivityType}).");
+            }
+
+            if (CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcActivitySnapshot homeSnapshot)
+                && homeSnapshot.IsValid
+                && (homeSnapshot.CurrentActivityType == CCS_NpcActivityType.Resting
+                    || homeSnapshot.CurrentActivityType == CCS_NpcActivityType.Sleeping))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceNpcActivityHomeBlock,
+                    $"Home/sleep block active ({homeSnapshot.ScheduleBlockType}).");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcActivityRestingOrSleeping,
+                    $"Activity verified ({homeSnapshot.CurrentActivityType}).");
+            }
+
+            if (CCS_NpcMovementRuntimeBridge.TryGetFirstHostWithIdentity(
+                    settlementId,
+                    out _,
+                    out CCS_NpcMovementSnapshot movementSnapshot)
+                && movementSnapshot.IsValid
+                && CCS_NpcMovementValidationUtility.IsTravelingStatus(movementSnapshot.Status))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceNpcActivityTraveling,
+                    $"Movement active ({movementSnapshot.Status}).");
+            }
+
+            if (CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcActivitySnapshot travelSnapshot)
+                && travelSnapshot.IsValid
+                && travelSnapshot.CurrentActivityType == CCS_NpcActivityType.Traveling)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcActivityTraveling,
+                    "Activity Traveling verified.");
+            }
+        }
+
+        private bool TryCaptureNpcActivitySaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcActivitySnapshot snapshot)
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedNpcActivityType = (int)snapshot.CurrentActivityType;
+            savedNpcActivityEvaluatedHour = snapshot.LastEvaluatedHour;
+            npcActivitySaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcActivityStateAfterLoad()
+        {
+            if (!npcActivitySaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+
+            bool restored = CCS_NpcActivityRuntimeBridge.TryGetFirstHostActivitySnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcActivitySnapshot snapshot)
+                && snapshot.IsValid
+                && (int)snapshot.CurrentActivityType == savedNpcActivityType
+                && snapshot.LastEvaluatedHour == savedNpcActivityEvaluatedHour;
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcActivityAfterLoad,
+                    $"NPC activity restored/re-evaluated ({snapshot.CurrentActivityType}).");
             }
         }
 

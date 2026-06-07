@@ -14,7 +14,8 @@ using UnityEngine;
 
 namespace CCS.Modules.Settlements
 {
-    public sealed class CCS_PopulationPlaceholderActor : MonoBehaviour, CCS_IPopulationPlaceholderIdentityHost, CCS_INpcMovementHost
+    public sealed class CCS_PopulationPlaceholderActor : MonoBehaviour,
+        CCS_IPopulationPlaceholderIdentityHost, CCS_INpcMovementHost, CCS_INpcPresentationHost
     {
         [SerializeField] private CCS_SettlementPopulationCategory workforceCategory =
             CCS_SettlementPopulationCategory.Unknown;
@@ -42,6 +43,10 @@ namespace CCS.Modules.Settlements
         [SerializeField] private string homeHousingId = string.Empty;
 
         [SerializeField] private float labelHeight = 1.35f;
+
+        [SerializeField] private float activityIndicatorHeight = 1.85f;
+
+        [SerializeField] private float activityIndicatorScale = 0.18f;
 
         [SerializeField] private Color farmerColor = new Color(0.55f, 0.75f, 0.35f, 1f);
 
@@ -154,6 +159,12 @@ namespace CCS.Modules.Settlements
                 businessId);
         }
 
+        public void RefreshPresentation()
+        {
+            ApplyIdentityLabel();
+            ApplyActivityIndicator();
+        }
+
         private void Awake()
         {
             ApplyCategoryColor();
@@ -206,24 +217,105 @@ namespace CCS.Modules.Settlements
 
             if (isServiceRepresentative && !string.IsNullOrWhiteSpace(representativeTitle))
             {
-                identityLabel.text = AppendScheduleDebugLine($"{displayName}\n{representativeTitle}");
+                identityLabel.text = BuildLabelText($"{displayName}\n{representativeTitle}");
+                ApplyActivityIndicator();
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(homeHousingId))
-            {
-                identityLabel.text = AppendScheduleDebugLine(
-                    $"{displayName} — {roleDisplayName}\nHome: {homeHousingId}");
-                return;
-            }
-
-            identityLabel.text = AppendScheduleDebugLine($"{displayName} — {roleDisplayName}\n{workforceCategory}");
+            identityLabel.text = BuildLabelText($"{displayName} — {roleDisplayName}");
+            ApplyActivityIndicator();
         }
 
-        private string AppendScheduleDebugLine(string baseLabel)
+        private string BuildLabelText(string baseLabel)
         {
-            string scheduleLine = CCS_NpcScheduleLabelBridge.BuildScheduleDebugLine(settlementId, npcIdentityId);
-            return string.IsNullOrWhiteSpace(scheduleLine) ? baseLabel : $"{baseLabel}\n{scheduleLine}";
+            string activityLine = CCS_NpcActivityLabelBridge.BuildActivityDisplayLine(settlementId, npcIdentityId);
+            if (string.IsNullOrWhiteSpace(activityLine))
+            {
+                if (!string.IsNullOrWhiteSpace(homeHousingId))
+                {
+                    return AppendDebugLine($"{baseLabel}\nHome: {homeHousingId}");
+                }
+
+                return AppendDebugLine($"{baseLabel}\n{workforceCategory}");
+            }
+
+            return AppendDebugLine($"{baseLabel}\n{activityLine}");
+        }
+
+        private string AppendDebugLine(string baseLabel)
+        {
+            string debugLine = CCS_NpcActivityLabelBridge.BuildActivityDebugLine(settlementId, npcIdentityId);
+            if (string.IsNullOrWhiteSpace(debugLine))
+            {
+                string scheduleLine = CCS_NpcScheduleLabelBridge.BuildScheduleDebugLine(settlementId, npcIdentityId);
+                return string.IsNullOrWhiteSpace(scheduleLine) ? baseLabel : $"{baseLabel}\n{scheduleLine}";
+            }
+
+            return $"{baseLabel}\n{debugLine}";
+        }
+
+        private void ApplyActivityIndicator()
+        {
+            EnsureActivityIndicator();
+            if (activityIndicatorRenderer == null)
+            {
+                return;
+            }
+
+            string activityLine = CCS_NpcActivityLabelBridge.BuildActivityDisplayLine(settlementId, npcIdentityId);
+            if (string.IsNullOrWhiteSpace(activityLine))
+            {
+                activityIndicatorRenderer.enabled = false;
+                return;
+            }
+
+            activityIndicatorRenderer.enabled = true;
+            activityIndicatorRenderer.sharedMaterial.color = ResolveActivityIndicatorColor(activityLine);
+        }
+
+        private Color ResolveActivityIndicatorColor(string activityLine)
+        {
+            return activityLine switch
+            {
+                "Serving" => new Color(0.95f, 0.75f, 0.25f, 1f),
+                "Working" => new Color(0.35f, 0.75f, 0.95f, 1f),
+                "Traveling" => new Color(0.85f, 0.55f, 0.2f, 1f),
+                "Resting" => new Color(0.55f, 0.65f, 0.85f, 1f),
+                "Sleeping" => new Color(0.45f, 0.4f, 0.75f, 1f),
+                "Leisure" => new Color(0.45f, 0.85f, 0.55f, 1f),
+                _ => new Color(0.7f, 0.7f, 0.75f, 1f)
+            };
+        }
+
+        private Renderer activityIndicatorRenderer;
+
+        private void EnsureActivityIndicator()
+        {
+            if (activityIndicatorRenderer != null)
+            {
+                return;
+            }
+
+            Transform existing = transform.Find("CCS_NpcActivity_Indicator");
+            GameObject indicatorObject = existing != null ? existing.gameObject : GameObject.CreatePrimitive(PrimitiveType.Cube);
+            indicatorObject.name = "CCS_NpcActivity_Indicator";
+            if (existing == null)
+            {
+                indicatorObject.transform.SetParent(transform, false);
+                Collider collider = indicatorObject.GetComponent<Collider>();
+                if (collider != null)
+                {
+                    Destroy(collider);
+                }
+            }
+
+            indicatorObject.transform.localPosition = new Vector3(0f, activityIndicatorHeight, 0f);
+            indicatorObject.transform.localScale = Vector3.one * activityIndicatorScale;
+            activityIndicatorRenderer = indicatorObject.GetComponent<Renderer>();
+            if (activityIndicatorRenderer != null)
+            {
+                activityIndicatorRenderer.enabled = false;
+            }
         }
 
         private TextMesh identityLabel;

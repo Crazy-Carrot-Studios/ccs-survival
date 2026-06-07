@@ -16,7 +16,7 @@ MonoBehaviour:
   profileId: ccs.survival.profile.worldsimulation.default
   profileDescription: Frontier settlement and region simulation defaults for bootstrap
     trading post.
-  profileVersion: 4.6.0
+  profileVersion: 4.7.0
   enableDebugLogs: 0
   settlementEntries:
   - settlementId: ccs.survival.settlement.frontier.testtradingpost
@@ -215,3 +215,4 @@ MonoBehaviour:
   settlementHousingProfile: {fileID: 11400000, guid: c04ef219eafadcc4db2937985213ad3b, type: 2}
   settlementNpcMovementProfile: {fileID: 11400000, guid: b0e35d7b4c6470c428816f7e40eb9327, type: 2}
   settlementNpcScheduleProfile: {fileID: 11400000, guid: d0db3df92a046d34fb1d3f7028b70e15, type: 2}
+  settlementNpcActivityProfile: {fileID: 11400000, guid: bd0bc01cfeab72248870e8fbcd2866c5, type: 2}

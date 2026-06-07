@@ -362,6 +362,17 @@ namespace CCS.Modules.WorldSimulation
             settlementState.npcScheduleStates = scheduleStates ?? Array.Empty<CCS_NpcScheduleState>();
         }
 
+        public void SetActivityStates(string settlementId, CCS_NpcActivityState[] activityStates)
+        {
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return;
+            }
+
+            settlementState.npcActivityStates = activityStates ?? Array.Empty<CCS_NpcActivityState>();
+        }
+
         public bool TryGetGrowthSnapshot(string settlementId, out CCS_SettlementGrowthSnapshot snapshot)
         {
             snapshot = CCS_SettlementGrowthSnapshot.Empty;
@@ -1290,7 +1301,8 @@ namespace CCS.Modules.WorldSimulation
                     CCS_NpcServiceRepresentativeUtility.CloneStates(source.npcServiceRepresentativeStates),
                 housingStates = CCS_SettlementHousingValidationUtility.CloneStates(source.housingStates),
                 npcMovementStates = CCS_NpcMovementValidationUtility.CloneStates(source.npcMovementStates),
-                npcScheduleStates = CCS_NpcScheduleValidationUtility.CloneStates(source.npcScheduleStates)
+                npcScheduleStates = CCS_NpcScheduleValidationUtility.CloneStates(source.npcScheduleStates),
+                npcActivityStates = CCS_NpcActivityValidationUtility.CloneStates(source.npcActivityStates)
             };
             CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
             return clone;

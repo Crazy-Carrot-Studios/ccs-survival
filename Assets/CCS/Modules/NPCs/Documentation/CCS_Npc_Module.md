@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 4.7.0** — Lightweight visible activity states derived from schedule blocks and movement status.
+
 **Milestone 4.6.0** — Profile-driven NPC schedule blocks for placeholder workers and service representatives.
 
 **Milestone 4.5.0** — Transform-based NPC movement driven by schedule blocks (work/home/leisure targets).
@@ -12,7 +14,39 @@
 
 ## Purpose
 
-Generic NPC identity, schedule, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, daily schedule blocks, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+Generic NPC identity, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+
+## NPC Activity Loop (4.7.0)
+
+```text
+Schedule Selects Block
+↓
+Movement Selects Destination
+↓
+Activity Reflects Current Behavior
+↓
+Settlement Feels More Alive
+```
+
+Schedule block → activity mapping:
+
+| Block | Activity |
+|-------|----------|
+| Sleep | Sleeping |
+| Home | Resting |
+| Work | Working |
+| Service | Serving |
+| Break | Resting |
+| Leisure | Leisure |
+| Idle | Idle |
+
+Movement override: `TravelingToWork` / `TravelingHome` → **Traveling**.
+
+Persisted on `CCS_SettlementSimulationState.npcActivityStates` (`currentActivityType`, `lastEvaluatedHour`). Labels show activity line; optional primitive cube indicator above actor.
+
+Playtest: **NPC Activity** — **Ctrl+Alt+A**
+
+Bootstrap: `CCS_NpcActivityFoundationBootstrapSetup.ExecuteBatch`
 
 ## NPC Schedule Loop (4.6.0)
 
@@ -90,7 +124,11 @@ Settlements Feel More Human
 | `CCS_NpcScheduleService` | Daily block evaluation and persisted schedule state |
 | `CCS_NpcScheduleRuntimeBridge` | Snapshot/refresh/force-evaluate bridge for playtest |
 | `CCS_NpcScheduleValidationUtility` | Block overlap/coverage validation and target resolution |
-| `CCS_NpcMovementService` | Transform movement toward schedule-selected targets |
+| `CCS_NpcMovementService` | Transform movement toward schedule-selected targets; notifies activity service on movement updates |
+| `CCS_NpcActivityProfile` | Schedule block to activity mappings |
+| `CCS_NpcActivityService` | Derives visible activity from schedule + movement |
+| `CCS_NpcActivityRuntimeBridge` | Snapshot/refresh bridge for playtest and labels |
+| `CCS_NpcActivityValidationUtility` | Mapping validation and fallback resolution |
 
 ## Active Roles
 
@@ -111,8 +149,8 @@ Representatives call the same `CCS_SettlementServiceRouteResolver.TryActivate` p
 
 ## Labels
 
-- **Workers:** `Elias Carter — Miner` + optional schedule debug line (`Work | ccs.survival.schedule.worker | Workplace`)
-- **Representatives:** `Samuel Reed` + title line `Frontier Banker` (name + title)
+- **Workers:** `Elias Carter — Miner` + activity line (`Working`) + optional debug (`Working | Work | Working`)
+- **Representatives:** `Samuel Reed` + title + activity line (`Serving`)
 
 ## Integration
 

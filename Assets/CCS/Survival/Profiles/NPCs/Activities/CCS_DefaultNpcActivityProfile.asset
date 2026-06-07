@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b9b17906730ff408b538cbfa2ff253, type: 3}
+  m_Name: CCS_DefaultNpcActivityProfile
+  m_EditorClassIdentifier: CCS.Modules.NPCs.Runtime::CCS.Modules.NPCs.CCS_NpcActivityProfile
+  profileDisplayName: Default NPC Activity Profile
+  profileId: ccs.survival.profile.npcactivity.default
+  profileDescription: Schedule block to activity mappings for placeholder NPC dev
+    presentation.
+  profileVersion: 4.7.0
+  enableDebugLogs: 0
+  blockMappings:
+  - scheduleBlockType: 1
+    activityType: 6
+  - scheduleBlockType: 2
+    activityType: 4
+  - scheduleBlockType: 3
+    activityType: 2
+  - scheduleBlockType: 6
+    activityType: 3
+  - scheduleBlockType: 4
+    activityType: 4
+  - scheduleBlockType: 5
+    activityType: 5
+  - scheduleBlockType: 7
+    activityType: 7
+  scheduleMissingFallbackActivity: 7
+  movementMissingFallbackActivity: 7

@@ -53,7 +53,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.NpcServiceRepresentatives,
             CCS_PlaytestStepGroup.SettlementHousing,
             CCS_PlaytestStepGroup.NpcMovement,
-            CCS_PlaytestStepGroup.NpcSchedule
+            CCS_PlaytestStepGroup.NpcSchedule,
+            CCS_PlaytestStepGroup.NpcActivity
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -139,6 +140,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Movement";
                 case CCS_PlaytestStepGroup.NpcSchedule:
                     return "NPC Schedule";
+                case CCS_PlaytestStepGroup.NpcActivity:
+                    return "NPC Activity";
                 default:
                     return group.ToString();
             }
@@ -550,6 +553,19 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadNpcScheduleState:
                 case CCS_PlaytestStepType.VerifyNpcScheduleAfterLoad:
                     return CCS_PlaytestStepGroup.NpcSchedule;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcActivity:
+                case CCS_PlaytestStepType.SpawnNamedNpcForActivity:
+                case CCS_PlaytestStepType.ForceNpcActivityWorkBlock:
+                case CCS_PlaytestStepType.VerifyNpcActivityWorkingOrServing:
+                case CCS_PlaytestStepType.ForceNpcActivityHomeBlock:
+                case CCS_PlaytestStepType.VerifyNpcActivityRestingOrSleeping:
+                case CCS_PlaytestStepType.ForceNpcActivityTraveling:
+                case CCS_PlaytestStepType.VerifyNpcActivityTraveling:
+                case CCS_PlaytestStepType.SaveNpcActivityState:
+                case CCS_PlaytestStepType.LoadNpcActivityState:
+                case CCS_PlaytestStepType.VerifyNpcActivityAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcActivity;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");
