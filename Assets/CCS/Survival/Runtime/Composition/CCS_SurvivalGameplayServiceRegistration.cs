@@ -543,6 +543,10 @@ namespace CCS.Survival.Composition
                 CreateNpcActivityService(worldSimulationProfile?.SettlementNpcActivityProfile);
             RegisterService(runtimeHost, npcActivityService, enableDebugLogs);
 
+            CCS_NpcAffiliationService npcAffiliationService =
+                CreateNpcAffiliationService(worldSimulationProfile?.SettlementNpcAffiliationProfile);
+            RegisterService(runtimeHost, npcAffiliationService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -605,6 +609,12 @@ namespace CCS.Survival.Composition
                 npcScheduleService,
                 worldSimulationService,
                 timeOfDayService);
+            WireNpcAffiliation(
+                settlementService,
+                businessService,
+                npcAffiliationService,
+                worldSimulationService,
+                worldSimulationProfile?.SettlementBusinessProfile);
             RegisterNpcMovementUpdatable(runtimeHost, npcMovementService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -2963,6 +2973,107 @@ namespace CCS.Survival.Composition
             settlementService.SettlementPopulationChanged += activityService.HandleSettlementPopulationChanged;
 
             activityService.RefreshAllActivities();
+        }
+
+        private static CCS_NpcAffiliationService CreateNpcAffiliationService(CCS_NpcAffiliationProfile profile)
+        {
+            CCS_NpcAffiliationService service = new CCS_NpcAffiliationService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcAffiliation(
+            CCS_SettlementService settlementService,
+            CCS_BusinessService businessService,
+            CCS_NpcAffiliationService affiliationService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_BusinessProfile businessProfile)
+        {
+            if (settlementService == null || affiliationService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            affiliationService.BindAffiliationStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcAffiliationStates ?? new CCS_NpcAffiliationState[0];
+                    }
+
+                    return new CCS_NpcAffiliationState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetAffiliationStates(settlementId, states);
+                });
+
+            affiliationService.BindRegionResolver(settlementId =>
+            {
+                if (worldSimulationService.TryGetSettlementState(
+                        settlementId,
+                        out CCS_SettlementSimulationState state)
+                    && state != null
+                    && !string.IsNullOrWhiteSpace(state.regionId))
+                {
+                    return state.regionId;
+                }
+
+                return string.Empty;
+            });
+
+            affiliationService.BindSettlementDisplayNameResolver(settlementId =>
+            {
+                if (settlementService.TryGetSnapshot(settlementId, out CCS_SettlementSnapshot snapshot)
+                    && snapshot != null
+                    && !string.IsNullOrWhiteSpace(snapshot.DisplayName))
+                {
+                    return snapshot.DisplayName;
+                }
+
+                return settlementId ?? string.Empty;
+            });
+
+            affiliationService.BindBusinessDisplayNameResolver(businessId =>
+            {
+                if (businessProfile == null || string.IsNullOrWhiteSpace(businessId))
+                {
+                    return businessId ?? string.Empty;
+                }
+
+                CCS_BusinessDefinition[] definitions = businessProfile.BusinessDefinitions;
+                for (int index = 0; index < definitions.Length; index++)
+                {
+                    CCS_BusinessDefinition definition = definitions[index];
+                    if (definition != null
+                        && string.Equals(definition.BusinessId, businessId, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        return definition.DisplayName;
+                    }
+                }
+
+                return businessId;
+            });
+
+            settlementService.SettlementDiscovered += affiliationService.HandleSettlementDiscovered;
+            settlementService.SettlementPopulationChanged += affiliationService.HandleSettlementPopulationChanged;
+
+            if (businessService != null)
+            {
+                businessService.BusinessActivated += _ => affiliationService.RefreshAllAffiliations();
+                businessService.BusinessDeactivated += _ => affiliationService.RefreshAllAffiliations();
+            }
+
+            affiliationService.RefreshAllAffiliations();
         }
 
         private static void WireNpcMovement(

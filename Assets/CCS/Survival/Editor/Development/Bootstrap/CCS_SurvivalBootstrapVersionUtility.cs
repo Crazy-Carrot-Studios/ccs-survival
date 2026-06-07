@@ -15,7 +15,7 @@ namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBootstrapVersionUtility
     {
-        public const string CurrentMilestoneVersion = "4.7.0";
+        public const string CurrentMilestoneVersion = "4.8.0";
 
         private const string WindowsBuildOutputRoot = "Builds";
         private const string WindowsBuildProductPrefix = "CCS_Survival_";

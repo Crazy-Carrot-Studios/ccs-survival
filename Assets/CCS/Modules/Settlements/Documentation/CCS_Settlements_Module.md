@@ -88,13 +88,15 @@ Playtest group: **Multi-Settlement** — shortcut **Ctrl+Shift+N**.
 |------|------|
 | `CCS_PopulationPresenceProfile` | Workforce anchor catalog per settlement |
 | `CCS_PopulationPresenceAnchor` | Spawns capped idle capsule placeholders |
-| `CCS_PopulationPlaceholderActor` | Category-colored worker with NPC name/role label (4.1.0) |
+| `CCS_PopulationPlaceholderActor` | Category-colored worker with NPC name/role/settlement affiliation label (4.8.0) |
 | `CCS_PopulationPresenceLabel` | Dev label: category, source count, visible count |
 | `CCS_PopulationPresenceService` | Refreshes actors from population snapshots |
 
 Bootstrap anchors: Trading Post (Merchants, Laborers); Broken Creek (Farmers, Ranchers); Iron Ridge (Miners, Laborers); Pine Ridge (Lumber Workers, Laborers).
 
 Visual state derives from world simulation population — no separate save section.
+
+Milestone **4.8.0** — placeholder labels show settlement affiliation (line three) and debug affiliation/loyalty HUD via `CCS_NpcAffiliationService`.
 
 Bootstrap: `CCS.Modules.Settlements.Editor.CCS_PopulationPresenceFoundationBootstrapSetup.ExecuteBatch`
 
@@ -138,7 +140,7 @@ Playtest: **NPC Service Representatives** — **Ctrl+Alt+R**
 
 Placeholder labels may include a dev schedule debug line (`block | schedule id | target kind`) via `CCS_NpcScheduleLabelBridge`. `CCS_PopulationPresenceRuntimeBridge.TryGetFirstAnchorPositionForSettlement` supplies settlement-center targets for break/leisure blocks. Movement remains transform-based with no NavMesh.
 
-Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A**
+Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A** · **NPC Affiliations** — **Ctrl+Alt+F**
 
 See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 

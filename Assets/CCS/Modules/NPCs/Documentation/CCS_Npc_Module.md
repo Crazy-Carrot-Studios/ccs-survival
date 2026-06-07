@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 4.8.0** — Persistent settlement, business, workforce, and region affiliation metadata for placeholder NPCs.
+
 **Milestone 4.7.0** — Lightweight visible activity states derived from schedule blocks and movement status.
 
 **Milestone 4.6.0** — Profile-driven NPC schedule blocks for placeholder workers and service representatives.
@@ -14,7 +16,37 @@
 
 ## Purpose
 
-Generic NPC identity, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+Generic NPC identity, affiliation, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+
+## NPC Affiliation Loop (4.8.0)
+
+```text
+Population Creates NPC
+↓
+NPC Assigned Settlement
+↓
+NPC Assigned Business/Workforce
+↓
+NPC Becomes Part Of Community
+```
+
+Persisted on `CCS_SettlementSimulationState.npcAffiliationStates`:
+
+| Field | Purpose |
+|-------|---------|
+| `npcIdentityId` | Stable NPC key |
+| `settlementId` | Settlement ownership |
+| `regionId` | Region affiliation from world simulation |
+| `businessId` | Business link for representatives |
+| `workforceCategory` | Workforce link for workers |
+| `isServiceRepresentative` | Representative flag |
+| `loyaltyValue` | 0–100 metadata (default 50; no gameplay effects yet) |
+
+Auto-assignment uses settlement, business, population, and representative services when identities are created or refreshed. Labels show settlement name on line three; debug shows `Affiliation: Settlement / Business` and detail HUD lines.
+
+Playtest: **NPC Affiliations** — **Ctrl+Alt+F**
+
+Bootstrap: `CCS_NpcAffiliationFoundationBootstrapSetup.ExecuteBatch`
 
 ## NPC Activity Loop (4.7.0)
 
@@ -127,6 +159,10 @@ Settlements Feel More Human
 | `CCS_NpcMovementService` | Transform movement toward schedule-selected targets; notifies activity service on movement updates |
 | `CCS_NpcActivityProfile` | Schedule block to activity mappings |
 | `CCS_NpcActivityService` | Derives visible activity from schedule + movement |
+| `CCS_NpcAffiliationProfile` | Default loyalty and affiliation assignment policy |
+| `CCS_NpcAffiliationService` | Assigns/persists settlement, business, workforce, region affiliations |
+| `CCS_NpcAffiliationRuntimeBridge` | Snapshot/refresh bridge for playtest and labels |
+| `CCS_NpcAffiliationValidationUtility` | Profile/state validation and label debug helpers |
 | `CCS_NpcActivityRuntimeBridge` | Snapshot/refresh bridge for playtest and labels |
 | `CCS_NpcActivityValidationUtility` | Mapping validation and fallback resolution |
 
@@ -149,8 +185,9 @@ Representatives call the same `CCS_SettlementServiceRouteResolver.TryActivate` p
 
 ## Labels
 
-- **Workers:** `Elias Carter — Miner` + activity line (`Working`) + optional debug (`Working | Work | Working`)
-- **Representatives:** `Samuel Reed` + title + activity line (`Serving`)
+- **Representatives:** `Samuel Reed` → `Frontier Banker` → `Frontier Trading Post`
+- **Workers:** `Elias Carter` → `Miner` → `Iron Ridge Mining Camp`
+- **Debug:** `Affiliation: {Settlement} / {Business or Workforce}` plus detail HUD line with loyalty
 
 ## Integration
 

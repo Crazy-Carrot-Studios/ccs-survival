@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **4.8.0** — **NPC affiliation state** persists on `CCS_SettlementSimulationState.npcAffiliationStates` (settlement, region, business, workforce, representative flag, loyalty). Profile wired on `CCS_WorldSimulationProfile.settlementNpcAffiliationProfile`. `CCS_NpcAffiliationService` auto-assigns affiliations when identities are created.
+
 Milestone **4.7.0** — **NPC activity state** persists on `CCS_SettlementSimulationState.npcActivityStates` (current activity type, last evaluated hour). Profile wired on `CCS_WorldSimulationProfile.settlementNpcActivityProfile`. `CCS_NpcActivityService` derives activities from schedule blocks and movement status.
 
 Milestone **4.6.0** — **NPC schedule state** persists on `CCS_SettlementSimulationState.npcScheduleStates` (active schedule id, current block type, target kind/id, last evaluated hour). Profile wired on `CCS_WorldSimulationProfile.settlementNpcScheduleProfile`. `CCS_NpcScheduleService` evaluates daily blocks and integrates with movement target selection.

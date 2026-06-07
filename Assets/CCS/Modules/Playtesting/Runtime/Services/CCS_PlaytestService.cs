@@ -278,6 +278,11 @@ namespace CCS.Modules.Playtesting
         private int savedNpcActivityType = -1;
         private int savedNpcActivityEvaluatedHour = -1;
         private bool npcActivitySaveCaptured;
+        private string savedNpcAffiliationSettlementId = string.Empty;
+        private string savedNpcAffiliationBusinessId = string.Empty;
+        private int savedNpcAffiliationWorkforceCategory = -1;
+        private int savedNpcAffiliationLoyalty = -1;
+        private bool npcAffiliationSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1505,6 +1510,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcActivityState,
                         "NPC activity state saved.");
                 }
+
+                if (TryCaptureNpcAffiliationSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcAffiliationState,
+                        "NPC affiliation state saved.");
+                }
             }
         }
 
@@ -1562,6 +1574,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcActivityState,
                     "Load completed for NPC activity restore.");
                 EvaluateNpcActivityStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcAffiliationState,
+                    "Load completed for NPC affiliation restore.");
+                EvaluateNpcAffiliationStateAfterLoad();
             }
         }
 
@@ -7354,6 +7370,148 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcActivityAfterLoad,
                     $"NPC activity restored/re-evaluated ({snapshot.CurrentActivityType}).");
+            }
+        }
+
+        public bool TryPlaytestNpcAffiliationFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcAffiliation,
+                "Trading Post discovered for NPC affiliation playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+
+            if (CCS_NpcAffiliationRuntimeBridge.TryGetFirstHostAffiliationSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcAffiliationSnapshot workforceSnapshot)
+                && workforceSnapshot.IsValid)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SpawnWorkforceNpcForAffiliation,
+                    $"Workforce NPC ready for affiliation playtest ({workforceSnapshot.DisplayName}).");
+            }
+
+            EvaluateNpcAffiliationPlaytestSteps();
+
+            const string bankBusinessId = "ccs.survival.business.bank";
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+            EvaluateNpcAffiliationPlaytestSteps();
+
+            if (CCS_NpcAffiliationRuntimeBridge.TryGetRepresentativeAffiliationSnapshot(
+                    settlementId,
+                    bankBusinessId,
+                    out CCS_NpcAffiliationSnapshot representativeSnapshot)
+                && representativeSnapshot.IsValid
+                && representativeSnapshot.IsServiceRepresentative)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcRepresentativeAffiliation,
+                    $"Representative affiliation verified ({representativeSnapshot.DisplayName}).");
+            }
+
+            return true;
+        }
+
+        private void EvaluateNpcAffiliationPlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_NpcAffiliationRuntimeBridge.TryGetFirstHostAffiliationSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcAffiliationSnapshot snapshot)
+                && snapshot.IsValid
+                && string.Equals(snapshot.SettlementId, settlementId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcSettlementAffiliation,
+                    $"Settlement affiliation verified ({snapshot.SettlementDisplayName}).");
+            }
+
+            if (CCS_NpcAffiliationRuntimeBridge.TryGetFirstHostAffiliationSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcAffiliationSnapshot workforceSnapshot)
+                && workforceSnapshot.IsValid
+                && workforceSnapshot.WorkforceCategory > 0
+                && !workforceSnapshot.IsServiceRepresentative)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcWorkforceAffiliation,
+                    $"Workforce affiliation verified ({workforceSnapshot.WorkforceDisplayName}).");
+            }
+        }
+
+        private bool TryCaptureNpcAffiliationSaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcAffiliationRuntimeBridge.TryGetFirstHostAffiliationSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcAffiliationSnapshot snapshot)
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedNpcAffiliationSettlementId = snapshot.SettlementId ?? string.Empty;
+            savedNpcAffiliationBusinessId = snapshot.BusinessId ?? string.Empty;
+            savedNpcAffiliationWorkforceCategory = snapshot.WorkforceCategory;
+            savedNpcAffiliationLoyalty = snapshot.LoyaltyValue;
+            npcAffiliationSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcAffiliationStateAfterLoad()
+        {
+            if (!npcAffiliationSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+
+            bool restored = CCS_NpcAffiliationRuntimeBridge.TryGetFirstHostAffiliationSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcAffiliationSnapshot snapshot)
+                && snapshot.IsValid
+                && string.Equals(snapshot.SettlementId, savedNpcAffiliationSettlementId, System.StringComparison.OrdinalIgnoreCase)
+                && string.Equals(snapshot.BusinessId, savedNpcAffiliationBusinessId, System.StringComparison.OrdinalIgnoreCase)
+                && snapshot.WorkforceCategory == savedNpcAffiliationWorkforceCategory
+                && snapshot.LoyaltyValue == savedNpcAffiliationLoyalty;
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcAffiliationAfterLoad,
+                    "NPC affiliations restored after load.");
             }
         }
 

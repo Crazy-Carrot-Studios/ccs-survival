@@ -222,36 +222,64 @@ namespace CCS.Modules.Settlements
                 return;
             }
 
-            identityLabel.text = BuildLabelText($"{displayName} — {roleDisplayName}");
+            identityLabel.text = BuildLabelText($"{displayName}\n{roleDisplayName}");
             ApplyActivityIndicator();
         }
 
         private string BuildLabelText(string baseLabel)
         {
-            string activityLine = CCS_NpcActivityLabelBridge.BuildActivityDisplayLine(settlementId, npcIdentityId);
-            if (string.IsNullOrWhiteSpace(activityLine))
+            string settlementLine =
+                CCS_NpcAffiliationLabelBridge.BuildSettlementDisplayLine(settlementId, npcIdentityId);
+            if (!string.IsNullOrWhiteSpace(settlementLine))
             {
-                if (!string.IsNullOrWhiteSpace(homeHousingId))
-                {
-                    return AppendDebugLine($"{baseLabel}\nHome: {homeHousingId}");
-                }
-
-                return AppendDebugLine($"{baseLabel}\n{workforceCategory}");
+                baseLabel = $"{baseLabel}\n{settlementLine}";
             }
 
-            return AppendDebugLine($"{baseLabel}\n{activityLine}");
+            if (!string.IsNullOrWhiteSpace(homeHousingId)
+                && string.IsNullOrWhiteSpace(
+                    CCS_NpcAffiliationLabelBridge.BuildAffiliationDebugLine(settlementId, npcIdentityId)))
+            {
+                return AppendDebugLine($"{baseLabel}\nHome: {homeHousingId}");
+            }
+
+            return AppendDebugLine(baseLabel);
         }
 
         private string AppendDebugLine(string baseLabel)
         {
-            string debugLine = CCS_NpcActivityLabelBridge.BuildActivityDebugLine(settlementId, npcIdentityId);
-            if (string.IsNullOrWhiteSpace(debugLine))
+            string affiliationDebugLine =
+                CCS_NpcAffiliationLabelBridge.BuildAffiliationDebugLine(settlementId, npcIdentityId);
+            string affiliationDetailLine =
+                CCS_NpcAffiliationLabelBridge.BuildAffiliationDetailDebugLine(settlementId, npcIdentityId);
+            string activityDebugLine = CCS_NpcActivityLabelBridge.BuildActivityDebugLine(settlementId, npcIdentityId);
+
+            string debugBlock = string.Empty;
+            if (!string.IsNullOrWhiteSpace(affiliationDebugLine))
+            {
+                debugBlock = affiliationDebugLine;
+            }
+
+            if (!string.IsNullOrWhiteSpace(affiliationDetailLine))
+            {
+                debugBlock = string.IsNullOrWhiteSpace(debugBlock)
+                    ? affiliationDetailLine
+                    : $"{debugBlock}\n{affiliationDetailLine}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(activityDebugLine))
+            {
+                debugBlock = string.IsNullOrWhiteSpace(debugBlock)
+                    ? activityDebugLine
+                    : $"{debugBlock}\n{activityDebugLine}";
+            }
+
+            if (string.IsNullOrWhiteSpace(debugBlock))
             {
                 string scheduleLine = CCS_NpcScheduleLabelBridge.BuildScheduleDebugLine(settlementId, npcIdentityId);
                 return string.IsNullOrWhiteSpace(scheduleLine) ? baseLabel : $"{baseLabel}\n{scheduleLine}";
             }
 
-            return $"{baseLabel}\n{debugLine}";
+            return $"{baseLabel}\n{debugBlock}";
         }
 
         private void ApplyActivityIndicator()

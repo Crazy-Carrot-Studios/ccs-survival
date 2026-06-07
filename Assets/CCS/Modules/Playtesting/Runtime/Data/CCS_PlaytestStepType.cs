@@ -343,6 +343,14 @@ namespace CCS.Modules.Playtesting
         VerifyNpcActivityTraveling = 328,
         SaveNpcActivityState = 329,
         LoadNpcActivityState = 330,
-        VerifyNpcActivityAfterLoad = 331
+        VerifyNpcActivityAfterLoad = 331,
+        DiscoverSettlementForNpcAffiliation = 332,
+        SpawnWorkforceNpcForAffiliation = 333,
+        VerifyNpcSettlementAffiliation = 334,
+        VerifyNpcWorkforceAffiliation = 335,
+        VerifyNpcRepresentativeAffiliation = 336,
+        SaveNpcAffiliationState = 337,
+        LoadNpcAffiliationState = 338,
+        VerifyNpcAffiliationAfterLoad = 339
     }
 }

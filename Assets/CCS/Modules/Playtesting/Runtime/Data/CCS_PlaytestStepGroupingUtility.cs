@@ -54,7 +54,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.SettlementHousing,
             CCS_PlaytestStepGroup.NpcMovement,
             CCS_PlaytestStepGroup.NpcSchedule,
-            CCS_PlaytestStepGroup.NpcActivity
+            CCS_PlaytestStepGroup.NpcActivity,
+            CCS_PlaytestStepGroup.NpcAffiliations
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -142,6 +143,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Schedule";
                 case CCS_PlaytestStepGroup.NpcActivity:
                     return "NPC Activity";
+                case CCS_PlaytestStepGroup.NpcAffiliations:
+                    return "NPC Affiliations";
                 default:
                     return group.ToString();
             }
@@ -566,6 +569,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadNpcActivityState:
                 case CCS_PlaytestStepType.VerifyNpcActivityAfterLoad:
                     return CCS_PlaytestStepGroup.NpcActivity;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcAffiliation:
+                case CCS_PlaytestStepType.SpawnWorkforceNpcForAffiliation:
+                case CCS_PlaytestStepType.VerifyNpcSettlementAffiliation:
+                case CCS_PlaytestStepType.VerifyNpcWorkforceAffiliation:
+                case CCS_PlaytestStepType.VerifyNpcRepresentativeAffiliation:
+                case CCS_PlaytestStepType.SaveNpcAffiliationState:
+                case CCS_PlaytestStepType.LoadNpcAffiliationState:
+                case CCS_PlaytestStepType.VerifyNpcAffiliationAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcAffiliations;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

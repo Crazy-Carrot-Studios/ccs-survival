@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.7.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.8.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.8.0** — NPC Settlement Affiliation Foundation
+
+Persistent settlement, business, workforce, and region affiliation metadata for placeholder NPCs through `CCS_NpcAffiliationService` and `CCS_NpcAffiliationProfile`. Workers receive settlement + workforce affiliations; representatives receive settlement + business affiliations. Default loyalty 50 (0–100, metadata only). State persists on `CCS_SettlementSimulationState.npcAffiliationStates`. Labels show settlement ownership; debug HUD shows affiliation and loyalty. Playtest group **NPC Affiliations** with **Ctrl+Alt+F** shortcut.
+
+**NPC Affiliation Loop:**
+
+```text
+Population Creates NPC → NPC Assigned Settlement → NPC Assigned Business/Workforce → NPC Becomes Part Of Community
+```
 
 **4.7.0** — NPC Activity State Foundation
 
@@ -494,8 +504,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **4.7.0** |
-| Output | `Builds/CCS_Survival_4.7.0_Windows/` (gitignored) |
+| Version | **4.8.0** |
+| Output | `Builds/CCS_Survival_4.8.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
@@ -516,7 +526,7 @@ Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Bui
 
 ### Bootstrap version policy
 
-1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **4.7.0**).
+1. **Single source of truth:** `CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion` (currently **4.8.0**).
 2. **Bootstrap writes:** Every `*BootstrapSetup.cs` that touches `ProjectSettings.bundleVersion` must call `EnsureBundleVersionAtLeast(...)` so older scripts only bump forward, never downgrade.
 3. **Validators:** Check `bundleVersion >= CurrentMilestoneVersion` via `AddBundleVersionValidationIssue`. Do not pin exact milestone strings that break on the next release.
 4. **Log strings:** Historical milestone labels in `Debug.Log` or playtest copy may stay unchanged (e.g. wagon bootstrap still logs `1.5.2`).

@@ -2879,3 +2879,69 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.discover
+    displayName: Discover settlement for NPC affiliations
+    stepType: 332
+    instructionText: Discover settlement for NPC affiliations. Ctrl+Alt+F shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.spawn
+    displayName: Spawn workforce NPC for affiliations
+    stepType: 333
+    instructionText: Spawn workforce NPC for affiliations. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.verify.settlement
+    displayName: Verify NPC settlement affiliation
+    stepType: 334
+    instructionText: Verify NPC settlement affiliation. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.verify.workforce
+    displayName: Verify NPC workforce affiliation
+    stepType: 335
+    instructionText: Verify NPC workforce affiliation. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.verify.representative
+    displayName: Verify representative affiliation
+    stepType: 336
+    instructionText: Verify representative affiliation. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.save
+    displayName: Save NPC affiliation state
+    stepType: 337
+    instructionText: Save NPC affiliation state. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.load
+    displayName: Load NPC affiliation state
+    stepType: 338
+    instructionText: Load NPC affiliation state. Ctrl+Alt+F shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcaffiliation.verify.load
+    displayName: Verify NPC affiliations restored after load
+    stepType: 339
+    instructionText: Verify NPC affiliations restored after load. Ctrl+Alt+F shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
