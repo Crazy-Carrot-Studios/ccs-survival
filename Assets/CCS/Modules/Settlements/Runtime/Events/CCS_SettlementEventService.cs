@@ -188,6 +188,7 @@ namespace CCS.Modules.Settlements
             if (TryGetActiveSnapshot(settlementId, out CCS_SettlementEventSnapshot snapshot))
             {
                 CCS_SettlementEventRuntimeBridge.LastEventSnapshot = snapshot;
+                CCS_SettlementEventRuntimeBridge.NotifyEventActivated?.Invoke(settlementId, snapshot);
             }
 
             return true;
@@ -220,6 +221,8 @@ namespace CCS.Modules.Settlements
             };
             CCS_SettlementEventRuntimeBridge.TryForceEventForPlaytest = (settlementId) =>
                 TryForceEvent(settlementId, CCS_SettlementEventType.MarketDay);
+            CCS_SettlementEventRuntimeBridge.TryForceEventTypeForPlaytest =
+                (settlementId, eventType) => TryForceEvent(settlementId, eventType);
             CCS_SettlementEventRuntimeBridge.RefreshAllEventPresentation = RefreshAllPresentation;
             CCS_SettlementEventRuntimeBridge.ResolveProsperityBonus = settlementId =>
             {

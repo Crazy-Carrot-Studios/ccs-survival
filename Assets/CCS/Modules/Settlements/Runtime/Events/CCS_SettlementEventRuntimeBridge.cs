@@ -18,7 +18,11 @@ namespace CCS.Modules.Settlements
 
         public static Func<string, bool> TryForceEventForPlaytest;
 
+        public static Func<string, CCS_SettlementEventType, bool> TryForceEventTypeForPlaytest;
+
         public static Action RefreshAllEventPresentation;
+
+        public static Action<string, CCS_SettlementEventSnapshot> NotifyEventActivated;
 
         public static Func<string, float> ResolveProsperityBonus;
 

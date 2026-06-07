@@ -3158,3 +3158,83 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.discover
+    displayName: Discover settlements for news
+    stepType: 366
+    instructionText: Discover settlements for news. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.force.event
+    displayName: Force settlement event for news
+    stepType: 367
+    instructionText: Force settlement event for news. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.verify.created
+    displayName: Verify settlement news created
+    stepType: 368
+    instructionText: Verify settlement news created. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.verify.board
+    displayName: Verify contract board news
+    stepType: 369
+    instructionText: Verify contract board news. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.verify.dialogue
+    displayName: Verify settlement rumor dialogue
+    stepType: 370
+    instructionText: Verify settlement rumor dialogue. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.force.propagation
+    displayName: Force settlement news propagation
+    stepType: 371
+    instructionText: Force settlement news propagation. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.verify.propagation
+    displayName: Verify settlement news propagated
+    stepType: 372
+    instructionText: Verify settlement news propagated. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.save
+    displayName: Save settlement news state
+    stepType: 373
+    instructionText: Save settlement news state. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.load
+    displayName: Load settlement news state
+    stepType: 374
+    instructionText: Load settlement news state. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementnews.verify.load
+    displayName: Verify settlement news after load
+    stepType: 375
+    instructionText: Verify settlement news after load. Ctrl+Alt+N shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

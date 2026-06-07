@@ -42,6 +42,7 @@ namespace CCS.Modules.WorldSimulation
         private CCS_SettlementService settlementService;
         private CCS_RegionService regionService;
         private CCS_ReputationService reputationService;
+        private CCS_SettlementNewsState[] activeNewsEntries = Array.Empty<CCS_SettlementNewsState>();
         private bool isInitialized;
 
         public event Action<CCS_SettlementSimulationState> SettlementSupplyChanged;
@@ -415,6 +416,26 @@ namespace CCS.Modules.WorldSimulation
                 ? CCS_SettlementEventValidationUtility.CreateInactiveState(settlementId)
                 : CCS_SettlementEventValidationUtility.CloneState(eventState);
             settlementState.activeSettlementEvent.settlementId = settlementId ?? string.Empty;
+        }
+
+        public CCS_SettlementNewsState[] GetNewsStates()
+        {
+            return activeNewsEntries ?? Array.Empty<CCS_SettlementNewsState>();
+        }
+
+        public void SetNewsStates(CCS_SettlementNewsState[] newsStates)
+        {
+            activeNewsEntries = CCS_SettlementNewsValidationUtility.CloneStates(newsStates);
+        }
+
+        public CCS_SettlementNewsState[] CaptureNewsState()
+        {
+            return CCS_SettlementNewsValidationUtility.CloneStates(activeNewsEntries);
+        }
+
+        public void RestoreNewsState(CCS_SettlementNewsState[] newsStates)
+        {
+            activeNewsEntries = CCS_SettlementNewsValidationUtility.CloneStates(newsStates);
         }
 
         public bool TryGetGrowthSnapshot(string settlementId, out CCS_SettlementGrowthSnapshot snapshot)

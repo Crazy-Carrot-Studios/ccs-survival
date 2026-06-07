@@ -663,6 +663,17 @@ namespace CCS.Survival.Composition
                 timeOfDayService,
                 tradeRouteService);
 
+            CCS_SettlementNewsService settlementNewsService =
+                CreateSettlementNewsService(worldSimulationProfile?.SettlementNewsProfile);
+            RegisterService(runtimeHost, settlementNewsService, enableDebugLogs);
+            WireSettlementNews(
+                settlementService,
+                settlementNewsService,
+                worldSimulationService,
+                timeOfDayService,
+                tradeRouteService,
+                settlementEventService);
+
             CCS_ContractService contractService = CreateContractService(
                 contractsProfile,
                 inventoryService,
@@ -3335,6 +3346,109 @@ namespace CCS.Survival.Composition
             }
 
             eventService.RefreshAllPresentation();
+        }
+
+        private static CCS_SettlementNewsService CreateSettlementNewsService(CCS_SettlementNewsProfile profile)
+        {
+            CCS_SettlementNewsService service = new CCS_SettlementNewsService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireSettlementNews(
+            CCS_SettlementService settlementService,
+            CCS_SettlementNewsService newsService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_TradeRouteService tradeRouteService,
+            CCS_SettlementEventService eventService)
+        {
+            if (settlementService == null || newsService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            newsService.BindNewsStateAccessors(
+                () => worldSimulationService.GetNewsStates(),
+                states => worldSimulationService.SetNewsStates(states),
+                settlementId =>
+                {
+                    if (settlementService.TryGetSnapshot(settlementId, out CCS_SettlementSnapshot snapshot)
+                        && snapshot != null
+                        && !string.IsNullOrWhiteSpace(snapshot.DisplayName))
+                    {
+                        return snapshot.DisplayName;
+                    }
+
+                    return settlementId ?? string.Empty;
+                },
+                () =>
+                {
+                    CCS_TradeRouteProfile profile = tradeRouteService?.ActiveProfile;
+                    return profile != null
+                        ? profile.TradeRouteDefinitions
+                        : new CCS_TradeRouteDefinition[0];
+                },
+                () =>
+                {
+                    if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                    {
+                        return CCS_SettlementEventTimeSnapshot.Default;
+                    }
+
+                    CCS_GameTimeSnapshot snapshot = timeOfDayService.CreateSnapshot();
+                    return new CCS_SettlementEventTimeSnapshot
+                    {
+                        DayNumber = snapshot.DayNumber,
+                        Hour = snapshot.Hour
+                    };
+                });
+
+            CCS_SettlementEventRuntimeBridge.NotifyEventActivated = (settlementId, eventSnapshot) =>
+            {
+                newsService.HandleSettlementEventActivated(settlementId, eventSnapshot);
+            };
+
+            if (timeOfDayService != null)
+            {
+                timeOfDayService.HourChanged += _ =>
+                {
+                    CCS_GameTimeSnapshot timeSnapshot = timeOfDayService.CreateSnapshot();
+                    if (timeSnapshot.Hour % System.Math.Max(1, newsService.ActiveProfile?.EvaluationIntervalHours ?? 6) != 0)
+                    {
+                        return;
+                    }
+
+                    newsService.EvaluatePropagation(timeSnapshot.DayNumber);
+                };
+            }
+
+            if (eventService != null && eventService.IsInitialized)
+            {
+                System.Collections.Generic.IReadOnlyCollection<CCS_SettlementSnapshot> discoveredSnapshots =
+                    settlementService.GetDiscoveredSnapshots();
+                foreach (CCS_SettlementSnapshot snapshot in discoveredSnapshots)
+                {
+                    if (snapshot == null)
+                    {
+                        continue;
+                    }
+
+                    if (CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                            snapshot.SettlementId,
+                            out CCS_SettlementEventSnapshot eventSnapshot)
+                        && eventSnapshot != null
+                        && eventSnapshot.IsValid)
+                    {
+                        newsService.HandleSettlementEventActivated(snapshot.SettlementId, eventSnapshot);
+                    }
+                }
+            }
         }
 
         private static int CountActiveBusinessesForSettlement(CCS_SettlementSimulationState settlementState)

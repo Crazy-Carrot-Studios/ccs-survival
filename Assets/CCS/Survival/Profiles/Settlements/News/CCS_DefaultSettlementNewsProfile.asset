@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63893dc06d91d584cbb17254b7a0ab99, type: 3}
+  m_Name: CCS_DefaultSettlementNewsProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementNewsProfile
+  profileDisplayName: Default Settlement News Profile
+  profileId: ccs.survival.profile.settlementnews.default
+  profileDescription: Event-driven settlement news headlines and trade-route rumor
+    propagation.
+  profileVersion: 5.2.0
+  enableDebugLogs: 0
+  newsDefinitions:
+  - definitionId: ccs.survival.news.marketday
+    newsType: 1
+    headlineTemplate: Frontier Trading Post is hosting a Market Day.
+    rumorLineTemplate: Word is the trading post market is busy today.
+    newsDurationDays: 3
+    propagationDelayDays: 1
+  - definitionId: ccs.survival.news.supplyshipment
+    newsType: 2
+    headlineTemplate: Frontier Trading Post received a major supply shipment.
+    rumorLineTemplate: Folks say fresh supplies arrived at the trading post.
+    newsDurationDays: 3
+    propagationDelayDays: 1
+  - definitionId: ccs.survival.news.harvestfestival
+    newsType: 3
+    headlineTemplate: Broken Creek celebrates a successful harvest.
+    rumorLineTemplate: Word is the harvest was good in Broken Creek.
+    newsDurationDays: 3
+    propagationDelayDays: 1
+  - definitionId: ccs.survival.news.miningshipment
+    newsType: 4
+    headlineTemplate: Iron Ridge reports a major ore shipment.
+    rumorLineTemplate: Folks are talking about a big shipment from Iron Ridge.
+    newsDurationDays: 3
+    propagationDelayDays: 1
+  - definitionId: ccs.survival.news.timberdelivery
+    newsType: 5
+    headlineTemplate: Pine Ridge reports a major timber delivery.
+    rumorLineTemplate: Word is Pine Ridge crews hauled fresh timber loads.
+    newsDurationDays: 3
+    propagationDelayDays: 1
+  maxRecentNewsEntries: 3
+  evaluationIntervalHours: 6

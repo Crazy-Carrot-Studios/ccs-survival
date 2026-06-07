@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 5.2.0 — Settlement news and rumors (event-driven headlines, trade-route propagation)  
 **Milestone:** 5.1.0 — Dynamic settlement events (simulation-driven metadata, modifiers, dev markers)  
 **Milestone:** 4.4.0 — Settlement housing capacity + markers; 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
@@ -26,6 +27,37 @@ Generic settlement framework for frontier service locations beyond the player ho
 - Forts
 
 No NPC AI, dialogue trees, quest systems, or final town art.
+
+## Settlement news and rumors (5.2.0)
+
+Event-driven settlement news and trade-route rumor propagation — information only. No quests, branching dialogue, investigation systems, faction politics, or crime.
+
+**News & Rumor Loop:**
+
+```text
+Settlement Event Occurs
+↓
+News Created
+↓
+Rumors Spread Along Trade Routes
+↓
+NPCs Reference Events
+↓
+Frontier Feels Connected
+```
+
+| Component | Purpose |
+|-----------|---------|
+| `CCS_SettlementNewsProfile` | Headlines, rumor lines, duration, propagation delay |
+| `CCS_SettlementNewsService` | Creates news on event activation; propagates via trade routes |
+| `CCS_SettlementNewsRuntimeBridge` | Recent news queries, rumor dialogue, playtest hooks |
+| `CCS_SettlementNewsState` | Persisted news id, origin, headline, known settlements |
+
+Origin settlement receives news immediately. Connected settlements receive news after `propagationDelayDays` via active trade route pairs.
+
+Bootstrap: `CCS_SettlementNewsFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Settlement News** — **Ctrl+Alt+N**
 
 ## Settlement events (5.1.0)
 

@@ -133,6 +133,10 @@ namespace CCS.Modules.NPCs
                 ? CCS_SettlementEventRuntimeBridge.ResolveDialogueAppendLine.Invoke(request.SettlementId)
                 : string.Empty;
             AppendLine(displayLines, eventLine);
+            string rumorLine = CCS_SettlementNewsRuntimeBridge.ResolveRumorDialogueAppendLine != null
+                ? CCS_SettlementNewsRuntimeBridge.ResolveRumorDialogueAppendLine.Invoke(request.SettlementId)
+                : string.Empty;
+            AppendLine(displayLines, rumorLine);
             if (displayLines.Count == 0)
             {
                 AppendLine(displayLines, fallback);

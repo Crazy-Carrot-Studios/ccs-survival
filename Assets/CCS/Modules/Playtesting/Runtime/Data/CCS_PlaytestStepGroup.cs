@@ -54,6 +54,7 @@ namespace CCS.Modules.Playtesting
         NpcAffiliations = 39,
         NpcDialogue = 40,
         NpcSocialPresence = 41,
-        SettlementEvents = 42
+        SettlementEvents = 42,
+        SettlementNews = 43
     }
 }

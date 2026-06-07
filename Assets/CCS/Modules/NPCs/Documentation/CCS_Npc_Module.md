@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 5.2.0** — Dialogue stub display appends one propagated settlement rumor line (max one; no branching).
+
 **Milestone 5.1.0** — Leisure social gatherings prefer active settlement event anchors when present; dialogue stub display appends one event line (no branching).
 
 **Milestone 5.0.0** — Leisure-period social gathering behavior at settlement social anchors.
@@ -30,6 +32,10 @@ When a settlement has an active event:
 
 - **Social:** `CCS_NpcSocialValidationUtility` prefers `CCS_SettlementEventRuntimeBridge.PreferredSocialAnchorId` for leisure gathering targets (e.g. market square during Market Day).
 - **Dialogue:** `CCS_NpcDialogueStubValidationUtility` appends the event definition's dialogue line to stub display lines (e.g. *"Busy day. Market's in full swing."*).
+
+## Settlement rumor integration (5.2.0)
+
+When a settlement knows propagated news from another origin settlement, dialogue stub display appends one rumor line from `CCS_SettlementNewsRuntimeBridge` (e.g. *"Folks are talking about a big shipment from Iron Ridge."*). One rumor line maximum; no branching.
 
 No new NPC AI, behavior trees, or branching dialogue.
 

@@ -1468,6 +1468,7 @@ namespace CCS.Modules.SaveSystem
             {
                 worldSimulationData.settlementStates = Array.Empty<CCS_SettlementSimulationState>();
                 worldSimulationData.regionStates = Array.Empty<CCS_RegionSimulationState>();
+                worldSimulationData.newsEntries = Array.Empty<CCS_SettlementNewsState>();
                 return;
             }
 
@@ -1475,6 +1476,8 @@ namespace CCS.Modules.SaveSystem
                 ?? Array.Empty<CCS_SettlementSimulationState>();
             worldSimulationData.regionStates = worldSimulationService.CaptureRegionState()
                 ?? Array.Empty<CCS_RegionSimulationState>();
+            worldSimulationData.newsEntries = worldSimulationService.CaptureNewsState()
+                ?? Array.Empty<CCS_SettlementNewsState>();
         }
 
         private void ApplyWorldSimulation(CCS_SaveWorldSimulationData worldSimulationData)
@@ -1492,12 +1495,14 @@ namespace CCS.Modules.SaveSystem
                 worldSimulationService.RestoreState(
                     Array.Empty<CCS_SettlementSimulationState>(),
                     Array.Empty<CCS_RegionSimulationState>());
+                worldSimulationService.RestoreNewsState(Array.Empty<CCS_SettlementNewsState>());
                 return;
             }
 
             worldSimulationService.RestoreState(
                 settlementStates ?? Array.Empty<CCS_SettlementSimulationState>(),
                 regionStates ?? Array.Empty<CCS_RegionSimulationState>());
+            worldSimulationService.RestoreNewsState(worldSimulationData?.newsEntries);
         }
 
         private void ApplyCamp(CCS_SaveCampWorldData campData)

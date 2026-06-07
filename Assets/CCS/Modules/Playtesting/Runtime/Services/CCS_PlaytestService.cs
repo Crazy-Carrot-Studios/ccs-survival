@@ -296,6 +296,10 @@ namespace CCS.Modules.Playtesting
         private int savedSettlementEventType = -1;
         private string savedSettlementEventSettlementId = string.Empty;
         private bool settlementEventSaveCaptured;
+        private string savedSettlementNewsId = string.Empty;
+        private string savedSettlementNewsOriginId = string.Empty;
+        private string savedSettlementNewsObserverId = string.Empty;
+        private bool settlementNewsSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1551,6 +1555,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveSettlementEventState,
                         "Settlement event state saved.");
                 }
+
+                if (TryCaptureSettlementNewsSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveSettlementNewsState,
+                        "Settlement news state saved.");
+                }
             }
         }
 
@@ -1624,6 +1635,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadSettlementEventState,
                     "Load completed for settlement event restore.");
                 EvaluateSettlementEventStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadSettlementNewsState,
+                    "Load completed for settlement news restore.");
+                EvaluateSettlementNewsStateAfterLoad();
             }
         }
 
@@ -7958,6 +7973,170 @@ namespace CCS.Modules.Playtesting
             }
 
             return true;
+        }
+
+        public bool TryPlaytestSettlementNewsFoundationShortcut()
+        {
+            string tradingPostId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            string ironRidgeId = CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId;
+            DiscoverPlaytestSettlement(tradingPostId);
+            DiscoverPlaytestSettlement(ironRidgeId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementsForSettlementNews,
+                "Trading Post and Iron Ridge discovered for settlement news playtest.");
+
+            if (CCS_SettlementEventRuntimeBridge.TryForceEventTypeForPlaytest != null
+                && CCS_SettlementEventRuntimeBridge.TryForceEventTypeForPlaytest.Invoke(
+                    ironRidgeId,
+                    CCS_SettlementEventType.MiningShipment))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceEventForSettlementNews,
+                    "Iron Ridge mining shipment forced for settlement news playtest.");
+            }
+
+            EvaluateSettlementNewsCreatedStep(ironRidgeId);
+            EvaluateContractBoardNewsStep(ironRidgeId);
+
+            if (CCS_SettlementNewsRuntimeBridge.TryForcePropagationForPlaytest != null
+                && CCS_SettlementNewsRuntimeBridge.TryForcePropagationForPlaytest.Invoke())
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceSettlementNewsPropagation,
+                    "Settlement news propagation forced for playtest.");
+            }
+
+            EvaluateSettlementNewsPropagatedStep(tradingPostId, ironRidgeId);
+
+            CCS_NpcDialogueStubRuntimeBridge.RefreshAllDialogueHosts();
+            if (CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                    tradingPostId,
+                    out CCS_INpcMovementHost dialogueHost,
+                    out CCS_NpcDialogueStubResult unusedDialogueResult)
+                && dialogueHost != null
+                && CCS_NpcDialogueStubRuntimeBridge.ResolveAndDisplayForHost != null
+                && CCS_NpcDialogueStubRuntimeBridge.ResolveAndDisplayForHost.Invoke(dialogueHost))
+            {
+                EvaluateSettlementNewsRumorDialogueStep(tradingPostId);
+            }
+
+            return true;
+        }
+
+        private void EvaluateSettlementNewsCreatedStep(string originSettlementId)
+        {
+            if (CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    originSettlementId,
+                    3,
+                    out CCS_SettlementNewsEntry[] entries)
+                && entries != null
+                && entries.Length > 0
+                && !string.IsNullOrWhiteSpace(entries[0].Headline))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementNewsCreated,
+                    "Settlement news entry created at origin settlement.");
+            }
+        }
+
+        private void EvaluateContractBoardNewsStep(string settlementId)
+        {
+            if (CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    settlementId,
+                    3,
+                    out CCS_SettlementNewsEntry[] entries)
+                && entries != null
+                && entries.Length > 0)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyContractBoardSettlementNews,
+                    "Contract board recent news entries resolved.");
+            }
+        }
+
+        private void EvaluateSettlementNewsPropagatedStep(string observerSettlementId, string originSettlementId)
+        {
+            if (!CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    observerSettlementId,
+                    3,
+                    out CCS_SettlementNewsEntry[] entries)
+                || entries == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < entries.Length; index++)
+            {
+                CCS_SettlementNewsEntry entry = entries[index];
+                if (entry != null
+                    && string.Equals(entry.OriginSettlementId, originSettlementId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifySettlementNewsPropagated,
+                        "Propagated settlement news reached connected settlement.");
+                    return;
+                }
+            }
+        }
+
+        private void EvaluateSettlementNewsRumorDialogueStep(string settlementId)
+        {
+            string rumorLine = CCS_SettlementNewsRuntimeBridge.ResolveDialogueRumorLine(settlementId);
+            if (!string.IsNullOrWhiteSpace(rumorLine))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementNewsRumorDialogue,
+                    "NPC dialogue appended settlement rumor line.");
+            }
+        }
+
+        private bool TryCaptureSettlementNewsSaveState()
+        {
+            string ironRidgeId = CCS_MultiSettlementContentIds.IronRidgeMiningCampSettlementId;
+            if (!CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    ironRidgeId,
+                    3,
+                    out CCS_SettlementNewsEntry[] originEntries)
+                || originEntries == null
+                || originEntries.Length == 0)
+            {
+                return false;
+            }
+
+            savedSettlementNewsId = originEntries[0].NewsId ?? string.Empty;
+            savedSettlementNewsOriginId = originEntries[0].OriginSettlementId ?? string.Empty;
+            savedSettlementNewsObserverId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            settlementNewsSaveCaptured = !string.IsNullOrWhiteSpace(savedSettlementNewsId);
+            return settlementNewsSaveCaptured;
+        }
+
+        private void EvaluateSettlementNewsStateAfterLoad()
+        {
+            if (!settlementNewsSaveCaptured)
+            {
+                return;
+            }
+
+            bool restored = CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    savedSettlementNewsOriginId,
+                    3,
+                    out CCS_SettlementNewsEntry[] originEntries)
+                && originEntries != null
+                && originEntries.Length > 0
+                && string.Equals(originEntries[0].NewsId, savedSettlementNewsId, System.StringComparison.OrdinalIgnoreCase)
+                && CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                    savedSettlementNewsObserverId,
+                    3,
+                    out CCS_SettlementNewsEntry[] observerEntries)
+                && observerEntries != null
+                && observerEntries.Length > 0;
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementNewsAfterLoad,
+                    "Settlement news and propagation restored after load.");
+            }
         }
 
         private void EvaluateSettlementEventPlaytestSteps(string settlementId)

@@ -133,6 +133,7 @@ namespace CCS.Modules.Contracts
             }
             else if (s_useSettlementBoard)
             {
+                DrawRecentNewsSection(s_settlementId);
                 CCS_ContractDefinition[] contracts = contractService.GetSettlementBoardContracts(s_settlementId);
                 DrawBoardSection(contractService, "Local supply", contracts, CCS_ContractBoardSectionKind.LocalSupply);
                 DrawBoardSection(contractService, "Outbound freight", contracts, CCS_ContractBoardSectionKind.OutboundFreight);
@@ -158,6 +159,34 @@ namespace CCS.Modules.Contracts
             }
 
             GUILayout.EndArea();
+        }
+
+        private static void DrawRecentNewsSection(string settlementId)
+        {
+            if (string.IsNullOrWhiteSpace(settlementId))
+            {
+                return;
+            }
+
+            GUILayout.Label("Recent News", GUI.skin.box);
+            if (!CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(settlementId, 3, out CCS_SettlementNewsEntry[] entries)
+                || entries == null
+                || entries.Length == 0)
+            {
+                GUILayout.Label("No active settlement news.");
+                return;
+            }
+
+            for (int index = 0; index < entries.Length; index++)
+            {
+                CCS_SettlementNewsEntry entry = entries[index];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Headline))
+                {
+                    continue;
+                }
+
+                GUILayout.Label($"- {entry.Headline}", GUI.skin.box);
+            }
         }
 
         private enum CCS_ContractBoardSectionKind

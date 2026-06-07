@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-5.1.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-5.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**5.2.0** — Settlement News & Rumors Foundation
+
+Lightweight event-driven settlement news through `CCS_SettlementNewsService` and `CCS_SettlementNewsProfile`. Active settlement events generate headlines; trade routes propagate rumors to connected settlements after a simple delay. Contract boards show top 3 recent news entries; dialogue stubs append one rumor line about news from other settlements. State persists in `CCS_SaveWorldSimulationData.newsEntries`. Playtest group **Settlement News** with **Ctrl+Alt+N** shortcut.
+
+**News & Rumor Loop:**
+
+```text
+Settlement Event Occurs → News Created → Rumors Spread Along Trade Routes → NPCs Reference Events → Frontier Feels Connected
+```
 
 **5.1.0** — Dynamic Settlement Events Foundation
 
@@ -534,8 +544,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **5.1.0** |
-| Output | `Builds/CCS_Survival_5.1.0_Windows/` (gitignored) |
+| Version | **5.2.0** |
+| Output | `Builds/CCS_Survival_5.2.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)

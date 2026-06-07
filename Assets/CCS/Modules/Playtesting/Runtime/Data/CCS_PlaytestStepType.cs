@@ -377,6 +377,16 @@ namespace CCS.Modules.Playtesting
         VerifySettlementEventDialogueLine = 362,
         SaveSettlementEventState = 363,
         LoadSettlementEventState = 364,
-        VerifySettlementEventAfterLoad = 365
+        VerifySettlementEventAfterLoad = 365,
+        DiscoverSettlementsForSettlementNews = 366,
+        ForceEventForSettlementNews = 367,
+        VerifySettlementNewsCreated = 368,
+        VerifyContractBoardSettlementNews = 369,
+        VerifySettlementNewsRumorDialogue = 370,
+        ForceSettlementNewsPropagation = 371,
+        VerifySettlementNewsPropagated = 372,
+        SaveSettlementNewsState = 373,
+        LoadSettlementNewsState = 374,
+        VerifySettlementNewsAfterLoad = 375
     }
 }

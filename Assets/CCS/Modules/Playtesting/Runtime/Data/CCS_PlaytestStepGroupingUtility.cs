@@ -58,7 +58,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.NpcAffiliations,
             CCS_PlaytestStepGroup.NpcDialogue,
             CCS_PlaytestStepGroup.NpcSocialPresence,
-            CCS_PlaytestStepGroup.SettlementEvents
+            CCS_PlaytestStepGroup.SettlementEvents,
+            CCS_PlaytestStepGroup.SettlementNews
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -154,6 +155,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Social Presence";
                 case CCS_PlaytestStepGroup.SettlementEvents:
                     return "Settlement Events";
+                case CCS_PlaytestStepGroup.SettlementNews:
+                    return "Settlement News";
                 default:
                     return group.ToString();
             }
@@ -620,6 +623,18 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadSettlementEventState:
                 case CCS_PlaytestStepType.VerifySettlementEventAfterLoad:
                     return CCS_PlaytestStepGroup.SettlementEvents;
+
+                case CCS_PlaytestStepType.DiscoverSettlementsForSettlementNews:
+                case CCS_PlaytestStepType.ForceEventForSettlementNews:
+                case CCS_PlaytestStepType.VerifySettlementNewsCreated:
+                case CCS_PlaytestStepType.VerifyContractBoardSettlementNews:
+                case CCS_PlaytestStepType.VerifySettlementNewsRumorDialogue:
+                case CCS_PlaytestStepType.ForceSettlementNewsPropagation:
+                case CCS_PlaytestStepType.VerifySettlementNewsPropagated:
+                case CCS_PlaytestStepType.SaveSettlementNewsState:
+                case CCS_PlaytestStepType.LoadSettlementNewsState:
+                case CCS_PlaytestStepType.VerifySettlementNewsAfterLoad:
+                    return CCS_PlaytestStepGroup.SettlementNews;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

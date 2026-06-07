@@ -1,5 +1,7 @@
 # CCS Contracts Module
 
+Milestone **5.2.0** — Settlement contract debug boards display **Recent News** (top 3 active entries from `CCS_SettlementNewsRuntimeBridge`). Informational only; no quest generation.
+
 Milestone **3.6.0** — Contract completion at destination settlements drives population growth through `CCS_WorldSimulationService.HandleContractCompleted` (prosperity/supply unchanged from 3.4.0).
 
 Milestone **3.5.0** — Freight contracts with `linkedTradeRouteId` scale trade-dollar rewards by route base/distance and risk multipliers (`CCS_TradeRouteRewardModifierUtility`). `CCS_ContractCompletionResult` and `CCS_ContractDebugHud` expose base/route/risk/final reward breakdown. Local contracts unchanged; missing route service falls back to base reward.

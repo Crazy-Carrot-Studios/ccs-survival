@@ -146,6 +146,7 @@ namespace CCS.Modules.SaveSystem
     {
         public CCS_SettlementSimulationState[] settlementStates = Array.Empty<CCS_SettlementSimulationState>();
         public CCS_RegionSimulationState[] regionStates = Array.Empty<CCS_RegionSimulationState>();
+        public CCS_SettlementNewsState[] newsEntries = Array.Empty<CCS_SettlementNewsState>();
     }
 
     [Serializable]
