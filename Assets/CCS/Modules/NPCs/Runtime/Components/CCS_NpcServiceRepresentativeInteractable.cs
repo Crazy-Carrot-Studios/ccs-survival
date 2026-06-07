@@ -1,5 +1,6 @@
 using CCS.Modules.Interaction;
 using CCS.Modules.Settlements;
+using CCS.Survival;
 using UnityEngine;
 
 // =============================================================================
@@ -76,6 +77,22 @@ namespace CCS.Modules.NPCs
                     servicePointId,
                     "Representative inactive — use service point fallback.");
                 return false;
+            }
+
+            CCS_INpcMovementHost movementHost = GetComponent<CCS_INpcMovementHost>();
+            if (movementHost != null && movementHost.HasIdentity)
+            {
+                CCS_NpcDialogueStubRequest request =
+                    CCS_NpcDialogueStubValidationUtility.BuildRequestFromHost(movementHost);
+                if (CCS_SettlementServicePointRuntimeBridge.TryGetServicePoint(
+                        servicePointId,
+                        out CCS_SettlementServicePoint previewPoint)
+                    && previewPoint != null)
+                {
+                    request.ServiceRoute = CCS_SettlementServiceRouteResolver.ResolveRouteType(previewPoint);
+                }
+
+                CCS_NpcDialogueStubRuntimeBridge.ResolveDialogue?.Invoke(request);
             }
 
             if (!CCS_SettlementServicePointRuntimeBridge.TryGetServicePoint(servicePointId, out CCS_SettlementServicePoint servicePoint)

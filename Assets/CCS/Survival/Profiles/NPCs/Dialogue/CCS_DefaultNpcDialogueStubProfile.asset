@@ -1,0 +1,170 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae3729f81f6f65446a2f7cdb8944b802, type: 3}
+  m_Name: CCS_DefaultNpcDialogueStubProfile
+  m_EditorClassIdentifier: CCS.Modules.NPCs.Runtime::CCS.Modules.NPCs.CCS_NpcDialogueStubProfile
+  profileDisplayName: Default NPC Dialogue Stub Profile
+  profileId: ccs.survival.profile.npcdialoguestub.default
+  profileDescription: Profile-driven greeting, role, settlement, business, and service
+    hint stub lines.
+  profileVersion: 4.9.0
+  enableDebugLogs: 0
+  roleDefinitions:
+  - roleType: 1
+    lines:
+    - category: 2
+      lineText: Welcome. I handle supplies and trade goods here.
+      roleType: 1
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 2
+    lines:
+    - category: 2
+      lineText: Savings, deposits, and loans are handled at the bank.
+      roleType: 2
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 8
+    lines:
+    - category: 2
+      lineText: Mining camps run on ore, coal, and hard work.
+      roleType: 8
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+    - category: 2
+      lineText: Iron Ridge runs on ore, coal, and hard work.
+      roleType: 8
+      settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 6
+    lines:
+    - category: 2
+      lineText: Farmsteads keep food moving through the frontier.
+      roleType: 6
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+    - category: 2
+      lineText: Broken Creek keeps food moving through the frontier.
+      roleType: 6
+      settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 9
+    lines:
+    - category: 2
+      lineText: Timber crews keep frontier camps standing.
+      roleType: 9
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+    - category: 2
+      lineText: Pine Ridge timber keeps half these camps standing.
+      roleType: 9
+      settlementId: ccs.survival.settlement.frontier.pineridgecamp
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 10
+    lines:
+    - category: 2
+      lineText: Always more work than hands out here.
+      roleType: 10
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 3
+    lines:
+    - category: 2
+      lineText: The stable keeps horses fed and tack ready.
+      roleType: 3
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 4
+    lines:
+    - category: 2
+      lineText: I keep rifles ready and powder dry.
+      roleType: 4
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 5
+    lines:
+    - category: 2
+      lineText: "Steel and horseshoes \u2014 bring metal and patience."
+      roleType: 5
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  - roleType: 11
+    lines:
+    - category: 2
+      lineText: Paperwork, contracts, and town notices pass through here.
+      roleType: 11
+      settlementId: 
+      businessId: 
+      affiliationType: 0
+      serviceRoute: 0
+  globalLines:
+  - category: 1
+    lineText: Good day. What brings you through town?
+    roleType: 0
+    settlementId: 
+    businessId: 
+    affiliationType: 0
+    serviceRoute: 0
+  - category: 5
+    lineText: Browse our goods at the counter when you're ready.
+    roleType: 0
+    settlementId: 
+    businessId: 
+    affiliationType: 0
+    serviceRoute: 1
+  - category: 5
+    lineText: Visit the teller window for deposits, withdrawals, or loans.
+    roleType: 0
+    settlementId: 
+    businessId: 
+    affiliationType: 0
+    serviceRoute: 6
+  - category: 5
+    lineText: The forge handles repairs and specialty orders.
+    roleType: 0
+    settlementId: 
+    businessId: 
+    affiliationType: 0
+    serviceRoute: 2
+  - category: 5
+    lineText: Check the contract board for local work.
+    roleType: 0
+    settlementId: 
+    businessId: 
+    affiliationType: 0
+    serviceRoute: 8
+  genericFallbackLine: Good to see you. Frontier life keeps us all busy.
+  requireAffiliationForDialogue: 1

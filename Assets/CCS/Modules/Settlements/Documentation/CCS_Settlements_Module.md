@@ -130,17 +130,17 @@ Playtest: **NPC Identity** — **Ctrl+Shift+E**
 
 ## NPC service representatives (4.3.0)
 
-Active businesses assign named representatives from population placeholders (or synced anchors at service points). Labels use **name + title** for representatives; workers keep `Name — Role`. Interaction routes through existing `CCS_SettlementServicePoint` resolver; service cubes remain fallback.
+Active businesses assign named representatives from population placeholders (or synced anchors at service points). Labels use **name + title** for representatives; workers keep `Name — Role`. Interaction resolves profile-driven dialogue stubs, then routes through existing `CCS_SettlementServicePoint` resolver; service cubes remain fallback.
 
 See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 
-Playtest: **NPC Service Representatives** — **Ctrl+Alt+R**
+Playtest: **NPC Service Representatives** — **Ctrl+Alt+R** · **NPC Dialogue** — **Ctrl+Alt+D**
 
 ## NPC schedule and movement (4.6.0 / 4.5.0)
 
 Placeholder labels may include a dev schedule debug line (`block | schedule id | target kind`) via `CCS_NpcScheduleLabelBridge`. `CCS_PopulationPresenceRuntimeBridge.TryGetFirstAnchorPositionForSettlement` supplies settlement-center targets for break/leisure blocks. Movement remains transform-based with no NavMesh.
 
-Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A** · **NPC Affiliations** — **Ctrl+Alt+F**
+Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A** · **NPC Affiliations** — **Ctrl+Alt+F** · **NPC Dialogue** — **Ctrl+Alt+D**
 
 See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 

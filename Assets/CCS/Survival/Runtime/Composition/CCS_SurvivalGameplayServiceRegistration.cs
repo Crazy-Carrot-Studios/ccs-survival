@@ -547,6 +547,10 @@ namespace CCS.Survival.Composition
                 CreateNpcAffiliationService(worldSimulationProfile?.SettlementNpcAffiliationProfile);
             RegisterService(runtimeHost, npcAffiliationService, enableDebugLogs);
 
+            CCS_NpcDialogueStubService npcDialogueStubService =
+                CreateNpcDialogueStubService(worldSimulationProfile?.SettlementNpcDialogueStubProfile);
+            RegisterService(runtimeHost, npcDialogueStubService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -615,6 +619,9 @@ namespace CCS.Survival.Composition
                 npcAffiliationService,
                 worldSimulationService,
                 worldSimulationProfile?.SettlementBusinessProfile);
+            WireNpcDialogueStub(
+                npcDialogueStubService,
+                npcAffiliationService);
             RegisterNpcMovementUpdatable(runtimeHost, npcMovementService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -3074,6 +3081,37 @@ namespace CCS.Survival.Composition
             }
 
             affiliationService.RefreshAllAffiliations();
+        }
+
+        private static CCS_NpcDialogueStubService CreateNpcDialogueStubService(CCS_NpcDialogueStubProfile profile)
+        {
+            CCS_NpcDialogueStubService service = new CCS_NpcDialogueStubService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcDialogueStub(
+            CCS_NpcDialogueStubService dialogueStubService,
+            CCS_NpcAffiliationService affiliationService)
+        {
+            if (dialogueStubService == null)
+            {
+                return;
+            }
+
+            if (affiliationService != null)
+            {
+                dialogueStubService.RefreshDialogueHosts();
+            }
+            else
+            {
+                dialogueStubService.RefreshDialogueHosts();
+            }
         }
 
         private static void WireNpcMovement(

@@ -2945,3 +2945,75 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.discover
+    displayName: Discover settlement for NPC dialogue
+    stepType: 340
+    instructionText: Discover settlement for NPC dialogue. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.spawn
+    displayName: Spawn named NPC for dialogue
+    stepType: 341
+    instructionText: Spawn named NPC for dialogue. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.interact
+    displayName: Interact with NPC for dialogue
+    stepType: 342
+    instructionText: Interact with NPC for dialogue. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.verify.greeting
+    displayName: Verify NPC dialogue greeting
+    stepType: 343
+    instructionText: Verify NPC dialogue greeting. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.verify.role
+    displayName: Verify NPC dialogue role introduction
+    stepType: 344
+    instructionText: Verify NPC dialogue role introduction. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.verify.service
+    displayName: Verify NPC dialogue service hint
+    stepType: 345
+    instructionText: Verify NPC dialogue service hint. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.save
+    displayName: Save NPC dialogue state
+    stepType: 346
+    instructionText: Save NPC dialogue state. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.load
+    displayName: Load NPC dialogue state
+    stepType: 347
+    instructionText: Load NPC dialogue state. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcdialogue.verify.load
+    displayName: Verify NPC dialogue after load
+    stepType: 348
+    instructionText: Verify NPC dialogue after load. Ctrl+Alt+D shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

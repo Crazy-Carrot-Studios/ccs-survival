@@ -351,6 +351,15 @@ namespace CCS.Modules.Playtesting
         VerifyNpcRepresentativeAffiliation = 336,
         SaveNpcAffiliationState = 337,
         LoadNpcAffiliationState = 338,
-        VerifyNpcAffiliationAfterLoad = 339
+        VerifyNpcAffiliationAfterLoad = 339,
+        DiscoverSettlementForNpcDialogue = 340,
+        SpawnNamedNpcForDialogue = 341,
+        InteractWithNpcForDialogue = 342,
+        VerifyNpcDialogueGreeting = 343,
+        VerifyNpcDialogueRoleIntroduction = 344,
+        VerifyNpcDialogueServiceHint = 345,
+        SaveNpcDialogueState = 346,
+        LoadNpcDialogueState = 347,
+        VerifyNpcDialogueAfterLoad = 348
     }
 }

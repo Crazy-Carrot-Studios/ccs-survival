@@ -8,7 +8,7 @@ using UnityEditor;
 // PLACEMENT: Auto-registered with CCS_SurvivalValidationPipeline.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-04
-// NOTES: Milestone 4.1.0 NPC identity; 4.3.0 NPC service representatives; 4.5.0 NPC movement; 4.6.0 NPC schedule; 4.7.0 NPC activity; 4.8.0 NPC affiliation.
+// NOTES: Milestone 4.1.0 NPC identity; 4.3.0 NPC service representatives; 4.5.0 NPC movement; 4.6.0 NPC schedule; 4.7.0 NPC activity; 4.8.0 NPC affiliation; 4.9.0 NPC dialogue stub.
 // =============================================================================
 
 namespace CCS.Modules.NPCs.Editor
@@ -30,6 +30,8 @@ namespace CCS.Modules.NPCs.Editor
                 new CCS_NpcActivityFoundationValidationValidator());
             CCS_SurvivalValidationPipeline.RegisterValidator(
                 new CCS_NpcAffiliationFoundationValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(
+                new CCS_NpcDialogueFoundationValidationValidator());
         }
     }
 }

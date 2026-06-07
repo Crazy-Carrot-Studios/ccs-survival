@@ -113,6 +113,17 @@ namespace CCS.Modules.NPCs
                 return false;
             }
 
+            if (SpawnedRepresentatives.TryGetValue(snapshot.RepresentativeId, out GameObject representativeRoot)
+                && representativeRoot != null)
+            {
+                CCS_NpcServiceRepresentativeInteractable interactable =
+                    representativeRoot.GetComponentInChildren<CCS_NpcServiceRepresentativeInteractable>();
+                if (interactable != null && interactable.TryInteract())
+                {
+                    return true;
+                }
+            }
+
             if (!CCS_SettlementServicePointRuntimeBridge.TryGetServicePoint(
                     snapshot.ServicePointId,
                     out CCS_SettlementServicePoint servicePoint)

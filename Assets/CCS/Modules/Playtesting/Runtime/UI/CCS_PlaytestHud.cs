@@ -60,6 +60,7 @@ namespace CCS.Modules.Playtesting
 
             DrawHarnessPanel();
             CCS_NpcServiceRepresentativeDebugHud.DrawIfVisible();
+            CCS_NpcDialogueStubDebugHud.DrawIfVisible();
         }
 
         #endregion
@@ -209,6 +210,11 @@ namespace CCS.Modules.Playtesting
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.F))
             {
                 playtestService.TryPlaytestNpcAffiliationFoundationShortcut();
+            }
+
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.D))
+            {
+                playtestService.TryPlaytestNpcDialogueFoundationShortcut();
             }
 
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.T))

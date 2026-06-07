@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.8.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.9.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.9.0** — NPC Dialogue Stub Foundation
+
+Lightweight profile-driven dialogue stubs for affiliated NPCs and service representatives through `CCS_NpcDialogueStubService` and `CCS_NpcDialogueStubProfile`. Stub categories: Greeting, RoleIntroduction, SettlementIntroduction, BusinessIntroduction, ServiceHint, GenericFallback. Lines filter by role, settlement, business, affiliation, and service route. Representatives show dialogue then route through existing service systems. Debug HUD shows NPC context and lines. No branching, quests, voice, or final UI. Static profile data — identity/affiliation persistence enables post-load resolution. Playtest group **NPC Dialogue** with **Ctrl+Alt+D** shortcut.
+
+**NPC Dialogue Stub Loop:**
+
+```text
+Player Interacts → NPC Identity Resolves → Affiliation + Role Resolve → Stub Line Displays → Future Dialogue System Ready
+```
 
 **4.8.0** — NPC Settlement Affiliation Foundation
 

@@ -51,6 +51,7 @@ namespace CCS.Modules.Playtesting
         NpcMovement = 36,
         NpcSchedule = 37,
         NpcActivity = 38,
-        NpcAffiliations = 39
+        NpcAffiliations = 39,
+        NpcDialogue = 40
     }
 }

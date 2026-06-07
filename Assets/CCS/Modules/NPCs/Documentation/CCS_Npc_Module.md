@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 4.9.0** — Profile-driven dialogue stub lines for affiliated NPCs and service representatives.
+
 **Milestone 4.8.0** — Persistent settlement, business, workforce, and region affiliation metadata for placeholder NPCs.
 
 **Milestone 4.7.0** — Lightweight visible activity states derived from schedule blocks and movement status.
@@ -16,7 +18,38 @@
 
 ## Purpose
 
-Generic NPC identity, affiliation, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+Generic NPC identity, affiliation, dialogue stubs, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, placeholder dialogue lines, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, branching dialogue, pathfinding, or combat.
+
+## NPC Dialogue Stub Loop (4.9.0)
+
+```text
+Player Interacts
+↓
+NPC Identity Resolves
+↓
+Affiliation + Role Resolve
+↓
+Stub Line Displays
+↓
+Future Dialogue System Ready
+```
+
+Profile-driven stub categories: **Greeting**, **RoleIntroduction**, **SettlementIntroduction**, **BusinessIntroduction**, **ServiceHint**, **GenericFallback**. Lines filter by role, optional settlement/business/affiliation, and service route. No branching, player choices, quests, voice, or final UI.
+
+| Component | Purpose |
+|-----------|---------|
+| `CCS_NpcDialogueStubProfile` | Role definitions, global lines, fallback |
+| `CCS_NpcDialogueStubService` | Resolves lines from identity + affiliation |
+| `CCS_NpcDialogueStubRuntimeBridge` | Runtime callbacks and last result for playtest |
+| `CCS_NpcDialogueStubDebugHud` | Dev panel: name, role, settlement, business, lines |
+| `CCS_NpcDialogueStubInteractable` | Workforce interaction path |
+| `CCS_NpcServiceRepresentativeInteractable` | Dialogue before existing service routing |
+
+Representatives show dialogue stub lines then route through `CCS_SettlementServiceRouteResolver` (unchanged). Static profile data — no dialogue persistence; identity/affiliation from 4.1/4.8 enable post-load resolution.
+
+Playtest: **NPC Dialogue** — **Ctrl+Alt+D**
+
+Bootstrap: `CCS_NpcDialogueFoundationBootstrapSetup.ExecuteBatch`
 
 ## NPC Affiliation Loop (4.8.0)
 

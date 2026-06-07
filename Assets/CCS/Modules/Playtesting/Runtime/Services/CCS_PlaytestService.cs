@@ -283,6 +283,10 @@ namespace CCS.Modules.Playtesting
         private int savedNpcAffiliationWorkforceCategory = -1;
         private int savedNpcAffiliationLoyalty = -1;
         private bool npcAffiliationSaveCaptured;
+        private string savedNpcDialogueIdentityId = string.Empty;
+        private string savedNpcDialogueGreetingLine = string.Empty;
+        private string savedNpcDialogueRoleLine = string.Empty;
+        private bool npcDialogueSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1517,6 +1521,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcAffiliationState,
                         "NPC affiliation state saved.");
                 }
+
+                if (TryCaptureNpcDialogueSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcDialogueState,
+                        "NPC dialogue resolution state saved.");
+                }
             }
         }
 
@@ -1578,6 +1589,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcAffiliationState,
                     "Load completed for NPC affiliation restore.");
                 EvaluateNpcAffiliationStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcDialogueState,
+                    "Load completed for NPC dialogue restore.");
+                EvaluateNpcDialogueStateAfterLoad();
             }
         }
 
@@ -7512,6 +7527,179 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcAffiliationAfterLoad,
                     "NPC affiliations restored after load.");
+            }
+        }
+
+        public bool TryPlaytestNpcDialogueFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcDialogue,
+                "Trading Post discovered for NPC dialogue playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+            CCS_NpcDialogueStubRuntimeBridge.RefreshAllDialogueHosts();
+
+            if (CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                    settlementId,
+                    out CCS_INpcMovementHost dialogueHost,
+                    out CCS_NpcDialogueStubResult unusedDialogueResult)
+                && dialogueHost != null)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SpawnNamedNpcForDialogue,
+                    $"Named NPC ready for dialogue playtest ({dialogueHost.NpcIdentityId}).");
+            }
+
+            if (TrySimulateWorkforceDialogueInteraction(settlementId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.InteractWithNpcForDialogue,
+                    "Workforce NPC dialogue interaction simulated.");
+            }
+
+            EvaluateNpcDialoguePlaytestSteps();
+
+            const string bankBusinessId = "ccs.survival.business.bank";
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            if (CCS_NpcServiceRepresentativeRuntimeBridge.TrySimulateRepresentativeInteraction(
+                    settlementId,
+                    bankBusinessId))
+            {
+                EvaluateNpcDialoguePlaytestSteps();
+            }
+
+            return true;
+        }
+
+        private static bool TrySimulateWorkforceDialogueInteraction(string settlementId)
+        {
+            if (!CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                    settlementId,
+                    out CCS_INpcMovementHost host,
+                    out CCS_NpcDialogueStubResult unusedDialogueResult)
+                || host == null)
+            {
+                return false;
+            }
+
+            return CCS_NpcDialogueStubRuntimeBridge.ResolveAndDisplayForHost?.Invoke(host) == true;
+        }
+
+        private void EvaluateNpcDialoguePlaytestSteps()
+        {
+            CCS_NpcDialogueStubResult result = CCS_NpcDialogueStubRuntimeBridge.LastDialogueResult;
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            if (result.HasGreeting)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcDialogueGreeting,
+                    $"Dialogue greeting verified ({result.GreetingLine}).");
+            }
+
+            if (result.HasRoleIntroduction)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcDialogueRoleIntroduction,
+                    $"Dialogue role introduction verified ({result.RoleIntroductionLine}).");
+            }
+
+            if (result.HasServiceHint)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcDialogueServiceHint,
+                    $"Dialogue service hint verified ({result.ServiceHintLine}).");
+            }
+        }
+
+        private bool TryCaptureNpcDialogueSaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                    settlementId,
+                    out CCS_INpcMovementHost host,
+                    out CCS_NpcDialogueStubResult result)
+                || host == null
+                || result == null
+                || !result.IsSuccess)
+            {
+                return false;
+            }
+
+            savedNpcDialogueIdentityId = host.NpcIdentityId ?? string.Empty;
+            savedNpcDialogueGreetingLine = result.GreetingLine ?? string.Empty;
+            savedNpcDialogueRoleLine = result.RoleIntroductionLine ?? string.Empty;
+            npcDialogueSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcDialogueStateAfterLoad()
+        {
+            if (!npcDialogueSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+            CCS_NpcDialogueStubRuntimeBridge.RefreshAllDialogueHosts();
+
+            bool restored = false;
+            CCS_PopulationPlaceholderIdentityBridge.ForEachMovementHost(candidate =>
+            {
+                if (restored
+                    || candidate == null
+                    || !candidate.HasIdentity
+                    || !string.Equals(candidate.NpcIdentityId, savedNpcDialogueIdentityId, System.StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(candidate.SettlementId, settlementId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                if (CCS_NpcDialogueStubRuntimeBridge.TryResolveForHost(candidate, out CCS_NpcDialogueStubResult result)
+                    && result != null
+                    && result.IsSuccess
+                    && result.HasGreeting
+                    && result.HasRoleIntroduction
+                    && string.Equals(result.GreetingLine, savedNpcDialogueGreetingLine, System.StringComparison.Ordinal)
+                    && string.Equals(result.RoleIntroductionLine, savedNpcDialogueRoleLine, System.StringComparison.Ordinal))
+                {
+                    restored = true;
+                }
+            });
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcDialogueAfterLoad,
+                    "NPC dialogue still resolves after load.");
             }
         }
 
