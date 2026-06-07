@@ -17,6 +17,11 @@ namespace CCS.Survival.Editor.Development
     {
         public const string CurrentMilestoneVersion = "4.5.0";
 
+        private const string WindowsBuildOutputRoot = "Builds";
+        private const string WindowsBuildProductPrefix = "CCS_Survival_";
+        private const string WindowsBuildPlatformSuffix = "_Windows";
+        private const string WindowsBuildExecutableName = "CCS_Survival.exe";
+
         private const string ProjectSettingsPath = "ProjectSettings/ProjectSettings.asset";
         private static readonly Regex HardcodedBundleVersionReplacementPattern = new Regex(
             @"""bundleVersion:\s*[\d]+\.[\d]+\.[\d]+""",
@@ -48,7 +53,7 @@ namespace CCS.Survival.Editor.Development
                 return false;
             }
 
-            Match match = Regex.Match(File.ReadAllText(ProjectSettingsPath), @"bundleVersion:\s*([\d\.]+)");
+            Match match = Regex.Match(File.ReadAllText(ProjectSettingsPath), @"bundleVersion:\s*([\d\.a-zA-Z]+)");
             if (!match.Success)
             {
                 return false;
@@ -56,6 +61,28 @@ namespace CCS.Survival.Editor.Development
 
             version = match.Groups[1].Value;
             return true;
+        }
+
+        public static string ResolveWindowsBuildOutputFolder(string bundleVersion = null)
+        {
+            string resolvedVersion = bundleVersion;
+            if (string.IsNullOrWhiteSpace(resolvedVersion)
+                && !TryReadProjectBundleVersion(out resolvedVersion))
+            {
+                resolvedVersion = CurrentMilestoneVersion;
+            }
+
+            if (string.IsNullOrWhiteSpace(resolvedVersion))
+            {
+                resolvedVersion = CurrentMilestoneVersion;
+            }
+
+            return $"{WindowsBuildOutputRoot}/{WindowsBuildProductPrefix}{resolvedVersion}{WindowsBuildPlatformSuffix}";
+        }
+
+        public static string ResolveWindowsBuildExecutableRelativePath(string bundleVersion = null)
+        {
+            return $"{ResolveWindowsBuildOutputFolder(bundleVersion)}/{WindowsBuildExecutableName}";
         }
 
         public static bool IsProjectBundleVersionAtLeast(string minimumVersion)

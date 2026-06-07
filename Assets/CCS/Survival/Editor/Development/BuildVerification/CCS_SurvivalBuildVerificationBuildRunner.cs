@@ -8,18 +8,16 @@ using UnityEngine;
 // SCRIPT: CCS_SurvivalBuildVerificationBuildRunner
 // CATEGORY: Survival / Editor / Development / BuildVerification
 // PURPOSE: Runs Windows development build verification for bootstrap prototype scene.
-// PLACEMENT: Batch entry for 0.4.1b build verification milestone.
+// PLACEMENT: Batch entry for build verification milestone.
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Output under Builds/ (gitignored). No UI or gameplay systems added.
+// NOTES: Output under Builds/ (gitignored). Path follows PlayerSettings.bundleVersion.
 // =============================================================================
 
 namespace CCS.Survival.Editor.Development
 {
     public static class CCS_SurvivalBuildVerificationBuildRunner
     {
-        private const string OutputFolder = "Builds/CCS_Survival_4.4.0_Windows";
-        private const string OutputExecutable = OutputFolder + "/CCS_Survival.exe";
         private const string LogPrefix = "[CCS_SurvivalBuildVerificationBuildRunner]";
 
         #region Public Methods
@@ -29,8 +27,11 @@ namespace CCS.Survival.Editor.Development
             CCS_SurvivalBootstrapVersionUtility.EnsureBundleVersionAtLeast(
                 CCS_SurvivalBootstrapVersionUtility.CurrentMilestoneVersion);
 
+            string outputExecutable =
+                CCS_SurvivalBootstrapVersionUtility.ResolveWindowsBuildExecutableRelativePath(
+                    PlayerSettings.bundleVersion);
             string projectRoot = Directory.GetParent(Application.dataPath)?.FullName ?? Application.dataPath;
-            string outputPath = Path.Combine(projectRoot, OutputExecutable);
+            string outputPath = Path.Combine(projectRoot, outputExecutable.Replace('/', Path.DirectorySeparatorChar));
             string outputDirectory = Path.GetDirectoryName(outputPath);
 
             if (!string.IsNullOrEmpty(outputDirectory) && Directory.Exists(outputDirectory))
@@ -64,6 +65,7 @@ namespace CCS.Survival.Editor.Development
             };
 
             Debug.Log($"{LogPrefix} bundleVersion={PlayerSettings.bundleVersion}");
+            Debug.Log($"{LogPrefix} outputFolder={CCS_SurvivalBootstrapVersionUtility.ResolveWindowsBuildOutputFolder(PlayerSettings.bundleVersion)}");
             Debug.Log($"{LogPrefix} Building to {outputPath}");
 
             BuildReport report = BuildPipeline.BuildPlayer(buildOptions);
