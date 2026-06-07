@@ -1,5 +1,7 @@
 # CCS World Simulation Module
 
+Milestone **5.1.0** — **Settlement event state** persists on `CCS_SettlementSimulationState.activeSettlementEvent` (active event id, type, start day/hour, duration, settlement id). Profile wired on `CCS_WorldSimulationProfile.settlementEventProfile`. `CCS_SettlementEventService` evaluates generation on discovery and hour changes; prosperity recalculation and contract completion apply temporary event modifiers through `CCS_SettlementEventRuntimeBridge`.
+
 Milestone **4.8.0** — **NPC affiliation state** persists on `CCS_SettlementSimulationState.npcAffiliationStates` (settlement, region, business, workforce, representative flag, loyalty). Profile wired on `CCS_WorldSimulationProfile.settlementNpcAffiliationProfile`. `CCS_NpcAffiliationService` auto-assigns affiliations when identities are created.
 
 Milestone **4.7.0** — **NPC activity state** persists on `CCS_SettlementSimulationState.npcActivityStates` (current activity type, last evaluated hour). Profile wired on `CCS_WorldSimulationProfile.settlementNpcActivityProfile`. `CCS_NpcActivityService` derives activities from schedule blocks and movement status.

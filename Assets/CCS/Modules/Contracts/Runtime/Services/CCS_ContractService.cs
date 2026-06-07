@@ -450,6 +450,14 @@ namespace CCS.Modules.Contracts
                 ? freightRewardBreakdown.FinalTradeDollars
                 : baseTradeDollars;
 
+            float contractRewardMultiplier = CCS_SettlementEventRuntimeBridge.ResolveContractRewardMultiplier != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveContractRewardMultiplier.Invoke(rewardSettlementId)
+                : 1f;
+            if (contractRewardMultiplier > 1f && grantedTradeDollars > 0)
+            {
+                grantedTradeDollars = Mathf.RoundToInt(grantedTradeDollars * contractRewardMultiplier);
+            }
+
             string currencyId = activeProfile?.DefaultCurrencyId ?? CCS_ContractContentIds.TradeDollarsCurrencyId;
             if (grantedTradeDollars > 0)
             {
@@ -461,6 +469,14 @@ namespace CCS.Modules.Contracts
 
             int reputationApplied = 0;
             int destinationReputationGain = reward.ReputationGain + freightRewardBreakdown.BonusReputation;
+            float reputationGainMultiplier = CCS_SettlementEventRuntimeBridge.ResolveReputationGainMultiplier != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveReputationGainMultiplier.Invoke(rewardSettlementId)
+                : 1f;
+            if (reputationGainMultiplier > 1f && destinationReputationGain != 0)
+            {
+                destinationReputationGain = Mathf.RoundToInt(destinationReputationGain * reputationGainMultiplier);
+            }
+
             if (destinationReputationGain != 0
                 && reputationService != null
                 && reputationService.IsInitialized

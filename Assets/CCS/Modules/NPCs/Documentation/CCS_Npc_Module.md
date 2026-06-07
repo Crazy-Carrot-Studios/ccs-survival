@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 5.1.0** — Leisure social gatherings prefer active settlement event anchors when present; dialogue stub display appends one event line (no branching).
+
 **Milestone 5.0.0** — Leisure-period social gathering behavior at settlement social anchors.
 
 **Milestone 4.9.0** — Profile-driven dialogue stub lines for affiliated NPCs and service representatives.
@@ -21,6 +23,15 @@
 ## Purpose
 
 Generic NPC identity, affiliation, dialogue stubs, social presence, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, placeholder dialogue lines, leisure social gatherings, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, branching dialogue, pathfinding, or combat.
+
+## Settlement event integration (5.1.0)
+
+When a settlement has an active event:
+
+- **Social:** `CCS_NpcSocialValidationUtility` prefers `CCS_SettlementEventRuntimeBridge.PreferredSocialAnchorId` for leisure gathering targets (e.g. market square during Market Day).
+- **Dialogue:** `CCS_NpcDialogueStubValidationUtility` appends the event definition's dialogue line to stub display lines (e.g. *"Busy day. Market's in full swing."*).
+
+No new NPC AI, behavior trees, or branching dialogue.
 
 ## NPC Social Presence Loop (5.0.0)
 

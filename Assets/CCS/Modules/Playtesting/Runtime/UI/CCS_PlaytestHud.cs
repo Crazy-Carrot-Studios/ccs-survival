@@ -222,6 +222,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestNpcSocialFoundationShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.E))
+            {
+                playtestService.TryPlaytestSettlementEventsFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.T))
             {
                 playtestService.TryGrantPlaytestTrap();

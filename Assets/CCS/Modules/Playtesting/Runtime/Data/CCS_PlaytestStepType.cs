@@ -369,6 +369,14 @@ namespace CCS.Modules.Playtesting
         VerifyNpcSocialGroupCount = 354,
         SaveNpcSocialState = 355,
         LoadNpcSocialState = 356,
-        VerifyNpcSocialAfterLoad = 357
+        VerifyNpcSocialAfterLoad = 357,
+        DiscoverSettlementForSettlementEvents = 358,
+        ForceMarketDayForSettlementEvents = 359,
+        VerifySettlementEventMarker = 360,
+        VerifySettlementEventModifiers = 361,
+        VerifySettlementEventDialogueLine = 362,
+        SaveSettlementEventState = 363,
+        LoadSettlementEventState = 364,
+        VerifySettlementEventAfterLoad = 365
     }
 }

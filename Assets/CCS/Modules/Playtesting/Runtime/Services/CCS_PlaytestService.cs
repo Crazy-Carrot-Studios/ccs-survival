@@ -292,6 +292,10 @@ namespace CCS.Modules.Playtesting
         private string savedNpcSocialAnchorId = string.Empty;
         private int savedNpcSocialParticipantCount = -1;
         private bool npcSocialSaveCaptured;
+        private string savedSettlementEventId = string.Empty;
+        private int savedSettlementEventType = -1;
+        private string savedSettlementEventSettlementId = string.Empty;
+        private bool settlementEventSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1540,6 +1544,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcSocialState,
                         "NPC social state saved.");
                 }
+
+                if (TryCaptureSettlementEventSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveSettlementEventState,
+                        "Settlement event state saved.");
+                }
             }
         }
 
@@ -1609,6 +1620,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcSocialState,
                     "Load completed for NPC social restore.");
                 EvaluateNpcSocialStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadSettlementEventState,
+                    "Load completed for settlement event restore.");
+                EvaluateSettlementEventStateAfterLoad();
             }
         }
 
@@ -7908,6 +7923,134 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcSocialAfterLoad,
                     "NPC social groups restored after load.");
+            }
+        }
+
+        public bool TryPlaytestSettlementEventsFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForSettlementEvents,
+                "Trading Post discovered for settlement events playtest.");
+
+            if (CCS_SettlementEventRuntimeBridge.TryForceEventForPlaytest != null
+                && CCS_SettlementEventRuntimeBridge.TryForceEventForPlaytest.Invoke(settlementId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceMarketDayForSettlementEvents,
+                    "Market Day forced for settlement events playtest.");
+            }
+
+            CCS_SettlementEventRuntimeBridge.RefreshAllEvents();
+            EvaluateSettlementEventPlaytestSteps(settlementId);
+
+            CCS_NpcDialogueStubRuntimeBridge.RefreshAllDialogueHosts();
+            if (CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                    settlementId,
+                    out CCS_INpcMovementHost dialogueHost,
+                    out CCS_NpcDialogueStubResult unusedDialogueResult)
+                && dialogueHost != null
+                && CCS_NpcDialogueStubRuntimeBridge.ResolveAndDisplayForHost != null
+                && CCS_NpcDialogueStubRuntimeBridge.ResolveAndDisplayForHost.Invoke(dialogueHost))
+            {
+                EvaluateSettlementEventDialogueStep(settlementId);
+            }
+
+            return true;
+        }
+
+        private void EvaluateSettlementEventPlaytestSteps(string settlementId)
+        {
+            if (CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                    settlementId,
+                    out CCS_SettlementEventSnapshot snapshot)
+                && snapshot != null
+                && snapshot.IsValid)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementEventMarker,
+                    $"Settlement event marker active ({snapshot.DisplayName}).");
+
+                if (snapshot.HasModifiers)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifySettlementEventModifiers,
+                        "Settlement event modifiers available.");
+                }
+            }
+        }
+
+        private void EvaluateSettlementEventDialogueStep(string settlementId)
+        {
+            CCS_NpcDialogueStubResult result = CCS_NpcDialogueStubRuntimeBridge.LastDialogueResult;
+            if (result == null || !result.IsSuccess)
+            {
+                return;
+            }
+
+            string eventLine = CCS_SettlementEventRuntimeBridge.ResolveDialogueAppendLine != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveDialogueAppendLine.Invoke(settlementId)
+                : string.Empty;
+            if (string.IsNullOrWhiteSpace(eventLine))
+            {
+                return;
+            }
+
+            string[] displayLines = result.DisplayLines;
+            for (int index = 0; index < displayLines.Length; index++)
+            {
+                if (string.Equals(displayLines[index], eventLine, System.StringComparison.Ordinal))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifySettlementEventDialogueLine,
+                        $"Settlement event dialogue line verified ({eventLine}).");
+                    return;
+                }
+            }
+        }
+
+        private bool TryCaptureSettlementEventSaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                    settlementId,
+                    out CCS_SettlementEventSnapshot snapshot)
+                || snapshot == null
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedSettlementEventId = snapshot.ActiveEventId ?? string.Empty;
+            savedSettlementEventType = (int)snapshot.EventType;
+            savedSettlementEventSettlementId = snapshot.SettlementId ?? string.Empty;
+            settlementEventSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateSettlementEventStateAfterLoad()
+        {
+            if (!settlementEventSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = savedSettlementEventSettlementId;
+            CCS_SettlementEventRuntimeBridge.RefreshAllEvents();
+            bool restored = CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                    settlementId,
+                    out CCS_SettlementEventSnapshot snapshot)
+                && snapshot != null
+                && snapshot.IsValid
+                && string.Equals(snapshot.ActiveEventId, savedSettlementEventId, System.StringComparison.OrdinalIgnoreCase)
+                && (int)snapshot.EventType == savedSettlementEventType;
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifySettlementEventAfterLoad,
+                    "Settlement event restored after load.");
             }
         }
 

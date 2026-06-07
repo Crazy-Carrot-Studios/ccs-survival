@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 092c82587d3e477408bb8ebe80cccfd7, type: 3}
+  m_Name: CCS_DefaultSettlementEventProfile
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementEventProfile
+  profileDisplayName: Default Settlement Event Profile
+  profileId: ccs.survival.profile.settlementevents.default
+  profileDescription: Simulation-driven settlement events with temporary modifiers
+    and dev markers.
+  profileVersion: 5.1.0
+  enableDebugLogs: 0
+  eventDefinitions:
+  - eventId: ccs.survival.event.tradingpost.marketday
+    eventType: 1
+    displayName: Market Day
+    eligibleSettlementIds:
+    - ccs.survival.settlement.frontier.testtradingpost
+    eligibleSettlementTypes: 00000000
+    minimumPopulation: 10
+    minimumProsperity: 20
+    minimumActiveBusinesses: 2
+    minimumTradeRouteUsage: 0
+    durationHours: 24
+    prosperityBonus: 2
+    supplyBonus: 5
+    contractRewardMultiplier: 1.05
+    reputationGainMultiplier: 1.05
+    dialogueAppendLine: Busy day. Market's in full swing.
+    preferredSocialAnchorId: ccs.survival.social.tradingpost.campfire
+    eventMarkerAnchorId: ccs.survival.event.tradingpost.marketday.anchor
+  - eventId: ccs.survival.event.tradingpost.supplyshipment
+    eventType: 2
+    displayName: Supply Shipment
+    eligibleSettlementIds:
+    - ccs.survival.settlement.frontier.testtradingpost
+    eligibleSettlementTypes: 00000000
+    minimumPopulation: 15
+    minimumProsperity: 25
+    minimumActiveBusinesses: 2
+    minimumTradeRouteUsage: 1
+    durationHours: 24
+    prosperityBonus: 2
+    supplyBonus: 5
+    contractRewardMultiplier: 1.05
+    reputationGainMultiplier: 1.05
+    dialogueAppendLine: Fresh supplies rolling in from the frontier routes.
+    preferredSocialAnchorId: ccs.survival.social.tradingpost.hitchingrail
+    eventMarkerAnchorId: ccs.survival.event.tradingpost.supplyshipment.anchor
+  - eventId: ccs.survival.event.brokencreek.harvestfestival
+    eventType: 3
+    displayName: Harvest Festival
+    eligibleSettlementIds:
+    - ccs.survival.settlement.frontier.brokencreekfarmstead
+    eligibleSettlementTypes: 06000000
+    minimumPopulation: 8
+    minimumProsperity: 18
+    minimumActiveBusinesses: 1
+    minimumTradeRouteUsage: 0
+    durationHours: 24
+    prosperityBonus: 2
+    supplyBonus: 5
+    contractRewardMultiplier: 1.05
+    reputationGainMultiplier: 1.05
+    dialogueAppendLine: Harvest season keeps the farmstead busy.
+    preferredSocialAnchorId: ccs.survival.social.brokencreek.communityfire
+    eventMarkerAnchorId: ccs.survival.event.brokencreek.harvestfestival.anchor
+  - eventId: ccs.survival.event.ironridge.miningshipment
+    eventType: 4
+    displayName: Mining Shipment
+    eligibleSettlementIds:
+    - ccs.survival.settlement.frontier.ironridgeminingcamp
+    eligibleSettlementTypes: 02000000
+    minimumPopulation: 8
+    minimumProsperity: 18
+    minimumActiveBusinesses: 1
+    minimumTradeRouteUsage: 0
+    durationHours: 24
+    prosperityBonus: 2
+    supplyBonus: 5
+    contractRewardMultiplier: 1.05
+    reputationGainMultiplier: 1.05
+    dialogueAppendLine: Ore wagons are rolling out of Iron Ridge.
+    preferredSocialAnchorId: ccs.survival.social.ironridge.minefire
+    eventMarkerAnchorId: ccs.survival.event.ironridge.miningshipment.anchor
+  - eventId: ccs.survival.event.pineridge.timberdelivery
+    eventType: 5
+    displayName: Timber Delivery
+    eligibleSettlementIds:
+    - ccs.survival.settlement.frontier.pineridgecamp
+    eligibleSettlementTypes: 07000000
+    minimumPopulation: 8
+    minimumProsperity: 18
+    minimumActiveBusinesses: 1
+    minimumTradeRouteUsage: 0
+    durationHours: 24
+    prosperityBonus: 2
+    supplyBonus: 5
+    contractRewardMultiplier: 1.05
+    reputationGainMultiplier: 1.05
+    dialogueAppendLine: Timber crews are hauling fresh loads down from Pine Ridge.
+    preferredSocialAnchorId: ccs.survival.social.pineridge.lumbercampfire
+    eventMarkerAnchorId: ccs.survival.event.pineridge.timberdelivery.anchor
+  evaluationIntervalHours: 6
+  allowSimulationGeneration: 1

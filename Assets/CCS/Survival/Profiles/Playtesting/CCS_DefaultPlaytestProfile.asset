@@ -3094,3 +3094,67 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.discover
+    displayName: Discover settlement for events
+    stepType: 358
+    instructionText: Discover settlement for events. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.force.marketday
+    displayName: Force Market Day event
+    stepType: 359
+    instructionText: Force Market Day event. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.verify.marker
+    displayName: Verify settlement event marker
+    stepType: 360
+    instructionText: Verify settlement event marker. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.verify.modifiers
+    displayName: Verify settlement event modifiers
+    stepType: 361
+    instructionText: Verify settlement event modifiers. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.verify.dialogue
+    displayName: Verify settlement event dialogue line
+    stepType: 362
+    instructionText: Verify settlement event dialogue line. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.save
+    displayName: Save settlement event state
+    stepType: 363
+    instructionText: Save settlement event state. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.load
+    displayName: Load settlement event state
+    stepType: 364
+    instructionText: Load settlement event state. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.settlementevents.verify.load
+    displayName: Verify settlement event after load
+    stepType: 365
+    instructionText: Verify settlement event after load. Ctrl+Alt+E shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

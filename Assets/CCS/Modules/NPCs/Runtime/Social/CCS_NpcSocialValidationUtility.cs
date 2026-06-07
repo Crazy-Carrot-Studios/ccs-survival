@@ -82,6 +82,24 @@ namespace CCS.Modules.NPCs
             Vector3 origin = host.MovementTransform != null
                 ? host.MovementTransform.position
                 : Vector3.zero;
+
+            if (CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                    host.SettlementId,
+                    out CCS_SettlementEventSnapshot eventSnapshot)
+                && eventSnapshot != null
+                && eventSnapshot.IsValid
+                && !string.IsNullOrWhiteSpace(eventSnapshot.PreferredSocialAnchorId)
+                && CCS_SettlementSocialRuntimeBridge.TryFindAnchor(
+                    eventSnapshot.PreferredSocialAnchorId,
+                    out CCS_SettlementSocialAnchor eventAnchor)
+                && eventAnchor != null)
+            {
+                anchorId = eventAnchor.AnchorId;
+                anchorDisplayName = eventSnapshot.DisplayName;
+                targetPosition = eventAnchor.transform.position;
+                return true;
+            }
+
             float bestDistance = float.MaxValue;
             string bestAnchorId = string.Empty;
             string bestDisplayName = string.Empty;

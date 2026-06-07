@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 5.1.0 — Dynamic settlement events (simulation-driven metadata, modifiers, dev markers)  
 **Milestone:** 4.4.0 — Settlement housing capacity + markers; 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  
 **Milestone:** 3.9.0 — Settlement visual growth (stage markers/labels driven by growth stage)  
 **Milestone:** 3.8.0 — Visible business presence (primitive markers/labels driven by business activation)  
@@ -24,7 +25,54 @@ Generic settlement framework for frontier service locations beyond the player ho
 - Ranches
 - Forts
 
-No NPC AI, dialogue, quest systems, or final town art.
+No NPC AI, dialogue trees, quest systems, or final town art.
+
+## Settlement events (5.1.0)
+
+Simulation-driven settlement events — metadata, temporary modifiers, and dev markers only. No cutscenes, quest chains, AI behavior trees, combat encounters, or random world destruction.
+
+**Settlement Event Loop:**
+
+```text
+Settlement Develops
+↓
+Event Triggered
+↓
+Population Activity Increases
+↓
+Simulation Bonuses Apply
+↓
+Settlement Feels Dynamic
+```
+
+| Component | Purpose |
+|-----------|---------|
+| `CCS_SettlementEventProfile` | Event definitions, eligibility, modifiers, dialogue append lines |
+| `CCS_SettlementEventService` | Generation, force event, presentation refresh |
+| `CCS_SettlementEventRuntimeBridge` | Modifiers, dialogue append, preferred social anchor |
+| `CCS_SettlementEventMarker` / `CCS_SettlementEventLabel` | Primitive current-event markers |
+| `CCS_SettlementEventAnchor` | World anchor for event location preference |
+
+**Active event types:** MarketDay, SupplyShipment, HarvestFestival, MiningShipment, TimberDelivery.
+
+**Future placeholders (inactive):** Election, Fire, Disease, Raid, RailroadArrival.
+
+**Generation inputs:** settlement specialization, population, prosperity, active businesses, trade route usage.
+
+| Settlement type | Example events |
+|-----------------|----------------|
+| Trading Post | Market Day, Supply Shipment |
+| Agriculture (Broken Creek) | Harvest Festival |
+| Mining (Iron Ridge) | Mining Shipment |
+| Timber (Pine Ridge) | Timber Delivery |
+
+**Temporary modifiers (small):** prosperity bonus, supply bonus, contract reward multiplier, reputation gain multiplier.
+
+Persisted on `CCS_SettlementSimulationState.activeSettlementEvent` (`activeEventId`, `eventType`, `startDayNumber`, `startHour`, `durationHours`, `settlementId`).
+
+Bootstrap: `CCS_SettlementEventsFoundationBootstrapSetup.ExecuteBatch`
+
+Playtest: **Settlement Events** — **Ctrl+Alt+E**
 
 ## Settlement Service Hub Loop
 

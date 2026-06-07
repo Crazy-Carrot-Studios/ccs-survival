@@ -129,6 +129,10 @@ namespace CCS.Modules.NPCs
             AppendLine(displayLines, settlementIntro);
             AppendLine(displayLines, businessIntro);
             AppendLine(displayLines, serviceHint);
+            string eventLine = CCS_SettlementEventRuntimeBridge.ResolveDialogueAppendLine != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveDialogueAppendLine.Invoke(request.SettlementId)
+                : string.Empty;
+            AppendLine(displayLines, eventLine);
             if (displayLines.Count == 0)
             {
                 AppendLine(displayLines, fallback);

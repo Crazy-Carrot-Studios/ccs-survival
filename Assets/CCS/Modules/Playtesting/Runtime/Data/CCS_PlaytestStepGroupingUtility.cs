@@ -57,7 +57,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.NpcActivity,
             CCS_PlaytestStepGroup.NpcAffiliations,
             CCS_PlaytestStepGroup.NpcDialogue,
-            CCS_PlaytestStepGroup.NpcSocialPresence
+            CCS_PlaytestStepGroup.NpcSocialPresence,
+            CCS_PlaytestStepGroup.SettlementEvents
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -151,6 +152,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Dialogue";
                 case CCS_PlaytestStepGroup.NpcSocialPresence:
                     return "NPC Social Presence";
+                case CCS_PlaytestStepGroup.SettlementEvents:
+                    return "Settlement Events";
                 default:
                     return group.ToString();
             }
@@ -607,6 +610,16 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadNpcSocialState:
                 case CCS_PlaytestStepType.VerifyNpcSocialAfterLoad:
                     return CCS_PlaytestStepGroup.NpcSocialPresence;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForSettlementEvents:
+                case CCS_PlaytestStepType.ForceMarketDayForSettlementEvents:
+                case CCS_PlaytestStepType.VerifySettlementEventMarker:
+                case CCS_PlaytestStepType.VerifySettlementEventModifiers:
+                case CCS_PlaytestStepType.VerifySettlementEventDialogueLine:
+                case CCS_PlaytestStepType.SaveSettlementEventState:
+                case CCS_PlaytestStepType.LoadSettlementEventState:
+                case CCS_PlaytestStepType.VerifySettlementEventAfterLoad:
+                    return CCS_PlaytestStepGroup.SettlementEvents;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

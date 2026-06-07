@@ -555,6 +555,10 @@ namespace CCS.Survival.Composition
                 CreateNpcSocialService(worldSimulationProfile?.SettlementNpcSocialProfile);
             RegisterService(runtimeHost, npcSocialService, enableDebugLogs);
 
+            CCS_SettlementEventService settlementEventService =
+                CreateSettlementEventService(worldSimulationProfile?.SettlementEventProfile);
+            RegisterService(runtimeHost, settlementEventService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -651,6 +655,13 @@ namespace CCS.Survival.Composition
                 settlementProfile?.TradeRouteProfile,
                 settlementService);
             RegisterService(runtimeHost, tradeRouteService, enableDebugLogs);
+
+            WireSettlementEvents(
+                settlementService,
+                settlementEventService,
+                worldSimulationService,
+                timeOfDayService,
+                tradeRouteService);
 
             CCS_ContractService contractService = CreateContractService(
                 contractsProfile,
@@ -3203,6 +3214,176 @@ namespace CCS.Survival.Composition
             };
 
             socialService.RefreshAllSocialHosts();
+        }
+
+        private static CCS_SettlementEventService CreateSettlementEventService(CCS_SettlementEventProfile profile)
+        {
+            CCS_SettlementEventService service = new CCS_SettlementEventService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireSettlementEvents(
+            CCS_SettlementService settlementService,
+            CCS_SettlementEventService eventService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_TradeRouteService tradeRouteService)
+        {
+            if (settlementService == null || eventService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            eventService.BindEventStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.activeSettlementEvent
+                            ?? CCS_SettlementEventValidationUtility.CreateInactiveState(settlementId);
+                    }
+
+                    return CCS_SettlementEventValidationUtility.CreateInactiveState(settlementId);
+                },
+                (settlementId, eventState) =>
+                {
+                    worldSimulationService.SetActiveSettlementEvent(settlementId, eventState);
+                },
+                settlementId =>
+                {
+                    CCS_SettlementEventSimulationContext context = CCS_SettlementEventSimulationContext.Empty;
+                    if (!worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        || state == null)
+                    {
+                        return context;
+                    }
+
+                    context.IsDiscovered = state.isDiscovered;
+                    context.Population = state.population;
+                    context.Prosperity = state.prosperity;
+                    context.ActiveBusinessCount = CountActiveBusinessesForSettlement(state);
+                    context.TradeRouteUsageCount = tradeRouteService == null || !tradeRouteService.IsInitialized
+                        ? 0
+                        : ResolveTradeRouteUsageForSettlement(tradeRouteService, settlementId);
+                    return context;
+                },
+                settlementId =>
+                {
+                    if (settlementService.TryGetSnapshot(settlementId, out CCS_SettlementSnapshot snapshot)
+                        && snapshot != null)
+                    {
+                        return snapshot.SettlementType;
+                    }
+
+                    return CCS_SettlementType.Other;
+                },
+                () =>
+                {
+                    if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                    {
+                        return CCS_SettlementEventTimeSnapshot.Default;
+                    }
+
+                    CCS_GameTimeSnapshot snapshot = timeOfDayService.CreateSnapshot();
+                    return new CCS_SettlementEventTimeSnapshot
+                    {
+                        DayNumber = snapshot.DayNumber,
+                        Hour = snapshot.Hour
+                    };
+                });
+
+            settlementService.SettlementDiscovered += snapshot =>
+            {
+                if (snapshot != null)
+                {
+                    eventService.EvaluateSettlement(snapshot.SettlementId);
+                    eventService.RefreshAllPresentation();
+                }
+            };
+
+            if (timeOfDayService != null)
+            {
+                timeOfDayService.HourChanged += _ =>
+                {
+                    CCS_GameTimeSnapshot timeSnapshot = timeOfDayService.CreateSnapshot();
+                    if (timeSnapshot.Hour % System.Math.Max(1, eventService.ActiveProfile?.EvaluationIntervalHours ?? 6) != 0)
+                    {
+                        return;
+                    }
+
+                    System.Collections.Generic.IReadOnlyCollection<CCS_SettlementSnapshot> discoveredSnapshots =
+                        settlementService.GetDiscoveredSnapshots();
+                    foreach (CCS_SettlementSnapshot snapshot in discoveredSnapshots)
+                    {
+                        if (snapshot != null)
+                        {
+                            eventService.EvaluateSettlement(snapshot.SettlementId);
+                        }
+                    }
+                };
+            }
+
+            eventService.RefreshAllPresentation();
+        }
+
+        private static int CountActiveBusinessesForSettlement(CCS_SettlementSimulationState settlementState)
+        {
+            if (settlementState?.businessStates == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            CCS_BusinessState[] businessStates = settlementState.businessStates;
+            for (int index = 0; index < businessStates.Length; index++)
+            {
+                if (businessStates[index] != null && businessStates[index].isActive)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static int ResolveTradeRouteUsageForSettlement(
+            CCS_TradeRouteService tradeRouteService,
+            string settlementId)
+        {
+            int totalUsage = 0;
+            if (tradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.BrokenCreekToTradingPostRouteId,
+                    out int brokenCreekUsage))
+            {
+                totalUsage += brokenCreekUsage;
+            }
+
+            if (tradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.IronRidgeToTradingPostRouteId,
+                    out int ironRidgeUsage))
+            {
+                totalUsage += ironRidgeUsage;
+            }
+
+            if (tradeRouteService.TryGetUsageCount(
+                    CCS_TradeRoutesFreightContentIds.PineRidgeToTradingPostRouteId,
+                    out int pineRidgeUsage))
+            {
+                totalUsage += pineRidgeUsage;
+            }
+
+            return totalUsage;
         }
 
         private static void WireNpcMovement(

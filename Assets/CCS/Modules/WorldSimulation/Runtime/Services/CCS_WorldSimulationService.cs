@@ -252,6 +252,14 @@ namespace CCS.Modules.WorldSimulation
             }
 
             ApplySupplyDelta(settlementState, supplyType, supplyAmount);
+            float eventSupplyBonus = CCS_SettlementEventRuntimeBridge.ResolveSupplyBonus != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveSupplyBonus.Invoke(settlementId)
+                : 0f;
+            if (eventSupplyBonus > 0f)
+            {
+                ApplySupplyDelta(settlementState, supplyType, eventSupplyBonus);
+            }
+
             settlementState.completedContractsCount++;
             RecalculateProsperity(settlementState);
             if (prosperityBonus > 0f)
@@ -393,6 +401,20 @@ namespace CCS.Modules.WorldSimulation
             }
 
             settlementState.npcSocialStates = socialStates ?? Array.Empty<CCS_NpcSocialState>();
+        }
+
+        public void SetActiveSettlementEvent(string settlementId, CCS_SettlementEventState eventState)
+        {
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return;
+            }
+
+            settlementState.activeSettlementEvent = eventState == null
+                ? CCS_SettlementEventValidationUtility.CreateInactiveState(settlementId)
+                : CCS_SettlementEventValidationUtility.CloneState(eventState);
+            settlementState.activeSettlementEvent.settlementId = settlementId ?? string.Empty;
         }
 
         public bool TryGetGrowthSnapshot(string settlementId, out CCS_SettlementGrowthSnapshot snapshot)
@@ -696,6 +718,14 @@ namespace CCS.Modules.WorldSimulation
             productionPercent = Mathf.Clamp(productionPercent * productionBonus, 0f, 100f);
             float prosperity = (foodPercent + supplyPercent + productionPercent) / 3f;
             settlementState.prosperity = CCS_RegionEconomyUtility.ApplyProsperityModifier(prosperity, prosperityModifier);
+            float eventProsperityBonus = CCS_SettlementEventRuntimeBridge.ResolveProsperityBonus != null
+                ? CCS_SettlementEventRuntimeBridge.ResolveProsperityBonus.Invoke(settlementState.settlementId)
+                : 0f;
+            if (eventProsperityBonus > 0f)
+            {
+                settlementState.prosperity = Mathf.Clamp(settlementState.prosperity + eventProsperityBonus, 0f, 100f);
+            }
+
             SettlementProsperityChanged?.Invoke(settlementState);
             EvaluatePopulation(settlementState, contractCompletedThisEvaluation: false);
             EvaluateSettlementGrowth(settlementState);
@@ -1326,7 +1356,8 @@ namespace CCS.Modules.WorldSimulation
                 npcScheduleStates = CCS_NpcScheduleValidationUtility.CloneStates(source.npcScheduleStates),
                 npcActivityStates = CCS_NpcActivityValidationUtility.CloneStates(source.npcActivityStates),
                 npcAffiliationStates = CCS_NpcAffiliationValidationUtility.CloneStates(source.npcAffiliationStates),
-                npcSocialStates = CCS_NpcSocialValidationUtility.CloneStates(source.npcSocialStates)
+                npcSocialStates = CCS_NpcSocialValidationUtility.CloneStates(source.npcSocialStates),
+                activeSettlementEvent = CCS_SettlementEventValidationUtility.CloneState(source.activeSettlementEvent)
             };
             CCS_SettlementPopulationUtility.ClampPopulationNonNegative(clone);
             return clone;

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-5.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-5.1.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**5.1.0** — Dynamic Settlement Events Foundation
+
+Lightweight simulation-driven settlement events through `CCS_SettlementEventService` and `CCS_SettlementEventProfile`. Active types: Market Day, Supply Shipment, Harvest Festival, Mining Shipment, Timber Delivery. Events generate from settlement specialization, population, prosperity, business activation, and trade route usage. Temporary modifiers adjust prosperity, supply, contract rewards, and reputation gains (small, non-permanent). Primitive markers show current event names; leisure social gatherings prefer event anchors; dialogue stubs append event lines. State persists on `CCS_SettlementSimulationState.activeSettlementEvent`. Playtest group **Settlement Events** with **Ctrl+Alt+E** shortcut.
+
+**Settlement Event Loop:**
+
+```text
+Settlement Develops → Event Triggered → Population Activity Increases → Simulation Bonuses Apply → Settlement Feels Dynamic
+```
 
 **5.0.0** — NPC Social Presence Foundation
 
@@ -524,8 +534,8 @@ CCS.Survival.Editor.Development.CCS_PlayerThirdPersonCameraBootstrapSetup.Execut
 
 | Item | Value |
 |------|--------|
-| Version | **4.8.0** |
-| Output | `Builds/CCS_Survival_4.8.0_Windows/` (gitignored) |
+| Version | **5.1.0** |
+| Output | `Builds/CCS_Survival_5.1.0_Windows/` (gitignored) |
 | Scene | `Assets/CCS/Survival/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 
 Details: [Build verification](Assets/CCS/Survival/Documentation/CCS_Survival_Build_Verification.md)
