@@ -1,5 +1,9 @@
 # CCS NPC Module
 
+**Milestone 4.6.0** — Profile-driven NPC schedule blocks for placeholder workers and service representatives.
+
+**Milestone 4.5.0** — Transform-based NPC movement driven by schedule blocks (work/home/leisure targets).
+
 **Milestone 4.4.0** — Optional `homeHousingId` placeholder on `CCS_NpcIdentityState` / `CCS_NpcIdentitySnapshot` for future home assignment (debug label on placeholders when set).
 
 **Milestone 4.3.0** — NPC service representatives foundation for settlement businesses.
@@ -8,7 +12,36 @@
 
 ## Purpose
 
-Generic NPC identity and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, and business-facing titles to population placeholders without AI, dialogue, schedules, pathfinding, or combat.
+Generic NPC identity, schedule, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, daily schedule blocks, and business-facing titles to population placeholders without AI, dialogue, pathfinding, or combat.
+
+## NPC Schedule Loop (4.6.0)
+
+```text
+NPC Has Role
+↓
+Role Selects Schedule
+↓
+Schedule Selects Destination
+↓
+Movement Sends NPC There
+↓
+Future Routines Ready
+```
+
+Default schedules:
+
+| Schedule | Blocks |
+|----------|--------|
+| Worker | Home 20:00–06:00, Work 06:00–18:00, Leisure 18:00–20:00 |
+| Service Representative | Home 20:00–07:00, Service 07:00–18:00, Leisure 18:00–20:00 |
+
+Role mappings: Banker/Merchant representatives → Service Representative schedule; Miner/Farmer/LumberWorker → Worker schedule.
+
+Persisted on `CCS_SettlementSimulationState.npcScheduleStates` (`activeScheduleId`, `currentBlockType`, `currentTargetKind`, `currentTargetId`, `lastEvaluatedHour`). Movement falls back to profile work/home hours when schedule service is unavailable.
+
+Playtest: **NPC Schedule** — **Ctrl+Alt+S**
+
+Bootstrap: `CCS_NpcScheduleFoundationBootstrapSetup.ExecuteBatch`
 
 ## Service Representative Loop
 
@@ -53,6 +86,11 @@ Settlements Feel More Human
 | `CCS_NpcServiceRepresentativeDebugHud` | Dev HUD for route/fallback status |
 | `CCS_NpcServiceRepresentativeUtility` | Id building, role→route mapping, state helpers |
 | `CCS_NpcServiceRepresentativeValidationUtility` | Profile, persistence, routing validation |
+| `CCS_NpcScheduleProfile` | Schedule definitions and role-to-schedule mappings |
+| `CCS_NpcScheduleService` | Daily block evaluation and persisted schedule state |
+| `CCS_NpcScheduleRuntimeBridge` | Snapshot/refresh/force-evaluate bridge for playtest |
+| `CCS_NpcScheduleValidationUtility` | Block overlap/coverage validation and target resolution |
+| `CCS_NpcMovementService` | Transform movement toward schedule-selected targets |
 
 ## Active Roles
 
@@ -73,7 +111,7 @@ Representatives call the same `CCS_SettlementServiceRouteResolver.TryActivate` p
 
 ## Labels
 
-- **Workers:** `Elias Carter — Miner`
+- **Workers:** `Elias Carter — Miner` + optional schedule debug line (`Work | ccs.survival.schedule.worker | Workplace`)
 - **Representatives:** `Samuel Reed` + title line `Frontier Banker` (name + title)
 
 ## Integration

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.4.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-4.6.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,20 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**4.6.0** — NPC Schedule State Foundation
+
+Profile-driven daily schedule blocks for placeholder NPCs and service representatives through `CCS_NpcScheduleService` and `CCS_NpcScheduleProfile`. Role mappings select Worker or Service Representative schedules. Movement (`CCS_NpcMovementService`) resolves destinations from schedule blocks (housing, workplace/service point, settlement center) with profile work/home hour fallback when the schedule service is unavailable. State persists on `CCS_SettlementSimulationState.npcScheduleStates`. No NavMesh, advanced AI, dialogue, quests, or final NPC UI. Playtest group **NPC Schedule** with **Ctrl+Alt+S** shortcut.
+
+**NPC Schedule Loop:**
+
+```text
+NPC Has Role → Role Selects Schedule → Schedule Selects Destination → Movement Sends NPC There → Future Routines Ready
+```
+
+**4.5.0** — NPC Movement Foundation
+
+Transform-based placeholder movement driven by schedule blocks and time-of-day evaluation through `CCS_NpcMovementService`. Workforce placeholders travel between workplace and housing anchors; service representatives use service points. State persists on `CCS_SettlementSimulationState.npcMovementStates`. Playtest group **NPC Movement** with **Ctrl+Alt+M** shortcut.
 
 **4.4.0** — Settlement Housing Foundation
 

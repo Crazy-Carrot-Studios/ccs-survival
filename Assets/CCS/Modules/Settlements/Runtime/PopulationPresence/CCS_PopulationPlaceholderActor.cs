@@ -206,17 +206,24 @@ namespace CCS.Modules.Settlements
 
             if (isServiceRepresentative && !string.IsNullOrWhiteSpace(representativeTitle))
             {
-                identityLabel.text = $"{displayName}\n{representativeTitle}";
+                identityLabel.text = AppendScheduleDebugLine($"{displayName}\n{representativeTitle}");
                 return;
             }
 
             if (!string.IsNullOrWhiteSpace(homeHousingId))
             {
-                identityLabel.text = $"{displayName} — {roleDisplayName}\nHome: {homeHousingId}";
+                identityLabel.text = AppendScheduleDebugLine(
+                    $"{displayName} — {roleDisplayName}\nHome: {homeHousingId}");
                 return;
             }
 
-            identityLabel.text = $"{displayName} — {roleDisplayName}\n{workforceCategory}";
+            identityLabel.text = AppendScheduleDebugLine($"{displayName} — {roleDisplayName}\n{workforceCategory}");
+        }
+
+        private string AppendScheduleDebugLine(string baseLabel)
+        {
+            string scheduleLine = CCS_NpcScheduleLabelBridge.BuildScheduleDebugLine(settlementId, npcIdentityId);
+            return string.IsNullOrWhiteSpace(scheduleLine) ? baseLabel : $"{baseLabel}\n{scheduleLine}";
         }
 
         private TextMesh identityLabel;

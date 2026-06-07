@@ -535,6 +535,10 @@ namespace CCS.Survival.Composition
                 CreateNpcMovementService(worldSimulationProfile?.SettlementNpcMovementProfile);
             RegisterService(runtimeHost, npcMovementService, enableDebugLogs);
 
+            CCS_NpcScheduleService npcScheduleService =
+                CreateNpcScheduleService(worldSimulationProfile?.SettlementNpcScheduleProfile);
+            RegisterService(runtimeHost, npcScheduleService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -577,10 +581,16 @@ namespace CCS.Survival.Composition
                 settlementService,
                 settlementHousingService,
                 worldSimulationService);
+            WireNpcSchedule(
+                settlementService,
+                npcScheduleService,
+                worldSimulationService,
+                timeOfDayService);
             WireNpcMovement(
                 settlementService,
                 npcIdentityService,
                 npcMovementService,
+                npcScheduleService,
                 worldSimulationService,
                 timeOfDayService,
                 worldSimulationProfile?.SettlementHousingProfile);
@@ -2807,10 +2817,81 @@ namespace CCS.Survival.Composition
             return service;
         }
 
+        private static CCS_NpcScheduleService CreateNpcScheduleService(CCS_NpcScheduleProfile profile)
+        {
+            CCS_NpcScheduleService service = new CCS_NpcScheduleService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcSchedule(
+            CCS_SettlementService settlementService,
+            CCS_NpcScheduleService scheduleService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            if (settlementService == null || scheduleService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            scheduleService.BindScheduleStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcScheduleStates ?? new CCS_NpcScheduleState[0];
+                    }
+
+                    return new CCS_NpcScheduleState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetScheduleStates(settlementId, states);
+                });
+
+            scheduleService.BindIdentityStateAccessors(settlementId =>
+            {
+                if (worldSimulationService.TryGetSettlementState(
+                        settlementId,
+                        out CCS_SettlementSimulationState state)
+                    && state != null)
+                {
+                    return state.npcIdentityStates ?? new CCS_NpcIdentityState[0];
+                }
+
+                return new CCS_NpcIdentityState[0];
+            });
+
+            scheduleService.BindScheduleHourResolver(() =>
+            {
+                if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                {
+                    return 12;
+                }
+
+                return timeOfDayService.CreateSnapshot().Hour;
+            });
+
+            settlementService.SettlementDiscovered += scheduleService.HandleSettlementDiscovered;
+            settlementService.SettlementPopulationChanged += scheduleService.HandleSettlementPopulationChanged;
+
+            scheduleService.RefreshAllSchedules();
+        }
+
         private static void WireNpcMovement(
             CCS_SettlementService settlementService,
             CCS_NpcIdentityService npcIdentityService,
             CCS_NpcMovementService movementService,
+            CCS_NpcScheduleService scheduleService,
             CCS_WorldSimulationService worldSimulationService,
             CCS_TimeOfDayService timeOfDayService,
             CCS_SettlementHousingProfile housingProfile)
@@ -2876,6 +2957,8 @@ namespace CCS.Survival.Composition
             });
 
             movementService.BindHousingProfileResolver(() => housingProfile);
+            movementService.BindScheduleService(
+                scheduleService != null && scheduleService.IsInitialized ? scheduleService : null);
 
             settlementService.SettlementDiscovered += movementService.HandleSettlementDiscovered;
             settlementService.SettlementPopulationChanged += movementService.HandleSettlementPopulationChanged;

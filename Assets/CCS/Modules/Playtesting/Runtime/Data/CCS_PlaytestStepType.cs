@@ -322,6 +322,16 @@ namespace CCS.Modules.Playtesting
         VerifyScheduleTransitionToWork = 307,
         SaveNpcMovementState = 308,
         LoadNpcMovementState = 309,
-        VerifyNpcMovementAfterLoad = 310
+        VerifyNpcMovementAfterLoad = 310,
+        DiscoverSettlementForNpcSchedule = 311,
+        SpawnNamedNpcForSchedule = 312,
+        VerifyNpcScheduleAssigned = 313,
+        ForceEvaluateNpcScheduleWorkBlock = 314,
+        VerifyNpcScheduleWorkplaceTarget = 315,
+        ForceEvaluateNpcScheduleHomeBlock = 316,
+        VerifyNpcScheduleHousingTarget = 317,
+        SaveNpcScheduleState = 318,
+        LoadNpcScheduleState = 319,
+        VerifyNpcScheduleAfterLoad = 320
     }
 }

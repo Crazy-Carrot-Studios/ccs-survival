@@ -2707,3 +2707,86 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.discover
+    displayName: Discover settlement for NPC schedule
+    stepType: 311
+    instructionText: Discover settlement for NPC schedule. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.spawn
+    displayName: Spawn named NPC for schedule
+    stepType: 312
+    instructionText: Spawn named NPC for schedule. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.verify.assigned
+    displayName: Verify NPC schedule assigned
+    stepType: 313
+    instructionText: Verify NPC schedule assigned. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.force.work
+    displayName: Force evaluate NPC schedule work block
+    stepType: 314
+    instructionText: Force evaluate NPC schedule work block. Ctrl+Alt+S shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.verify.workplace
+    displayName: Verify NPC schedule workplace target
+    stepType: 315
+    instructionText: Verify NPC schedule workplace target. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.force.home
+    displayName: Force evaluate NPC schedule home block
+    stepType: 316
+    instructionText: Force evaluate NPC schedule home block. Ctrl+Alt+S shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.verify.housing
+    displayName: Verify NPC schedule housing target
+    stepType: 317
+    instructionText: Verify NPC schedule housing target. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.save
+    displayName: Save NPC schedule state
+    stepType: 318
+    instructionText: Save NPC schedule state. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.load
+    displayName: Load NPC schedule state
+    stepType: 319
+    instructionText: Load NPC schedule state. Ctrl+Alt+S shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcschedule.verify.load
+    displayName: Verify NPC schedule restored after load
+    stepType: 320
+    instructionText: Verify NPC schedule restored after load. Ctrl+Alt+S shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

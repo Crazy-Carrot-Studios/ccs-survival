@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Assets/CCS/Survival/Profiles/NPCs/Movement/
 // AUTHOR: James Schilz
 // CREATED: 2026-05-28
-// NOTES: Milestone 4.5.0 — schedule integration via time-of-day work/home hours.
+// NOTES: Milestone 4.5.0 work/home hours retained as movement fallback when schedule service is unavailable.
 // =============================================================================
 
 namespace CCS.Modules.NPCs

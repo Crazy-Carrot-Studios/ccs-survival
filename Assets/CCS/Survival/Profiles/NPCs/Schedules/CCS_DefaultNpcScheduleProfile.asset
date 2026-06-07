@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542ff69434563d64593199704f89b194, type: 3}
+  m_Name: CCS_DefaultNpcScheduleProfile
+  m_EditorClassIdentifier: CCS.Modules.NPCs.Runtime::CCS.Modules.NPCs.CCS_NpcScheduleProfile
+  profileDisplayName: Default NPC Schedule Profile
+  profileId: ccs.survival.profile.npcschedule.default
+  profileDescription: Profile-driven daily schedule blocks for workforce placeholders
+    and service representatives.
+  profileVersion: 4.6.0
+  enableDebugLogs: 0
+  scheduleDefinitions:
+  - scheduleId: ccs.survival.schedule.worker
+    displayName: Worker Schedule
+    blocks:
+    - startHour: 20
+      endHour: 6
+      blockType: 2
+    - startHour: 6
+      endHour: 18
+      blockType: 3
+    - startHour: 18
+      endHour: 20
+      blockType: 5
+  - scheduleId: ccs.survival.schedule.servicerepresentative
+    displayName: Service Representative Schedule
+    blocks:
+    - startHour: 20
+      endHour: 7
+      blockType: 2
+    - startHour: 7
+      endHour: 18
+      blockType: 6
+    - startHour: 18
+      endHour: 20
+      blockType: 5
+  roleMappings:
+  - roleType: 1
+    businessId: 
+    workforceCategory: 0
+    requiresServiceRepresentative: 1
+    scheduleId: ccs.survival.schedule.servicerepresentative
+  - roleType: 2
+    businessId: 
+    workforceCategory: 0
+    requiresServiceRepresentative: 0
+    scheduleId: ccs.survival.schedule.servicerepresentative
+  - roleType: 8
+    businessId: 
+    workforceCategory: 3
+    requiresServiceRepresentative: 0
+    scheduleId: ccs.survival.schedule.worker
+  - roleType: 6
+    businessId: 
+    workforceCategory: 1
+    requiresServiceRepresentative: 0
+    scheduleId: ccs.survival.schedule.worker
+  - roleType: 9
+    businessId: 
+    workforceCategory: 4
+    requiresServiceRepresentative: 0
+    scheduleId: ccs.survival.schedule.worker
+  - roleType: 0
+    businessId: 
+    workforceCategory: 0
+    requiresServiceRepresentative: 1
+    scheduleId: ccs.survival.schedule.servicerepresentative
+  fallbackScheduleId: ccs.survival.schedule.worker
+  gapFallbackBlockType: 7

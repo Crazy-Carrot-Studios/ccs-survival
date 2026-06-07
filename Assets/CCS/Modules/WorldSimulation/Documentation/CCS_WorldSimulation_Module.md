@@ -1,5 +1,9 @@
 # CCS World Simulation Module
 
+Milestone **4.6.0** — **NPC schedule state** persists on `CCS_SettlementSimulationState.npcScheduleStates` (active schedule id, current block type, target kind/id, last evaluated hour). Profile wired on `CCS_WorldSimulationProfile.settlementNpcScheduleProfile`. `CCS_NpcScheduleService` evaluates daily blocks and integrates with movement target selection.
+
+Milestone **4.5.0** — **NPC movement state** persists on `CCS_SettlementSimulationState.npcMovementStates` (movement status, target/workplace/home ids). Profile wired on `CCS_WorldSimulationProfile.settlementNpcMovementProfile`. `CCS_NpcMovementService` moves placeholders toward schedule-selected anchors.
+
 Milestone **4.4.0** — **Settlement housing** persists on `CCS_SettlementSimulationState.housingStates` (housing id, settlement id, active flag, capacity contribution, required growth stage). Profile wired on `CCS_WorldSimulationProfile.settlementHousingProfile`. `CCS_SettlementHousingService` syncs activation on discovery/growth changes; total population capacity = base + active housing capacity.
 
 Milestone **4.3.0** — **NPC service representatives** persist on `CCS_SettlementSimulationState.npcServiceRepresentativeStates` (representative id, business id, service point id, assigned identity, active flag). Profile wired on `CCS_WorldSimulationProfile.settlementNpcServiceRepresentativeProfile`. `CCS_NpcServiceRepresentativeService` syncs on business activation events and restores presentation after load.

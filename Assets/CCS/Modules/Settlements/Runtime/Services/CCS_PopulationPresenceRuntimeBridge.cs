@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 // =============================================================================
 // SCRIPT: CCS_PopulationPresenceRuntimeBridge
@@ -172,6 +173,35 @@ namespace CCS.Modules.Settlements
             }
 
             return AnchorLookup.TryGetValue(anchorId, out anchor) && anchor != null;
+        }
+
+        public static bool TryGetFirstAnchorPositionForSettlement(
+            string settlementId,
+            out Vector3 anchorPosition,
+            out string anchorId)
+        {
+            anchorPosition = Vector3.zero;
+            anchorId = string.Empty;
+            if (string.IsNullOrWhiteSpace(settlementId))
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<string, CCS_PopulationPresenceAnchor> pair in AnchorLookup)
+            {
+                CCS_PopulationPresenceAnchor anchor = pair.Value;
+                if (anchor == null
+                    || !string.Equals(anchor.SettlementId, settlementId, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                anchorPosition = anchor.transform.position;
+                anchorId = anchor.AnchorId;
+                return true;
+            }
+
+            return false;
         }
     }
 }

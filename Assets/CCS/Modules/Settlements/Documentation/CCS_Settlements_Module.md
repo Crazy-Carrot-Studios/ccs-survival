@@ -134,6 +134,14 @@ See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 
 Playtest: **NPC Service Representatives** — **Ctrl+Alt+R**
 
+## NPC schedule and movement (4.6.0 / 4.5.0)
+
+Placeholder labels may include a dev schedule debug line (`block | schedule id | target kind`) via `CCS_NpcScheduleLabelBridge`. `CCS_PopulationPresenceRuntimeBridge.TryGetFirstAnchorPositionForSettlement` supplies settlement-center targets for break/leisure blocks. Movement remains transform-based with no NavMesh.
+
+Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M**
+
+See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
+
 **Service Representative Loop:**
 
 ```text

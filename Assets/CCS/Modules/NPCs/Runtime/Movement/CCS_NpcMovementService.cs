@@ -27,6 +27,7 @@ namespace CCS.Modules.NPCs
         private Action<string, CCS_NpcIdentityState[]> setIdentityStates;
         private Func<int> resolveCurrentHour;
         private Func<CCS_SettlementHousingProfile> housingProfileResolver;
+        private CCS_NpcScheduleService scheduleService;
         private bool isInitialized;
 
         public bool IsInitialized => isInitialized;
@@ -86,6 +87,11 @@ namespace CCS.Modules.NPCs
         public void BindHousingProfileResolver(Func<CCS_SettlementHousingProfile> resolver)
         {
             housingProfileResolver = resolver;
+        }
+
+        public void BindScheduleService(CCS_NpcScheduleService service)
+        {
+            scheduleService = service;
         }
 
         public bool TryGetMovementSnapshot(string settlementId, string npcIdentityId, out CCS_NpcMovementSnapshot snapshot)
@@ -163,8 +169,7 @@ namespace CCS.Modules.NPCs
             }
 
             int currentHour = resolveCurrentHour?.Invoke() ?? 12;
-            bool isWorkPeriod = CCS_NpcMovementValidationUtility.IsWorkPeriod(currentHour, activeProfile);
-            CCS_NpcMovementRuntimeBridge.ForEachHost(host => ProcessHostMovement(host, isWorkPeriod, deltaTime));
+            CCS_NpcMovementRuntimeBridge.ForEachHost(host => ProcessHostMovement(host, currentHour, deltaTime));
         }
 
         private void BindRuntimeBridge()
@@ -186,14 +191,20 @@ namespace CCS.Modules.NPCs
 
             EnsureHomeAssignment(host);
             int currentHour = resolveCurrentHour?.Invoke() ?? 12;
-            bool isWorkPeriod = CCS_NpcMovementValidationUtility.IsWorkPeriod(currentHour, activeProfile);
             string homeHousingId = ResolveHomeHousingId(host);
-            CCS_NpcMovementValidationUtility.TryResolveTargetPosition(
+            ResolveMovementTarget(
                 host,
                 homeHousingId,
-                isWorkPeriod,
+                currentHour,
                 out _,
-                out string targetAnchorId);
+                out string targetAnchorId,
+                out CCS_NpcScheduleBlockType blockType,
+                out bool usesSchedule);
+
+            CCS_NpcMovementStatus travelStatus = usesSchedule
+                ? CCS_NpcScheduleValidationUtility.ResolveTravelStatus(blockType)
+                : CCS_NpcMovementValidationUtility.ResolveTravelStatus(
+                    CCS_NpcMovementValidationUtility.IsWorkPeriod(currentHour, activeProfile));
 
             CCS_NpcMovementState[] states =
                 getMovementStates?.Invoke(host.SettlementId) ?? Array.Empty<CCS_NpcMovementState>();
@@ -207,16 +218,14 @@ namespace CCS.Modules.NPCs
             updated.workplaceAnchorId = host.WorkforceAnchorId ?? string.Empty;
             updated.homeHousingId = homeHousingId ?? string.Empty;
             updated.targetAnchorId = targetAnchorId ?? string.Empty;
-            updated.movementStatus = (int)(isWorkPeriod
-                ? CCS_NpcMovementStatus.TravelingToWork
-                : CCS_NpcMovementStatus.TravelingHome);
+            updated.movementStatus = (int)travelStatus;
 
             setMovementStates.Invoke(
                 host.SettlementId,
                 CCS_NpcMovementValidationUtility.UpsertState(states, updated));
         }
 
-        private void ProcessHostMovement(CCS_INpcMovementHost host, bool isWorkPeriod, float deltaTime)
+        private void ProcessHostMovement(CCS_INpcMovementHost host, int currentHour, float deltaTime)
         {
             if (host == null || !host.HasIdentity || host.MovementTransform == null || setMovementStates == null)
             {
@@ -225,15 +234,21 @@ namespace CCS.Modules.NPCs
 
             EnsureHomeAssignment(host);
             string homeHousingId = ResolveHomeHousingId(host);
-            if (!CCS_NpcMovementValidationUtility.TryResolveTargetPosition(
+            if (!ResolveMovementTarget(
                     host,
                     homeHousingId,
-                    isWorkPeriod,
+                    currentHour,
                     out Vector3 targetPosition,
-                    out string targetAnchorId))
+                    out string targetAnchorId,
+                    out CCS_NpcScheduleBlockType blockType,
+                    out bool usesSchedule))
             {
                 return;
             }
+
+            bool isWorkPeriod = usesSchedule
+                ? CCS_NpcScheduleValidationUtility.IsWorkLikeBlock(blockType)
+                : CCS_NpcMovementValidationUtility.IsWorkPeriod(currentHour, activeProfile);
 
             Vector3 currentPosition = host.MovementTransform.position;
             float distance = CCS_NpcMovementValidationUtility.ResolveHorizontalDistance(
@@ -242,7 +257,9 @@ namespace CCS.Modules.NPCs
             CCS_NpcMovementStatus status;
             if (distance <= activeProfile.ArrivalTolerance)
             {
-                status = CCS_NpcMovementValidationUtility.ResolveArrivalStatus(isWorkPeriod);
+                status = usesSchedule
+                    ? CCS_NpcScheduleValidationUtility.ResolveArrivalStatus(blockType)
+                    : CCS_NpcMovementValidationUtility.ResolveArrivalStatus(isWorkPeriod);
                 CCS_NpcMovementRuntimeBridge.ApplyMovementTransform(
                     host,
                     new Vector3(targetPosition.x, currentPosition.y, targetPosition.z),
@@ -254,7 +271,9 @@ namespace CCS.Modules.NPCs
             }
             else
             {
-                status = CCS_NpcMovementValidationUtility.ResolveTravelStatus(isWorkPeriod);
+                status = usesSchedule
+                    ? CCS_NpcScheduleValidationUtility.ResolveTravelStatus(blockType)
+                    : CCS_NpcMovementValidationUtility.ResolveTravelStatus(isWorkPeriod);
                 if (CCS_NpcMovementValidationUtility.TryStepTowardTarget(
                         currentPosition,
                         targetPosition,
@@ -268,6 +287,48 @@ namespace CCS.Modules.NPCs
             }
 
             PersistMovementState(host, status, targetAnchorId, homeHousingId);
+        }
+
+        private bool ResolveMovementTarget(
+            CCS_INpcMovementHost host,
+            string homeHousingId,
+            int currentHour,
+            out Vector3 targetPosition,
+            out string targetAnchorId,
+            out CCS_NpcScheduleBlockType blockType,
+            out bool usesSchedule)
+        {
+            targetPosition = Vector3.zero;
+            targetAnchorId = string.Empty;
+            blockType = CCS_NpcScheduleBlockType.Unknown;
+            usesSchedule = scheduleService != null
+                && scheduleService.IsInitialized
+                && scheduleService.TryEvaluateForHost(
+                    host,
+                    currentHour,
+                    out blockType,
+                    out _,
+                    out targetAnchorId)
+                && !CCS_NpcScheduleValidationUtility.UsesLegacyWorkHourFallback(blockType);
+
+            if (usesSchedule)
+            {
+                return CCS_NpcScheduleValidationUtility.TryResolveTargetForBlock(
+                    host,
+                    homeHousingId,
+                    blockType,
+                    out targetPosition,
+                    out targetAnchorId,
+                    out _);
+            }
+
+            bool isWorkPeriod = CCS_NpcMovementValidationUtility.IsWorkPeriod(currentHour, activeProfile);
+            return CCS_NpcMovementValidationUtility.TryResolveTargetPosition(
+                host,
+                homeHousingId,
+                isWorkPeriod,
+                out targetPosition,
+                out targetAnchorId);
         }
 
         private void PersistMovementState(

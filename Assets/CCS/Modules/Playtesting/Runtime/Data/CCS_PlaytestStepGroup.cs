@@ -48,6 +48,7 @@ namespace CCS.Modules.Playtesting
         NpcIdentity = 33,
         NpcServiceRepresentatives = 34,
         SettlementHousing = 35,
-        NpcMovement = 36
+        NpcMovement = 36,
+        NpcSchedule = 37
     }
 }

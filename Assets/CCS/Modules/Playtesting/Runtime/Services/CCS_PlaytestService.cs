@@ -269,6 +269,12 @@ namespace CCS.Modules.Playtesting
         private int savedNpcMovementStatus = -1;
         private string savedNpcMovementTargetAnchorId = string.Empty;
         private bool npcMovementSaveCaptured;
+        private string savedNpcScheduleId = string.Empty;
+        private int savedNpcScheduleBlockType = -1;
+        private int savedNpcScheduleTargetKind = -1;
+        private string savedNpcScheduleTargetId = string.Empty;
+        private int savedNpcScheduleEvaluatedHour = -1;
+        private bool npcScheduleSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1482,6 +1488,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcMovementState,
                         "NPC movement state saved.");
                 }
+
+                if (TryCaptureNpcScheduleSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcScheduleState,
+                        "NPC schedule state saved.");
+                }
             }
         }
 
@@ -1531,6 +1544,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcMovementState,
                     "Load completed for NPC movement restore.");
                 EvaluateNpcMovementStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcScheduleState,
+                    "Load completed for NPC schedule restore.");
+                EvaluateNpcScheduleStateAfterLoad();
             }
         }
 
@@ -6403,6 +6420,76 @@ namespace CCS.Modules.Playtesting
             return true;
         }
 
+        public bool TryPlaytestNpcScheduleFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcSchedule,
+                "Trading Post discovered for NPC schedule playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_SettlementHousingRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            EvaluateNpcSchedulePlaytestSteps();
+
+            CCS_INpcMovementHost scheduleHost = null;
+            if (CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out scheduleHost,
+                    out _)
+                && scheduleHost != null)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SpawnNamedNpcForSchedule,
+                    $"Named NPC ready for schedule playtest ({scheduleHost.NpcIdentityId}).");
+            }
+
+            string npcIdentityId = scheduleHost?.NpcIdentityId ?? string.Empty;
+            SetPlaytestScheduleHour(10);
+            CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                settlementId,
+                npcIdentityId,
+                CCS_NpcScheduleBlockType.Work,
+                10);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcSchedulePlaytestSteps();
+
+            SetPlaytestScheduleHour(20);
+            CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                settlementId,
+                npcIdentityId,
+                CCS_NpcScheduleBlockType.Home,
+                20);
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcSchedulePlaytestSteps();
+
+            SetPlaytestScheduleHour(10);
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            EvaluateNpcSchedulePlaytestSteps();
+            return true;
+        }
+
         public bool TryPlaytestPopulationPresenceFoundationShortcut()
         {
             DiscoverPlaytestSettlement(CCS_SettlementGrowthContentIds.TradingPostSettlementId);
@@ -6971,6 +7058,105 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcMovementAfterLoad,
                     "NPC movement state restored after load.");
+            }
+        }
+
+        private void EvaluateNpcSchedulePlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcScheduleSnapshot assignedSnapshot)
+                && assignedSnapshot.IsValid)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcScheduleAssigned,
+                    $"Schedule assigned ({assignedSnapshot.ActiveScheduleId}, block {assignedSnapshot.CurrentBlockType}).");
+            }
+
+            if (CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcScheduleSnapshot workSnapshot)
+                && workSnapshot.IsValid
+                && CCS_NpcScheduleValidationUtility.IsWorkLikeBlock(workSnapshot.CurrentBlockType)
+                && (workSnapshot.CurrentTargetKind == CCS_NpcScheduleTargetKind.Workplace
+                    || workSnapshot.CurrentTargetKind == CCS_NpcScheduleTargetKind.ServicePoint))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceEvaluateNpcScheduleWorkBlock,
+                    $"Work block active ({workSnapshot.CurrentBlockType}).");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcScheduleWorkplaceTarget,
+                    $"Workplace target verified ({workSnapshot.CurrentTargetKind}, {workSnapshot.CurrentTargetId}).");
+            }
+
+            if (CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcScheduleSnapshot homeSnapshot)
+                && homeSnapshot.IsValid
+                && CCS_NpcScheduleValidationUtility.IsHomeLikeBlock(homeSnapshot.CurrentBlockType)
+                && homeSnapshot.CurrentTargetKind == CCS_NpcScheduleTargetKind.Housing)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceEvaluateNpcScheduleHomeBlock,
+                    $"Home block active ({homeSnapshot.CurrentBlockType}).");
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcScheduleHousingTarget,
+                    $"Housing target verified ({homeSnapshot.CurrentTargetId}).");
+            }
+        }
+
+        private bool TryCaptureNpcScheduleSaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcScheduleSnapshot snapshot)
+                || !snapshot.IsValid)
+            {
+                return false;
+            }
+
+            savedNpcScheduleId = snapshot.ActiveScheduleId ?? string.Empty;
+            savedNpcScheduleBlockType = (int)snapshot.CurrentBlockType;
+            savedNpcScheduleTargetKind = (int)snapshot.CurrentTargetKind;
+            savedNpcScheduleTargetId = snapshot.CurrentTargetId ?? string.Empty;
+            savedNpcScheduleEvaluatedHour = snapshot.LastEvaluatedHour;
+            npcScheduleSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcScheduleStateAfterLoad()
+        {
+            if (!npcScheduleSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+
+            bool restored = CCS_NpcScheduleRuntimeBridge.TryGetFirstHostScheduleSnapshot(
+                    settlementId,
+                    out _,
+                    out CCS_NpcScheduleSnapshot snapshot)
+                && snapshot.IsValid
+                && string.Equals(snapshot.ActiveScheduleId, savedNpcScheduleId, System.StringComparison.OrdinalIgnoreCase)
+                && (int)snapshot.CurrentBlockType == savedNpcScheduleBlockType
+                && (int)snapshot.CurrentTargetKind == savedNpcScheduleTargetKind
+                && string.Equals(snapshot.CurrentTargetId, savedNpcScheduleTargetId, System.StringComparison.OrdinalIgnoreCase)
+                && snapshot.LastEvaluatedHour == savedNpcScheduleEvaluatedHour;
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcScheduleAfterLoad,
+                    $"NPC schedule restored ({snapshot.ActiveScheduleId}, {snapshot.CurrentBlockType}).");
             }
         }
 
