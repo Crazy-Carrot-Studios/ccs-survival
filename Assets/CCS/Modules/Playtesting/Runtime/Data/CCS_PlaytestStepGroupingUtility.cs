@@ -56,7 +56,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.NpcSchedule,
             CCS_PlaytestStepGroup.NpcActivity,
             CCS_PlaytestStepGroup.NpcAffiliations,
-            CCS_PlaytestStepGroup.NpcDialogue
+            CCS_PlaytestStepGroup.NpcDialogue,
+            CCS_PlaytestStepGroup.NpcSocialPresence
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -148,6 +149,8 @@ namespace CCS.Modules.Playtesting
                     return "NPC Affiliations";
                 case CCS_PlaytestStepGroup.NpcDialogue:
                     return "NPC Dialogue";
+                case CCS_PlaytestStepGroup.NpcSocialPresence:
+                    return "NPC Social Presence";
                 default:
                     return group.ToString();
             }
@@ -593,6 +596,17 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadNpcDialogueState:
                 case CCS_PlaytestStepType.VerifyNpcDialogueAfterLoad:
                     return CCS_PlaytestStepGroup.NpcDialogue;
+
+                case CCS_PlaytestStepType.DiscoverSettlementForNpcSocial:
+                case CCS_PlaytestStepType.SpawnPopulationForNpcSocial:
+                case CCS_PlaytestStepType.ForceLeisurePeriodForNpcSocial:
+                case CCS_PlaytestStepType.VerifyWorkersGatherForNpcSocial:
+                case CCS_PlaytestStepType.VerifyRepresentativesGatherForNpcSocial:
+                case CCS_PlaytestStepType.VerifyNpcSocialGroupCount:
+                case CCS_PlaytestStepType.SaveNpcSocialState:
+                case CCS_PlaytestStepType.LoadNpcSocialState:
+                case CCS_PlaytestStepType.VerifyNpcSocialAfterLoad:
+                    return CCS_PlaytestStepGroup.NpcSocialPresence;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

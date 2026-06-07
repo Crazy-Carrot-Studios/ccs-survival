@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-4.9.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-5.0.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**5.0.0** — NPC Social Presence Foundation
+
+Lightweight leisure-period social gathering behavior through `CCS_NpcSocialService` and `CCS_NpcSocialProfile`. Leisure schedule blocks route NPCs to nearest settlement social anchors (campfire, hitching rail, community fires). Temporary groups track participant counts without relationships, friendship, dialogue trees, or AI conversations. Labels show **Socializing** during gatherings; activity system still drives Leisure. State persists on `CCS_SettlementSimulationState.npcSocialStates`; groups rebuild after load. Playtest group **NPC Social Presence** with **Ctrl+Alt+P** shortcut.
+
+**NPC Social Presence Loop:**
+
+```text
+Work Day Ends → NPCs Move To Gathering Area → Social Groups Form → Settlement Feels Alive
+```
 
 **4.9.0** — NPC Dialogue Stub Foundation
 

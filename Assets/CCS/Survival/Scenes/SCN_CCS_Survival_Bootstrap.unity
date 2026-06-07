@@ -415,7 +415,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &33372297
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,7 +460,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &53245174
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,6 +517,52 @@ MonoBehaviour:
   actorsContainer: {fileID: 0}
   presenceLabel: {fileID: 1125251443}
   placeholderPrimitive: 1
+--- !u!1 &55981257
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 55981258}
+  - component: {fileID: 55981259}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LabelRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &55981258
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55981257}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 567778546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &55981259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55981257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e677b0376f7dcf4ba68f1604539e60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialLabel
+  labelHeight: 2.2
+  labelColor: {r: 1, g: 0.75, b: 0.35, a: 1}
 --- !u!1 &59043200
 GameObject:
   m_ObjectHideFlags: 0
@@ -561,6 +605,7 @@ Transform:
   - {fileID: 758063456}
   - {fileID: 209293470}
   - {fileID: 244038991}
+  - {fileID: 611649022}
   m_Father: {fileID: 436352417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &59043202
@@ -628,7 +673,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &91295392
 GameObject:
   m_ObjectHideFlags: 0
@@ -770,7 +814,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &110368202
 GameObject:
   m_ObjectHideFlags: 0
@@ -1320,7 +1363,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &207320899
 GameObject:
   m_ObjectHideFlags: 0
@@ -2038,7 +2080,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementHousingLabel
   labelHeight: 2.4
-  characterSize: 0.11
   activeColor: {r: 0.35, g: 0.95, b: 1, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -2151,6 +2192,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 259322407}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &260084265
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 260084266}
+  - component: {fileID: 260084267}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LumberCampFire
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &260084266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260084265}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 0.4, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1539486328}
+  - {fileID: 1787878475}
+  m_Father: {fileID: 1425965913}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &260084267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260084265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae00b0ac9936d44b64870ddab5651d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialAnchor
+  anchorId: ccs.survival.social.pineridge.lumbercampfire
+  settlementId: ccs.survival.settlement.frontier.pineridgecamp
+  displayName: Lumber Camp Fire
+  socialMarker: {fileID: 1539486329}
+  socialLabel: {fileID: 1787878476}
 --- !u!1 &274814573
 GameObject:
   m_ObjectHideFlags: 0
@@ -2999,6 +3091,111 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 394582774}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &403688132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 403688133}
+  - component: {fileID: 403688136}
+  - component: {fileID: 403688135}
+  - component: {fileID: 403688134}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &403688133
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403688132}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 0.6, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 826089539}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &403688134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403688132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9647f586af89844995448f051be916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialMarker
+  markerColor: {r: 0.95, g: 0.45, b: 0.2, a: 1}
+  markerScale: {x: 1.2, y: 0.6, z: 1.2}
+--- !u!23 &403688135
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403688132}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &403688136
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403688132}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &404268484
 GameObject:
   m_ObjectHideFlags: 0
@@ -3276,7 +3473,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &433399635
 GameObject:
   m_ObjectHideFlags: 0
@@ -3570,7 +3766,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &461449159
 GameObject:
   m_ObjectHideFlags: 0
@@ -3746,7 +3941,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &478472625
 GameObject:
   m_ObjectHideFlags: 0
@@ -4028,7 +4222,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &514578965
 GameObject:
   m_ObjectHideFlags: 0
@@ -4754,6 +4947,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 554696799}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &567778545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 567778546}
+  - component: {fileID: 567778547}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_HitchingRail
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &567778546
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 567778545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6, y: 0.4, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1867041382}
+  - {fileID: 55981258}
+  m_Father: {fileID: 2070320557}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &567778547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 567778545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae00b0ac9936d44b64870ddab5651d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialAnchor
+  anchorId: ccs.survival.social.tradingpost.hitchingrail
+  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  displayName: Hitching Rail
+  socialMarker: {fileID: 1867041383}
+  socialLabel: {fileID: 55981259}
 --- !u!1 &571807143
 GameObject:
   m_ObjectHideFlags: 0
@@ -4899,6 +5143,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 571807143}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &576556751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 576556752}
+  - component: {fileID: 576556753}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_MineFire
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &576556752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576556751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 0.4, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1231635502}
+  - {fileID: 1689170981}
+  m_Father: {fileID: 662702489}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &576556753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576556751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae00b0ac9936d44b64870ddab5651d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialAnchor
+  anchorId: ccs.survival.social.ironridge.minefire
+  settlementId: ccs.survival.settlement.frontier.ironridgeminingcamp
+  displayName: Mine Fire
+  socialMarker: {fileID: 1231635503}
+  socialLabel: {fileID: 1689170982}
 --- !u!1 &582557886
 GameObject:
   m_ObjectHideFlags: 0
@@ -5320,7 +5615,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &605326770
 GameObject:
   m_ObjectHideFlags: 0
@@ -5504,7 +5798,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -5598,6 +5891,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 611317921}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &611649021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 611649022}
+  - component: {fileID: 611649023}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_CommunityFire
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &611649022
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611649021}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 0.4, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 666793228}
+  - {fileID: 908126336}
+  m_Father: {fileID: 59043201}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &611649023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611649021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae00b0ac9936d44b64870ddab5651d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialAnchor
+  anchorId: ccs.survival.social.brokencreek.communityfire
+  settlementId: ccs.survival.settlement.frontier.brokencreekfarmstead
+  displayName: Community Fire
+  socialMarker: {fileID: 666793229}
+  socialLabel: {fileID: 908126337}
 --- !u!1 &612424541
 GameObject:
   m_ObjectHideFlags: 0
@@ -6972,7 +7316,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -7127,6 +7470,7 @@ Transform:
   - {fileID: 1559209748}
   - {fileID: 957599411}
   - {fileID: 1306866749}
+  - {fileID: 576556752}
   m_Father: {fileID: 436352417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &662702490
@@ -7149,6 +7493,111 @@ MonoBehaviour:
   tradingPostColor: {r: 0.2, g: 0.55, b: 0.85, a: 1}
   frontierTownColor: {r: 0.35, g: 0.75, b: 0.35, a: 1}
   establishedTownColor: {r: 0.85, g: 0.75, b: 0.25, a: 1}
+--- !u!1 &666793227
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 666793228}
+  - component: {fileID: 666793231}
+  - component: {fileID: 666793230}
+  - component: {fileID: 666793229}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &666793228
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666793227}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 0.6, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 611649022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &666793229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666793227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9647f586af89844995448f051be916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialMarker
+  markerColor: {r: 0.95, g: 0.45, b: 0.2, a: 1}
+  markerScale: {x: 1.2, y: 0.6, z: 1.2}
+--- !u!23 &666793230
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666793227}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &666793231
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666793227}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &667331589
 GameObject:
   m_ObjectHideFlags: 0
@@ -7881,6 +8330,52 @@ MonoBehaviour:
   minimumServicePointGrowthStage: 0
   growthMarker: {fileID: 1301785835}
   growthLabel: {fileID: 943448824}
+--- !u!1 &709706552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 709706553}
+  - component: {fileID: 709706554}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LabelRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &709706553
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709706552}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 826089539}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &709706554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709706552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e677b0376f7dcf4ba68f1604539e60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialLabel
+  labelHeight: 2.2
+  labelColor: {r: 1, g: 0.75, b: 0.35, a: 1}
 --- !u!1 &733527302
 GameObject:
   m_ObjectHideFlags: 0
@@ -7926,7 +8421,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &737950988
 GameObject:
   m_ObjectHideFlags: 0
@@ -8788,6 +9282,57 @@ MonoBehaviour:
   labelHeight: 3.5
   characterSize: 0.35
   labelColor: {r: 0.7, g: 0.55, b: 0.95, a: 1}
+--- !u!1 &826089538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826089539}
+  - component: {fileID: 826089540}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Campfire
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &826089539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826089538}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6, y: 0.4, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 403688133}
+  - {fileID: 709706553}
+  m_Father: {fileID: 2070320557}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &826089540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826089538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ae00b0ac9936d44b64870ddab5651d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialAnchor
+  anchorId: ccs.survival.social.tradingpost.campfire
+  settlementId: ccs.survival.settlement.frontier.testtradingpost
+  displayName: Campfire
+  socialMarker: {fileID: 403688134}
+  socialLabel: {fileID: 709706554}
 --- !u!1 &836211241
 GameObject:
   m_ObjectHideFlags: 0
@@ -9156,7 +9701,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &882248740
 GameObject:
   m_ObjectHideFlags: 0
@@ -9402,7 +9946,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &901179498
 GameObject:
   m_ObjectHideFlags: 0
@@ -9529,6 +10072,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 901179498}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &908126335
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 908126336}
+  - component: {fileID: 908126337}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LabelRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &908126336
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 908126335}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 611649022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &908126337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 908126335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e677b0376f7dcf4ba68f1604539e60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialLabel
+  labelHeight: 2.2
+  labelColor: {r: 1, g: 0.75, b: 0.35, a: 1}
 --- !u!1 &925113480
 GameObject:
   m_ObjectHideFlags: 0
@@ -10056,7 +10645,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &950790942
 GameObject:
   m_ObjectHideFlags: 0
@@ -10382,7 +10970,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -10575,7 +11162,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementHousingLabel
   labelHeight: 2.4
-  characterSize: 0.11
   activeColor: {r: 0.35, g: 0.95, b: 1, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -10733,7 +11319,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -11338,7 +11923,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1086671823
 GameObject:
   m_ObjectHideFlags: 0
@@ -11384,7 +11968,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -11433,7 +12016,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &1117504570
 GameObject:
   m_ObjectHideFlags: 0
@@ -11479,7 +12061,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1125251441
 GameObject:
   m_ObjectHideFlags: 0
@@ -11525,7 +12106,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &1125314364
 GameObject:
   m_ObjectHideFlags: 0
@@ -12023,7 +12603,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &1197136884
 GameObject:
   m_ObjectHideFlags: 0
@@ -12263,7 +12842,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1227763795
 GameObject:
   m_ObjectHideFlags: 0
@@ -12321,6 +12899,111 @@ MonoBehaviour:
   minimumServicePointGrowthStage: 0
   growthMarker: {fileID: 1366063840}
   growthLabel: {fileID: 896284691}
+--- !u!1 &1231635501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1231635502}
+  - component: {fileID: 1231635505}
+  - component: {fileID: 1231635504}
+  - component: {fileID: 1231635503}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1231635502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231635501}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 0.6, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 576556752}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1231635503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231635501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9647f586af89844995448f051be916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialMarker
+  markerColor: {r: 0.95, g: 0.45, b: 0.2, a: 1}
+  markerScale: {x: 1.2, y: 0.6, z: 1.2}
+--- !u!23 &1231635504
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231635501}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1231635505
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231635501}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1232023408
 GameObject:
   m_ObjectHideFlags: 0
@@ -13425,7 +14108,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1331950774
 GameObject:
   m_ObjectHideFlags: 0
@@ -14237,6 +14919,7 @@ Transform:
   - {fileID: 360777420}
   - {fileID: 53245175}
   - {fileID: 1555874962}
+  - {fileID: 260084266}
   m_Father: {fileID: 436352417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1425965914
@@ -14335,7 +15018,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1449708768
 GameObject:
   m_ObjectHideFlags: 0
@@ -15086,7 +15768,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &1531090565
 GameObject:
   m_ObjectHideFlags: 0
@@ -15280,6 +15961,111 @@ MonoBehaviour:
   minimumServicePointGrowthStage: 0
   growthMarker: {fileID: 1839087495}
   growthLabel: {fileID: 1323201756}
+--- !u!1 &1539486327
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1539486328}
+  - component: {fileID: 1539486331}
+  - component: {fileID: 1539486330}
+  - component: {fileID: 1539486329}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1539486328
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539486327}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 0.6, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 260084266}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1539486329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539486327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9647f586af89844995448f051be916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialMarker
+  markerColor: {r: 0.95, g: 0.45, b: 0.2, a: 1}
+  markerScale: {x: 1.2, y: 0.6, z: 1.2}
+--- !u!23 &1539486330
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539486327}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1539486331
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539486327}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1555639162
 GameObject:
   m_ObjectHideFlags: 0
@@ -15325,7 +16111,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1555874961
 GameObject:
   m_ObjectHideFlags: 0
@@ -15481,7 +16266,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1607309906
 GameObject:
   m_ObjectHideFlags: 0
@@ -16681,6 +17465,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1688961220}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1689170980
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1689170981}
+  - component: {fileID: 1689170982}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LabelRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1689170981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1689170980}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 576556752}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1689170982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1689170980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e677b0376f7dcf4ba68f1604539e60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialLabel
+  labelHeight: 2.2
+  labelColor: {r: 1, g: 0.75, b: 0.35, a: 1}
 --- !u!1 &1690287656
 GameObject:
   m_ObjectHideFlags: 0
@@ -16981,7 +17811,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1710900366
 GameObject:
   m_ObjectHideFlags: 0
@@ -17027,7 +17856,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -17424,7 +18252,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1746778594
 GameObject:
   m_ObjectHideFlags: 0
@@ -17527,7 +18354,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1755256822
 GameObject:
   m_ObjectHideFlags: 0
@@ -17711,7 +18537,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1778959614
 GameObject:
   m_ObjectHideFlags: 0
@@ -17746,6 +18571,52 @@ Transform:
   - {fileID: 1035413223}
   m_Father: {fileID: 887237205}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1787878474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1787878475}
+  - component: {fileID: 1787878476}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_LabelRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1787878475
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787878474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 260084266}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1787878476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787878474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e677b0376f7dcf4ba68f1604539e60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialLabel
+  labelHeight: 2.2
+  labelColor: {r: 1, g: 0.75, b: 0.35, a: 1}
 --- !u!1 &1789607031
 GameObject:
   m_ObjectHideFlags: 0
@@ -17791,7 +18662,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementHousingLabel
   labelHeight: 2.4
-  characterSize: 0.11
   activeColor: {r: 0.35, g: 0.95, b: 1, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -18343,7 +19213,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1827911242
 GameObject:
   m_ObjectHideFlags: 0
@@ -18607,7 +19476,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &1865975377
 GameObject:
   m_ObjectHideFlags: 0
@@ -18716,6 +19584,111 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865975377}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1867041381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1867041382}
+  - component: {fileID: 1867041385}
+  - component: {fileID: 1867041384}
+  - component: {fileID: 1867041383}
+  m_Layer: 0
+  m_Name: CCS_SettlementSocial_Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1867041382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867041381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 0.6, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 567778546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1867041383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867041381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9647f586af89844995448f051be916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementSocialMarker
+  markerColor: {r: 0.95, g: 0.45, b: 0.2, a: 1}
+  markerScale: {x: 1.2, y: 0.6, z: 1.2}
+--- !u!23 &1867041384
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867041381}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1867041385
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867041381}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1871652310
 GameObject:
@@ -18966,7 +19939,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -19770,7 +20742,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &2016159388
 GameObject:
   m_ObjectHideFlags: 0
@@ -19873,7 +20844,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_BusinessPresenceLabel
   labelHeight: 2.2
-  characterSize: 0.12
   activeColor: {r: 0.3, g: 1, b: 0.45, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -20051,7 +21021,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &2034394403
 GameObject:
   m_ObjectHideFlags: 0
@@ -20097,7 +21066,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementVisualGrowthLabel
   labelHeight: 2.2
-  fontSize: 28
 --- !u!1 &2037479397
 GameObject:
   m_ObjectHideFlags: 0
@@ -20281,7 +21249,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_SettlementHousingLabel
   labelHeight: 2.4
-  characterSize: 0.11
   activeColor: {r: 0.35, g: 0.95, b: 1, a: 1}
   inactiveColor: {r: 1, g: 0.9, b: 0.35, a: 1}
   lockedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -20498,6 +21465,8 @@ Transform:
   - {fileID: 1651737396}
   - {fileID: 972880764}
   - {fileID: 1296375462}
+  - {fileID: 826089539}
+  - {fileID: 567778546}
   m_Father: {fileID: 436352417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2070320558
@@ -20798,7 +21767,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Settlements.Runtime::CCS.Modules.Settlements.CCS_PopulationPresenceLabel
   labelHeight: 2.4
-  fontSize: 24
 --- !u!1 &2136687961
 GameObject:
   m_ObjectHideFlags: 0

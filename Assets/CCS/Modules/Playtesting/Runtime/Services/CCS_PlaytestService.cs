@@ -287,6 +287,11 @@ namespace CCS.Modules.Playtesting
         private string savedNpcDialogueGreetingLine = string.Empty;
         private string savedNpcDialogueRoleLine = string.Empty;
         private bool npcDialogueSaveCaptured;
+        private string savedNpcSocialIdentityId = string.Empty;
+        private string savedNpcSocialGroupId = string.Empty;
+        private string savedNpcSocialAnchorId = string.Empty;
+        private int savedNpcSocialParticipantCount = -1;
+        private bool npcSocialSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1528,6 +1533,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveNpcDialogueState,
                         "NPC dialogue resolution state saved.");
                 }
+
+                if (TryCaptureNpcSocialSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveNpcSocialState,
+                        "NPC social state saved.");
+                }
             }
         }
 
@@ -1593,6 +1605,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadNpcDialogueState,
                     "Load completed for NPC dialogue restore.");
                 EvaluateNpcDialogueStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadNpcSocialState,
+                    "Load completed for NPC social restore.");
+                EvaluateNpcSocialStateAfterLoad();
             }
         }
 
@@ -7700,6 +7716,198 @@ namespace CCS.Modules.Playtesting
                 TryCompleteActiveStepOfType(
                     CCS_PlaytestStepType.VerifyNpcDialogueAfterLoad,
                     "NPC dialogue still resolves after load.");
+            }
+        }
+
+        public bool TryPlaytestNpcSocialFoundationShortcut()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(settlementId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementForNpcSocial,
+                "Trading Post discovered for NPC social playtest.");
+
+            GrantPlaytestItem(CCS_RegionEconomyUtility.CornItemId, 25);
+            if (boundContractService != null && boundContractService.IsInitialized)
+            {
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    boundContractService.TryAcceptContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId,
+                        settlementId);
+                    CCS_ContractCompletionResult result = boundContractService.TryCompleteContract(
+                        CCS_SettlementGrowthContentIds.PlaytestCornContractId);
+                    if (result != null && result.IsSuccess && attempt == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_NpcServiceRepresentativeRuntimeBridge.RefreshAllRepresentativeAssignments();
+            CCS_NpcAffiliationRuntimeBridge.RefreshAllAffiliationHosts();
+            CCS_SettlementSocialRuntimeBridge.RefreshAllAnchors();
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.SpawnPopulationForNpcSocial,
+                "Population spawned for NPC social playtest.");
+
+            SetPlaytestScheduleHour(19);
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcActivityRuntimeBridge.RefreshAllActivityHosts();
+            CCS_NpcSocialRuntimeBridge.RefreshAllSocialPresence();
+
+            string npcIdentityId = string.Empty;
+            if (CCS_NpcSocialRuntimeBridge.TryGetFirstSocializingSnapshot(
+                    settlementId,
+                    out CCS_INpcMovementHost socialHost,
+                    out CCS_NpcSocialSnapshot unusedSocialSnapshot)
+                && socialHost != null)
+            {
+                npcIdentityId = socialHost.NpcIdentityId;
+            }
+            else if (CCS_NpcDialogueStubRuntimeBridge.TryGetFirstHostDialogueResult(
+                         settlementId,
+                         out CCS_INpcMovementHost dialogueHost,
+                         out CCS_NpcDialogueStubResult unusedDialogueResult)
+                     && dialogueHost != null)
+            {
+                npcIdentityId = dialogueHost.NpcIdentityId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(npcIdentityId))
+            {
+                CCS_NpcScheduleRuntimeBridge.ForceEvaluateScheduleBlock(
+                    settlementId,
+                    npcIdentityId,
+                    CCS_NpcScheduleBlockType.Leisure,
+                    19);
+            }
+
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcSocialRuntimeBridge.RefreshAllSocialPresence();
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.ForceLeisurePeriodForNpcSocial,
+                "Leisure period forced for NPC social playtest.");
+
+            EvaluateNpcSocialPlaytestSteps();
+            return true;
+        }
+
+        private void EvaluateNpcSocialPlaytestSteps()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (CCS_NpcSocialRuntimeBridge.TryGetFirstSocializingSnapshot(
+                    settlementId,
+                    out CCS_INpcMovementHost workforceHost,
+                    out CCS_NpcSocialSnapshot workforceSnapshot)
+                && workforceSnapshot != null
+                && workforceSnapshot.IsSocializing
+                && !workforceHost.IsServiceRepresentative)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyWorkersGatherForNpcSocial,
+                    $"Workforce NPC socializing at {workforceSnapshot.AnchorDisplayName}.");
+            }
+
+            if (CCS_NpcSocialRuntimeBridge.TryGetRepresentativeSocialSnapshot(
+                    settlementId,
+                    out CCS_NpcSocialSnapshot representativeSnapshot)
+                && representativeSnapshot != null
+                && representativeSnapshot.IsSocializing)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyRepresentativesGatherForNpcSocial,
+                    $"Representative socializing at {representativeSnapshot.AnchorDisplayName}.");
+            }
+
+            if (CCS_NpcSocialRuntimeBridge.TryGetGroupsForSettlement(settlementId, out CCS_NpcSocialGroupSnapshot[] groups)
+                && groups != null)
+            {
+                for (int index = 0; index < groups.Length; index++)
+                {
+                    CCS_NpcSocialGroupSnapshot group = groups[index];
+                    if (group != null && group.IsValid && group.ParticipantCount > 0)
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.VerifyNpcSocialGroupCount,
+                            $"Social group active ({group.ParticipantCount} at {group.AnchorId}).");
+                        break;
+                    }
+                }
+            }
+        }
+
+        private bool TryCaptureNpcSocialSaveState()
+        {
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_NpcSocialRuntimeBridge.TryGetFirstSocializingSnapshot(
+                    settlementId,
+                    out CCS_INpcMovementHost host,
+                    out CCS_NpcSocialSnapshot snapshot)
+                || host == null
+                || snapshot == null
+                || !snapshot.IsSocializing)
+            {
+                return false;
+            }
+
+            savedNpcSocialIdentityId = host.NpcIdentityId ?? string.Empty;
+            savedNpcSocialGroupId = snapshot.GroupId ?? string.Empty;
+            savedNpcSocialAnchorId = snapshot.AnchorId ?? string.Empty;
+            savedNpcSocialParticipantCount = snapshot.ParticipantCount;
+            npcSocialSaveCaptured = true;
+            return true;
+        }
+
+        private void EvaluateNpcSocialStateAfterLoad()
+        {
+            if (!npcSocialSaveCaptured)
+            {
+                return;
+            }
+
+            string settlementId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            CCS_PopulationPresenceRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcRuntimeBridge.RefreshAllPlaceholderIdentities();
+            CCS_SettlementSocialRuntimeBridge.RefreshAllAnchors();
+            CCS_NpcScheduleRuntimeBridge.RefreshAllScheduleHosts();
+            CCS_NpcMovementRuntimeBridge.RefreshAllMovementHosts();
+            CCS_NpcSocialRuntimeBridge.RefreshAllSocialPresence();
+
+            bool restored = false;
+            CCS_PopulationPlaceholderIdentityBridge.ForEachMovementHost(candidate =>
+            {
+                if (restored
+                    || candidate == null
+                    || !candidate.HasIdentity
+                    || !string.Equals(candidate.NpcIdentityId, savedNpcSocialIdentityId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                if (CCS_NpcSocialRuntimeBridge.TryGetSocialSnapshot(
+                        settlementId,
+                        candidate.NpcIdentityId,
+                        out CCS_NpcSocialSnapshot snapshot)
+                    && snapshot != null
+                    && snapshot.IsSocializing
+                    && string.Equals(snapshot.GroupId, savedNpcSocialGroupId, System.StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(snapshot.AnchorId, savedNpcSocialAnchorId, System.StringComparison.OrdinalIgnoreCase)
+                    && snapshot.ParticipantCount >= savedNpcSocialParticipantCount)
+                {
+                    restored = true;
+                }
+            });
+
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyNpcSocialAfterLoad,
+                    "NPC social groups restored after load.");
             }
         }
 

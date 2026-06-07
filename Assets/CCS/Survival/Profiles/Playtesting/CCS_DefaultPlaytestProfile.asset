@@ -3017,3 +3017,80 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.discover
+    displayName: Discover settlement for NPC social presence
+    stepType: 349
+    instructionText: Discover settlement for NPC social presence. Ctrl+Alt+P shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.spawn
+    displayName: Spawn population for NPC social presence
+    stepType: 350
+    instructionText: Spawn population for NPC social presence. Ctrl+Alt+P shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.force.leisure
+    displayName: Force leisure period for NPC social presence
+    stepType: 351
+    instructionText: Force leisure period for NPC social presence. Ctrl+Alt+P shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.verify.workers
+    displayName: Verify workers gather for NPC social presence
+    stepType: 352
+    instructionText: Verify workers gather for NPC social presence. Ctrl+Alt+P shortcut
+      available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.verify.representatives
+    displayName: Verify representatives gather for NPC social presence
+    stepType: 353
+    instructionText: Verify representatives gather for NPC social presence. Ctrl+Alt+P
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.verify.groups
+    displayName: Verify NPC social group count
+    stepType: 354
+    instructionText: Verify NPC social group count. Ctrl+Alt+P shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.save
+    displayName: Save NPC social state
+    stepType: 355
+    instructionText: Save NPC social state. Ctrl+Alt+P shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.load
+    displayName: Load NPC social state
+    stepType: 356
+    instructionText: Load NPC social state. Ctrl+Alt+P shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.npcsocial.verify.load
+    displayName: Verify NPC social presence after load
+    stepType: 357
+    instructionText: Verify NPC social presence after load. Ctrl+Alt+P shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

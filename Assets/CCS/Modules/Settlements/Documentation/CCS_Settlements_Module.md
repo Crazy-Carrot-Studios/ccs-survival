@@ -134,13 +134,21 @@ Active businesses assign named representatives from population placeholders (or 
 
 See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 
-Playtest: **NPC Service Representatives** — **Ctrl+Alt+R** · **NPC Dialogue** — **Ctrl+Alt+D**
+Playtest: **NPC Service Representatives** — **Ctrl+Alt+R** · **NPC Dialogue** — **Ctrl+Alt+D** · **NPC Social Presence** — **Ctrl+Alt+P**
+
+## Settlement social gathering areas (5.0.0)
+
+Primitive labeled markers (`CCS_SettlementSocialAnchor`) register campfires and gathering points per settlement. Trading Post: Campfire + Hitching Rail. Broken Creek: Community Fire. Iron Ridge: Mine Fire. Pine Ridge: Lumber Camp Fire. Leisure schedule blocks route NPCs to the nearest anchor; social groups form temporarily with no relationship simulation.
+
+See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
+
+Bootstrap: `CCS_NpcSocialFoundationBootstrapSetup.ExecuteBatch`
 
 ## NPC schedule and movement (4.6.0 / 4.5.0)
 
 Placeholder labels may include a dev schedule debug line (`block | schedule id | target kind`) via `CCS_NpcScheduleLabelBridge`. `CCS_PopulationPresenceRuntimeBridge.TryGetFirstAnchorPositionForSettlement` supplies settlement-center targets for break/leisure blocks. Movement remains transform-based with no NavMesh.
 
-Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A** · **NPC Affiliations** — **Ctrl+Alt+F** · **NPC Dialogue** — **Ctrl+Alt+D**
+Playtest: **NPC Schedule** — **Ctrl+Alt+S** · **NPC Movement** — **Ctrl+Alt+M** · **NPC Activity** — **Ctrl+Alt+A** · **NPC Affiliations** — **Ctrl+Alt+F** · **NPC Dialogue** — **Ctrl+Alt+D** · **NPC Social Presence** — **Ctrl+Alt+P**
 
 See `Assets/CCS/Modules/NPCs/Documentation/CCS_Npc_Module.md`.
 

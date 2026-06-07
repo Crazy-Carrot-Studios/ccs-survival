@@ -360,6 +360,15 @@ namespace CCS.Modules.Playtesting
         VerifyNpcDialogueServiceHint = 345,
         SaveNpcDialogueState = 346,
         LoadNpcDialogueState = 347,
-        VerifyNpcDialogueAfterLoad = 348
+        VerifyNpcDialogueAfterLoad = 348,
+        DiscoverSettlementForNpcSocial = 349,
+        SpawnPopulationForNpcSocial = 350,
+        ForceLeisurePeriodForNpcSocial = 351,
+        VerifyWorkersGatherForNpcSocial = 352,
+        VerifyRepresentativesGatherForNpcSocial = 353,
+        VerifyNpcSocialGroupCount = 354,
+        SaveNpcSocialState = 355,
+        LoadNpcSocialState = 356,
+        VerifyNpcSocialAfterLoad = 357
     }
 }

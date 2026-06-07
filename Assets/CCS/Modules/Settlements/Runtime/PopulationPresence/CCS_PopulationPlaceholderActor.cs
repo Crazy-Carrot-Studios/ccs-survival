@@ -228,11 +228,19 @@ namespace CCS.Modules.Settlements
 
         private string BuildLabelText(string baseLabel)
         {
-            string settlementLine =
-                CCS_NpcAffiliationLabelBridge.BuildSettlementDisplayLine(settlementId, npcIdentityId);
-            if (!string.IsNullOrWhiteSpace(settlementLine))
+            string socialLine = CCS_NpcSocialLabelBridge.BuildSocialDisplayLine(settlementId, npcIdentityId);
+            if (!string.IsNullOrWhiteSpace(socialLine))
             {
-                baseLabel = $"{baseLabel}\n{settlementLine}";
+                baseLabel = $"{baseLabel}\n{socialLine}";
+            }
+            else
+            {
+                string settlementLine =
+                    CCS_NpcAffiliationLabelBridge.BuildSettlementDisplayLine(settlementId, npcIdentityId);
+                if (!string.IsNullOrWhiteSpace(settlementLine))
+                {
+                    baseLabel = $"{baseLabel}\n{settlementLine}";
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(homeHousingId)
@@ -252,6 +260,7 @@ namespace CCS.Modules.Settlements
             string affiliationDetailLine =
                 CCS_NpcAffiliationLabelBridge.BuildAffiliationDetailDebugLine(settlementId, npcIdentityId);
             string activityDebugLine = CCS_NpcActivityLabelBridge.BuildActivityDebugLine(settlementId, npcIdentityId);
+            string socialDebugLine = CCS_NpcSocialLabelBridge.BuildSocialDebugLine(settlementId, npcIdentityId);
 
             string debugBlock = string.Empty;
             if (!string.IsNullOrWhiteSpace(affiliationDebugLine))
@@ -271,6 +280,13 @@ namespace CCS.Modules.Settlements
                 debugBlock = string.IsNullOrWhiteSpace(debugBlock)
                     ? activityDebugLine
                     : $"{debugBlock}\n{activityDebugLine}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(socialDebugLine))
+            {
+                debugBlock = string.IsNullOrWhiteSpace(debugBlock)
+                    ? socialDebugLine
+                    : $"{debugBlock}\n{socialDebugLine}";
             }
 
             if (string.IsNullOrWhiteSpace(debugBlock))

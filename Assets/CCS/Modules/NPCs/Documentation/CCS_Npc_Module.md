@@ -1,5 +1,7 @@
 # CCS NPC Module
 
+**Milestone 5.0.0** — Leisure-period social gathering behavior at settlement social anchors.
+
 **Milestone 4.9.0** — Profile-driven dialogue stub lines for affiliated NPCs and service representatives.
 
 **Milestone 4.8.0** — Persistent settlement, business, workforce, and region affiliation metadata for placeholder NPCs.
@@ -18,7 +20,35 @@
 
 ## Purpose
 
-Generic NPC identity, affiliation, dialogue stubs, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, placeholder dialogue lines, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, branching dialogue, pathfinding, or combat.
+Generic NPC identity, affiliation, dialogue stubs, social presence, schedule, activity, movement, and service representative framework for merchants, bankers, clerks, and workforce roles. Assigns stable names, roles, community affiliations, placeholder dialogue lines, leisure social gatherings, daily schedule blocks, visible activities, and business-facing titles to population placeholders without AI, branching dialogue, pathfinding, or combat.
+
+## NPC Social Presence Loop (5.0.0)
+
+```text
+Work Day Ends
+↓
+NPCs Move To Gathering Area
+↓
+Social Groups Form
+↓
+Settlement Feels Alive
+```
+
+Leisure schedule blocks target the **nearest settlement social anchor** (`CCS_NpcScheduleTargetKind.SocialAnchor`). Temporary groups track `groupId`, `settlementId`, `anchorId`, and `participantCount` — no relationships or friendship simulation.
+
+| Component | Purpose |
+|-----------|---------|
+| `CCS_NpcSocialProfile` | Gathering definitions by settlement + anchor id |
+| `CCS_NpcSocialService` | Evaluates leisure social state and rebuilds groups |
+| `CCS_NpcSocialRuntimeBridge` | Runtime snapshots and playtest hooks |
+| `CCS_SettlementSocialAnchor` | Primitive world markers (campfire, hitching rail, etc.) |
+| `CCS_NpcSocialLabelBridge` | Dev label line: **Socializing** |
+
+Persisted on `CCS_SettlementSimulationState.npcSocialStates`. Groups rebuild after load from persisted NPC social state. Activity system still drives underlying activity (Leisure). No AI conversations.
+
+Playtest: **NPC Social Presence** — **Ctrl+Alt+P**
+
+Bootstrap: `CCS_NpcSocialFoundationBootstrapSetup.ExecuteBatch`
 
 ## NPC Dialogue Stub Loop (4.9.0)
 
@@ -102,7 +132,7 @@ Schedule block → activity mapping:
 | Work | Working |
 | Service | Serving |
 | Break | Resting |
-| Leisure | Leisure |
+| Leisure | Leisure (label may show **Socializing** during gatherings) |
 | Idle | Idle |
 
 Movement override: `TravelingToWork` / `TravelingHome` → **Traveling**.
@@ -135,6 +165,8 @@ Default schedules:
 | Service Representative | Home 20:00–07:00, Service 07:00–18:00, Leisure 18:00–20:00 |
 
 Role mappings: Banker/Merchant representatives → Service Representative schedule; Miner/Farmer/LumberWorker → Worker schedule.
+
+**Leisure blocks (5.0.0):** target nearest settlement social anchor via `CCS_NpcScheduleTargetKind.SocialAnchor`. Home/Sleep still use housing; Work/Service still use workplace/service points.
 
 Persisted on `CCS_SettlementSimulationState.npcScheduleStates` (`activeScheduleId`, `currentBlockType`, `currentTargetKind`, `currentTargetId`, `lastEvaluatedHour`). Movement falls back to profile work/home hours when schedule service is unavailable.
 

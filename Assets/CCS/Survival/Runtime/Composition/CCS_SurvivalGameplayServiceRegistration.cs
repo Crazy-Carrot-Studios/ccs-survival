@@ -551,6 +551,10 @@ namespace CCS.Survival.Composition
                 CreateNpcDialogueStubService(worldSimulationProfile?.SettlementNpcDialogueStubProfile);
             RegisterService(runtimeHost, npcDialogueStubService, enableDebugLogs);
 
+            CCS_NpcSocialService npcSocialService =
+                CreateNpcSocialService(worldSimulationProfile?.SettlementNpcSocialProfile);
+            RegisterService(runtimeHost, npcSocialService, enableDebugLogs);
+
             CCS_WorldSimulationService worldSimulationService = CreateWorldSimulationService(worldSimulationProfile);
             RegisterService(runtimeHost, worldSimulationService, enableDebugLogs);
             if (worldSimulationService.IsInitialized)
@@ -622,6 +626,13 @@ namespace CCS.Survival.Composition
             WireNpcDialogueStub(
                 npcDialogueStubService,
                 npcAffiliationService);
+            WireNpcSocial(
+                settlementService,
+                npcSocialService,
+                npcMovementService,
+                npcScheduleService,
+                worldSimulationService,
+                timeOfDayService);
             RegisterNpcMovementUpdatable(runtimeHost, npcMovementService);
 
             if (vendorService != null && vendorService.IsInitialized && worldSimulationService.IsInitialized)
@@ -3112,6 +3123,86 @@ namespace CCS.Survival.Composition
             {
                 dialogueStubService.RefreshDialogueHosts();
             }
+        }
+
+        private static CCS_NpcSocialService CreateNpcSocialService(CCS_NpcSocialProfile profile)
+        {
+            CCS_NpcSocialService service = new CCS_NpcSocialService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            return service;
+        }
+
+        private static void WireNpcSocial(
+            CCS_SettlementService settlementService,
+            CCS_NpcSocialService socialService,
+            CCS_NpcMovementService movementService,
+            CCS_NpcScheduleService scheduleService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            if (settlementService == null || socialService == null || worldSimulationService == null)
+            {
+                return;
+            }
+
+            socialService.BindSocialStateAccessors(
+                settlementId =>
+                {
+                    if (worldSimulationService.TryGetSettlementState(
+                            settlementId,
+                            out CCS_SettlementSimulationState state)
+                        && state != null)
+                    {
+                        return state.npcSocialStates ?? new CCS_NpcSocialState[0];
+                    }
+
+                    return new CCS_NpcSocialState[0];
+                },
+                (settlementId, states) =>
+                {
+                    worldSimulationService.SetSocialStates(settlementId, states);
+                });
+
+            socialService.BindScheduleHourResolver(() =>
+            {
+                if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                {
+                    return 12;
+                }
+
+                return timeOfDayService.CreateSnapshot().Hour;
+            });
+
+            socialService.BindScheduleServiceAvailability(scheduleService != null && scheduleService.IsInitialized);
+            socialService.BindMovementServiceAvailability(movementService != null && movementService.IsInitialized);
+
+            if (movementService != null)
+            {
+                movementService.BindSocialHostUpdatedCallback(socialService.EvaluateForHost);
+            }
+
+            settlementService.SettlementDiscovered += snapshot =>
+            {
+                if (snapshot != null)
+                {
+                    socialService.RebuildGroupsAfterLoad(snapshot.SettlementId);
+                }
+            };
+
+            settlementService.SettlementPopulationChanged += eventArgs =>
+            {
+                if (eventArgs?.Snapshot != null)
+                {
+                    socialService.RefreshSettlement(eventArgs.Snapshot.SettlementId);
+                }
+            };
+
+            socialService.RefreshAllSocialHosts();
         }
 
         private static void WireNpcMovement(

@@ -61,6 +61,8 @@ namespace CCS.Modules.WorldSimulation
 
         [SerializeField] private CCS_NpcDialogueStubProfile settlementNpcDialogueStubProfile;
 
+        [SerializeField] private CCS_NpcSocialProfile settlementNpcSocialProfile;
+
         public CCS_SettlementGrowthProfile SettlementGrowthProfile => settlementGrowthProfile;
 
         public CCS_SettlementPopulationProfile SettlementPopulationProfile => settlementPopulationProfile;
@@ -90,6 +92,8 @@ namespace CCS.Modules.WorldSimulation
         public CCS_NpcAffiliationProfile SettlementNpcAffiliationProfile => settlementNpcAffiliationProfile;
 
         public CCS_NpcDialogueStubProfile SettlementNpcDialogueStubProfile => settlementNpcDialogueStubProfile;
+
+        public CCS_NpcSocialProfile SettlementNpcSocialProfile => settlementNpcSocialProfile;
 
         public CCS_WorldSimulationSettlementProfileEntry[] SettlementEntries =>
             settlementEntries ?? Array.Empty<CCS_WorldSimulationSettlementProfileEntry>();

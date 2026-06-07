@@ -29,6 +29,7 @@ namespace CCS.Modules.NPCs
         private Func<CCS_SettlementHousingProfile> housingProfileResolver;
         private CCS_NpcScheduleService scheduleService;
         private Action<CCS_INpcMovementHost> activityHostUpdated;
+        private Action<CCS_INpcMovementHost> socialHostUpdated;
         private bool isInitialized;
 
         public bool IsInitialized => isInitialized;
@@ -98,6 +99,11 @@ namespace CCS.Modules.NPCs
         public void BindActivityHostUpdatedCallback(Action<CCS_INpcMovementHost> callback)
         {
             activityHostUpdated = callback;
+        }
+
+        public void BindSocialHostUpdatedCallback(Action<CCS_INpcMovementHost> callback)
+        {
+            socialHostUpdated = callback;
         }
 
         public bool TryGetMovementSnapshot(string settlementId, string npcIdentityId, out CCS_NpcMovementSnapshot snapshot)
@@ -230,6 +236,7 @@ namespace CCS.Modules.NPCs
                 host.SettlementId,
                 CCS_NpcMovementValidationUtility.UpsertState(states, updated));
             activityHostUpdated?.Invoke(host);
+            socialHostUpdated?.Invoke(host);
         }
 
         private void ProcessHostMovement(CCS_INpcMovementHost host, int currentHour, float deltaTime)
@@ -295,6 +302,7 @@ namespace CCS.Modules.NPCs
 
             PersistMovementState(host, status, targetAnchorId, homeHousingId);
             activityHostUpdated?.Invoke(host);
+            socialHostUpdated?.Invoke(host);
         }
 
         private bool ResolveMovementTarget(

@@ -18,6 +18,7 @@ namespace CCS.Modules.NPCs
         ServicePoint = 3,
         SettlementCenter = 4,
         CurrentAnchor = 5,
-        Idle = 6
+        Idle = 6,
+        SocialAnchor = 7
     }
 }

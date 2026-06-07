@@ -9,7 +9,7 @@ using CCS.Modules.Settlements;
 // PLACEMENT: Stored by CCS_WorldSimulationService and save payloads.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-02
-// NOTES: Milestone 4.8.0 — affiliation states persisted with world simulation save/load.
+// NOTES: Milestone 5.0.0 — social states persisted with world simulation save/load.
 // =============================================================================
 
 namespace CCS.Modules.WorldSimulation
@@ -28,6 +28,7 @@ namespace CCS.Modules.WorldSimulation
         public CCS_NpcScheduleState[] npcScheduleStates = Array.Empty<CCS_NpcScheduleState>();
         public CCS_NpcActivityState[] npcActivityStates = Array.Empty<CCS_NpcActivityState>();
         public CCS_NpcAffiliationState[] npcAffiliationStates = Array.Empty<CCS_NpcAffiliationState>();
+        public CCS_NpcSocialState[] npcSocialStates = Array.Empty<CCS_NpcSocialState>();
         public int population;
         public int populationCapacity;
         public float populationGrowthRate;

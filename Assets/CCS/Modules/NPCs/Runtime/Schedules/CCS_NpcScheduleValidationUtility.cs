@@ -211,8 +211,9 @@ namespace CCS.Modules.NPCs
                 case CCS_NpcScheduleBlockType.Service:
                     return CCS_NpcScheduleTargetKind.ServicePoint;
                 case CCS_NpcScheduleBlockType.Break:
-                case CCS_NpcScheduleBlockType.Leisure:
                     return CCS_NpcScheduleTargetKind.SettlementCenter;
+                case CCS_NpcScheduleBlockType.Leisure:
+                    return CCS_NpcScheduleTargetKind.SocialAnchor;
                 case CCS_NpcScheduleBlockType.Idle:
                     return CCS_NpcScheduleTargetKind.CurrentAnchor;
                 default:
@@ -281,6 +282,19 @@ namespace CCS.Modules.NPCs
                 case CCS_NpcScheduleTargetKind.SettlementCenter:
                     if (TryResolveSettlementCenterTarget(host, out targetPosition, out targetId))
                     {
+                        return true;
+                    }
+
+                    break;
+                case CCS_NpcScheduleTargetKind.SocialAnchor:
+                    if (TryResolveSocialAnchorTarget(host, out targetPosition, out targetId))
+                    {
+                        return true;
+                    }
+
+                    if (TryResolveSettlementCenterTarget(host, out targetPosition, out targetId))
+                    {
+                        targetKind = CCS_NpcScheduleTargetKind.SettlementCenter;
                         return true;
                     }
 
@@ -507,6 +521,41 @@ namespace CCS.Modules.NPCs
             targetPosition = servicePoint.transform.position;
             targetId = representativeSnapshot.ServicePointId ?? string.Empty;
             return true;
+        }
+
+        private static bool TryResolveSocialAnchorTarget(
+            CCS_INpcMovementHost host,
+            out Vector3 targetPosition,
+            out string targetId)
+        {
+            targetPosition = Vector3.zero;
+            targetId = string.Empty;
+            if (host == null || string.IsNullOrWhiteSpace(host.SettlementId))
+            {
+                return false;
+            }
+
+            if (CCS_NpcSocialRuntimeBridge.TryResolveNearestSocialAnchorForHost != null
+                && CCS_NpcSocialRuntimeBridge.TryResolveNearestSocialAnchorForHost(
+                    host,
+                    out targetPosition,
+                    out targetId,
+                    out string unusedDisplayName))
+            {
+                return !string.IsNullOrWhiteSpace(targetId);
+            }
+
+            if (CCS_SettlementSocialRuntimeBridge.TryGetFirstAnchorForSettlement(
+                    host.SettlementId,
+                    out CCS_SettlementSocialAnchor anchor)
+                && anchor != null)
+            {
+                targetPosition = anchor.transform.position;
+                targetId = anchor.AnchorId;
+                return true;
+            }
+
+            return false;
         }
 
         private static bool TryResolveSettlementCenterTarget(
