@@ -686,6 +686,20 @@ namespace CCS.Survival.Composition
                 tradeRouteService);
             RegisterService(runtimeHost, contractService, enableDebugLogs);
 
+            CCS_DynamicContractService dynamicContractService = CreateDynamicContractService(
+                contractsProfile?.DynamicContractProfile,
+                contractService,
+                worldSimulationService,
+                regionService,
+                timeOfDayService);
+            RegisterService(runtimeHost, dynamicContractService, enableDebugLogs);
+            WireDynamicContracts(
+                dynamicContractService,
+                settlementService,
+                worldSimulationService,
+                timeOfDayService,
+                contractService);
+
             if (mountService != null && mountService.IsInitialized && vendorService != null && vendorService.IsInitialized)
             {
                 vendorService.VendorTransactionCompleted += result =>
@@ -738,7 +752,8 @@ namespace CCS.Survival.Composition
                 reputationService,
                 contractService,
                 tradeRouteService,
-                null);
+                null,
+                dynamicContractService);
             RegisterSaveSystemUpdatable(runtimeHost, saveService);
 
             CCS_PlayerDeathService playerDeathService = CreatePlayerDeathService(playerDeathProfile);
@@ -2438,6 +2453,157 @@ namespace CCS.Survival.Composition
             CCS_ContractRuntimeBridge.Register(service);
             WireContractBoardActivation(service);
             return service;
+        }
+
+        private static CCS_DynamicContractService CreateDynamicContractService(
+            CCS_DynamicContractProfile profile,
+            CCS_ContractService contractService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_RegionService regionService,
+            CCS_TimeOfDayService timeOfDayService)
+        {
+            CCS_DynamicContractService service = new CCS_DynamicContractService();
+            service.Initialize();
+            if (profile != null)
+            {
+                service.InitializeFromProfile(profile);
+            }
+
+            if (service.IsInitialized)
+            {
+                service.BindServices(
+                    contractService,
+                    worldSimulationService,
+                    regionService,
+                    () =>
+                    {
+                        if (timeOfDayService == null || !timeOfDayService.IsInitialized)
+                        {
+                            return CCS_SettlementEventTimeSnapshot.Default;
+                        }
+
+                        CCS_GameTimeSnapshot snapshot = timeOfDayService.CreateSnapshot();
+                        return new CCS_SettlementEventTimeSnapshot
+                        {
+                            DayNumber = snapshot.DayNumber,
+                            Hour = snapshot.Hour
+                        };
+                    },
+                    (settlementId, maxCount) =>
+                        CCS_SettlementNewsRuntimeBridge.TryGetRecentNews(
+                            settlementId,
+                            maxCount,
+                            out CCS_SettlementNewsEntry[] entries)
+                            ? entries
+                            : new CCS_SettlementNewsEntry[0]);
+            }
+
+            return service;
+        }
+
+        private static void WireDynamicContracts(
+            CCS_DynamicContractService dynamicContractService,
+            CCS_SettlementService settlementService,
+            CCS_WorldSimulationService worldSimulationService,
+            CCS_TimeOfDayService timeOfDayService,
+            CCS_ContractService contractService)
+        {
+            if (dynamicContractService == null || !dynamicContractService.IsInitialized)
+            {
+                return;
+            }
+
+            if (worldSimulationService != null)
+            {
+                worldSimulationService.SettlementSupplyChanged += settlementState =>
+                {
+                    if (settlementState == null || string.IsNullOrWhiteSpace(settlementState.settlementId))
+                    {
+                        return;
+                    }
+
+                    dynamicContractService.EvaluateSettlementSupply(settlementState.settlementId);
+                };
+
+                CCS_DynamicContractRuntimeBridge.TrySetSupplyFillPercentForPlaytest =
+                    (settlementId, supplyType, fillPercent) =>
+                        worldSimulationService.TrySetSupplyFillPercentForPlaytest(
+                            settlementId,
+                            supplyType,
+                            fillPercent);
+            }
+
+            if (contractService != null)
+            {
+                contractService.ContractCompleted += result =>
+                {
+                    if (result == null)
+                    {
+                        return;
+                    }
+
+                    dynamicContractService.HandleContractCompleted(result.ContractId);
+                };
+                contractService.ContractAccepted += result =>
+                {
+                    if (result == null)
+                    {
+                        return;
+                    }
+
+                    dynamicContractService.HandleContractAccepted(
+                        result.ContractId,
+                        contractService.GetAcceptedSettlementId(result.ContractId));
+                };
+            }
+
+            System.Action<string, CCS_SettlementEventSnapshot> previousEventHandler =
+                CCS_SettlementEventRuntimeBridge.NotifyEventActivated;
+            CCS_SettlementEventRuntimeBridge.NotifyEventActivated = (settlementId, eventSnapshot) =>
+            {
+                previousEventHandler?.Invoke(settlementId, eventSnapshot);
+                dynamicContractService.HandleSettlementEventActivated(settlementId, eventSnapshot);
+            };
+
+            if (settlementService != null && settlementService.IsInitialized)
+            {
+                System.Collections.Generic.IReadOnlyCollection<CCS_SettlementSnapshot> discoveredSnapshots =
+                    settlementService.GetDiscoveredSnapshots();
+                foreach (CCS_SettlementSnapshot snapshot in discoveredSnapshots)
+                {
+                    if (snapshot == null)
+                    {
+                        continue;
+                    }
+
+                    dynamicContractService.EvaluateRegionalSpecialization(snapshot.SettlementId);
+                    if (CCS_SettlementEventRuntimeBridge.TryGetActiveEvent(
+                            snapshot.SettlementId,
+                            out CCS_SettlementEventSnapshot eventSnapshot)
+                        && eventSnapshot != null
+                        && eventSnapshot.IsValid)
+                    {
+                        dynamicContractService.HandleSettlementEventActivated(
+                            snapshot.SettlementId,
+                            eventSnapshot);
+                    }
+                }
+            }
+
+            if (timeOfDayService != null)
+            {
+                timeOfDayService.HourChanged += _ =>
+                {
+                    CCS_GameTimeSnapshot timeSnapshot = timeOfDayService.CreateSnapshot();
+                    int interval = System.Math.Max(1, dynamicContractService.ActiveProfile?.EvaluationIntervalHours ?? 6);
+                    if (timeSnapshot.Hour % interval != 0)
+                    {
+                        return;
+                    }
+
+                    dynamicContractService.EvaluateExpirations(timeSnapshot.DayNumber);
+                };
+            }
         }
 
         private static void WireSettlementGrowth(

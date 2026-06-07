@@ -87,6 +87,7 @@ namespace CCS.Modules.SaveSystem
             runtimeHost.ServiceRegistry.TryGetService(out CCS_UpkeepService upkeepService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_ReputationService reputationService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_ContractService contractService);
+            runtimeHost.ServiceRegistry.TryGetService(out CCS_DynamicContractService dynamicContractService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_TradeRouteService tradeRouteService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_CharacterMovementService movementService);
             runtimeHost.ServiceRegistry.TryGetService(out CCS_StarterLoadoutService starterLoadoutService);
@@ -121,7 +122,8 @@ namespace CCS.Modules.SaveSystem
                 reputationService,
                 contractService,
                 tradeRouteService,
-                playerTransform);
+                playerTransform,
+                dynamicContractService);
 
             if (mountService != null && mountService.IsInitialized && playerTransform != null)
             {

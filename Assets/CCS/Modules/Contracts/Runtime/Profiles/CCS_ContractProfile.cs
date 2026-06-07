@@ -28,6 +28,8 @@ namespace CCS.Modules.Contracts
         [SerializeField] private CCS_ContractDefinition[] contractDefinitions =
             Array.Empty<CCS_ContractDefinition>();
 
+        [SerializeField] private CCS_DynamicContractProfile dynamicContractProfile;
+
         [SerializeField] private bool enableDebugLogging = true;
 
         public string DefaultSettlementId => defaultSettlementId ?? string.Empty;
@@ -36,6 +38,8 @@ namespace CCS.Modules.Contracts
 
         public CCS_ContractDefinition[] ContractDefinitions =>
             contractDefinitions ?? Array.Empty<CCS_ContractDefinition>();
+
+        public CCS_DynamicContractProfile DynamicContractProfile => dynamicContractProfile;
 
         public bool EnableDebugLogging => enableDebugLogging;
 

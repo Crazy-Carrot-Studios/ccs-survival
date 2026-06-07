@@ -42,4 +42,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fd55ef2a03f95824ab2b55138b580601, type: 2}
   - {fileID: 11400000, guid: c28e4f9541147714f966250c7a280ff0, type: 2}
   - {fileID: 11400000, guid: 7df32dd69304f044e98c0d308fc7e28d, type: 2}
+  dynamicContractProfile: {fileID: 11400000, guid: 7c4a9e2b1d8f4036a5b2c9e0f1d3a567, type: 2}
   enableDebugLogging: 1

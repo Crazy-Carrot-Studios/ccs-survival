@@ -1,0 +1,227 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5dd990aa8e42e342a16b9422fd7efdd, type: 3}
+  m_Name: CCS_DefaultDynamicContractProfile
+  m_EditorClassIdentifier: CCS.Modules.Contracts.Runtime::CCS.Modules.Contracts.CCS_DynamicContractProfile
+  profileDisplayName: Default Dynamic Contract Profile
+  profileId: ccs.survival.profile.dynamiccontracts.default
+  profileDescription: Profile-driven settlement contract generation from supply, events,
+    and regional specialization.
+  profileVersion: 5.3.0
+  enableDebugLogs: 0
+  maxActiveGeneratedContractsPerSettlement: 3
+  evaluationIntervalHours: 6
+  rules:
+  - ruleId: ccs.survival.dynamic.rule.lowfood
+    generationSource: 1
+    contractKind: 0
+    supplyType: 0
+    supplyThresholdPercent: 25
+    eventType: 0
+    regionSpecialization: 0
+    displayName: Low Food Supply Run
+    contractType: 0
+    requiredItemIds:
+    - ccs.survival.farming.item.corn
+    - ccs.survival.farming.item.potatoes
+    - ccs.survival.item.ranch.milk
+    - ccs.survival.item.ranch.feed
+    requiredQuantities:
+    - 4
+    - 4
+    - 2
+    - 2
+    tradeDollars: 12
+    reputationGain: 2
+    prosperityGain: 1
+    rewardSupplyType: 0
+    rewardSupplyAmount: 2
+    cooldownDays: 3
+    expirationDays: 7
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 0
+  - ruleId: ccs.survival.dynamic.rule.marketday.mixed
+    generationSource: 2
+    contractKind: 0
+    supplyType: 5
+    supplyThresholdPercent: 0
+    eventType: 1
+    regionSpecialization: 0
+    displayName: Market Day Mixed Goods
+    contractType: 3
+    requiredItemIds:
+    - ccs.survival.farming.item.corn
+    - ccs.survival.item.resource.hide
+    - ccs.survival.item.frontier.cordage
+    requiredQuantities:
+    - 3
+    - 2
+    - 2
+    tradeDollars: 15
+    reputationGain: 2
+    prosperityGain: 1
+    rewardSupplyType: 5
+    rewardSupplyAmount: 2
+    cooldownDays: 2
+    expirationDays: 5
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 0
+  - ruleId: ccs.survival.dynamic.rule.harvestfestival.freight
+    generationSource: 2
+    contractKind: 1
+    supplyType: 0
+    supplyThresholdPercent: 0
+    eventType: 3
+    regionSpecialization: 0
+    displayName: Harvest Festival Food Freight
+    contractType: 5
+    requiredItemIds:
+    - ccs.survival.farming.item.corn
+    - ccs.survival.farming.item.potatoes
+    requiredQuantities:
+    - 6
+    - 6
+    tradeDollars: 18
+    reputationGain: 2
+    prosperityGain: 1
+    rewardSupplyType: 0
+    rewardSupplyAmount: 3
+    cooldownDays: 2
+    expirationDays: 5
+    freightDestinationSettlementId: ccs.survival.settlement.frontier.testtradingpost
+    enabled: 1
+    placeholderOnly: 0
+  - ruleId: ccs.survival.dynamic.rule.regional.mining
+    generationSource: 3
+    contractKind: 0
+    supplyType: 4
+    supplyThresholdPercent: 0
+    eventType: 0
+    regionSpecialization: 3
+    displayName: Mining Camp Supply Run
+    contractType: 1
+    requiredItemIds:
+    - ccs.survival.item.tool.hatchet.bone
+    - ccs.survival.item.resource.lumber
+    - ccs.survival.farming.item.corn
+    requiredQuantities:
+    - 1
+    - 3
+    - 4
+    tradeDollars: 16
+    reputationGain: 2
+    prosperityGain: 1
+    rewardSupplyType: 4
+    rewardSupplyAmount: 2
+    cooldownDays: 4
+    expirationDays: 7
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 0
+  - ruleId: ccs.survival.dynamic.rule.regional.timber
+    generationSource: 3
+    contractKind: 0
+    supplyType: 3
+    supplyThresholdPercent: 0
+    eventType: 0
+    regionSpecialization: 4
+    displayName: Timber Camp Supply Run
+    contractType: 0
+    requiredItemIds:
+    - ccs.survival.item.progression.charcoal
+    - ccs.survival.item.resource.lumber
+    - ccs.survival.item.resource.poles
+    requiredQuantities:
+    - 3
+    - 4
+    - 3
+    tradeDollars: 14
+    reputationGain: 2
+    prosperityGain: 1
+    rewardSupplyType: 3
+    rewardSupplyAmount: 2
+    cooldownDays: 4
+    expirationDays: 7
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 0
+  - ruleId: ccs.survival.dynamic.rule.placeholder.workforce
+    generationSource: 4
+    contractKind: 0
+    supplyType: 0
+    supplyThresholdPercent: 0
+    eventType: 0
+    regionSpecialization: 0
+    displayName: Workforce Demand Placeholder
+    contractType: 3
+    requiredItemIds:
+    - ccs.survival.farming.item.corn
+    requiredQuantities:
+    - 1
+    tradeDollars: 0
+    reputationGain: 0
+    prosperityGain: 0
+    rewardSupplyType: 0
+    rewardSupplyAmount: 0
+    cooldownDays: 1
+    expirationDays: 1
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 1
+  - ruleId: ccs.survival.dynamic.rule.placeholder.business
+    generationSource: 5
+    contractKind: 0
+    supplyType: 5
+    supplyThresholdPercent: 0
+    eventType: 0
+    regionSpecialization: 0
+    displayName: Business Demand Placeholder
+    contractType: 3
+    requiredItemIds:
+    - ccs.survival.item.resource.lumber
+    requiredQuantities:
+    - 1
+    tradeDollars: 0
+    reputationGain: 0
+    prosperityGain: 0
+    rewardSupplyType: 5
+    rewardSupplyAmount: 0
+    cooldownDays: 1
+    expirationDays: 1
+    freightDestinationSettlementId: 
+    enabled: 1
+    placeholderOnly: 1
+  - ruleId: ccs.survival.dynamic.rule.placeholder.traderoute
+    generationSource: 6
+    contractKind: 1
+    supplyType: 5
+    supplyThresholdPercent: 0
+    eventType: 0
+    regionSpecialization: 0
+    displayName: Trade Route Demand Placeholder
+    contractType: 5
+    requiredItemIds:
+    - ccs.survival.item.resource.lumber
+    requiredQuantities:
+    - 1
+    tradeDollars: 0
+    reputationGain: 0
+    prosperityGain: 0
+    rewardSupplyType: 5
+    rewardSupplyAmount: 0
+    cooldownDays: 1
+    expirationDays: 1
+    freightDestinationSettlementId: ccs.survival.settlement.frontier.testtradingpost
+    enabled: 1
+    placeholderOnly: 1

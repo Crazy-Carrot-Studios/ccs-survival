@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using CCS.Core;
 using CCS.Modules.Building;
@@ -72,6 +73,7 @@ namespace CCS.Modules.SaveSystem
         private CCS_UpkeepService upkeepService;
         private CCS_ReputationService reputationService;
         private CCS_ContractService contractService;
+        private CCS_DynamicContractService dynamicContractService;
         private CCS_TradeRouteService tradeRouteService;
         private CCS_CurrencyService currencyService;
         private Transform playerTransform;
@@ -160,7 +162,8 @@ namespace CCS.Modules.SaveSystem
             CCS_ReputationService reputation,
             CCS_ContractService contracts,
             CCS_TradeRouteService tradeRoutes,
-            Transform playerRoot)
+            Transform playerRoot,
+            CCS_DynamicContractService dynamicContracts = null)
         {
             inventoryService = inventory;
             survivalCoreService = survivalCore;
@@ -188,6 +191,7 @@ namespace CCS.Modules.SaveSystem
             upkeepService = upkeep;
             reputationService = reputation;
             contractService = contracts;
+            dynamicContractService = dynamicContracts;
             tradeRouteService = tradeRoutes;
             playerTransform = playerRoot;
         }
@@ -1186,18 +1190,56 @@ namespace CCS.Modules.SaveSystem
             }
 
             contractsData.contractInstances = contractService != null && contractService.IsInitialized
-                ? contractService.CaptureContractsState()
+                ? FilterStaticContractSnapshots(contractService.CaptureContractsState())
                 : Array.Empty<CCS_ContractSnapshot>();
+            contractsData.dynamicContractStates = dynamicContractService != null && dynamicContractService.IsInitialized
+                ? dynamicContractService.CaptureDynamicContractStates()
+                : Array.Empty<CCS_DynamicContractState>();
+            contractsData.dynamicRuleCooldowns = dynamicContractService != null && dynamicContractService.IsInitialized
+                ? dynamicContractService.CaptureRuleCooldownStates()
+                : Array.Empty<CCS_DynamicContractRuleCooldownState>();
         }
 
         private void ApplyContracts(CCS_SaveContractsWorldData contractsData)
         {
+            if (dynamicContractService != null && dynamicContractService.IsInitialized)
+            {
+                dynamicContractService.RestorePersistedState(
+                    contractsData?.dynamicContractStates,
+                    contractsData?.dynamicRuleCooldowns);
+            }
+
             if (contractService == null || !contractService.IsInitialized)
             {
                 return;
             }
 
-            contractService.RestoreState(contractsData?.contractInstances);
+            contractService.RestoreState(FilterStaticContractSnapshots(contractsData?.contractInstances));
+            dynamicContractService?.SyncContractInstanceStates();
+        }
+
+        private static CCS_ContractSnapshot[] FilterStaticContractSnapshots(CCS_ContractSnapshot[] snapshots)
+        {
+            if (snapshots == null || snapshots.Length == 0)
+            {
+                return Array.Empty<CCS_ContractSnapshot>();
+            }
+
+            List<CCS_ContractSnapshot> filtered = new List<CCS_ContractSnapshot>(snapshots.Length);
+            for (int index = 0; index < snapshots.Length; index++)
+            {
+                CCS_ContractSnapshot snapshot = snapshots[index];
+                if (snapshot == null
+                    || string.IsNullOrWhiteSpace(snapshot.contractDefinitionId)
+                    || CCS_DynamicContractValidationUtility.IsGeneratedContractId(snapshot.contractDefinitionId))
+                {
+                    continue;
+                }
+
+                filtered.Add(snapshot);
+            }
+
+            return filtered.ToArray();
         }
 
         private void CaptureTradeRoutes(CCS_SaveTradeRoutesWorldData tradeRoutesData)

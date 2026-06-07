@@ -3238,3 +3238,93 @@ MonoBehaviour:
     targetObjectId: 
     requiredCount: 1
     timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.discover
+    displayName: Discover settlement
+    stepType: 376
+    instructionText: Discover Trading Post for dynamic contract playtest. Ctrl+Alt+C
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.lowsupply
+    displayName: Simulate low supply
+    stepType: 377
+    instructionText: Lower or simulate low settlement food supply.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.generate.need
+    displayName: Generate need-based contract
+    stepType: 378
+    instructionText: Verify need-based dynamic contract generation from low supply.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.force.event
+    displayName: Force settlement event
+    stepType: 379
+    instructionText: Force Market Day event for dynamic contract playtest.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.generate.event
+    displayName: Generate event-based contract
+    stepType: 380
+    instructionText: Verify event-based dynamic contract generation.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.verify.board
+    displayName: Verify generated contract on board
+    stepType: 381
+    instructionText: Verify settlement board shows generated dynamic contract.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.complete
+    displayName: Complete generated contract
+    stepType: 382
+    instructionText: Complete generated contract through standard contract path.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.verify.rewards
+    displayName: Verify rewards and supply
+    stepType: 383
+    instructionText: Verify contract rewards, supply, and prosperity updates.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.save
+    displayName: Save dynamic contract state
+    stepType: 384
+    instructionText: Save game and capture dynamic contract persistence.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.load
+    displayName: Load dynamic contract state
+    stepType: 385
+    instructionText: Load game and restore dynamic contract state.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0
+  - stepId: ccs.survival.playtest.dynamiccontracts.verify.load
+    displayName: Verify dynamic contract after load
+    stepType: 386
+    instructionText: Verify generated dynamic contract restored after load. Ctrl+Alt+C
+      shortcut available.
+    targetItemId: 
+    targetObjectId: 
+    requiredCount: 1
+    timeoutSeconds: 0

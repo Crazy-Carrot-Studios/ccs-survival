@@ -101,6 +101,11 @@ namespace CCS.Modules.SaveSystem
     public sealed class CCS_SaveContractsWorldData
     {
         public CCS_ContractSnapshot[] contractInstances = Array.Empty<CCS_ContractSnapshot>();
+
+        public CCS_DynamicContractState[] dynamicContractStates = Array.Empty<CCS_DynamicContractState>();
+
+        public CCS_DynamicContractRuleCooldownState[] dynamicRuleCooldowns =
+            Array.Empty<CCS_DynamicContractRuleCooldownState>();
     }
 
     [Serializable]

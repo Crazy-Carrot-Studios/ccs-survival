@@ -124,6 +124,29 @@ namespace CCS.Modules.Contracts
             }
         }
 
+        public void UnregisterDefinition(string contractId)
+        {
+            if (string.IsNullOrWhiteSpace(contractId))
+            {
+                return;
+            }
+
+            definitionLookup.Remove(contractId);
+            instanceLookup.Remove(contractId);
+        }
+
+        public void SetInstanceState(string contractId, CCS_ContractState state, string acceptedSettlementId)
+        {
+            if (string.IsNullOrWhiteSpace(contractId))
+            {
+                return;
+            }
+
+            ContractInstance instance = GetOrCreateInstance(contractId);
+            instance.State = state;
+            instance.AcceptedSettlementId = acceptedSettlementId ?? string.Empty;
+        }
+
         public bool TryGetDefinition(string contractId, out CCS_ContractDefinition definition)
         {
             definition = null;
@@ -145,6 +168,18 @@ namespace CCS.Modules.Contracts
             }
 
             return instance.State;
+        }
+
+        public string GetAcceptedSettlementId(string contractId)
+        {
+            if (string.IsNullOrWhiteSpace(contractId)
+                || !instanceLookup.TryGetValue(contractId, out ContractInstance instance)
+                || instance == null)
+            {
+                return string.Empty;
+            }
+
+            return instance.AcceptedSettlementId ?? string.Empty;
         }
 
         public CCS_ContractDefinition[] GetBoardContracts(string settlementId, CCS_ContractType contractType)

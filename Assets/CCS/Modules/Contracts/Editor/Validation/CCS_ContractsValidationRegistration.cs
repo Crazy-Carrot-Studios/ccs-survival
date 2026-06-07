@@ -19,6 +19,7 @@ namespace CCS.Modules.Contracts.Editor
         static CCS_ContractsValidationRegistration()
         {
             CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_ContractsFoundationValidationValidator());
+            CCS_SurvivalValidationPipeline.RegisterValidator(new CCS_DynamicContractsFoundationValidationValidator());
         }
     }
 }

@@ -59,7 +59,8 @@ namespace CCS.Modules.Playtesting
             CCS_PlaytestStepGroup.NpcDialogue,
             CCS_PlaytestStepGroup.NpcSocialPresence,
             CCS_PlaytestStepGroup.SettlementEvents,
-            CCS_PlaytestStepGroup.SettlementNews
+            CCS_PlaytestStepGroup.SettlementNews,
+            CCS_PlaytestStepGroup.DynamicContracts
         };
 
         public static IReadOnlyList<CCS_PlaytestStepGroup> GetOrderedGroups()
@@ -157,6 +158,8 @@ namespace CCS.Modules.Playtesting
                     return "Settlement Events";
                 case CCS_PlaytestStepGroup.SettlementNews:
                     return "Settlement News";
+                case CCS_PlaytestStepGroup.DynamicContracts:
+                    return "Dynamic Contracts";
                 default:
                     return group.ToString();
             }
@@ -635,6 +638,19 @@ namespace CCS.Modules.Playtesting
                 case CCS_PlaytestStepType.LoadSettlementNewsState:
                 case CCS_PlaytestStepType.VerifySettlementNewsAfterLoad:
                     return CCS_PlaytestStepGroup.SettlementNews;
+
+                case CCS_PlaytestStepType.DiscoverSettlementsForDynamicContracts:
+                case CCS_PlaytestStepType.SimulateLowSupplyForDynamicContracts:
+                case CCS_PlaytestStepType.GenerateNeedBasedDynamicContract:
+                case CCS_PlaytestStepType.ForceEventForDynamicContracts:
+                case CCS_PlaytestStepType.GenerateEventBasedDynamicContract:
+                case CCS_PlaytestStepType.VerifyGeneratedDynamicContractOnBoard:
+                case CCS_PlaytestStepType.CompleteGeneratedDynamicContract:
+                case CCS_PlaytestStepType.VerifyDynamicContractRewardsApplied:
+                case CCS_PlaytestStepType.SaveDynamicContractState:
+                case CCS_PlaytestStepType.LoadDynamicContractState:
+                case CCS_PlaytestStepType.VerifyDynamicContractStateAfterLoad:
+                    return CCS_PlaytestStepGroup.DynamicContracts;
 
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(stepType), stepType, "Unmapped playtest step type.");

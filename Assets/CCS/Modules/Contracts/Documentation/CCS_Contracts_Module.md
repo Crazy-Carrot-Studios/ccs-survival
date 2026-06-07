@@ -1,5 +1,13 @@
 # CCS Contracts Module
 
+Milestone **5.3.0** — **Dynamic contract generation** through `CCS_DynamicContractService` and `CCS_DynamicContractProfile`. Settlement needs (low supply), active events, and regional specialization generate temporary contracts with deterministic ids, cooldowns, max-active limits, and expiration. Generated contracts register runtime `CCS_ContractDefinition` instances on the existing `CCS_ContractService` accept/complete path (no duplicate completion logic). Static catalog contracts remain unchanged. Debug boards show static local/freight sections plus **Generated dynamic contracts** (optional recent news headline in debug row). State persists in `CCS_SaveContractsWorldData.dynamicContractStates` and `dynamicRuleCooldowns`. Playtest group **Dynamic Contracts** with **Ctrl+Alt+C** shortcut.
+
+**Dynamic Contract Loop:**
+
+```text
+Settlement Needs Goods → Simulation Generates Contract → Player Delivers Goods → Supply + Prosperity Improve → More Dynamic Needs Emerge
+```
+
 Milestone **5.2.0** — Settlement contract debug boards display **Recent News** (top 3 active entries from `CCS_SettlementNewsRuntimeBridge`). Informational only; no quest generation.
 
 Milestone **3.6.0** — Contract completion at destination settlements drives population growth through `CCS_WorldSimulationService.HandleContractCompleted` (prosperity/supply unchanged from 3.4.0).

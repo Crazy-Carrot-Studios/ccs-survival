@@ -489,6 +489,30 @@ namespace CCS.Modules.WorldSimulation
             return GetSupplyEntry(state, supplyType)?.currentAmount ?? 0f;
         }
 
+        public bool TrySetSupplyFillPercentForPlaytest(
+            string settlementId,
+            CCS_SettlementSupplyType supplyType,
+            float fillPercent)
+        {
+            if (!TryGetSettlementState(settlementId, out CCS_SettlementSimulationState settlementState)
+                || settlementState == null)
+            {
+                return false;
+            }
+
+            CCS_SettlementSupplyEntry entry = GetSupplyEntry(settlementState, supplyType);
+            if (entry == null)
+            {
+                entry = GetOrCreateSupplyEntry(settlementState, supplyType);
+            }
+
+            float clampedPercent = Mathf.Clamp(fillPercent, 0f, 100f);
+            float desiredAmount = entry.desiredAmount > 0f ? entry.desiredAmount : 1f;
+            entry.currentAmount = desiredAmount * (clampedPercent / 100f);
+            SettlementSupplyChanged?.Invoke(settlementState);
+            return true;
+        }
+
         public CCS_SettlementSimulationState[] CaptureState()
         {
             if (settlementLookup.Count == 0 && regionLookup.Count == 0)

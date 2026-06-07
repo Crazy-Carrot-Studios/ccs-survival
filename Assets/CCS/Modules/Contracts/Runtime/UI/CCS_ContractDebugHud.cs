@@ -142,6 +142,7 @@ namespace CCS.Modules.Contracts
                     "Inbound freight delivery",
                     contracts,
                     CCS_ContractBoardSectionKind.InboundFreight);
+                DrawGeneratedDynamicSection(contractService, s_settlementId);
             }
             else
             {
@@ -211,6 +212,11 @@ namespace CCS.Modules.Contracts
                     continue;
                 }
 
+                if (CCS_DynamicContractValidationUtility.IsGeneratedContractId(definition.ContractId))
+                {
+                    continue;
+                }
+
                 if (!drewHeader)
                 {
                     GUILayout.Label(sectionTitle, GUI.skin.box);
@@ -219,6 +225,71 @@ namespace CCS.Modules.Contracts
 
                 DrawContractRow(contractService, definition, s_settlementId);
             }
+        }
+
+        private static void DrawGeneratedDynamicSection(CCS_ContractService contractService, string settlementId)
+        {
+            CCS_ContractDefinition[] contracts = contractService.GetSettlementBoardContracts(settlementId);
+            bool drewHeader = false;
+            for (int index = 0; index < contracts.Length; index++)
+            {
+                CCS_ContractDefinition definition = contracts[index];
+                if (definition == null
+                    || !CCS_DynamicContractValidationUtility.IsGeneratedContractId(definition.ContractId))
+                {
+                    continue;
+                }
+
+                if (!drewHeader)
+                {
+                    GUILayout.Label("Generated dynamic contracts", GUI.skin.box);
+                    drewHeader = true;
+                }
+
+                DrawGeneratedContractRow(contractService, definition, settlementId);
+            }
+        }
+
+        private static void DrawGeneratedContractRow(
+            CCS_ContractService contractService,
+            CCS_ContractDefinition definition,
+            string settlementId)
+        {
+            if (definition == null)
+            {
+                return;
+            }
+
+            string debugSuffix = string.Empty;
+            if (CCS_DynamicContractRuntimeBridge.TryGetSettlementSnapshots(
+                    settlementId,
+                    out CCS_DynamicContractSnapshot[] snapshots)
+                && snapshots != null)
+            {
+                for (int index = 0; index < snapshots.Length; index++)
+                {
+                    CCS_DynamicContractSnapshot snapshot = snapshots[index];
+                    if (snapshot == null
+                        || !string.Equals(
+                            snapshot.GeneratedContractId,
+                            definition.ContractId,
+                            System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    debugSuffix =
+                        $" | rule {snapshot.SourceRuleId} | expires day {snapshot.ExpirationDay}";
+                    if (!string.IsNullOrWhiteSpace(snapshot.NewsHeadlineReference))
+                    {
+                        debugSuffix += $" | news: {snapshot.NewsHeadlineReference}";
+                    }
+
+                    break;
+                }
+            }
+
+            DrawContractRow(contractService, definition, settlementId, debugSuffix);
         }
 
         private static bool ShouldDrawInSection(
@@ -267,7 +338,8 @@ namespace CCS.Modules.Contracts
         private static void DrawContractRow(
             CCS_ContractService contractService,
             CCS_ContractDefinition definition,
-            string settlementId)
+            string settlementId,
+            string debugSuffix = "")
         {
             if (definition == null)
             {
@@ -284,7 +356,9 @@ namespace CCS.Modules.Contracts
             }
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"{definition.DisplayName}{routeLabel} [{state}]", GUILayout.Width(300f));
+            GUILayout.Label(
+                $"{definition.DisplayName}{routeLabel}{debugSuffix} [{state}]",
+                GUILayout.Width(300f));
             if (state == CCS_ContractState.Available
                 && definition.CanAcceptAtSettlement(settlementId)
                 && GUILayout.Button("Accept", GUILayout.Width(70f)))

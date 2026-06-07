@@ -9,6 +9,7 @@
         "CCS.Modules.Contracts.Runtime",
         "CCS.Modules.Playtesting.Runtime",
         "CCS.Modules.Settlements.Runtime",
+        "CCS.Modules.Regions.Runtime",
         "CCS.Modules.Reputation.Runtime",
         "CCS.Modules.Economy.Runtime",
         "CCS.Modules.WorldSimulation.Runtime"

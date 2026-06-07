@@ -142,5 +142,27 @@ namespace CCS.Modules.Contracts
 
             return CCS_RegionSpecializationType.Unknown;
         }
+
+        public void ApplyRuntimeInit(CCS_ContractRuntimeInitData initData)
+        {
+            if (initData == null)
+            {
+                return;
+            }
+
+            contractId = initData.ContractId ?? string.Empty;
+            displayName = initData.DisplayName ?? string.Empty;
+            contractType = initData.ContractType;
+            regionSpecialization = initData.RegionSpecialization;
+            settlementId = initData.SettlementId ?? string.Empty;
+            requirements = initData.Requirements ?? Array.Empty<CCS_ContractRequirement>();
+            reward = initData.Reward ?? new CCS_ContractReward();
+            enabled = initData.Enabled;
+            freightSourceSettlementId = initData.FreightSourceSettlementId ?? string.Empty;
+            freightDestinationSettlementId = initData.FreightDestinationSettlementId ?? string.Empty;
+            linkedTradeRouteId = initData.LinkedTradeRouteId ?? string.Empty;
+            preferWagonCargo = initData.PreferWagonCargo;
+            allowPlayerInventoryFallback = initData.AllowPlayerInventoryFallback;
+        }
     }
 }

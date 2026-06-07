@@ -232,6 +232,11 @@ namespace CCS.Modules.Playtesting
                 playtestService.TryPlaytestSettlementNewsFoundationShortcut();
             }
 
+            if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.C))
+            {
+                playtestService.TryPlaytestDynamicContractsFoundationShortcut();
+            }
+
             if (CCS_DevHotkeyUtility.WasControlAltPressed(KeyCode.T))
             {
                 playtestService.TryGrantPlaytestTrap();

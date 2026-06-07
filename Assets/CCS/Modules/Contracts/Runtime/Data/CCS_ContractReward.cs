@@ -41,5 +41,21 @@ namespace CCS.Modules.Contracts
         public CCS_SettlementSupplyType SupplyType => supplyType;
 
         public float SupplyAmount => supplyAmount < 0f ? 0f : supplyAmount;
+
+        public void ApplyRuntimeInit(
+            int resolvedTradeDollars,
+            int resolvedReputationGain,
+            float resolvedProsperityGain,
+            CCS_SettlementSupplyType resolvedSupplyType,
+            float resolvedSupplyAmount,
+            int resolvedOriginReputationGain = 0)
+        {
+            tradeDollars = resolvedTradeDollars < 0 ? 0 : resolvedTradeDollars;
+            reputationGain = resolvedReputationGain;
+            prosperityGain = resolvedProsperityGain < 0f ? 0f : resolvedProsperityGain;
+            supplyType = resolvedSupplyType;
+            supplyAmount = resolvedSupplyAmount < 0f ? 0f : resolvedSupplyAmount;
+            originReputationGain = resolvedOriginReputationGain;
+        }
     }
 }

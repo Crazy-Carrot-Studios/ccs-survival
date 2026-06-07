@@ -387,6 +387,18 @@ namespace CCS.Modules.Playtesting
         VerifySettlementNewsPropagated = 372,
         SaveSettlementNewsState = 373,
         LoadSettlementNewsState = 374,
-        VerifySettlementNewsAfterLoad = 375
+        VerifySettlementNewsAfterLoad = 375,
+
+        DiscoverSettlementsForDynamicContracts = 376,
+        SimulateLowSupplyForDynamicContracts = 377,
+        GenerateNeedBasedDynamicContract = 378,
+        ForceEventForDynamicContracts = 379,
+        GenerateEventBasedDynamicContract = 380,
+        VerifyGeneratedDynamicContractOnBoard = 381,
+        CompleteGeneratedDynamicContract = 382,
+        VerifyDynamicContractRewardsApplied = 383,
+        SaveDynamicContractState = 384,
+        LoadDynamicContractState = 385,
+        VerifyDynamicContractStateAfterLoad = 386
     }
 }

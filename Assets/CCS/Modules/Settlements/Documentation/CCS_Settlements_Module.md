@@ -1,6 +1,7 @@
 # CCS Settlements Module
 
 **Module ID:** `ccs.survival.settlements`  
+**Milestone:** 5.3.0 — Dynamic contract generation hooks (settlement events and supply changes notify `CCS_DynamicContractService`; optional news headline on generated contract debug rows)  
 **Milestone:** 5.2.0 — Settlement news and rumors (event-driven headlines, trade-route propagation)  
 **Milestone:** 5.1.0 — Dynamic settlement events (simulation-driven metadata, modifiers, dev markers)  
 **Milestone:** 4.4.0 — Settlement housing capacity + markers; 4.3.0 — NPC service representatives; 4.1.0 — NPC identity on population placeholders; 4.0.0 population presence  

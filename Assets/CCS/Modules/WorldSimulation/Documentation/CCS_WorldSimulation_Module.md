@@ -1,6 +1,8 @@
 # CCS World Simulation Module
 
-Milestone **5.2.0** — **Settlement news state** persists in `CCS_SaveWorldSimulationData.newsEntries` (news id, origin settlement, event type, headline, rumor line, day/expiration/propagation days, known settlement ids). Profile wired on `CCS_WorldSimulationProfile.settlementNewsProfile`. `CCS_SettlementNewsService` creates news when settlement events activate and propagates along trade route connections.
+Milestone **5.3.0** — **Low settlement supply** triggers dynamic contract evaluation via `CCS_WorldSimulationService.SettlementSupplyChanged` → `CCS_DynamicContractService.EvaluateSettlementSupply`. Contract completion still uses `HandleContractCompleted` (prosperity/supply path unchanged). Dynamic contract state persists in `CCS_SaveContractsWorldData` (not world simulation payload).
+
+Milestone **5.2.0** — **Settlement news state** persists in `CCS_SaveWorldSimulationData.newsEntries` (news id, origin settlement, event type, headline, rumor line, day/expiration/propagation days, known settlement ids). Profile wired on `CCS_WorldSimulationProfile.settlementNewsProfile`. `CCS_SettlementNewsService` creates news when settlement events activate and propagates along trade route connections. Generated dynamic contracts may reference a recent news headline in debug display only.
 
 Milestone **5.1.0** — **Settlement event state** persists on `CCS_SettlementSimulationState.activeSettlementEvent` (active event id, type, start day/hour, duration, settlement id). Profile wired on `CCS_WorldSimulationProfile.settlementEventProfile`. `CCS_SettlementEventService` evaluates generation on discovery and hour changes; prosperity recalculation and contract completion apply temporary event modifiers through `CCS_SettlementEventRuntimeBridge`.
 

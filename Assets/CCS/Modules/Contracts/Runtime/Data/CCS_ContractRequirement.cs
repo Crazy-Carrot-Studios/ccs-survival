@@ -34,5 +34,12 @@ namespace CCS.Modules.Contracts
             return string.IsNullOrWhiteSpace(SettlementIdRestriction)
                 || string.Equals(SettlementIdRestriction, settlementId, StringComparison.OrdinalIgnoreCase);
         }
+
+        public void ApplyRuntimeInit(string resolvedItemId, int resolvedQuantity, string settlementIdRestriction = "")
+        {
+            itemId = resolvedItemId ?? string.Empty;
+            quantity = resolvedQuantity < 1 ? 1 : resolvedQuantity;
+            this.settlementIdRestriction = settlementIdRestriction ?? string.Empty;
+        }
     }
 }

@@ -1,7 +1,7 @@
 # CCS Survival
 
 [![Unity 6](https://img.shields.io/badge/Unity-6-blue)](https://unity.com/)
-[![Version](https://img.shields.io/badge/Version-5.2.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
+[![Version](https://img.shields.io/badge/Version-5.3.0-green)](https://github.com/Crazy-Carrot-Studios/ccs-survival/releases)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey)](#)
 
 Modular survival gameplay framework for Unity 6 — built by **Crazy Carrot Studios** for reusable AAA-style survival prototypes.
@@ -24,6 +24,16 @@ https://github.com/Crazy-Carrot-Studios/ccs-survival.git
 ---
 
 ## Current Version
+
+**5.3.0** — Dynamic Contract Generation Foundation
+
+Profile-driven dynamic settlement contracts through `CCS_DynamicContractService` and `CCS_DynamicContractProfile`. Low supply, active settlement events, and regional specialization generate local supply and freight delivery contracts with deterministic ids, cooldowns, max-active limits, and expiration. Generated contracts use the existing `CCS_ContractService` completion path for trade dollars, reputation, prosperity, and supply. Static contracts remain on boards alongside generated entries. State persists in `CCS_SaveContractsWorldData`. Playtest group **Dynamic Contracts** with **Ctrl+Alt+C** shortcut.
+
+**Dynamic Contract Loop:**
+
+```text
+Settlement Needs Goods → Simulation Generates Contract → Player Delivers Goods → Supply + Prosperity Improve → More Dynamic Needs Emerge
+```
 
 **5.2.0** — Settlement News & Rumors Foundation
 

@@ -238,13 +238,14 @@ namespace CCS.Modules.Contracts.Editor
             string saveDataSource = File.ReadAllText(SaveDataPath);
             bool hasContractsData = saveDataSource.Contains("CCS_SaveContractsWorldData", System.StringComparison.Ordinal);
             bool hasSnapshots = saveDataSource.Contains("CCS_ContractSnapshot[] contractInstances", System.StringComparison.Ordinal);
+            bool hasDynamicStates = saveDataSource.Contains("CCS_DynamicContractState[] dynamicContractStates", System.StringComparison.Ordinal);
             report.AddIssue(
-                hasContractsData && hasSnapshots
+                hasContractsData && hasSnapshots && hasDynamicStates
                     ? CCS_SurvivalValidationIssueSeverity.Info
                     : CCS_SurvivalValidationIssueSeverity.Error,
                 ValidatorContext,
-                hasContractsData && hasSnapshots
-                    ? "Unified save payload includes contract world data."
+                hasContractsData && hasSnapshots && hasDynamicStates
+                    ? "Unified save payload includes contract and dynamic contract world data."
                     : "CCS_SaveData is missing contract save payload.");
 
             if (!File.Exists(SaveServicePath))
@@ -257,8 +258,10 @@ namespace CCS.Modules.Contracts.Editor
             }
 
             string saveServiceSource = File.ReadAllText(SaveServicePath);
-            bool captures = saveServiceSource.Contains("CaptureContractsState", System.StringComparison.Ordinal);
-            bool restores = saveServiceSource.Contains("RestoreState(contractsData?.contractInstances)", System.StringComparison.Ordinal);
+            bool captures = saveServiceSource.Contains("CaptureContractsState", System.StringComparison.Ordinal)
+                && saveServiceSource.Contains("CaptureDynamicContractStates", System.StringComparison.Ordinal);
+            bool restores = saveServiceSource.Contains("RestoreState(FilterStaticContractSnapshots", System.StringComparison.Ordinal)
+                && saveServiceSource.Contains("RestorePersistedState", System.StringComparison.Ordinal);
             report.AddIssue(
                 captures && restores
                     ? CCS_SurvivalValidationIssueSeverity.Info

@@ -300,6 +300,9 @@ namespace CCS.Modules.Playtesting
         private string savedSettlementNewsOriginId = string.Empty;
         private string savedSettlementNewsObserverId = string.Empty;
         private bool settlementNewsSaveCaptured;
+        private string savedDynamicContractId = string.Empty;
+        private string savedDynamicContractSettlementId = string.Empty;
+        private bool dynamicContractSaveCaptured;
         private bool populationBaselinesCaptured;
         private bool populationSaveCaptured;
         private CCS_TradeRouteService boundTradeRouteService;
@@ -1562,6 +1565,13 @@ namespace CCS.Modules.Playtesting
                         CCS_PlaytestStepType.SaveSettlementNewsState,
                         "Settlement news state saved.");
                 }
+
+                if (TryCaptureDynamicContractSaveState())
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.SaveDynamicContractState,
+                        "Dynamic contract state saved.");
+                }
             }
         }
 
@@ -1639,6 +1649,10 @@ namespace CCS.Modules.Playtesting
                     CCS_PlaytestStepType.LoadSettlementNewsState,
                     "Load completed for settlement news restore.");
                 EvaluateSettlementNewsStateAfterLoad();
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.LoadDynamicContractState,
+                    "Load completed for dynamic contract restore.");
+                EvaluateDynamicContractStateAfterLoad();
             }
         }
 
@@ -8021,6 +8035,198 @@ namespace CCS.Modules.Playtesting
             }
 
             return true;
+        }
+
+        public bool TryPlaytestDynamicContractsFoundationShortcut()
+        {
+            string tradingPostId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            DiscoverPlaytestSettlement(tradingPostId);
+            TryCompleteActiveStepOfType(
+                CCS_PlaytestStepType.DiscoverSettlementsForDynamicContracts,
+                "Trading Post discovered for dynamic contract playtest.");
+
+            if (CCS_DynamicContractRuntimeBridge.TrySetSupplyFillPercentForPlaytest != null
+                && CCS_DynamicContractRuntimeBridge.TrySetSupplyFillPercentForPlaytest.Invoke(
+                    tradingPostId,
+                    CCS_SettlementSupplyType.Food,
+                    15f))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.SimulateLowSupplyForDynamicContracts,
+                    "Trading Post food supply lowered for dynamic contract playtest.");
+            }
+
+            CCS_DynamicContractRuntimeBridge.TryEvaluateSettlementSupply?.Invoke(tradingPostId);
+            EvaluateNeedBasedDynamicContractStep(tradingPostId);
+
+            if (CCS_SettlementEventRuntimeBridge.TryForceEventTypeForPlaytest != null
+                && CCS_SettlementEventRuntimeBridge.TryForceEventTypeForPlaytest.Invoke(
+                    tradingPostId,
+                    CCS_SettlementEventType.MarketDay))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.ForceEventForDynamicContracts,
+                    "Market Day forced for dynamic contract playtest.");
+            }
+
+            EvaluateEventBasedDynamicContractStep(tradingPostId);
+            EvaluateGeneratedDynamicContractBoardStep(tradingPostId);
+            TryCompleteGeneratedDynamicContractStep(tradingPostId);
+            EvaluateDynamicContractRewardsStep(tradingPostId);
+            return true;
+        }
+
+        private void EvaluateNeedBasedDynamicContractStep(string settlementId)
+        {
+            if (CCS_DynamicContractRuntimeBridge.LastGenerationResult != null
+                && CCS_DynamicContractRuntimeBridge.LastGenerationResult.IsSuccess
+                && !string.IsNullOrWhiteSpace(CCS_DynamicContractRuntimeBridge.LastGenerationResult.GeneratedContractId))
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.GenerateNeedBasedDynamicContract,
+                    "Need-based dynamic contract generated from low supply.");
+            }
+        }
+
+        private void EvaluateEventBasedDynamicContractStep(string settlementId)
+        {
+            if (CCS_DynamicContractRuntimeBridge.TryGetSettlementSnapshots(
+                    settlementId,
+                    out CCS_DynamicContractSnapshot[] snapshots)
+                && snapshots != null)
+            {
+                for (int index = 0; index < snapshots.Length; index++)
+                {
+                    CCS_DynamicContractSnapshot snapshot = snapshots[index];
+                    if (snapshot != null
+                        && !string.IsNullOrWhiteSpace(snapshot.LinkedEventId))
+                    {
+                        TryCompleteActiveStepOfType(
+                            CCS_PlaytestStepType.GenerateEventBasedDynamicContract,
+                            "Event-based dynamic contract generated.");
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void EvaluateGeneratedDynamicContractBoardStep(string settlementId)
+        {
+            if (boundContractService == null || !boundContractService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_ContractDefinition[] boardContracts =
+                boundContractService.GetSettlementBoardContracts(settlementId);
+            for (int index = 0; index < boardContracts.Length; index++)
+            {
+                CCS_ContractDefinition definition = boardContracts[index];
+                if (definition != null
+                    && CCS_DynamicContractValidationUtility.IsGeneratedContractId(definition.ContractId))
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.VerifyGeneratedDynamicContractOnBoard,
+                        "Generated dynamic contract visible on settlement board.");
+                    return;
+                }
+            }
+        }
+
+        private void TryCompleteGeneratedDynamicContractStep(string settlementId)
+        {
+            if (boundContractService == null || !boundContractService.IsInitialized)
+            {
+                return;
+            }
+
+            CCS_ContractDefinition[] boardContracts =
+                boundContractService.GetSettlementBoardContracts(settlementId);
+            for (int index = 0; index < boardContracts.Length; index++)
+            {
+                CCS_ContractDefinition definition = boardContracts[index];
+                if (definition == null
+                    || !CCS_DynamicContractValidationUtility.IsGeneratedContractId(definition.ContractId))
+                {
+                    continue;
+                }
+
+                CCS_ContractRequirement[] requirements = definition.Requirements;
+                for (int requirementIndex = 0; requirementIndex < requirements.Length; requirementIndex++)
+                {
+                    CCS_ContractRequirement requirement = requirements[requirementIndex];
+                    if (requirement != null && !string.IsNullOrWhiteSpace(requirement.ItemId))
+                    {
+                        GrantPlaytestItem(requirement.ItemId, requirement.Quantity);
+                    }
+                }
+
+                boundContractService.TryAcceptContract(definition.ContractId, settlementId);
+                CCS_ContractCompletionResult completionResult = definition.IsFreightContract
+                    ? boundContractService.TryCompleteContract(definition.ContractId, settlementId)
+                    : boundContractService.TryCompleteContract(definition.ContractId);
+                if (completionResult != null && completionResult.IsSuccess)
+                {
+                    TryCompleteActiveStepOfType(
+                        CCS_PlaytestStepType.CompleteGeneratedDynamicContract,
+                        "Generated dynamic contract completed through standard contract path.");
+                }
+
+                return;
+            }
+        }
+
+        private void EvaluateDynamicContractRewardsStep(string settlementId)
+        {
+            if (boundWorldSimulationService == null || !boundWorldSimulationService.IsInitialized)
+            {
+                return;
+            }
+
+            float foodAmount = boundWorldSimulationService.GetSupplyAmount(
+                settlementId,
+                CCS_SettlementSupplyType.Food);
+            if (foodAmount > 0f)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyDynamicContractRewardsApplied,
+                    "Dynamic contract completion applied supply/prosperity through world simulation.");
+            }
+        }
+
+        private bool TryCaptureDynamicContractSaveState()
+        {
+            string tradingPostId = CCS_SettlementGrowthContentIds.TradingPostSettlementId;
+            if (!CCS_DynamicContractRuntimeBridge.TryGetSettlementSnapshots(
+                    tradingPostId,
+                    out CCS_DynamicContractSnapshot[] snapshots)
+                || snapshots == null
+                || snapshots.Length == 0)
+            {
+                return false;
+            }
+
+            savedDynamicContractId = snapshots[0].GeneratedContractId ?? string.Empty;
+            savedDynamicContractSettlementId = snapshots[0].SettlementId ?? tradingPostId;
+            dynamicContractSaveCaptured = !string.IsNullOrWhiteSpace(savedDynamicContractId);
+            return dynamicContractSaveCaptured;
+        }
+
+        private void EvaluateDynamicContractStateAfterLoad()
+        {
+            if (!dynamicContractSaveCaptured || boundContractService == null || !boundContractService.IsInitialized)
+            {
+                return;
+            }
+
+            bool restored = boundContractService.TryGetDefinition(savedDynamicContractId, out CCS_ContractDefinition definition)
+                && definition != null;
+            if (restored)
+            {
+                TryCompleteActiveStepOfType(
+                    CCS_PlaytestStepType.VerifyDynamicContractStateAfterLoad,
+                    "Generated dynamic contract definition and state restored after load.");
+            }
         }
 
         private void EvaluateSettlementNewsCreatedStep(string originSettlementId)
