@@ -1,11 +1,11 @@
 # Survival Persistence Direction
 
-**Version:** 0.1.0  
-**Status:** Direction document — **no save/load implementation** at this milestone  
+**Version:** 0.1.1  
+**Status:** Direction document — **no save/load implementation** until the save module phase (`0.6.x`)  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-Defines how **ccs-survival** will approach player and world persistence without writing save system code in milestone 0.1.0.
+Defines how **ccs-survival** will approach player and world persistence without writing save system code before the save module phase.
 
 ---
 
@@ -20,7 +20,7 @@ Defines how **ccs-survival** will approach player and world persistence without 
 
 ## Scope layers
 
-| Layer | Owner | 0.1.0 status |
+| Layer | Owner | Current status |
 |-------|--------|----------------|
 | **Core save abstraction** (file/cloud interface, result types) | ccs-framework when needed | Not implemented here |
 | **Game save orchestration** | `ccs.survival.save` module (future) | Documented only |
@@ -91,11 +91,11 @@ Product flavor (*Reckoning*, western) appears in **content IDs**, not in framewo
 
 ---
 
-## What not to do at 0.1.0
+## What not to do before save module phase
 
 - Do not implement `SaveSystem` runtime scripts
 - Do not wire `PlayerPrefs` for inventory
-- Do not edit existing `Assets/CCS/Modules/SaveSystem/` code
+- Do not add gameplay code under `Assets/CCS/Modules/SaveSystem/` until scoped in `0.6.x`
 - Do not add third-party save assets without an architecture review
 
 ---
@@ -110,6 +110,6 @@ Product flavor (*Reckoning*, western) appears in **content IDs**, not in framewo
 
 ## Related documents
 
-- [Survival Gameplay Architecture](Survival_Gameplay_Architecture.md)
-- [Survival Module Boundaries](Survival_Module_Boundaries.md)
+- [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
+- [Future Gameplay Module Guidelines](../../Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
 - [Survival Networking Authority](Survival_Networking_Authority.md)

@@ -1,7 +1,7 @@
 # Survival Networking Authority
 
-**Version:** 0.1.0  
-**Status:** Direction document — **no networking package, no netcode** at this milestone  
+**Version:** 0.1.1  
+**Status:** Direction document — **no networking package, no netcode** until a dedicated networking phase  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
@@ -29,7 +29,7 @@ Defines multiplayer-safe **authority and ownership** rules for **ccs-survival** 
 | World containers / loot | Server | Open, take, and despawn rules server-owned |
 | NPC / AI simulation | Server | AI tick on server; clients receive snapshots |
 | UI / HUD | Client | Displays replicated or predicted state; never source of truth |
-| Chat / social (future) | Server relay | Out of 0.1.0 scope |
+| Chat / social (future) | Server relay | Out of current rebuild scope |
 
 **Single-player:** run the same authority paths with a local “server” context so multiplayer does not fork business logic.
 
@@ -67,7 +67,7 @@ Suggested naming prefix for future net messages: `Survival.Net.<Module>.<Action>
 
 ---
 
-## What not to do at 0.1.0
+## What not to do before networking phase
 
 - Do not add Unity Netcode, Mirror, Photon, or other packages
 - Do not add `NetworkBehaviour` to Core or module skeletons
@@ -92,6 +92,7 @@ Install plans may differ between server and client builds; shared modules regist
 
 ## Related documents
 
-- [Survival Gameplay Architecture](Survival_Gameplay_Architecture.md)
+- [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
+- [Future Gameplay Module Guidelines](../../Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
 - [Survival Persistence Direction](Survival_Persistence_Direction.md)
 - [CCS Core Platform Architecture](../../Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)

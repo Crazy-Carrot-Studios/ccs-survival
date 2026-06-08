@@ -1,6 +1,6 @@
 # CCS Project Documentation
 
-**Version:** 0.1.0 — Architecture Normalization
+**Version:** 0.1.1 — Historical Documentation Cleanup
 
 ## Overview
 

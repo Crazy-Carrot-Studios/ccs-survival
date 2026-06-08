@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version:** 0.1.0 — Architecture Normalization
+**Version:** 0.1.1 — Historical Documentation Cleanup
 
 A modular Unity survival project built on the Crazy Carrot Studios framework.
 
@@ -63,7 +63,7 @@ Open `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` and confirm a 
 | `0.x.x` | Internal rebuild / beta / prototype |
 | `1.0.0` | First alpha-ready release |
 
-**Current tag:** `v0.1.0`
+**Current tag:** `v0.1.1`
 
 ## Ownership
 

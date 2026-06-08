@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.1.0`
+**Current version:** `0.1.1`
 
 ## Purpose
 
@@ -62,7 +62,7 @@ Each gameplay module must include a **working test prefab** before advancing to 
 v<major>.<minor>.<patch>
 ```
 
-Examples: `v0.0.3`, `v0.1.0`, `v0.2.0`, `v0.2.1`, `v0.2.2`
+Examples: `v0.0.3`, `v0.1.0`, `v0.1.1`, `v0.2.0`, `v0.2.1`, `v0.2.2`
 
 ### Rules
 
@@ -85,6 +85,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.1.1` — Historical Documentation Cleanup
+
+- Removed pre-reset `Documentation/Milestones/` records with stale `Assets/CCS/Survival/` paths
+- Removed superseded repo-level architecture duplicates
+- Retained repo-level networking and persistence direction docs under `Documentation/Architecture/`
+- Active architecture rules remain in `Assets/CCS/Project/Documentation/`
 
 ### `0.1.0` — Architecture Normalization
 
