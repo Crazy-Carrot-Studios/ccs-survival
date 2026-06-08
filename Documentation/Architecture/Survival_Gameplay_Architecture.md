@@ -34,8 +34,9 @@ SCN_CCS_Survival_Bootstrap (implemented 0.2.0)
 |-------|----------------|----------|
 | **Core Platform** | Host, bootstrap runner, module registry, services, events, diagnostics | `Assets/CCS/Framework/Core/` |
 | **Gameplay modules** | Feature systems with `CCS_IModule` + installers | `Assets/CCS/Modules/<Feature>/` |
-| **Survival shell** | Cross-cutting game identity, shared constants, install plan docs | `Assets/CCS/Survival/` |
-| **Content** | Scenes, prefabs, ScriptableObjects, art/audio | Under modules or `Assets/` game trees (TBD per feature) |
+| **Project shell** | Bootstrap, composition, install sequencing, project docs | `Assets/CCS/Project/` |
+| **Shared** | Cross-module assets (2+ consumers) | `Assets/CCS/Shared/` |
+| **Content** | Module-owned data, prefabs, ScriptableObjects | Inside `Assets/CCS/Modules/<Feature>/` |
 
 Gameplay never patches Core types for convenience. Extend via modules, services registered on the host, and events.
 

@@ -16,8 +16,10 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 | Layer | Location | Policy |
 |-------|----------|--------|
 | **Core Platform** | `Assets/CCS/Framework/Core/` | Upstream-aligned; no gameplay logic; changes upstream when reusable |
-| **Gameplay modules** | `Assets/CCS/Modules/` | Feature assemblies (`ccs.survival.*` module IDs) |
-| **Survival identity & plans** | `Assets/CCS/Survival/`, `Documentation/` | Game repo direction, milestones, architecture notes |
+| **Gameplay modules** | `Assets/CCS/Modules/` | Feature assemblies (`ccs.survival.*` module IDs) + module-owned data |
+| **Project composition** | `Assets/CCS/Project/` | Bootstrap, scenes, install sequencing, project docs |
+| **Shared cross-module** | `Assets/CCS/Shared/` | Assets used by 2+ modules only |
+| **Architecture & milestones** | `Documentation/` | Repo-level direction and milestone records |
 
 ## What Belongs Here
 
@@ -56,7 +58,8 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 | [Survival Persistence Direction](Documentation/Architecture/Survival_Persistence_Direction.md) | Save/load direction (no implementation in 0.1.0) |
 | [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md) | Identity setup scope and checklist |
 | [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md) | Bootstrap scene + empty install pipeline |
-| [Survival (Unity) docs](Assets/CCS/Survival/Documentation/README.md) | In-project survival documentation index |
+| [Project (Unity) docs](Assets/CCS/Project/Documentation/README.md) | In-project documentation index |
+| [Shared folder purpose](Assets/CCS/Shared/README.md) | Cross-module asset rules |
 
 **Core reference (read-only for gameplay authors):**
 
@@ -92,12 +95,14 @@ ccs-survival/
 │   └── Milestones/            # Game repo milestones
 ├── Assets/CCS/
 │   ├── Framework/             # Vendored Core Platform (protect from gameplay)
-│   ├── Modules/               # Gameplay feature modules (future implementation)
-│   └── Survival/              # Survival bootstrap, docs, game-specific shell
-│       ├── Scenes/            # SCN_CCS_Survival_Bootstrap
-│       ├── Prefabs/           # PF_CCS_Survival_BootstrapRoot
-│       ├── Documentation/
-│       └── Runtime/             # CCS.Survival.Runtime (bootstrap + character skeleton)
+│   ├── Modules/               # Gameplay modules + module-owned data
+│   ├── Shared/                # Cross-module assets (2+ consumers)
+│   ├── Project/               # Bootstrap, composition, scenes, project docs
+│   │   ├── Scenes/            # SCN_CCS_Survival_Bootstrap
+│   │   ├── Prefabs/           # PF_CCS_Survival_BootstrapRoot
+│   │   ├── Documentation/
+│   │   └── Runtime/           # CCS.Project.Runtime
+│   └── Tests/                 # Cross-cutting test harnesses
 └── README.md
 ```
 
@@ -111,10 +116,11 @@ ccs-survival/
 Gameplay code depends **downward only:**
 
 ```text
-Survival → Modules → Core
+Modules → Project → Core
+Shared → Core (and optionally Modules when documented)
 ```
 
-Core must never reference survival or gameplay modules.
+Core must never reference Project, Modules, or Shared.
 
 ## Milestone 0.3.0 Scope (current)
 
@@ -122,7 +128,7 @@ Core must never reference survival or gameplay modules.
 
 **Out of scope:** movement, attributes, inventory, crafting, hunger/thirst, combat, AI, save, networking packages.
 
-See [Survival README](Assets/CCS/Survival/README.md).
+See [Project README](Assets/CCS/Project/README.md).
 
 ## Unity Version
 

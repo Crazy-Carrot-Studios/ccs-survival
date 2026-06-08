@@ -1,0 +1,16 @@
+{
+    "name": "CCS.Project.Runtime",
+    "rootNamespace": "CCS.Project",
+    "references": [
+        "CCS.Core.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

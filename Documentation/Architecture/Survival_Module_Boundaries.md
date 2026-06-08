@@ -5,7 +5,7 @@
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
-Defines what code and assets live in **Core**, **Modules**, and **Survival** — and what must never cross those lines.
+Defines what code and assets live in **Core**, **Modules**, **Project**, and **Shared** — and what must never cross those lines.
 
 ---
 
@@ -15,8 +15,10 @@ Defines what code and assets live in **Core**, **Modules**, and **Survival** —
 |------|------|-------------|------------------|
 | **Core Platform** | `Assets/CCS/Framework/Core/` | Runtime host, bootstrap, module contracts, registry, smoke tests | Survival mechanics, quests, factions, genre UI |
 | **Framework (non-Core)** | `Assets/CCS/Framework/` (outside Core) | Shared framework docs, future shared non-game utilities | Game-specific modules |
-| **Gameplay modules** | `Assets/CCS/Modules/<Feature>/` | Installers, modules, runtime, editor, tests, prefabs for one feature | Changes to Core types; singleton globals |
-| **Survival shell** | `Assets/CCS/Survival/` | Game-wide docs, future install-plan assets, cross-cutting constants | Heavy feature logic (belongs in a module) |
+| **Gameplay modules** | `Assets/CCS/Modules/<Feature>/` | Installers, modules, runtime, editor, tests, prefabs, **module-owned data** | Changes to Core types; singleton globals |
+| **Project shell** | `Assets/CCS/Project/` | Bootstrap, composition, scenes, project docs, install sequencing | Heavy feature logic (belongs in a module) |
+| **Shared** | `Assets/CCS/Shared/` | Cross-module assets used by 2+ modules | Module-specific content; bootstrap roots |
+| **Tests** | `Assets/CCS/Tests/` | Cross-cutting test harnesses and results | Feature-specific tests (belong in module) |
 | **Repo documentation** | `Documentation/` | Architecture, milestones, studio-facing plans | Generated Unity cache |
 
 ---
@@ -81,26 +83,28 @@ Implementation resumes in later milestones with explicit scope.
 
 ---
 
-## Survival shell — lightweight game scope
+## Project shell — lightweight composition scope
 
-`Assets/CCS/Survival/` holds material that applies to the **whole game** but is not a pluggable Core module:
+`Assets/CCS/Project/` holds material that applies to the **whole game** but is not a pluggable Core module:
 
 - Bootstrap scene (`SCN_CCS_Survival_Bootstrap`) and prefab (`PF_CCS_Survival_BootstrapRoot`)
-- `CCS.Survival.Runtime` startup shell (`CCS_SurvivalBootstrap`, installer, diagnostics, runtime context)
-- Documentation index
-- Future: bootstrap install plan asset, game version constants, shared enums used by multiple modules
+- `CCS.Project.Runtime` startup shell (`CCS_SurvivalBootstrap`, installer, diagnostics, runtime context)
+- Project documentation index
+- Future: bootstrap install plan asset, game version constants
 
-Do **not** turn Survival into a “god module” that absorbs inventory, crafting, or networking. Those remain separate modules.
+Do **not** turn Project into a “god module” that absorbs inventory, crafting, or networking. Those remain separate modules under `Assets/CCS/Modules/`.
 
-### Assembly dependency rule (0.2.0+)
+**No global `Database/` folder.** Module-owned data (items, recipes, loot) lives inside the owning module.
+
+### Assembly dependency rule
 
 | Assembly | May reference |
 |----------|----------------|
 | `CCS.Core.Runtime` | Nothing game-specific |
-| `CCS.Survival.Runtime` | `CCS.Core.Runtime` only |
-| `CCS.Survival.<Feature>.Runtime` (future) | `CCS.Core.Runtime`, optionally `CCS.Survival.Runtime` |
+| `CCS.Project.Runtime` | `CCS.Core.Runtime` only |
+| `CCS.Modules.<Feature>.Runtime` | `CCS.Core.Runtime`, optionally `CCS.Project.Runtime` |
 
-**Never** reference Survival or Modules from Core.
+**Never** reference Project or Modules from Core.
 
 ---
 
