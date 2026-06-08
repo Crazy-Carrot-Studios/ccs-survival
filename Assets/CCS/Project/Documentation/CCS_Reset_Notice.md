@@ -14,6 +14,10 @@ Restart from the completed survival **framework baseline** (milestone 0.3.5a —
 
 **Ownership:** `Framework/` = Core · `Modules/` = gameplay · `Shared/` = cross-module · `Project/` = bootstrap/composition · `Tests/` = harnesses.
 
+## Versioning reset (2026-06-07)
+
+Rebuild versioning starts at **0.0.3**. All `0.x.x` = internal rebuild; `1.0.0` = first public alpha (blocked until `0.9.x`). See [CCS_Versioning_Policy.md](CCS_Versioning_Policy.md).
+
 ## Rule going forward
 
 Each future gameplay module must include a **working test prefab** before proceeding to the next module. Module-owned data stays inside the module folder.

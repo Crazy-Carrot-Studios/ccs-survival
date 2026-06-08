@@ -1,7 +1,7 @@
 # CCS Project — In-Project Documentation
 
 **Location:** `Assets/CCS/Project/Documentation/`  
-**Milestone:** 0.3.5 — Framework Quality Gate + folder normalization  
+**Version:** 0.0.3 — Controlled Rebuild Baseline  
 **Author:** James Schilz  
 **Date:** 2026-06-07
 
@@ -23,6 +23,7 @@ Pre-gameplay audits and contributor documentation are complete. Gameplay modules
 
 | Guide | Path |
 |-------|------|
+| Versioning policy | [CCS_Versioning_Policy.md](CCS_Versioning_Policy.md) |
 | Architecture (authoritative) | [Framework_Architecture_Guide.md](Framework_Architecture_Guide.md) |
 | Gameplay module guidelines | [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md) |
 | Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |

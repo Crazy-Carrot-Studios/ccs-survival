@@ -7,7 +7,7 @@ Survival-focused gameplay repository for Crazy Carrot Studios.
 
 ## Current Project Version
 
-0.3.5 — Survival Framework Quality Gate (documentation + consistency pass; no gameplay)
+**0.0.3** — Controlled Rebuild Baseline
 
 ## Repository Purpose
 
@@ -59,6 +59,7 @@ Genre and product themes (western, post-apocalyptic, extraction, co-op, MMO surv
 | [Milestone 0.1.0](Documentation/Milestones/Milestone_0.1.0_Survival_Project_Identity_Setup.md) | Identity setup scope and checklist |
 | [Milestone 0.2.0](Documentation/Milestones/Milestone_0.2.0_Survival_Bootstrap_Scene_Empty_Install_Pipeline.md) | Bootstrap scene + empty install pipeline |
 | [Project (Unity) docs](Assets/CCS/Project/Documentation/README.md) | In-project documentation index |
+| [Versioning policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md) | Rebuild version map, tags, alpha gate |
 | [Shared folder purpose](Assets/CCS/Shared/README.md) | Cross-module asset rules |
 
 **Core reference (read-only for gameplay authors):**
@@ -122,13 +123,13 @@ Shared → Core (and optionally Modules when documented)
 
 Core must never reference Project, Modules, or Shared.
 
-## Milestone 0.3.0 Scope (current)
+## Current rebuild scope (`0.0.x`)
 
-**In scope:** `ccs.survival.character` module skeleton, installer, diagnostics constants, survival install sequencing.
+**In scope:** project architecture, folder normalization, versioning baseline, rebuild documentation.
 
-**Out of scope:** movement, attributes, inventory, crafting, hunger/thirst, combat, AI, save, networking packages.
+**Next phase (`0.1.x`):** project bootstrap validation baseline.
 
-See [Project README](Assets/CCS/Project/README.md).
+See [Project README](Assets/CCS/Project/README.md) and [Versioning policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md).
 
 ## Unity Version
 
@@ -138,8 +139,19 @@ Unity 6
 
 Do not commit local Unity churn (`Library/`, `UserSettings/`, incidental `ProjectSettings` edits unless intentional). See `.gitignore` and Core template checklist.
 
-## Versioning
+## Versioning Policy
 
-Game repo milestones use **0.x.y** during foundation (e.g. `0.1.0` identity setup). Align `ProjectSettings` → Player → **Version** with milestone releases when you tag gameplay milestones.
+All **0.x.x** versions are internal rebuild/beta/prototype milestones. **1.0.0** is reserved for the first public alpha-ready release.
+
+| Component | Rule |
+|-----------|------|
+| `0.x.x` | Internal rebuild — not public release |
+| `1.0.0` | First public alpha (blocked until `0.9.x` vertical slice criteria met) |
+| **Minor** | Module/rebuild phase (`0.2.x` = character, `0.4.x` = inventory, etc.) |
+| **Patch** | Incremental safe milestone or hotfix within the current phase |
+
+Align `ProjectSettings` → Player → **Version** (`bundleVersion`) with each tagged release.
+
+Full map, tag rules, and examples: [CCS_Versioning_Policy.md](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md)
 
 **Author:** James Schilz
