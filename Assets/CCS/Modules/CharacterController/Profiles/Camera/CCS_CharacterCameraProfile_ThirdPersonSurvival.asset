@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd685fc2c9f48a648b57b14924384d29, type: 3}
+  m_Name: CCS_CharacterCameraProfile_ThirdPersonSurvival
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
+  profileDisplayName: Third Person Survival
+  profileId: ccs.survival.profile.character.camera.thirdperson
+  profileDescription: Default third-person survival camera profile for Cinemachine
+    3.1.
+  profileVersion: 0.2.0
+  enableDebugLogs: 0
+  cameraMode: 0
+  cameraDistance: 4.5
+  cameraHeight: 1.4
+  cameraShoulderOffset: {x: 0.45, y: 0, z: 0}
+  verticalArmLength: 0.35
+  cameraSide: 1
+  minPitch: -35
+  maxPitch: 55
+  mouseSensitivityX: 0.1
+  mouseSensitivityY: 0.085
+  gamepadSensitivityX: 85
+  gamepadSensitivityY: 65
+  lookSmoothing: 12
+  followDampingX: 0.25
+  followDampingY: 0.3
+  followDampingZ: 0.25
+  obstacleAvoidanceEnabled: 1
+  obstacleAvoidanceRadius: 0.25
+  zoomDistanceMin: 2.5
+  zoomDistanceMax: 6
+  aimTransitionSpeed: 8

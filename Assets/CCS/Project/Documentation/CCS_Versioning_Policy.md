@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.1.1`
+**Current version:** `0.2.0`
 
 ## Purpose
 
@@ -85,6 +85,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.2.0` — Character Controller Foundation
+
+- First rebuilt gameplay module: `Assets/CCS/Modules/CharacterController/`
+- Module-owned Input Actions, movement/camera profiles, test prefab, debug HUD, validation
+- Cinemachine 3.1 third-person camera foundation
+- No test scene included (manual test scene step deferred)
 
 ### `0.1.1` — Historical Documentation Cleanup
 

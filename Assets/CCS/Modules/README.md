@@ -22,6 +22,15 @@ Assets/CCS/Modules/<Feature>/
 - Each rebuilt module must include validation and a working test prefab or scene object.
 - Register modules through the Project installer pipeline in explicit order.
 
-## Placeholder modules
+## Modules
 
-CharacterController, Interaction, Inventory, Equipment, Crafting, Hotbar, SaveSystem, UI
+| Module | Status |
+|--------|--------|
+| CharacterController | v0.2.0 foundation — movement, camera, test prefab, validation |
+| Interaction | Placeholder |
+| Inventory | Placeholder |
+| Equipment | Placeholder |
+| Crafting | Placeholder |
+| Hotbar | Placeholder |
+| SaveSystem | Placeholder |
+| UI | Placeholder |

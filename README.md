@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version:** 0.1.1 — Historical Documentation Cleanup
+**Version:** 0.2.0 — Character Controller Foundation
 
 A modular Unity survival project built on the Crazy Carrot Studios framework.
 
@@ -10,14 +10,14 @@ Unity 6 · URP · Input System · Controlled Rebuild
 
 CCS Survival is the survival gameplay project for Crazy Carrot Studios. It is built on the CCS Framework and uses isolated gameplay modules under `Assets/CCS/Modules/` that communicate through framework services and events.
 
-The project architecture is normalized and ready for controlled module rebuild. This is not a playable survival game yet.
+The project architecture is normalized and the first gameplay module foundation is in place. This is not a full playable survival game yet.
 
 ## Current State
 
 - Framework baseline integrated
 - Project architecture normalized (`Framework`, `Modules`, `Shared`, `Project`, `Tests`)
-- Module placeholder structure established
-- Gameplay modules pending controlled rebuild
+- Character Controller module foundation (`0.2.0`) with test prefab and validation
+- Additional gameplay modules pending controlled rebuild
 - No production gameplay loop yet
 
 ## Repository Layout
@@ -63,7 +63,7 @@ Open `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` and confirm a 
 | `0.x.x` | Internal rebuild / beta / prototype |
 | `1.0.0` | First alpha-ready release |
 
-**Current tag:** `v0.1.1`
+**Current tag:** `v0.2.0`
 
 ## Ownership
 

@@ -1,6 +1,6 @@
 # CCS Project Documentation
 
-**Version:** 0.1.1 — Historical Documentation Cleanup
+**Version:** 0.2.0 — Character Controller Foundation
 
 ## Overview
 
@@ -46,3 +46,11 @@ Namespace: `CCS.Project`.
 ## Module structure
 
 See [Modules README](../../Modules/README.md) for per-module folder conventions.
+
+## Character Controller (v0.2.0)
+
+| Document | Path |
+|----------|------|
+| Module documentation | [CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
+| Test prefab | `Assets/CCS/Modules/CharacterController/Prefabs/PF_CCS_CharacterController_TestPlayer.prefab` |
+| Validation menu | `CCS/Project/Validation/Validate Character Controller` |

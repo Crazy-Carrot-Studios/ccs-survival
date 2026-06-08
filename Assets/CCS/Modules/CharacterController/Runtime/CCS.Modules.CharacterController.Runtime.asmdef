@@ -1,0 +1,19 @@
+{
+    "name": "CCS.Modules.CharacterController.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "Unity.InputSystem",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
