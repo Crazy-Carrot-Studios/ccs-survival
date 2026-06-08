@@ -100,7 +100,7 @@ Authority owns decisions and stable identity. Avatar owns `Transform` root and p
 
 ## 8. Scene bootstrap philosophy
 
-See [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md).
+See [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md).
 
 - One `CCS_RuntimeHost` + one `CCS_SurvivalBootstrap` on the same composition root.
 - One `CCS_SurvivalRuntimeContext` per bootstrap.
@@ -151,7 +151,7 @@ See [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md)
 
 - Register through explicit installers.
 - Use profiles for tuning, not simulation state.
-- Respect skeleton/service/updatable expectations per milestone.
+- Respect bootstrap profile expectations for modules, services, and updatables.
 
 ---
 
@@ -176,7 +176,7 @@ See [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md)
 | GameObject name as player ID | Not stable across sessions |
 | Gameplay logic in `CCS_SurvivalProfileBase` | Profiles are configuration only |
 | Enabling Core diagnostics in survival scenes | Duplicates/conflicts with survival diagnostics ownership |
-| Registering services in skeleton milestones | Violates explicit skeleton contract |
+| Registering services before module phase requires them | Violates bootstrap profile contract |
 | Netcode references in `CCS.Project.Runtime` | Foundation must stay netcode-free |
 | Module data in `Shared/` or global `Database/` | Violates module ownership |
 
@@ -184,6 +184,9 @@ See [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md)
 
 ## Related documents
 
+- [Survival Framework Architecture Gate](Survival_Framework_Architecture_Gate.md)
+- [Survival Runtime Foundation](Survival_Runtime_Foundation.md)
+- [Survival Validation Standards](Survival_Validation_Standards.md)
+- [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md)
+- [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
 - [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)
-- [Scene Bootstrap Standards](Scene_Bootstrap_Standards.md)
-- [Milestone 0.3.5](Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md)

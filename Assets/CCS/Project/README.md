@@ -32,7 +32,7 @@
 
 - [Framework Architecture Guide](Documentation/Framework_Architecture_Guide.md)
 - [Future Gameplay Module Guidelines](Documentation/Future_Gameplay_Module_Guidelines.md)
-- [Scene Bootstrap Standards](Documentation/Scene_Bootstrap_Standards.md)
+- [Scene Bootstrap Standards](Documentation/Survival_Scene_Bootstrap_Standards.md)
 
 ## Runtime assembly
 
@@ -42,4 +42,4 @@
 
 - [In-Unity doc index](Documentation/README.md)
 - [Shared folder purpose](../Shared/README.md)
-- [Milestone 0.3.5](Documentation/Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md)
+- [Architecture Gate](Documentation/Survival_Framework_Architecture_Gate.md)

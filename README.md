@@ -72,9 +72,12 @@ Core platform validation scene (separate from game bootstrap): `Assets/CCS/Frame
 Additional documentation lives in [`Assets/CCS/Project/Documentation/`](Assets/CCS/Project/Documentation/README.md):
 
 - [Versioning policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md)
-- [Architecture guide](Assets/CCS/Project/Documentation/Framework_Architecture_Guide.md)
+- [Architecture gate](Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
+- [Runtime foundation](Assets/CCS/Project/Documentation/Survival_Runtime_Foundation.md)
+- [Validation standards](Assets/CCS/Project/Documentation/Survival_Validation_Standards.md)
+- [Authority and avatar architecture](Assets/CCS/Project/Documentation/Survival_Authority_And_Avatar_Architecture.md)
+- [Scene bootstrap standards](Assets/CCS/Project/Documentation/Survival_Scene_Bootstrap_Standards.md)
 - [Module guidelines](Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
-- [Scene bootstrap standards](Assets/CCS/Project/Documentation/Scene_Bootstrap_Standards.md)
 
 Repo-level architecture notes: [`Documentation/Architecture/`](Documentation/Architecture/Survival_Gameplay_Architecture.md)
 

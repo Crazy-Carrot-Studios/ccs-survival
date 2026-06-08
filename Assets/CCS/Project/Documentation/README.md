@@ -1,66 +1,42 @@
-# CCS Project — In-Project Documentation
+# CCS Project Documentation
 
-**Location:** `Assets/CCS/Project/Documentation/`  
-**Version:** 0.0.3 — Controlled Rebuild Baseline  
-**Author:** James Schilz  
-**Date:** 2026-06-07
+## Overview
 
-## Folder ownership (`Assets/CCS/`)
+In-project documentation for the CCS Survival composition layer, validation standards, and architecture references.
 
-| Folder | Owns |
-|--------|------|
-| `Framework/` | CCS Core platform only (upstream-aligned) |
-| `Modules/` | All gameplay/system modules and module-owned data |
-| `Shared/` | Cross-module assets used by 2+ modules |
-| `Project/` | Bootstrap, composition, scenes, project docs, install sequencing |
-| `Tests/` | Cross-cutting edit/play mode test results and harnesses |
+## Architecture Reference
 
-**No global `Database/` folder.** Module-owned data lives inside the module that owns it.
+| Document | Topic |
+|----------|-------|
+| [Survival Framework Architecture Gate](Survival_Framework_Architecture_Gate.md) | Ownership boundaries, identity, profiles, scenes, runtime principles |
+| [Survival Runtime Foundation](Survival_Runtime_Foundation.md) | Module base classes, installer hierarchy, service marker, constants |
+| [Survival Validation Standards](Survival_Validation_Standards.md) | Module ID rules, profile identity, save-safe IDs, diagnostics |
+| [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md) | Authority ownership, avatar representation, binding, multiplayer compatibility |
+| [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md) | Composition root, host requirements, profile slots, scene validation |
+| [Framework Architecture Guide](Framework_Architecture_Guide.md) | Contributor architecture guide and anti-patterns |
+| [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md) | Module structure, ownership, and integration rules |
+| [Versioning Policy](CCS_Versioning_Policy.md) | Rebuild version map and tag rules |
 
-## Framework quality gate (v0.3.5)
-
-Pre-gameplay audits and contributor documentation are complete. Gameplay modules should follow:
-
-| Guide | Path |
-|-------|------|
-| Versioning policy | [CCS_Versioning_Policy.md](CCS_Versioning_Policy.md) |
-| Architecture (authoritative) | [Framework_Architecture_Guide.md](Framework_Architecture_Guide.md) |
-| Gameplay module guidelines | [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md) |
-| Scene bootstrap | [Scene_Bootstrap_Standards.md](Scene_Bootstrap_Standards.md) |
-
-## Bootstrap assets
+## Bootstrap Assets
 
 | Asset | Path |
 |-------|------|
 | Project bootstrap scene | `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
 | Project bootstrap prefab | `Assets/CCS/Project/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
+| Core validation scene | `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity` |
 
-**Core validation scene:** `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity`
+## Runtime Assembly
 
-## Runtime assembly
+`Assets/CCS/Project/Runtime/CCS.Project.Runtime.asmdef` → `CCS.Core.Runtime` only.  
+Namespace: `CCS.Project`.
 
-`Assets/CCS/Project/Runtime/CCS.Project.Runtime.asmdef` → references `CCS.Core.Runtime` only.  
-Namespace: `CCS.Project`. Class names retain `CCS_Survival*` prefix until a dedicated rename pass.
-
-## Runtime foundation index
+## Runtime Foundation Index
 
 | Topic | Path |
 |-------|------|
 | Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
-| FUTURE markers | `Runtime/Foundation/Diagnostics/CCS_SurvivalFrameworkFutureMarkers.cs` |
+| Integration markers | `Runtime/Foundation/Diagnostics/CCS_SurvivalFrameworkFutureMarkers.cs` |
 | Validation | `Runtime/Foundation/Validation/` |
 | Scene bootstrap | `Runtime/Foundation/Scene/` |
 | Profiles | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
 | Authority / Avatar | `Runtime/Character/Authority/`, `Avatar/`, `Identity/` |
-
-## Milestones
-
-| Milestone | Path |
-|-----------|------|
-| 0.3.5 Quality gate | [Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md](Milestones/Milestone_0.3.5_Survival_Framework_Quality_Gate.md) |
-| 0.3.4 Scene bootstrap | [Milestones/Milestone_0.3.4_Survival_Scene_Bootstrap_Standards.md](Milestones/Milestone_0.3.4_Survival_Scene_Bootstrap_Standards.md) |
-| 0.3.3 Authority/Avatar | [Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md](Milestones/Milestone_0.3.3_Survival_Authority_Avatar_Boundary_Skeleton.md) |
-
-## Milestone 0.3.5 rule
-
-**Documentation and framework hardening only.** No gameplay mechanics, services, updatables, or Core modifications.

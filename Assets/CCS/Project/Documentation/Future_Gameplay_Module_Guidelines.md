@@ -156,5 +156,5 @@ See `CCS_SurvivalFrameworkFutureMarkers` for planned integration strings.
 ## Related
 
 - [Framework Architecture Guide](Framework_Architecture_Guide.md)
-- [Scene Bootstrap Standards](Scene_Bootstrap_Standards.md)
+- [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
 - [Shared folder purpose](../../Shared/README.md)
