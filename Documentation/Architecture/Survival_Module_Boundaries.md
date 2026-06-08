@@ -1,7 +1,7 @@
 # Survival Module Boundaries
 
 **Version:** 0.2.0  
-**Status:** Boundary rules (enforcement via review and Cursor rules)  
+**Status:** Boundary rules (enforcement via code review and project standards)  
 **Author:** James Schilz  
 **Date:** 2026-05-24
 
