@@ -1,8 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Author:** James Schilz  
-**Date:** 2026-06-07  
-**Current baseline:** `0.0.3`
+**Current version:** `0.1.0`
 
 ## Purpose
 
@@ -15,7 +13,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | Range | Phase | Scope |
 |-------|-------|-------|
 | **0.0.x** | Project architecture | Folder cleanup, rebuild planning, versioning baseline |
-| **0.1.x** | Project bootstrap | Bootstrap scene, validation, install sequencing |
+| **0.1.x** | Architecture normalization | Folder ownership, module placeholders, bootstrap baseline |
 | **0.2.x** | Character | Character controller + camera |
 | **0.3.x** | Interaction | Interaction module |
 | **0.4.x** | Inventory | Inventory module |
@@ -86,13 +84,19 @@ Do not tag `v1.0.0` until all of the following are true:
 
 ---
 
-## Rebuild baseline (`0.0.3`)
+## Release history
 
-`0.0.3` marks:
+### `0.1.0` — Architecture Normalization
 
-- Hard reset to framework baseline (`v0.3.5a` archive reference)
-- Folder normalization (`Assets/CCS/Project/`, no global `Database/`)
-- Assembly rename (`CCS.Project.Runtime`)
+- Target structure: `Framework/`, `Modules/`, `Shared/`, `Project/`, `Tests/`
+- `Assets/CCS/Project/` owns bootstrap, composition, scenes, and project documentation
+- Module placeholders use `Content/`, `Profiles/`, `Documentation/` subfolders
+- Assembly: `CCS.Project.Runtime` / namespace `CCS.Project`
+- No global `Database/` folder
+
+### `0.0.3` — Controlled Rebuild Baseline
+
+- Framework baseline restored from archive reference
 - Versioning policy established for controlled module rebuild
 
 ---

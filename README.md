@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version:** 0.0.3 — Controlled Rebuild Baseline
+**Version:** 0.1.0 — Architecture Normalization
 
 A modular Unity survival project built on the Crazy Carrot Studios framework.
 
@@ -10,13 +10,13 @@ Unity 6 · URP · Input System · Controlled Rebuild
 
 CCS Survival is the survival gameplay project for Crazy Carrot Studios. It is built on the CCS Framework and uses isolated gameplay modules under `Assets/CCS/Modules/` that communicate through framework services and events.
 
-The project is at a clean architecture baseline. Gameplay modules are rebuilt incrementally with validation and test prefabs at each step. This is not a playable survival game yet.
+The project architecture is normalized and ready for controlled module rebuild. This is not a playable survival game yet.
 
 ## Current State
 
-- Framework baseline restored
-- Project architecture normalized
-- Versioning reset to 0.0.3
+- Framework baseline integrated
+- Project architecture normalized (`Framework`, `Modules`, `Shared`, `Project`, `Tests`)
+- Module placeholder structure established
 - Gameplay modules pending controlled rebuild
 - No production gameplay loop yet
 
@@ -63,7 +63,7 @@ Open `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` and confirm a 
 | `0.x.x` | Internal rebuild / beta / prototype |
 | `1.0.0` | First alpha-ready release |
 
-**Current tag:** `v0.0.3`
+**Current tag:** `v0.1.0`
 
 ## Ownership
 

@@ -8,11 +8,14 @@
 
 Restart from the completed survival **framework baseline** (milestone 0.3.5a — quality gate, no gameplay modules) and rebuild gameplay modules in controlled, isolated steps.
 
-## Folder normalization (2026-06-07)
+## Architecture normalization (`0.1.0`)
 
-`Assets/CCS/Survival/` renamed to `Assets/CCS/Project/`. Assembly renamed to `CCS.Project.Runtime` / namespace `CCS.Project`. Empty `Assets/CCS/Database/` removed.
+Target structure locked: `Framework/`, `Modules/`, `Shared/`, `Project/`, `Tests/`.
 
-**Ownership:** `Framework/` = Core · `Modules/` = gameplay · `Shared/` = cross-module · `Project/` = bootstrap/composition · `Tests/` = harnesses.
+- `Assets/CCS/Project/` owns bootstrap, composition, scenes, and project documentation
+- Assembly: `CCS.Project.Runtime` / namespace `CCS.Project`
+- Module placeholders use `Content/`, `Profiles/`, `Documentation/` subfolders
+- No global `Database/` folder
 
 ## Versioning reset (2026-06-07)
 

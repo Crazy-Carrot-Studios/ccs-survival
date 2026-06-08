@@ -1,11 +1,8 @@
 # Future Gameplay Module Guidelines
 
-**Milestone:** 0.3.5 + folder normalization  
-**Author:** James Schilz  
-**Date:** 2026-06-07  
-**Audience:** Contributors adding gameplay modules after foundation quality gate
+## Overview
 
----
+Guidelines for adding gameplay modules under `Assets/CCS/Modules/` after architecture normalization.
 
 ## 1. Folder ownership
 
@@ -40,10 +37,11 @@ Do **not** create a module for one-off helpers or single MonoBehaviour utilities
 Assets/CCS/Modules/<Feature>/
   Runtime/             → CCS.Modules.<Feature>.Runtime.asmdef
   Editor/              → validation menus, authoring tools
+  Content/             → module-owned data (items, recipes, definitions)
   Prefabs/             → module test prefabs (required before next module)
-  Settings/            → module-owned ScriptableObject profiles
+  Profiles/            → module ScriptableObject profiles
   Tests/               → module-scoped tests
-  Documentation/       → module contract and milestone notes
+  Documentation/       → module contract and integration notes
 ```
 
 Register installers in `CCS_SurvivalInstaller` (Project layer) with **explicit order**.

@@ -1,9 +1,5 @@
 # CCS Shared — Cross-Module Assets
 
-**Location:** `Assets/CCS/Shared/`  
-**Author:** James Schilz  
-**Date:** 2026-06-07
-
 ## Purpose
 
 Shared holds **only** assets or code used by **multiple gameplay modules**. It is not a dumping ground for module-specific content.
@@ -17,16 +13,16 @@ Shared holds **only** assets or code used by **multiple gameplay modules**. It i
 
 ## Not allowed
 
-- Module-owned data (items, recipes, loot tables, characters) — keep inside the owning module
-- Bootstrap or composition roots — belong in `Assets/CCS/Project/`
-- Core platform code — belongs in `Assets/CCS/Framework/`
-- Global `Database/` folders — module data lives under `Assets/CCS/Modules/<Feature>/`
+- Module-owned data (items, recipes, loot tables, characters)
+- Bootstrap or composition roots (belong in `Assets/CCS/Project/`)
+- Core platform code (belongs in `Assets/CCS/Framework/`)
+- Global `Database/` folders — module data lives under `Assets/CCS/Modules/<Feature>/Content/`
 
 ## Folder guide
 
 | Folder | Intended use |
 |--------|----------------|
-| `Scenes/` | Cross-module test or sandbox scenes (not project bootstrap) |
+| `Scenes/` | Cross-module test or sandbox scenes (not project or Core bootstrap) |
 | `Art/`, `Audio/`, `Materials/`, `Textures/` | Reusable presentation assets |
 | `Prefabs/` | Shared debug or utility prefabs |
 | `ScriptableObjects/` | Cross-module registries only |
@@ -34,4 +30,4 @@ Shared holds **only** assets or code used by **multiple gameplay modules**. It i
 
 ## Dependency rule
 
-Shared may reference `CCS.Core.Runtime`. Shared must **not** reference `CCS.Project.Runtime` or individual module assemblies unless a proven cross-cutting contract requires it (document the exception).
+Shared may reference `CCS.Core.Runtime`. Shared must **not** reference `CCS.Project.Runtime` or individual module assemblies unless a documented cross-cutting contract requires it.

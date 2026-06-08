@@ -1,5 +1,7 @@
 # CCS Project Documentation
 
+**Version:** 0.1.0 — Architecture Normalization
+
 ## Overview
 
 In-project documentation for the CCS Survival composition layer, validation standards, and architecture references.
@@ -40,3 +42,7 @@ Namespace: `CCS.Project`.
 | Scene bootstrap | `Runtime/Foundation/Scene/` |
 | Profiles | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
 | Authority / Avatar | `Runtime/Character/Authority/`, `Avatar/`, `Identity/` |
+
+## Module structure
+
+See [Modules README](../../Modules/README.md) for per-module folder conventions.
