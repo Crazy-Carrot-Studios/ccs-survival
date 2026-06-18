@@ -158,5 +158,5 @@ Do not create the next module folder until the current module passes validation.
 ## Related
 
 - [Framework Architecture Guide](Framework_Architecture_Guide.md)
-- [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
-- [Modules README](../../Modules/README.md)
+- [Survival Scene Bootstrap Standards](../../Assets/CCS/Project/Documentation/Survival_Scene_Bootstrap_Standards.md)
+- [Modules README](../../Assets/CCS/Modules/README.md)

@@ -120,7 +120,7 @@ Systems that consume this split:
 
 ## Related Documentation
 
-- [Survival Validation Standards](Survival_Validation_Standards.md)
-- [Survival Runtime Foundation](Survival_Runtime_Foundation.md)
-- [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
-- [Survival Framework Architecture Gate](Survival_Framework_Architecture_Gate.md)
+- [Survival Validation Standards](../../Assets/CCS/Project/Documentation/Survival_Validation_Standards.md)
+- [Survival Runtime Foundation](../../Assets/CCS/Project/Documentation/Survival_Runtime_Foundation.md)
+- [Survival Scene Bootstrap Standards](../../Assets/CCS/Project/Documentation/Survival_Scene_Bootstrap_Standards.md)
+- [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)

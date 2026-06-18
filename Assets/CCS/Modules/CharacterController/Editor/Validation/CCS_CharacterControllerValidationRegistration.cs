@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Editor-only static registration. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Menu path under CCS/Project/Validation/.
+// NOTES: Menu path under CCS/Modules/Character Controller/.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -18,7 +18,7 @@ namespace CCS.Modules.CharacterController.Editor
     {
         #region Public Methods
 
-        [MenuItem("CCS/Project/Validation/Validate Character Controller")]
+        [MenuItem("CCS/Modules/Character Controller/Validate")]
         public static void ValidateCharacterControllerMenu()
         {
             CCS_SurvivalValidationResult result = CCS_CharacterControllerValidationValidator.ValidateAll();

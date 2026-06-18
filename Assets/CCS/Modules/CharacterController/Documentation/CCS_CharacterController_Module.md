@@ -103,7 +103,9 @@ Drop the prefab into a lit scene to test movement. It is not placed in the modul
 
 ## Validation
 
-Menu: `CCS/Project/Validation/Validate Character Controller`
+Menu: `CCS/Modules/Character Controller/Validate`
+
+Validation utilities live in `Editor/Validation/`. Project does not own feature validation menus.
 
 Checks asmdefs, input actions, profiles, test player prefab wiring, test ground prefab, test scene ground setup, Cinemachine wiring, and no legacy `UnityEngine.Input` usage in module runtime code.
 
@@ -116,6 +118,6 @@ Checks asmdefs, input actions, profiles, test player prefab wiring, test ground 
 
 ## Related
 
-- [Future Gameplay Module Guidelines](../../../Project/Documentation/Future_Gameplay_Module_Guidelines.md)
+- [Future Gameplay Module Guidelines](../../../../Documentation/Planning/Future_Gameplay_Module_Guidelines.md)
 - [Modules README](../../README.md)
 - [Folder Structure](../../../FOLDER_STRUCTURE.md)

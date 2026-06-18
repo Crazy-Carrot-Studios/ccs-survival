@@ -107,5 +107,5 @@ Compose a new bootstrap scene:
 
 - [Survival Runtime Foundation](Survival_Runtime_Foundation.md)
 - [Survival Validation Standards](Survival_Validation_Standards.md)
-- [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md)
-- [Framework Architecture Guide](Framework_Architecture_Guide.md)
+- [Survival Authority and Avatar Architecture](../../../../Documentation/Architecture/Survival_Authority_And_Avatar_Architecture.md)
+- [Framework Architecture Guide](../../../../Documentation/Planning/Framework_Architecture_Guide.md)

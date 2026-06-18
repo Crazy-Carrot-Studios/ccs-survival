@@ -111,5 +111,5 @@ Product flavor (*Reckoning*, western) appears in **content IDs**, not in framewo
 ## Related documents
 
 - [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
-- [Future Gameplay Module Guidelines](../../Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
+- [Future Gameplay Module Guidelines](../Planning/Future_Gameplay_Module_Guidelines.md)
 - [Survival Networking Authority](Survival_Networking_Authority.md)

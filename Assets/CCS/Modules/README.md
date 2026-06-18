@@ -31,5 +31,6 @@ Assets/CCS/Modules/<Feature>/
 - One module per feature folder.
 - Module-owned data stays inside the module.
 - Each module must include validation and a working test prefab or test scene asset before moving on.
+- Module validation menus belong under `CCS/Modules/<Module Name>/`, not under `CCS/Project/`.
 - Register modules through the Project installer pipeline in explicit order.
 - Do not scaffold unused module folders ahead of implementation.

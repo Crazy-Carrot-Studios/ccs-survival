@@ -85,7 +85,7 @@ Netcode references are forbidden in `CCS.Project.Runtime`. Networking adapts to 
 
 - [Survival Runtime Foundation](Survival_Runtime_Foundation.md)
 - [Survival Validation Standards](Survival_Validation_Standards.md)
-- [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md)
 - [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
-- [Framework Architecture Guide](Framework_Architecture_Guide.md)
-- [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)
+- [Survival Authority and Avatar Architecture](../../../../Documentation/Architecture/Survival_Authority_And_Avatar_Architecture.md)
+- [Framework Architecture Guide](../../../../Documentation/Planning/Framework_Architecture_Guide.md)
+- [Future Gameplay Module Guidelines](../../../../Documentation/Planning/Future_Gameplay_Module_Guidelines.md)

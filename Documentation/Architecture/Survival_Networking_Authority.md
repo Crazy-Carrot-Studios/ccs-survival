@@ -93,6 +93,6 @@ Install plans may differ between server and client builds; shared modules regist
 ## Related documents
 
 - [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
-- [Future Gameplay Module Guidelines](../../Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
+- [Future Gameplay Module Guidelines](../Planning/Future_Gameplay_Module_Guidelines.md)
 - [Survival Persistence Direction](Survival_Persistence_Direction.md)
 - [CCS Core Platform Architecture](../../Assets/CCS/Framework/Core/Documentation/CCS_Core_Platform_Architecture.md)

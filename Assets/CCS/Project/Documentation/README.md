@@ -4,22 +4,21 @@
 
 ## Overview
 
-In-project documentation for the CCS Survival composition layer, validation standards, and architecture references.
+Project-specific documentation for the CCS Survival composition layer: bootstrap rules, runtime foundation, validation standards, and architecture gate.
 
-## Architecture Reference
+Broader planning and contributor guides live in the repo [`Documentation/`](../../../../Documentation/README.md) folder.
+
+## Project documentation
 
 | Document | Topic |
 |----------|-------|
 | [Survival Framework Architecture Gate](Survival_Framework_Architecture_Gate.md) | Ownership boundaries, identity, profiles, scenes, runtime principles |
 | [Survival Runtime Foundation](Survival_Runtime_Foundation.md) | Module base classes, installer hierarchy, service marker, constants |
 | [Survival Validation Standards](Survival_Validation_Standards.md) | Module ID rules, profile identity, save-safe IDs, diagnostics |
-| [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md) | Authority ownership, avatar representation, binding, multiplayer compatibility |
 | [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md) | Composition root, host requirements, profile slots, scene validation |
-| [Framework Architecture Guide](Framework_Architecture_Guide.md) | Contributor architecture guide and anti-patterns |
-| [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md) | Module structure, ownership, and integration rules |
 | [Versioning Policy](CCS_Versioning_Policy.md) | Rebuild version map and tag rules |
 
-## Bootstrap Assets
+## Bootstrap assets
 
 | Asset | Path |
 |-------|------|
@@ -27,12 +26,12 @@ In-project documentation for the CCS Survival composition layer, validation stan
 | Project bootstrap prefab | `Assets/CCS/Project/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
 | Core validation scene | `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity` |
 
-## Runtime Assembly
+## Runtime assembly
 
 `Assets/CCS/Project/Runtime/CCS.Project.Runtime.asmdef` → `CCS.Core.Runtime` only.  
 Namespace: `CCS.Project`.
 
-## Runtime Foundation Index
+## Runtime foundation index
 
 | Topic | Path |
 |-------|------|
@@ -43,14 +42,8 @@ Namespace: `CCS.Project`.
 | Profiles | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
 | Authority / Avatar | `Runtime/Character/Authority/`, `Avatar/`, `Identity/` |
 
-## Module structure
+## Modules
 
-See [Modules README](../../Modules/README.md) for per-module folder conventions.
+Module conventions and active module docs live under [`Assets/CCS/Modules/`](../Modules/README.md).
 
-## Character Controller (v0.2.0)
-
-| Document | Path |
-|----------|------|
-| Module documentation | [CCS_CharacterController_Module.md](../../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md) |
-| Test prefab | `Assets/CCS/Modules/CharacterController/Prefabs/PF_CCS_CharacterController_TestPlayer.prefab` |
-| Validation menu | `CCS/Project/Validation/Validate Character Controller` |
+Character Controller module doc: [`CCS_CharacterController_Module.md`](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)

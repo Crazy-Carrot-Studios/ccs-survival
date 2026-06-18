@@ -54,12 +54,14 @@ Test ground scene: `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_
 
 ## Documentation
 
-[`Assets/CCS/Project/Documentation/`](Assets/CCS/Project/Documentation/README.md)
+**Project (bootstrap / framework gate):** [`Assets/CCS/Project/Documentation/`](Assets/CCS/Project/Documentation/README.md)
+
+**Repo-level planning:** [`Documentation/`](Documentation/README.md)
 
 - [Folder Structure](Assets/CCS/FOLDER_STRUCTURE.md)
 - [Versioning Policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md)
-- [Framework Architecture](Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
-- [Module Guidelines](Assets/CCS/Project/Documentation/Future_Gameplay_Module_Guidelines.md)
+- [Framework Architecture Gate](Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
+- [Module Guidelines](Documentation/Planning/Future_Gameplay_Module_Guidelines.md)
 - [Character Controller Module](Assets/CCS/Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
 
 ## Versioning

@@ -117,6 +117,6 @@ Do not tag `v1.0.0` until all of the following are true:
 
 ## Related
 
-- [CCS_Reset_Notice.md](CCS_Reset_Notice.md)
-- [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md)
+- [CCS Reset Notice](../../../Documentation/CCS_Reset_Notice.md)
+- [Future Gameplay Module Guidelines](../../../Documentation/Planning/Future_Gameplay_Module_Guidelines.md)
 - [README.md](../../../README.md)

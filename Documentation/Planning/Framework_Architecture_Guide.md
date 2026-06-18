@@ -184,9 +184,9 @@ See [Future_Gameplay_Module_Guidelines.md](Future_Gameplay_Module_Guidelines.md)
 
 ## Related documents
 
-- [Survival Framework Architecture Gate](Survival_Framework_Architecture_Gate.md)
-- [Survival Runtime Foundation](Survival_Runtime_Foundation.md)
-- [Survival Validation Standards](Survival_Validation_Standards.md)
-- [Survival Authority and Avatar Architecture](Survival_Authority_And_Avatar_Architecture.md)
-- [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
+- [Survival Framework Architecture Gate](../../Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
+- [Survival Runtime Foundation](../../Assets/CCS/Project/Documentation/Survival_Runtime_Foundation.md)
+- [Survival Validation Standards](../../Assets/CCS/Project/Documentation/Survival_Validation_Standards.md)
+- [Survival Authority and Avatar Architecture](../Architecture/Survival_Authority_And_Avatar_Architecture.md)
+- [Survival Scene Bootstrap Standards](../../Assets/CCS/Project/Documentation/Survival_Scene_Bootstrap_Standards.md)
 - [Future Gameplay Module Guidelines](Future_Gameplay_Module_Guidelines.md)
