@@ -10,11 +10,12 @@ Guidelines for adding gameplay modules under `Assets/CCS/Modules/` after archite
 |----------|------|
 | `Assets/CCS/Framework/` | Core platform only |
 | `Assets/CCS/Modules/<Feature>/` | Gameplay modules and **module-owned data** |
-| `Assets/CCS/Shared/` | Assets used by 2+ modules |
 | `Assets/CCS/Project/` | Bootstrap, composition, project docs |
-| `Assets/CCS/Tests/` | Cross-cutting test harnesses |
 
-**Do not create a global `Database/` folder.** Items, recipes, loot tables, and similar data belong inside the module that owns them.
+Create `Assets/CCS/Shared/` only when an asset is actively used by 2+ modules.  
+Create `Assets/CCS/Tests/` only when a cross-cutting test harness is actively needed.
+
+**Do not scaffold unused module folders.** Only **CharacterController** exists today.
 
 ---
 
@@ -139,15 +140,18 @@ See `CCS_SurvivalFrameworkFutureMarkers` for planned integration strings.
 
 - [ ] Module ID uses `ccs.survival.` prefix
 - [ ] Code lives under `Assets/CCS/Modules/<Feature>/`
-- [ ] Module-owned data lives inside the module (not `Shared/` or global `Database/`)
-- [ ] Working test prefab included
+- [ ] Module-owned data lives inside the module (not global `Database/`)
+- [ ] Working test prefab or test scene asset included
+- [ ] Validation menu or bootstrap validation included
+- [ ] Module documentation included
 - [ ] Installer registered explicitly in Project installer
 - [ ] No Core modifications unless upstream-worthy
 - [ ] Profiles contain setup data only
 - [ ] Save keys documented (stable IDs only)
 - [ ] Diagnostics category defined
-- [ ] Validation runs at bootstrap
 - [ ] Milestone doc updated
+
+Do not create the next module folder until the current module passes validation.
 
 ---
 
@@ -155,4 +159,4 @@ See `CCS_SurvivalFrameworkFutureMarkers` for planned integration strings.
 
 - [Framework Architecture Guide](Framework_Architecture_Guide.md)
 - [Survival Scene Bootstrap Standards](Survival_Scene_Bootstrap_Standards.md)
-- [Shared folder purpose](../../Shared/README.md)
+- [Modules README](../../Modules/README.md)

@@ -2,7 +2,17 @@
 
 Gameplay and game systems live under `Assets/CCS/Modules/`. Each feature is an isolated module with its own runtime assembly, content, prefabs, profiles, tests, and documentation.
 
+## Active modules
+
+Only **CharacterController** exists right now. Other gameplay modules will be created when we actually build them — do not keep placeholder module folders.
+
+| Module | Status |
+|--------|--------|
+| CharacterController | v0.2.1 — movement, camera, test prefab, test ground scene, validation |
+
 ## Module structure
+
+When a module is created, use this layout:
 
 ```text
 Assets/CCS/Modules/<Feature>/
@@ -13,24 +23,13 @@ Assets/CCS/Modules/<Feature>/
 +-- Profiles/
 +-- Documentation/
 +-- Tests/
++-- UI/              (only when the module needs UI assets)
 ```
 
 ## Rules
 
 - One module per feature folder.
 - Module-owned data stays inside the module.
-- Each rebuilt module must include validation and a working test prefab or scene object.
+- Each module must include validation and a working test prefab or test scene asset before moving on.
 - Register modules through the Project installer pipeline in explicit order.
-
-## Modules
-
-| Module | Status |
-|--------|--------|
-| CharacterController | v0.2.0 foundation — movement, camera, test prefab, validation |
-| Interaction | Placeholder |
-| Inventory | Placeholder |
-| Equipment | Placeholder |
-| Crafting | Placeholder |
-| Hotbar | Placeholder |
-| SaveSystem | Placeholder |
-| UI | Placeholder |
+- Do not scaffold unused module folders ahead of implementation.

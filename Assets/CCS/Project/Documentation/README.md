@@ -1,6 +1,6 @@
 # CCS Project Documentation
 
-**Version:** 0.2.0 — Character Controller Foundation
+**Version:** 0.2.1 — Character Controller Test Ground
 
 ## Overview
 

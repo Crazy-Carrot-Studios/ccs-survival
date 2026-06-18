@@ -23,8 +23,8 @@ This document is the audit reference for ownership, identity, profiles, scenes, 
 | Core | `Assets/CCS/Framework/Core/` | Host, registry, services, events, smoke tests | Gameplay logic, survival assumptions |
 | Project | `Assets/CCS/Project/` | Bootstrap, composition, validation contracts, project docs | Feature gameplay implementations |
 | Modules | `Assets/CCS/Modules/<Feature>/` | Feature runtime, editor, prefabs, data, tests | Core modifications, global state |
-| Shared | `Assets/CCS/Shared/` | Cross-module assets (2+ consumers) | Module-specific logic or data |
-| Tests | `Assets/CCS/Tests/` | Cross-cutting harnesses | Feature-specific tests (belong in module) |
+| Shared | `Assets/CCS/Shared/` (when created) | Cross-module assets (2+ consumers) | Module-specific logic or data |
+| Tests | `Assets/CCS/Tests/` (when created) | Cross-cutting harnesses | Feature-specific tests (belong in module) |
 
 Assembly boundary: `CCS.Project.Runtime` references `CCS.Core.Runtime` only. Module assemblies may reference Project and Core.
 

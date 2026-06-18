@@ -11,7 +11,6 @@
 ## What Project does not own
 
 - Gameplay module implementations → `Assets/CCS/Modules/`
-- Cross-module shared assets → `Assets/CCS/Shared/`
 - Core platform code → `Assets/CCS/Framework/`
 - Module-owned data → inside each module's `Content/` and `Profiles/`
 
@@ -25,5 +24,4 @@ Namespace: `CCS.Project`.
 - [Documentation index](Documentation/README.md)
 - [Architecture Gate](Documentation/Survival_Framework_Architecture_Gate.md)
 - [Scene Bootstrap Standards](Documentation/Survival_Scene_Bootstrap_Standards.md)
-- [Shared folder purpose](../Shared/README.md)
 - [Modules folder purpose](../Modules/README.md)

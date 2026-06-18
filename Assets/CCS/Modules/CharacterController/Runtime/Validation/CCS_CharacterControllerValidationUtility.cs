@@ -32,6 +32,7 @@ namespace CCS.Modules.CharacterController
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfilePath), "Default camera profile missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfileSetPath), "Default camera profile set missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.TestPrefabPath), "Test prefab missing.");
+            AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.TestGroundPrefabPath), "Test ground prefab missing.");
 
             CCS_SurvivalValidationResult legacyInputValidation = ValidateNoLegacyInputUsage();
             if (!legacyInputValidation.IsSuccess)

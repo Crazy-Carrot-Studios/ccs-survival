@@ -5,14 +5,14 @@
 // PLACEMENT: Static constants. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.2.0 foundation. No gameplay dependencies outside this module.
+// NOTES: v0.2.1 active module scope. No gameplay dependencies outside this module.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
 {
     public static class CCS_CharacterControllerConstants
     {
-        public const string ModuleVersion = "0.2.0";
+        public const string ModuleVersion = "0.2.1";
 
         public const string ModuleLogCategory = "Character Controller";
 
@@ -36,6 +36,32 @@ namespace CCS.Modules.CharacterController
 
         public const string TestPrefabPath =
             ModuleRootPath + "/Prefabs/PF_CCS_CharacterController_TestPlayer.prefab";
+
+        public const string TestScenePath =
+            ModuleRootPath + "/Tests/Scenes/SCN_CCS_CharacterController_Test.unity";
+
+        public const string TestGroundPrefabPath =
+            ModuleRootPath + "/Tests/Prefabs/PF_CCS_TestGround_OneMeterGrid.prefab";
+
+        public const string TestGroundGridTexturePath =
+            ModuleRootPath + "/Tests/Materials/T_CCS_TestGround_1mGrid.png";
+
+        public const string TestGroundGridMaterialPath =
+            ModuleRootPath + "/Tests/Materials/M_CCS_TestGround_1mGrid.mat";
+
+        public const string TestGroundObjectName = "CCS_TestGround_OneMeterGrid";
+
+        public const string TestGroundPrefabName = "PF_CCS_TestGround_OneMeterGrid";
+
+        public const string TestSceneLabelObjectName = "CCS_TestSceneLabel";
+
+        public const float TestGroundPlaneScale = 20f;
+
+        public const float TestGroundGridMetersPerCell = 1f;
+
+        public const float TestGroundTextureMetersPerRepeat = 10f;
+
+        public const float TestGroundMaterialTiling = 20f;
 
         public const string InputActionMapName = "Gameplay";
 

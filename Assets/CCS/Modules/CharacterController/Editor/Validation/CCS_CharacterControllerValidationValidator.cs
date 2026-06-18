@@ -67,7 +67,14 @@ namespace CCS.Modules.CharacterController.Editor
 
             GameObject prefabRoot = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_CharacterControllerConstants.TestPrefabPath);
-            return CCS_CharacterControllerValidationUtility.ValidateTestPrefab(prefabRoot);
+            CCS_SurvivalValidationResult prefabValidation =
+                CCS_CharacterControllerValidationUtility.ValidateTestPrefab(prefabRoot);
+            if (!prefabValidation.IsSuccess)
+            {
+                return prefabValidation;
+            }
+
+            return CCS_CharacterControllerTestSceneValidationUtility.ValidateTestSceneContent();
         }
 
         #endregion
