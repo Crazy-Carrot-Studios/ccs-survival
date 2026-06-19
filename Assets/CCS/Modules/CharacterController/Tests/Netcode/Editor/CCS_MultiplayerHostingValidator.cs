@@ -268,6 +268,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 menu != null,
                 $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} is missing CCS_MultiplayerHostingMenu.");
 
+            CCS_HostingSceneModeSelectController modeController =
+                Object.FindFirstObjectByType<CCS_HostingSceneModeSelectController>();
+            AppendIfMissing(
+                failures,
+                modeController != null,
+                $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} is missing CCS_HostingSceneModeSelectController.");
+
             if (menu != null)
             {
                 SerializedObject serializedMenu = new SerializedObject(menu);
@@ -313,6 +320,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.transport is not assigned. Run Setup Multiplayer Hosting Scene.");
 
                 ValidateHostingMenuFlow(failures);
+                ValidateModeSelectFlow(failures, modeController);
                 ValidateNetworkPrefabReferences(failures);
             }
 
@@ -377,6 +385,145 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
         }
 
+        private static void ValidateModeSelectFlow(
+            List<string> failures,
+            CCS_HostingSceneModeSelectController modeController)
+        {
+            const string controllerPath =
+                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_HostingSceneModeSelectController.cs";
+            if (File.Exists(controllerPath))
+            {
+                string source = File.ReadAllText(controllerPath);
+                AppendIfMissing(
+                    failures,
+                    source.Contains("OnSinglePlayerClicked"),
+                    "CCS_HostingSceneModeSelectController must expose Single Player flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("OnMultiplayerClicked"),
+                    "CCS_HostingSceneModeSelectController must expose Multiplayer flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("EnsureNetworkIsNotListening"),
+                    "CCS_HostingSceneModeSelectController must not start Netcode for Single Player.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("MasterTestSceneName"),
+                    "CCS_HostingSceneModeSelectController must load Master Test for Single Player.");
+            }
+
+            Transform hostingRoot = GameObject.Find("HostingUiRoot")?.transform;
+            Transform modeSelectPanel = hostingRoot != null
+                ? hostingRoot.Find(CCS_NetcodeTestConstants.ModeSelectPanelObjectName)
+                : null;
+            Transform networkingPanel = hostingRoot != null
+                ? hostingRoot.Find(CCS_NetcodeTestConstants.NetworkingPanelObjectName)
+                : null;
+            Transform networkingContent = networkingPanel != null
+                ? networkingPanel.Find(CCS_NetcodeTestConstants.NetworkingContentObjectName)
+                : null;
+
+            AppendIfMissing(
+                failures,
+                modeSelectPanel != null,
+                "Hosting UI must contain Mode Select panel. Run Setup Multiplayer Hosting Scene.");
+            AppendIfMissing(
+                failures,
+                networkingPanel != null && networkingContent != null,
+                "Hosting UI must contain Networking panel/content. Run Setup Multiplayer Hosting Scene.");
+
+            if (modeSelectPanel != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.gameObject.activeSelf,
+                    "Mode Select panel must start visible in the hosting scene.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find($"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.SinglePlayerButtonObjectName}") != null,
+                    "Mode Select must contain Single Player button.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find($"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.MultiplayerButtonObjectName}") != null,
+                    "Mode Select must contain Multiplayer button.");
+            }
+
+            if (networkingPanel != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    !networkingPanel.gameObject.activeSelf,
+                    "Networking panel must start hidden in the hosting scene.");
+            }
+
+            if (modeController != null)
+            {
+                SerializedObject serializedController = new SerializedObject(modeController);
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("modeSelectPanel")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.modeSelectPanel is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("networkingPanel")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.networkingPanel is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("singlePlayerButton")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.singlePlayerButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("multiplayerButton")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.multiplayerButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("backButton")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.backButton is not wired.");
+            }
+
+            if (networkingContent != null)
+            {
+                ValidateButtonHeight(
+                    failures,
+                    networkingContent.Find("HostJoinContainer/HostCard/HostAndStartButton")?.GetComponent<LayoutElement>(),
+                    "Host & Start");
+                ValidateButtonHeight(
+                    failures,
+                    networkingContent.Find("HostJoinContainer/JoinCard/JoinButtons/RefreshServersButton")?.GetComponent<LayoutElement>(),
+                    "Refresh");
+                ValidateButtonHeight(
+                    failures,
+                    networkingContent.Find("HostJoinContainer/JoinCard/JoinButtons/JoinSelectedButton")?.GetComponent<LayoutElement>(),
+                    "Join Selected");
+                ValidateButtonHeight(
+                    failures,
+                    networkingContent.Find($"FooterPanel/{CCS_NetcodeTestConstants.BackButtonObjectName}")?.GetComponent<LayoutElement>(),
+                    "Back");
+                ValidateButtonHeight(
+                    failures,
+                    networkingContent.Find("FooterPanel/ExitButton")?.GetComponent<LayoutElement>(),
+                    "Exit");
+            }
+        }
+
+        private static void ValidateButtonHeight(List<string> failures, LayoutElement layoutElement, string label)
+        {
+            if (layoutElement == null)
+            {
+                failures.Add($"Hosting UI button '{label}' is missing a LayoutElement height.");
+                return;
+            }
+
+            float height = layoutElement.preferredHeight > 0f
+                ? layoutElement.preferredHeight
+                : layoutElement.minHeight;
+            AppendIfMissing(
+                failures,
+                height >= CCS_NetcodeTestConstants.HostingMenuButtonMinHeight
+                    && height <= CCS_NetcodeTestConstants.HostingMenuButtonMaxHeight,
+                $"Hosting UI button '{label}' height must be between {CCS_NetcodeTestConstants.HostingMenuButtonMinHeight:0.#} and {CCS_NetcodeTestConstants.HostingMenuButtonMaxHeight:0.#}.");
+        }
+
         private static void ValidateHostingMenuFlow(List<string> failures)
         {
             const string menuPath =
@@ -399,11 +546,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             Transform hostingRoot = GameObject.Find("HostingUiRoot")?.transform;
-            Transform content = hostingRoot != null ? hostingRoot.Find("Content") : null;
+            Transform content = hostingRoot != null
+                ? hostingRoot.Find($"{CCS_NetcodeTestConstants.NetworkingPanelObjectName}/{CCS_NetcodeTestConstants.NetworkingContentObjectName}")
+                : null;
             AppendIfMissing(
                 failures,
                 hostingRoot != null && content != null,
-                "SCN_CCS_MultiplayerHosting must contain HostingUiRoot/Content. Run Setup Multiplayer Hosting Scene.");
+                "SCN_CCS_MultiplayerHosting must contain HostingUiRoot/NetworkingPanel/NetworkingContent. Run Setup Multiplayer Hosting Scene.");
 
             if (content != null)
             {
@@ -436,6 +585,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     content.Find("HostJoinContainer/HostCard") != null
                         && content.Find("HostJoinContainer/JoinCard") != null,
                     "Hosting UI must contain side-by-side Host Game and Join Game cards.");
+                AppendIfMissing(
+                    failures,
+                    content.Find($"FooterPanel/{CCS_NetcodeTestConstants.BackButtonObjectName}") != null,
+                    "Hosting UI must contain Back button on the networking panel.");
             }
 
             AppendIfMissing(

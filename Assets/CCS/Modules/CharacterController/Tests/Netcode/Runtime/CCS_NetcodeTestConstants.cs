@@ -58,6 +58,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string HeaderPanelObjectName = "HeaderPanel";
 
+        public const string ModeSelectPanelObjectName = "ModeSelectPanel";
+
+        public const string ModeSelectCardObjectName = "ModeSelectCard";
+
+        public const string NetworkingPanelObjectName = "NetworkingPanel";
+
+        public const string NetworkingContentObjectName = "NetworkingContent";
+
+        public const string SinglePlayerButtonObjectName = "SinglePlayerButton";
+
+        public const string MultiplayerButtonObjectName = "MultiplayerButton";
+
+        public const string BackButtonObjectName = "BackButton";
+
+        public const float ModeSelectCardWidth = 580f;
+
+        public const float NetworkingPanelWidth = 1000f;
+
+        public const float HostingMenuButtonMinHeight = 40f;
+
+        public const float HostingMenuButtonMaxHeight = 56f;
+
         public const string PlayerSetupPanelObjectName = "PlayerSetupPanel";
 
         public const string MainContentPanelObjectName = "MainContentPanel";

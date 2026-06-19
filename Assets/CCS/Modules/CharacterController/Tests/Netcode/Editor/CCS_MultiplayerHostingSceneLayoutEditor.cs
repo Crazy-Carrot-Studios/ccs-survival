@@ -22,17 +22,22 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 {
     public static class CCS_MultiplayerHostingSceneLayoutEditor
     {
-        private const float ReferenceWidth = 920f;
-        private const float HeaderHeight = 88f;
-        private const float NameSectionHeight = 118f;
-        private const float HostJoinRowHeight = 360f;
-        private const float AdvancedToggleHeight = 36f;
-        private const float AdvancedPanelHeight = 132f;
-        private const float FooterHeight = 48f;
+        private const float ReferenceWidth = CCS_NetcodeTestConstants.NetworkingPanelWidth;
+        private const float ModeSelectCardWidth = CCS_NetcodeTestConstants.ModeSelectCardWidth;
+        private const float HeaderHeight = 72f;
+        private const float NameSectionHeight = 108f;
+        private const float HostJoinRowHeight = 280f;
+        private const float AdvancedToggleHeight = 32f;
+        private const float AdvancedPanelHeight = 124f;
+        private const float FooterHeight = 44f;
+        private const float MenuButtonHeight = 48f;
+        private const float SecondaryButtonHeight = 40f;
+        private const float ModeSelectCardHeight = 420f;
+        private const float ServerListHeight = 112f;
 
-        private static readonly Color BackgroundColor = new Color(0.04f, 0.07f, 0.12f, 1f);
-        private static readonly Color PanelColor = new Color(0.08f, 0.12f, 0.18f, 0.96f);
-        private static readonly Color CardColor = new Color(0.1f, 0.15f, 0.22f, 1f);
+        private static readonly Color BackgroundColor = new Color(0.03f, 0.05f, 0.09f, 1f);
+        private static readonly Color PanelColor = new Color(0.08f, 0.12f, 0.18f, 0.92f);
+        private static readonly Color CardColor = new Color(0.1f, 0.14f, 0.2f, 0.96f);
         private static readonly Color PrimaryButtonColor = new Color(0.18f, 0.42f, 0.72f, 1f);
         private static readonly Color SecondaryButtonColor = new Color(0.14f, 0.22f, 0.32f, 1f);
         private static readonly Color TextPrimary = new Color(0.93f, 0.95f, 0.98f, 1f);
@@ -74,25 +79,157 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 canvas.transform,
                 BackgroundColor,
                 raycastTarget: false);
-            VerticalLayoutGroup rootLayout = root.gameObject.AddComponent<VerticalLayoutGroup>();
-            rootLayout.padding = new RectOffset(0, 0, 36, 24);
-            rootLayout.spacing = 16f;
-            rootLayout.childAlignment = TextAnchor.UpperCenter;
-            rootLayout.childControlWidth = true;
-            rootLayout.childControlHeight = true;
-            rootLayout.childForceExpandWidth = true;
-            rootLayout.childForceExpandHeight = false;
 
-            RectTransform content = CreateLayoutSection("Content", root, ReferenceWidth, 0f, Color.clear);
+            BuildModeSelectPanel(
+                root,
+                out GameObject modeSelectPanel,
+                out Button singlePlayerButton,
+                out Button multiplayerButton);
+
+            RectTransform networkingPanel = BuildNetworkingPanel(
+                root,
+                networkManager,
+                transport,
+                out CCS_MultiplayerHostingMenu menu,
+                out Button backButton);
+
+            CCS_HostingSceneModeSelectController modeController = canvas.GetComponent<CCS_HostingSceneModeSelectController>();
+            if (modeController == null)
+            {
+                modeController = canvas.gameObject.AddComponent<CCS_HostingSceneModeSelectController>();
+            }
+
+            SerializedObject serializedModeController = new SerializedObject(modeController);
+            SetReference(serializedModeController, "modeSelectPanel", modeSelectPanel);
+            SetReference(serializedModeController, "networkingPanel", networkingPanel.gameObject);
+            SetReference(serializedModeController, "singlePlayerButton", singlePlayerButton);
+            SetReference(serializedModeController, "multiplayerButton", multiplayerButton);
+            SetReference(serializedModeController, "backButton", backButton);
+            SetReference(serializedModeController, "networkManager", networkManager);
+            serializedModeController.ApplyModifiedPropertiesWithoutUndo();
+
+            modeSelectPanel.SetActive(true);
+            networkingPanel.gameObject.SetActive(false);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI with Mode Select.");
+            return true;
+        }
+
+        #endregion
+
+        #region Layout Sections
+
+        private static void BuildModeSelectPanel(
+            RectTransform root,
+            out GameObject modeSelectPanel,
+            out Button singlePlayerButton,
+            out Button multiplayerButton)
+        {
+            RectTransform panel = CreateStretchPanel(
+                CCS_NetcodeTestConstants.ModeSelectPanelObjectName,
+                root,
+                Color.clear,
+                raycastTarget: false);
+            VerticalLayoutGroup panelLayout = panel.gameObject.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(24, 24, 24, 24);
+            panelLayout.spacing = 0f;
+            panelLayout.childAlignment = TextAnchor.MiddleCenter;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = true;
+
+            RectTransform card = CreateLayoutSection(
+                CCS_NetcodeTestConstants.ModeSelectCardObjectName,
+                panel,
+                ModeSelectCardWidth,
+                ModeSelectCardHeight,
+                PanelColor);
+            LayoutElement cardLayout = card.GetComponent<LayoutElement>();
+            cardLayout.preferredWidth = ModeSelectCardWidth;
+            cardLayout.minWidth = ModeSelectCardWidth;
+            cardLayout.preferredHeight = ModeSelectCardHeight;
+            cardLayout.minHeight = ModeSelectCardHeight;
+            cardLayout.flexibleWidth = 0f;
+            cardLayout.flexibleHeight = 0f;
+
+            AddVerticalLayout(card, 14f, new RectOffset(28, 28, 28, 28));
+            CreateText(card, "TitleText", "Crazy Carrot Studios", 30, FontStyle.Bold, TextPrimary, TextAnchor.MiddleCenter, 36f);
+            CreateText(
+                card,
+                "SubtitleText",
+                "Character Controller Test",
+                18,
+                FontStyle.Normal,
+                TextMuted,
+                TextAnchor.MiddleCenter,
+                24f);
+            CreateFlexibleSpacer(card, 8f);
+            singlePlayerButton = CreatePrimaryButton(card, CCS_NetcodeTestConstants.SinglePlayerButtonObjectName, "Single Player", MenuButtonHeight);
+            SetButtonExpandWidth(singlePlayerButton, false);
+            CreateText(
+                card,
+                "SinglePlayerDescription",
+                "Jump straight into the Master Test scene offline.",
+                14,
+                FontStyle.Normal,
+                TextMuted,
+                TextAnchor.MiddleCenter,
+                22f);
+            CreateFlexibleSpacer(card, 6f);
+            multiplayerButton = CreatePrimaryButton(card, CCS_NetcodeTestConstants.MultiplayerButtonObjectName, "Multiplayer", MenuButtonHeight);
+            SetButtonExpandWidth(multiplayerButton, false);
+            CreateText(
+                card,
+                "MultiplayerDescription",
+                "Host or join a local test session.",
+                14,
+                FontStyle.Normal,
+                TextMuted,
+                TextAnchor.MiddleCenter,
+                22f);
+
+            modeSelectPanel = panel.gameObject;
+        }
+
+        private static RectTransform BuildNetworkingPanel(
+            RectTransform root,
+            NetworkManager networkManager,
+            Unity.Netcode.Transports.UTP.UnityTransport transport,
+            out CCS_MultiplayerHostingMenu menu,
+            out Button backButton)
+        {
+            RectTransform networkingPanel = CreateStretchPanel(
+                CCS_NetcodeTestConstants.NetworkingPanelObjectName,
+                root,
+                Color.clear,
+                raycastTarget: false);
+            VerticalLayoutGroup networkingLayout = networkingPanel.gameObject.AddComponent<VerticalLayoutGroup>();
+            networkingLayout.padding = new RectOffset(0, 0, 36, 24);
+            networkingLayout.spacing = 14f;
+            networkingLayout.childAlignment = TextAnchor.UpperCenter;
+            networkingLayout.childControlWidth = true;
+            networkingLayout.childControlHeight = true;
+            networkingLayout.childForceExpandWidth = true;
+            networkingLayout.childForceExpandHeight = false;
+
+            RectTransform content = CreateLayoutSection(
+                CCS_NetcodeTestConstants.NetworkingContentObjectName,
+                networkingPanel,
+                ReferenceWidth,
+                0f,
+                Color.clear);
             LayoutElement contentLayout = content.GetComponent<LayoutElement>();
-            float contentHeight = ComputeContentPreferredHeight();
+            float contentHeight = ComputeNetworkingContentPreferredHeight();
             contentLayout.preferredWidth = ReferenceWidth;
             contentLayout.minWidth = ReferenceWidth;
             contentLayout.preferredHeight = contentHeight;
             contentLayout.minHeight = contentHeight;
 
             VerticalLayoutGroup contentGroup = content.gameObject.AddComponent<VerticalLayoutGroup>();
-            contentGroup.spacing = 16f;
+            contentGroup.spacing = 14f;
             contentGroup.childAlignment = TextAnchor.UpperCenter;
             contentGroup.childControlWidth = true;
             contentGroup.childControlHeight = true;
@@ -110,9 +247,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 out InputField manualPort,
                 out Button joinManual);
             BuildDiagnosticsPanel(content, out GameObject diagnosticsPanel, out Text diagnosticsText);
-            BuildFooter(content, out Text playersText, out Button exitButton);
+            BuildFooter(content, out Text playersText, out Button backButtonOut, out Button exitButton);
+            backButton = backButtonOut;
 
-            CCS_MultiplayerHostingMenu menu = canvas.GetComponent<CCS_MultiplayerHostingMenu>();
+            Canvas canvas = root.GetComponentInParent<Canvas>();
+            menu = canvas.GetComponent<CCS_MultiplayerHostingMenu>();
             if (menu == null)
             {
                 menu = canvas.gameObject.AddComponent<CCS_MultiplayerHostingMenu>();
@@ -141,46 +280,39 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             SetReference(serializedMenu, "exitButton", exitButton);
             serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI.");
-            return true;
+            return networkingPanel;
         }
-
-        #endregion
-
-        #region Layout Sections
 
         private static void BuildHeader(RectTransform parent)
         {
             RectTransform header = CreateLayoutSection("HeaderPanel", parent, ReferenceWidth, HeaderHeight, Color.clear);
-            CreateText(header, "TitleText", "CCS Multiplayer Test", 32, FontStyle.Bold, TextPrimary, TextAnchor.MiddleCenter, 40f);
+            CreateText(header, "TitleText", "Multiplayer Test", 28, FontStyle.Bold, TextPrimary, TextAnchor.MiddleCenter, 34f);
             CreateText(
                 header,
                 "SubtitleText",
                 "Host or join a local character controller test.",
-                17,
+                16,
                 FontStyle.Normal,
                 TextMuted,
                 TextAnchor.MiddleCenter,
-                24f);
+                22f);
         }
 
         private static void BuildNameSection(RectTransform parent)
         {
             RectTransform namePanel = CreateLayoutSection("NamePanel", parent, ReferenceWidth, NameSectionHeight, PanelColor);
-            AddVerticalLayout(namePanel, 8f, new RectOffset(18, 18, 14, 14));
-            CreateText(namePanel, "NameLabel", "Player Name", 20, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 26f);
-            CreateInputField(namePanel, "PlayerNameInput", "Player name", 46f);
+            AddVerticalLayout(namePanel, 6f, new RectOffset(18, 18, 12, 12));
+            CreateText(namePanel, "NameLabel", "Player Name", 18, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 24f);
+            CreateInputField(namePanel, "PlayerNameInput", "Player name", 42f);
             CreateText(
                 namePanel,
                 "NameHelperText",
                 "This name appears above your character for other players.",
-                14,
+                13,
                 FontStyle.Italic,
                 TextMuted,
                 TextAnchor.MiddleLeft,
-                20f);
+                18f);
         }
 
         private static void BuildHostJoinRow(RectTransform parent)
@@ -192,36 +324,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             rowLayout.childControlWidth = true;
             rowLayout.childControlHeight = true;
             rowLayout.childForceExpandWidth = true;
-            rowLayout.childForceExpandHeight = true;
+            rowLayout.childForceExpandHeight = false;
 
             RectTransform hostCard = CreateCard("HostCard", row, HostJoinRowHeight);
-            AddVerticalLayout(hostCard, 10f, new RectOffset(18, 18, 18, 18));
-            CreateText(hostCard, "HostCardTitle", "Host Game", 22, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 28f);
+            AddVerticalLayout(hostCard, 8f, new RectOffset(16, 16, 16, 16));
+            CreateText(hostCard, "HostCardTitle", "Host Game", 20, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 26f);
             CreateText(
                 hostCard,
                 "HostCardDescription",
                 "Create a local test session and jump into the character test.",
-                16,
+                14,
                 FontStyle.Normal,
                 TextMuted,
                 TextAnchor.UpperLeft,
-                52f);
-            CreateFlexibleSpacer(hostCard, 8f);
-            CreatePrimaryButton(hostCard, "HostAndStartButton", "Host & Start", 52f);
+                44f);
+            Button hostButton = CreatePrimaryButton(hostCard, "HostAndStartButton", "Host & Start", MenuButtonHeight);
+            SetButtonExpandWidth(hostButton, false);
 
             RectTransform joinCard = CreateCard("JoinCard", row, HostJoinRowHeight);
-            AddVerticalLayout(joinCard, 10f, new RectOffset(18, 18, 18, 18));
-            CreateText(joinCard, "JoinCardTitle", "Join Game", 22, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 28f);
+            AddVerticalLayout(joinCard, 8f, new RectOffset(16, 16, 16, 16));
+            CreateText(joinCard, "JoinCardTitle", "Join Game", 20, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 26f);
             CreateText(
                 joinCard,
                 "JoinCardDescription",
                 "Find a local host and join the character test.",
-                16,
+                14,
                 FontStyle.Normal,
                 TextMuted,
                 TextAnchor.UpperLeft,
-                40f);
-            CreateServerList(joinCard, 148f);
+                36f);
+            CreateServerList(joinCard, ServerListHeight);
             CreateText(
                 joinCard,
                 "EmptyServerListText",
@@ -232,16 +364,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 22f);
 
-            RectTransform buttonRow = CreateLayoutSection("JoinButtons", joinCard, 0f, 48f, Color.clear);
+            RectTransform buttonRow = CreateLayoutSection("JoinButtons", joinCard, 0f, MenuButtonHeight, Color.clear);
             HorizontalLayoutGroup buttonLayout = buttonRow.gameObject.AddComponent<HorizontalLayoutGroup>();
             buttonLayout.spacing = 10f;
             buttonLayout.childAlignment = TextAnchor.MiddleCenter;
             buttonLayout.childControlWidth = true;
             buttonLayout.childControlHeight = true;
             buttonLayout.childForceExpandWidth = true;
-            buttonLayout.childForceExpandHeight = true;
-            CreateSecondaryButton(buttonRow, "RefreshServersButton", "Refresh", 48f);
-            CreatePrimaryButton(buttonRow, "JoinSelectedButton", "Join Selected", 48f);
+            buttonLayout.childForceExpandHeight = false;
+            Button refreshButton = CreateSecondaryButton(buttonRow, "RefreshServersButton", "Refresh", MenuButtonHeight);
+            Button joinButton = CreatePrimaryButton(buttonRow, "JoinSelectedButton", "Join Selected", MenuButtonHeight);
+            SetButtonExpandWidth(refreshButton, true);
+            SetButtonExpandWidth(joinButton, true);
         }
 
         private static void BuildAdvancedPanel(
@@ -260,12 +394,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             CreateText(panelRect, "AdvancedLabel", "Manual address and port", 15, FontStyle.Bold, TextPrimary, TextAnchor.MiddleLeft, 22f);
             manualAddress = CreateInputField(panelRect, "ManualAddressInput", "127.0.0.1", 40f);
             manualPort = CreateInputField(panelRect, "ManualPortInput", CCS_NetcodeTestConstants.DefaultServerPort.ToString(), 40f);
-            joinManual = CreateSecondaryButton(panelRect, "JoinManualButton", "Join Manual", 40f);
+            joinManual = CreateSecondaryButton(panelRect, "JoinManualButton", "Join Manual", SecondaryButtonHeight);
         }
 
         private static void BuildDiagnosticsPanel(RectTransform parent, out GameObject diagnosticsPanel, out Text diagnosticsText)
         {
-            diagnosticsPanel = CreateLayoutSection("DiagnosticsPanel", parent, ReferenceWidth, 44f, PanelColor).gameObject;
+            diagnosticsPanel = CreateLayoutSection("DiagnosticsPanel", parent, ReferenceWidth, 36f, new Color(0.08f, 0.12f, 0.18f, 0.72f)).gameObject;
             diagnosticsPanel.SetActive(false);
             diagnosticsText = CreateText(
                 diagnosticsPanel.GetComponent<RectTransform>(),
@@ -278,31 +412,45 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 36f);
         }
 
-        private static void BuildFooter(RectTransform parent, out Text playersText, out Button exitButton)
+        private static void BuildFooter(
+            RectTransform parent,
+            out Text playersText,
+            out Button backButton,
+            out Button exitButton)
         {
             RectTransform footer = CreateLayoutSection("FooterPanel", parent, ReferenceWidth, FooterHeight, Color.clear);
             HorizontalLayoutGroup footerLayout = footer.gameObject.AddComponent<HorizontalLayoutGroup>();
-            footerLayout.spacing = 12f;
+            footerLayout.spacing = 10f;
             footerLayout.childAlignment = TextAnchor.MiddleCenter;
             footerLayout.childControlWidth = true;
             footerLayout.childControlHeight = true;
             footerLayout.childForceExpandWidth = true;
-            footerLayout.childForceExpandHeight = true;
+            footerLayout.childForceExpandHeight = false;
+
+            backButton = CreateSecondaryButton(footer, CCS_NetcodeTestConstants.BackButtonObjectName, "Back", SecondaryButtonHeight);
+            SetButtonExpandWidth(backButton, false);
+            LayoutElement backLayout = backButton.GetComponent<LayoutElement>();
+            backLayout.preferredWidth = 110f;
+            backLayout.minWidth = 96f;
 
             playersText = CreateText(
                 footer,
                 "ConnectedPlayersText",
                 "Players: 0 / 3",
-                17,
+                15,
                 FontStyle.Normal,
-                TextPrimary,
+                TextMuted,
                 TextAnchor.MiddleLeft,
-                36f);
-            exitButton = CreateSecondaryButton(footer, "ExitButton", "Exit", 40f);
+                SecondaryButtonHeight);
+            LayoutElement playersLayout = playersText.GetComponent<LayoutElement>();
+            playersLayout.flexibleWidth = 1f;
+
+            exitButton = CreateSecondaryButton(footer, "ExitButton", "Exit", SecondaryButtonHeight);
+            SetButtonExpandWidth(exitButton, false);
             LayoutElement exitLayout = exitButton.GetComponent<LayoutElement>();
             exitLayout.flexibleWidth = 0f;
-            exitLayout.preferredWidth = 140f;
-            exitLayout.minWidth = 120f;
+            exitLayout.preferredWidth = 96f;
+            exitLayout.minWidth = 88f;
         }
 
         private static void CreateServerList(RectTransform joinCard, float height)
@@ -384,15 +532,31 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             return canvas;
         }
 
-        private static float ComputeContentPreferredHeight()
+        private static float ComputeNetworkingContentPreferredHeight()
         {
-            const int sectionCount = 5;
+            const int sectionCount = 6;
             return HeaderHeight
                 + NameSectionHeight
                 + HostJoinRowHeight
                 + AdvancedToggleHeight
                 + FooterHeight
-                + 16f * sectionCount;
+                + 14f * sectionCount;
+        }
+
+        private static void SetButtonExpandWidth(Button button, bool expandWidth)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            LayoutElement layout = button.GetComponent<LayoutElement>();
+            if (layout == null)
+            {
+                return;
+            }
+
+            layout.flexibleWidth = expandWidth ? 1f : 0f;
         }
 
         private static void SanitizeCanvasRoot(Canvas canvas)

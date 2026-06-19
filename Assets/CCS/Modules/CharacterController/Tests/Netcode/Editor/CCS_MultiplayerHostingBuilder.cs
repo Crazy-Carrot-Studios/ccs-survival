@@ -14,7 +14,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Editor builder utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Does not regenerate UI. Only repairs missing critical scene objects and input module.
+// NOTES: Repairs scene objects, network prefab wiring, and hosting UI layout including Mode Select.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
