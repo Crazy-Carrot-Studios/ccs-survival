@@ -15,7 +15,7 @@ using UnityEngine;
 // PLACEMENT: Editor utility. Invoked from master test and netcode setup.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Adds NameplateRoot/PlayerNameText to base player and keeps networked in sync.
+// NOTES: Ensures the shared network-capable test player prefab layout and wiring.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -118,80 +118,6 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(prefabRoot, displayProfile);
-            return true;
-        }
-
-        private static bool EnsureVisualSetupOnPrefab(string prefabPath)
-        {
-            GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
-            if (prefabRoot == null)
-            {
-                Debug.LogError("[Player Prefab Builder] Missing prefab: " + prefabPath);
-                return false;
-            }
-
-            bool changed = false;
-            changed |= EnsureNameplateHierarchy(prefabRoot.transform);
-            changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
-            changed |= EnsureGlassesVisual(prefabRoot.transform);
-            changed |= EnsureCameraPivotSetup(prefabRoot.transform);
-            changed |= EnsureCameraFollowAnchorSetup(prefabRoot.transform);
-            changed |= EnsurePlayerCameraPivotReferences(prefabRoot);
-            changed |= RemoveEmbeddedCinemachine(prefabRoot);
-            if (changed)
-            {
-                PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
-            }
-
-            PrefabUtility.UnloadPrefabContents(prefabRoot);
-            return changed;
-        }
-
-        private static bool SyncNetworkedPlayerPrefabFromBase()
-        {
-            GameObject baseRoot = PrefabUtility.LoadPrefabContents(
-                CCS_CharacterControllerMasterTestLayoutConstants.PlayerPrefabPath);
-            GameObject networkedRoot = PrefabUtility.LoadPrefabContents(
-                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
-            if (baseRoot == null || networkedRoot == null)
-            {
-                if (baseRoot != null)
-                {
-                    PrefabUtility.UnloadPrefabContents(baseRoot);
-                }
-
-                if (networkedRoot != null)
-                {
-                    PrefabUtility.UnloadPrefabContents(networkedRoot);
-                }
-
-                Debug.LogError("[Player Prefab Builder] Could not load base or networked player prefab.");
-                return false;
-            }
-
-            bool changed = false;
-            changed |= EnsureNameplateHierarchy(networkedRoot.transform);
-            changed |= EnsureCapsuleBodyVisual(networkedRoot.transform);
-            changed |= EnsureGlassesVisual(networkedRoot.transform);
-            changed |= EnsureCameraPivotSetup(networkedRoot.transform);
-            changed |= EnsureCameraFollowAnchorSetup(networkedRoot.transform);
-            changed |= EnsurePlayerCameraPivotReferences(networkedRoot);
-            changed |= RemoveEmbeddedCinemachine(networkedRoot);
-            changed |= AlignNameplateLayout(baseRoot.transform, networkedRoot.transform);
-            changed |= AlignGlassesVisualLayout(baseRoot.transform, networkedRoot.transform);
-            changed |= EnsureNetworkComponents(networkedRoot);
-            changed |= EnsureNetworkObjectTransformSettings(networkedRoot);
-            changed |= WireNetworkNameplate(networkedRoot.transform);
-            changed |= WireNetworkPlayerBehaviour(networkedRoot);
-
-            RemoveMissingScriptsRecursive(networkedRoot.transform);
-
-            PrefabUtility.SaveAsPrefabAsset(
-                networkedRoot,
-                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
-
-            PrefabUtility.UnloadPrefabContents(baseRoot);
-            PrefabUtility.UnloadPrefabContents(networkedRoot);
             return true;
         }
 
@@ -653,41 +579,6 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
-        private static bool AlignGlassesVisualLayout(Transform baseRoot, Transform networkedRoot)
-        {
-            Transform baseGlasses = FindChildRecursive(
-                baseRoot,
-                CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
-            Transform networkedGlasses = FindChildRecursive(
-                networkedRoot,
-                CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
-            if (baseGlasses == null || networkedGlasses == null)
-            {
-                return false;
-            }
-
-            bool changed = false;
-            if (networkedGlasses.localPosition != baseGlasses.localPosition)
-            {
-                networkedGlasses.localPosition = baseGlasses.localPosition;
-                changed = true;
-            }
-
-            if (networkedGlasses.localRotation != baseGlasses.localRotation)
-            {
-                networkedGlasses.localRotation = baseGlasses.localRotation;
-                changed = true;
-            }
-
-            if (networkedGlasses.localScale != baseGlasses.localScale)
-            {
-                networkedGlasses.localScale = baseGlasses.localScale;
-                changed = true;
-            }
-
-            return changed;
-        }
-
         private static bool IsCapsuleGlassesVisual(Transform glasses)
         {
             MeshFilter meshFilter = glasses.GetComponent<MeshFilter>();
@@ -700,66 +591,6 @@ namespace CCS.Modules.CharacterController.Editor
             Mesh capsuleMesh = temp.GetComponent<MeshFilter>().sharedMesh;
             Object.DestroyImmediate(temp);
             return capsuleMesh;
-        }
-
-        private static bool AlignNameplateLayout(Transform baseRoot, Transform networkedRoot)
-        {
-            Transform baseNameplate = FindChildRecursive(
-                baseRoot,
-                CCS_CharacterControllerMasterTestLayoutConstants.NameplateRootObjectName);
-            Transform networkedNameplate = FindChildRecursive(
-                networkedRoot,
-                CCS_CharacterControllerMasterTestLayoutConstants.NameplateRootObjectName);
-            if (baseNameplate == null || networkedNameplate == null)
-            {
-                return false;
-            }
-
-            bool changed = false;
-            if (networkedNameplate.localPosition != baseNameplate.localPosition)
-            {
-                networkedNameplate.localPosition = baseNameplate.localPosition;
-                changed = true;
-            }
-
-            if (networkedNameplate.localRotation != baseNameplate.localRotation)
-            {
-                networkedNameplate.localRotation = baseNameplate.localRotation;
-                changed = true;
-            }
-
-            if (networkedNameplate.localScale != baseNameplate.localScale)
-            {
-                networkedNameplate.localScale = baseNameplate.localScale;
-                changed = true;
-            }
-
-            Transform baseText = baseNameplate.Find(
-                CCS_CharacterControllerMasterTestLayoutConstants.PlayerNameTextObjectName);
-            Transform networkedText = networkedNameplate.Find(
-                CCS_CharacterControllerMasterTestLayoutConstants.PlayerNameTextObjectName);
-            if (baseText != null && networkedText != null)
-            {
-                if (networkedText.localPosition != baseText.localPosition)
-                {
-                    networkedText.localPosition = baseText.localPosition;
-                    changed = true;
-                }
-
-                if (networkedText.localRotation != baseText.localRotation)
-                {
-                    networkedText.localRotation = baseText.localRotation;
-                    changed = true;
-                }
-
-                if (networkedText.localScale != baseText.localScale)
-                {
-                    networkedText.localScale = baseText.localScale;
-                    changed = true;
-                }
-            }
-
-            return changed;
         }
 
         private static bool EnsureNetworkComponents(GameObject networkedRoot)

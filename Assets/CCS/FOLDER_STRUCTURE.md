@@ -1,19 +1,19 @@
 # CCS Survival — Folder Structure Reference
 
 **Project:** CCS Survival  
-**Version:** 0.2.1 — Character Controller Test Ground  
+**Version:** Character Controller v0.2.4 — Unified Test Player + Condensed Scene Menus  
 **Unity:** 6000.3.10f1 (Unity 6)  
 **Author:** James Schilz  
-**Date:** June 18, 2026  
+**Date:** June 2026  
 **Location:** `Assets/CCS/FOLDER_STRUCTURE.md`
 
-This is the authoritative folder inventory for the **active** CCS Unity project after the v0.2.1 cleanup. Paths are relative to the repository root unless noted.
+This is the authoritative folder inventory for the **active** CCS Unity project. Paths are relative to the repository root unless noted.
 
 ---
 
 ## Table of Contents
 
-1. [What Changed in v0.2.1](#what-changed-in-v021)
+1. [What Changed Recently](#what-changed-recently)
 2. [Active Project Tree](#active-project-tree)
 3. [Architecture at a Glance](#architecture-at-a-glance)
 4. [Framework/](#framework)
@@ -26,37 +26,33 @@ This is the authoritative folder inventory for the **active** CCS Unity project 
 
 ---
 
-## What Changed in v0.2.1
+## What Changed Recently
 
-The repo was cleaned so only **actively used** content remains. No placeholder gameplay modules or empty project scaffolds.
+The Character Controller module now centers on **two test scenes** with **focused builder/validator tooling** — no legacy setup menus, scene generators, or auto-repair flows.
 
-### Removed
+### Removed / Retired
 
 | Removed | Reason |
 |---------|--------|
-| `Assets/CCS/Modules/Crafting/` | Placeholder only — no scripts or assets |
-| `Assets/CCS/Modules/Equipment/` | Placeholder only |
-| `Assets/CCS/Modules/Hotbar/` | Placeholder only |
-| `Assets/CCS/Modules/Interaction/` | Placeholder only |
-| `Assets/CCS/Modules/Inventory/` | Placeholder only |
-| `Assets/CCS/Modules/SaveSystem/` | Placeholder only |
-| `Assets/CCS/Modules/UI/` | Placeholder only |
-| `Assets/CCS/Shared/` | Empty scaffold — nothing referenced it |
-| `Assets/CCS/Tests/` | Empty scaffold — module tests live inside modules |
-| Temporary editor setup scripts | One-off asset/scene authoring menus removed |
+| Placeholder gameplay modules (`Crafting`, `Equipment`, `Hotbar`, etc.) | No implementation yet |
+| `Assets/CCS/Shared/` and `Assets/CCS/Tests/` (project root) | Empty scaffolds |
+| Legacy Character Controller setup menus | Replaced by builder + validator pattern |
+| `CCS_CharacterControllerTestSceneSetup` and old module-wide validate orchestration | Superseded by master test builder/validator |
+| Netcode auto-repair / duplicate prefab validators / UI polish editors | Single setup + validate path for hosting |
 
-### Kept
+### Kept / Added
 
-| Kept | Purpose |
+| Item | Purpose |
 |------|---------|
 | `Assets/CCS/Framework/` | Core platform |
 | `Assets/CCS/Project/` | Bootstrap, composition, docs |
 | `Assets/CCS/Modules/CharacterController/` | Only active gameplay module |
-| `Assets/Settings/` | Required URP / Input System settings |
-| `Packages/` | Required UPM dependencies |
-| `ProjectSettings/` | Unity configuration |
+| `Tests/Netcode/` | Local multiplayer test harness (Netcode for GameObjects) |
+| `SCN_CCS_CharacterController_MasterTest` | Primary traversal / controller test scene |
+| `SCN_CCS_MultiplayerHosting` | Host/join UI and NetworkManager scene |
+| `Assets/DefaultNetworkPrefabs.asset` | Netcode default list (kept **empty**; test prefabs register via `CCS_TestNetworkPrefabsList`) |
 
-**Policy going forward:** Do not recreate unused module folders ahead of implementation. Add a module folder only when that feature is being built, with runtime, test asset, validation, and docs.
+**Policy going forward:** Do not recreate unused module folders ahead of implementation. Test scenes are source of truth; editor tooling verifies/repairs hierarchy and reports problems — it does not regenerate scenes.
 
 ---
 
@@ -65,6 +61,11 @@ The repo was cleaned so only **actively used** content remains. No placeholder g
 ```text
 Assets/CCS/
 ├── FOLDER_STRUCTURE.md                 # This document
+│
+├── Scenes/                             # Project-wide scenes
+│   ├── Bootstrap/
+│   ├── CharacterController/
+│   └── Network/
 │
 ├── Framework/                          # Reusable core platform (gameplay-free)
 │   ├── Core/
@@ -81,23 +82,35 @@ Assets/CCS/
 │   └── CharacterController/            # Only active gameplay module
 │       ├── Runtime/
 │       ├── Editor/
+│       │   ├── CCS_CharacterControllerMasterTestMenus.cs
+│       │   └── Validation/             # Master test builder + validator
 │       ├── Content/Input/
 │       ├── Profiles/
+│       ├── Materials/
+│       │   ├── Environment/
+│       │   ├── Player/
+│       │   ├── Network/
+│       │   └── UI/
 │       ├── Prefabs/
+│       │   ├── Player/
+│       │   ├── Camera/
+│       │   ├── Environment/
+│       │   └── Network/
 │       ├── Tests/
-│       │   ├── Prefabs/
-│       │   ├── Materials/
-│       │   └── Scenes/
+│       │   ├── Runtime/
+│       │   ├── Editor/
+│       │   └── Netcode/
+│       │       ├── Editor/             # Hosting builder, validator, prefab setup
+│       │       └── Runtime/            # Hosting menu, netcode player behaviour
 │       └── Documentation/
 │
 └── Project/                            # Bootstrap and composition shell
     ├── Documentation/
     ├── Prefabs/
-    ├── Runtime/
-    └── Scenes/
+    └── Runtime/
 ```
 
-There is **no** `Assets/CCS/Shared/` or `Assets/CCS/Tests/` at the project root anymore.
+There is **no** `Assets/CCS/Shared/` or `Assets/CCS/Tests/` at the project root.
 
 ---
 
@@ -108,18 +121,22 @@ flowchart TD
     Core["Framework/Core\nCCS.Core.Runtime"]
     Project["Project\nCCS.Project.Runtime"]
     CC["Modules/CharacterController\nCCS.Modules.CharacterController.*"]
+    Netcode["Tests/Netcode\nCCS.Modules.CharacterController.Tests.Netcode.*"]
 
     CC --> Project
     CC --> Core
+    Netcode --> CC
+    Netcode --> Project
     Project --> Core
 ```
 
 | Rule | Detail |
 |------|--------|
 | Dependency direction | **Modules → Project → Core** (never reversed) |
+| Netcode test assembly | `Tests.Netcode.Runtime` → CharacterController.Runtime + Project + Netcode |
 | Module registration | Manual installer order in `CCS_SurvivalInstaller` |
 | Global state | No singleton managers or static service locators |
-| New modules | Must ship runtime, test asset, validation, and docs before moving on |
+| Test scenes | Source of truth; builders verify/repair hierarchy only |
 | Placeholders | Do not keep empty module folders for future features |
 
 ---
@@ -141,17 +158,19 @@ Assets/CCS/Framework/
 
 ### Core/Runtime — `CCS.Core.Runtime.asmdef`
 
-| Subfolder | Purpose | Key contents |
-|-----------|---------|--------------|
-| `Data/` | Shared data types | `CCS_Result`, `CCS_Message`, error codes |
-| `Diagnostics/` | Diagnostic report structs | Module, service, update-loop info |
-| `Modules/` | Module lifecycle | Registry, host, install plan, base classes |
-| `Services/` | Service registry | `CCS_ServiceRegistry`, `CCS_IService` |
-| `Systems/` | Core systems | Bootstrap runner, events, runtime host, update loop |
-| `SmokeTests/` | In-assembly smoke harness | Test modules, installers, bridge |
-| `Utilities/` | Shared utilities | Logging, validation helpers |
-| `Prefabs/` | Core prefabs | `PF_CCS_RuntimeHost.prefab` |
-| `Scenes/` | Core validation scene | `SCN_CCS_Bootstrap.unity` |
+| Subfolder | Purpose |
+|-----------|---------|
+| `Bootstrap/` | Core bootstrap contracts |
+| `Data/` | `CCS_Result`, messages, error codes |
+| `Diagnostics/` | Diagnostic report structs |
+| `Logging/` | Logging utilities |
+| `Modules/` | Registry, host, install plan, base classes, interfaces |
+| `Services/` | `CCS_ServiceRegistry`, `CCS_IService` |
+| `Systems/` | Bootstrap runner, events, runtime host, update loop |
+| `SmokeTests/` | In-assembly smoke harness |
+| `Utilities/` | Logging, validation helpers |
+| `Prefabs/` | `PF_CCS_RuntimeHost.prefab` |
+| `Scenes/` | `SCN_CCS_Bootstrap.unity` |
 
 **Key runtime types:**
 - `CCS_RuntimeHost` — instance-owned subsystem host
@@ -162,18 +181,11 @@ Assets/CCS/Framework/
 
 ### Core/Editor — `CCS.Core.Editor.asmdef`
 
-| Subfolder | State |
-|-----------|-------|
-| `Assembly/` | Reserved |
-| `Inspectors/` | Placeholder (`.gitkeep`) |
-| `Menus/` | Reserved |
-| `Utilities/` | Placeholder (`.gitkeep`) |
-| `Validators/` | Reserved |
-| `Windows/` | Placeholder (`.gitkeep`) |
+Reserved editor folders: `Assembly/`, `Inspectors/`, `Menus/`, `Utilities/`, `Validators/`, `Windows/`.
 
 ### Core/Documentation/
 
-Platform architecture, upstream workflow, GitHub template setup, release notes, and validation records.
+Platform architecture, upstream workflow, release notes, and validation records.
 
 ---
 
@@ -190,7 +202,7 @@ Assets/CCS/Modules/<Feature>/
 ├── Runtime/          # CCS.Modules.<Feature>.Runtime.asmdef
 ├── Editor/           # Validation and authoring tools
 ├── Content/          # Module-owned data
-├── Prefabs/          # Module test prefabs
+├── Prefabs/          # Module prefabs
 ├── Profiles/         # ScriptableObject configuration
 ├── Tests/            # Module test scenes and harness assets
 └── Documentation/    # Module contract and integration notes
@@ -198,21 +210,25 @@ Assets/CCS/Modules/<Feature>/
 
 ---
 
-### CharacterController/ — active (v0.2.1)
+### CharacterController/ — active
 
-**Assembly:** `CCS.Modules.CharacterController.Runtime` / `.Editor`  
-**Namespace:** `CCS.Modules.CharacterController`
+**Assemblies:**
+- `CCS.Modules.CharacterController.Runtime` / `.Editor`
+- `CCS.Modules.CharacterController.Tests.Netcode.Runtime` / `.Editor`
+
+**Namespace:** `CCS.Modules.CharacterController` (netcode test types under `CCS.Modules.CharacterController.Tests.Netcode`)
 
 #### Runtime/
 
-| Subfolder | Scripts | Purpose |
-|-----------|---------|---------|
-| `Components/` | 4 | Motor, camera, input provider, debug HUD |
-| `Services/` | 1 | `CCS_CharacterControllerService` |
-| `Profiles/` | 3 | Movement/camera ScriptableObject types |
-| `Data/` | 4 | State, snapshot, mode enums |
-| `Validation/` | 1 | Runtime asset/prefab validation |
-| *(root)* | 1 | `CCS_CharacterControllerConstants.cs` |
+| Subfolder | Purpose |
+|-----------|---------|
+| `Components/` | Motor, camera, input provider, debug HUD |
+| `Services/` | `CCS_CharacterControllerService` |
+| `Profiles/` | Movement/camera ScriptableObject types |
+| `Data/` | State, snapshot, mode enums |
+| `Validation/` | Runtime asset/prefab validation helpers |
+| `Utilities/` | `CCS_SingleAudioListenerUtility` |
+| *(root)* | `CCS_CharacterControllerConstants.cs` |
 
 **Key components:**
 - `CCS_CharacterMotor` — profile-driven movement
@@ -220,17 +236,45 @@ Assets/CCS/Modules/<Feature>/
 - `CCS_CharacterInputActionProvider` — Input System binding
 - `CCS_CharacterControllerDebugHud` — OnGUI dev HUD (test prefab only)
 
-#### Editor/
+#### Editor/Validation/
 
-Long-term validation only. **No setup/menu authoring scripts.**
+Master test scene tooling only. **No** legacy setup or ground-creation menus.
 
 | Script | Purpose |
 |--------|---------|
-| `Validation/CCS_CharacterControllerValidationValidator.cs` | Full validation orchestration |
-| `Validation/CCS_CharacterControllerValidationRegistration.cs` | Menu registration |
-| `Validation/CCS_CharacterControllerTestSceneValidationUtility.cs` | Test ground prefab/scene validation |
+| `CCS_CharacterControllerMasterTestLayoutConstants.cs` | Expected layout for master test scene |
+| `CCS_CharacterControllerMasterTestBuilder.cs` | Verify/repair hierarchy (does not regenerate scene) |
+| `CCS_CharacterControllerMasterTestValidator.cs` | Report-only validation |
 
-**Menu:** `CCS/Modules/Character Controller/Validate`
+#### Tests/Netcode/Editor/
+
+Hosting and netcode asset wiring. Assigns **project prefab assets only**.
+
+| Script | Purpose |
+|--------|---------|
+| `CCS_CharacterControllerTestHarnessMenus.cs` | Setup + validate menu registration |
+| `CCS_NetcodeNetworkPrefabSetupUtility.cs` | Clears/rebuilds NetworkManager + prefab list assets |
+| `CCS_MultiplayerHostingBuilder.cs` | Hosting scene hierarchy verify/repair |
+| `CCS_MultiplayerHostingValidator.cs` | Report-only hosting + prefab validation |
+
+**Editor menus:**
+
+| Menu | Action |
+|------|--------|
+| `CCS/Character Controller/Scene/Setup And Validate Master Test Scene` | Master test builder + validate |
+| `CCS/Character Controller/Scene/Setup And Validate Multiplayer Hosting Scene` | Hosting scene repair + UI rebuild + validate |
+
+#### Tests/Netcode/Runtime/
+
+| Script | Purpose |
+|--------|---------|
+| `CCS_MultiplayerHostingMenu.cs` | Host/join UI; validates config before StartHost/StartClient |
+| `CCS_LocalMultiplayerTestLauncher.cs` | Connection approval, offline actor disable, spawn placement |
+| `CCS_ControllerTestNetworkPlayerBehaviour.cs` | Owner/remote visuals, camera rig wiring |
+| `CCS_NetworkPlayerNameplate.cs` | NetworkVariable display name |
+| `CCS_MultiplayerTestSpawnUtility.cs` | Dedicated spawn points in master test scene |
+| `CCS_NetcodeNetworkConfigValidationUtility.cs` | Runtime prefab reference guard |
+| `CCS_NetcodeTestConstants.cs` | Shared paths and test constants |
 
 #### Content/Input/
 
@@ -245,44 +289,76 @@ Long-term validation only. **No setup/menu authoring scripts.**
 | `Movement/CCS_CharacterMovementProfile_Default.asset` | Default movement tuning |
 | `Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset` | Third-person camera profile |
 | `Camera/CCS_DefaultCharacterCameraProfileSet.asset` | Active camera profile set |
+| `TestPlayer/CCS_TestPlayerDisplayProfile_Default.asset` | Test player visual layout + profile references |
 
 #### Prefabs/
 
-| Asset | Purpose |
-|-------|---------|
-| `PF_CCS_CharacterController_TestPlayer.prefab` | Test player with Cinemachine stack |
+| Path | Asset | Purpose |
+|------|-------|---------|
+| `Player/` | `PF_CCS_CharacterController_TestNPC.prefab` | Offline NPC route runner |
+| `Camera/` | `PF_CCS_CharacterCameraRig.prefab` | Scene camera rig for master test |
+| `Environment/` | `PF_CCS_TestGround_OneMeterGrid.prefab` | 200m × 200m grid ground |
+| `Environment/` | `PF_CCS_TestBuilding_RoofPlatform.prefab` | 8m × 10m building with roof at Y=3 |
+| `Environment/` | `PF_CCS_TestStairs_RoofAccess.prefab` | Rear stairs (12 steps) |
+| `Environment/` | `PF_CCS_TestRamp_RoofAccess.prefab` | Front ramp (3m rise / 6m run) |
+| `Environment/` | `PF_CCS_TestDoor_Single.prefab` | Door prop (nested in building) |
+| `Network/` | `PF_CCS_TestNetworkManager.prefab` | NetworkManager + transport + launcher |
+| `Network/` | `CCS_TestNetworkPrefabsList.asset` | One entry: networked player prefab |
 
-Not placed in the test scene yet — drop into any lit scene to test movement.
+#### Materials/
+
+| Path | Purpose |
+|------|---------|
+| `Environment/` | Ground grid, brick, concrete, door wood, course default |
+| `Player/` | Yellow, red, green, black test player materials |
+| `Network/` | Reserved |
+| `UI/` | Reserved |
+
+#### Scenes/ (project-wide)
+
+| Path | Scene | Purpose |
+|------|-------|---------|
+| `Assets/CCS/Scenes/Bootstrap/` | `SCN_CCS_Survival_Bootstrap.unity` | Project bootstrap entry |
+| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_MasterTest.unity` | **Primary** controller + traversal test scene |
+| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_Test.unity` | Legacy ground-only test scene |
+| `Assets/CCS/Scenes/Network/` | `SCN_CCS_MultiplayerHosting.unity` | Host/join UI; contains `PF_CCS_TestNetworkManager` instance |
+
+**Master test scene layout (source of truth):**
+
+```text
+PF_CCS_Survival_BootstrapRoot
+Environment/
+├── PF_CCS_TestGround_OneMeterGrid
+├── PF_CCS_TestBuilding_RoofPlatform
+│   └── PF_CCS_TestDoor_Single
+├── PF_CCS_TestStairs_RoofAccess
+└── PF_CCS_TestRamp_RoofAccess
+
+TestPoints/
+├── TP_Spawn_Host / TP_Spawn_Client_01 / TP_Spawn_Client_02
+├── Traversal markers (stairs, roof, ramp, door, cover, loop complete)
+
+Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked
+PF_CCS_CharacterCameraRig
+PF_CCS_CharacterController_TestNPC
+Directional Light
+```
+
+Course origin: world `(30, 0, 30)`. Ground grid at world origin `(0, 0, 0)`.
 
 #### Tests/
 
-| Asset | Path | Purpose |
-|-------|------|---------|
-| Ground prefab | `Tests/Prefabs/PF_CCS_TestGround_OneMeterGrid.prefab` | Reusable 200m × 200m grid ground |
-| Ground material | `Tests/Materials/M_CCS_TestGround_1mGrid.mat` | URP Lit 1m grid material |
-| Ground texture | `Tests/Materials/T_CCS_TestGround_1mGrid.png` | 10m repeat grid texture |
-| Test scene | `Tests/Scenes/SCN_CCS_CharacterController_Test.unity` | Ground-only test environment |
+Test **scripts** only — scenes and prefabs live under `Assets/CCS/Scenes/` and `Prefabs/` above.
 
-**Ground conventions:**
+| Path | Purpose |
+|------|---------|
+| `Tests/Prefabs/` | Canonical network-capable test player prefab |
+| `Tests/Runtime/` | Solo spawn, offline bootstrap, session events, join feed UI |
+| `Tests/Editor/` | Offline test editor helpers |
+| `Tests/Netcode/Runtime/` | Hosting menu, netcode player behaviour |
+| `Tests/Netcode/Editor/` | Hosting builder, validator, prefab setup menus |
 
-| Item | Name / value |
-|------|--------------|
-| Prefab asset | `PF_CCS_TestGround_OneMeterGrid` |
-| Scene instance | `CCS_TestGround_OneMeterGrid` |
-| Plane scale | `(20, 1, 20)` = **200m × 200m** |
-| Grid rule | 1 texture repeat = 10m; 10 cells per repeat = **1m per cell** |
-| Material tiling | `20×20` on the 200m plane |
-
-**Test scene contents (ground-only milestone):**
-
-| Scene object | In scene? |
-|--------------|-----------|
-| `CCS_TestGround_OneMeterGrid` (prefab instance) | Yes |
-| `Directional Light` | Yes |
-| `Main Camera` (preview) | Yes |
-| `CCS_TestSceneLabel` | Yes |
-| Test player prefab | **No** (future step) |
-| Gameplay / bootstrap objects | **No** |
+**Netcode flow:** Play hosting scene → enter name → host/join → load master test scene additively.
 
 #### Documentation/
 
@@ -316,18 +392,8 @@ References `CCS.Core.Runtime` only. Namespace: `CCS.Project`.
 | `Installers/` | `CCS_SurvivalInstaller` module install order |
 | `Context/` | `CCS_SurvivalRuntimeContext` |
 | `Diagnostics/` | Project-level diagnostics |
-| `Foundation/Bootstrap/` | Bootstrap profile slots |
-| `Foundation/Diagnostics/` | Constants and future integration markers |
-| `Foundation/Modules/` | `CCS_SurvivalModuleBase`, installer base |
-| `Foundation/Profiles/` | `CCS_SurvivalProfileBase` |
-| `Foundation/Scene/` | Scene bootstrap rules and validation |
-| `Foundation/Services/` | `CCS_ISurvivalService` marker |
-| `Foundation/Validation/` | Module validation framework |
-| `Character/Authority/` | Authority ownership contracts |
-| `Character/Avatar/` | Avatar representation and binding |
-| `Character/Identity/` | Stable ID validation |
-| `Character/Modules/` | Character module installer wiring |
-| `Character/Diagnostics/` | Character diagnostics |
+| `Foundation/` | Module base, profiles, scene rules, validation framework |
+| `Character/` | Authority, avatar, identity contracts (transitional skeleton) |
 
 > **Transitional:** Some character skeleton code still lives under `Project/Runtime/Character/` until fully moved into module assemblies.
 
@@ -340,8 +406,6 @@ References `CCS.Core.Runtime` only. Namespace: `CCS.Project`.
 
 ### Documentation/
 
-Project-specific docs only (bootstrap, runtime foundation, validation standards, architecture gate):
-
 | Document | Topic |
 |----------|-------|
 | `Survival_Framework_Architecture_Gate.md` | Ownership boundaries and audit rules |
@@ -350,14 +414,6 @@ Project-specific docs only (bootstrap, runtime foundation, validation standards,
 | `Survival_Scene_Bootstrap_Standards.md` | Composition root and scene validation |
 | `CCS_Versioning_Policy.md` | Version map and tagging rules |
 
-Broader planning docs moved to repo [`Documentation/`](../../../../Documentation/README.md):
-
-| Document | Location |
-|----------|----------|
-| `Future_Gameplay_Module_Guidelines.md` | `Documentation/Planning/` |
-| `Framework_Architecture_Guide.md` | `Documentation/Planning/` |
-| `Survival_Authority_And_Avatar_Architecture.md` | `Documentation/Architecture/` |
-
 Full index: [Project/Documentation/README.md](Project/Documentation/README.md)
 
 ---
@@ -365,6 +421,12 @@ Full index: [Project/Documentation/README.md](Project/Documentation/README.md)
 ## Surrounding Unity Folders
 
 These sit outside `Assets/CCS/` but are part of the active project.
+
+### Assets/ (project-level netcode)
+
+| Asset | Purpose |
+|-------|---------|
+| `DefaultNetworkPrefabs.asset` | Netcode default prefab list — **must stay empty** for this project |
 
 ### Assets/Settings/
 
@@ -383,23 +445,18 @@ These sit outside `Assets/CCS/` but are part of the active project.
 | `com.unity.render-pipelines.universal` | 17.3.0 | URP |
 | `com.unity.inputsystem` | 1.18.0 | Input System |
 | `com.unity.cinemachine` | 3.1.2 | Third-person camera |
+| `com.unity.netcode.gameobjects` | 2.4.4 | Multiplayer test harness |
+| `com.unity.transport` | 2.5.2 | UTP transport |
 | `com.unity.ai.navigation` | 2.0.12 | Navigation |
 | `com.unity.test-framework` | 1.6.0 | Testing |
 
 ### ProjectSettings/
 
-Standard Unity configuration. Notable fix from v0.2.1 cleanup:
-
-- `templateDefaultScene` → `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity`
+Standard Unity configuration. Entry scene: `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity`
 
 ### Documentation/ (repo root)
 
-Repo-level direction docs only. Active architecture lives in `Assets/CCS/Project/Documentation/`.
-
-| Document | Topic |
-|----------|-------|
-| `Architecture/Survival_Networking_Authority.md` | Multiplayer authority direction |
-| `Architecture/Survival_Persistence_Direction.md` | Save/load direction |
+Repo-level direction docs. Active architecture lives in `Assets/CCS/Project/Documentation/`.
 
 ### Generated locally (not in Git)
 
@@ -413,8 +470,8 @@ Repo-level direction docs only. Active architecture lives in `Assets/CCS/Project
 |------|---------------|-------------------|
 | `CCS.Core.Runtime` | Unity, self | Project, Modules, gameplay |
 | `CCS.Project.Runtime` | Core | Individual module internals |
-| `CCS.Modules.CharacterController.*` | Core, Project | Other modules directly |
-| Future `Assets/CCS/Shared/` (when created) | Core | Project/modules unless documented |
+| `CCS.Modules.CharacterController.Runtime` | Core, Project | Other modules directly |
+| `CCS.Modules.CharacterController.Tests.Netcode.Runtime` | Core, Project, CharacterController.Runtime, Netcode | Production lobby/account services |
 
 **Save-stable identity prefixes:**
 - Module: `ccs.survival.`
@@ -430,15 +487,16 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 
 | Task | Path |
 |------|------|
-| Develop from bootstrap | `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
-| Open test ground scene | `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity` |
-| Test player prefab | `Assets/CCS/Modules/CharacterController/Prefabs/PF_CCS_CharacterController_TestPlayer.prefab` |
-| Test ground prefab | `Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_TestGround_OneMeterGrid.prefab` |
-| Ground material | `Assets/CCS/Modules/CharacterController/Tests/Materials/M_CCS_TestGround_1mGrid.mat` |
-| Run validation | Menu: `CCS/Modules/Character Controller/Validate` |
-| Architecture rules | `Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md` |
-| Add a future module | `Documentation/Planning/Future_Gameplay_Module_Guidelines.md` |
+| Develop from bootstrap | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
+| Open master controller test | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
+| Open multiplayer hosting | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` |
+| Canonical test player | `Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab` |
+| Network manager prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Network/PF_CCS_TestNetworkManager.prefab` |
+| Test ground prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab` |
+| Setup + validate master test | Menu: `CCS/Character Controller/Scene/Setup And Validate Master Test Scene` |
+| Setup + validate hosting | Menu: `CCS/Character Controller/Scene/Setup And Validate Multiplayer Hosting Scene` |
 | Core smoke test scene | `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity` |
+| Architecture rules | `Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md` |
 
 ---
 
@@ -454,8 +512,8 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 
 ## Active Module Summary
 
-| Module | Version | Status |
-|--------|---------|--------|
-| **CharacterController** | 0.2.1 | Movement, camera, input, test player prefab, test ground prefab/scene, validation |
+| Module | Status |
+|--------|--------|
+| **CharacterController** | Movement, camera, input, master test scene, local netcode harness, builder/validator tooling |
 
 No other gameplay modules exist. Create the next module only when implementation begins.

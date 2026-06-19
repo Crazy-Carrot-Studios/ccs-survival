@@ -27,7 +27,7 @@ namespace CCS.Modules.CharacterController.Tests
             ApplyNameplateLayout(playerRoot.transform, displayProfile);
             ApplyCapsuleVisualLayout(playerRoot.transform, displayProfile);
             ApplyGlassesLayout(playerRoot.transform, displayProfile);
-            ApplyCameraFollowLayout(playerRoot, displayProfile);
+            ApplyCameraFollowLayout(playerRoot.transform, displayProfile);
         }
 
         public static void ApplyGameplayProfiles(GameObject playerRoot, CCS_TestPlayerDisplayProfile displayProfile)

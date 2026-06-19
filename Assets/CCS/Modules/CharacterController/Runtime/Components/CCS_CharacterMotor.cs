@@ -10,7 +10,7 @@ using UnityEngine;
 
 // PURPOSE: Camera-relative CharacterController movement with profile-driven tuning.
 
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer root.
+// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
 
 // AUTHOR: James Schilz
 

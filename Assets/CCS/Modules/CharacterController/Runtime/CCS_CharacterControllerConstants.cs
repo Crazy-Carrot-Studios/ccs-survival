@@ -5,14 +5,14 @@
 // PLACEMENT: Static constants. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.2.1 active module scope. No gameplay dependencies outside this module.
+// NOTES: v0.2.4 active module scope. No gameplay dependencies outside this module.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
 {
     public static class CCS_CharacterControllerConstants
     {
-        public const string ModuleVersion = "0.2.3";
+        public const string ModuleVersion = "0.2.4";
 
         public const string ModuleLogCategory = "Character Controller";
 
@@ -103,6 +103,6 @@ namespace CCS.Modules.CharacterController
 
         public const float DefaultJumpBufferTime = 0.1f;
 
-        public const float DefaultAirControl = 0.35f;
+        public const float DefaultAirControl = 0.4f;
     }
 }

@@ -1432,8 +1432,23 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
+        private static void ValidateDeprecatedPlayerPrefabsRemoved(List<string> failures)
+        {
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath),
+                $"Deprecated solo test player prefab must be removed: {CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath}");
+
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_TestPlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath),
+                $"Duplicate networked test player prefab must be removed: {CCS_TestPlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath}");
+        }
+
         private static void ValidatePlayerPrefabAssets(List<string> failures)
         {
+            ValidateDeprecatedPlayerPrefabsRemoved(failures);
+
             ValidatePlayerNameplatePrefab(
                 failures,
                 CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath,

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 // SCRIPT: CCS_CharacterInputActionProvider
 // CATEGORY: Modules / CharacterController / Runtime / Components
 // PURPOSE: Reads module-owned Input System actions and exposes input state.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer root.
+// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Look is diagnostics-only here; Cinemachine owns camera look on the scene rig.

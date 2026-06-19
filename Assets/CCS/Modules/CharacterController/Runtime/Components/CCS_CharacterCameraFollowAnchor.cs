@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_CharacterCameraFollowAnchor
 // CATEGORY: Modules / CharacterController / Runtime / Components
 // PURPOSE: World-stable Cinemachine follow anchor decoupled from body yaw.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer / CameraFollowAnchor.
+// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / CameraFollowAnchor.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Tracks body height only. Rotation stays world-aligned so body turn +

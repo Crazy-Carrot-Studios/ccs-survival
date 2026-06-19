@@ -117,7 +117,7 @@ namespace CCS.Modules.CharacterController.Tests
                 playerCameraController.enabled = false;
             }
 
-            float followHeight = displayProfile != null ? displayProfile.CameraFollowHeight : 1.05f;
+            float followHeight = displayProfile != null ? displayProfile.CameraFollowHeight : 0.92f;
             if (followAnchor != null)
             {
                 followAnchor.Configure(playerRoot.transform, lookTarget, followHeight);

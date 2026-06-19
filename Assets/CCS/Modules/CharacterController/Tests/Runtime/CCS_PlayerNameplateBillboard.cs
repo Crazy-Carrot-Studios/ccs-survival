@@ -5,7 +5,7 @@ using UnityEngine;
 // SCRIPT: CCS_PlayerNameplateBillboard
 // CATEGORY: Modules / CharacterController / Tests / Runtime
 // PURPOSE: Local-client nameplate visibility and camera-facing billboard rotation.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer / NameplateRoot.
+// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / NameplateRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Hides local owner nameplates without disabling the player root.

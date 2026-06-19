@@ -30,7 +30,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 errorMessage =
                     "NetworkManager is missing. Open SCN_CCS_MultiplayerHosting and run "
-                    + "CCS > Modules > Character Controller > Scene > Setup Multiplayer Hosting Scene.";
+                    + "CCS > Character Controller > Scene > Setup And Validate Multiplayer Hosting Scene.";
                 return false;
             }
 

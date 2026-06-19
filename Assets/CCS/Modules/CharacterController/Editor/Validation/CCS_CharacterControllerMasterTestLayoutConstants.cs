@@ -81,9 +81,6 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
-        public const string PlayerPrefabPath =
-            CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath;
-
         public const string NetworkedPlayerPrefabPath =
             CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
 

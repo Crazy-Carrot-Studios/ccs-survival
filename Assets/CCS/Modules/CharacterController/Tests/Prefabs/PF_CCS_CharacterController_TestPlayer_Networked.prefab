@@ -495,7 +495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb10207f4d9ecbf4bbb14eda583503b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_TestPlayerOfflineBootstrap
-  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcd, type: 2}
+  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcde, type: 2}
 --- !u!1 &2703561894607568330
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_CharacterControllerDebugHud
 // CATEGORY: Modules / CharacterController / Runtime / Components
 // PURPOSE: Dev/test OnGUI HUD for character controller diagnostics.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer root.
+// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Dev/test only. Not production HUD.
