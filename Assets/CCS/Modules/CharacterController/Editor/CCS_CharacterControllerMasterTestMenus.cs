@@ -1,131 +1,63 @@
 using CCS.Project;
-
 using UnityEditor;
-
 using UnityEngine;
 
-
-
 // =============================================================================
-
 // SCRIPT: CCS_CharacterControllerMasterTestMenus
-
 // CATEGORY: Modules / CharacterController / Editor
-
-// PURPOSE: Registers master test scene setup and validation menus.
-
+// PURPOSE: Registers the master test scene setup-and-validate editor menu.
 // PLACEMENT: Editor-only static registration. Not attached to GameObjects.
-
 // AUTHOR: James Schilz
-
 // CREATED: 2026-06-07
-
-// NOTES: Setup runs builder only. Validator reports problems only.
-
+// NOTES: Single menu action runs builder then validator in sequence.
 // =============================================================================
-
-
 
 namespace CCS.Modules.CharacterController.Editor
-
 {
-
     public static class CCS_CharacterControllerMasterTestMenus
-
     {
-
-        private const string SceneMenuRoot = "CCS/Modules/Character Controller/Scene/";
-
-
+        private const string SceneMenuRoot = "CCS/Character Controller/Scene/";
 
         #region Public Methods
 
-
-
-        [MenuItem(SceneMenuRoot + "Setup Master Test Scene")]
-
-        public static void SetupMasterTestSceneMenu()
-
-        {
-
-            CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
-
-        }
-
-
-
-        [MenuItem(SceneMenuRoot + "Validate Master Test Scene")]
-
-        public static void ValidateMasterTestSceneMenu()
-
-        {
-
-            LogResult(CCS_CharacterControllerMasterTestValidator.ValidateMasterTestScene());
-
-        }
-
-
-
         [MenuItem(SceneMenuRoot + "Setup And Validate Master Test Scene")]
-
-        public static void RunBatchSetupAndValidateMenu()
-
+        public static void SetupAndValidateMasterTestSceneMenu()
         {
-
             RunBatchSetupAndValidate();
-
         }
-
-
 
         public static void RunBatchSetupAndValidate()
-
         {
-
-            CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
-
-            LogResult(CCS_CharacterControllerMasterTestValidator.ValidateMasterTestScene());
-
+            SetupMasterTestScene();
+            LogResult(ValidateMasterTestScene());
         }
 
-
-
         #endregion
-
-
 
         #region Private Methods
 
-
-
-        private static void LogResult(CCS_SurvivalValidationResult result)
-
+        private static void SetupMasterTestScene()
         {
-
-            if (result.IsSuccess)
-
-            {
-
-                Debug.Log($"[Validation] Passed: {result.Message}");
-
-            }
-
-            else
-
-            {
-
-                Debug.LogError($"[Validation] Failed: {result.Message}");
-
-            }
-
+            CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
         }
 
+        private static CCS_SurvivalValidationResult ValidateMasterTestScene()
+        {
+            return CCS_CharacterControllerMasterTestValidator.ValidateMasterTestScene();
+        }
 
+        private static void LogResult(CCS_SurvivalValidationResult result)
+        {
+            if (result.IsSuccess)
+            {
+                Debug.Log($"[Validation] Passed: {result.Message}");
+            }
+            else
+            {
+                Debug.LogError($"[Validation] Failed: {result.Message}");
+            }
+        }
 
         #endregion
-
     }
-
 }
-
-
