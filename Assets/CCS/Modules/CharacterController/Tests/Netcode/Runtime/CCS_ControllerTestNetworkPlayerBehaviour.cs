@@ -160,6 +160,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             }
 
             ApplyPlayerVisuals();
+            ApplyDisplayProfileLayout();
             ApplyNameplateVisibility();
             LogNetworkSpawnState();
             LogTransformAuthorityState();
@@ -361,6 +362,21 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             ApplyGlassesMaterial();
         }
 
+        private void ApplyDisplayProfileLayout()
+        {
+            CCS_TestPlayerOfflineBootstrap bootstrap = GetComponent<CCS_TestPlayerOfflineBootstrap>();
+            if (bootstrap == null || bootstrap.DisplayProfile == null)
+            {
+                return;
+            }
+
+            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(gameObject, bootstrap.DisplayProfile);
+            if (IsOwner)
+            {
+                CCS_TestPlayerDisplayProfileApplicator.ApplyGameplayProfiles(gameObject, bootstrap.DisplayProfile);
+            }
+        }
+
         private void ApplyBodyMaterial()
         {
             if (bodyRenderer == null)
@@ -477,7 +493,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 new CCS_TestPlayerSessionContext(
                     OwnerClientId,
                     gameObject,
-                    GetComponent<CCS_NetworkPlayerNameplate>(),
                     isNetworkSession: true,
                     IsOwner));
             return true;

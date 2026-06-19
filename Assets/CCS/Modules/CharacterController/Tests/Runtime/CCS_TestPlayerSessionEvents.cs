@@ -1,5 +1,4 @@
 using System;
-using CCS.Modules.CharacterController.Tests.Netcode;
 using UnityEngine;
 
 // =============================================================================
@@ -66,8 +65,6 @@ namespace CCS.Modules.CharacterController.Tests
 
         public GameObject PlayerRoot { get; }
 
-        public CCS_NetworkPlayerNameplate NetworkNameplate { get; }
-
         public bool IsNetworkSession { get; }
 
         public bool IsLocalOwner { get; }
@@ -75,13 +72,11 @@ namespace CCS.Modules.CharacterController.Tests
         public CCS_TestPlayerSessionContext(
             ulong ownerClientId,
             GameObject playerRoot,
-            CCS_NetworkPlayerNameplate networkNameplate,
             bool isNetworkSession,
             bool isLocalOwner)
         {
             OwnerClientId = ownerClientId;
             PlayerRoot = playerRoot;
-            NetworkNameplate = networkNameplate;
             IsNetworkSession = isNetworkSession;
             IsLocalOwner = isLocalOwner;
         }
@@ -93,16 +88,13 @@ namespace CCS.Modules.CharacterController.Tests
 
         public string PlayerName { get; }
 
-        public CCS_NetworkPlayerNameplate NetworkNameplate { get; }
+        public GameObject PlayerRoot { get; }
 
-        public CCS_TestPlayerNameChangedContext(
-            ulong ownerClientId,
-            string playerName,
-            CCS_NetworkPlayerNameplate networkNameplate)
+        public CCS_TestPlayerNameChangedContext(ulong ownerClientId, string playerName, GameObject playerRoot)
         {
             OwnerClientId = ownerClientId;
             PlayerName = playerName;
-            NetworkNameplate = networkNameplate;
+            PlayerRoot = playerRoot;
         }
     }
 

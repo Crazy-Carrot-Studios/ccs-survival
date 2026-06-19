@@ -14,20 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
   profileDisplayName: Third Person Survival
   profileId: ccs.survival.profile.character.camera.thirdperson
-  profileDescription: Default third-person survival camera profile for Cinemachine
-    3.1.
-  profileVersion: 0.2.0
+  profileDescription: Full-body third-person survival camera tuned for v0.2.3 polish.
+  profileVersion: 0.2.3
   enableDebugLogs: 0
   cameraMode: 0
-  orbitalRadius: 4.5
-  followTargetHeight: 1.05
-  cameraHeight: 0.12
-  cameraShoulderOffset: {x: 0.45, y: 0.12, z: 0}
+  orbitalRadius: 5.75
+  followTargetHeight: 0.92
+  cameraHeight: 0.08
+  cameraShoulderOffset: {x: 0.48, y: 0.05, z: 0}
   verticalArmLength: 0.25
   cameraSide: 1
-  verticalOrbitDefault: 0
-  verticalOrbitMin: -35
-  verticalOrbitMax: 60
+  verticalOrbitDefault: -10
+  verticalOrbitMin: -30
+  verticalOrbitMax: 55
   mouseSensitivityX: 0.12
   mouseSensitivityY: 0.1
   gamepadSensitivityX: 90
@@ -38,6 +37,6 @@ MonoBehaviour:
   followDampingZ: 0.25
   obstacleAvoidanceEnabled: 1
   obstacleAvoidanceRadius: 0.25
-  zoomDistanceMin: 2.5
-  zoomDistanceMax: 6
+  zoomDistanceMin: 4.25
+  zoomDistanceMax: 7.25
   aimTransitionSpeed: 8

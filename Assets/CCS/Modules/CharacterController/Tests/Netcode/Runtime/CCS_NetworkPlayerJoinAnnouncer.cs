@@ -122,21 +122,22 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private static void HandlePlayerSpawned(CCS_TestPlayerSessionContext context)
         {
-            if (!context.IsNetworkSession || context.NetworkNameplate == null || !context.NetworkNameplate.IsSpawned)
+            CCS_NetworkPlayerNameplate nameplate = ResolveNetworkNameplate(context);
+            if (!context.IsNetworkSession || nameplate == null || !nameplate.IsSpawned)
             {
                 return;
             }
 
             EnsureLifecycleSubscription();
 
-            if (context.NetworkNameplate.IsServer
+            if (nameplate.IsServer
                 && NetworkManager.Singleton != null
                 && context.OwnerClientId == NetworkManager.Singleton.LocalClientId)
             {
                 CCS_JoinFeedDebugLog.HostStarted(context.OwnerClientId);
             }
 
-            if (context.NetworkNameplate.IsServer)
+            if (nameplate.IsServer)
             {
                 FlushAllServerPendingAnnouncements();
             }
@@ -144,16 +145,29 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private static void HandlePlayerNameChanged(CCS_TestPlayerNameChangedContext context)
         {
-            if (context.NetworkNameplate == null
-                || !context.NetworkNameplate.IsSpawned
-                || !context.NetworkNameplate.IsServer)
+            CCS_NetworkPlayerNameplate nameplate = ResolveNetworkNameplate(context);
+            if (nameplate == null || !nameplate.IsSpawned || !nameplate.IsServer)
             {
                 return;
             }
 
             EnsureLifecycleSubscription();
             CCS_JoinFeedDebugLog.NameSubmitted(context.OwnerClientId, context.PlayerName);
-            ServerTryAnnounceJoin(context.NetworkNameplate, context.PlayerName);
+            ServerTryAnnounceJoin(nameplate, context.PlayerName);
+        }
+
+        private static CCS_NetworkPlayerNameplate ResolveNetworkNameplate(CCS_TestPlayerSessionContext context)
+        {
+            return context.PlayerRoot != null
+                ? context.PlayerRoot.GetComponent<CCS_NetworkPlayerNameplate>()
+                : null;
+        }
+
+        private static CCS_NetworkPlayerNameplate ResolveNetworkNameplate(CCS_TestPlayerNameChangedContext context)
+        {
+            return context.PlayerRoot != null
+                ? context.PlayerRoot.GetComponent<CCS_NetworkPlayerNameplate>()
+                : null;
         }
 
         private static void HandleFeedRegistered()

@@ -24,5 +24,15 @@ namespace CCS.Modules.CharacterController.Tests
         public const string NetworkedPlayerInstanceName = "PF_CCS_CharacterController_TestPlayer_Networked";
 
         public const string DeprecatedOfflinePlayerInstanceName = "PF_CCS_CharacterController_TestPlayer";
+
+        public const string NameplateRootObjectName = "NameplateRoot";
+
+        public const string NameplateTextObjectName = "PlayerNameText";
+
+        public const string CapsuleVisualName = "CapsuleVisual";
+
+        public const string GlassesVisualName = "VisualGlasses";
+
+        public const string DefaultDisplayName = "Player";
     }
 }

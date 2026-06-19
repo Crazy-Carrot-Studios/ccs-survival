@@ -1,6 +1,5 @@
 using System.Collections;
 using CCS.Modules.CharacterController;
-using CCS.Modules.CharacterController.Tests.Netcode;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -141,7 +140,7 @@ namespace CCS.Modules.CharacterController.Tests
                 return;
             }
 
-            Transform bodyVisual = player.transform.Find(CCS_NetcodeTestConstants.CapsuleVisualName);
+            Transform bodyVisual = player.transform.Find(CCS_TestPlayerPrefabConstants.CapsuleVisualName);
             if (bodyVisual == null)
             {
                 return;

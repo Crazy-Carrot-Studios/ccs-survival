@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMovementProfile
   profileDisplayName: Default Movement
   profileId: ccs.survival.profile.character.movement.default
-  profileDescription: Default third-person grounded movement tuning for v0.2.0.
-  profileVersion: 0.2.0
+  profileDescription: Polished third-person grounded movement tuning for v0.2.3.
+  profileVersion: 0.2.3
   enableDebugLogs: 0
-  walkSpeed: 4
-  sprintSpeed: 6
-  acceleration: 12
-  deceleration: 16
+  walkSpeed: 4.25
+  sprintSpeed: 6.5
+  acceleration: 14
+  deceleration: 18
   gravity: -20
   jumpEnabled: 1
   jumpHeight: 1.25
   coyoteTime: 0.1
   jumpBufferTime: 0.1
-  rotationSmoothing: 540
-  airControl: 0.35
+  rotationSmoothing: 720
+  airControl: 0.4

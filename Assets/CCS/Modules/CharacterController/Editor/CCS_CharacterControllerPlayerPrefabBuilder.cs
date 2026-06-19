@@ -64,6 +64,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
             changed |= EnsureOfflineBootstrap(prefabRoot);
             changed |= WireDisplayProfile(prefabRoot);
+            changed |= ApplyDisplayProfileLayout(prefabRoot);
 
             RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -105,6 +106,19 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return changed;
+        }
+
+        private static bool ApplyDisplayProfileLayout(GameObject prefabRoot)
+        {
+            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
+                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            if (displayProfile == null)
+            {
+                return false;
+            }
+
+            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(prefabRoot, displayProfile);
+            return true;
         }
 
         private static bool EnsureVisualSetupOnPrefab(string prefabPath)
@@ -345,19 +359,32 @@ namespace CCS.Modules.CharacterController.Editor
                 return false;
             }
 
+            bool changed = false;
+            if (bodyVisual.localPosition != CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalPosition)
+            {
+                bodyVisual.localPosition = CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalPosition;
+                changed = true;
+            }
+
+            if (bodyVisual.localScale != CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalScale)
+            {
+                bodyVisual.localScale = CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalScale;
+                changed = true;
+            }
+
             MeshRenderer renderer = bodyVisual.GetComponent<MeshRenderer>();
             if (renderer == null)
             {
-                return false;
+                return changed;
             }
 
-            if (renderer.sharedMaterial == yellowMaterial)
+            if (renderer.sharedMaterial != yellowMaterial)
             {
-                return false;
+                renderer.sharedMaterial = yellowMaterial;
+                changed = true;
             }
 
-            renderer.sharedMaterial = yellowMaterial;
-            return true;
+            return changed;
         }
 
         private static bool EnsureGlassesVisual(Transform playerRoot)

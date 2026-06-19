@@ -3,6 +3,7 @@
     "rootNamespace": "CCS.Modules.CharacterController.Tests",
     "references": [
         "CCS.Modules.CharacterController.Runtime",
+        "CCS.Project.Runtime",
         "Unity.Cinemachine",
         "Unity.Netcode.Runtime",
         "Unity.TextMeshPro",

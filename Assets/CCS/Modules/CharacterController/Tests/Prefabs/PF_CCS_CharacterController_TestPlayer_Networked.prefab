@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 882010001}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.2, z: 0}
+  m_LocalPosition: {x: 0, y: 2.12, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -246,6 +246,7 @@ GameObject:
   - component: {fileID: 4814031486652726485}
   - component: {fileID: 7590133174349939936}
   - component: {fileID: 882010020}
+  - component: {fileID: 882010030}
   m_Layer: 0
   m_Name: PF_CCS_CharacterController_TestPlayer_Networked
   m_TagString: Untagged
@@ -482,6 +483,19 @@ MonoBehaviour:
   nameplateText: {fileID: 6969670387223657699}
   nameplateRoot: {fileID: 882010002}
   nameplateBillboard: {fileID: 7254407726958310912}
+--- !u!114 &882010030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240448729846996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb10207f4d9ecbf4bbb14eda583503b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_TestPlayerOfflineBootstrap
+  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcd, type: 2}
 --- !u!1 &2703561894607568330
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,7 +611,7 @@ Transform:
   m_GameObject: {fileID: 5329951920719150015}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.05, z: 0}
+  m_LocalPosition: {x: 0, y: 0.92, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -630,12 +644,12 @@ Transform:
   m_GameObject: {fileID: 6403599528102355952}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 1.65, z: 0.222}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: 0, y: 1.68, z: 0.26}
+  m_LocalScale: {x: 0.22, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8263640393967947809}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!33 &4103923658318843359
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -719,7 +733,7 @@ Transform:
   m_GameObject: {fileID: 7026098108711356375}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.05, z: 0}
+  m_LocalPosition: {x: 0, y: 0.92, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -739,7 +753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraFollowAnchor
   bodyRoot: {fileID: 8263640393967947809}
-  heightOffset: 1.05
+  heightOffset: 0.92
   lookTarget: {fileID: 3741156813962738970}
 --- !u!1 &8592423414664928009
 GameObject:

@@ -115,9 +115,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             CCS_CharacterCameraProfile profile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
                 CCS_CharacterControllerMasterTestLayoutConstants.CameraProfilePath);
-            float verticalOrbitMin = profile != null ? profile.VerticalOrbitMin : -35f;
-            float verticalOrbitMax = profile != null ? profile.VerticalOrbitMax : 60f;
-            float orbitalRadius = profile != null ? profile.OrbitalRadius : 4.5f;
+            float verticalOrbitMin = profile != null ? profile.VerticalOrbitMin : -30f;
+            float verticalOrbitMax = profile != null ? profile.VerticalOrbitMax : 55f;
+            float verticalOrbitDefault = profile != null ? profile.VerticalOrbitDefault : 0f;
+            float orbitalRadius = profile != null ? profile.OrbitalRadius : 5.75f;
             Vector3 shoulderOffset = profile != null
                 ? profile.CameraShoulderOffset
                 : new Vector3(0.45f, 0.12f, 0f);
@@ -183,7 +184,7 @@ namespace CCS.Modules.CharacterController.Editor
                 ref orbitalFollow.HorizontalAxis);
             changed |= ResetAxisDefaults(
                 orbitalFollow.VerticalAxis,
-                0f,
+                verticalOrbitDefault,
                 new Vector2(verticalOrbitMin, verticalOrbitMax),
                 wrap: false,
                 ref orbitalFollow.VerticalAxis);

@@ -12,7 +12,7 @@ namespace CCS.Modules.CharacterController
 {
     public static class CCS_CharacterControllerConstants
     {
-        public const string ModuleVersion = "0.2.2";
+        public const string ModuleVersion = "0.2.3";
 
         public const string ModuleLogCategory = "Character Controller";
 

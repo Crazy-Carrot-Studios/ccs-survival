@@ -1447,6 +1447,8 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
+            ValidatePlayerCapsuleVisualLayout(failures, CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
             ValidatePlayerCameraTargetsOnPrefab(
                 failures,
                 CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
@@ -1455,6 +1457,7 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateNetworkPlayerMovementAuthority(failures);
             ValidateOfflineBootstrapOnNetworkedPrefab(failures);
             ValidateTestPlayerDisplayProfileAsset(failures);
+            ValidateNetworkedPrefabDisplayProfileAssignment(failures);
             ValidatePlayerJumpConfiguration(failures);
             ValidateNameplateOwnershipVisibility(failures);
         }
@@ -1476,6 +1479,69 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 File.Exists(CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath),
                 $"Missing test player display profile: {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+        }
+
+        private static void ValidateNetworkedPrefabDisplayProfileAssignment(List<string> failures)
+        {
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab == null)
+            {
+                return;
+            }
+
+            CCS_TestPlayerOfflineBootstrap bootstrap = networkedPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>();
+            if (bootstrap == null)
+            {
+                return;
+            }
+
+            CCS_TestPlayerDisplayProfile expectedProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
+                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            SerializedObject serializedBootstrap = new SerializedObject(bootstrap);
+            SerializedProperty displayProfileProperty = serializedBootstrap.FindProperty("displayProfile");
+            AppendIfMissing(
+                failures,
+                displayProfileProperty != null
+                && displayProfileProperty.objectReferenceValue == expectedProfile,
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must assign CCS_TestPlayerDisplayProfile_Default on CCS_TestPlayerOfflineBootstrap.");
+
+            Transform followAnchor = FindChildByName(networkedPrefab.transform, "CameraFollowAnchor");
+            AppendIfMissing(
+                failures,
+                followAnchor != null && followAnchor.GetComponent<CCS_CharacterCameraFollowAnchor>() != null,
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CameraFollowAnchor with CCS_CharacterCameraFollowAnchor.");
+        }
+
+        private static void ValidatePlayerCapsuleVisualLayout(List<string> failures, string prefabPath)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null)
+            {
+                return;
+            }
+
+            Transform capsuleVisual = FindChildByName(
+                prefab.transform,
+                CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
+            if (capsuleVisual == null)
+            {
+                return;
+            }
+
+            if (Vector3.Distance(
+                    capsuleVisual.localPosition,
+                    CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalPosition) > 0.01f)
+            {
+                failures.Add($"{prefabPath} CapsuleVisual local position must be (0, 1, 0).");
+            }
+
+            if (Vector3.Distance(
+                    capsuleVisual.localScale,
+                    CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalScale) > 0.01f)
+            {
+                failures.Add($"{prefabPath} CapsuleVisual local scale must be (0.7, 1, 0.7).");
+            }
         }
 
         private static void ValidateSoloSpawnUsesSharedPrefabContracts(List<string> failures)
@@ -1524,6 +1590,10 @@ namespace CCS.Modules.CharacterController.Editor
             if (File.Exists(localConfiguratorPath))
             {
                 string configuratorSource = File.ReadAllText(localConfiguratorPath);
+                AppendIfMissing(
+                    failures,
+                    configuratorSource.Contains("CCS_TestPlayerDisplayProfileApplicator"),
+                    "CCS_TestPlayerLocalSessionConfigurator must apply layout through CCS_TestPlayerDisplayProfileApplicator.");
                 AppendIfMissing(
                     failures,
                     configuratorSource.Contains("networkTransform.enabled = false"),
@@ -1757,7 +1827,7 @@ namespace CCS.Modules.CharacterController.Editor
                     glasses.localScale,
                     CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalScale) > 0.01f)
             {
-                failures.Add($"{prefabPath} VisualGlasses scale must be (0.3, 0.3, 0.3).");
+                failures.Add($"{prefabPath} VisualGlasses scale must be (0.22, 0.05, 0.05).");
             }
 
             if (glasses.parent != prefab.transform)
@@ -1790,17 +1860,17 @@ namespace CCS.Modules.CharacterController.Editor
 
             if (Mathf.Abs(profile.OrbitalRadius - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedOrbitalRadius) > 0.01f)
             {
-                failures.Add("Third-person camera profile orbitalRadius must be 4.5 for full-body framing.");
+                failures.Add("Third-person camera profile orbitalRadius must be 5.75 for full-body framing.");
             }
 
             if (Mathf.Abs(profile.FollowTargetHeight - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedFollowTargetHeight) > 0.01f)
             {
-                failures.Add("Third-person camera profile followTargetHeight must be 1.05.");
+                failures.Add("Third-person camera profile followTargetHeight must be 0.92.");
             }
 
             if (Mathf.Abs(profile.CameraHeight - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedCameraShoulderOffsetY) > 0.01f)
             {
-                failures.Add("Third-person camera profile cameraHeight must be 0.12.");
+                failures.Add("Third-person camera profile cameraHeight must be 0.08.");
             }
 
             if (Mathf.Abs(profile.VerticalArmLength - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalArmLength) > 0.01f)
@@ -1810,13 +1880,13 @@ namespace CCS.Modules.CharacterController.Editor
 
             if (Mathf.Abs(profile.VerticalOrbitDefault - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitDefault) > 0.01f)
             {
-                failures.Add("Third-person camera profile verticalOrbitDefault must be 0 for neutral Orbital Follow start.");
+                failures.Add("Third-person camera profile verticalOrbitDefault must be -10 for full-body framing.");
             }
 
             if (Mathf.Abs(profile.VerticalOrbitMin - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
                 || Mathf.Abs(profile.VerticalOrbitMax - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
             {
-                failures.Add("Third-person camera profile vertical orbit limits must be -35 to 60.");
+                failures.Add("Third-person camera profile vertical orbit limits must be -30 to 55.");
             }
 
             if (Mathf.Abs(profile.MouseSensitivityX - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedMouseSensitivityX) > 0.001f
@@ -2242,12 +2312,12 @@ namespace CCS.Modules.CharacterController.Editor
             {
                 if (Mathf.Abs(orbitalFollow.Radius - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedOrbitalRadius) > 0.15f)
                 {
-                    failures.Add("Camera rig orbital radius must be about 4.5 for full-body framing.");
+                    failures.Add("Camera rig orbital radius must be about 5.75 for full-body framing.");
                 }
 
                 if (Mathf.Abs(orbitalFollow.TargetOffset.y - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedCameraShoulderOffsetY) > 0.05f)
                 {
-                    failures.Add("Camera rig orbital target offset Y must be about 0.12.");
+                    failures.Add("Camera rig orbital target offset Y must be about 0.08.");
                 }
             }
 
@@ -2339,12 +2409,12 @@ namespace CCS.Modules.CharacterController.Editor
                 if (Mathf.Abs(orbitalFollow.VerticalAxis.Range.x - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
                     || Mathf.Abs(orbitalFollow.VerticalAxis.Range.y - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
                 {
-                    failures.Add("Cinemachine Orbital Follow vertical orbit clamp must be -35 to 60.");
+                    failures.Add("Cinemachine Orbital Follow vertical orbit clamp must be -30 to 55.");
                 }
 
-                if (Mathf.Abs(orbitalFollow.VerticalAxis.Value) > 0.01f)
+                if (Mathf.Abs(orbitalFollow.VerticalAxis.Value - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitDefault) > 0.01f)
                 {
-                    failures.Add("Cinemachine Orbital Follow default vertical orbit must start near 0.");
+                    failures.Add("Cinemachine Orbital Follow default vertical orbit must start near -10.");
                 }
             }
 

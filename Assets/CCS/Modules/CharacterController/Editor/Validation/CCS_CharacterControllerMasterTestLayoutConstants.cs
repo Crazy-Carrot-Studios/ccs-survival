@@ -98,9 +98,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const string DefaultPlayerDisplayName = "Player";
 
-        public static readonly Vector3 NameplateRootLocalPosition = new Vector3(0f, 2.2f, 0f);
-
-
+        public static readonly Vector3 NameplateRootLocalPosition = new Vector3(0f, 2.12f, 0f);
 
         public const string NpcPrefabPath =
 
@@ -116,27 +114,31 @@ namespace CCS.Modules.CharacterController.Editor
 
             "Assets/CCS/Modules/CharacterController/Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset";
 
-        public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.65f, 0.222f);
+        public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.68f, 0.26f);
 
         public static readonly Vector3 GlassesVisualLocalEuler = new Vector3(0f, 0f, 90f);
 
-        public static readonly Vector3 GlassesVisualLocalScale = new Vector3(0.3f, 0.3f, 0.3f);
+        public static readonly Vector3 GlassesVisualLocalScale = new Vector3(0.22f, 0.05f, 0.05f);
 
-        public const float CameraPivotFollowTargetHeight = 1.05f;
+        public static readonly Vector3 CapsuleVisualLocalPosition = new Vector3(0f, 1f, 0f);
 
-        public const float ExpectedOrbitalRadius = 4.5f;
+        public static readonly Vector3 CapsuleVisualLocalScale = new Vector3(0.7f, 1f, 0.7f);
 
-        public const float ExpectedFollowTargetHeight = 1.05f;
+        public const float CameraPivotFollowTargetHeight = 0.92f;
 
-        public const float ExpectedCameraShoulderOffsetY = 0.12f;
+        public const float ExpectedOrbitalRadius = 5.75f;
+
+        public const float ExpectedFollowTargetHeight = 0.92f;
+
+        public const float ExpectedCameraShoulderOffsetY = 0.08f;
 
         public const float ExpectedVerticalArmLength = 0.25f;
 
-        public const float ExpectedVerticalOrbitDefault = 0f;
+        public const float ExpectedVerticalOrbitDefault = -10f;
 
-        public const float ExpectedVerticalOrbitMin = -35f;
+        public const float ExpectedVerticalOrbitMin = -30f;
 
-        public const float ExpectedVerticalOrbitMax = 60f;
+        public const float ExpectedVerticalOrbitMax = 55f;
 
         public const float ExpectedMouseSensitivityX = 0.12f;
 

@@ -1,5 +1,4 @@
 using CCS.Modules.CharacterController;
-using CCS.Modules.CharacterController.Tests.Netcode;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
@@ -61,7 +60,6 @@ namespace CCS.Modules.CharacterController.Tests
             CCS_TestPlayerSessionContext context = new CCS_TestPlayerSessionContext(
                 ownerClientId: 0,
                 playerRoot: playerRoot,
-                networkNameplate: null,
                 isNetworkSession: false,
                 isLocalOwner: true);
             CCS_TestPlayerSessionEvents.RaisePlayerSpawned(context);
@@ -140,32 +138,8 @@ namespace CCS.Modules.CharacterController.Tests
                 return;
             }
 
-            CCS_CharacterMotor motor = playerRoot.GetComponent<CCS_CharacterMotor>();
-            if (motor != null && displayProfile.MovementProfile != null)
-            {
-                motor.SetMovementProfile(displayProfile.MovementProfile);
-            }
-
-            Transform nameplateRoot = playerRoot.transform.Find(CCS_NetcodeTestConstants.NameplateRootObjectName);
-            if (nameplateRoot != null)
-            {
-                nameplateRoot.localPosition = displayProfile.NameplateLocalPosition;
-            }
-
-            Transform glassesRoot = playerRoot.transform.Find(CCS_NetcodeTestConstants.GlassesVisualName);
-            if (glassesRoot != null)
-            {
-                glassesRoot.localPosition = displayProfile.GlassesLocalPosition;
-                glassesRoot.localScale = displayProfile.GlassesLocalScale;
-            }
-
-            CCS_CharacterCameraFollowAnchor followAnchor =
-                playerRoot.GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
-            if (followAnchor != null)
-            {
-                Transform lookTarget = followAnchor.LookTarget;
-                followAnchor.Configure(playerRoot.transform, lookTarget, displayProfile.CameraFollowHeight);
-            }
+            CCS_TestPlayerDisplayProfileApplicator.ApplyGameplayProfiles(playerRoot, displayProfile);
+            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(playerRoot, displayProfile);
         }
 
         private static void EnableOfflineGameplay(GameObject playerRoot)
@@ -222,7 +196,7 @@ namespace CCS.Modules.CharacterController.Tests
 
         private static void ApplyOfflineNameplate(GameObject playerRoot, CCS_TestPlayerDisplayProfile displayProfile)
         {
-            Transform nameplateRoot = playerRoot.transform.Find(CCS_NetcodeTestConstants.NameplateRootObjectName);
+            Transform nameplateRoot = playerRoot.transform.Find(CCS_TestPlayerPrefabConstants.NameplateRootObjectName);
             if (nameplateRoot == null)
             {
                 return;
@@ -230,9 +204,9 @@ namespace CCS.Modules.CharacterController.Tests
 
             string displayName = displayProfile != null
                 ? displayProfile.DefaultDisplayName
-                : CCS_NetcodeTestConstants.DefaultDisplayName;
+                : CCS_TestPlayerPrefabConstants.DefaultDisplayName;
 
-            Transform nameplateTextTransform = nameplateRoot.Find(CCS_NetcodeTestConstants.NameplateTextObjectName);
+            Transform nameplateTextTransform = nameplateRoot.Find(CCS_TestPlayerPrefabConstants.NameplateTextObjectName);
             if (nameplateTextTransform != null)
             {
                 TMP_Text nameplateText = nameplateTextTransform.GetComponent<TMP_Text>();
