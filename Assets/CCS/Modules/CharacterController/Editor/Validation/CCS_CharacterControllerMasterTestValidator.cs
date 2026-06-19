@@ -1494,6 +1494,22 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 File.Exists(CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath),
                 $"Missing test player display profile: {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+
+            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
+                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            if (displayProfile == null)
+            {
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                displayProfile.GlassesLocalScale == new Vector3(0.05f, 0.22f, 0.05f),
+                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses scale must be (0.05, 0.22, 0.05).");
+            AppendIfMissing(
+                failures,
+                displayProfile.GlassesLocalEuler == new Vector3(0f, 0f, 90f),
+                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses rotation must be (0, 0, 90).");
         }
 
         private static void ValidateNetworkedPrefabDisplayProfileAssignment(List<string> failures)
@@ -1794,6 +1810,9 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
+            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
+                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+
             Transform glasses = FindChildByName(
                 prefab.transform,
                 CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
@@ -1825,24 +1844,27 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerMasterTestLayoutConstants.PlayerBlackMaterialPath,
                 "Player glasses");
 
-            ValidatePosition(
-                failures,
-                $"{prefabPath} VisualGlasses",
-                glasses.localPosition,
-                CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalPosition);
-
-            if (Quaternion.Angle(
-                    glasses.localRotation,
-                    Quaternion.Euler(CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalEuler)) > 1f)
+            if (displayProfile != null)
             {
-                failures.Add($"{prefabPath} VisualGlasses rotation must be (0, 0, 90).");
-            }
+                ValidatePosition(
+                    failures,
+                    $"{prefabPath} VisualGlasses",
+                    glasses.localPosition,
+                    displayProfile.GlassesLocalPosition);
 
-            if (Vector3.Distance(
-                    glasses.localScale,
-                    CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalScale) > 0.01f)
-            {
-                failures.Add($"{prefabPath} VisualGlasses scale must be (0.22, 0.05, 0.05).");
+                if (Quaternion.Angle(
+                        glasses.localRotation,
+                        Quaternion.Euler(displayProfile.GlassesLocalEuler)) > 1f)
+                {
+                    failures.Add(
+                        $"{prefabPath} VisualGlasses rotation must match {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+                }
+
+                if (Vector3.Distance(glasses.localScale, displayProfile.GlassesLocalScale) > 0.01f)
+                {
+                    failures.Add(
+                        $"{prefabPath} VisualGlasses scale must match {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+                }
             }
 
             if (glasses.parent != prefab.transform)
@@ -2226,17 +2248,29 @@ namespace CCS.Modules.CharacterController.Editor
         {
             const string spawnControllerPath =
                 "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSpawnController.cs";
+            const string localConfiguratorPath =
+                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_TestPlayerLocalSessionConfigurator.cs";
             const string networkNameplatePath =
                 "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetworkPlayerNameplate.cs";
+            const string nameplateBillboardPath =
+                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_PlayerNameplateBillboard.cs";
 
             if (File.Exists(spawnControllerPath))
             {
                 string spawnSource = File.ReadAllText(spawnControllerPath);
                 AppendIfMissing(
                     failures,
-                    spawnSource.Contains("ApplyNameplateVisibility")
-                        || spawnSource.Contains("SetLocalNameplateVisible"),
-                    "CCS_MasterTestSpawnController must hide the solo player's local nameplate after spawn.");
+                    spawnSource.Contains("TryConfigureOfflinePlayer"),
+                    "CCS_MasterTestSpawnController must configure solo players through CCS_TestPlayerLocalSessionConfigurator.");
+            }
+
+            if (File.Exists(localConfiguratorPath))
+            {
+                string configuratorSource = File.ReadAllText(localConfiguratorPath);
+                AppendIfMissing(
+                    failures,
+                    configuratorSource.Contains("ApplyNameplateVisibility(isLocalOwner: true)"),
+                    "CCS_TestPlayerLocalSessionConfigurator must hide the solo/local owner nameplate.");
             }
 
             if (File.Exists(networkNameplatePath))
@@ -2251,6 +2285,16 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     networkSource.Contains("IsOwner"),
                     "CCS_NetworkPlayerNameplate must use IsOwner to hide only the local owner's nameplate.");
+            }
+
+            if (File.Exists(nameplateBillboardPath))
+            {
+                string billboardSource = File.ReadAllText(nameplateBillboardPath);
+                AppendIfMissing(
+                    failures,
+                    billboardSource.Contains("SetLocalNameplateVisible")
+                        && billboardSource.Contains("ApplyNameplateVisibility"),
+                    "CCS_PlayerNameplateBillboard must support local-owner self-hide visibility.");
             }
         }
 

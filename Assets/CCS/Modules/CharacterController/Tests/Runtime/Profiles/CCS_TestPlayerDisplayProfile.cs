@@ -49,8 +49,8 @@ namespace CCS.Modules.CharacterController.Tests
         [Tooltip("Local euler rotation for VisualGlasses.")]
         [SerializeField] private Vector3 glassesLocalEuler = new Vector3(0f, 0f, 90f);
 
-        [Tooltip("Local scale for VisualGlasses.")]
-        [SerializeField] private Vector3 glassesLocalScale = new Vector3(0.22f, 0.05f, 0.05f);
+        [Tooltip("Local scale for VisualGlasses. Y is the capsule height axis before Z rotation.")]
+        [SerializeField] private Vector3 glassesLocalScale = new Vector3(0.05f, 0.22f, 0.05f);
 
         #endregion
 

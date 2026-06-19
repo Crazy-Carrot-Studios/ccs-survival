@@ -219,7 +219,7 @@ namespace CCS.Modules.CharacterController.Tests
             CCS_PlayerNameplateBillboard nameplateBillboard = nameplateRoot.GetComponent<CCS_PlayerNameplateBillboard>();
             if (nameplateBillboard != null)
             {
-                nameplateBillboard.ApplyNameplateVisibility(isLocalOwner: false);
+                nameplateBillboard.ApplyNameplateVisibility(isLocalOwner: true);
             }
         }
 

@@ -1,3 +1,4 @@
+using System.IO;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
@@ -28,6 +29,7 @@ namespace CCS.Modules.CharacterController.Editor
         {
             bool changed = false;
             changed |= EnsureNetworkedTestPlayerPrefab(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            changed |= EnsureTestNpcPrefab(CCS_CharacterControllerMasterTestLayoutConstants.NpcPrefabPath);
             if (changed)
             {
                 AssetDatabase.SaveAssets();
@@ -66,6 +68,55 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= WireDisplayProfile(prefabRoot);
             changed |= ApplyDisplayProfileLayout(prefabRoot);
 
+            RemoveMissingScriptsRecursive(prefabRoot.transform);
+
+            if (changed)
+            {
+                PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
+            }
+
+            PrefabUtility.UnloadPrefabContents(prefabRoot);
+            return changed;
+        }
+
+        private static bool EnsureTestNpcPrefab(string prefabPath)
+        {
+            if (IsBrokenNpcVariantPrefab(prefabPath))
+            {
+                AssetDatabase.DeleteAsset(prefabPath);
+            }
+
+            GameObject prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefabAsset == null)
+            {
+                GameObject npcRoot = BuildTestNpcPrefabRoot();
+                PrefabUtility.SaveAsPrefabAsset(npcRoot, prefabPath);
+                Object.DestroyImmediate(npcRoot);
+                return true;
+            }
+
+            GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
+            if (prefabRoot == null)
+            {
+                Debug.LogError("[Player Prefab Builder] Missing NPC prefab: " + prefabPath);
+                return false;
+            }
+
+            bool changed = false;
+            if (prefabRoot.name != CCS_CharacterControllerMasterTestLayoutConstants.NpcInstanceName)
+            {
+                prefabRoot.name = CCS_CharacterControllerMasterTestLayoutConstants.NpcInstanceName;
+                changed = true;
+            }
+
+            changed |= EnsureNpcCoreComponents(prefabRoot);
+            changed |= EnsureCapsuleBodyVisualForMaterial(
+                prefabRoot.transform,
+                AssetDatabase.LoadAssetAtPath<Material>(
+                    CCS_CharacterControllerMasterTestLayoutConstants.PlayerGreenMaterialPath));
+            changed |= EnsureGlassesVisual(prefabRoot.transform);
+            changed |= EnsureNpcRunner(prefabRoot);
+            changed |= StripNpcPlayerOnlyComponents(prefabRoot);
             RemoveMissingScriptsRecursive(prefabRoot.transform);
 
             if (changed)
@@ -365,26 +416,6 @@ namespace CCS.Modules.CharacterController.Editor
             if (meshFilter != null && (meshFilter.sharedMesh == null || meshFilter.sharedMesh.name != "Capsule"))
             {
                 meshFilter.sharedMesh = GetBuiltinCapsuleMesh();
-                changed = true;
-            }
-
-            if (glasses.localPosition != CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalPosition)
-            {
-                glasses.localPosition = CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalPosition;
-                changed = true;
-            }
-
-            Quaternion expectedRotation = Quaternion.Euler(
-                CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalEuler);
-            if (glasses.localRotation != expectedRotation)
-            {
-                glasses.localRotation = expectedRotation;
-                changed = true;
-            }
-
-            if (glasses.localScale != CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalScale)
-            {
-                glasses.localScale = CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualLocalScale;
                 changed = true;
             }
 
@@ -851,6 +882,271 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return null;
+        }
+
+        private static bool IsBrokenNpcVariantPrefab(string prefabPath)
+        {
+            if (!File.Exists(prefabPath))
+            {
+                return false;
+            }
+
+            string source = File.ReadAllText(prefabPath);
+            return source.Contains("m_SourcePrefab:")
+                && source.Contains("b4ca70f1e440f9a4c9d02f585dc1226f");
+        }
+
+        private static GameObject BuildTestNpcPrefabRoot()
+        {
+            GameObject root = new GameObject(CCS_CharacterControllerMasterTestLayoutConstants.NpcInstanceName);
+            EnsureNpcCoreComponents(root);
+            EnsureCapsuleBodyVisualForMaterial(
+                root.transform,
+                AssetDatabase.LoadAssetAtPath<Material>(
+                    CCS_CharacterControllerMasterTestLayoutConstants.PlayerGreenMaterialPath));
+            EnsureGlassesVisual(root.transform);
+            EnsureNpcRunner(root);
+            return root;
+        }
+
+        private static bool EnsureNpcCoreComponents(GameObject prefabRoot)
+        {
+            bool changed = false;
+
+            UnityEngine.CharacterController characterController =
+                prefabRoot.GetComponent<UnityEngine.CharacterController>();
+            if (characterController == null)
+            {
+                characterController = prefabRoot.AddComponent<UnityEngine.CharacterController>();
+                changed = true;
+            }
+
+            if (characterController.height != 2f
+                || characterController.radius != 0.35f
+                || characterController.center != new Vector3(0f, 1f, 0f)
+                || characterController.slopeLimit != 45f
+                || characterController.stepOffset != 0.3f
+                || characterController.skinWidth != 0.08f)
+            {
+                characterController.height = 2f;
+                characterController.radius = 0.35f;
+                characterController.center = new Vector3(0f, 1f, 0f);
+                characterController.slopeLimit = 45f;
+                characterController.stepOffset = 0.3f;
+                characterController.skinWidth = 0.08f;
+                changed = true;
+            }
+
+            CCS_CharacterInputActionProvider inputProvider =
+                prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+            if (inputProvider == null)
+            {
+                inputProvider = prefabRoot.AddComponent<CCS_CharacterInputActionProvider>();
+                changed = true;
+            }
+
+            SerializedObject serializedInput = new SerializedObject(inputProvider);
+            if (serializedInput.FindProperty("lockCursorOnEnable").boolValue)
+            {
+                serializedInput.FindProperty("lockCursorOnEnable").boolValue = false;
+                serializedInput.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
+            if (motor == null)
+            {
+                motor = prefabRoot.AddComponent<CCS_CharacterMotor>();
+                changed = true;
+            }
+
+            CCS_CharacterMovementProfile movementProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterMovementProfile>(
+                CCS_CharacterControllerConstants.DefaultMovementProfilePath);
+            if (movementProfile != null && motor.MovementProfile != movementProfile)
+            {
+                motor.SetMovementProfile(movementProfile);
+                changed = true;
+            }
+
+            SerializedObject serializedMotor = new SerializedObject(motor);
+            SerializedProperty inputProperty = serializedMotor.FindProperty("inputProvider");
+            if (inputProperty != null && inputProperty.objectReferenceValue != inputProvider)
+            {
+                inputProperty.objectReferenceValue = inputProvider;
+                serializedMotor.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureCapsuleBodyVisualForMaterial(Transform playerRoot, Material bodyMaterial)
+        {
+            if (bodyMaterial == null)
+            {
+                return false;
+            }
+
+            Transform bodyVisual = playerRoot.Find(CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
+            bool changed = false;
+            if (bodyVisual == null)
+            {
+                GameObject bodyObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                bodyObject.name = CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName;
+                bodyVisual = bodyObject.transform;
+                bodyVisual.SetParent(playerRoot, false);
+                changed = true;
+            }
+
+            Collider bodyCollider = bodyVisual.GetComponent<Collider>();
+            if (bodyCollider != null)
+            {
+                Object.DestroyImmediate(bodyCollider);
+                changed = true;
+            }
+
+            if (bodyVisual.localPosition != CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalPosition)
+            {
+                bodyVisual.localPosition = CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalPosition;
+                changed = true;
+            }
+
+            if (bodyVisual.localScale != CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalScale)
+            {
+                bodyVisual.localScale = CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualLocalScale;
+                changed = true;
+            }
+
+            MeshRenderer renderer = bodyVisual.GetComponent<MeshRenderer>();
+            if (renderer != null && renderer.sharedMaterial != bodyMaterial)
+            {
+                renderer.sharedMaterial = bodyMaterial;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureNpcRunner(GameObject prefabRoot)
+        {
+            CCS_ControllerTestNpcRunner runner = prefabRoot.GetComponent<CCS_ControllerTestNpcRunner>();
+            bool changed = false;
+            if (runner == null)
+            {
+                runner = prefabRoot.AddComponent<CCS_ControllerTestNpcRunner>();
+                changed = true;
+            }
+
+            CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
+            CCS_CharacterInputActionProvider inputProvider =
+                prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+            SerializedObject serializedRunner = new SerializedObject(runner);
+            changed |= SetObjectReference(serializedRunner, "motor", motor);
+            changed |= SetObjectReference(serializedRunner, "inputProvider", inputProvider);
+
+            SerializedProperty routeIds = serializedRunner.FindProperty("routeTestPointIds");
+            string[] expectedRouteIds =
+            {
+                "ccs.test.character.spawn",
+                "ccs.test.character.stairs.bottom",
+                "ccs.test.character.stairs.top",
+                "ccs.test.character.roof.center",
+                "ccs.test.character.ramp.top",
+                "ccs.test.character.ramp.bottom",
+                "ccs.test.character.door.outside",
+                "ccs.test.character.door.inside",
+                "ccs.test.character.cover.inside",
+                "ccs.test.character.loop.complete"
+            };
+
+            if (routeIds == null || routeIds.arraySize != expectedRouteIds.Length)
+            {
+                if (routeIds != null)
+                {
+                    routeIds.arraySize = expectedRouteIds.Length;
+                    for (int i = 0; i < expectedRouteIds.Length; i++)
+                    {
+                        routeIds.GetArrayElementAtIndex(i).stringValue = expectedRouteIds[i];
+                    }
+
+                    changed = true;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < expectedRouteIds.Length; i++)
+                {
+                    if (routeIds.GetArrayElementAtIndex(i).stringValue != expectedRouteIds[i])
+                    {
+                        routeIds.GetArrayElementAtIndex(i).stringValue = expectedRouteIds[i];
+                        changed = true;
+                    }
+                }
+            }
+
+            SerializedProperty loopRoute = serializedRunner.FindProperty("loopRoute");
+            if (loopRoute != null && loopRoute.boolValue)
+            {
+                loopRoute.boolValue = false;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                serializedRunner.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool StripNpcPlayerOnlyComponents(GameObject prefabRoot)
+        {
+            bool changed = false;
+            changed |= DestroyComponentIfPresent<CCS_CharacterCameraController>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_CharacterControllerService>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_CharacterControllerDebugHud>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
+            changed |= DestroyComponentIfPresent<NetworkObject>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_ClientOwnerNetworkTransform>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_ControllerTestNetworkPlayerBehaviour>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_NetworkPlayerNameplate>(prefabRoot);
+
+            Transform cameraPivot = prefabRoot.transform.Find("CameraPivot");
+            if (cameraPivot != null)
+            {
+                Object.DestroyImmediate(cameraPivot.gameObject);
+                changed = true;
+            }
+
+            Transform followAnchor = prefabRoot.transform.Find("CameraFollowAnchor");
+            if (followAnchor != null)
+            {
+                Object.DestroyImmediate(followAnchor.gameObject);
+                changed = true;
+            }
+
+            Transform nameplateRoot = FindChildRecursive(
+                prefabRoot.transform,
+                CCS_CharacterControllerMasterTestLayoutConstants.NameplateRootObjectName);
+            if (nameplateRoot != null)
+            {
+                Object.DestroyImmediate(nameplateRoot.gameObject);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool DestroyComponentIfPresent<T>(GameObject target) where T : Component
+        {
+            T component = target.GetComponent<T>();
+            if (component == null)
+            {
+                return false;
+            }
+
+            Object.DestroyImmediate(component, true);
+            return true;
         }
 
         #endregion
