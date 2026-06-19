@@ -25,6 +25,7 @@ namespace CCS.Modules.CharacterController
 
         private readonly CCS_CharacterControllerState state = new CCS_CharacterControllerState();
         private CCS_CharacterControllerSnapshot snapshot;
+        private CCS_CharacterCameraController resolvedProfileSource;
 
         #endregion
 
@@ -37,6 +38,11 @@ namespace CCS.Modules.CharacterController
         #endregion
 
         #region Unity Callbacks
+
+        private void Awake()
+        {
+            ResolveProfileSource();
+        }
 
         private void LateUpdate()
         {
@@ -61,19 +67,47 @@ namespace CCS.Modules.CharacterController
         public void SetCameraController(CCS_CharacterCameraController controller)
         {
             cameraController = controller;
+            ResolveProfileSource();
         }
 
         #endregion
 
         #region Private Methods
 
+        private void ResolveProfileSource()
+        {
+            if (cameraController != null && cameraController.CinemachineCamera != null)
+            {
+                resolvedProfileSource = cameraController;
+                return;
+            }
+
+            CCS_CharacterCameraController[] controllers =
+                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < controllers.Length; i++)
+            {
+                CCS_CharacterCameraController candidate = controllers[i];
+                if (candidate == null || candidate.CinemachineCamera == null)
+                {
+                    continue;
+                }
+
+                resolvedProfileSource = candidate;
+                return;
+            }
+
+            resolvedProfileSource = cameraController;
+        }
+
         private void RefreshState()
         {
+            CCS_CharacterCameraController profileSource = resolvedProfileSource ?? cameraController;
+
             state.MovementMode = motor != null
                 ? motor.MovementMode
                 : CCS_CharacterMovementMode.Disabled;
-            state.CameraMode = cameraController != null
-                ? cameraController.ActiveCameraMode
+            state.CameraMode = profileSource != null
+                ? profileSource.ActiveCameraMode
                 : CCS_CharacterCameraMode.ThirdPersonSurvival;
             state.IsGrounded = motor != null && motor.IsGrounded;
             state.CurrentSpeed = motor != null ? motor.CurrentSpeed : 0f;
@@ -84,18 +118,19 @@ namespace CCS.Modules.CharacterController
                 : "None";
             state.MovementInput = inputProvider != null ? inputProvider.MoveInput : Vector2.zero;
             state.LookInput = inputProvider != null ? inputProvider.LookInput : Vector2.zero;
-            state.Yaw = cameraController != null ? cameraController.Yaw : 0f;
-            state.Pitch = cameraController != null ? cameraController.Pitch : 0f;
+            state.Yaw = CCS_CharacterMovementCameraContext.GetYawDegrees();
+            state.Pitch = CCS_CharacterMovementCameraContext.GetPitchDegrees();
             state.PlayerPosition = transform.position;
-            state.CameraForward = cameraController != null
-                ? cameraController.GetCameraForward()
-                : transform.forward;
+            state.CameraForward = CCS_CharacterMovementCameraContext.GetPlanarForward();
+            state.ActiveCinemachineRigDescription = profileSource != null
+                ? profileSource.CinemachineRigDescription
+                : string.Empty;
 
-            if (cameraController?.ActiveProfile != null)
+            if (profileSource?.ActiveProfile != null)
             {
-                state.ActiveCameraProfileName = cameraController.ActiveProfile.ProfileDisplayName;
-                state.ActiveMouseSensitivityX = cameraController.ActiveProfile.MouseSensitivityX;
-                state.ActiveMouseSensitivityY = cameraController.ActiveProfile.MouseSensitivityY;
+                state.ActiveCameraProfileName = profileSource.ActiveProfile.ProfileDisplayName;
+                state.ActiveMouseSensitivityX = profileSource.ActiveProfile.MouseSensitivityX;
+                state.ActiveMouseSensitivityY = profileSource.ActiveProfile.MouseSensitivityY;
             }
             else
             {

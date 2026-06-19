@@ -1,42 +1,45 @@
 using Unity.Cinemachine;
+using Unity.Cinemachine.TargetTracking;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // =============================================================================
 // SCRIPT: CCS_CharacterCameraController
 // CATEGORY: Modules / CharacterController / Runtime / Components
-// PURPOSE: Drives Cinemachine third-person camera yaw/pitch and profile settings.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer root.
+// PURPOSE: Binds Cinemachine targets and applies profile tuning for scene camera rigs.
+// PLACEMENT: Scene camera rig root. Player prefab keeps pivot references only.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Cinemachine 3.1 Third Person Follow. Player body remains visible.
+// NOTES: Rig binder only. Cinemachine Input Axis Controller owns look on Orbital Follow.
+//        Rotation Composer frames LookAt. Never writes orbital axis Value/Center.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
 {
     public sealed class CCS_CharacterCameraController : MonoBehaviour
     {
+        public const string DefaultCinemachineRigDescription = "Orbital Follow + Rotation Composer";
+
         #region Variables
 
         [Header("Profiles")]
         [SerializeField] private CCS_CharacterCameraProfileSet cameraProfileSet;
 
         [Header("Transforms")]
+        [FormerlySerializedAs("cameraTarget")]
         [SerializeField] private Transform cameraPivot;
 
+        [FormerlySerializedAs("aimTarget")]
         [SerializeField] private Transform cameraLookTarget;
 
         [Header("Cinemachine")]
+        [FormerlySerializedAs("thirdPersonCamera")]
         [SerializeField] private CinemachineCamera cinemachineCamera;
-
-        [Header("References")]
-        [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
 
         private CCS_CharacterCameraMode activeCameraMode = CCS_CharacterCameraMode.ThirdPersonSurvival;
         private CCS_CharacterCameraProfile activeProfile;
-        private CinemachineThirdPersonFollow thirdPersonFollow;
-        private float yaw;
-        private float pitch;
-        private float currentCameraDistance;
+        private CinemachineOrbitalFollow orbitalFollow;
+        private CinemachineRotationComposer rotationComposer;
 
         #endregion
 
@@ -48,15 +51,13 @@ namespace CCS.Modules.CharacterController
 
         public CCS_CharacterCameraMode ActiveCameraMode => activeCameraMode;
 
-        public float Yaw => yaw;
-
-        public float Pitch => pitch;
-
         public Transform CameraPivot => cameraPivot;
 
         public Transform CameraLookTarget => cameraLookTarget;
 
         public CinemachineCamera CinemachineCamera => cinemachineCamera;
+
+        public string CinemachineRigDescription => DescribeCinemachineRig();
 
         #endregion
 
@@ -64,7 +65,8 @@ namespace CCS.Modules.CharacterController
 
         private void Awake()
         {
-            ResolveThirdPersonFollow();
+            ResolveCinemachineCamera();
+            ResolveCinemachineComponents();
             ApplyActiveProfile();
         }
 
@@ -73,17 +75,9 @@ namespace CCS.Modules.CharacterController
             ApplyActiveProfile();
         }
 
-        private void LateUpdate()
+        private void OnDisable()
         {
-            if (activeProfile == null || inputProvider == null)
-            {
-                return;
-            }
-
-            UpdateLook(Time.deltaTime);
-            ApplyZoomPlaceholder();
-            ApplyThirdPersonFollowSettings();
-            ApplyPivotRotation();
+            UnregisterMovementCamera();
         }
 
         #endregion
@@ -96,47 +90,63 @@ namespace CCS.Modules.CharacterController
             ApplyActiveProfile();
         }
 
-        public void SetInputProvider(CCS_CharacterInputActionProvider provider)
+        public void BindFollowTargets(Transform pivot, Transform lookTarget)
         {
-            inputProvider = provider;
+            cameraPivot = pivot;
+            cameraLookTarget = lookTarget;
+            ResolveCinemachineCamera();
+            ResolveCinemachineComponents();
+            ApplyActiveProfile();
+            RegisterMovementCamera();
         }
 
-        public Vector3 GetMovementForward()
+        public bool HasFollowTargetsAssigned =>
+            cameraPivot != null && cameraLookTarget != null;
+
+        public Camera GetOutputCamera()
         {
-            Vector3 forward = cameraPivot != null ? cameraPivot.forward : transform.forward;
-            forward.y = 0f;
-            return forward.sqrMagnitude > 0.0001f ? forward.normalized : transform.forward;
+            return GetComponentInChildren<Camera>(true);
         }
 
-        public Vector3 GetMovementRight()
+        public void RegisterMovementCamera()
         {
-            Vector3 right = cameraPivot != null ? cameraPivot.right : transform.right;
-            right.y = 0f;
-            return right.sqrMagnitude > 0.0001f ? right.normalized : transform.right;
-        }
-
-        public Vector3 GetCameraForward()
-        {
-            if (cameraPivot != null)
+            Camera outputCamera = GetOutputCamera();
+            if (outputCamera != null)
             {
-                return cameraPivot.forward;
+                CCS_CharacterMovementCameraContext.Register(outputCamera);
             }
+        }
 
-            return transform.forward;
+        public void UnregisterMovementCamera()
+        {
+            CCS_CharacterMovementCameraContext.Clear(GetOutputCamera());
         }
 
         #endregion
 
         #region Private Methods
 
-        private void ResolveThirdPersonFollow()
+        private void ResolveCinemachineCamera()
         {
-            if (cinemachineCamera == null)
+            if (cinemachineCamera != null)
             {
                 return;
             }
 
-            thirdPersonFollow = cinemachineCamera.GetComponent<CinemachineThirdPersonFollow>();
+            cinemachineCamera = GetComponentInChildren<CinemachineCamera>(true);
+        }
+
+        private void ResolveCinemachineComponents()
+        {
+            if (cinemachineCamera == null)
+            {
+                orbitalFollow = null;
+                rotationComposer = null;
+                return;
+            }
+
+            orbitalFollow = cinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
+            rotationComposer = cinemachineCamera.GetComponent<CinemachineRotationComposer>();
         }
 
         private void ApplyActiveProfile()
@@ -148,104 +158,91 @@ namespace CCS.Modules.CharacterController
             if (activeProfile != null)
             {
                 activeCameraMode = activeProfile.CameraMode;
-                currentCameraDistance = activeProfile.CameraDistance;
             }
 
-            if (cinemachineCamera != null)
-            {
-                if (cameraPivot != null)
-                {
-                    cinemachineCamera.Target.TrackingTarget = cameraPivot;
-                }
-
-                if (cameraLookTarget != null)
-                {
-                    cinemachineCamera.Target.LookAtTarget = cameraLookTarget;
-                }
-            }
-
-            ApplyThirdPersonFollowSettings();
+            ApplyFollowTargets();
+            ApplyOrbitalFollowProfileSettings();
+            ApplyRotationComposerProfileSettings();
         }
 
-        private void UpdateLook(float deltaTime)
+        private void ApplyFollowTargets()
         {
-            Vector2 lookInput = inputProvider.LookInput;
-            if (lookInput.sqrMagnitude <= 0.0001f)
+            if (cinemachineCamera == null)
             {
                 return;
             }
 
-            bool useGamepad = inputProvider.LastInputDeviceLabel == "Gamepad";
-            float sensitivityX = useGamepad
-                ? activeProfile.GamepadSensitivityX
-                : activeProfile.MouseSensitivityX;
-            float sensitivityY = useGamepad
-                ? activeProfile.GamepadSensitivityY
-                : activeProfile.MouseSensitivityY;
-
-            float yawDelta = lookInput.x * sensitivityX;
-            float pitchDelta = lookInput.y * sensitivityY * (useGamepad ? deltaTime : 1f);
-
-            if (useGamepad)
+            if (cameraPivot != null)
             {
-                yaw += yawDelta * deltaTime;
-                pitch -= pitchDelta;
+                cinemachineCamera.Target.TrackingTarget = cameraPivot;
             }
-            else
-            {
-                yaw += yawDelta;
-                pitch -= pitchDelta;
-            }
-
-            pitch = Mathf.Clamp(pitch, activeProfile.MinPitch, activeProfile.MaxPitch);
-        }
-
-        private void ApplyPivotRotation()
-        {
-            if (cameraPivot == null)
-            {
-                return;
-            }
-
-            cameraPivot.rotation = Quaternion.Euler(0f, yaw, 0f);
 
             if (cameraLookTarget != null)
             {
-                cameraLookTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+                cinemachineCamera.Target.LookAtTarget = cameraLookTarget;
             }
         }
 
-        private void ApplyZoomPlaceholder()
+        private void ApplyOrbitalFollowProfileSettings()
         {
-            float zoomInput = inputProvider.CameraZoomInput;
-            if (Mathf.Abs(zoomInput) <= 0.0001f)
-            {
-                return;
-            }
-
-            currentCameraDistance = Mathf.Clamp(
-                currentCameraDistance - zoomInput * 0.5f,
-                activeProfile.ZoomDistanceMin,
-                activeProfile.ZoomDistanceMax);
-        }
-
-        private void ApplyThirdPersonFollowSettings()
-        {
-            if (thirdPersonFollow == null || activeProfile == null)
+            if (orbitalFollow == null || activeProfile == null)
             {
                 return;
             }
 
             Vector3 shoulderOffset = activeProfile.CameraShoulderOffset;
+            shoulderOffset.x *= activeProfile.CameraSide >= 0f ? 1f : -1f;
             shoulderOffset.y = activeProfile.CameraHeight;
-            thirdPersonFollow.ShoulderOffset = shoulderOffset;
-            thirdPersonFollow.VerticalArmLength = activeProfile.VerticalArmLength;
-            thirdPersonFollow.CameraSide = activeProfile.CameraSide;
-            thirdPersonFollow.CameraDistance = currentCameraDistance;
-            thirdPersonFollow.Damping = new Vector3(
+            orbitalFollow.TargetOffset = shoulderOffset;
+            orbitalFollow.OrbitStyle = CinemachineOrbitalFollow.OrbitStyles.Sphere;
+            orbitalFollow.Radius = activeProfile.OrbitalRadius;
+            orbitalFollow.RecenteringTarget = CinemachineOrbitalFollow.ReferenceFrames.TrackingTarget;
+
+            InputAxis verticalAxis = orbitalFollow.VerticalAxis;
+            verticalAxis.Range = new Vector2(activeProfile.VerticalOrbitMin, activeProfile.VerticalOrbitMax);
+            verticalAxis.Validate();
+            orbitalFollow.VerticalAxis = verticalAxis;
+
+            TrackerSettings trackerSettings = orbitalFollow.TrackerSettings;
+            trackerSettings.BindingMode = BindingMode.LockToTargetWithWorldUp;
+            trackerSettings.PositionDamping = new Vector3(
                 activeProfile.FollowDampingX,
                 activeProfile.FollowDampingY,
                 activeProfile.FollowDampingZ);
+            trackerSettings.Validate();
+            orbitalFollow.TrackerSettings = trackerSettings;
+        }
+
+        private void ApplyRotationComposerProfileSettings()
+        {
+            if (rotationComposer == null || activeProfile == null)
+            {
+                return;
+            }
+
+            rotationComposer.Damping = new Vector2(
+                activeProfile.FollowDampingX,
+                activeProfile.FollowDampingY);
+        }
+
+        private string DescribeCinemachineRig()
+        {
+            if (orbitalFollow == null && rotationComposer == null)
+            {
+                return "Unassigned";
+            }
+
+            if (orbitalFollow != null && rotationComposer != null)
+            {
+                return DefaultCinemachineRigDescription;
+            }
+
+            if (orbitalFollow != null)
+            {
+                return "Orbital Follow";
+            }
+
+            return rotationComposer != null ? "Rotation Composer" : "Unassigned";
         }
 
         #endregion

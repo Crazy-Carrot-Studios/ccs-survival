@@ -12,7 +12,7 @@ namespace CCS.Modules.CharacterController
 {
     public static class CCS_CharacterControllerConstants
     {
-        public const string ModuleVersion = "0.2.1";
+        public const string ModuleVersion = "0.2.2";
 
         public const string ModuleLogCategory = "Character Controller";
 
@@ -25,6 +25,9 @@ namespace CCS.Modules.CharacterController
         public const string InputActionsAssetPath =
             ModuleRootPath + "/Content/Input/CCS_CharacterController_InputActions.inputactions";
 
+        public const string LookActionReferencePath =
+            ModuleRootPath + "/Content/Input/CCS_CharacterController_LookActionReference.asset";
+
         public const string DefaultMovementProfilePath =
             ModuleRootPath + "/Profiles/Movement/CCS_CharacterMovementProfile_Default.asset";
 
@@ -35,19 +38,22 @@ namespace CCS.Modules.CharacterController
             ModuleRootPath + "/Profiles/Camera/CCS_DefaultCharacterCameraProfileSet.asset";
 
         public const string TestPrefabPath =
-            ModuleRootPath + "/Prefabs/PF_CCS_CharacterController_TestPlayer.prefab";
+            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+
+        public const string MasterTestScenePath =
+            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
 
         public const string TestScenePath =
-            ModuleRootPath + "/Tests/Scenes/SCN_CCS_CharacterController_Test.unity";
+            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity";
 
         public const string TestGroundPrefabPath =
-            ModuleRootPath + "/Tests/Prefabs/PF_CCS_TestGround_OneMeterGrid.prefab";
+            ModuleRootPath + "/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab";
 
         public const string TestGroundGridTexturePath =
-            ModuleRootPath + "/Tests/Materials/T_CCS_TestGround_1mGrid.png";
+            ModuleRootPath + "/Materials/Environment/T_CCS_TestGround_1mGrid.png";
 
         public const string TestGroundGridMaterialPath =
-            ModuleRootPath + "/Tests/Materials/M_CCS_TestGround_1mGrid.mat";
+            ModuleRootPath + "/Materials/Environment/M_CCS_TestGround_1mGrid.mat";
 
         public const string TestGroundObjectName = "CCS_TestGround_OneMeterGrid";
 
@@ -69,6 +75,10 @@ namespace CCS.Modules.CharacterController
 
         public const string LookActionName = "Look";
 
+        public const string LookOrbitHorizontalAxisName = "Look Orbit X";
+
+        public const string LookOrbitVerticalAxisName = "Look Orbit Y";
+
         public const string SprintActionName = "Sprint";
 
         public const string JumpActionName = "Jump";
@@ -82,5 +92,17 @@ namespace CCS.Modules.CharacterController
         public const string CameraProfileId = "ccs.survival.profile.character.camera.thirdperson";
 
         public const string CameraProfileSetId = "ccs.survival.profile.character.camera.set.default";
+
+        public const bool EnableJumpDebugLogs = false;
+
+        public const float DefaultJumpHeight = 1.25f;
+
+        public const float DefaultGravity = -20f;
+
+        public const float DefaultCoyoteTime = 0.1f;
+
+        public const float DefaultJumpBufferTime = 0.1f;
+
+        public const float DefaultAirControl = 0.35f;
     }
 }

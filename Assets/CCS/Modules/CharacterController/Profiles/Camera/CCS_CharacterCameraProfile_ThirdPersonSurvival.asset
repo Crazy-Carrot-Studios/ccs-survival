@@ -19,17 +19,19 @@ MonoBehaviour:
   profileVersion: 0.2.0
   enableDebugLogs: 0
   cameraMode: 0
-  cameraDistance: 4.5
-  cameraHeight: 1.4
-  cameraShoulderOffset: {x: 0.45, y: 0, z: 0}
-  verticalArmLength: 0.35
+  orbitalRadius: 4.5
+  followTargetHeight: 1.05
+  cameraHeight: 0.12
+  cameraShoulderOffset: {x: 0.45, y: 0.12, z: 0}
+  verticalArmLength: 0.25
   cameraSide: 1
-  minPitch: -35
-  maxPitch: 55
-  mouseSensitivityX: 0.1
-  mouseSensitivityY: 0.085
-  gamepadSensitivityX: 85
-  gamepadSensitivityY: 65
+  verticalOrbitDefault: 0
+  verticalOrbitMin: -35
+  verticalOrbitMax: 60
+  mouseSensitivityX: 0.12
+  mouseSensitivityY: 0.1
+  gamepadSensitivityX: 90
+  gamepadSensitivityY: 70
   lookSmoothing: 12
   followDampingX: 0.25
   followDampingY: 0.3

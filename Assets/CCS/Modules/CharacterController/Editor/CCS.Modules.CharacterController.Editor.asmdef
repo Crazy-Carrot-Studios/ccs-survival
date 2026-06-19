@@ -6,8 +6,13 @@
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
         "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.CharacterController.Tests.Netcode.Runtime",
+        "CCS.Modules.CharacterController.Tests.Runtime",
         "Unity.InputSystem",
-        "Unity.Cinemachine"
+        "Unity.Cinemachine",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor"

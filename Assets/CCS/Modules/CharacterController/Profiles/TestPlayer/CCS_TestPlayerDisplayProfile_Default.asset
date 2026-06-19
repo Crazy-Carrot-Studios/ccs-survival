@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4e8c2d91f7b4e64b9c3d5e6f1a2b3c4, type: 3}
+  m_Name: CCS_TestPlayerDisplayProfile_Default
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_TestPlayerDisplayProfile
+  defaultDisplayName: Player
+  nameplateLocalPosition: {x: 0, y: 2.2, z: 0}
+  movementProfile: {fileID: 11400000, guid: 801f047c9d8ac5a41a9257da130a033f, type: 2}
+  cameraProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
+  glassesLocalPosition: {x: 0, y: 1.65, z: 0.222}
+  glassesLocalScale: {x: 0.3, y: 0.3, z: 0.3}

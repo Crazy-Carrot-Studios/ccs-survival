@@ -78,7 +78,62 @@ namespace CCS.Modules.CharacterController
                     "Missing input actions: " + string.Join(", ", missingActions));
             }
 
+            CCS_SurvivalValidationResult jumpBindingValidation = ValidateJumpInputBindings(gameplayMap);
+            if (!jumpBindingValidation.IsSuccess)
+            {
+                return jumpBindingValidation;
+            }
+
             return CCS_SurvivalValidationResult.Pass("Character controller input actions validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateJumpInputBindings(InputActionMap gameplayMap)
+        {
+            if (gameplayMap == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Gameplay input action map is null.");
+            }
+
+            InputAction jumpAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.JumpActionName, false);
+            if (jumpAction == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    $"Jump action '{CCS_CharacterControllerConstants.JumpActionName}' is missing.");
+            }
+
+            bool hasKeyboardSpace = false;
+            bool hasGamepadSouth = false;
+            for (int i = 0; i < jumpAction.bindings.Count; i++)
+            {
+                string path = jumpAction.bindings[i].path;
+                if (path.Contains("/space", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    hasKeyboardSpace = true;
+                }
+
+                if (path.Contains("buttonSouth", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    hasGamepadSouth = true;
+                }
+            }
+
+            List<string> failures = new List<string>();
+            if (!hasKeyboardSpace)
+            {
+                failures.Add("Jump action must bind keyboard Space.");
+            }
+
+            if (!hasGamepadSouth)
+            {
+                failures.Add("Jump action must bind gamepad South button.");
+            }
+
+            if (failures.Count > 0)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            return CCS_SurvivalValidationResult.Pass("Jump input bindings validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateMovementProfile(CCS_CharacterMovementProfile profile)
@@ -112,11 +167,29 @@ namespace CCS.Modules.CharacterController
 
             if (!profile.JumpEnabled)
             {
-                // Expected default for v0.2.0.
+                // Jump may be disabled on custom profiles.
             }
-            else if (profile.JumpHeight <= 0f)
+            else
             {
-                failures.Add("jumpHeight must be positive when jump is enabled.");
+                if (profile.JumpHeight <= 0f)
+                {
+                    failures.Add("jumpHeight must be positive when jump is enabled.");
+                }
+
+                if (profile.CoyoteTime < 0f)
+                {
+                    failures.Add("coyoteTime must be >= 0 when jump is enabled.");
+                }
+
+                if (profile.JumpBufferTime < 0f)
+                {
+                    failures.Add("jumpBufferTime must be >= 0 when jump is enabled.");
+                }
+            }
+
+            if (profile.Gravity >= 0f)
+            {
+                failures.Add("gravity must be negative.");
             }
 
             if (failures.Count > 0)
@@ -125,6 +198,61 @@ namespace CCS.Modules.CharacterController
             }
 
             return CCS_SurvivalValidationResult.Pass("Movement profile validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidatePlayerJumpConfiguration(
+            CCS_CharacterMotor motor,
+            string contextLabel)
+        {
+            if (motor == null)
+            {
+                return CCS_SurvivalValidationResult.Fail($"{contextLabel} motor reference is null.");
+            }
+
+            CCS_CharacterMovementProfile profile = motor.MovementProfile;
+            if (profile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail($"{contextLabel} movement profile is not assigned.");
+            }
+
+            List<string> failures = new List<string>();
+            if (!profile.JumpEnabled)
+            {
+                failures.Add("jump must be enabled.");
+            }
+
+            AppendIfApproximatelyUnequal(
+                failures,
+                profile.JumpHeight,
+                CCS_CharacterControllerConstants.DefaultJumpHeight,
+                "jumpHeight");
+            AppendIfApproximatelyUnequal(
+                failures,
+                profile.Gravity,
+                CCS_CharacterControllerConstants.DefaultGravity,
+                "gravity");
+            AppendIfApproximatelyUnequal(
+                failures,
+                profile.CoyoteTime,
+                CCS_CharacterControllerConstants.DefaultCoyoteTime,
+                "coyoteTime");
+            AppendIfApproximatelyUnequal(
+                failures,
+                profile.JumpBufferTime,
+                CCS_CharacterControllerConstants.DefaultJumpBufferTime,
+                "jumpBufferTime");
+            AppendIfApproximatelyUnequal(
+                failures,
+                profile.AirControl,
+                CCS_CharacterControllerConstants.DefaultAirControl,
+                "airControl");
+
+            if (failures.Count > 0)
+            {
+                return CCS_SurvivalValidationResult.Fail($"{contextLabel} jump configuration invalid: {string.Join(" ", failures)}");
+            }
+
+            return CCS_SurvivalValidationResult.Pass($"{contextLabel} jump configuration validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateCameraProfile(CCS_CharacterCameraProfile profile)
@@ -146,9 +274,9 @@ namespace CCS.Modules.CharacterController
                     "Default camera profile must use ThirdPersonSurvival mode in v0.2.0.");
             }
 
-            if (profile.MinPitch >= profile.MaxPitch)
+            if (profile.VerticalOrbitMin >= profile.VerticalOrbitMax)
             {
-                return CCS_SurvivalValidationResult.Fail("minPitch must be less than maxPitch.");
+                return CCS_SurvivalValidationResult.Fail("verticalOrbitMin must be less than verticalOrbitMax.");
             }
 
             if (profile.ZoomDistanceMin <= 0f || profile.ZoomDistanceMax < profile.ZoomDistanceMin)
@@ -221,9 +349,15 @@ namespace CCS.Modules.CharacterController
                 {
                     failures.Add(movementValidation.Message);
                 }
-                else if (motor.MovementProfile.JumpEnabled)
+                else
                 {
-                    failures.Add("Jump must be disabled by default.");
+                    CCS_SurvivalValidationResult jumpValidation = ValidatePlayerJumpConfiguration(
+                        motor,
+                        "Test player prefab");
+                    if (!jumpValidation.IsSuccess)
+                    {
+                        failures.Add(jumpValidation.Message);
+                    }
                 }
             }
 
@@ -266,11 +400,18 @@ namespace CCS.Modules.CharacterController
                 }
                 else
                 {
-                    CinemachineThirdPersonFollow follow =
-                        cameraController.CinemachineCamera.GetComponent<CinemachineThirdPersonFollow>();
-                    if (follow == null)
+                    CinemachineOrbitalFollow orbitalFollow =
+                        cameraController.CinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
+                    if (orbitalFollow == null)
                     {
-                        failures.Add("CinemachineCamera is missing CinemachineThirdPersonFollow.");
+                        failures.Add("CinemachineCamera is missing CinemachineOrbitalFollow.");
+                    }
+
+                    CinemachineRotationComposer rotationComposer =
+                        cameraController.CinemachineCamera.GetComponent<CinemachineRotationComposer>();
+                    if (rotationComposer == null)
+                    {
+                        failures.Add("CinemachineCamera is missing CinemachineRotationComposer.");
                     }
                 }
             }
@@ -325,6 +466,19 @@ namespace CCS.Modules.CharacterController
             if (map.FindAction(actionName, false) == null)
             {
                 missingActions.Add(actionName);
+            }
+        }
+
+        private static void AppendIfApproximatelyUnequal(
+            List<string> failures,
+            float actual,
+            float expected,
+            string fieldName,
+            float tolerance = 0.001f)
+        {
+            if (Mathf.Abs(actual - expected) > tolerance)
+            {
+                failures.Add($"{fieldName} must be {expected.ToString("0.###")} (found {actual.ToString("0.###")}).");
             }
         }
 

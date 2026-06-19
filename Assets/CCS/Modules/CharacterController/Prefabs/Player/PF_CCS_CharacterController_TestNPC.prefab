@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2638466892067958831
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 100001, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_Name
+      value: PF_CCS_CharacterController_TestNPC
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100040, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: inputProvider
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 100112, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5a6ff3d632b4847409fdc98a3374bc80, type: 2}
+    m_RemovedComponents:
+    - {fileID: 100030, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+    - {fileID: 100060, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+    - {fileID: 100050, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100001, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6458276195274239937}
+  m_SourcePrefab: {fileID: 100100000, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+--- !u!1 &2638466892067993230 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100001, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+  m_PrefabInstance: {fileID: 2638466892067958831}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6458276195274239937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2638466892067993230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4e9a2b1d8f4e6a9b0c3d5e7f1a2b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_ControllerTestNpcRunner
+  motor: {fileID: 2638466892067993319}
+  arrivalRadius: 0.75
+  pauseAtPointSeconds: 1
+  loopRoute: 0
+  routeTestPointIds:
+  - ccs.test.character.spawn
+  - ccs.test.character.stairs.bottom
+  - ccs.test.character.stairs.top
+  - ccs.test.character.roof.center
+  - ccs.test.character.ramp.top
+  - ccs.test.character.ramp.bottom
+  - ccs.test.character.door.outside
+  - ccs.test.character.door.inside
+  - ccs.test.character.cover.inside
+  - ccs.test.character.loop.complete
+  routePoints: []
+--- !u!114 &2638466892067993319 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 100040, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+  m_PrefabInstance: {fileID: 2638466892067958831}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2638466892067993230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6cd6924f9cd7b4da92b4e4f104ecb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMotor

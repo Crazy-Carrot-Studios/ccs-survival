@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.CharacterController.Tests.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController.Tests",
+    "references": [
+        "CCS.Modules.CharacterController.Runtime",
+        "Unity.Cinemachine",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

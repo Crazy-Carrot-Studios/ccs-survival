@@ -22,7 +22,9 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 16
   gravity: -20
-  jumpEnabled: 0
-  jumpHeight: 1.2
+  jumpEnabled: 1
+  jumpHeight: 1.25
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
   rotationSmoothing: 540
-  airControl: 0.25
+  airControl: 0.35

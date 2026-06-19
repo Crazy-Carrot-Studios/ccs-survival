@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: ScriptableObject asset under Profiles/Movement/.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Configuration only. Jump disabled by default in v0.2.0.
+// NOTES: Configuration only. Jump enabled on default profile for controller test players.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -40,18 +40,24 @@ namespace CCS.Modules.CharacterController
         [SerializeField] private float gravity = -20f;
 
         [Tooltip("When false, jump input is ignored.")]
-        [SerializeField] private bool jumpEnabled;
+        [SerializeField] private bool jumpEnabled = true;
 
         [Tooltip("Jump height in meters when jump is enabled.")]
-        [SerializeField] private float jumpHeight = 1.2f;
+        [SerializeField] private float jumpHeight = 1.25f;
+
+        [Tooltip("Seconds after leaving ground where jump is still allowed.")]
+        [SerializeField] private float coyoteTime = 0.1f;
+
+        [Tooltip("Seconds to buffer jump input before landing.")]
+        [SerializeField] private float jumpBufferTime = 0.1f;
 
         [Header("Rotation")]
         [Tooltip("Maximum rotation speed in degrees per second.")]
         [SerializeField] private float rotationSmoothing = 540f;
 
         [Header("Air Control")]
-        [Tooltip("Placeholder air control multiplier.")]
-        [SerializeField] private float airControl = 0.25f;
+        [Tooltip("Airborne movement acceleration multiplier.")]
+        [SerializeField] private float airControl = 0.35f;
 
         #endregion
 
@@ -70,6 +76,10 @@ namespace CCS.Modules.CharacterController
         public bool JumpEnabled => jumpEnabled;
 
         public float JumpHeight => jumpHeight;
+
+        public float CoyoteTime => coyoteTime;
+
+        public float JumpBufferTime => jumpBufferTime;
 
         public float RotationSmoothing => rotationSmoothing;
 

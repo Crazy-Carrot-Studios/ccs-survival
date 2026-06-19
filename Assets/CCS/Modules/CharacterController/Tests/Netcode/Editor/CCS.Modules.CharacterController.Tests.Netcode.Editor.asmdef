@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.CharacterController.Tests.Netcode.Editor",
+    "rootNamespace": "CCS.Modules.CharacterController.Tests.Netcode.Editor",
+    "references": [
+        "CCS.Modules.CharacterController.Editor",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.CharacterController.Tests.Netcode.Runtime",
+        "CCS.Project.Runtime",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

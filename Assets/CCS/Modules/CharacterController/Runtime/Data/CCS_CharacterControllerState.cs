@@ -48,6 +48,8 @@ namespace CCS.Modules.CharacterController
 
         public float ActiveMouseSensitivityY;
 
+        public string ActiveCinemachineRigDescription = string.Empty;
+
         #endregion
 
         #region Public Methods
@@ -70,7 +72,8 @@ namespace CCS.Modules.CharacterController
                 CameraForward,
                 ActiveCameraProfileName,
                 ActiveMouseSensitivityX,
-                ActiveMouseSensitivityY);
+                ActiveMouseSensitivityY,
+                ActiveCinemachineRigDescription);
         }
 
         #endregion

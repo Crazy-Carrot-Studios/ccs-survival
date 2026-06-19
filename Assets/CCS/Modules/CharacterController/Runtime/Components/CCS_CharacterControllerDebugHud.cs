@@ -44,10 +44,11 @@ namespace CCS.Modules.CharacterController
             GUILayout.Label($"Sprinting: {snapshot.IsSprinting}");
             GUILayout.Label($"Input Device: {snapshot.InputDeviceLabel}");
             GUILayout.Label($"Movement Input: {snapshot.MovementInput}");
-            GUILayout.Label($"Look Input: {snapshot.LookInput}");
-            GUILayout.Label($"Yaw: {snapshot.Yaw:0.0}");
-            GUILayout.Label($"Pitch: {snapshot.Pitch:0.0}");
+            GUILayout.Label($"Look Input (diagnostics): {snapshot.LookInput}");
+            GUILayout.Label($"Active Camera Yaw: {snapshot.Yaw:0.0}");
+            GUILayout.Label($"Active Camera Pitch: {snapshot.Pitch:0.0}");
             GUILayout.Label($"Camera Profile: {snapshot.ActiveCameraProfileName}");
+            GUILayout.Label($"Cinemachine Rig: {snapshot.ActiveCinemachineRigDescription}");
             GUILayout.Label($"Sensitivity X/Y: {snapshot.ActiveMouseSensitivityX:0.###}/{snapshot.ActiveMouseSensitivityY:0.###}");
             GUILayout.EndArea();
         }

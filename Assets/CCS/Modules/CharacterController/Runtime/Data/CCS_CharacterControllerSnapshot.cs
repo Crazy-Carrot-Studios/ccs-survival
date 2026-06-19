@@ -32,7 +32,8 @@ namespace CCS.Modules.CharacterController
             Vector3 cameraForward,
             string activeCameraProfileName,
             float activeMouseSensitivityX,
-            float activeMouseSensitivityY)
+            float activeMouseSensitivityY,
+            string activeCinemachineRigDescription)
         {
             MovementMode = movementMode;
             CameraMode = cameraMode;
@@ -50,6 +51,7 @@ namespace CCS.Modules.CharacterController
             ActiveCameraProfileName = activeCameraProfileName ?? string.Empty;
             ActiveMouseSensitivityX = activeMouseSensitivityX;
             ActiveMouseSensitivityY = activeMouseSensitivityY;
+            ActiveCinemachineRigDescription = activeCinemachineRigDescription ?? string.Empty;
         }
 
         #endregion
@@ -87,6 +89,8 @@ namespace CCS.Modules.CharacterController
         public float ActiveMouseSensitivityX { get; }
 
         public float ActiveMouseSensitivityY { get; }
+
+        public string ActiveCinemachineRigDescription { get; }
 
         #endregion
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,7 +9,8 @@ using UnityEngine.InputSystem;
 // PLACEMENT: PF_CCS_CharacterController_TestPlayer root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: New Input System only. Tracks last-used device when practical.
+// NOTES: Look is diagnostics-only here; Cinemachine owns camera look on the scene rig.
+//        Shared InputActionAsset ref-count prevents remote providers from disabling look.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -17,12 +19,12 @@ namespace CCS.Modules.CharacterController
     {
         #region Variables
 
+        private static readonly Dictionary<int, int> SharedActionAssetEnableCounts = new Dictionary<int, int>();
+
         [Header("Input Actions")]
-        [Tooltip("Module-owned Input Actions asset.")]
         [SerializeField] private InputActionAsset inputActionsAsset;
 
         [Header("Cursor")]
-        [Tooltip("Lock cursor on enable for third-person control.")]
         [SerializeField] private bool lockCursorOnEnable = true;
 
         private InputActionMap gameplayMap;
@@ -33,21 +35,32 @@ namespace CCS.Modules.CharacterController
         private InputAction toggleCursorAction;
         private InputAction cameraZoomAction;
         private bool cursorLocked = true;
+        private bool inputAccepted = true;
+        private bool sharedMapEnableHeld;
         private string lastInputDeviceLabel = "None";
 
         #endregion
 
         #region Properties
 
-        public Vector2 MoveInput => moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        public bool InputAccepted => inputAccepted;
 
-        public Vector2 LookInput => lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
+        public Vector2 MoveInput =>
+            HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
 
-        public bool SprintHeld => sprintAction != null && sprintAction.IsPressed();
+        public Vector2 LookInput =>
+            HasAcceptedFocusedInput && lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
 
-        public bool JumpPressedThisFrame => jumpAction != null && jumpAction.WasPressedThisFrame();
+        public bool SprintHeld =>
+            HasAcceptedFocusedInput && sprintAction != null && sprintAction.IsPressed();
 
-        public float CameraZoomInput => cameraZoomAction != null ? cameraZoomAction.ReadValue<float>() : 0f;
+        public bool JumpPressed => JumpPressedThisFrame;
+
+        public bool JumpPressedThisFrame =>
+            HasAcceptedFocusedInput && jumpAction != null && jumpAction.WasPressedThisFrame();
+
+        public float CameraZoomInput =>
+            HasAcceptedFocusedInput && cameraZoomAction != null ? cameraZoomAction.ReadValue<float>() : 0f;
 
         public bool CursorLocked => cursorLocked;
 
@@ -66,20 +79,22 @@ namespace CCS.Modules.CharacterController
 
         private void OnEnable()
         {
-            gameplayMap?.Enable();
-            if (lockCursorOnEnable)
-            {
-                SetCursorLocked(true);
-            }
+            AcquireSharedActionMap();
+            ApplyCursorLockForCurrentState();
         }
 
         private void OnDisable()
         {
-            gameplayMap?.Disable();
+            ReleaseSharedActionMap();
         }
 
         private void Update()
         {
+            if (!HasAcceptedFocusedInput)
+            {
+                return;
+            }
+
             UpdateLastInputDevice();
             HandleToggleCursor();
         }
@@ -90,8 +105,24 @@ namespace CCS.Modules.CharacterController
 
         public void SetInputActionsAsset(InputActionAsset asset)
         {
+            if (isActiveAndEnabled)
+            {
+                ReleaseSharedActionMap();
+            }
+
             inputActionsAsset = asset;
             BindActions();
+
+            if (isActiveAndEnabled)
+            {
+                AcquireSharedActionMap();
+            }
+        }
+
+        public void SetInputAccepted(bool accepted)
+        {
+            inputAccepted = accepted;
+            ApplyCursorLockForCurrentState();
         }
 
         public void SetCursorLocked(bool locked)
@@ -104,6 +135,8 @@ namespace CCS.Modules.CharacterController
         #endregion
 
         #region Private Methods
+
+        private bool HasAcceptedFocusedInput => inputAccepted && Application.isFocused;
 
         private void BindActions()
         {
@@ -129,6 +162,66 @@ namespace CCS.Modules.CharacterController
             cameraZoomAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.CameraZoomActionName, true);
         }
 
+        private void AcquireSharedActionMap()
+        {
+            if (gameplayMap == null || inputActionsAsset == null || sharedMapEnableHeld)
+            {
+                return;
+            }
+
+            int assetKey = inputActionsAsset.GetInstanceID();
+            SharedActionAssetEnableCounts.TryGetValue(assetKey, out int enableCount);
+            if (enableCount == 0)
+            {
+                gameplayMap.Enable();
+            }
+
+            SharedActionAssetEnableCounts[assetKey] = enableCount + 1;
+            sharedMapEnableHeld = true;
+        }
+
+        private void ReleaseSharedActionMap()
+        {
+            if (gameplayMap == null || inputActionsAsset == null || !sharedMapEnableHeld)
+            {
+                return;
+            }
+
+            int assetKey = inputActionsAsset.GetInstanceID();
+            if (!SharedActionAssetEnableCounts.TryGetValue(assetKey, out int enableCount))
+            {
+                sharedMapEnableHeld = false;
+                return;
+            }
+
+            enableCount--;
+            if (enableCount <= 0)
+            {
+                gameplayMap.Disable();
+                SharedActionAssetEnableCounts.Remove(assetKey);
+            }
+            else
+            {
+                SharedActionAssetEnableCounts[assetKey] = enableCount;
+            }
+
+            sharedMapEnableHeld = false;
+        }
+
+        private void ApplyCursorLockForCurrentState()
+        {
+            if (!isActiveAndEnabled || !inputAccepted || !Application.isFocused)
+            {
+                SetCursorLocked(false);
+                return;
+            }
+
+            if (lockCursorOnEnable)
+            {
+                SetCursorLocked(true);
+            }
+        }
+
         private void UpdateLastInputDevice()
         {
             InputControl activeControl = null;
@@ -140,6 +233,10 @@ namespace CCS.Modules.CharacterController
             else if (lookAction != null && lookAction.IsInProgress())
             {
                 activeControl = lookAction.activeControl;
+            }
+            else if (jumpAction != null && jumpAction.IsPressed())
+            {
+                activeControl = jumpAction.activeControl;
             }
             else if (sprintAction != null && sprintAction.IsPressed())
             {
