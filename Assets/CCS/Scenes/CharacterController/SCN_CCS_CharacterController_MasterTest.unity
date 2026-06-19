@@ -420,6 +420,7 @@ Transform:
   - {fileID: 2043443638}
   - {fileID: 264591532}
   - {fileID: 1788574862}
+  - {fileID: 2890123457}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &444604192
@@ -692,6 +693,7 @@ MonoBehaviour:
   maxEntries: 5
   entryLifetimeSeconds: 5
   entryFadeOutSeconds: 0.35
+  panelVisibleSeconds: 5
   feedRoot: {fileID: 729601135}
   panelRoot: {fileID: 1093141158}
   entriesContainer: {fileID: 2053806420}
@@ -1143,10 +1145,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b780a9f9b49ca3c4a9215a04ea0c8c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_MasterTestSpawnController
-  soloPlayerPrefab: {fileID: 2240448729846996730, guid: b4ca70f1e440f9a4c9d02f585dc1226f, type: 3}
+  testPlayerPrefab: {fileID: 2240448729846996730, guid: 0a66e7585649df743b83083ced94b7be, type: 3}
   soloSpawnPoint: {fileID: 1846383184}
   cameraController: {fileID: 444604193}
   defaultBodyMaterial: {fileID: 2100000, guid: c1d2e3f4a5b6478990abcdef12345601, type: 2}
+  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcde, type: 2}
 --- !u!4 &1268490505
 Transform:
   m_ObjectHideFlags: 0
@@ -2022,6 +2025,68 @@ MonoBehaviour:
   label: Door Outside
   testPointType: 8
   radius: 0.6
+--- !u!1001 &2890123456
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 416148332}
+    m_Modifications:
+    - target: {fileID: 810000001, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_Name
+      value: PF_CCS_TestInteractable_ToggleCube
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+--- !u!4 &2890123457 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 810000010, guid: b4c5d6e7f8901234abcdef1234020305, type: 3}
+  m_PrefabInstance: {fileID: 2890123456}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -10,6 +10,8 @@
         "CCS.Modules.CharacterController.Tests.Runtime",
         "CCS.Modules.Attributes.Editor",
         "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.Interaction.Editor",
+        "CCS.Modules.Interaction.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine",
         "Unity.Netcode.Runtime",

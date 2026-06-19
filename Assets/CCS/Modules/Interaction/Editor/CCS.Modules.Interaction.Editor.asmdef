@@ -1,0 +1,22 @@
+{
+    "name": "CCS.Modules.Interaction.Editor",
+    "rootNamespace": "CCS.Modules.Interaction.Editor",
+    "references": [
+        "CCS.Core.Editor",
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -8,6 +8,7 @@ Gameplay and game systems live under `Assets/CCS/Modules/`. Each feature is an i
 |--------|--------|
 | CharacterController | v0.2.4 — movement, camera, test prefab, master test scene, validation |
 | Attributes | v0.3.0 — generic attribute model, Health, server-authoritative replication, test HUD |
+| Interaction | v0.4.0 — owner scanner, server validation, test toggle interactable |
 
 ## Module structure
 

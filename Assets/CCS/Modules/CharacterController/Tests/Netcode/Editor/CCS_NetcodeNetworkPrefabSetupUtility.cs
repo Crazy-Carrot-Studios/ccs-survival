@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController.Editor;
+using CCS.Modules.Interaction.Editor;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -36,6 +37,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             if (!CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes())
             {
                 Debug.LogWarning("[Netcode Setup] Attributes prefab sync reported no changes or could not run.");
+            }
+
+            if (!CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner())
+            {
+                Debug.LogWarning("[Netcode Setup] Interaction prefab sync reported no changes or could not run.");
             }
 
             if (!ValidatePlayerPrefabAsset(out string playerError))

@@ -191,7 +191,7 @@ Platform architecture, upstream workflow, release notes, and validation records.
 
 ## Modules/
 
-Only **CharacterController** and **Attributes** exist as active gameplay modules.
+Only **CharacterController**, **Attributes**, and **Interaction** exist as active gameplay modules.
 
 See [Modules/README.md](Modules/README.md) for module creation rules.
 
@@ -225,6 +225,24 @@ Assets/CCS/Modules/<Feature>/
 - Test player wiring on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
 
 **Doc:** [CCS_Attributes_Module.md](Modules/Attributes/Documentation/CCS_Attributes_Module.md)
+
+---
+
+### Interaction/ — active (v0.4.0)
+
+**Assemblies:**
+- `CCS.Modules.Interaction.Runtime` / `.Editor`
+
+**Namespace:** `CCS.Modules.Interaction`
+
+**Menu:** `CCS/Interaction/Validate Interaction Module`
+
+**Canonical assets:**
+- `Tests/Profiles/CCS_InteractionScannerProfile_Default.asset`
+- `Tests/Prefabs/PF_CCS_TestInteractable_ToggleCube.prefab`
+- Test player scanner on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+
+**Doc:** [CCS_Interaction_Module.md](Modules/Interaction/Documentation/CCS_Interaction_Module.md)
 
 ---
 

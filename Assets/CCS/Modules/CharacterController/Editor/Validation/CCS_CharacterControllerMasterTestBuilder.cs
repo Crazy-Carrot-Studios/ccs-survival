@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.Interaction.Editor;
 using Unity.Cinemachine;
 using UnityEditor;
 
@@ -74,6 +75,8 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_CharacterControllerMasterTestEnvironmentPrefabBuilder.RebuildEnvironmentPrefabs();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
+            CCS_InteractionAssetBuilder.EnsureInteractionAssets();
+            CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner();
 
             EnsurePrefabAssetMaterials();
 
@@ -150,6 +153,8 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureSpawnPoints(testPoints);
 
             changed |= EnsureTraversalPoints(testPoints);
+
+            changed |= CCS_InteractionMasterTestBuilder.EnsureMasterTestInteractable();
 
             changed |= EnsureBootstrapRoot();
 
