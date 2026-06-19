@@ -1,17 +1,12 @@
 {
-    "name": "CCS.Modules.CharacterController.Editor",
-    "rootNamespace": "CCS.Modules.CharacterController.Editor",
+    "name": "CCS.Modules.Attributes.Editor",
+    "rootNamespace": "CCS.Modules.Attributes.Editor",
     "references": [
         "CCS.Core.Editor",
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
-        "CCS.Modules.CharacterController.Runtime",
-        "CCS.Modules.CharacterController.Tests.Netcode.Runtime",
-        "CCS.Modules.CharacterController.Tests.Runtime",
-        "CCS.Modules.Attributes.Editor",
         "CCS.Modules.Attributes.Runtime",
-        "Unity.InputSystem",
-        "Unity.Cinemachine",
+        "CCS.Modules.Attributes.Tests.Runtime",
         "Unity.Netcode.Runtime",
         "Unity.TextMeshPro",
         "UnityEngine.UI"

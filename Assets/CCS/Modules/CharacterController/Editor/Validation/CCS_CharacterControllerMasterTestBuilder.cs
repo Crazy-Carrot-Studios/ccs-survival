@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using Unity.Cinemachine;
@@ -72,6 +73,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             CCS_CharacterControllerMasterTestEnvironmentPrefabBuilder.RebuildEnvironmentPrefabs();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
+            CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
 
             EnsurePrefabAssetMaterials();
 

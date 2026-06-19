@@ -1,4 +1,5 @@
 using System.IO;
+using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController.Editor;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using UnityEditor;
@@ -30,6 +31,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             if (!CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs())
             {
                 Debug.LogWarning("[Netcode Setup] Player prefab sync reported no changes or could not run.");
+            }
+
+            if (!CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes())
+            {
+                Debug.LogWarning("[Netcode Setup] Attributes prefab sync reported no changes or could not run.");
             }
 
             if (!ValidatePlayerPrefabAsset(out string playerError))

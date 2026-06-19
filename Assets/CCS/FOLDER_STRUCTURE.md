@@ -191,7 +191,7 @@ Platform architecture, upstream workflow, release notes, and validation records.
 
 ## Modules/
 
-Only **CharacterController** exists as an active gameplay module.
+Only **CharacterController** and **Attributes** exist as active gameplay modules.
 
 See [Modules/README.md](Modules/README.md) for module creation rules.
 
@@ -207,6 +207,24 @@ Assets/CCS/Modules/<Feature>/
 ├── Tests/            # Module test scenes and harness assets
 └── Documentation/    # Module contract and integration notes
 ```
+
+---
+
+### Attributes/ — active (v0.3.0)
+
+**Assemblies:**
+- `CCS.Modules.Attributes.Runtime` / `.Editor`
+- `CCS.Modules.Attributes.Tests.Runtime`
+
+**Namespace:** `CCS.Modules.Attributes` (test types under `CCS.Modules.Attributes.Tests`)
+
+**Menu:** `CCS/Attributes/Validate Attributes Module`
+
+**Canonical assets:**
+- `Tests/Profiles/CCS_AttributeDefinition_Health.asset`
+- Test player wiring on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+
+**Doc:** [CCS_Attributes_Module.md](Modules/Attributes/Documentation/CCS_Attributes_Module.md)
 
 ---
 

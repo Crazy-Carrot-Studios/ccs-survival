@@ -1,0 +1,20 @@
+{
+    "name": "CCS.Modules.Attributes.Tests.Runtime",
+    "rootNamespace": "CCS.Modules.Attributes.Tests",
+    "references": [
+        "CCS.Modules.Attributes.Runtime",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

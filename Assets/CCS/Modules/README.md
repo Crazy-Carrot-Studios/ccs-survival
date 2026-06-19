@@ -4,11 +4,10 @@ Gameplay and game systems live under `Assets/CCS/Modules/`. Each feature is an i
 
 ## Active modules
 
-Only **CharacterController** exists right now. Other gameplay modules will be created when we actually build them — do not keep placeholder module folders.
-
 | Module | Status |
 |--------|--------|
-| CharacterController | v0.2.1 — movement, camera, test prefab, test ground scene, validation |
+| CharacterController | v0.2.4 — movement, camera, test prefab, master test scene, validation |
+| Attributes | v0.3.0 — generic attribute model, Health, server-authoritative replication, test HUD |
 
 ## Module structure
 

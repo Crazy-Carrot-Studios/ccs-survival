@@ -6,6 +6,8 @@
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.CharacterController.Tests.Netcode.Runtime",
         "CCS.Modules.CharacterController.Tests.Runtime",
+        "CCS.Modules.Attributes.Editor",
+        "CCS.Modules.Attributes.Runtime",
         "CCS.Project.Runtime",
         "Unity.InputSystem",
         "Unity.Netcode.Runtime",
