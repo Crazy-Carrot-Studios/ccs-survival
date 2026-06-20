@@ -1292,12 +1292,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must expose Join Selected flow.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("TryValidatePlayerNameForHostOrJoin"),
-                    "CCS_MultiplayerHostingMenu must validate player name before host or join.");
+                    source.Contains("TryValidateForHost"),
+                    "CCS_MultiplayerHostingMenu must validate player and server name before host.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("TryValidateServerNameForHost"),
-                    "CCS_MultiplayerHostingMenu must validate server name before host.");
+                    source.Contains("TryValidatePlayerNameForJoin"),
+                    "CCS_MultiplayerHostingMenu must validate player name before join.");
                 AppendIfMissing(
                     failures,
                     source.Contains("playerNameWarningText"),
@@ -1308,8 +1308,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must expose the server name warning label.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("PlayerNameRequiredWarningMessage"),
-                    "CCS_MultiplayerHostingMenu must use the required player name warning message.");
+                    source.Contains("PlayerNameRequiredForHostWarningMessage"),
+                    "CCS_MultiplayerHostingMenu must use the required player name warning for host.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("PlayerNameRequiredForJoinWarningMessage"),
+                    "CCS_MultiplayerHostingMenu must use the required player name warning for join.");
                 AppendIfMissing(
                     failures,
                     source.Contains("ServerNameRequiredWarningMessage"),

@@ -204,18 +204,23 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string PlayerNameWarningTextObjectName = "PlayerNameWarningText";
 
-        public const string PlayerNameRequiredWarningMessage =
-            "Enter a player name before hosting or joining.";
+        public const string PlayerNameRequiredForHostWarningMessage =
+            "Enter a player name before hosting.";
+
+        public const string PlayerNameRequiredForJoinWarningMessage =
+            "Enter a player name before joining.";
 
         public const string ServerNamePanelObjectName = "ServerNamePanel";
 
         public const string ServerNameWarningTextObjectName = "ServerNameWarningText";
 
+        public const string ServerNameLabelText = "SERVER NAME (REQUIRED)";
+
         public const string ServerNameRequiredWarningMessage =
             "Enter a server name before hosting.";
 
         public const string ServerNameHintMessage =
-            "This name appears in the local host list.";
+            "Required. This name appears in the local host list.";
 
         public const string DefaultServerSessionLabel = "Local Test Session";
 

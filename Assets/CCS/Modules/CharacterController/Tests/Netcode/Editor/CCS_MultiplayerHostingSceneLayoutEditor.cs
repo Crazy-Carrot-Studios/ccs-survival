@@ -447,7 +447,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             TextMeshProUGUI playerNameWarningText = CreateAnchoredTmpText(
                 namePanel,
                 CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName,
-                CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage,
+                CCS_NetcodeTestConstants.PlayerNameRequiredForHostWarningMessage,
                 15,
                 FontStyles.Normal,
                 TextNameWarning,
@@ -475,7 +475,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             CreateAnchoredText(
                 serverNamePanel,
                 "ServerNameLabel",
-                "SERVER NAME",
+                CCS_NetcodeTestConstants.ServerNameLabelText,
                 18,
                 FontStyle.Bold,
                 TextLabel,
@@ -483,7 +483,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
                 new Vector2(110f, -28f),
-                new Vector2(240f, 24f));
+                new Vector2(360f, 24f));
             CreateAnchoredInputField(
                 serverNamePanel,
                 "ServerNameInput",
