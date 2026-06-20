@@ -38,6 +38,8 @@ namespace CCS.Modules.CharacterController
         private bool inputAccepted = true;
         private bool sharedMapEnableHeld;
         private string lastInputDeviceLabel = "None";
+        private Vector2 externalMoveInput;
+        private bool externalMoveActive;
 
         #endregion
 
@@ -46,7 +48,9 @@ namespace CCS.Modules.CharacterController
         public bool InputAccepted => inputAccepted;
 
         public Vector2 MoveInput =>
-            HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+            externalMoveActive
+                ? externalMoveInput
+                : HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
 
         public Vector2 LookInput =>
             HasAcceptedFocusedInput && lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
@@ -132,11 +136,24 @@ namespace CCS.Modules.CharacterController
             Cursor.visible = !locked;
         }
 
+        public void SetExternalMoveInput(Vector2 moveInput)
+        {
+            externalMoveInput = moveInput;
+            externalMoveActive = moveInput.sqrMagnitude > 0.0001f;
+            inputAccepted = true;
+        }
+
+        public void ClearExternalMoveInput()
+        {
+            externalMoveInput = Vector2.zero;
+            externalMoveActive = false;
+        }
+
         #endregion
 
         #region Private Methods
 
-        private bool HasAcceptedFocusedInput => inputAccepted && Application.isFocused;
+        private bool HasAcceptedFocusedInput => inputAccepted && (externalMoveActive || Application.isFocused);
 
         private void BindActions()
         {

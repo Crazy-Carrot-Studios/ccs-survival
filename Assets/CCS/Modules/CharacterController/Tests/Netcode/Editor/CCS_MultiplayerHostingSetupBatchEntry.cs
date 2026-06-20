@@ -15,8 +15,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
     {
         public static void RebuildFromBatchMode()
         {
-            bool success = CCS_MultiplayerHostingBuilder.VerifyAndRepairScene();
-            EditorApplication.Exit(success ? 0 : 1);
+            CCS_CharacterControllerTestHarnessMenus.RunFromBatchMode();
         }
     }
 }

@@ -18,6 +18,6 @@ MonoBehaviour:
   cameraProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
   capsuleVisualLocalPosition: {x: 0, y: 1, z: 0}
   capsuleVisualLocalScale: {x: 0.7, y: 1, z: 0.7}
-  glassesLocalPosition: {x: 0, y: 1.68, z: 0.27}
-  glassesLocalEuler: {x: 0, y: 0, z: 90}
-  glassesLocalScale: {x: 0.05, y: 0.22, z: 0.05}
+  glassesLocalPosition: {x: 0, y: 1.6, z: 0.222}
+  glassesLocalEuler: {x: 180, y: 180, z: 90}
+  glassesLocalScale: {x: 0.3, y: 0.3, z: 0.3}

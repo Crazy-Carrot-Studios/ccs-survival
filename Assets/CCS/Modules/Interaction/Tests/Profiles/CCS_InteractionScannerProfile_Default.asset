@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2f3a4b5c6478990abcdef12340203, type: 3}
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f30415263748596a7b8c0, type: 3}
   m_Name: CCS_InteractionScannerProfile_Default
   m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractionScannerProfile
   profileDisplayName: Interaction Scanner Default

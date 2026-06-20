@@ -44,13 +44,13 @@ namespace CCS.Modules.CharacterController.Tests
 
         [Header("Glasses Visual")]
         [Tooltip("Local position for VisualGlasses.")]
-        [SerializeField] private Vector3 glassesLocalPosition = new Vector3(0f, 1.68f, 0.26f);
+        [SerializeField] private Vector3 glassesLocalPosition = new Vector3(0f, 1.6f, 0.222f);
 
         [Tooltip("Local euler rotation for VisualGlasses.")]
-        [SerializeField] private Vector3 glassesLocalEuler = new Vector3(0f, 0f, 90f);
+        [SerializeField] private Vector3 glassesLocalEuler = new Vector3(180f, 180f, 90f);
 
-        [Tooltip("Local scale for VisualGlasses. Y is the capsule height axis before Z rotation.")]
-        [SerializeField] private Vector3 glassesLocalScale = new Vector3(0.05f, 0.22f, 0.05f);
+        [Tooltip("Local scale for VisualGlasses.")]
+        [SerializeField] private Vector3 glassesLocalScale = new Vector3(0.3f, 0.3f, 0.3f);
 
         #endregion
 

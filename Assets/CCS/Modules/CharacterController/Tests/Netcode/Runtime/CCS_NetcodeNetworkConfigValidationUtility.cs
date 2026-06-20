@@ -41,16 +41,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return false;
             }
 
-            GameObject playerPrefab = networkConfig.PlayerPrefab;
-            if (!IsValidProjectPrefabReference(playerPrefab, out string playerPrefabError))
+            if (!networkConfig.EnableSceneManagement)
             {
-                errorMessage = "NetworkConfig.PlayerPrefab is invalid: " + playerPrefabError;
+                errorMessage = "NetworkConfig.EnableSceneManagement must be enabled for host scene load.";
                 return false;
             }
 
-            if (!TryGetNetworkObject(playerPrefab, out _, out string playerNetworkObjectError))
+            GameObject playerPrefab = networkConfig.PlayerPrefab;
+            if (!IsValidNetworkPrefabReference(playerPrefab, out string playerPrefabError))
             {
-                errorMessage = "NetworkConfig.PlayerPrefab is invalid: " + playerNetworkObjectError;
+                errorMessage = "NetworkConfig.PlayerPrefab is invalid: " + playerPrefabError;
                 return false;
             }
 
@@ -86,17 +86,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 for (int prefabIndex = 0; prefabIndex < prefabsList.PrefabList.Count; prefabIndex++)
                 {
                     NetworkPrefab networkPrefab = prefabsList.PrefabList[prefabIndex];
-                    if (!IsValidProjectPrefabReference(networkPrefab.Prefab, out string prefabError))
+                    if (!IsValidNetworkPrefabReference(networkPrefab.Prefab, out string prefabError))
                     {
                         errorMessage =
                             $"{prefabsList.name} entry [{prefabIndex}] is invalid: {prefabError}";
-                        return false;
-                    }
-
-                    if (!TryGetNetworkObject(networkPrefab.Prefab, out _, out string networkObjectError))
-                    {
-                        errorMessage =
-                            $"{prefabsList.name} entry [{prefabIndex}] is invalid: {networkObjectError}";
                         return false;
                     }
                 }
@@ -105,11 +98,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             return true;
         }
 
+        public static bool HasValidNetworkObjectPrefab(GameObject prefabReference)
+        {
+            return IsValidNetworkPrefabReference(prefabReference, out _);
+        }
+
         #endregion
 
         #region Private Methods
 
-        private static bool IsValidProjectPrefabReference(GameObject prefabReference, out string errorMessage)
+        private static bool IsValidNetworkPrefabReference(GameObject prefabReference, out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -119,15 +117,22 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return false;
             }
 
-            if (!TryIsProjectPrefabAsset(prefabReference, out bool isProjectPrefabAsset))
+#if UNITY_EDITOR
+            if (!TryIsEditorProjectPrefabAsset(prefabReference, out errorMessage))
             {
-                errorMessage = InvalidPrefabMessage;
+                return false;
+            }
+#else
+            if (!TryGetNetworkObject(prefabReference, out _, out errorMessage))
+            {
                 return false;
             }
 
-            if (!isProjectPrefabAsset)
+            return true;
+#endif
+
+            if (!TryGetNetworkObject(prefabReference, out _, out errorMessage))
             {
-                errorMessage = InvalidPrefabMessage;
                 return false;
             }
 
@@ -142,8 +147,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             networkObject = null;
             errorMessage = string.Empty;
 
-            if (!IsValidProjectPrefabReference(prefabReference, out errorMessage))
+            if (!IsAliveUnityObject(prefabReference))
             {
+                errorMessage = InvalidPrefabMessage;
                 return false;
             }
 
@@ -176,25 +182,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             return unityObject != null;
         }
 
-        private static bool TryIsProjectPrefabAsset(GameObject prefabReference, out bool isProjectPrefabAsset)
+#if UNITY_EDITOR
+        private static bool TryIsEditorProjectPrefabAsset(GameObject prefabReference, out string errorMessage)
         {
-            isProjectPrefabAsset = false;
+            errorMessage = string.Empty;
 
             try
             {
-#if UNITY_EDITOR
-                isProjectPrefabAsset = !prefabReference.scene.IsValid();
+                if (prefabReference.scene.IsValid())
+                {
+                    errorMessage = InvalidPrefabMessage;
+                    return false;
+                }
+
                 return true;
-#else
-                isProjectPrefabAsset = TryGetNetworkObject(prefabReference, out _, out _);
-                return true;
-#endif
             }
             catch (MissingReferenceException)
             {
+                errorMessage = InvalidPrefabMessage;
                 return false;
             }
         }
+#endif
 
         #endregion
     }

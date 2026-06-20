@@ -46,5 +46,7 @@ namespace CCS.Modules.Attributes
             this.appliedAmount = appliedAmount;
             this.resultingValue = resultingValue;
         }
+
+        #endregion
     }
 }

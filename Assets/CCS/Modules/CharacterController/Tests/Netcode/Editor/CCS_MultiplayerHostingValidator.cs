@@ -54,11 +54,21 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 File.Exists(CCS_NetcodeTestConstants.TestNetworkPrefabsListPath),
                 $"Missing asset: {CCS_NetcodeTestConstants.TestNetworkPrefabsListPath}");
 
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_NetcodeTestConstants.NetworkPlayerPrefabRegistryPath),
+                $"Missing asset: {CCS_NetcodeTestConstants.NetworkPlayerPrefabRegistryPath}");
+
             ValidateDefaultNetworkPrefabsList(failures);
             ValidateBuildSettingsScenes(failures);
             ValidateNetworkManagerPrefab(failures);
             ValidateMasterTestNetworkSpawnPoints(failures);
             ValidateMasterTestDoesNotContainNetworkedPlayerPrefab(failures);
+            if (!CCS_NetcodeRegistryAuditUtility.ValidateAuditRules(failures))
+            {
+                Debug.LogWarning("[Validation] Netcode registry audit rules reported failures.");
+            }
+
             ValidateHostingSceneContent(failures);
 
             if (failures.Count > 0)
@@ -95,6 +105,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     CCS_NetcodeTestConstants.MasterTestScenePath,
                     CCS_NetcodeTestConstants.MasterTestSceneName),
                 $"Runtime scene name '{CCS_NetcodeTestConstants.MasterTestSceneName}' must match the master test scene asset name.");
+            AppendIfMissing(
+                failures,
+                CCS_NetcodeTestConstants.MasterTestSceneName == "SCN_CCS_CharacterController_MasterTest",
+                "Runtime host scene name must be exactly SCN_CCS_CharacterController_MasterTest.");
         }
 
         private static bool IsSceneEnabledInBuildSettings(string scenePath)
@@ -137,8 +151,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             AppendIfMissing(
                 failures,
-                defaultList.PrefabList.Count == 0,
+                YamlNetworkPrefabsListIsEmpty(CCS_NetcodeTestConstants.DefaultNetworkPrefabsListPath),
                 $"{CCS_NetcodeTestConstants.DefaultNetworkPrefabsListPath} must stay empty. Register test prefabs only in {CCS_NetcodeTestConstants.TestNetworkPrefabsListPath}.");
+        }
+
+        private static bool YamlNetworkPrefabsListIsEmpty(string assetPath)
+        {
+            if (!File.Exists(assetPath))
+            {
+                return false;
+            }
+
+            return File.ReadAllText(assetPath).Contains("  List: []");
         }
 
         private static void ValidateNetworkManagerPrefab(List<string> failures)
@@ -167,6 +191,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 failures,
                 playerPrefab != null,
                 $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} NetworkConfig.PlayerPrefab is null.");
+            AppendIfMissing(
+                failures,
+                EditorSerializedPrefabMatchesCanonical(
+                    playerPrefab,
+                    CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath),
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} NetworkConfig.PlayerPrefab is missing, destroyed, or lacks NetworkObject.");
 
             if (playerPrefab != null)
             {
@@ -175,6 +205,32 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     playerPath == CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath,
                     $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} must use {CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath}.");
+            }
+
+            AppendIfMissing(
+                failures,
+                networkManager.NetworkConfig.EnableSceneManagement,
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} NetworkConfig.EnableSceneManagement must be enabled.");
+
+            AppendIfMissing(
+                failures,
+                !networkManager.NetworkConfig.ForceSamePrefabs,
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} NetworkConfig.ForceSamePrefabs must be disabled for editor/build local join tests.");
+
+            CCS_NetworkPrefabReferenceGuard guard = managerPrefab.GetComponent<CCS_NetworkPrefabReferenceGuard>();
+            AppendIfMissing(
+                failures,
+                guard != null,
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} is missing CCS_NetworkPrefabReferenceGuard.");
+            if (guard != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    UsesYamlPrefabRootReference(
+                        CCS_NetcodeTestConstants.NetworkManagerPrefabPath,
+                        "networkedPlayerPrefabFallback",
+                        CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath),
+                    $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} networkedPlayerPrefabFallback must use prefab asset root reference (fileID 100100000).");
             }
 
             List<NetworkPrefabsList> prefabLists = networkManager.NetworkConfig.Prefabs.NetworkPrefabsLists;
@@ -202,8 +258,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             AppendIfMissing(
                 failures,
-                testList.PrefabList.Count == 1,
-                $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must contain exactly one player prefab entry.");
+                testList.PrefabList.Count == CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths.Length,
+                $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must contain {CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths.Length} registered network prefab entries.");
+
+            ValidateRequiredNetworkPrefabListEntries(failures, testList);
 
             GameObject registeredPlayerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
@@ -273,18 +331,53 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath),
                 $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} PlayerPrefab must use prefab asset root reference (fileID 100100000).");
 
-            string testListPrefabPath = GetNetworkPrefabListEntryPath(testList);
+            ValidateRequiredNetworkPrefabYamlReferences(failures);
+
+            CCS_NetworkTestPrefabsRegistry registry = AssetDatabase.LoadAssetAtPath<CCS_NetworkTestPrefabsRegistry>(
+                CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath);
             AppendIfMissing(
                 failures,
-                testListPrefabPath == CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath,
-                $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must reference {CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath}.");
+                registry != null,
+                $"Could not load {CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath}.");
+            if (registry != null)
+            {
+                string[] requiredPaths = CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths;
+                AppendIfMissing(
+                    failures,
+                    registry.Count == requiredPaths.Length,
+                    $"{CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath} must contain exactly {requiredPaths.Length} network prefabs.");
+
+                int validEntryCount = 0;
+                for (int i = 0; i < requiredPaths.Length; i++)
+                {
+                    GameObject registryPrefab = registry.GetPrefab(i);
+                    bool entryValid = EditorSerializedPrefabMatchesCanonical(registryPrefab, requiredPaths[i]);
+                    if (entryValid)
+                    {
+                        validEntryCount++;
+                    }
+
+                    AppendIfMissing(
+                        failures,
+                        entryValid,
+                        $"{CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath} networkPrefabs[{i}] is missing, destroyed, or lacks NetworkObject.");
+                    AppendIfMissing(
+                        failures,
+                        registryPrefab != null
+                        && AssetDatabase.GetAssetPath(registryPrefab) == requiredPaths[i],
+                        $"{CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath} networkPrefabs[{i}] must reference {requiredPaths[i]}.");
+                }
+
+                AppendIfMissing(
+                    failures,
+                    validEntryCount == requiredPaths.Length,
+                    $"{CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath} contains destroyed or null registry entries.");
+            }
+
             AppendIfMissing(
                 failures,
-                UsesYamlPrefabRootReference(
-                    CCS_NetcodeTestConstants.TestNetworkPrefabsListPath,
-                    "Prefab",
-                    CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath),
-                $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} Prefab must use prefab asset root reference (fileID 100100000).");
+                managerPrefab.GetComponent<CCS_NetworkPrefabReferenceGuard>() != null,
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} is missing CCS_NetworkPrefabReferenceGuard.");
 
             AppendIfMissing(
                 failures,
@@ -416,11 +509,15 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return;
             }
 
-            if (testList.PrefabList == null || testList.PrefabList.Count != 1)
+            if (testList.PrefabList == null
+                || testList.PrefabList.Count != CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths.Length)
             {
-                failures.Add($"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must contain exactly one player prefab entry.");
+                failures.Add(
+                    $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must contain {CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths.Length} registered network prefab entries.");
                 return;
             }
+
+            ValidateRequiredNetworkPrefabListEntries(failures, testList);
 
             GameObject registeredPrefab = testList.PrefabList[0].Prefab;
             GameObject expectedPlayerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -1286,6 +1383,32 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             return false;
         }
 
+        private static bool EditorSerializedPrefabMatchesCanonical(
+            GameObject prefabReference,
+            string canonicalPrefabPath)
+        {
+            if (prefabReference == null || string.IsNullOrEmpty(canonicalPrefabPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                string resolvedPath = AssetDatabase.GetAssetPath(prefabReference);
+                if (resolvedPath != canonicalPrefabPath)
+                {
+                    return false;
+                }
+
+                GameObject canonicalPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(canonicalPrefabPath);
+                return canonicalPrefab != null && canonicalPrefab.GetComponent<NetworkObject>() != null;
+            }
+            catch (MissingReferenceException)
+            {
+                return false;
+            }
+        }
+
         private static bool EditorPrefabHasNetworkObject(GameObject prefabReference)
         {
             if (prefabReference == null)
@@ -1301,6 +1424,156 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             {
                 return false;
             }
+        }
+
+        private static void ValidateRequiredNetworkPrefabListEntries(
+            List<string> failures,
+            NetworkPrefabsList testList)
+        {
+            string[] requiredPaths = CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths;
+            for (int i = 0; i < requiredPaths.Length; i++)
+            {
+                GameObject expectedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(requiredPaths[i]);
+                AppendIfMissing(
+                    failures,
+                    expectedPrefab != null && expectedPrefab.GetComponent<NetworkObject>() != null,
+                    $"{requiredPaths[i]} must exist and contain NetworkObject.");
+
+                bool found = false;
+                if (testList?.PrefabList != null)
+                {
+                    for (int entryIndex = 0; entryIndex < testList.PrefabList.Count; entryIndex++)
+                    {
+                        GameObject registeredPrefab = testList.PrefabList[entryIndex].Prefab;
+                        if (!EditorPrefabHasNetworkObject(registeredPrefab)
+                            && EditorPrefabHasNetworkObject(expectedPrefab))
+                        {
+                            registeredPrefab = expectedPrefab;
+                        }
+
+                        if (EditorPrefabHasNetworkObject(registeredPrefab)
+                            && AssetDatabase.GetAssetPath(registeredPrefab) == requiredPaths[i])
+                        {
+                            NetworkObject networkObject = registeredPrefab.GetComponent<NetworkObject>();
+                            Debug.Log(
+                                $"[Netcode Registry] Registered prefab: {registeredPrefab.name} path={requiredPaths[i]} hash={CCS_NetcodeNetworkObjectHashUtility.GetHash(networkObject)}");
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                AppendIfMissing(
+                    failures,
+                    found,
+                    $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must register {requiredPaths[i]}.");
+            }
+        }
+
+        private static void ValidateRequiredNetworkPrefabYamlReferences(List<string> failures)
+        {
+            string[] requiredPaths = CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths;
+            for (int i = 0; i < requiredPaths.Length; i++)
+            {
+                AppendIfMissing(
+                    failures,
+                    YamlNetworkPrefabsListContainsPrefabRootReference(
+                        CCS_NetcodeTestConstants.TestNetworkPrefabsListPath,
+                        requiredPaths[i]),
+                    $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} must contain prefab root reference (fileID 100100000) for {requiredPaths[i]}.");
+            }
+        }
+
+        private static bool YamlNetworkPrefabsListContainsPrefabRootReference(
+            string assetPath,
+            string prefabAssetPath)
+        {
+            if (!File.Exists(assetPath) || string.IsNullOrEmpty(prefabAssetPath))
+            {
+                return false;
+            }
+
+            string prefabGuid = AssetDatabase.AssetPathToGUID(prefabAssetPath);
+            if (string.IsNullOrEmpty(prefabGuid))
+            {
+                return false;
+            }
+
+            string yaml = File.ReadAllText(assetPath);
+            string expectedReference = $"fileID: 100100000, guid: {prefabGuid}, type: 3";
+            return yaml.Contains(expectedReference);
+        }
+
+        private static void ValidateMasterTestSceneNetworkPrefabRegistration(List<string> failures)
+        {
+            if (!File.Exists(CCS_NetcodeTestConstants.MasterTestScenePath))
+            {
+                failures.Add($"Missing asset: {CCS_NetcodeTestConstants.MasterTestScenePath}");
+                return;
+            }
+
+            NetworkPrefabsList testList = AssetDatabase.LoadAssetAtPath<NetworkPrefabsList>(
+                CCS_NetcodeTestConstants.TestNetworkPrefabsListPath);
+            if (testList == null)
+            {
+                failures.Add($"Missing asset: {CCS_NetcodeTestConstants.TestNetworkPrefabsListPath}");
+                return;
+            }
+
+            UnityEngine.SceneManagement.Scene masterScene = EditorSceneManager.OpenScene(
+                CCS_NetcodeTestConstants.MasterTestScenePath,
+                OpenSceneMode.Additive);
+            if (!masterScene.IsValid())
+            {
+                failures.Add(
+                    $"Could not open {CCS_NetcodeTestConstants.MasterTestScenePath} for network prefab registration validation.");
+                return;
+            }
+
+            NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            for (int i = 0; i < sceneObjects.Length; i++)
+            {
+                NetworkObject sceneObject = sceneObjects[i];
+                if (sceneObject == null)
+                {
+                    continue;
+                }
+
+                Debug.Log(
+                    $"[Netcode Registry] Scene NetworkObject: {sceneObject.name} hash={CCS_NetcodeNetworkObjectHashUtility.GetHash(sceneObject)}");
+
+                GameObject sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(sceneObject.gameObject);
+                if (sourcePrefab == null)
+                {
+                    continue;
+                }
+
+                string sourcePath = AssetDatabase.GetAssetPath(sourcePrefab);
+                if (string.IsNullOrEmpty(sourcePath))
+                {
+                    continue;
+                }
+
+                bool registered = false;
+                for (int entryIndex = 0; entryIndex < testList.PrefabList.Count; entryIndex++)
+                {
+                    GameObject registeredPrefab = testList.PrefabList[entryIndex].Prefab;
+                    if (registeredPrefab != null && AssetDatabase.GetAssetPath(registeredPrefab) == sourcePath)
+                    {
+                        registered = true;
+                        break;
+                    }
+                }
+
+                AppendIfMissing(
+                    failures,
+                    registered,
+                    $"{CCS_NetcodeTestConstants.MasterTestScenePath} scene object '{sceneObject.name}' uses unregistered network prefab {sourcePath}.");
+            }
+
+            EditorSceneManager.CloseScene(masterScene, removeScene: false);
         }
 
         private static string GetNetworkPrefabListEntryPath(NetworkPrefabsList list)

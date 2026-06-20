@@ -340,14 +340,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
 
             if (networkManager.IsServer)
-
             {
-
                 RepositionAllConnectedPlayers("MasterTestSceneLoaded");
-
+                CCS_MasterTestInteractableSpawnController.EnsureNetworkInstanceIfServer();
             }
-
-
 
             RefreshAllNetworkPlayerConfigurations("MasterTestSceneLoaded");
 

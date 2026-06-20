@@ -4,6 +4,7 @@
     "references": [
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.CharacterController.Tests.Runtime",
+        "CCS.Modules.Interaction.Runtime",
         "Unity.InputSystem",
         "Unity.Collections",
         "Unity.Netcode.Runtime",

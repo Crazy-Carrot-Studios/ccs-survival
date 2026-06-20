@@ -23,6 +23,7 @@ namespace CCS.Modules.Attributes.Editor
         [MenuItem(MenuRoot + "Validate Attributes Module")]
         public static void ValidateAttributesModuleMenu()
         {
+            CCS_AttributesAssetBuilder.EnsureAttributesAssets();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
             LogResult(CCS_AttributesModuleValidator.ValidateAttributesModule());
         }

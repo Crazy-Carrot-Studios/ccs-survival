@@ -38,5 +38,7 @@ namespace CCS.Modules.Attributes
             this.amount = amount;
             this.sourceLabel = sourceLabel;
         }
+
+        #endregion
     }
 }

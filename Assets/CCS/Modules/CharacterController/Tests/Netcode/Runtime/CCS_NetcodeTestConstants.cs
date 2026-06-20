@@ -36,10 +36,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string NetworkedPlayerPrefabPath =
             CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
 
+        public const string TestToggleInteractablePrefabPath =
+            "Assets/CCS/Modules/Interaction/Tests/Prefabs/PF_CCS_TestInteractable_ToggleCube.prefab";
+
+        public static readonly string[] RequiredNetworkPrefabPaths =
+        {
+            NetworkedPlayerPrefabPath,
+            TestToggleInteractablePrefabPath,
+        };
+
         public const string TestNetworkPrefabsListPath =
             "Assets/CCS/Modules/CharacterController/Prefabs/Network/CCS_TestNetworkPrefabsList.asset";
 
         public const string DefaultNetworkPrefabsListPath = "Assets/DefaultNetworkPrefabs.asset";
+
+        public const string NetworkTestPrefabsRegistryPath =
+            "Assets/CCS/Modules/CharacterController/Tests/Netcode/Resources/CCS_NetworkTestPrefabsRegistry.asset";
+
+        public const string NetworkTestPrefabsRegistryResourceName = "CCS_NetworkTestPrefabsRegistry";
+
+        public const string NetworkPlayerPrefabRegistryPath = NetworkTestPrefabsRegistryPath;
+
+        public const string NetworkPlayerPrefabRegistryResourceName = NetworkTestPrefabsRegistryResourceName;
 
         public const string BlackGlassesMaterialPath =
             "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerBlack.mat";
@@ -132,7 +150,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float NetworkingHostJoinButtonHeight = 58f;
 
-        public const float NetworkingFooterDividerBottomOffset = 140f;
+        public const float NetworkingFooterDividerBottomOffset = 95f;
 
         public const float NetworkingFooterButtonBottomOffset = 65f;
 

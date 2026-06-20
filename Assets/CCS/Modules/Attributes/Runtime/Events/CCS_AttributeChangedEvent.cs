@@ -41,5 +41,7 @@ namespace CCS.Modules.Attributes
             this.previousValue = previousValue;
             this.currentValue = currentValue;
         }
+
+        #endregion
     }
 }

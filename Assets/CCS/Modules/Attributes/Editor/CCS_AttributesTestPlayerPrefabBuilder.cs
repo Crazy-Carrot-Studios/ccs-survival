@@ -217,8 +217,18 @@ namespace CCS.Modules.Attributes.Editor
             RectTransform rectTransform = textObject.GetComponent<RectTransform>();
             if (rectTransform == null)
             {
+                if (textObject == null)
+                {
+                    return changed;
+                }
+
                 rectTransform = textObject.AddComponent<RectTransform>();
                 changed = true;
+            }
+
+            if (rectTransform == null)
+            {
+                return changed;
             }
 
             if (rectTransform.anchorMin != new Vector2(0f, 1f)

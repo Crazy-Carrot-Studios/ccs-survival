@@ -1504,12 +1504,12 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                displayProfile.GlassesLocalScale == new Vector3(0.05f, 0.22f, 0.05f),
-                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses scale must be (0.05, 0.22, 0.05).");
+                displayProfile.GlassesLocalScale == new Vector3(0.3f, 0.3f, 0.3f),
+                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses scale must be (0.3, 0.3, 0.3).");
             AppendIfMissing(
                 failures,
-                displayProfile.GlassesLocalEuler == new Vector3(0f, 0f, 90f),
-                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses rotation must be (0, 0, 90).");
+                displayProfile.GlassesLocalEuler == new Vector3(180f, 180f, 90f),
+                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses rotation must be (180, 180, 90).");
         }
 
         private static void ValidateNetworkedPrefabDisplayProfileAssignment(List<string> failures)

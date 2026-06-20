@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
+using CCS.Modules.CharacterController.Tests.Netcode;
 using CCS.Project;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -81,32 +83,30 @@ namespace CCS.Modules.Interaction.Editor
                 return;
             }
 
-            bool found = false;
-            GameObject[] roots = scene.GetRootGameObjects();
-            for (int i = 0; i < roots.Length; i++)
+            CCS_MasterTestInteractableSpawnController controller =
+                Object.FindFirstObjectByType<CCS_MasterTestInteractableSpawnController>();
+            GameObject assignedPrefab = null;
+            if (controller != null)
             {
-                CCS_TestToggleInteractable[] interactables =
-                    roots[i].GetComponentsInChildren<CCS_TestToggleInteractable>(true);
-                for (int j = 0; j < interactables.Length; j++)
-                {
-                    if (interactables[j].name == CCS_InteractionConstants.TestToggleInteractableInstanceName)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                {
-                    break;
-                }
+                SerializedObject serializedController = new SerializedObject(controller);
+                SerializedProperty prefabProperty = serializedController.FindProperty("toggleInteractablePrefab");
+                assignedPrefab = prefabProperty != null ? prefabProperty.objectReferenceValue as GameObject : null;
             }
 
             EditorSceneManager.CloseScene(scene, true);
             AppendIfMissing(
                 failures,
-                found,
-                $"Master test scene must contain {CCS_InteractionConstants.TestToggleInteractableInstanceName} near spawn.");
+                controller != null,
+                $"Master test scene must contain {nameof(CCS_MasterTestInteractableSpawnController)}.");
+            AppendIfMissing(
+                failures,
+                assignedPrefab != null,
+                "Master test interactable spawn controller must reference PF_CCS_TestInteractable_ToggleCube.");
+            AppendIfMissing(
+                failures,
+                assignedPrefab != null
+                && AssetDatabase.GetAssetPath(assignedPrefab) == CCS_InteractionConstants.TestToggleInteractablePrefabPath,
+                $"Master test interactable spawn controller must reference {CCS_InteractionConstants.TestToggleInteractablePrefabPath}.");
         }
 
         private static void ValidateSourceContracts(List<string> failures)

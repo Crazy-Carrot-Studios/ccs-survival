@@ -34,5 +34,7 @@ namespace CCS.Modules.Attributes
             this.attributeId = attributeId;
             this.finalValue = finalValue;
         }
+
+        #endregion
     }
 }

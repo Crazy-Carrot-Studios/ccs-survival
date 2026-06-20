@@ -10,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_TestNetworkManager root (execution order -1000).
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Guards against stale sub-object fileID references in NetworkPrefabsList.
+// NOTES: Runtime uses NetworkConfig + serialized fallbacks only. No Resources registry.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Tests.Netcode
@@ -21,6 +21,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         #region Variables
 
         [SerializeField] private GameObject networkedPlayerPrefabFallback;
+        [SerializeField] private GameObject toggleInteractablePrefabFallback;
 
         #endregion
 
@@ -34,8 +35,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
-            GameObject resolvedPrefab = ResolvePlayerPrefab(networkManager.NetworkConfig);
-            if (resolvedPrefab == null)
+            GameObject resolvedPlayerPrefab = ResolvePlayerPrefab(networkManager.NetworkConfig);
+            if (resolvedPlayerPrefab == null)
             {
                 Debug.LogError(
                     "[Netcode] Network player prefab reference is invalid. "
@@ -43,7 +44,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
-            RepairNetworkConfigReferences(networkManager.NetworkConfig, resolvedPrefab);
+            RepairNetworkConfigReferences(
+                networkManager.NetworkConfig,
+                resolvedPlayerPrefab,
+                networkedPlayerPrefabFallback,
+                toggleInteractablePrefabFallback);
+
+            if (CCS_NetcodeNetworkConfigValidationUtility.TryValidateForStart(networkManager, out _))
+            {
+                Debug.Log("[Netcode] Network player prefab references validated.");
+            }
+            else
+            {
+                Debug.Log("[Netcode] Network prefab references repaired from serialized fallbacks.");
+            }
         }
 
         #endregion
@@ -67,29 +81,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private static bool TryGetValidPrefab(GameObject candidate, out GameObject validPrefab)
         {
-            validPrefab = null;
-            if (candidate == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                if (candidate.GetComponent<NetworkObject>() == null)
-                {
-                    return false;
-                }
-
-                validPrefab = candidate;
-                return true;
-            }
-            catch (MissingReferenceException)
-            {
-                return false;
-            }
+            return CCS_NetworkTestPrefabsRegistry.TryResolvePrefab(candidate, out validPrefab, out _);
         }
 
-        private static void RepairNetworkConfigReferences(NetworkConfig networkConfig, GameObject playerPrefab)
+        private static void RepairNetworkConfigReferences(
+            NetworkConfig networkConfig,
+            GameObject playerPrefab,
+            GameObject playerFallback,
+            GameObject toggleFallback)
         {
             if (!TryGetValidPrefab(networkConfig.PlayerPrefab, out _))
             {
@@ -109,11 +108,15 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                     continue;
                 }
 
-                RepairPrefabsListEntries(prefabsList, playerPrefab);
+                RepairPrefabsListEntries(prefabsList, playerPrefab, playerFallback, toggleFallback);
             }
         }
 
-        private static void RepairPrefabsListEntries(NetworkPrefabsList prefabsList, GameObject playerPrefab)
+        private static void RepairPrefabsListEntries(
+            NetworkPrefabsList prefabsList,
+            GameObject playerPrefab,
+            GameObject playerFallback,
+            GameObject toggleFallback)
         {
             FieldInfo listField = typeof(NetworkPrefabsList).GetField(
                 "List",
@@ -141,12 +144,51 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                     continue;
                 }
 
-                entry.Prefab = playerPrefab;
+                GameObject replacementPrefab = ResolveReplacementPrefab(
+                    i,
+                    playerPrefab,
+                    playerFallback,
+                    toggleFallback);
+                if (replacementPrefab == null)
+                {
+                    continue;
+                }
+
+                entry.Prefab = replacementPrefab;
                 entry.SourcePrefabToOverride = null;
                 entry.OverridingTargetPrefab = null;
                 entry.SourceHashToOverride = 0;
                 entries[i] = entry;
             }
+        }
+
+        private static GameObject ResolveReplacementPrefab(
+            int entryIndex,
+            GameObject playerPrefab,
+            GameObject playerFallback,
+            GameObject toggleFallback)
+        {
+            if (entryIndex == 0)
+            {
+                if (TryGetValidPrefab(playerPrefab, out GameObject validPlayer))
+                {
+                    return validPlayer;
+                }
+
+                if (TryGetValidPrefab(playerFallback, out validPlayer))
+                {
+                    return validPlayer;
+                }
+
+                return null;
+            }
+
+            if (entryIndex == 1 && TryGetValidPrefab(toggleFallback, out GameObject validToggle))
+            {
+                return validToggle;
+            }
+
+            return null;
         }
 
         #endregion

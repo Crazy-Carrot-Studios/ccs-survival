@@ -63,6 +63,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         private bool advancedPanelVisible;
         private bool pendingClientSceneSync;
         private bool pendingHostSceneLoad;
+        private bool subscribedToSceneEvents;
 
         #endregion
 
@@ -103,6 +104,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnHostAndStartClicked()
         {
+            LogHostFlow("Host button clicked");
+
             if (!HasValidPlayerName(out string playerNameError))
             {
                 LogHostFlow(playerNameError);
@@ -117,10 +120,30 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
+            LogHostFlow($"NetworkManager.Singleton exists: {(NetworkManager.Singleton != null).ToString()}");
+            LogHostFlow($"IsListening before StartHost: {manager.IsListening.ToString()}");
+
+            GameObject playerPrefab = manager.NetworkConfig != null ? manager.NetworkConfig.PlayerPrefab : null;
+            bool playerPrefabValid = CCS_NetcodeNetworkConfigValidationUtility.HasValidNetworkObjectPrefab(playerPrefab);
+            LogHostFlow($"PlayerPrefab valid: {playerPrefabValid.ToString()}");
             LogHostFlow(
-                $"Pre-host: manager={(manager != null ? manager.name : "null")}, "
-                + $"singleton={(NetworkManager.Singleton != null ? NetworkManager.Singleton.name : "null")}, "
-                + $"listening={manager.IsListening}");
+                $"PlayerPrefab has NetworkObject: {(playerPrefab != null && playerPrefabValid).ToString()}");
+
+            string targetSceneName = CCS_NetcodeTestConstants.MasterTestSceneName;
+            bool masterTestInBuild = CCS_HostingSceneBuildUtility.IsSceneInBuildSettings(targetSceneName);
+            LogHostFlow($"Build has Master Test scene: {masterTestInBuild.ToString()}");
+            LogHostFlow($"Target scene name: {targetSceneName}");
+
+            CCS_NetcodeRegistryUtility.TryLogNetworkConfigDiagnostics(manager);
+
+            if (!masterTestInBuild)
+            {
+                string buildError =
+                    $"Scene '{targetSceneName}' is missing from Build Settings. Run Setup And Validate Multiplayer Hosting Scene.";
+                LogHostFlow(buildError);
+                SetDiagnostics(buildError);
+                return;
+            }
 
             if (manager.IsListening)
             {
@@ -145,16 +168,19 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
-            LogHostFlow(
-                $"Starting host for scene '{CCS_NetcodeTestConstants.MasterTestSceneName}' "
-                + $"(build included: {CCS_HostingSceneBuildUtility.IsSceneInBuildSettings(CCS_NetcodeTestConstants.MasterTestSceneName)}).");
-
+            LogHostFlow("Calling StartHost");
             bool hostStarted = manager.StartHost();
-            LogHostFlow($"StartHost returned {hostStarted.ToString()}.");
+            LogHostFlow($"StartHost returned: {hostStarted.ToString()}");
+            LogHostFlow($"IsListening after StartHost: {manager.IsListening.ToString()}");
+            LogHostFlow(
+                $"IsServer / IsHost / IsClient after StartHost: {manager.IsServer.ToString()} / "
+                + $"{manager.IsHost.ToString()} / {manager.IsClient.ToString()}");
 
             if (!hostStarted)
             {
-                SetDiagnostics("Failed to start host.");
+                string hostError = "Failed to start host. Check Player.log for [Hosting Flow] and [Netcode] lines.";
+                LogHostFlow(hostError);
+                SetDiagnostics(hostError);
                 return;
             }
 
@@ -165,19 +191,29 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnJoinSelectedClicked()
         {
+            LogJoinFlow("Join button clicked");
+
             if (!HasValidPlayerName(out string playerNameError))
             {
+                LogJoinFlow(playerNameError);
                 SetDiagnostics(playerNameError);
                 return;
             }
 
-            if (selectedServerIndex < 0 || selectedServerIndex >= serverEntries.Count)
+            bool hasSelectedHost = selectedServerIndex >= 0 && selectedServerIndex < serverEntries.Count;
+            LogJoinFlow($"Selected host exists: {hasSelectedHost.ToString()}");
+
+            CCS_MultiplayerServerListEntry entry = hasSelectedHost
+                ? serverEntries[selectedServerIndex]
+                : CCS_MultiplayerServerListEntry.CreateLocalhostDefault();
+
+            if (!hasSelectedHost)
             {
-                SetDiagnostics("Select a host from the list.");
-                return;
+                LogJoinFlow("No selected host; using default localhost fallback.");
             }
 
-            CCS_MultiplayerServerListEntry entry = serverEntries[selectedServerIndex];
+            LogJoinFlow($"Selected host address: {entry.Address}");
+            LogJoinFlow($"Selected host port: {entry.Port.ToString(CultureInfo.InvariantCulture)}");
             TryJoinAddress(entry.Address, entry.Port, entry.GetListLabel());
         }
 
@@ -208,6 +244,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public void OnRefreshServersClicked()
         {
             RebuildServerList();
+            LogJoinFlow($"Refresh clicked; host list count={serverEntries.Count.ToString(CultureInfo.InvariantCulture)}");
             SetDiagnostics("Host list refreshed.");
         }
 
@@ -310,6 +347,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             ClearServerListUi();
             serverEntries.Clear();
             serverEntries.Add(CCS_MultiplayerServerListEntry.CreateLocalhostDefault());
+            LogJoinFlow(
+                $"Default host list seeded with localhost ({CCS_NetcodeTestConstants.DefaultLocalhostAddress}:"
+                + $"{CCS_NetcodeTestConstants.DefaultServerPort.ToString(CultureInfo.InvariantCulture)}).");
 
             for (int i = 0; i < serverEntries.Count; i++)
             {
@@ -426,14 +466,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private void TryJoinAddress(string address, ushort port, string displayTarget)
         {
+            LogJoinFlow($"Active scene before join: {SceneManager.GetActiveScene().name}");
+
             if (!TryResolveNetworkReferences(out NetworkManager manager, out UnityTransport resolvedTransport))
             {
+                LogJoinFlow("Network manager or transport is missing.");
                 SetDiagnostics("Network manager or transport is missing.");
                 return;
             }
 
+            LogJoinFlow($"NetworkManager.Singleton exists: {(NetworkManager.Singleton != null).ToString()}");
+            LogJoinFlow($"IsListening before StartClient: {manager.IsListening.ToString()}");
+
+            GameObject playerPrefab = manager.NetworkConfig != null ? manager.NetworkConfig.PlayerPrefab : null;
+            bool playerPrefabValid = CCS_NetcodeNetworkConfigValidationUtility.HasValidNetworkObjectPrefab(playerPrefab);
+            LogJoinFlow($"PlayerPrefab valid: {playerPrefabValid.ToString()}");
+            LogJoinFlow($"NetworkPrefabsList valid: {HasValidNetworkPrefabsList(manager).ToString()}");
+
+            CCS_NetcodeRegistryUtility.TryLogNetworkConfigDiagnostics(manager);
+
             if (manager.IsListening)
             {
+                LogJoinFlow("Already connected.");
                 SetDiagnostics("Already connected.");
                 return;
             }
@@ -441,21 +495,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             CacheLocalPlayerName();
             pendingClientSceneSync = true;
 
+            LogJoinFlow($"Transport type: {resolvedTransport.GetType().Name}");
             resolvedTransport.SetConnectionData(address, port);
+            LogTransportConnectionData(resolvedTransport, "before StartClient");
+
             if (!CCS_NetcodeNetworkConfigValidationUtility.TryValidateForStart(manager, out string networkError))
             {
                 pendingClientSceneSync = false;
+                LogJoinFlow(networkError);
                 SetDiagnostics(networkError);
                 return;
             }
 
-            if (!manager.StartClient())
+            LogJoinFlow("Calling StartClient");
+            bool clientStarted = manager.StartClient();
+            LogJoinFlow($"StartClient returned: {clientStarted.ToString()}");
+            LogJoinFlow($"IsListening after StartClient: {manager.IsListening.ToString()}");
+            LogJoinFlow(
+                $"IsServer / IsHost / IsClient after StartClient: {manager.IsServer.ToString()} / "
+                + $"{manager.IsHost.ToString()} / {manager.IsClient.ToString()}");
+
+            if (!clientStarted)
             {
                 pendingClientSceneSync = false;
-                SetDiagnostics("Failed to start client.");
+                string clientError = "Failed to start client. Check Console for [Join Flow] lines.";
+                LogJoinFlow(clientError);
+                SetDiagnostics(clientError);
                 return;
             }
 
+            TrySubscribeToSceneEvents();
             SetDiagnostics($"Joining {displayTarget}...");
         }
 
@@ -479,18 +548,40 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 if (networkManager.NetworkConfig.EnableSceneManagement && networkManager.SceneManager != null)
                 {
-                    LogHostFlow($"NetworkSceneManager.LoadScene('{sceneName}', Single).");
-                    networkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-                    return;
+                    LogHostFlow("Loading Master Test via Netcode SceneManager");
+                    SceneEventProgressStatus loadStatus = networkManager.SceneManager.LoadScene(
+                        sceneName,
+                        LoadSceneMode.Single);
+                    LogHostFlow($"Netcode scene load returned status: {loadStatus}");
+                    if (loadStatus == SceneEventProgressStatus.Started)
+                    {
+                        LogHostFlow("Fallback SceneManager load used: no");
+                        return;
+                    }
+
+                    LogHostFlow(
+                        $"Netcode scene load did not start ({loadStatus}). Using SceneManager fallback for local host.");
+                }
+                else
+                {
+                    LogHostFlow("Scene management disabled or unavailable; using SceneManager fallback for local host.");
                 }
 
-                LogHostFlow($"Scene management disabled; SceneManager.LoadScene('{sceneName}', Single).");
+                LogHostFlow("Fallback SceneManager load used: yes");
                 SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+                LogActiveSceneAfterLoad();
                 return;
             }
 
             LogHostFlow($"Client fallback SceneManager.LoadScene('{sceneName}', Single).");
+            LogHostFlow("Fallback SceneManager load used: yes");
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+            LogActiveSceneAfterLoad();
+        }
+
+        private void LogActiveSceneAfterLoad()
+        {
+            LogHostFlow($"Active scene after load: {SceneManager.GetActiveScene().name}");
         }
 
         private void TryLoadPendingHostScene()
@@ -514,6 +605,60 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             Debug.Log("[Hosting Flow] " + message);
         }
 
+        private static void LogJoinFlow(string message)
+        {
+            Debug.Log("[Join Flow] " + message);
+        }
+
+        private static void LogTransportConnectionData(UnityTransport resolvedTransport, string stageLabel)
+        {
+            if (resolvedTransport == null)
+            {
+                LogJoinFlow($"Transport connection data {stageLabel}: transport is null.");
+                return;
+            }
+
+            UnityTransport.ConnectionAddressData connectionData = resolvedTransport.ConnectionData;
+            LogJoinFlow(
+                $"Transport connection data {stageLabel}: {connectionData.Address}:"
+                + $"{connectionData.Port.ToString(CultureInfo.InvariantCulture)} "
+                + $"(listen={connectionData.ServerListenAddress})");
+        }
+
+        private static bool HasValidNetworkPrefabsList(NetworkManager manager)
+        {
+            if (manager == null || manager.NetworkConfig?.Prefabs?.NetworkPrefabsLists == null)
+            {
+                return false;
+            }
+
+            List<NetworkPrefabsList> prefabLists = manager.NetworkConfig.Prefabs.NetworkPrefabsLists;
+            if (prefabLists.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < prefabLists.Count; i++)
+            {
+                NetworkPrefabsList prefabsList = prefabLists[i];
+                if (prefabsList == null || prefabsList.PrefabList == null || prefabsList.PrefabList.Count == 0)
+                {
+                    return false;
+                }
+
+                for (int j = 0; j < prefabsList.PrefabList.Count; j++)
+                {
+                    if (!CCS_NetcodeNetworkConfigValidationUtility.HasValidNetworkObjectPrefab(
+                            prefabsList.PrefabList[j].Prefab))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         private void SubscribeToNetworkEvents()
         {
             if (subscribedToNetworkEvents || networkManager == null)
@@ -525,6 +670,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             networkManager.OnClientDisconnectCallback += HandleClientDisconnected;
             networkManager.OnServerStarted += HandleServerStarted;
             subscribedToNetworkEvents = true;
+            SubscribeToSceneEvents();
         }
 
         private void UnsubscribeFromNetworkEvents()
@@ -538,18 +684,98 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             networkManager.OnClientDisconnectCallback -= HandleClientDisconnected;
             networkManager.OnServerStarted -= HandleServerStarted;
             subscribedToNetworkEvents = false;
+            UnsubscribeFromSceneEvents();
+        }
+
+        private void SubscribeToSceneEvents()
+        {
+            TrySubscribeToSceneEvents();
+        }
+
+        private void TrySubscribeToSceneEvents()
+        {
+            if (subscribedToSceneEvents || networkManager == null || networkManager.SceneManager == null)
+            {
+                return;
+            }
+
+            networkManager.SceneManager.OnSceneEvent += HandleNetworkSceneEvent;
+            subscribedToSceneEvents = true;
+            LogJoinFlow("Subscribed to Netcode SceneManager.OnSceneEvent.");
+        }
+
+        private void UnsubscribeFromSceneEvents()
+        {
+            if (!subscribedToSceneEvents || networkManager == null || networkManager.SceneManager == null)
+            {
+                return;
+            }
+
+            networkManager.SceneManager.OnSceneEvent -= HandleNetworkSceneEvent;
+            subscribedToSceneEvents = false;
+        }
+
+        private void HandleNetworkSceneEvent(SceneEvent sceneEvent)
+        {
+            string sceneLabel = GetSceneEventLabel(sceneEvent);
+            LogJoinFlow(
+                $"Netcode scene event: {sceneEvent.SceneEventType} scene={sceneLabel} clientId={sceneEvent.ClientId}");
+
+            if (networkManager == null)
+            {
+                return;
+            }
+
+            bool isLocalClientEvent = sceneEvent.ClientId == networkManager.LocalClientId;
+            if (networkManager.IsClient && !networkManager.IsServer && isLocalClientEvent)
+            {
+                if (sceneEvent.SceneEventType == SceneEventType.Synchronize
+                    || sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete
+                    || sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted
+                    || sceneEvent.SceneEventType == SceneEventType.LoadComplete)
+                {
+                    LogJoinFlow($"Active scene after sync/load: {SceneManager.GetActiveScene().name}");
+                    if (pendingClientSceneSync
+                        && (sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete
+                            || sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted
+                            || sceneEvent.SceneEventType == SceneEventType.LoadComplete
+                            || SceneManager.GetActiveScene().name == CCS_NetcodeTestConstants.MasterTestSceneName))
+                    {
+                        pendingClientSceneSync = false;
+                        SetDiagnostics("Connected. Entering character test...");
+                    }
+                }
+            }
+
+            if (sceneEvent.SceneEventType == SceneEventType.LoadComplete
+                || sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+            {
+                LogActiveSceneAfterLoad();
+            }
+        }
+
+        private static string GetSceneEventLabel(SceneEvent sceneEvent)
+        {
+            if (!string.IsNullOrEmpty(sceneEvent.SceneName))
+            {
+                return sceneEvent.SceneName;
+            }
+
+            return SceneManager.GetActiveScene().name;
         }
 
         private void HandleServerStarted()
         {
             RefreshConnectedPlayersText();
             LogHostFlow("OnServerStarted received.");
+            SubscribeToSceneEvents();
             TryLoadPendingHostScene();
         }
 
         private void HandleClientConnected(ulong clientId)
         {
             RefreshConnectedPlayersText();
+            LogJoinFlow($"OnClientConnected callback: clientId={clientId.ToString(CultureInfo.InvariantCulture)}");
 
             if (networkManager == null)
             {
@@ -563,19 +789,35 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             if (networkManager.IsClient && !networkManager.IsServer && clientId == networkManager.LocalClientId)
             {
-                if (pendingClientSceneSync)
+                LogJoinFlow(
+                    $"Local client connected. Active scene: {SceneManager.GetActiveScene().name}. "
+                    + $"Pending scene sync: {pendingClientSceneSync.ToString()}");
+                TrySubscribeToSceneEvents();
+
+                if (pendingClientSceneSync
+                    && SceneManager.GetActiveScene().name == CCS_NetcodeTestConstants.MasterTestSceneName)
                 {
                     pendingClientSceneSync = false;
                     SetDiagnostics("Connected. Entering character test...");
+                    LogJoinFlow($"Active scene after load: {SceneManager.GetActiveScene().name}");
                 }
             }
         }
 
         private void HandleClientDisconnected(ulong clientId)
         {
-            if (networkManager != null && clientId == networkManager.LocalClientId)
+            bool isLocalDisconnect = networkManager != null && clientId == networkManager.LocalClientId;
+            LogJoinFlow(
+                $"OnClientDisconnect callback: clientId={clientId.ToString(CultureInfo.InvariantCulture)} "
+                + $"localDisconnect={isLocalDisconnect.ToString()}");
+
+            if (isLocalDisconnect)
             {
                 pendingClientSceneSync = false;
+                LogJoinFlow(
+                    $"Disconnect reason: isListening={networkManager.IsListening.ToString()} "
+                    + $"isClient={networkManager.IsClient.ToString()}");
+                SetDiagnostics("Disconnected from host.");
             }
 
             RefreshConnectedPlayersText();
@@ -600,7 +842,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         {
             bool hasValidPlayerName = HasValidPlayerName(out _);
             bool isListening = networkManager != null && networkManager.IsListening;
-            bool hasSelectedServer = selectedServerIndex >= 0 && selectedServerIndex < serverEntries.Count;
 
             if (hostAndStartButton != null)
             {
@@ -609,7 +850,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             if (joinSelectedButton != null)
             {
-                joinSelectedButton.interactable = hasValidPlayerName && hasSelectedServer && !isListening;
+                joinSelectedButton.interactable = hasValidPlayerName && !isListening;
             }
 
             if (joinManualButton != null)

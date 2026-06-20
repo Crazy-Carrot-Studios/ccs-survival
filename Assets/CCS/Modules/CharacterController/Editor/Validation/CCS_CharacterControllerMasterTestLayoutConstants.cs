@@ -111,11 +111,11 @@ namespace CCS.Modules.CharacterController.Editor
 
             "Assets/CCS/Modules/CharacterController/Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset";
 
-        public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.68f, 0.27f);
+        public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.6f, 0.222f);
 
-        public static readonly Vector3 GlassesVisualLocalEuler = new Vector3(0f, 0f, 90f);
+        public static readonly Vector3 GlassesVisualLocalEuler = new Vector3(180f, 180f, 90f);
 
-        public static readonly Vector3 GlassesVisualLocalScale = new Vector3(0.05f, 0.22f, 0.05f);
+        public static readonly Vector3 GlassesVisualLocalScale = new Vector3(0.3f, 0.3f, 0.3f);
 
         public static readonly Vector3 CapsuleVisualLocalPosition = new Vector3(0f, 1f, 0f);
 
