@@ -65,6 +65,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         private static readonly Color TextSecondary = HexColor("#8FA8C8");
         private static readonly Color TextBody = HexColor("#CAD4E2");
         private static readonly Color TextHint = HexColor("#B7C3D4");
+        private static readonly Color TextNameWarning = HexColor("#D4A050");
         private static readonly Color TextFooter = HexColor("#BFD0E6");
         private static readonly Color TextLabel = HexColor("#EAF0F8");
         private static readonly Color TextEmptyList = HexColor("#C9D2DF");
@@ -322,6 +323,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             SetReference(serializedMenu, "networkManager", networkManager);
             SetReference(serializedMenu, "transport", transport);
             SetReference(serializedMenu, "playerNameInput", card.Find("NamePanel/PlayerNameInput")?.GetComponent<InputField>());
+            SetReference(
+                serializedMenu,
+                "playerNameWarningText",
+                card.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}")
+                    ?.GetComponent<TextMeshProUGUI>());
             SetReference(serializedMenu, "hostAndStartButton", card.Find("HostCard/HostAndStartButton")?.GetComponent<Button>());
             SetReference(
                 serializedMenu,
@@ -416,6 +422,19 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 InputBackgroundColor,
                 InputBorderColor,
                 20);
+            TextMeshProUGUI playerNameWarningText = CreateAnchoredTmpText(
+                namePanel,
+                CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName,
+                CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage,
+                15,
+                FontStyles.Normal,
+                TextNameWarning,
+                TextAlignmentOptions.MidlineLeft,
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(110f, -112f),
+                new Vector2(760f, 20f));
+            playerNameWarningText.gameObject.SetActive(false);
             CreateAnchoredText(
                 namePanel,
                 "NameHintText",

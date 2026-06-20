@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -31,6 +32,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         [Header("Step 1 - Player Name")]
         [SerializeField] private InputField playerNameInput;
+        [SerializeField] private TextMeshProUGUI playerNameWarningText;
 
         [Header("Step 2 - Host")]
         [SerializeField] private Button hostAndStartButton;
@@ -104,14 +106,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnHostAndStartClicked()
         {
-            LogHostFlow("Host button clicked");
-
-            if (!HasValidPlayerName(out string playerNameError))
+            if (!TryValidatePlayerNameForHostOrJoin(out string playerNameError))
             {
                 LogHostFlow(playerNameError);
-                SetDiagnostics(playerNameError);
                 return;
             }
+
+            LogHostFlow("Host button clicked");
 
             if (!TryResolveNetworkReferences(out NetworkManager manager, out UnityTransport resolvedTransport))
             {
@@ -191,14 +192,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnJoinSelectedClicked()
         {
-            LogJoinFlow("Join button clicked");
-
-            if (!HasValidPlayerName(out string playerNameError))
+            if (!TryValidatePlayerNameForHostOrJoin(out string playerNameError))
             {
                 LogJoinFlow(playerNameError);
-                SetDiagnostics(playerNameError);
                 return;
             }
+
+            LogJoinFlow("Join button clicked");
 
             bool hasSelectedHost = selectedServerIndex >= 0 && selectedServerIndex < serverEntries.Count;
             LogJoinFlow($"Selected host exists: {hasSelectedHost.ToString()}");
@@ -219,9 +219,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnJoinManualClicked()
         {
-            if (!HasValidPlayerName(out string playerNameError))
+            if (!TryValidatePlayerNameForHostOrJoin(out _))
             {
-                SetDiagnostics(playerNameError);
                 return;
             }
 
@@ -306,11 +305,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             advancedPanelVisible = false;
             SetDiagnostics(string.Empty);
+            ClearPlayerNameWarning();
             RefreshConnectedPlayersText();
         }
 
         private void WireButtons()
         {
+            if (playerNameInput != null)
+            {
+                playerNameInput.onValueChanged.AddListener(HandlePlayerNameInputChanged);
+            }
+
             if (hostAndStartButton != null)
             {
                 hostAndStartButton.onClick.AddListener(OnHostAndStartClicked);
@@ -840,22 +845,21 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private void RefreshButtonStates()
         {
-            bool hasValidPlayerName = HasValidPlayerName(out _);
             bool isListening = networkManager != null && networkManager.IsListening;
 
             if (hostAndStartButton != null)
             {
-                hostAndStartButton.interactable = hasValidPlayerName && !isListening;
+                hostAndStartButton.interactable = !isListening;
             }
 
             if (joinSelectedButton != null)
             {
-                joinSelectedButton.interactable = hasValidPlayerName && !isListening;
+                joinSelectedButton.interactable = !isListening;
             }
 
             if (joinManualButton != null)
             {
-                joinManualButton.interactable = hasValidPlayerName && !isListening;
+                joinManualButton.interactable = !isListening;
             }
 
             if (refreshServersButton != null)
@@ -864,17 +868,70 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             }
         }
 
+        private bool TryValidatePlayerNameForHostOrJoin(out string errorMessage)
+        {
+            if (HasValidPlayerName(out errorMessage))
+            {
+                ClearPlayerNameWarning();
+                return true;
+            }
+
+            ShowPlayerNameWarning();
+            return false;
+        }
+
         private bool HasValidPlayerName(out string errorMessage)
         {
             string rawName = playerNameInput != null ? playerNameInput.text : string.Empty;
             if (string.IsNullOrWhiteSpace(rawName))
             {
-                errorMessage = "Enter your player name before hosting or joining.";
+                errorMessage = CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage;
                 return false;
             }
 
             errorMessage = string.Empty;
             return true;
+        }
+
+        private void HandlePlayerNameInputChanged(string _)
+        {
+            if (HasValidPlayerName(out _))
+            {
+                ClearPlayerNameWarning();
+            }
+        }
+
+        private void ShowPlayerNameWarning()
+        {
+            if (playerNameWarningText != null)
+            {
+                playerNameWarningText.text = CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage;
+                playerNameWarningText.gameObject.SetActive(true);
+            }
+
+            FocusPlayerNameInput();
+        }
+
+        private void ClearPlayerNameWarning()
+        {
+            if (playerNameWarningText == null)
+            {
+                return;
+            }
+
+            playerNameWarningText.text = string.Empty;
+            playerNameWarningText.gameObject.SetActive(false);
+        }
+
+        private void FocusPlayerNameInput()
+        {
+            if (playerNameInput == null)
+            {
+                return;
+            }
+
+            playerNameInput.Select();
+            playerNameInput.ActivateInputField();
         }
 
         private void CacheLocalPlayerName()

@@ -196,6 +196,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string PlayerNameStatusTextObjectName = "PlayerNameStatusText";
 
+        public const string PlayerNameWarningTextObjectName = "PlayerNameWarningText";
+
+        public const string PlayerNameRequiredWarningMessage =
+            "Enter a player name before hosting or joining.";
+
         public const string ServerListContainerObjectName = "ServerListContainer";
 
         public const string DefaultLocalhostServerDisplayName = "Localhost";

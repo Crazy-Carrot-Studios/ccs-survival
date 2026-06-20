@@ -428,6 +428,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.playerNameInput is not assigned.");
                 AppendIfMissing(
                     failures,
+                    serializedMenu.FindProperty("playerNameWarningText")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.playerNameWarningText is not assigned.");
+                AppendIfMissing(
+                    failures,
                     serializedMenu.FindProperty("hostAndStartButton")?.objectReferenceValue != null,
                     "CCS_MultiplayerHostingMenu.hostAndStartButton is not assigned.");
                 AppendIfMissing(
@@ -801,6 +805,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     networkingCard.Find("NamePanel/PlayerNameInput") != null,
                     "Networking card must contain the player name field.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}") != null,
+                    "Networking card must contain the player name warning label.");
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("HostCard") != null && networkingCard.Find("JoinCard") != null,
@@ -1213,6 +1221,22 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must expose Host & Start flow.");
                 AppendIfMissing(
                     failures,
+                    source.Contains("OnJoinSelectedClicked"),
+                    "CCS_MultiplayerHostingMenu must expose Join Selected flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("TryValidatePlayerNameForHostOrJoin"),
+                    "CCS_MultiplayerHostingMenu must validate player name before host or join.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("playerNameWarningText"),
+                    "CCS_MultiplayerHostingMenu must expose the player name warning label.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains(CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage),
+                    "CCS_MultiplayerHostingMenu must use the required player name warning message.");
+                AppendIfMissing(
+                    failures,
                     source.Contains("OnQuitClicked"),
                     "CCS_MultiplayerHostingMenu must expose Quit flow.");
                 AppendIfMissing(
@@ -1252,6 +1276,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     networkingCard.Find("NamePanel/PlayerNameInput") != null,
                     "Hosting UI must contain the player name field.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}") != null,
+                    "Hosting UI must contain the player name warning label.");
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("HostCard/HostAndStartButton") != null,
