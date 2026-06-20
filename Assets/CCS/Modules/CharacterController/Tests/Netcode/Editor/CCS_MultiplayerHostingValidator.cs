@@ -432,6 +432,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.playerNameWarningText is not assigned.");
                 AppendIfMissing(
                     failures,
+                    serializedMenu.FindProperty("serverNameInput")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.serverNameInput is not assigned.");
+                AppendIfMissing(
+                    failures,
+                    serializedMenu.FindProperty("serverNameWarningText")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.serverNameWarningText is not assigned.");
+                AppendIfMissing(
+                    failures,
                     serializedMenu.FindProperty("hostAndStartButton")?.objectReferenceValue != null,
                     "CCS_MultiplayerHostingMenu.hostAndStartButton is not assigned.");
                 AppendIfMissing(
@@ -468,6 +476,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     playerNameInput != null && playerNameInput.interactable,
                     "CCS_MultiplayerHostingMenu.playerNameInput must be assigned and interactable.");
+
+                InputField serverNameInput = serializedMenu.FindProperty("serverNameInput")?.objectReferenceValue as InputField;
+                AppendIfMissing(
+                    failures,
+                    serverNameInput != null && serverNameInput.interactable,
+                    "CCS_MultiplayerHostingMenu.serverNameInput must be assigned and interactable.");
 
                 ValidateHostingMenuFlow(failures);
                 ValidateModeSelectFlow(failures, modeController);
@@ -807,8 +821,24 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Networking card must contain the player name field.");
                 AppendIfMissing(
                     failures,
+                    networkingCard.Find("NameHintText") != null,
+                    "Networking card must contain NameHintText below the header divider.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("NamePanel/NameHintText") == null,
+                    "NameHintText must live on NetworkingCard, not inside NamePanel.");
+                AppendIfMissing(
+                    failures,
                     networkingCard.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}") != null,
                     "Networking card must contain the player name warning label.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("ServerNamePanel/ServerNameInput") != null,
+                    "Networking card must contain the server name field.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find($"ServerNamePanel/{CCS_NetcodeTestConstants.ServerNameWarningTextObjectName}") != null,
+                    "Networking card must contain the server name warning label.");
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("HostCard") != null && networkingCard.Find("JoinCard") != null,
@@ -821,6 +851,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     networkingCardRect,
                     networkingCard.Find("NamePanel") as RectTransform,
+                    networkingCard.Find(CCS_NetcodeTestConstants.ServerNamePanelObjectName) as RectTransform,
                     networkingCard.Find("HostCard") as RectTransform,
                     networkingCard.Find("JoinCard") as RectTransform);
                 ValidateNetworkingFooterLayout(
@@ -943,6 +974,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             List<string> failures,
             RectTransform networkingCard,
             RectTransform namePanel,
+            RectTransform serverNamePanel,
             RectTransform hostCard,
             RectTransform joinCard)
         {
@@ -952,9 +984,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return;
             }
 
-            if (namePanel == null || hostCard == null || joinCard == null)
+            if (namePanel == null || serverNamePanel == null || hostCard == null || joinCard == null)
             {
-                failures.Add("Networking NamePanel, HostCard, or JoinCard is missing.");
+                failures.Add("Networking NamePanel, ServerNamePanel, HostCard, or JoinCard is missing.");
                 return;
             }
 
@@ -979,6 +1011,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 failures,
                 Mathf.Abs(namePanel.anchoredPosition.y + CCS_NetcodeTestConstants.NetworkingNamePanelTopOffset) <= 8f,
                 $"NamePanel must sit near Y -{CCS_NetcodeTestConstants.NetworkingNamePanelTopOffset:0.#} from the card top.");
+
+            ValidateAnchoredWidth(
+                failures,
+                serverNamePanel,
+                "Server name panel",
+                CCS_NetcodeTestConstants.NetworkingServerNamePanelWidth,
+                20f);
+            ValidateAnchoredHeight(
+                failures,
+                serverNamePanel,
+                "Server name panel",
+                CCS_NetcodeTestConstants.NetworkingServerNamePanelHeight,
+                10f);
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(serverNamePanel.anchorMin.y, 1f)
+                    && Mathf.Approximately(serverNamePanel.anchorMax.y, 1f),
+                "ServerNamePanel must use top-center anchoring inside NetworkingCard.");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(serverNamePanel.anchoredPosition.y + CCS_NetcodeTestConstants.NetworkingServerNamePanelTopOffset) <= 8f,
+                $"ServerNamePanel must sit near Y -{CCS_NetcodeTestConstants.NetworkingServerNamePanelTopOffset:0.#} from the card top.");
 
             AppendIfMissing(
                 failures,
@@ -1006,25 +1060,38 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 $"JoinCard must sit near ({CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset:0.#}, {CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset:0.#}).");
 
             Bounds nameBounds = GetRelativeBounds(networkingCard, namePanel);
+            Bounds serverBounds = GetRelativeBounds(networkingCard, serverNamePanel);
             Bounds hostBounds = GetRelativeBounds(networkingCard, hostCard);
             Bounds joinBounds = GetRelativeBounds(networkingCard, joinCard);
 
-            float nameToHostGap = nameBounds.min.y - hostBounds.max.y;
-            float nameToJoinGap = nameBounds.min.y - joinBounds.max.y;
+            float nameToServerGap = nameBounds.min.y - serverBounds.max.y;
             AppendIfMissing(
                 failures,
-                nameToHostGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
-                "HostCard overlaps NamePanel or sits too close to the player name section.");
+                nameToServerGap >= 10f,
+                "ServerNamePanel overlaps NamePanel or sits too close to the player name section.");
+
+            float serverToHostGap = serverBounds.min.y - hostBounds.max.y;
+            float serverToJoinGap = serverBounds.min.y - joinBounds.max.y;
             AppendIfMissing(
                 failures,
-                nameToJoinGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
-                "JoinCard overlaps NamePanel or sits too close to the player name section.");
+                serverToHostGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
+                "HostCard overlaps ServerNamePanel or sits too close to the server name section.");
+            AppendIfMissing(
+                failures,
+                serverToJoinGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
+                "JoinCard overlaps ServerNamePanel or sits too close to the server name section.");
 
             InputField playerNameInput = namePanel.GetComponentInChildren<InputField>(true);
             AppendIfMissing(
                 failures,
                 playerNameInput != null && playerNameInput.interactable,
                 "NamePanel player name input must remain interactable.");
+
+            InputField serverNameInput = serverNamePanel.GetComponentInChildren<InputField>(true);
+            AppendIfMissing(
+                failures,
+                serverNameInput != null && serverNameInput.interactable,
+                "ServerNamePanel server name input must remain interactable.");
         }
 
         private static void ValidateNetworkingFooterLayout(
@@ -1229,12 +1296,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must validate player name before host or join.");
                 AppendIfMissing(
                     failures,
+                    source.Contains("TryValidateServerNameForHost"),
+                    "CCS_MultiplayerHostingMenu must validate server name before host.");
+                AppendIfMissing(
+                    failures,
                     source.Contains("playerNameWarningText"),
                     "CCS_MultiplayerHostingMenu must expose the player name warning label.");
                 AppendIfMissing(
                     failures,
-                    source.Contains(CCS_NetcodeTestConstants.PlayerNameRequiredWarningMessage),
+                    source.Contains("serverNameWarningText"),
+                    "CCS_MultiplayerHostingMenu must expose the server name warning label.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("PlayerNameRequiredWarningMessage"),
                     "CCS_MultiplayerHostingMenu must use the required player name warning message.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("ServerNameRequiredWarningMessage"),
+                    "CCS_MultiplayerHostingMenu must use the required server name warning message.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("CCS_LocalMultiplayerHostDiscovery.DiscoverLocalHosts"),
+                    "CCS_MultiplayerHostingMenu must discover local hosts instead of seeding fake localhost.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("EmptyServerListMessage"),
+                    "CCS_MultiplayerHostingMenu must use the empty join-list message constant.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("CreateLocalhostDefault()"),
+                    "CCS_MultiplayerHostingMenu must not seed fake localhost in the join list.");
                 AppendIfMissing(
                     failures,
                     source.Contains("OnQuitClicked"),
@@ -1278,8 +1369,24 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Hosting UI must contain the player name field.");
                 AppendIfMissing(
                     failures,
+                    networkingCard.Find("NameHintText") != null,
+                    "Hosting UI must contain NameHintText below the header divider.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("NamePanel/NameHintText") == null,
+                    "NameHintText must live on NetworkingCard, not inside NamePanel.");
+                AppendIfMissing(
+                    failures,
                     networkingCard.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}") != null,
                     "Hosting UI must contain the player name warning label.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("ServerNamePanel/ServerNameInput") != null,
+                    "Hosting UI must contain the server name field.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find($"ServerNamePanel/{CCS_NetcodeTestConstants.ServerNameWarningTextObjectName}") != null,
+                    "Hosting UI must contain the server name warning label.");
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("HostCard/HostAndStartButton") != null,

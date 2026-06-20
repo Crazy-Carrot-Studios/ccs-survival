@@ -34,6 +34,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         [SerializeField] private InputField playerNameInput;
         [SerializeField] private TextMeshProUGUI playerNameWarningText;
 
+        [Header("Step 1 - Server Name")]
+        [SerializeField] private InputField serverNameInput;
+        [SerializeField] private TextMeshProUGUI serverNameWarningText;
+
         [Header("Step 2 - Host")]
         [SerializeField] private Button hostAndStartButton;
 
@@ -112,6 +116,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
+            if (!TryValidateServerNameForHost(out string serverNameError))
+            {
+                LogHostFlow(serverNameError);
+                return;
+            }
+
             LogHostFlow("Host button clicked");
 
             if (!TryResolveNetworkReferences(out NetworkManager manager, out UnityTransport resolvedTransport))
@@ -186,6 +196,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             }
 
             pendingHostSceneLoad = true;
+            string serverDisplayName = GetSanitizedServerName();
+            CCS_LocalMultiplayerHostSessionBeacon.StartBeacon(
+                serverDisplayName,
+                CCS_NetcodeTestConstants.DefaultLocalhostAddress,
+                CCS_NetcodeTestConstants.DefaultServerPort);
             SetDiagnostics($"Hosting as {CCS_LocalMultiplayerPlayerNameCache.PendingLocalDisplayName}. Entering test...");
             TryLoadPendingHostScene();
         }
@@ -203,14 +218,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             bool hasSelectedHost = selectedServerIndex >= 0 && selectedServerIndex < serverEntries.Count;
             LogJoinFlow($"Selected host exists: {hasSelectedHost.ToString()}");
 
-            CCS_MultiplayerServerListEntry entry = hasSelectedHost
-                ? serverEntries[selectedServerIndex]
-                : CCS_MultiplayerServerListEntry.CreateLocalhostDefault();
-
             if (!hasSelectedHost)
             {
-                LogJoinFlow("No selected host; using default localhost fallback.");
+                LogJoinFlow("No host selected from join list.");
+                SetDiagnostics("Select a host from the list, or refresh after a player hosts.");
+                return;
             }
+
+            CCS_MultiplayerServerListEntry entry = serverEntries[selectedServerIndex];
 
             LogJoinFlow($"Selected host address: {entry.Address}");
             LogJoinFlow($"Selected host port: {entry.Port.ToString(CultureInfo.InvariantCulture)}");
@@ -269,6 +284,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         {
             pendingClientSceneSync = false;
             pendingHostSceneLoad = false;
+            CCS_LocalMultiplayerHostSessionBeacon.StopBeacon();
             CCS_HostingApplicationQuitUtility.QuitApplication(networkManager);
         }
 
@@ -282,6 +298,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 playerNameInput.text = string.Empty;
             }
+
+            ApplyDefaultServerName();
 
             if (manualAddressInput != null && string.IsNullOrWhiteSpace(manualAddressInput.text))
             {
@@ -306,6 +324,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             advancedPanelVisible = false;
             SetDiagnostics(string.Empty);
             ClearPlayerNameWarning();
+            ClearServerNameWarning();
             RefreshConnectedPlayersText();
         }
 
@@ -314,6 +333,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             if (playerNameInput != null)
             {
                 playerNameInput.onValueChanged.AddListener(HandlePlayerNameInputChanged);
+            }
+
+            if (serverNameInput != null)
+            {
+                serverNameInput.onValueChanged.AddListener(HandleServerNameInputChanged);
             }
 
             if (hostAndStartButton != null)
@@ -351,10 +375,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         {
             ClearServerListUi();
             serverEntries.Clear();
-            serverEntries.Add(CCS_MultiplayerServerListEntry.CreateLocalhostDefault());
+            serverEntries.AddRange(CCS_LocalMultiplayerHostDiscovery.DiscoverLocalHosts());
             LogJoinFlow(
-                $"Default host list seeded with localhost ({CCS_NetcodeTestConstants.DefaultLocalhostAddress}:"
-                + $"{CCS_NetcodeTestConstants.DefaultServerPort.ToString(CultureInfo.InvariantCulture)}).");
+                $"Host list rebuilt with {serverEntries.Count.ToString(CultureInfo.InvariantCulture)} discovered host(s).");
 
             for (int i = 0; i < serverEntries.Count; i++)
             {
@@ -368,8 +391,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             if (emptyServerListText != null)
             {
                 emptyServerListText.gameObject.SetActive(!hasServers);
-                emptyServerListText.text =
-                    "No local hosts found. Ask a player to host, then refresh.";
+                emptyServerListText.text = CCS_NetcodeTestConstants.EmptyServerListMessage;
             }
 
             if (hasServers)
@@ -899,6 +921,94 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 ClearPlayerNameWarning();
             }
+
+            if (serverNameInput != null && string.IsNullOrWhiteSpace(serverNameInput.text))
+            {
+                ApplyDefaultServerName();
+            }
+        }
+
+        private void HandleServerNameInputChanged(string _)
+        {
+            if (HasValidServerName(out _))
+            {
+                ClearServerNameWarning();
+            }
+        }
+
+        private bool TryValidateServerNameForHost(out string errorMessage)
+        {
+            if (HasValidServerName(out errorMessage))
+            {
+                ClearServerNameWarning();
+                return true;
+            }
+
+            ShowServerNameWarning();
+            return false;
+        }
+
+        private bool HasValidServerName(out string errorMessage)
+        {
+            string rawName = serverNameInput != null ? serverNameInput.text : string.Empty;
+            if (string.IsNullOrWhiteSpace(rawName))
+            {
+                errorMessage = CCS_NetcodeTestConstants.ServerNameRequiredWarningMessage;
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        private void ShowServerNameWarning()
+        {
+            if (serverNameWarningText != null)
+            {
+                serverNameWarningText.text = CCS_NetcodeTestConstants.ServerNameRequiredWarningMessage;
+                serverNameWarningText.gameObject.SetActive(true);
+            }
+
+            FocusServerNameInput();
+        }
+
+        private void ClearServerNameWarning()
+        {
+            if (serverNameWarningText == null)
+            {
+                return;
+            }
+
+            serverNameWarningText.text = string.Empty;
+            serverNameWarningText.gameObject.SetActive(false);
+        }
+
+        private void FocusServerNameInput()
+        {
+            if (serverNameInput == null)
+            {
+                return;
+            }
+
+            serverNameInput.Select();
+            serverNameInput.ActivateInputField();
+        }
+
+        private void ApplyDefaultServerName()
+        {
+            if (serverNameInput == null)
+            {
+                return;
+            }
+
+            string playerName = playerNameInput != null ? playerNameInput.text : string.Empty;
+            serverNameInput.text = CCS_MultiplayerServerNameUtility.CreateDefaultServerName(playerName);
+        }
+
+        private string GetSanitizedServerName()
+        {
+            string rawName = serverNameInput != null ? serverNameInput.text : string.Empty;
+            return CCS_MultiplayerServerNameUtility.Sanitize(rawName);
         }
 
         private void ShowPlayerNameWarning()

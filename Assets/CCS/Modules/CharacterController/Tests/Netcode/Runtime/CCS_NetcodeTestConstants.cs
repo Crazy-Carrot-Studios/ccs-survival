@@ -128,7 +128,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float NetworkingCardWidth = 1480f;
 
-        public const float NetworkingCardHeight = 900f;
+        public const float NetworkingCardHeight = 1060f;
 
         public const float HostCardWidth = 600f;
 
@@ -136,11 +136,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float NetworkingNamePanelWidth = 1220f;
 
-        public const float NetworkingNamePanelHeight = 130f;
+        public const float NetworkingNamePanelHeight = 110f;
 
-        public const float NetworkingNamePanelTopOffset = 245f;
+        public const float NetworkingNamePanelTopOffset = 235f;
 
-        public const float NetworkingHostJoinCardCenterYOffset = -145f;
+        public const float NetworkingServerNamePanelWidth = 1220f;
+
+        public const float NetworkingServerNamePanelHeight = 115f;
+
+        public const float NetworkingServerNamePanelTopOffset = 360f;
+
+        public const float NetworkingHostJoinCardCenterYOffset = -205f;
 
         public const float NetworkingHostJoinCardCenterXOffset = 320f;
 
@@ -201,7 +207,30 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string PlayerNameRequiredWarningMessage =
             "Enter a player name before hosting or joining.";
 
+        public const string ServerNamePanelObjectName = "ServerNamePanel";
+
+        public const string ServerNameWarningTextObjectName = "ServerNameWarningText";
+
+        public const string ServerNameRequiredWarningMessage =
+            "Enter a server name before hosting.";
+
+        public const string ServerNameHintMessage =
+            "This name appears in the local host list.";
+
+        public const string DefaultServerSessionLabel = "Local Test Session";
+
+        public const string EmptyServerListMessage =
+            "No local hosts found.\nAsk a player to host, then refresh.";
+
         public const string ServerListContainerObjectName = "ServerListContainer";
+
+        public const string HostSessionCacheFolderName = "ccs-survival";
+
+        public const string HostSessionCacheFileName = "local-host-session.json";
+
+        public const float HostSessionHeartbeatIntervalSeconds = 2f;
+
+        public const int HostSessionHeartbeatSeconds = 8;
 
         public const string DefaultLocalhostServerDisplayName = "Localhost";
 

@@ -23,6 +23,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public static void QuitApplication(NetworkManager networkManager = null)
         {
             CCS_LocalMultiplayerPlayerNameCache.Clear();
+            CCS_LocalMultiplayerHostSessionBeacon.StopBeacon();
 
             NetworkManager manager = networkManager != null ? networkManager : NetworkManager.Singleton;
             if (manager != null && manager.IsListening)

@@ -305,6 +305,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             BuildNetworkingHeader(card);
             BuildNamePanel(card);
+            BuildServerNamePanel(card);
             BuildHostCard(card);
             BuildJoinCard(card);
             BuildNetworkingFooter(card, out Text playersText, out Button backButtonOut, out Button quitButton);
@@ -327,6 +328,15 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 serializedMenu,
                 "playerNameWarningText",
                 card.Find($"NamePanel/{CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName}")
+                    ?.GetComponent<TextMeshProUGUI>());
+            SetReference(
+                serializedMenu,
+                "serverNameInput",
+                card.Find($"ServerNamePanel/ServerNameInput")?.GetComponent<InputField>());
+            SetReference(
+                serializedMenu,
+                "serverNameWarningText",
+                card.Find($"ServerNamePanel/{CCS_NetcodeTestConstants.ServerNameWarningTextObjectName}")
                     ?.GetComponent<TextMeshProUGUI>());
             SetReference(serializedMenu, "hostAndStartButton", card.Find("HostCard/HostAndStartButton")?.GetComponent<Button>());
             SetReference(
@@ -384,6 +394,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 80f,
                 new Vector2(0.5f, 1f),
                 new Vector2(0f, -178f));
+            CreateAnchoredText(
+                card,
+                "NameHintText",
+                "This name appears above your character for other players.",
+                24,
+                FontStyle.Normal,
+                TextHint,
+                TextAnchor.MiddleCenter,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -208f),
+                new Vector2(860f, 28f));
         }
 
         private static void BuildNamePanel(RectTransform card)
@@ -435,18 +457,69 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(110f, -112f),
                 new Vector2(760f, 20f));
             playerNameWarningText.gameObject.SetActive(false);
+        }
+
+        private static void BuildServerNamePanel(RectTransform card)
+        {
+            RectTransform serverNamePanel = CreateBorderedPanel(
+                CCS_NetcodeTestConstants.ServerNamePanelObjectName,
+                card,
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingServerNamePanelWidth,
+                    CCS_NetcodeTestConstants.NetworkingServerNamePanelHeight),
+                new Vector2(0f, -CCS_NetcodeTestConstants.NetworkingServerNamePanelTopOffset),
+                SubCardColor,
+                SubCardBorderColor,
+                new Vector2(0.5f, 1f));
+
             CreateAnchoredText(
-                namePanel,
-                "NameHintText",
-                "This name appears above your character for other players.",
-                16,
+                serverNamePanel,
+                "ServerNameLabel",
+                "SERVER NAME",
+                18,
+                FontStyle.Bold,
+                TextLabel,
+                TextAnchor.MiddleLeft,
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(110f, -28f),
+                new Vector2(240f, 24f));
+            CreateAnchoredInputField(
+                serverNamePanel,
+                "ServerNameInput",
+                "Enter server name...",
+                new Vector2(560f, 54f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(110f, -56f),
+                InputBackgroundColor,
+                InputBorderColor,
+                20);
+            CreateAnchoredText(
+                serverNamePanel,
+                "ServerNameHintText",
+                CCS_NetcodeTestConstants.ServerNameHintMessage,
+                15,
                 FontStyle.Normal,
                 TextHint,
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -114f),
-                new Vector2(760f, 22f));
+                new Vector2(110f, -92f),
+                new Vector2(760f, 20f));
+            TextMeshProUGUI serverNameWarningText = CreateAnchoredTmpText(
+                serverNamePanel,
+                CCS_NetcodeTestConstants.ServerNameWarningTextObjectName,
+                CCS_NetcodeTestConstants.ServerNameRequiredWarningMessage,
+                15,
+                FontStyles.Normal,
+                TextNameWarning,
+                TextAlignmentOptions.MidlineLeft,
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(110f, -112f),
+                new Vector2(760f, 20f));
+            serverNameWarningText.gameObject.SetActive(false);
         }
 
         private static void BuildHostCard(RectTransform card)
@@ -539,7 +612,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             CreateAnchoredText(
                 joinCard,
                 "EmptyServerListText",
-                "No local hosts found.\nAsk a player to host, then refresh.",
+                CCS_NetcodeTestConstants.EmptyServerListMessage,
                 18,
                 FontStyle.Normal,
                 TextEmptyList,
