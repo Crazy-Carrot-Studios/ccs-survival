@@ -112,8 +112,12 @@ namespace CCS.Modules.Attributes.Editor
                     "CCS_PlayerAttributeBarsHud must not use legacy UnityEngine.Input polling.");
                 AppendIfMissing(
                     failures,
-                    !source.Contains("CCS_StaminaController"),
-                    "CCS_PlayerAttributeBarsHud must read stamina from CCS_AttributeContainer only.");
+                    source.Contains("CCS_StaminaController"),
+                    "CCS_PlayerAttributeBarsHud must read stamina status from CCS_StaminaController.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("walkRecoveryThreshold") && !source.Contains("sprintUnlockThreshold"),
+                    "CCS_PlayerAttributeBarsHud must not embed exhaustion threshold logic.");
             }
 
             string barsHudStylePath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/CCS_AttributeBarsHudStyle.cs";
@@ -139,6 +143,14 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     staminaSource.Contains("IsSprintLocked"),
                     "CCS_StaminaController must expose IsSprintLocked.");
+                AppendIfMissing(
+                    failures,
+                    staminaSource.Contains("IsExhausted"),
+                    "CCS_StaminaController must expose IsExhausted.");
+                AppendIfMissing(
+                    failures,
+                    staminaSource.Contains("MovementSpeedMultiplier"),
+                    "CCS_StaminaController must expose MovementSpeedMultiplier.");
                 AppendIfMissing(
                     failures,
                     staminaSource.Contains("ReportMovementState"),
@@ -171,6 +183,10 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     motorSource.Contains("ReportMovementState"),
                     "CCS_CharacterMotor must report sprint intent to CCS_StaminaController.");
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("MovementSpeedMultiplier"),
+                    "CCS_CharacterMotor must apply stamina MovementSpeedMultiplier to walk speed.");
             }
 
             string legacyHudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeHud.cs";

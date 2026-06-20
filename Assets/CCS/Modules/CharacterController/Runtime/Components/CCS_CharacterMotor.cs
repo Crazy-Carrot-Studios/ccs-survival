@@ -223,7 +223,17 @@ namespace CCS.Modules.CharacterController
 
             }
 
-            float desiredSpeed = isSprinting ? movementProfile.SprintSpeed : movementProfile.WalkSpeed;
+            float walkSpeed = movementProfile.WalkSpeed;
+
+            if (staminaController != null)
+
+            {
+
+                walkSpeed *= staminaController.MovementSpeedMultiplier;
+
+            }
+
+            float desiredSpeed = isSprinting ? movementProfile.SprintSpeed : walkSpeed;
 
             TargetSpeed = moveInput.sqrMagnitude > 0.01f ? desiredSpeed : 0f;
 

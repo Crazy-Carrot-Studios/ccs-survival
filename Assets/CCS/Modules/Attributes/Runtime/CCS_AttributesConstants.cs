@@ -38,7 +38,15 @@ namespace CCS.Modules.Attributes
 
         public const float StaminaRegenPerSecond = 12f;
 
-        public const float StaminaSprintUnlockThreshold = 20f;
+        public const float StaminaSprintUnlockThreshold = 50f;
+
+        public const float StaminaWalkRecoveryThreshold = 35f;
+
+        public const float StaminaExhaustedWalkMultiplier = 0.5f;
+
+        public const string StaminaExhaustedStatusText = "Exhausted";
+
+        public const string StaminaRecoveringStatusText = "Recovering";
 
         public const string LegacyDebugHudTextObjectName = "HealthHudText";
 

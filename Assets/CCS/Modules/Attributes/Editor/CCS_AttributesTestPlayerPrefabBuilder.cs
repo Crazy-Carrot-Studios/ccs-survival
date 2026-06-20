@@ -192,6 +192,24 @@ namespace CCS.Modules.Attributes.Editor
                 changed = true;
             }
 
+            SerializedProperty walkRecoveryProperty = serializedStamina.FindProperty("walkRecoveryThreshold");
+            if (walkRecoveryProperty != null
+                && !Mathf.Approximately(walkRecoveryProperty.floatValue, CCS_AttributesConstants.StaminaWalkRecoveryThreshold))
+            {
+                walkRecoveryProperty.floatValue = CCS_AttributesConstants.StaminaWalkRecoveryThreshold;
+                changed = true;
+            }
+
+            SerializedProperty exhaustedMultiplierProperty = serializedStamina.FindProperty("exhaustedWalkMultiplier");
+            if (exhaustedMultiplierProperty != null
+                && !Mathf.Approximately(
+                    exhaustedMultiplierProperty.floatValue,
+                    CCS_AttributesConstants.StaminaExhaustedWalkMultiplier))
+            {
+                exhaustedMultiplierProperty.floatValue = CCS_AttributesConstants.StaminaExhaustedWalkMultiplier;
+                changed = true;
+            }
+
             if (changed)
             {
                 serializedStamina.ApplyModifiedPropertiesWithoutUndo();
@@ -278,6 +296,8 @@ namespace CCS.Modules.Attributes.Editor
                 CCS_AttributeBarsHudStyle.HealthFillColor,
                 0,
                 false,
+                0f,
+                string.Empty,
                 ref changed);
             CCS_AttributeBarView staminaBar = EnsureAttributeBar(
                 panelObject.transform,
@@ -285,7 +305,9 @@ namespace CCS.Modules.Attributes.Editor
                 CCS_AttributeBarsHudStyle.StaminaBarLabel,
                 CCS_AttributeBarsHudStyle.StaminaFillColor,
                 1,
-                false,
+                true,
+                -26f,
+                string.Empty,
                 ref changed);
             CCS_AttributeBarView hungerBar = EnsureAttributeBar(
                 panelObject.transform,
@@ -294,6 +316,8 @@ namespace CCS.Modules.Attributes.Editor
                 CCS_AttributeBarsHudStyle.HungerFillColor,
                 2,
                 true,
+                -34f,
+                CCS_AttributeBarsHudStyle.PlaceholderStatusSuffix,
                 ref changed);
             CCS_AttributeBarView thirstBar = EnsureAttributeBar(
                 panelObject.transform,
@@ -302,14 +326,18 @@ namespace CCS.Modules.Attributes.Editor
                 CCS_AttributeBarsHudStyle.ThirstFillColor,
                 3,
                 true,
+                -34f,
+                CCS_AttributeBarsHudStyle.PlaceholderStatusSuffix,
                 ref changed);
 
             Canvas canvas = hudObject.GetComponent<Canvas>();
             CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
+            CCS_StaminaController staminaController = prefabRoot.GetComponent<CCS_StaminaController>();
             SerializedObject serializedHud = new SerializedObject(barsHud);
             bool hudChanged = SetObjectReference(serializedHud, "attributeContainer", container);
             hudChanged |= SetObjectReference(serializedHud, "healthDefinition", healthDefinition);
             hudChanged |= SetObjectReference(serializedHud, "staminaDefinition", staminaDefinition);
+            hudChanged |= SetObjectReference(serializedHud, "staminaController", staminaController);
             hudChanged |= SetObjectReference(serializedHud, "hudCanvas", canvas);
             hudChanged |= SetObjectReference(serializedHud, "healthBar", healthBar);
             hudChanged |= SetObjectReference(serializedHud, "staminaBar", staminaBar);
@@ -505,6 +533,8 @@ namespace CCS.Modules.Attributes.Editor
             Color fillColor,
             int barIndex,
             bool includeStatusSuffix,
+            float statusYOffset,
+            string defaultStatusText,
             ref bool changed)
         {
             Transform barTransform = FindDirectChild(panelTransform, barObjectName);
@@ -521,9 +551,7 @@ namespace CCS.Modules.Attributes.Editor
             }
 
             RectTransform barRect = barObject.GetComponent<RectTransform>();
-            float blockHeight = includeStatusSuffix
-                ? CCS_AttributeBarsHudStyle.PlaceholderBarBlockHeight
-                : CCS_AttributeBarsHudStyle.BarBlockHeight;
+            float blockHeight = GetConfiguredBarBlockHeight(barIndex);
             float topOffset = ResolveBarTopOffset(barIndex);
             Vector2 anchoredPosition = new Vector2(CCS_AttributeBarsHudStyle.PanelPaddingX, -topOffset);
             Vector2 barSize = new Vector2(CCS_AttributeBarsHudStyle.BarWidth, blockHeight);
@@ -585,12 +613,12 @@ namespace CCS.Modules.Attributes.Editor
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Vector2(0f, -34f),
+                    new Vector2(0f, statusYOffset),
                     new Vector2(CCS_AttributeBarsHudStyle.BarWidth, 12f),
                     TextAlignmentOptions.TopLeft,
                     CCS_AttributeBarsHudStyle.StatusFontSize,
                     CCS_AttributeBarsHudStyle.MutedTextColor,
-                    CCS_AttributeBarsHudStyle.PlaceholderStatusSuffix,
+                    defaultStatusText,
                     ref changed);
             }
 
@@ -616,15 +644,22 @@ namespace CCS.Modules.Attributes.Editor
             return AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         }
 
+        private static float GetConfiguredBarBlockHeight(int barIndex)
+        {
+            if (barIndex == 2 || barIndex == 3)
+            {
+                return CCS_AttributeBarsHudStyle.PlaceholderBarBlockHeight;
+            }
+
+            return CCS_AttributeBarsHudStyle.BarBlockHeight;
+        }
+
         private static float ResolveBarTopOffset(int barIndex)
         {
             float offset = CCS_AttributeBarsHudStyle.PanelPaddingTop;
             for (int i = 0; i < barIndex; i++)
             {
-                float previousBlockHeight = i >= 2
-                    ? CCS_AttributeBarsHudStyle.PlaceholderBarBlockHeight
-                    : CCS_AttributeBarsHudStyle.BarBlockHeight;
-                offset += previousBlockHeight + CCS_AttributeBarsHudStyle.BarSpacing;
+                offset += GetConfiguredBarBlockHeight(i) + CCS_AttributeBarsHudStyle.BarSpacing;
             }
 
             return offset;

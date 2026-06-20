@@ -3,7 +3,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_StaminaController
 // CATEGORY: Modules / Attributes / Runtime / Components
-// PURPOSE: Owns stamina value, drain/regen, and sprint permission for movement.
+// PURPOSE: Owns stamina value, drain/regen, sprint permission, and exhaustion movement.
 // PLACEMENT: Player root alongside CCS_AttributeContainer.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
@@ -25,9 +25,15 @@ namespace CCS.Modules.Attributes
 
         [SerializeField] private float regenPerSecond = 12f;
 
-        [SerializeField] private float sprintUnlockThreshold = 20f;
+        [SerializeField] private float walkRecoveryThreshold = 35f;
+
+        [SerializeField] private float sprintUnlockThreshold = 50f;
+
+        [SerializeField] private float exhaustedWalkMultiplier = 0.5f;
 
         private bool isSprintLocked;
+
+        private bool isExhausted;
 
         #endregion
 
@@ -36,6 +42,10 @@ namespace CCS.Modules.Attributes
         public bool CanSprint => !isSprintLocked && CurrentStamina > 0f;
 
         public bool IsSprintLocked => isSprintLocked;
+
+        public bool IsExhausted => isExhausted;
+
+        public float MovementSpeedMultiplier => isExhausted ? exhaustedWalkMultiplier : 1f;
 
         public float CurrentStamina { get; private set; }
 
@@ -51,6 +61,7 @@ namespace CCS.Modules.Attributes
             }
 
             SyncCurrentFromContainer();
+            UpdateStateFlags();
         }
 
         #endregion
@@ -76,22 +87,32 @@ namespace CCS.Modules.Attributes
                 ApplyDelta(regenPerSecond * deltaTime);
             }
 
-            if (CurrentStamina <= 0f && wantsSprint)
-            {
-                isSprintLocked = true;
-            }
-
-            if (isSprintLocked && CurrentStamina >= sprintUnlockThreshold)
-            {
-                isSprintLocked = false;
-            }
-
+            UpdateStateFlags();
             PushToContainer();
         }
 
         #endregion
 
         #region Private Methods
+
+        private void UpdateStateFlags()
+        {
+            if (CurrentStamina <= 0f)
+            {
+                isExhausted = true;
+                isSprintLocked = true;
+            }
+
+            if (isExhausted && CurrentStamina >= walkRecoveryThreshold)
+            {
+                isExhausted = false;
+            }
+
+            if (isSprintLocked && CurrentStamina >= sprintUnlockThreshold)
+            {
+                isSprintLocked = false;
+            }
+        }
 
         private void SyncCurrentFromContainer()
         {

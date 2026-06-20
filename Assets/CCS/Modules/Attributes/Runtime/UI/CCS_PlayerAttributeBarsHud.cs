@@ -34,6 +34,8 @@ namespace CCS.Modules.Attributes
 
         [SerializeField] private CCS_AttributeBarView thirstBar;
 
+        [SerializeField] private CCS_StaminaController staminaController;
+
         private bool isLocalOwnerActive;
 
         #endregion
@@ -50,6 +52,11 @@ namespace CCS.Modules.Attributes
             if (hudCanvas == null)
             {
                 hudCanvas = GetComponent<Canvas>();
+            }
+
+            if (staminaController == null)
+            {
+                staminaController = GetComponentInParent<CCS_StaminaController>();
             }
         }
 
@@ -146,14 +153,36 @@ namespace CCS.Modules.Attributes
                 staminaBar.SetValues(
                     CCS_AttributeBarsHudStyle.StaminaBarLabel,
                     CCS_AttributesConstants.StaminaDefaultMax,
-                    CCS_AttributesConstants.StaminaDefaultMax);
+                    CCS_AttributesConstants.StaminaDefaultMax,
+                    ResolveStaminaStatusSuffix());
                 return;
             }
 
             staminaBar.SetValues(
                 CCS_AttributeBarsHudStyle.StaminaBarLabel,
                 value.Current,
-                value.Max);
+                value.Max,
+                ResolveStaminaStatusSuffix());
+        }
+
+        private string ResolveStaminaStatusSuffix()
+        {
+            if (staminaController == null)
+            {
+                return null;
+            }
+
+            if (staminaController.IsExhausted)
+            {
+                return CCS_AttributesConstants.StaminaExhaustedStatusText;
+            }
+
+            if (staminaController.IsSprintLocked)
+            {
+                return CCS_AttributesConstants.StaminaRecoveringStatusText;
+            }
+
+            return null;
         }
 
         private void RefreshPlaceholderBars()
