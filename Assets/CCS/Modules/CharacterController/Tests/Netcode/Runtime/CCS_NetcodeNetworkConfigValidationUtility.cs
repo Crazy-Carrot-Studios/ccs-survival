@@ -182,8 +182,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             try
             {
+#if UNITY_EDITOR
                 isProjectPrefabAsset = !prefabReference.scene.IsValid();
                 return true;
+#else
+                isProjectPrefabAsset = TryGetNetworkObject(prefabReference, out _, out _);
+                return true;
+#endif
             }
             catch (MissingReferenceException)
             {

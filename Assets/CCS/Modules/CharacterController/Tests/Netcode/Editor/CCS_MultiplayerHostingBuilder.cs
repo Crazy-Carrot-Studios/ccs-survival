@@ -26,6 +26,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         public static bool VerifyAndRepairScene()
         {
             bool changed = VerifyAndRepairNetworkPrefabAssets();
+            changed |= EnsureRequiredScenesInBuildSettings();
 
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_NetcodeTestConstants.MultiplayerHostingScenePath,
@@ -64,6 +65,48 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         public static bool VerifyAndRepairNetworkPrefabAssets()
         {
             return CCS_NetcodeNetworkPrefabSetupUtility.RebuildNetworkPrefabSetup();
+        }
+
+        public static bool EnsureRequiredScenesInBuildSettings()
+        {
+            bool changed = false;
+            changed |= TryAddSceneToBuildSettings(CCS_NetcodeTestConstants.MultiplayerHostingScenePath);
+            changed |= TryAddSceneToBuildSettings(CCS_NetcodeTestConstants.MasterTestScenePath);
+            return changed;
+        }
+
+        private static bool TryAddSceneToBuildSettings(string scenePath)
+        {
+            if (string.IsNullOrEmpty(scenePath))
+            {
+                return false;
+            }
+
+            EditorBuildSettingsScene[] existingScenes = EditorBuildSettings.scenes;
+            for (int i = 0; i < existingScenes.Length; i++)
+            {
+                if (existingScenes[i].path == scenePath)
+                {
+                    if (!existingScenes[i].enabled)
+                    {
+                        existingScenes[i].enabled = true;
+                        EditorBuildSettings.scenes = existingScenes;
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            EditorBuildSettingsScene[] updatedScenes = new EditorBuildSettingsScene[existingScenes.Length + 1];
+            for (int i = 0; i < existingScenes.Length; i++)
+            {
+                updatedScenes[i] = existingScenes[i];
+            }
+
+            updatedScenes[existingScenes.Length] = new EditorBuildSettingsScene(scenePath, true);
+            EditorBuildSettings.scenes = updatedScenes;
+            return true;
         }
 
         #endregion

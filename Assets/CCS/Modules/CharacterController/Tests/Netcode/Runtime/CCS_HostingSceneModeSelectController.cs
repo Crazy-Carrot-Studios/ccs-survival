@@ -29,6 +29,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         [SerializeField] private Button multiplayerButton;
 
+        [SerializeField] private Button quitButton;
+
         [Header("Networking")]
         [SerializeField] private Button backButton;
 
@@ -48,6 +50,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         #endregion
 
         #region Public Methods
+
+        public void StartSinglePlayer()
+        {
+            OnSinglePlayerClicked();
+        }
 
         public void OnSinglePlayerClicked()
         {
@@ -69,6 +76,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             }
 
             ShowModeSelect();
+        }
+
+        public void OnQuitClicked()
+        {
+            CCS_HostingApplicationQuitUtility.QuitApplication(networkManager);
         }
 
         public void ShowModeSelect()
@@ -116,6 +128,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             if (backButton != null)
             {
                 backButton.onClick.AddListener(OnBackClicked);
+            }
+
+            if (quitButton != null)
+            {
+                quitButton.onClick.AddListener(OnQuitClicked);
             }
         }
 

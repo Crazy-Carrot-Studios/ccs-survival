@@ -23,6 +23,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string MultiplayerHostingScenePath =
             "Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity";
 
+        public const string MultiplayerHostingSceneName = "SCN_CCS_MultiplayerHosting";
+
         public const string MasterTestSceneName = "SCN_CCS_CharacterController_MasterTest";
 
         public const string MasterTestScenePath =
@@ -73,6 +75,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string MultiplayerButtonObjectName = "MultiplayerButton";
 
         public const string BackButtonObjectName = "BackButton";
+
+        public const string QuitButtonObjectName = "QuitButton";
+
+        public const string ModeSelectQuitButtonObjectName = "ModeSelectQuitButton";
+
+        public const float ModeSelectQuitButtonWidth = 260f;
 
         public const float ModeSelectCardWidth = 1250f;
 

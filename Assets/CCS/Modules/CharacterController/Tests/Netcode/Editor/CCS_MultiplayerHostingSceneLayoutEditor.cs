@@ -119,7 +119,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 root,
                 out GameObject modeSelectPanel,
                 out Button singlePlayerButton,
-                out Button multiplayerButton);
+                out Button multiplayerButton,
+                out Button modeSelectQuitButton);
 
             RectTransform networkingPanel = BuildNetworkingPanel(
                 root,
@@ -140,6 +141,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             SetReference(serializedModeController, "singlePlayerButton", singlePlayerButton);
             SetReference(serializedModeController, "multiplayerButton", multiplayerButton);
             SetReference(serializedModeController, "backButton", backButton);
+            SetReference(serializedModeController, "quitButton", modeSelectQuitButton);
             SetReference(serializedModeController, "networkManager", networkManager);
             serializedModeController.ApplyModifiedPropertiesWithoutUndo();
 
@@ -148,7 +150,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting networking panel vertical spacing.");
+            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.4 build flow + quit wiring).");
             return true;
         }
 
@@ -160,7 +162,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform root,
             out GameObject modeSelectPanel,
             out Button singlePlayerButton,
-            out Button multiplayerButton)
+            out Button multiplayerButton,
+            out Button quitButton)
         {
             RectTransform panel = CreateStretchPanel(
                 CCS_NetcodeTestConstants.ModeSelectPanelObjectName,
@@ -263,6 +266,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 80f,
                 new Vector2(0.5f, 0f),
                 new Vector2(0f, 85f));
+            quitButton = CreateAnchoredButton(
+                card,
+                CCS_NetcodeTestConstants.ModeSelectQuitButtonObjectName,
+                "QUIT",
+                new Vector2(CCS_NetcodeTestConstants.ModeSelectQuitButtonWidth, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, 30f),
+                SecondaryButtonColor,
+                SecondaryButtonHoverColor,
+                18);
 
             modeSelectPanel = panel.gameObject;
         }
@@ -292,7 +306,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             BuildNamePanel(card);
             BuildHostCard(card);
             BuildJoinCard(card);
-            BuildNetworkingFooter(card, out Text playersText, out Button backButtonOut, out Button exitButton);
+            BuildNetworkingFooter(card, out Text playersText, out Button backButtonOut, out Button quitButton);
             backButton = backButtonOut;
 
             GameObject diagnosticsPanel = CreateHiddenDiagnosticsPanel(card, out Text diagnosticsText);
@@ -324,7 +338,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             SetReference(serializedMenu, "diagnosticsPanel", diagnosticsPanel);
             SetReference(serializedMenu, "diagnosticsText", diagnosticsText);
             SetReference(serializedMenu, "connectedPlayersText", playersText);
-            SetReference(serializedMenu, "exitButton", exitButton);
+            SetReference(serializedMenu, "quitButton", quitButton);
             serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
             return networkingPanel;
@@ -552,7 +566,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform card,
             out Text playersText,
             out Button backButton,
-            out Button exitButton)
+            out Button quitButton)
         {
             CreateAnchoredDivider(
                 card,
@@ -596,10 +610,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 Vector2.zero,
                 new Vector2(240f, 28f));
 
-            exitButton = CreateAnchoredButton(
+            quitButton = CreateAnchoredButton(
                 card,
-                "ExitButton",
-                "EXIT",
+                CCS_NetcodeTestConstants.QuitButtonObjectName,
+                "QUIT",
                 new Vector2(CCS_NetcodeTestConstants.NetworkingExitButtonWidth, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),

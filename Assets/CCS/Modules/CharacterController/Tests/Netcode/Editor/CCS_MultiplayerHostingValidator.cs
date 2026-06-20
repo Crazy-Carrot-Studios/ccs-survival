@@ -55,6 +55,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 $"Missing asset: {CCS_NetcodeTestConstants.TestNetworkPrefabsListPath}");
 
             ValidateDefaultNetworkPrefabsList(failures);
+            ValidateBuildSettingsScenes(failures);
             ValidateNetworkManagerPrefab(failures);
             ValidateMasterTestNetworkSpawnPoints(failures);
             ValidateMasterTestDoesNotContainNetworkedPlayerPrefab(failures);
@@ -71,6 +72,55 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         #endregion
 
         #region Private Methods
+
+        private static void ValidateBuildSettingsScenes(List<string> failures)
+        {
+            AppendIfMissing(
+                failures,
+                IsSceneEnabledInBuildSettings(CCS_NetcodeTestConstants.MultiplayerHostingScenePath),
+                $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} must be enabled in Build Settings.");
+            AppendIfMissing(
+                failures,
+                IsSceneEnabledInBuildSettings(CCS_NetcodeTestConstants.MasterTestScenePath),
+                $"{CCS_NetcodeTestConstants.MasterTestScenePath} must be enabled in Build Settings.");
+            AppendIfMissing(
+                failures,
+                SceneNameMatchesAsset(
+                    CCS_NetcodeTestConstants.MultiplayerHostingScenePath,
+                    CCS_NetcodeTestConstants.MultiplayerHostingSceneName),
+                $"Runtime scene name '{CCS_NetcodeTestConstants.MultiplayerHostingSceneName}' must match the hosting scene asset name.");
+            AppendIfMissing(
+                failures,
+                SceneNameMatchesAsset(
+                    CCS_NetcodeTestConstants.MasterTestScenePath,
+                    CCS_NetcodeTestConstants.MasterTestSceneName),
+                $"Runtime scene name '{CCS_NetcodeTestConstants.MasterTestSceneName}' must match the master test scene asset name.");
+        }
+
+        private static bool IsSceneEnabledInBuildSettings(string scenePath)
+        {
+            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
+            for (int i = 0; i < scenes.Length; i++)
+            {
+                if (scenes[i].path == scenePath)
+                {
+                    return scenes[i].enabled;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool SceneNameMatchesAsset(string scenePath, string expectedSceneName)
+        {
+            if (!File.Exists(scenePath))
+            {
+                return false;
+            }
+
+            string assetName = Path.GetFileNameWithoutExtension(scenePath);
+            return assetName == expectedSceneName;
+        }
 
         private static void ValidateDefaultNetworkPrefabsList(List<string> failures)
         {
@@ -305,8 +355,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.emptyServerListText is not assigned.");
                 AppendIfMissing(
                     failures,
-                    serializedMenu.FindProperty("exitButton")?.objectReferenceValue != null,
-                    "CCS_MultiplayerHostingMenu.exitButton is not assigned.");
+                    serializedMenu.FindProperty("quitButton")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.quitButton is not assigned.");
                 AppendIfMissing(
                     failures,
                     serializedMenu.FindProperty("networkManager")?.objectReferenceValue != null,
@@ -441,6 +491,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     source.Contains("MasterTestSceneName"),
                     "CCS_HostingSceneModeSelectController must load Master Test for Single Player.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("OnQuitClicked"),
+                    "CCS_HostingSceneModeSelectController must expose Quit flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("CCS_HostingApplicationQuitUtility"),
+                    "CCS_HostingSceneModeSelectController must quit through CCS_HostingApplicationQuitUtility.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("UnityEditor"),
+                    "CCS_HostingSceneModeSelectController must not reference UnityEditor in runtime code.");
             }
 
             Transform hostingRoot = GameObject.Find("HostingUiRoot")?.transform;
@@ -504,6 +566,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     modeSelectPanel.Find(
                         $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectBottomAccentObjectName}") != null,
                     "Mode Select must contain the bottom accent divider.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectQuitButtonObjectName}") != null,
+                    "Mode Select must contain a Quit button.");
 
                 Transform modeSelectCard = modeSelectPanel.Find(CCS_NetcodeTestConstants.ModeSelectCardObjectName);
                 if (modeSelectCard != null)
@@ -571,6 +638,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     {
                         failures.Add("Mode Select main title RectTransform is missing.");
                     }
+
+                    Transform modeSelectQuit = modeSelectCard.Find(CCS_NetcodeTestConstants.ModeSelectQuitButtonObjectName);
+                    AppendIfMissing(
+                        failures,
+                        ButtonLabelEquals(modeSelectQuit?.GetComponentInChildren<Text>(), "QUIT"),
+                        "Mode Select Quit button text must be QUIT.");
+                    ValidateAnchoredButtonSize(
+                        failures,
+                        modeSelectQuit as RectTransform,
+                        "Mode Select Quit",
+                        CCS_NetcodeTestConstants.ModeSelectQuitButtonWidth - 20f,
+                        CCS_NetcodeTestConstants.ModeSelectQuitButtonWidth + 20f,
+                        CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                        CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 }
             }
 
@@ -605,6 +686,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     serializedController.FindProperty("backButton")?.objectReferenceValue != null,
                     "CCS_HostingSceneModeSelectController.backButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedController.FindProperty("quitButton")?.objectReferenceValue != null,
+                    "CCS_HostingSceneModeSelectController.quitButton is not wired.");
             }
 
             if (networkingCard != null)
@@ -681,8 +766,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 ValidateAnchoredButtonSize(
                     failures,
-                    networkingCard.Find("ExitButton") as RectTransform,
-                    "Exit",
+                    networkingCard.Find(CCS_NetcodeTestConstants.QuitButtonObjectName) as RectTransform,
+                    "Quit",
                     CCS_NetcodeTestConstants.NetworkingExitButtonWidth - 20f,
                     CCS_NetcodeTestConstants.NetworkingExitButtonWidth + 20f,
                     CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
@@ -852,9 +937,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform footerDivider = networkingCard.Find("FooterDivider") as RectTransform;
             RectTransform backButton = networkingCard.Find(CCS_NetcodeTestConstants.BackButtonObjectName) as RectTransform;
             RectTransform playersPanel = networkingCard.Find("ConnectedPlayersPanel") as RectTransform;
-            RectTransform exitButton = networkingCard.Find("ExitButton") as RectTransform;
+            RectTransform quitButton = networkingCard.Find(CCS_NetcodeTestConstants.QuitButtonObjectName) as RectTransform;
 
-            if (footerDivider == null || backButton == null || playersPanel == null || exitButton == null)
+            if (footerDivider == null || backButton == null || playersPanel == null || quitButton == null)
             {
                 failures.Add("Networking footer divider or footer controls are missing.");
                 return;
@@ -898,8 +983,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 10f);
             ValidateBottomAnchoredYOffset(
                 failures,
-                exitButton,
-                "Exit button",
+                quitButton,
+                "Quit button",
                 CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset,
                 10f);
 
@@ -909,8 +994,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "Back button must sit below the footer divider band.");
             AppendIfMissing(
                 failures,
-                exitButton.anchoredPosition.y < footerDivider.anchoredPosition.y,
-                "Exit button must sit below the footer divider band.");
+                quitButton.anchoredPosition.y < footerDivider.anchoredPosition.y,
+                "Quit button must sit below the footer divider band.");
         }
 
         private static Bounds GetRelativeBounds(RectTransform parent, RectTransform child)
@@ -1009,6 +1094,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 $"Hosting UI button '{label}' height must be between {minHeight:0.#} and {maxHeight:0.#}.");
         }
 
+        private static bool ButtonLabelEquals(Text label, string expectedText)
+        {
+            return label != null && label.text == expectedText;
+        }
+
         private static void ValidateHostingMenuFlow(List<string> failures)
         {
             const string menuPath =
@@ -1024,6 +1114,30 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     source.Contains("OnHostAndStartClicked"),
                     "CCS_MultiplayerHostingMenu must expose Host & Start flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("OnQuitClicked"),
+                    "CCS_MultiplayerHostingMenu must expose Quit flow.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("CCS_HostingApplicationQuitUtility"),
+                    "CCS_MultiplayerHostingMenu must quit through CCS_HostingApplicationQuitUtility.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("CCS_HostingSceneBuildUtility"),
+                    "CCS_MultiplayerHostingMenu must validate build settings at runtime.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("MultiplayerHostingScenePath"),
+                    "CCS_MultiplayerHostingMenu must not load scenes by editor asset path at runtime.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("UnityEditor"),
+                    "CCS_MultiplayerHostingMenu must not reference UnityEditor in runtime code.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("OnExitClicked"),
+                    "CCS_MultiplayerHostingMenu must not use legacy Exit behavior.");
             }
 
             Transform hostingRoot = GameObject.Find("HostingUiRoot")?.transform;
@@ -1067,6 +1181,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Hosting UI must contain Back button on the networking panel.");
                 AppendIfMissing(
                     failures,
+                    networkingCard.Find(CCS_NetcodeTestConstants.QuitButtonObjectName) != null,
+                    "Hosting UI must contain Quit button on the networking panel.");
+                AppendIfMissing(
+                    failures,
+                    ButtonLabelEquals(
+                        networkingCard.Find(CCS_NetcodeTestConstants.QuitButtonObjectName)?.GetComponentInChildren<Text>(),
+                        "QUIT"),
+                    "Networking Quit button text must be QUIT.");
+                AppendIfMissing(
+                    failures,
                     networkingCard.Find("AdvancedManualJoinPanel") == null,
                     "Hosting UI must not expose Advanced Manual Join in the polished layout.");
             }
@@ -1104,8 +1228,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.refreshServersButton is not wired.");
                 AppendIfMissing(
                     failures,
-                    serializedMenu.FindProperty("exitButton")?.objectReferenceValue != null,
-                    "CCS_MultiplayerHostingMenu.exitButton is not wired.");
+                    serializedMenu.FindProperty("quitButton")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.quitButton is not wired.");
                 AppendIfMissing(
                     failures,
                     serializedMenu.FindProperty("advancedManualJoinPanel")?.objectReferenceValue == null,
