@@ -106,11 +106,19 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float HostCardWidth = 600f;
 
-        public const float HostCardHeight = 360f;
+        public const float HostCardHeight = 320f;
 
-        public const float NetworkingNamePanelHeight = 140f;
+        public const float NetworkingNamePanelWidth = 1220f;
 
-        public const float NetworkingHostJoinCardTopOffset = 95f;
+        public const float NetworkingNamePanelHeight = 130f;
+
+        public const float NetworkingNamePanelTopOffset = 245f;
+
+        public const float NetworkingHostJoinCardCenterYOffset = -145f;
+
+        public const float NetworkingHostJoinCardCenterXOffset = 320f;
+
+        public const float NetworkingMinNamePanelBodyGap = 35f;
 
         public const float NetworkingHostJoinButtonBottomOffset = 55f;
 

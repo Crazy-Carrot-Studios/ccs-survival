@@ -148,7 +148,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.3 spacing + wiring repair).");
+            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting networking panel vertical spacing.");
             return true;
         }
 
@@ -371,8 +371,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform namePanel = CreateBorderedPanel(
                 "NamePanel",
                 card,
-                new Vector2(1220f, CCS_NetcodeTestConstants.NetworkingNamePanelHeight),
-                new Vector2(0f, -265f),
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingNamePanelWidth,
+                    CCS_NetcodeTestConstants.NetworkingNamePanelHeight),
+                new Vector2(0f, -CCS_NetcodeTestConstants.NetworkingNamePanelTopOffset),
                 SubCardColor,
                 SubCardBorderColor,
                 new Vector2(0.5f, 1f));
@@ -387,7 +389,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -30f),
+                new Vector2(110f, -28f),
                 new Vector2(240f, 24f));
             CreateAnchoredInputField(
                 namePanel,
@@ -396,7 +398,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(560f, 54f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -62f),
+                new Vector2(110f, -56f),
                 InputBackgroundColor,
                 InputBorderColor,
                 20);
@@ -410,7 +412,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -124f),
+                new Vector2(110f, -114f),
                 new Vector2(760f, 22f));
         }
 
@@ -420,10 +422,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "HostCard",
                 card,
                 new Vector2(CCS_NetcodeTestConstants.HostCardWidth, CCS_NetcodeTestConstants.HostCardHeight),
-                new Vector2(-320f, -CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset),
+                new Vector2(
+                    -CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset),
                 SubCardColor,
-                SubCardBorderColor,
-                new Vector2(0.5f, 1f));
+                SubCardBorderColor);
 
             CreateAnchoredText(
                 hostCard,
@@ -468,10 +471,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "JoinCard",
                 card,
                 new Vector2(CCS_NetcodeTestConstants.HostCardWidth, CCS_NetcodeTestConstants.HostCardHeight),
-                new Vector2(320f, -CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset),
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset),
                 SubCardColor,
-                SubCardBorderColor,
-                new Vector2(0.5f, 1f));
+                SubCardBorderColor);
 
             CreateAnchoredText(
                 joinCard,

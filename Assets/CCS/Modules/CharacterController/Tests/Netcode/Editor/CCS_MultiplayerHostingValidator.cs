@@ -627,6 +627,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     networkingCard.Find("HostCard") as RectTransform,
                     networkingCard.Find("JoinCard") as RectTransform);
+                ValidateNetworkingPanelVerticalLayout(
+                    failures,
+                    networkingCardRect,
+                    networkingCard.Find("NamePanel") as RectTransform,
+                    networkingCard.Find("HostCard") as RectTransform,
+                    networkingCard.Find("JoinCard") as RectTransform);
                 ValidateNetworkingFooterLayout(
                     failures,
                     networkingCardRect,
@@ -743,6 +749,94 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "HostCard and JoinCard must use matching sizes.");
         }
 
+        private static void ValidateNetworkingPanelVerticalLayout(
+            List<string> failures,
+            RectTransform networkingCard,
+            RectTransform namePanel,
+            RectTransform hostCard,
+            RectTransform joinCard)
+        {
+            if (networkingCard == null)
+            {
+                failures.Add("Networking card RectTransform is missing for vertical layout validation.");
+                return;
+            }
+
+            if (namePanel == null || hostCard == null || joinCard == null)
+            {
+                failures.Add("Networking NamePanel, HostCard, or JoinCard is missing.");
+                return;
+            }
+
+            ValidateAnchoredWidth(
+                failures,
+                namePanel,
+                "Name panel",
+                CCS_NetcodeTestConstants.NetworkingNamePanelWidth,
+                20f);
+            ValidateAnchoredHeight(
+                failures,
+                namePanel,
+                "Name panel",
+                CCS_NetcodeTestConstants.NetworkingNamePanelHeight,
+                10f);
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(namePanel.anchorMin.y, 1f)
+                    && Mathf.Approximately(namePanel.anchorMax.y, 1f),
+                "NamePanel must use top-center anchoring inside NetworkingCard.");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(namePanel.anchoredPosition.y + CCS_NetcodeTestConstants.NetworkingNamePanelTopOffset) <= 8f,
+                $"NamePanel must sit near Y -{CCS_NetcodeTestConstants.NetworkingNamePanelTopOffset:0.#} from the card top.");
+
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(hostCard.anchorMin.x, 0.5f)
+                    && Mathf.Approximately(hostCard.anchorMin.y, 0.5f)
+                    && Mathf.Approximately(hostCard.anchorMax.x, 0.5f)
+                    && Mathf.Approximately(hostCard.anchorMax.y, 0.5f),
+                "HostCard must use center anchoring inside NetworkingCard.");
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(joinCard.anchorMin.x, 0.5f)
+                    && Mathf.Approximately(joinCard.anchorMin.y, 0.5f)
+                    && Mathf.Approximately(joinCard.anchorMax.x, 0.5f)
+                    && Mathf.Approximately(joinCard.anchorMax.y, 0.5f),
+                "JoinCard must use center anchoring inside NetworkingCard.");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(hostCard.anchoredPosition.x + CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset) <= 12f
+                    && Mathf.Abs(hostCard.anchoredPosition.y - CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset) <= 12f,
+                $"HostCard must sit near ({-CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset:0.#}, {CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset:0.#}).");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(joinCard.anchoredPosition.x - CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset) <= 12f
+                    && Mathf.Abs(joinCard.anchoredPosition.y - CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset) <= 12f,
+                $"JoinCard must sit near ({CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterXOffset:0.#}, {CCS_NetcodeTestConstants.NetworkingHostJoinCardCenterYOffset:0.#}).");
+
+            Bounds nameBounds = GetRelativeBounds(networkingCard, namePanel);
+            Bounds hostBounds = GetRelativeBounds(networkingCard, hostCard);
+            Bounds joinBounds = GetRelativeBounds(networkingCard, joinCard);
+
+            float nameToHostGap = nameBounds.min.y - hostBounds.max.y;
+            float nameToJoinGap = nameBounds.min.y - joinBounds.max.y;
+            AppendIfMissing(
+                failures,
+                nameToHostGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
+                "HostCard overlaps NamePanel or sits too close to the player name section.");
+            AppendIfMissing(
+                failures,
+                nameToJoinGap >= CCS_NetcodeTestConstants.NetworkingMinNamePanelBodyGap,
+                "JoinCard overlaps NamePanel or sits too close to the player name section.");
+
+            InputField playerNameInput = namePanel.GetComponentInChildren<InputField>(true);
+            AppendIfMissing(
+                failures,
+                playerNameInput != null && playerNameInput.interactable,
+                "NamePanel player name input must remain interactable.");
+        }
+
         private static void ValidateNetworkingFooterLayout(
             List<string> failures,
             RectTransform networkingCard,
@@ -766,16 +860,23 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return;
             }
 
-            float cardHeight = networkingCard.rect.height;
-            float expectedBodyBottomY = (cardHeight * 0.5f)
-                - CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset
-                - CCS_NetcodeTestConstants.HostCardHeight;
-            float expectedDividerY = (-cardHeight * 0.5f) + CCS_NetcodeTestConstants.NetworkingFooterDividerBottomOffset;
-            float expectedFooterGap = expectedBodyBottomY - expectedDividerY;
+            Bounds hostBounds = GetRelativeBounds(networkingCard, hostCard);
+            Bounds joinBounds = GetRelativeBounds(networkingCard, joinCard);
+            Bounds footerBounds = GetRelativeBounds(networkingCard, footerDivider);
+            float bodyBottom = Mathf.Min(hostBounds.min.y, joinBounds.min.y);
+            float footerGap = bodyBottom - footerBounds.max.y;
             AppendIfMissing(
                 failures,
-                expectedFooterGap >= CCS_NetcodeTestConstants.NetworkingMinFooterBodyGap,
+                footerGap >= CCS_NetcodeTestConstants.NetworkingMinFooterBodyGap,
                 $"Footer divider must leave at least {CCS_NetcodeTestConstants.NetworkingMinFooterBodyGap:0.#}px below Host/Join cards.");
+            AppendIfMissing(
+                failures,
+                hostBounds.min.y > footerBounds.max.y,
+                "HostCard overlaps FooterDivider.");
+            AppendIfMissing(
+                failures,
+                joinBounds.min.y > footerBounds.max.y,
+                "JoinCard overlaps FooterDivider.");
 
             ValidateBottomAnchoredYOffset(
                 failures,
@@ -810,17 +911,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 failures,
                 exitButton.anchoredPosition.y < footerDivider.anchoredPosition.y,
                 "Exit button must sit below the footer divider band.");
+        }
 
-            if (hostCard != null && joinCard != null)
+        private static Bounds GetRelativeBounds(RectTransform parent, RectTransform child)
+        {
+            if (parent == null || child == null)
             {
-                float hostBottom = GetTopAnchoredBottomY(hostCard);
-                float joinBottom = GetTopAnchoredBottomY(joinCard);
-                float bodyBottom = Mathf.Min(hostBottom, joinBottom);
-                AppendIfMissing(
-                    failures,
-                    bodyBottom > footerDivider.anchoredPosition.y + 1f,
-                    "Footer divider overlaps HostCard/JoinCard body content.");
+                return new Bounds();
             }
+
+            return RectTransformUtility.CalculateRelativeRectTransformBounds(parent, child);
         }
 
         private static void ValidateBottomAnchoredYOffset(
@@ -844,16 +944,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 failures,
                 Mathf.Abs(rect.anchoredPosition.y - expectedYOffset) <= tolerance,
                 $"Hosting UI element '{label}' must sit near {expectedYOffset:0.#}px from the card bottom.");
-        }
-
-        private static float GetTopAnchoredBottomY(RectTransform rect)
-        {
-            if (rect == null)
-            {
-                return float.MaxValue;
-            }
-
-            return rect.anchoredPosition.y - rect.sizeDelta.y;
         }
 
         private static void ValidateAnchoredWidth(
