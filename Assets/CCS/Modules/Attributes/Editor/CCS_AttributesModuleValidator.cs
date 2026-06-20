@@ -94,6 +94,24 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     source.Contains("IsLocalOwner"),
                     "CCS_PlayerAttributeBarsHud must gate visibility to the local owner.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("Input.GetKey"),
+                    "CCS_PlayerAttributeBarsHud must not use legacy UnityEngine.Input polling.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("Input.GetAxisRaw"),
+                    "CCS_PlayerAttributeBarsHud must not use legacy UnityEngine.Input polling.");
+            }
+
+            string barsHudStylePath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/CCS_AttributeBarsHudStyle.cs";
+            if (File.Exists(barsHudStylePath))
+            {
+                string styleSource = File.ReadAllText(barsHudStylePath);
+                AppendIfMissing(
+                    failures,
+                    styleSource.Contains($"PanelHeight = {CCS_AttributeBarsHudStyle.PanelHeight:0}f"),
+                    $"Attribute bar HUD panel height must be {CCS_AttributeBarsHudStyle.PanelHeight:0}.");
             }
 
             string legacyHudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeHud.cs";

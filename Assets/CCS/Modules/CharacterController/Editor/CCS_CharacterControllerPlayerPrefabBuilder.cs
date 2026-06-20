@@ -62,6 +62,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= RemoveEmbeddedCinemachine(prefabRoot);
             changed |= EnsureNetworkComponents(prefabRoot);
             changed |= EnsureNetworkObjectTransformSettings(prefabRoot);
+            changed |= RemoveCharacterControllerDebugHud(prefabRoot);
             changed |= WireNetworkNameplate(prefabRoot.transform);
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
             changed |= EnsureOfflineBootstrap(prefabRoot);
@@ -769,10 +770,6 @@ namespace CCS.Modules.CharacterController.Editor
                 networkedRoot.GetComponent<CCS_CharacterControllerService>());
             changed |= SetObjectReference(
                 serializedBehaviour,
-                "debugHud",
-                networkedRoot.GetComponent<CCS_CharacterControllerDebugHud>());
-            changed |= SetObjectReference(
-                serializedBehaviour,
                 "playerCameraController",
                 networkedRoot.GetComponent<CCS_CharacterCameraController>());
             changed |= SetObjectReference(serializedBehaviour, "cameraPivot", cameraPivot);
@@ -1104,7 +1101,7 @@ namespace CCS.Modules.CharacterController.Editor
             bool changed = false;
             changed |= DestroyComponentIfPresent<CCS_CharacterCameraController>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_CharacterControllerService>(prefabRoot);
-            changed |= DestroyComponentIfPresent<CCS_CharacterControllerDebugHud>(prefabRoot);
+            changed |= DestroyComponentByTypeName(prefabRoot, "CCS_CharacterControllerDebugHud");
             changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
             changed |= DestroyComponentIfPresent<NetworkObject>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_ClientOwnerNetworkTransform>(prefabRoot);
@@ -1132,6 +1129,28 @@ namespace CCS.Modules.CharacterController.Editor
             {
                 Object.DestroyImmediate(nameplateRoot.gameObject);
                 changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool RemoveCharacterControllerDebugHud(GameObject prefabRoot)
+        {
+            return DestroyComponentByTypeName(prefabRoot, "CCS_CharacterControllerDebugHud");
+        }
+
+        private static bool DestroyComponentByTypeName(GameObject target, string typeName)
+        {
+            MonoBehaviour[] behaviours = target.GetComponents<MonoBehaviour>();
+            bool changed = false;
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == typeName)
+                {
+                    Object.DestroyImmediate(behaviour, true);
+                    changed = true;
+                }
             }
 
             return changed;

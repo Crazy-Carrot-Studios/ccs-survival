@@ -149,8 +149,6 @@ namespace CCS.Modules.CharacterController.Tests
             CCS_CharacterMotor motor = playerRoot.GetComponent<CCS_CharacterMotor>();
             CCS_CharacterControllerService controllerService =
                 playerRoot.GetComponent<CCS_CharacterControllerService>();
-            CCS_CharacterControllerDebugHud debugHud =
-                playerRoot.GetComponent<CCS_CharacterControllerDebugHud>();
             UnityEngine.CharacterController characterController =
                 playerRoot.GetComponent<UnityEngine.CharacterController>();
             NetworkTransform networkTransform = playerRoot.GetComponent<NetworkTransform>();
@@ -169,11 +167,6 @@ namespace CCS.Modules.CharacterController.Tests
             if (controllerService != null)
             {
                 controllerService.enabled = true;
-            }
-
-            if (debugHud != null)
-            {
-                debugHud.enabled = true;
             }
 
             if (characterController != null)

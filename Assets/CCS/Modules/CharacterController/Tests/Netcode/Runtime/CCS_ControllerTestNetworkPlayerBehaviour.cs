@@ -32,7 +32,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
         [SerializeField] private CCS_CharacterMotor motor;
         [SerializeField] private CCS_CharacterControllerService controllerService;
-        [SerializeField] private CCS_CharacterControllerDebugHud debugHud;
         [SerializeField] private CCS_CharacterCameraController playerCameraController;
         [SerializeField] private Transform cameraPivot;
         [SerializeField] private Transform cameraLookTarget;
@@ -200,11 +199,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 controllerService = GetComponent<CCS_CharacterControllerService>();
             }
 
-            if (debugHud == null)
-            {
-                debugHud = GetComponent<CCS_CharacterControllerDebugHud>();
-            }
-
             if (playerCameraController == null)
             {
                 playerCameraController = GetComponent<CCS_CharacterCameraController>();
@@ -281,7 +275,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             SetInputEnabled(allowLocalSimulation);
             SetComponentEnabled(motor, allowLocalSimulation);
             SetComponentEnabled(controllerService, allowLocalSimulation);
-            SetComponentEnabled(debugHud, allowLocalSimulation);
             SetCharacterControllerEnabled(allowLocalSimulation);
             ApplyNetworkTransformAuditSettings();
 
@@ -312,7 +305,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             SetInputEnabled(false);
             SetComponentEnabled(motor, false);
             SetComponentEnabled(controllerService, false);
-            SetComponentEnabled(debugHud, false);
             SetComponentEnabled(playerCameraController, false);
             SetCharacterControllerEnabled(false);
             DisableEmbeddedPlayerCamera();

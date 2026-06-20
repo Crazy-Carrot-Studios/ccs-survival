@@ -532,6 +532,22 @@ namespace CCS.Modules.CharacterController.Editor
 
         };
 
+        public static readonly string[] ForbiddenDebugHudObjectNames =
+
+        {
+
+            "DebugHud",
+
+            "CharacterDebugHud",
+
+            "DebugPanel",
+
+            "DebugText",
+
+        };
+
+        public const string CharacterControllerDebugHudTitle = "CCS Character Controller Debug HUD";
+
 
 
         public static Quaternion GetSpawnFacingRotation(Vector3 spawnPosition)

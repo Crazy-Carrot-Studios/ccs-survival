@@ -16,7 +16,7 @@ namespace CCS.Modules.Attributes
     {
         public const float PanelWidth = 360f;
 
-        public const float PanelHeight = 190f;
+        public const float PanelHeight = 230f;
 
         public const float PanelOffsetX = 32f;
 
@@ -26,13 +26,17 @@ namespace CCS.Modules.Attributes
 
         public const float BarHeight = 20f;
 
-        public const float BarSpacing = 16f;
+        public const float BarSpacing = 14f;
 
-        public const float BarBlockHeight = 38f;
+        public const float BarBlockHeight = 34f;
+
+        public const float PlaceholderBarBlockHeight = 44f;
 
         public const float PanelPaddingX = 30f;
 
-        public const float PanelPaddingTop = 12f;
+        public const float PanelPaddingTop = 16f;
+
+        public const float PanelPaddingBottom = 16f;
 
         public const float LabelFontSize = 11f;
 
@@ -69,10 +73,6 @@ namespace CCS.Modules.Attributes
         public const string PlaceholderStatusSuffix = "Not implemented";
 
         public const float StaminaMax = 100f;
-
-        public const float StaminaDrainPerSecond = 18f;
-
-        public const float StaminaRegenPerSecond = 12f;
 
         public const float PlaceholderMax = 100f;
 

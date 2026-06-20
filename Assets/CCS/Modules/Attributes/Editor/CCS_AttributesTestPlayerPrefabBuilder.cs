@@ -59,6 +59,7 @@ namespace CCS.Modules.Attributes.Editor
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
 
                 bool changed = false;
+                changed |= RemoveCharacterControllerDebugHud(prefabRoot);
                 changed |= EnsureAttributeContainer(prefabRoot, healthDefinition);
                 changed |= EnsureAttributeService(prefabRoot);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
@@ -82,6 +83,23 @@ namespace CCS.Modules.Attributes.Editor
         #endregion
 
         #region Private Methods
+
+        private static bool RemoveCharacterControllerDebugHud(GameObject prefabRoot)
+        {
+            MonoBehaviour[] behaviours = prefabRoot.GetComponents<MonoBehaviour>();
+            bool changed = false;
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == "CCS_CharacterControllerDebugHud")
+                {
+                    Object.DestroyImmediate(behaviour, true);
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
 
         private static bool EnsureAttributeContainer(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
         {
@@ -431,10 +449,12 @@ namespace CCS.Modules.Attributes.Editor
             }
 
             RectTransform barRect = barObject.GetComponent<RectTransform>();
-            float topOffset = CCS_AttributeBarsHudStyle.PanelPaddingTop
-                + barIndex * (CCS_AttributeBarsHudStyle.BarBlockHeight + CCS_AttributeBarsHudStyle.BarSpacing);
+            float blockHeight = includeStatusSuffix
+                ? CCS_AttributeBarsHudStyle.PlaceholderBarBlockHeight
+                : CCS_AttributeBarsHudStyle.BarBlockHeight;
+            float topOffset = ResolveBarTopOffset(barIndex);
             Vector2 anchoredPosition = new Vector2(CCS_AttributeBarsHudStyle.PanelPaddingX, -topOffset);
-            Vector2 barSize = new Vector2(CCS_AttributeBarsHudStyle.BarWidth, CCS_AttributeBarsHudStyle.BarBlockHeight);
+            Vector2 barSize = new Vector2(CCS_AttributeBarsHudStyle.BarWidth, blockHeight);
             if (barRect.anchorMin != new Vector2(0f, 1f)
                 || barRect.anchorMax != new Vector2(0f, 1f)
                 || barRect.pivot != new Vector2(0f, 1f)
@@ -493,7 +513,7 @@ namespace CCS.Modules.Attributes.Editor
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Vector2(0f, -38f),
+                    new Vector2(0f, -34f),
                     new Vector2(CCS_AttributeBarsHudStyle.BarWidth, 12f),
                     TextAlignmentOptions.TopLeft,
                     CCS_AttributeBarsHudStyle.StatusFontSize,
@@ -517,6 +537,20 @@ namespace CCS.Modules.Attributes.Editor
 
             barView.SetFillColor(fillColor);
             return barView;
+        }
+
+        private static float ResolveBarTopOffset(int barIndex)
+        {
+            float offset = CCS_AttributeBarsHudStyle.PanelPaddingTop;
+            for (int i = 0; i < barIndex; i++)
+            {
+                float previousBlockHeight = i >= 2
+                    ? CCS_AttributeBarsHudStyle.PlaceholderBarBlockHeight
+                    : CCS_AttributeBarsHudStyle.BarBlockHeight;
+                offset += previousBlockHeight + CCS_AttributeBarsHudStyle.BarSpacing;
+            }
+
+            return offset;
         }
 
         private static TextMeshProUGUI EnsureBarText(

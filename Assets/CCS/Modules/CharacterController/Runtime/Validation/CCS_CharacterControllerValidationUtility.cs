@@ -329,14 +329,16 @@ namespace CCS.Modules.CharacterController
             CCS_CharacterInputActionProvider inputProvider = prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
             CCS_CharacterCameraController cameraController = prefabRoot.GetComponent<CCS_CharacterCameraController>();
             CCS_CharacterControllerService service = prefabRoot.GetComponent<CCS_CharacterControllerService>();
-            CCS_CharacterControllerDebugHud debugHud = prefabRoot.GetComponent<CCS_CharacterControllerDebugHud>();
 
             AppendIfMissing(failures, unityCharacterController != null, "Prefab missing CharacterController.");
             AppendIfMissing(failures, motor != null, "Prefab missing CCS_CharacterMotor.");
             AppendIfMissing(failures, inputProvider != null, "Prefab missing CCS_CharacterInputActionProvider.");
             AppendIfMissing(failures, cameraController != null, "Prefab missing CCS_CharacterCameraController.");
             AppendIfMissing(failures, service != null, "Prefab missing CCS_CharacterControllerService.");
-            AppendIfMissing(failures, debugHud != null, "Prefab missing CCS_CharacterControllerDebugHud.");
+            AppendIfMissing(
+                failures,
+                !HasComponentNamed(prefabRoot, "CCS_CharacterControllerDebugHud"),
+                "Test player prefab must not contain CCS_CharacterControllerDebugHud.");
 
             if (motor != null && motor.MovementProfile == null)
             {
@@ -467,6 +469,21 @@ namespace CCS.Modules.CharacterController
             {
                 missingActions.Add(actionName);
             }
+        }
+
+        private static bool HasComponentNamed(GameObject prefabRoot, string typeName)
+        {
+            MonoBehaviour[] behaviours = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == typeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void AppendIfApproximatelyUnequal(

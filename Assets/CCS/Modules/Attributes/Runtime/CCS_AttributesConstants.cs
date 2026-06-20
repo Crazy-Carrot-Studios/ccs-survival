@@ -26,5 +26,9 @@ namespace CCS.Modules.Attributes
         public const string HealthDisplayName = "Health";
 
         public const string LegacyDebugHudTextObjectName = "HealthHudText";
+
+        public const string AttributeBarsPanelObjectName = "AttributeBarsPanel";
+
+        public const string ThirstBarObjectName = "ThirstBar";
     }
 }

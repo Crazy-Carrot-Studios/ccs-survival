@@ -121,10 +121,6 @@ Default active mode: `ThirdPersonSurvival`.
 | Ground preview | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity` | Legacy grid-only preview scene |
 | Multiplayer Hosting | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` | Host/join UI; contains `PF_CCS_TestNetworkManager` |
 
-## Debug HUD
-
-`CCS_CharacterControllerDebugHud` (OnGUI, dev/test only) displays movement/camera state, input vectors, and active profile data on the test player.
-
 ## Validation
 
 Validation utilities live in `Editor/Validation/`.

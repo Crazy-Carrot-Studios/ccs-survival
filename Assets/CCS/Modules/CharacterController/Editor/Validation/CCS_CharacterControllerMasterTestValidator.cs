@@ -132,6 +132,8 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidateNoLegacyObjects(failures);
 
+            ValidateNoCharacterDebugHud(failures);
+
             ValidateNoDestroyedPrefabInstances(failures);
 
 
@@ -1475,6 +1477,59 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateNetworkedPrefabDisplayProfileAssignment(failures);
             ValidatePlayerJumpConfiguration(failures);
             ValidateNameplateOwnershipVisibility(failures);
+            ValidateAttributeBarsHudOnPlayerPrefab(failures);
+            ValidateNoCharacterDebugHudOnPlayerPrefab(failures);
+        }
+
+        private static void ValidateAttributeBarsHudOnPlayerPrefab(List<string> failures)
+        {
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab == null)
+            {
+                return;
+            }
+
+            CCS_SurvivalValidationResult attributeValidation =
+                CCS.Modules.Attributes.CCS_AttributesValidationUtility.ValidateTestPlayerComponents(networkedPrefab);
+            if (!attributeValidation.IsSuccess)
+            {
+                failures.Add(attributeValidation.Message);
+            }
+        }
+
+        private static void ValidateNoCharacterDebugHudOnPlayerPrefab(List<string> failures)
+        {
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab == null)
+            {
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                !HasBehaviourNamed(networkedPrefab, "CCS_CharacterControllerDebugHud"),
+                "Networked test player prefab must not contain CCS_CharacterControllerDebugHud.");
+            AppendIfMissing(
+                failures,
+                !HasBehaviourNamed(networkedPrefab, "CCS_PlayerAttributeHud"),
+                "Networked test player prefab must not contain legacy CCS_PlayerAttributeHud.");
+        }
+
+        private static bool HasBehaviourNamed(GameObject root, string typeName)
+        {
+            MonoBehaviour[] behaviours = root.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == typeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void ValidateOfflineBootstrapOnNetworkedPrefab(List<string> failures)
@@ -2808,6 +2863,97 @@ namespace CCS.Modules.CharacterController.Editor
                     failures.Add("Master test scene must not contain a scene NetworkManager.");
 
                     break;
+
+                }
+
+            }
+
+        }
+
+
+
+        private static void ValidateNoCharacterDebugHud(List<string> failures)
+
+        {
+
+            string debugHudSourcePath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Components/CCS_CharacterControllerDebugHud.cs";
+
+            AppendIfMissing(
+                failures,
+                !File.Exists(debugHudSourcePath),
+                "CCS_CharacterControllerDebugHud source must be removed from the project.");
+
+            for (int i = 0; i < CCS_CharacterControllerMasterTestLayoutConstants.ForbiddenDebugHudObjectNames.Length; i++)
+
+            {
+
+                string objectName = CCS_CharacterControllerMasterTestLayoutConstants.ForbiddenDebugHudObjectNames[i];
+
+                if (GameObject.Find(objectName) != null)
+
+                {
+
+                    failures.Add($"Master test scene must not contain debug HUD object {objectName}.");
+
+                }
+
+            }
+
+            TMP_Text[] sceneTexts = Object.FindObjectsByType<TMP_Text>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            for (int i = 0; i < sceneTexts.Length; i++)
+
+            {
+
+                TMP_Text text = sceneTexts[i];
+
+                if (text != null
+                    && !string.IsNullOrEmpty(text.text)
+                    && text.text.Contains(
+                        CCS_CharacterControllerMasterTestLayoutConstants.CharacterControllerDebugHudTitle,
+                        System.StringComparison.Ordinal))
+
+                {
+
+                    failures.Add(
+                        "Master test scene must not contain visible Character Controller Debug HUD text.");
+
+                    break;
+
+                }
+
+            }
+
+            MonoBehaviour[] sceneBehaviours = Object.FindObjectsByType<MonoBehaviour>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            for (int i = 0; i < sceneBehaviours.Length; i++)
+
+            {
+
+                MonoBehaviour behaviour = sceneBehaviours[i];
+
+                if (behaviour == null)
+
+                {
+
+                    continue;
+
+                }
+
+                string behaviourName = behaviour.GetType().Name;
+
+                if (behaviourName == "CCS_CharacterControllerDebugHud"
+                    || behaviourName == "CCS_PlayerAttributeHud")
+
+                {
+
+                    failures.Add(
+                        $"Master test scene must not contain legacy debug HUD component {behaviourName}.");
 
                 }
 

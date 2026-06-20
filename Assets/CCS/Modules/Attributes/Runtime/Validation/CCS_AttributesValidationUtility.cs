@@ -116,12 +116,17 @@ namespace CCS.Modules.Attributes
                 "Test player prefab must not contain legacy CCS_PlayerAttributeHud.");
             AppendIfMissing(
                 failures,
+                !HasComponentNamed(prefabRoot, "CCS_CharacterControllerDebugHud"),
+                "Test player prefab must not contain CCS_CharacterControllerDebugHud.");
+            AppendIfMissing(
+                failures,
                 FindDirectChildByName(prefabRoot.transform, CCS_AttributesConstants.LegacyDebugHudTextObjectName) == null,
                 "Test player prefab must not contain legacy HealthHudText debug HUD.");
             AppendIfMissing(
                 failures,
                 CountAttributeBarViews(prefabRoot) >= 4,
                 "Test player prefab must contain Health, Stamina, Hunger, and Thirst attribute bars.");
+            ValidateAttributeBarsPanelLayout(prefabRoot, failures);
             AppendIfMissing(
                 failures,
                 HasDebugInputComponent(prefabRoot),
@@ -153,6 +158,100 @@ namespace CCS.Modules.Attributes
         #endregion
 
         #region Private Methods
+
+        private static void ValidateAttributeBarsPanelLayout(GameObject prefabRoot, List<string> failures)
+        {
+            if (prefabRoot == null)
+            {
+                return;
+            }
+
+            Transform panelTransform = FindChildRecursive(
+                prefabRoot.transform,
+                CCS_AttributesConstants.AttributeBarsPanelObjectName);
+            AppendIfMissing(
+                failures,
+                panelTransform != null,
+                "Test player prefab must contain AttributeBarsPanel.");
+
+            if (panelTransform == null)
+            {
+                return;
+            }
+
+            RectTransform panelRect = panelTransform.GetComponent<RectTransform>();
+            if (panelRect != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    Mathf.Approximately(panelRect.sizeDelta.y, CCS_AttributeBarsHudStyle.PanelHeight),
+                    $"AttributeBarsPanel height must be {CCS_AttributeBarsHudStyle.PanelHeight:0}.");
+            }
+
+            Transform thirstBar = FindChildRecursive(panelTransform, CCS_AttributesConstants.ThirstBarObjectName);
+            AppendIfMissing(
+                failures,
+                thirstBar != null,
+                "AttributeBarsPanel must contain ThirstBar.");
+
+            if (thirstBar == null || panelRect == null)
+            {
+                return;
+            }
+
+            RectTransform thirstRect = thirstBar.GetComponent<RectTransform>();
+            if (thirstRect == null)
+            {
+                return;
+            }
+
+            float thirstBottom = Mathf.Abs(thirstRect.anchoredPosition.y) + thirstRect.sizeDelta.y;
+            float panelContentHeight = panelRect.sizeDelta.y - CCS_AttributeBarsHudStyle.PanelPaddingBottom;
+            AppendIfMissing(
+                failures,
+                thirstBottom <= panelContentHeight + 0.5f,
+                "ThirstBar must be fully contained within AttributeBarsPanel background.");
+        }
+
+        private static Transform FindChildRecursive(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            if (parent.name == childName)
+            {
+                return parent;
+            }
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                Transform match = FindChildRecursive(child, childName);
+                if (match != null)
+                {
+                    return match;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool HasComponentNamed(GameObject prefabRoot, string typeName)
+        {
+            MonoBehaviour[] behaviours = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == typeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static bool HasLegacyAttributeHudComponent(GameObject prefabRoot)
         {

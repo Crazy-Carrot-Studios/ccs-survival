@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Child canvas on networked test player prefab.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Health reads from CCS_AttributeContainer. Stamina is local-only placeholder.
+// NOTES: Health reads from CCS_AttributeContainer. Stamina is a static placeholder.
 // =============================================================================
 
 namespace CCS.Modules.Attributes
@@ -31,8 +31,6 @@ namespace CCS.Modules.Attributes
         [SerializeField] private CCS_AttributeBarView hungerBar;
 
         [SerializeField] private CCS_AttributeBarView thirstBar;
-
-        private float staminaCurrent = CCS_AttributeBarsHudStyle.StaminaMax;
 
         private bool isLocalOwnerActive;
 
@@ -72,7 +70,6 @@ namespace CCS.Modules.Attributes
                 attributeContainer.AttributeChanged += HandleAttributeChanged;
             }
 
-            staminaCurrent = CCS_AttributeBarsHudStyle.StaminaMax;
             RefreshAllBars();
         }
 
@@ -84,16 +81,6 @@ namespace CCS.Modules.Attributes
             }
 
             isLocalOwnerActive = false;
-        }
-
-        private void Update()
-        {
-            if (!isLocalOwnerActive)
-            {
-                return;
-            }
-
-            UpdateLocalStamina(Time.deltaTime);
         }
 
         #endregion
@@ -148,7 +135,7 @@ namespace CCS.Modules.Attributes
 
             staminaBar.SetValues(
                 CCS_AttributeBarsHudStyle.StaminaBarLabel,
-                staminaCurrent,
+                CCS_AttributeBarsHudStyle.StaminaMax,
                 CCS_AttributeBarsHudStyle.StaminaMax);
         }
 
@@ -171,41 +158,6 @@ namespace CCS.Modules.Attributes
                     CCS_AttributeBarsHudStyle.PlaceholderMax,
                     CCS_AttributeBarsHudStyle.PlaceholderStatusSuffix);
             }
-        }
-
-        private void UpdateLocalStamina(float deltaTime)
-        {
-            if (deltaTime <= 0f)
-            {
-                return;
-            }
-
-            if (IsSprintActive())
-            {
-                staminaCurrent = Mathf.Max(
-                    0f,
-                    staminaCurrent - CCS_AttributeBarsHudStyle.StaminaDrainPerSecond * deltaTime);
-            }
-            else
-            {
-                staminaCurrent = Mathf.Min(
-                    CCS_AttributeBarsHudStyle.StaminaMax,
-                    staminaCurrent + CCS_AttributeBarsHudStyle.StaminaRegenPerSecond * deltaTime);
-            }
-
-            RefreshStaminaBar();
-        }
-
-        private static bool IsSprintActive()
-        {
-            if (!Input.GetKey(KeyCode.LeftShift))
-            {
-                return false;
-            }
-
-            float horizontal = Input.GetAxisRaw("Horizontal");
-            float vertical = Input.GetAxisRaw("Vertical");
-            return horizontal * horizontal + vertical * vertical > 0.01f;
         }
 
         private bool IsLocalOwner()

@@ -270,8 +270,6 @@ Assets/CCS/Modules/<Feature>/
 - `CCS_CharacterMotor` — profile-driven movement
 - `CCS_CharacterCameraController` — Cinemachine third-person camera
 - `CCS_CharacterInputActionProvider` — Input System binding
-- `CCS_CharacterControllerDebugHud` — OnGUI dev HUD (test prefab only)
-
 #### Editor/Validation/
 
 Master test scene tooling only. **No** legacy setup or ground-creation menus.

@@ -404,7 +404,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 32, y: 32}
-  m_SizeDelta: {x: 360, y: 190}
+  m_SizeDelta: {x: 360, y: 230}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &2998958050413663712
 CanvasRenderer:
@@ -572,8 +572,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -120}
-  m_SizeDelta: {x: 300, y: 38}
+  m_AnchoredPosition: {x: 30, y: -112}
+  m_SizeDelta: {x: 300, y: 44}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6625746012126450952
 MonoBehaviour:
@@ -605,7 +605,6 @@ GameObject:
   - component: {fileID: 2994450901270807121}
   - component: {fileID: 1245601209859042227}
   - component: {fileID: 3984767143395715816}
-  - component: {fileID: 1526856990943224113}
   - component: {fileID: 2147621293917719208}
   - component: {fileID: 4814031486652726485}
   - component: {fileID: 7590133174349939936}
@@ -728,20 +727,6 @@ MonoBehaviour:
   motor: {fileID: 2994450901270807121}
   inputProvider: {fileID: 3066966173724100183}
   cameraController: {fileID: 1245601209859042227}
---- !u!114 &1526856990943224113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2240448729846996730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f48e811ec45bc043880c22a4ca40255, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterControllerDebugHud
-  controllerService: {fileID: 3984767143395715816}
-  showHud: 1
 --- !u!114 &2147621293917719208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -833,7 +818,6 @@ MonoBehaviour:
   inputProvider: {fileID: 3066966173724100183}
   motor: {fileID: 2994450901270807121}
   controllerService: {fileID: 3984767143395715816}
-  debugHud: {fileID: 1526856990943224113}
   playerCameraController: {fileID: 1245601209859042227}
   cameraPivot: {fileID: 5002101633730367245}
   cameraLookTarget: {fileID: 0}
@@ -1351,7 +1335,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -38}
+  m_AnchoredPosition: {x: 0, y: -34}
   m_SizeDelta: {x: 300, y: 12}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &5050503668456563378
@@ -1628,8 +1612,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -174}
-  m_SizeDelta: {x: 300, y: 38}
+  m_AnchoredPosition: {x: 30, y: -170}
+  m_SizeDelta: {x: 300, y: 44}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1449063144755268166
 MonoBehaviour:
@@ -2060,7 +2044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -38}
+  m_AnchoredPosition: {x: 0, y: -34}
   m_SizeDelta: {x: 300, y: 12}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &967720930360258179
@@ -3098,8 +3082,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -12}
-  m_SizeDelta: {x: 300, y: 38}
+  m_AnchoredPosition: {x: 30, y: -16}
+  m_SizeDelta: {x: 300, y: 34}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2402114992718460492
 MonoBehaviour:
@@ -3153,8 +3137,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -66}
-  m_SizeDelta: {x: 300, y: 38}
+  m_AnchoredPosition: {x: 30, y: -64}
+  m_SizeDelta: {x: 300, y: 34}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2545585606310651220
 MonoBehaviour:

@@ -1,3 +1,4 @@
+using CCS.Modules.Attributes.Tests;
 using CCS.Project;
 using UnityEditor;
 using UnityEngine;
@@ -19,15 +20,15 @@ namespace CCS.Modules.Attributes.Editor
         {
             CCS_AttributesAssetBuilder.EnsureAttributesAssets();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
-            CCS_SurvivalValidationResult result = CCS_AttributesModuleValidator.ValidateAttributesModule();
-            if (!result.IsSuccess)
+            CCS_SurvivalValidationResult attributesResult = CCS_AttributesModuleValidator.ValidateAttributesModule();
+            if (!attributesResult.IsSuccess)
             {
-                Debug.LogError("[Attributes Batch] Failed: " + result.Message);
+                Debug.LogError("[Attributes Batch] Failed: " + attributesResult.Message);
                 EditorApplication.Exit(1);
                 return;
             }
 
-            Debug.Log("[Attributes Batch] Passed: " + result.Message);
+            Debug.Log("[Attributes Batch] Passed: " + attributesResult.Message);
             EditorApplication.Exit(0);
         }
     }
