@@ -248,7 +248,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             "Required. This name appears in the local host list.";
 
         public const string NoLocalHostSelectedWarningMessage =
-            "No local host selected.";
+            "Select a local host before joining.";
 
         public const string DefaultServerSessionLabel = "Local Test Session";
 

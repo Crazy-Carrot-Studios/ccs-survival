@@ -1422,6 +1422,26 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must log join validation failures.");
                 AppendIfMissing(
                     failures,
+                    source.Contains("[Join Selection]"),
+                    "CCS_MultiplayerHostingMenu must log join selection changes.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("ClearSelectedHost"),
+                    "CCS_MultiplayerHostingMenu must clear join selection explicitly.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("RefreshJoinSelectedButtonState"),
+                    "CCS_MultiplayerHostingMenu must gate Join Selected on explicit host selection.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("OnNetworkingPanelShown"),
+                    "CCS_MultiplayerHostingMenu must reset join selection when the networking panel opens.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("SelectServer(0)"),
+                    "CCS_MultiplayerHostingMenu must not auto-select the first discovered host.");
+                AppendIfMissing(
+                    failures,
                     !source.Contains("ApplyDefaultServerName"),
                     "CCS_MultiplayerHostingMenu must not prefill server name before host validation.");
                 AppendIfMissing(

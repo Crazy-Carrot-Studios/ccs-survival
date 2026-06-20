@@ -71,6 +71,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         private bool pendingHostSceneLoad;
         private bool subscribedToSceneEvents;
 
+        private static readonly Color JoinRowNormalBackground = new Color(0.08f, 0.12f, 0.18f, 1f);
+        private static readonly Color JoinRowSelectedBackground = new Color(0.14f, 0.28f, 0.52f, 1f);
+        private static readonly Color JoinRowNormalText = new Color(0.82f, 0.86f, 0.92f, 1f);
+        private static readonly Color JoinRowAccentBorder = new Color(0.2f, 0.45f, 0.78f, 1f);
+        private static readonly Color JoinButtonEnabledColor = new Color(0.05f, 0.29f, 0.68f, 1f);
+        private static readonly Color JoinButtonDisabledColor = new Color(0.08f, 0.11f, 0.16f, 1f);
+        private static readonly Color JoinButtonDisabledText = new Color(0.55f, 0.6f, 0.68f, 1f);
+
         #endregion
 
         #region Unity Callbacks
@@ -107,6 +115,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         #endregion
 
         #region Public Methods
+
+        public void OnNetworkingPanelShown()
+        {
+            ClearSelectedHost();
+        }
 
         public void OnHostAndStartClicked()
         {
@@ -386,14 +399,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 emptyServerListText.text = CCS_NetcodeTestConstants.EmptyServerListMessage;
             }
 
-            if (hasServers)
-            {
-                SelectServer(0);
-            }
-            else
-            {
-                selectedServerIndex = -1;
-            }
+            ClearSelectedHost();
         }
 
         private void RestoreEmptyServerListMessageIfNeeded()
@@ -427,6 +433,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             selectedServerIndex = -1;
         }
 
+        private void ClearSelectedHost()
+        {
+            selectedServerIndex = -1;
+            ApplyHostRowVisualState();
+            RefreshJoinSelectedButtonState();
+            Debug.Log("[Join Selection] Cleared selected host.");
+        }
+
         private Button CreateServerListRow(CCS_MultiplayerServerListEntry entry)
         {
             Transform parent = serverListContainer != null ? serverListContainer : transform;
@@ -445,7 +459,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             layoutElement.minHeight = 44f;
 
             Image background = rowObject.GetComponent<Image>();
-            background.color = new Color(0.1f, 0.14f, 0.2f, 1f);
+            background.color = JoinRowNormalBackground;
+
+            Outline outline = rowObject.AddComponent<Outline>();
+            outline.effectColor = JoinRowAccentBorder;
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            outline.enabled = false;
 
             GameObject labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             labelObject.transform.SetParent(rowObject.transform, false);
@@ -459,28 +478,50 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             label.fontSize = 18;
             label.alignment = TextAnchor.MiddleLeft;
-            label.color = new Color(0.91f, 0.93f, 0.97f, 1f);
+            label.color = JoinRowNormalText;
             label.text = entry.GetListLabel();
 
             Button button = rowObject.GetComponent<Button>();
-            StyleListButton(button);
+            StyleListButton(button, JoinRowNormalBackground);
             return button;
         }
 
-        private static void StyleListButton(Button button)
+        private static void StyleListButton(Button button, Color normalColor)
         {
             ColorBlock colors = button.colors;
-            colors.normalColor = new Color(0.1f, 0.14f, 0.2f, 1f);
-            colors.highlightedColor = new Color(0.2f, 0.45f, 0.78f, 1f);
-            colors.pressedColor = new Color(0.16f, 0.38f, 0.68f, 1f);
-            colors.selectedColor = new Color(0.2f, 0.45f, 0.78f, 1f);
+            colors.normalColor = normalColor;
+            colors.highlightedColor = new Color(0.18f, 0.36f, 0.62f, 1f);
+            colors.pressedColor = new Color(0.12f, 0.3f, 0.55f, 1f);
+            colors.selectedColor = JoinRowSelectedBackground;
+            colors.disabledColor = normalColor;
             button.colors = colors;
         }
 
         private void SelectServer(int index)
         {
-            selectedServerIndex = index;
+            if (index < 0 || index >= serverEntries.Count)
+            {
+                ClearSelectedHost();
+                return;
+            }
 
+            selectedServerIndex = index;
+            CCS_MultiplayerServerListEntry entry = serverEntries[index];
+            Debug.Log(
+                "[Join Selection] Selected host: "
+                + entry.DisplayName
+                + " "
+                + entry.Address
+                + ":"
+                + entry.Port.ToString(CultureInfo.InvariantCulture));
+
+            ClearJoinSelectionWarning();
+            ApplyHostRowVisualState();
+            RefreshJoinSelectedButtonState();
+        }
+
+        private void ApplyHostRowVisualState()
+        {
             for (int i = 0; i < serverListButtons.Count; i++)
             {
                 if (serverListButtons[i] == null)
@@ -488,16 +529,42 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                     continue;
                 }
 
+                bool isSelected = i == selectedServerIndex;
                 Image image = serverListButtons[i].GetComponent<Image>();
-                if (image == null)
+                if (image != null)
                 {
-                    continue;
+                    image.color = isSelected ? JoinRowSelectedBackground : JoinRowNormalBackground;
                 }
 
-                image.color = i == selectedServerIndex
-                    ? new Color(0.2f, 0.45f, 0.78f, 1f)
-                    : new Color(0.1f, 0.14f, 0.2f, 1f);
+                Outline outline = serverListButtons[i].GetComponent<Outline>();
+                if (outline != null)
+                {
+                    outline.enabled = isSelected;
+                }
+
+                Text label = serverListButtons[i].GetComponentInChildren<Text>();
+                if (label != null)
+                {
+                    label.color = isSelected ? Color.white : JoinRowNormalText;
+                }
             }
+        }
+
+        private void ClearJoinSelectionWarning()
+        {
+            if (emptyServerListText == null)
+            {
+                return;
+            }
+
+            if (serverEntries.Count > 0)
+            {
+                emptyServerListText.gameObject.SetActive(false);
+                return;
+            }
+
+            emptyServerListText.text = CCS_NetcodeTestConstants.EmptyServerListMessage;
+            emptyServerListText.gameObject.SetActive(true);
         }
 
         private void TryJoinAddress(string address, ushort port, string displayTarget)
@@ -883,10 +950,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 hostAndStartButton.interactable = !isListening;
             }
 
-            if (joinSelectedButton != null)
-            {
-                joinSelectedButton.interactable = !isListening;
-            }
+            RefreshJoinSelectedButtonState(isListening);
 
             if (joinManualButton != null)
             {
@@ -896,6 +960,35 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             if (refreshServersButton != null)
             {
                 refreshServersButton.interactable = !isListening;
+            }
+        }
+
+        private void RefreshJoinSelectedButtonState()
+        {
+            bool isListening = networkManager != null && networkManager.IsListening;
+            RefreshJoinSelectedButtonState(isListening);
+        }
+
+        private void RefreshJoinSelectedButtonState(bool isListening)
+        {
+            if (joinSelectedButton == null)
+            {
+                return;
+            }
+
+            bool canJoin = !isListening && HasSelectedRealHost();
+            joinSelectedButton.interactable = canJoin;
+
+            Image buttonImage = joinSelectedButton.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = canJoin ? JoinButtonEnabledColor : JoinButtonDisabledColor;
+            }
+
+            Text buttonLabel = joinSelectedButton.GetComponentInChildren<Text>();
+            if (buttonLabel != null)
+            {
+                buttonLabel.color = canJoin ? Color.white : JoinButtonDisabledText;
             }
         }
 
@@ -944,7 +1037,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return false;
             }
 
-            RestoreEmptyServerListMessageIfNeeded();
+            ClearJoinSelectionWarning();
             errorMessage = string.Empty;
             return true;
         }

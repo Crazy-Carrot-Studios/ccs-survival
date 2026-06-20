@@ -107,6 +107,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 networkingPanel.SetActive(true);
             }
+
+            CCS_MultiplayerHostingMenu hostingMenu = GetComponent<CCS_MultiplayerHostingMenu>();
+            if (hostingMenu == null)
+            {
+                hostingMenu = GetComponentInChildren<CCS_MultiplayerHostingMenu>(true);
+            }
+
+            if (hostingMenu != null)
+            {
+                hostingMenu.OnNetworkingPanelShown();
+            }
         }
 
         #endregion
