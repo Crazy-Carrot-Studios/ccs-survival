@@ -172,6 +172,10 @@ namespace CCS.Modules.Attributes
                 "Test player prefab must contain CCS_StaminaController.");
             AppendIfMissing(
                 failures,
+                prefabRoot.GetComponent<CCS_HealthRegenController>() != null,
+                "Test player prefab must contain CCS_HealthRegenController.");
+            AppendIfMissing(
+                failures,
                 HasDebugInputComponent(prefabRoot),
                 "Test player prefab must contain CCS_TestPlayerAttributeDebugInput.");
 

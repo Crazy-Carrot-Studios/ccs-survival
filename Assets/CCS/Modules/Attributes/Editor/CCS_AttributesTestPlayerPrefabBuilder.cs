@@ -74,6 +74,7 @@ namespace CCS.Modules.Attributes.Editor
                 changed |= EnsureAttributeContainer(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureAttributeService(prefabRoot);
                 changed |= EnsureStaminaController(prefabRoot, staminaDefinition);
+                changed |= EnsureHealthRegenController(prefabRoot, healthDefinition);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
                 changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureDebugDamageInput(prefabRoot);
@@ -218,6 +219,48 @@ namespace CCS.Modules.Attributes.Editor
             return changed;
         }
 
+        private static bool EnsureHealthRegenController(
+            GameObject prefabRoot,
+            CCS_AttributeDefinition healthDefinition)
+        {
+            CCS_HealthRegenController healthRegenController = prefabRoot.GetComponent<CCS_HealthRegenController>();
+            if (healthRegenController == null)
+            {
+                healthRegenController = prefabRoot.AddComponent<CCS_HealthRegenController>();
+            }
+
+            CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
+            CCS_NetworkAttributeReplicator replicator = prefabRoot.GetComponent<CCS_NetworkAttributeReplicator>();
+            SerializedObject serializedHealthRegen = new SerializedObject(healthRegenController);
+            bool changed = healthRegenController == null;
+            changed |= SetObjectReference(serializedHealthRegen, "attributeContainer", container);
+            changed |= SetObjectReference(serializedHealthRegen, "healthDefinition", healthDefinition);
+            changed |= SetObjectReference(serializedHealthRegen, "networkAttributeReplicator", replicator);
+
+            SerializedProperty delayProperty = serializedHealthRegen.FindProperty("regenDelaySeconds");
+            if (delayProperty != null
+                && !Mathf.Approximately(delayProperty.floatValue, CCS_AttributesConstants.HealthRegenDelaySeconds))
+            {
+                delayProperty.floatValue = CCS_AttributesConstants.HealthRegenDelaySeconds;
+                changed = true;
+            }
+
+            SerializedProperty regenProperty = serializedHealthRegen.FindProperty("regenPerSecond");
+            if (regenProperty != null
+                && !Mathf.Approximately(regenProperty.floatValue, CCS_AttributesConstants.HealthRegenPerSecond))
+            {
+                regenProperty.floatValue = CCS_AttributesConstants.HealthRegenPerSecond;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                serializedHealthRegen.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
         private static bool EnsureAttributeService(GameObject prefabRoot)
         {
             if (prefabRoot.GetComponent<CCS_AttributeService>() != null)
@@ -295,8 +338,8 @@ namespace CCS.Modules.Attributes.Editor
                 CCS_AttributeBarsHudStyle.HealthBarLabel,
                 CCS_AttributeBarsHudStyle.HealthFillColor,
                 0,
-                false,
-                0f,
+                true,
+                -26f,
                 string.Empty,
                 ref changed);
             CCS_AttributeBarView staminaBar = EnsureAttributeBar(
@@ -333,11 +376,13 @@ namespace CCS.Modules.Attributes.Editor
             Canvas canvas = hudObject.GetComponent<Canvas>();
             CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
             CCS_StaminaController staminaController = prefabRoot.GetComponent<CCS_StaminaController>();
+            CCS_HealthRegenController healthRegenController = prefabRoot.GetComponent<CCS_HealthRegenController>();
             SerializedObject serializedHud = new SerializedObject(barsHud);
             bool hudChanged = SetObjectReference(serializedHud, "attributeContainer", container);
             hudChanged |= SetObjectReference(serializedHud, "healthDefinition", healthDefinition);
             hudChanged |= SetObjectReference(serializedHud, "staminaDefinition", staminaDefinition);
             hudChanged |= SetObjectReference(serializedHud, "staminaController", staminaController);
+            hudChanged |= SetObjectReference(serializedHud, "healthRegenController", healthRegenController);
             hudChanged |= SetObjectReference(serializedHud, "hudCanvas", canvas);
             hudChanged |= SetObjectReference(serializedHud, "healthBar", healthBar);
             hudChanged |= SetObjectReference(serializedHud, "staminaBar", staminaBar);

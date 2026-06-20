@@ -36,6 +36,8 @@ namespace CCS.Modules.Attributes
 
         [SerializeField] private CCS_StaminaController staminaController;
 
+        [SerializeField] private CCS_HealthRegenController healthRegenController;
+
         private bool isLocalOwnerActive;
 
         #endregion
@@ -57,6 +59,11 @@ namespace CCS.Modules.Attributes
             if (staminaController == null)
             {
                 staminaController = GetComponentInParent<CCS_StaminaController>();
+            }
+
+            if (healthRegenController == null)
+            {
+                healthRegenController = GetComponentInParent<CCS_HealthRegenController>();
             }
         }
 
@@ -132,11 +139,31 @@ namespace CCS.Modules.Attributes
             if (attributeContainer == null
                 || !attributeContainer.TryGetValue(attributeId, out CCS_AttributeValue value))
             {
-                healthBar.SetValues(ResolveHealthLabel(), 0f, 0f);
+                healthBar.SetValues(ResolveHealthLabel(), 0f, 0f, ResolveHealthStatusSuffix());
                 return;
             }
 
-            healthBar.SetValues(ResolveHealthLabel(), value.Current, value.Max);
+            healthBar.SetValues(ResolveHealthLabel(), value.Current, value.Max, ResolveHealthStatusSuffix());
+        }
+
+        private string ResolveHealthStatusSuffix()
+        {
+            if (healthRegenController == null)
+            {
+                return null;
+            }
+
+            if (healthRegenController.IsDead)
+            {
+                return CCS_AttributesConstants.HealthDeadStatusText;
+            }
+
+            if (healthRegenController.IsRegenerating)
+            {
+                return CCS_AttributesConstants.HealthRecoveringStatusText;
+            }
+
+            return null;
         }
 
         private void RefreshStaminaBar()

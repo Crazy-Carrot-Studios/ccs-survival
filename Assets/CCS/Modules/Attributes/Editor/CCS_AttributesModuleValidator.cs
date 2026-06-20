@@ -81,6 +81,10 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     source.Contains("NetworkVariableWritePermission.Server"),
                     "CCS_NetworkAttributeReplicator must use server write permission for replicated health.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("ApplyAuthorityHealthValue"),
+                    "CCS_NetworkAttributeReplicator must expose ApplyAuthorityHealthValue for health regen.");
             }
 
             string debugInputPath = CCS_AttributesConstants.ModuleRootPath
@@ -116,8 +120,16 @@ namespace CCS.Modules.Attributes.Editor
                     "CCS_PlayerAttributeBarsHud must read stamina status from CCS_StaminaController.");
                 AppendIfMissing(
                     failures,
+                    source.Contains("CCS_HealthRegenController"),
+                    "CCS_PlayerAttributeBarsHud must read health status from CCS_HealthRegenController.");
+                AppendIfMissing(
+                    failures,
                     !source.Contains("walkRecoveryThreshold") && !source.Contains("sprintUnlockThreshold"),
                     "CCS_PlayerAttributeBarsHud must not embed exhaustion threshold logic.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("regenDelaySeconds") && !source.Contains("regenPerSecond"),
+                    "CCS_PlayerAttributeBarsHud must not embed health regen logic.");
             }
 
             string barsHudStylePath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/CCS_AttributeBarsHudStyle.cs";
@@ -155,6 +167,33 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     staminaSource.Contains("ReportMovementState"),
                     "CCS_StaminaController must accept sprint intent from CharacterController.");
+                AppendIfMissing(
+                    failures,
+                    Mathf.Approximately(CCS_AttributesConstants.StaminaRegenPerSecond, 6f),
+                    "Stamina regen rate must be reduced to 6 per second.");
+            }
+
+            string healthRegenControllerPath = CCS_AttributesConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_HealthRegenController.cs";
+            if (File.Exists(healthRegenControllerPath))
+            {
+                string healthRegenSource = File.ReadAllText(healthRegenControllerPath);
+                AppendIfMissing(
+                    failures,
+                    healthRegenSource.Contains("IsDead"),
+                    "CCS_HealthRegenController must expose IsDead.");
+                AppendIfMissing(
+                    failures,
+                    healthRegenSource.Contains("IsRegenerating"),
+                    "CCS_HealthRegenController must expose IsRegenerating.");
+                AppendIfMissing(
+                    failures,
+                    healthRegenSource.Contains("IsServer"),
+                    "CCS_HealthRegenController must gate regen to server authority.");
+                AppendIfMissing(
+                    failures,
+                    healthRegenSource.Contains("ApplyAuthorityHealthValue"),
+                    "CCS_HealthRegenController must replicate health regen through CCS_NetworkAttributeReplicator.");
             }
 
             string barViewPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_AttributeBarView.cs";

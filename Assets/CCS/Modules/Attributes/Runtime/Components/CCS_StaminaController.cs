@@ -23,7 +23,7 @@ namespace CCS.Modules.Attributes
         [Header("Stamina Tuning")]
         [SerializeField] private float drainPerSecond = 18f;
 
-        [SerializeField] private float regenPerSecond = 12f;
+        [SerializeField] private float regenPerSecond = 6f;
 
         [SerializeField] private float walkRecoveryThreshold = 35f;
 

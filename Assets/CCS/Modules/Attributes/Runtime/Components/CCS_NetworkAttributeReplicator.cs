@@ -97,6 +97,32 @@ namespace CCS.Modules.Attributes
             return replicatedHealth.Value;
         }
 
+        public void ApplyAuthorityHealthValue(float newHealth)
+        {
+            if (attributeContainer == null)
+            {
+                return;
+            }
+
+            string attributeId = ResolveHealthAttributeId();
+            if (!IsSpawned || NetworkManager == null || !NetworkManager.IsListening)
+            {
+                attributeContainer.SetValue(attributeId, newHealth);
+                return;
+            }
+
+            if (!IsServer)
+            {
+                return;
+            }
+
+            attributeContainer.SetValue(attributeId, newHealth);
+            if (attributeContainer.TryGetValue(attributeId, out CCS_AttributeValue value))
+            {
+                replicatedHealth.Value = value.Current;
+            }
+        }
+
         #endregion
 
         #region Private Methods
