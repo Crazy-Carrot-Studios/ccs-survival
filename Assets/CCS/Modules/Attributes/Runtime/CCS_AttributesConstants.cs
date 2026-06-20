@@ -24,5 +24,7 @@ namespace CCS.Modules.Attributes
         public const string HealthAttributeId = "ccs.survival.profile.attributes.health";
 
         public const string HealthDisplayName = "Health";
+
+        public const string LegacyDebugHudTextObjectName = "HealthHudText";
     }
 }

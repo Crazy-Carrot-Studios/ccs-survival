@@ -108,8 +108,20 @@ namespace CCS.Modules.Attributes
                 "Test player prefab must contain CCS_NetworkAttributeReplicator.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponentInChildren<CCS_PlayerAttributeHud>(true) != null,
-                "Test player prefab must contain CCS_PlayerAttributeHud.");
+                prefabRoot.GetComponentInChildren<CCS_PlayerAttributeBarsHud>(true) != null,
+                "Test player prefab must contain CCS_PlayerAttributeBarsHud.");
+            AppendIfMissing(
+                failures,
+                !HasLegacyAttributeHudComponent(prefabRoot),
+                "Test player prefab must not contain legacy CCS_PlayerAttributeHud.");
+            AppendIfMissing(
+                failures,
+                FindDirectChildByName(prefabRoot.transform, CCS_AttributesConstants.LegacyDebugHudTextObjectName) == null,
+                "Test player prefab must not contain legacy HealthHudText debug HUD.");
+            AppendIfMissing(
+                failures,
+                CountAttributeBarViews(prefabRoot) >= 4,
+                "Test player prefab must contain Health, Stamina, Hunger, and Thirst attribute bars.");
             AppendIfMissing(
                 failures,
                 HasDebugInputComponent(prefabRoot),
@@ -141,6 +153,46 @@ namespace CCS.Modules.Attributes
         #endregion
 
         #region Private Methods
+
+        private static bool HasLegacyAttributeHudComponent(GameObject prefabRoot)
+        {
+            MonoBehaviour[] behaviours = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == "CCS_PlayerAttributeHud")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static int CountAttributeBarViews(GameObject prefabRoot)
+        {
+            CCS_AttributeBarView[] barViews = prefabRoot.GetComponentsInChildren<CCS_AttributeBarView>(true);
+            return barViews != null ? barViews.Length : 0;
+        }
+
+        private static Transform FindDirectChildByName(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                if (child != null && child.name == childName)
+                {
+                    return child;
+                }
+            }
+
+            return null;
+        }
 
         private static bool HasDebugInputComponent(GameObject prefabRoot)
         {

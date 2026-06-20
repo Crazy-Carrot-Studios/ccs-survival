@@ -62,7 +62,7 @@ namespace CCS.Modules.Attributes.Editor
                 changed |= EnsureAttributeContainer(prefabRoot, healthDefinition);
                 changed |= EnsureAttributeService(prefabRoot);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
-                changed |= EnsureAttributeHud(prefabRoot, healthDefinition);
+                changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition);
                 changed |= EnsureDebugDamageInput(prefabRoot);
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -157,10 +157,87 @@ namespace CCS.Modules.Attributes.Editor
             return changed;
         }
 
-        private static bool EnsureAttributeHud(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
+        private static bool EnsureAttributeBarsHud(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
         {
             bool changed = false;
             GameObject hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
+            if (hudObject == null)
+            {
+                return changed;
+            }
+
+            changed |= RemoveLegacyDebugHud(hudObject);
+            changed |= EnsureHudCanvas(hudObject);
+
+            CCS_PlayerAttributeBarsHud barsHud = hudObject.GetComponent<CCS_PlayerAttributeBarsHud>();
+            if (barsHud == null)
+            {
+                barsHud = hudObject.AddComponent<CCS_PlayerAttributeBarsHud>();
+                changed = true;
+            }
+
+            GameObject panelObject = ResolvePanelGameObject(hudObject, ref changed);
+            if (panelObject == null)
+            {
+                return changed;
+            }
+
+            CCS_AttributeBarView healthBar = EnsureAttributeBar(
+                panelObject.transform,
+                CCS_AttributesTestConstants.HealthBarObjectName,
+                CCS_AttributeBarsHudStyle.HealthBarLabel,
+                CCS_AttributeBarsHudStyle.HealthFillColor,
+                0,
+                false,
+                ref changed);
+            CCS_AttributeBarView staminaBar = EnsureAttributeBar(
+                panelObject.transform,
+                CCS_AttributesTestConstants.StaminaBarObjectName,
+                CCS_AttributeBarsHudStyle.StaminaBarLabel,
+                CCS_AttributeBarsHudStyle.StaminaFillColor,
+                1,
+                false,
+                ref changed);
+            CCS_AttributeBarView hungerBar = EnsureAttributeBar(
+                panelObject.transform,
+                CCS_AttributesTestConstants.HungerBarObjectName,
+                CCS_AttributeBarsHudStyle.HungerBarLabel,
+                CCS_AttributeBarsHudStyle.HungerFillColor,
+                2,
+                true,
+                ref changed);
+            CCS_AttributeBarView thirstBar = EnsureAttributeBar(
+                panelObject.transform,
+                CCS_AttributesTestConstants.ThirstBarObjectName,
+                CCS_AttributeBarsHudStyle.ThirstBarLabel,
+                CCS_AttributeBarsHudStyle.ThirstFillColor,
+                3,
+                true,
+                ref changed);
+
+            Canvas canvas = hudObject.GetComponent<Canvas>();
+            CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
+            SerializedObject serializedHud = new SerializedObject(barsHud);
+            bool hudChanged = SetObjectReference(serializedHud, "attributeContainer", container);
+            hudChanged |= SetObjectReference(serializedHud, "healthDefinition", healthDefinition);
+            hudChanged |= SetObjectReference(serializedHud, "hudCanvas", canvas);
+            hudChanged |= SetObjectReference(serializedHud, "healthBar", healthBar);
+            hudChanged |= SetObjectReference(serializedHud, "staminaBar", staminaBar);
+            hudChanged |= SetObjectReference(serializedHud, "hungerBar", hungerBar);
+            hudChanged |= SetObjectReference(serializedHud, "thirstBar", thirstBar);
+
+            if (hudChanged)
+            {
+                serializedHud.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureHudCanvas(GameObject hudObject)
+        {
+            bool changed = false;
 
             Canvas canvas = hudObject.GetComponent<Canvas>();
             if (canvas == null)
@@ -173,12 +250,6 @@ namespace CCS.Modules.Attributes.Editor
             {
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 changed = true;
-            }
-
-            hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
-            if (hudObject == null)
-            {
-                return changed;
             }
 
             if (hudObject.GetComponent<CanvasScaler>() == null)
@@ -195,101 +266,446 @@ namespace CCS.Modules.Attributes.Editor
                 changed = true;
             }
 
-            hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
-            if (hudObject == null)
-            {
-                return changed;
-            }
+            return changed;
+        }
 
-            CCS_PlayerAttributeHud hud = hudObject.GetComponent<CCS_PlayerAttributeHud>();
-            if (hud == null)
-            {
-                hud = hudObject.AddComponent<CCS_PlayerAttributeHud>();
-                changed = true;
-            }
+        private static bool RemoveLegacyDebugHud(GameObject hudObject)
+        {
+            bool changed = false;
 
-            GameObject textObject = ResolveHudTextObject(hudObject, ref changed);
-            if (textObject == null)
+            MonoBehaviour[] behaviours = hudObject.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
             {
-                return changed;
-            }
-
-            RectTransform rectTransform = textObject.GetComponent<RectTransform>();
-            if (rectTransform == null)
-            {
-                if (textObject == null)
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == "CCS_PlayerAttributeHud")
                 {
-                    return changed;
+                    Object.DestroyImmediate(behaviour, true);
+                    changed = true;
                 }
-
-                rectTransform = textObject.AddComponent<RectTransform>();
-                changed = true;
             }
 
-            if (rectTransform == null)
+            Transform legacyText = FindDirectChild(
+                hudObject.transform,
+                CCS_AttributesTestConstants.LegacyAttributeHudTextObjectName);
+            if (legacyText != null)
             {
-                return changed;
-            }
-
-            if (rectTransform.anchorMin != new Vector2(0f, 1f)
-                || rectTransform.anchorMax != new Vector2(0f, 1f)
-                || rectTransform.pivot != new Vector2(0f, 1f)
-                || rectTransform.anchoredPosition != new Vector2(24f, -24f)
-                || rectTransform.sizeDelta != new Vector2(320f, 48f))
-            {
-                rectTransform.anchorMin = new Vector2(0f, 1f);
-                rectTransform.anchorMax = new Vector2(0f, 1f);
-                rectTransform.pivot = new Vector2(0f, 1f);
-                rectTransform.anchoredPosition = new Vector2(24f, -24f);
-                rectTransform.sizeDelta = new Vector2(320f, 48f);
-                changed = true;
-            }
-
-            textObject = ResolveHudTextObject(hudObject, ref changed);
-            if (textObject == null)
-            {
-                return changed;
-            }
-
-            TextMeshProUGUI healthText = textObject.GetComponent<TextMeshProUGUI>();
-            if (healthText == null)
-            {
-                healthText = textObject.AddComponent<TextMeshProUGUI>();
-                changed = true;
-            }
-
-            if (healthText.fontSize != 28f)
-            {
-                healthText.fontSize = 28f;
-                changed = true;
-            }
-
-            if (healthText.color != healthDefinition.UiColor)
-            {
-                healthText.color = healthDefinition.UiColor;
-                changed = true;
-            }
-
-            if (healthText.raycastTarget)
-            {
-                healthText.raycastTarget = false;
-                changed = true;
-            }
-
-            CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
-            SerializedObject serializedHud = new SerializedObject(hud);
-            bool hudChanged = SetObjectReference(serializedHud, "attributeContainer", container);
-            hudChanged |= SetObjectReference(serializedHud, "healthDefinition", healthDefinition);
-            hudChanged |= SetObjectReference(serializedHud, "healthText", healthText);
-            hudChanged |= SetObjectReference(serializedHud, "hudCanvas", canvas);
-
-            if (hudChanged)
-            {
-                serializedHud.ApplyModifiedPropertiesWithoutUndo();
+                Object.DestroyImmediate(legacyText.gameObject, true);
                 changed = true;
             }
 
             return changed;
+        }
+
+        private static GameObject ResolvePanelGameObject(GameObject hudObject, ref bool changed)
+        {
+            Transform existing = FindDirectChild(
+                hudObject.transform,
+                CCS_AttributesTestConstants.AttributeBarsPanelObjectName);
+            if (existing != null)
+            {
+                bool layoutChanged = ApplyPanelLayout(existing.gameObject);
+                if (layoutChanged)
+                {
+                    changed = true;
+                }
+
+                return existing.gameObject;
+            }
+
+            GameObject panelObject = new GameObject(
+                CCS_AttributesTestConstants.AttributeBarsPanelObjectName,
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Outline));
+            panelObject.transform.SetParent(hudObject.transform, false);
+
+            RectTransform panelRect = panelObject.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0f, 0f);
+            panelRect.anchorMax = new Vector2(0f, 0f);
+            panelRect.pivot = new Vector2(0f, 0f);
+            panelRect.anchoredPosition = new Vector2(
+                CCS_AttributeBarsHudStyle.PanelOffsetX,
+                CCS_AttributeBarsHudStyle.PanelOffsetY);
+            panelRect.sizeDelta = new Vector2(
+                CCS_AttributeBarsHudStyle.PanelWidth,
+                CCS_AttributeBarsHudStyle.PanelHeight);
+
+            Image panelImage = panelObject.GetComponent<Image>();
+            panelImage.color = CCS_AttributeBarsHudStyle.PanelBackgroundColor;
+            panelImage.raycastTarget = false;
+
+            Outline panelOutline = panelObject.GetComponent<Outline>();
+            panelOutline.effectColor = CCS_AttributeBarsHudStyle.BorderColor;
+            panelOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+            changed = true;
+            return panelObject;
+        }
+
+        private static bool ApplyPanelLayout(GameObject panelObject)
+        {
+            bool changed = false;
+
+            RectTransform panelRect = panelObject.GetComponent<RectTransform>();
+            if (panelRect != null)
+            {
+                Vector2 anchoredPosition = new Vector2(
+                    CCS_AttributeBarsHudStyle.PanelOffsetX,
+                    CCS_AttributeBarsHudStyle.PanelOffsetY);
+                Vector2 panelSize = new Vector2(
+                    CCS_AttributeBarsHudStyle.PanelWidth,
+                    CCS_AttributeBarsHudStyle.PanelHeight);
+                if (panelRect.anchorMin != new Vector2(0f, 0f)
+                    || panelRect.anchorMax != new Vector2(0f, 0f)
+                    || panelRect.pivot != new Vector2(0f, 0f)
+                    || panelRect.anchoredPosition != anchoredPosition
+                    || panelRect.sizeDelta != panelSize)
+                {
+                    panelRect.anchorMin = new Vector2(0f, 0f);
+                    panelRect.anchorMax = new Vector2(0f, 0f);
+                    panelRect.pivot = new Vector2(0f, 0f);
+                    panelRect.anchoredPosition = anchoredPosition;
+                    panelRect.sizeDelta = panelSize;
+                    changed = true;
+                }
+            }
+
+            Image panelImage = panelObject.GetComponent<Image>();
+            if (panelImage != null)
+            {
+                if (panelImage.color != CCS_AttributeBarsHudStyle.PanelBackgroundColor)
+                {
+                    panelImage.color = CCS_AttributeBarsHudStyle.PanelBackgroundColor;
+                    changed = true;
+                }
+
+                if (panelImage.raycastTarget)
+                {
+                    panelImage.raycastTarget = false;
+                    changed = true;
+                }
+            }
+
+            Outline panelOutline = panelObject.GetComponent<Outline>();
+            if (panelOutline == null)
+            {
+                panelOutline = panelObject.AddComponent<Outline>();
+                changed = true;
+            }
+
+            if (panelOutline.effectColor != CCS_AttributeBarsHudStyle.BorderColor)
+            {
+                panelOutline.effectColor = CCS_AttributeBarsHudStyle.BorderColor;
+                changed = true;
+            }
+
+            if (panelOutline.effectDistance != new Vector2(1.5f, -1.5f))
+            {
+                panelOutline.effectDistance = new Vector2(1.5f, -1.5f);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static CCS_AttributeBarView EnsureAttributeBar(
+            Transform panelTransform,
+            string barObjectName,
+            string label,
+            Color fillColor,
+            int barIndex,
+            bool includeStatusSuffix,
+            ref bool changed)
+        {
+            Transform barTransform = FindDirectChild(panelTransform, barObjectName);
+            GameObject barObject;
+            if (barTransform != null)
+            {
+                barObject = barTransform.gameObject;
+            }
+            else
+            {
+                barObject = new GameObject(barObjectName, typeof(RectTransform), typeof(CCS_AttributeBarView));
+                barObject.transform.SetParent(panelTransform, false);
+                changed = true;
+            }
+
+            RectTransform barRect = barObject.GetComponent<RectTransform>();
+            float topOffset = CCS_AttributeBarsHudStyle.PanelPaddingTop
+                + barIndex * (CCS_AttributeBarsHudStyle.BarBlockHeight + CCS_AttributeBarsHudStyle.BarSpacing);
+            Vector2 anchoredPosition = new Vector2(CCS_AttributeBarsHudStyle.PanelPaddingX, -topOffset);
+            Vector2 barSize = new Vector2(CCS_AttributeBarsHudStyle.BarWidth, CCS_AttributeBarsHudStyle.BarBlockHeight);
+            if (barRect.anchorMin != new Vector2(0f, 1f)
+                || barRect.anchorMax != new Vector2(0f, 1f)
+                || barRect.pivot != new Vector2(0f, 1f)
+                || barRect.anchoredPosition != anchoredPosition
+                || barRect.sizeDelta != barSize)
+            {
+                barRect.anchorMin = new Vector2(0f, 1f);
+                barRect.anchorMax = new Vector2(0f, 1f);
+                barRect.pivot = new Vector2(0f, 1f);
+                barRect.anchoredPosition = anchoredPosition;
+                barRect.sizeDelta = barSize;
+                changed = true;
+            }
+
+            CCS_AttributeBarView barView = barObject.GetComponent<CCS_AttributeBarView>();
+            if (barView == null)
+            {
+                barView = barObject.AddComponent<CCS_AttributeBarView>();
+                changed = true;
+            }
+
+            TextMeshProUGUI labelText = EnsureBarText(
+                barObject.transform,
+                "LabelText",
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 0f),
+                new Vector2(160f, 14f),
+                TextAlignmentOptions.BottomLeft,
+                CCS_AttributeBarsHudStyle.LabelFontSize,
+                CCS_AttributeBarsHudStyle.TextColor,
+                label,
+                ref changed);
+
+            TextMeshProUGUI valueText = EnsureBarText(
+                barObject.transform,
+                "ValueText",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(0f, 0f),
+                new Vector2(160f, 14f),
+                TextAlignmentOptions.BottomRight,
+                CCS_AttributeBarsHudStyle.ValueFontSize,
+                CCS_AttributeBarsHudStyle.TextColor,
+                "100 / 100",
+                ref changed);
+
+            TextMeshProUGUI statusText = null;
+            if (includeStatusSuffix)
+            {
+                statusText = EnsureBarText(
+                    barObject.transform,
+                    "StatusText",
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, -38f),
+                    new Vector2(CCS_AttributeBarsHudStyle.BarWidth, 12f),
+                    TextAlignmentOptions.TopLeft,
+                    CCS_AttributeBarsHudStyle.StatusFontSize,
+                    CCS_AttributeBarsHudStyle.MutedTextColor,
+                    CCS_AttributeBarsHudStyle.PlaceholderStatusSuffix,
+                    ref changed);
+            }
+
+            Image fillImage = EnsureBarFill(barObject.transform, fillColor, ref changed);
+
+            SerializedObject serializedBar = new SerializedObject(barView);
+            bool barChanged = SetObjectReference(serializedBar, "labelText", labelText);
+            barChanged |= SetObjectReference(serializedBar, "valueText", valueText);
+            barChanged |= SetObjectReference(serializedBar, "statusText", statusText);
+            barChanged |= SetObjectReference(serializedBar, "fillImage", fillImage);
+            if (barChanged)
+            {
+                serializedBar.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            barView.SetFillColor(fillColor);
+            return barView;
+        }
+
+        private static TextMeshProUGUI EnsureBarText(
+            Transform parent,
+            string objectName,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 pivot,
+            Vector2 anchoredPosition,
+            Vector2 sizeDelta,
+            TextAlignmentOptions alignment,
+            float fontSize,
+            Color color,
+            string defaultText,
+            ref bool changed)
+        {
+            Transform existing = FindDirectChild(parent, objectName);
+            GameObject textObject;
+            if (existing != null)
+            {
+                textObject = existing.gameObject;
+            }
+            else
+            {
+                textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
+                textObject.transform.SetParent(parent, false);
+                changed = true;
+            }
+
+            RectTransform rectTransform = textObject.GetComponent<RectTransform>();
+            if (rectTransform.anchorMin != anchorMin
+                || rectTransform.anchorMax != anchorMax
+                || rectTransform.pivot != pivot
+                || rectTransform.anchoredPosition != anchoredPosition
+                || rectTransform.sizeDelta != sizeDelta)
+            {
+                rectTransform.anchorMin = anchorMin;
+                rectTransform.anchorMax = anchorMax;
+                rectTransform.pivot = pivot;
+                rectTransform.anchoredPosition = anchoredPosition;
+                rectTransform.sizeDelta = sizeDelta;
+                changed = true;
+            }
+
+            TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
+            if (text.fontSize != fontSize)
+            {
+                text.fontSize = fontSize;
+                changed = true;
+            }
+
+            if (text.color != color)
+            {
+                text.color = color;
+                changed = true;
+            }
+
+            if (text.alignment != alignment)
+            {
+                text.alignment = alignment;
+                changed = true;
+            }
+
+            if (text.raycastTarget)
+            {
+                text.raycastTarget = false;
+                changed = true;
+            }
+
+            if (text.text != defaultText)
+            {
+                text.text = defaultText;
+                changed = true;
+            }
+
+            return text;
+        }
+
+        private static Image EnsureBarFill(Transform barTransform, Color fillColor, ref bool changed)
+        {
+            Transform backgroundTransform = FindDirectChild(barTransform, "BarBackground");
+            GameObject backgroundObject;
+            if (backgroundTransform != null)
+            {
+                backgroundObject = backgroundTransform.gameObject;
+            }
+            else
+            {
+                backgroundObject = new GameObject("BarBackground", typeof(RectTransform), typeof(Image));
+                backgroundObject.transform.SetParent(barTransform, false);
+                changed = true;
+            }
+
+            RectTransform backgroundRect = backgroundObject.GetComponent<RectTransform>();
+            Vector2 backgroundPosition = new Vector2(0f, -18f);
+            Vector2 backgroundSize = new Vector2(
+                CCS_AttributeBarsHudStyle.BarWidth,
+                CCS_AttributeBarsHudStyle.BarHeight);
+            if (backgroundRect.anchorMin != new Vector2(0f, 1f)
+                || backgroundRect.anchorMax != new Vector2(0f, 1f)
+                || backgroundRect.pivot != new Vector2(0f, 1f)
+                || backgroundRect.anchoredPosition != backgroundPosition
+                || backgroundRect.sizeDelta != backgroundSize)
+            {
+                backgroundRect.anchorMin = new Vector2(0f, 1f);
+                backgroundRect.anchorMax = new Vector2(0f, 1f);
+                backgroundRect.pivot = new Vector2(0f, 1f);
+                backgroundRect.anchoredPosition = backgroundPosition;
+                backgroundRect.sizeDelta = backgroundSize;
+                changed = true;
+            }
+
+            Image backgroundImage = backgroundObject.GetComponent<Image>();
+            if (backgroundImage.color != CCS_AttributeBarsHudStyle.BarBackgroundColor)
+            {
+                backgroundImage.color = CCS_AttributeBarsHudStyle.BarBackgroundColor;
+                changed = true;
+            }
+
+            if (backgroundImage.raycastTarget)
+            {
+                backgroundImage.raycastTarget = false;
+                changed = true;
+            }
+
+            Transform fillTransform = FindDirectChild(backgroundObject.transform, "BarFill");
+            GameObject fillObject;
+            if (fillTransform != null)
+            {
+                fillObject = fillTransform.gameObject;
+            }
+            else
+            {
+                fillObject = new GameObject("BarFill", typeof(RectTransform), typeof(Image));
+                fillObject.transform.SetParent(backgroundObject.transform, false);
+                changed = true;
+            }
+
+            RectTransform fillRect = fillObject.GetComponent<RectTransform>();
+            if (fillRect.anchorMin != Vector2.zero
+                || fillRect.anchorMax != Vector2.one
+                || fillRect.offsetMin != Vector2.zero
+                || fillRect.offsetMax != Vector2.zero)
+            {
+                fillRect.anchorMin = Vector2.zero;
+                fillRect.anchorMax = Vector2.one;
+                fillRect.offsetMin = Vector2.zero;
+                fillRect.offsetMax = Vector2.zero;
+                changed = true;
+            }
+
+            Image fillImage = fillObject.GetComponent<Image>();
+            if (fillImage.color != fillColor)
+            {
+                fillImage.color = fillColor;
+                changed = true;
+            }
+
+            if (fillImage.type != Image.Type.Filled)
+            {
+                fillImage.type = Image.Type.Filled;
+                changed = true;
+            }
+
+            if (fillImage.fillMethod != Image.FillMethod.Horizontal)
+            {
+                fillImage.fillMethod = Image.FillMethod.Horizontal;
+                changed = true;
+            }
+
+            if (fillImage.fillOrigin != (int)Image.OriginHorizontal.Left)
+            {
+                fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+                changed = true;
+            }
+
+            if (fillImage.fillAmount != 1f)
+            {
+                fillImage.fillAmount = 1f;
+                changed = true;
+            }
+
+            if (fillImage.raycastTarget)
+            {
+                fillImage.raycastTarget = false;
+                changed = true;
+            }
+
+            return fillImage;
         }
 
         private static GameObject ResolveHudRootGameObject(GameObject prefabRoot, ref bool changed)
@@ -313,30 +729,6 @@ namespace CCS.Modules.Attributes.Editor
             hudObject.transform.SetParent(prefabRoot.transform, false);
             changed = true;
             return hudObject;
-        }
-
-        private static GameObject ResolveHudTextObject(GameObject hudObject, ref bool changed)
-        {
-            if (hudObject == null)
-            {
-                return null;
-            }
-
-            Transform existing = FindDirectChild(
-                hudObject.transform,
-                CCS_AttributesTestConstants.AttributeHudTextObjectName);
-            if (existing != null)
-            {
-                return existing.gameObject;
-            }
-
-            GameObject textObject = new GameObject(
-                CCS_AttributesTestConstants.AttributeHudTextObjectName,
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            textObject.transform.SetParent(hudObject.transform, false);
-            changed = true;
-            return textObject;
         }
 
         private static Transform FindDirectChild(Transform parent, string childName)

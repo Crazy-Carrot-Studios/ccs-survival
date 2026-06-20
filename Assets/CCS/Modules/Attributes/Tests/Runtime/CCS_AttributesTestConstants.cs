@@ -17,7 +17,17 @@ namespace CCS.Modules.Attributes.Tests
 
         public const string AttributeHudRootObjectName = "AttributeHudRoot";
 
-        public const string AttributeHudTextObjectName = "HealthHudText";
+        public const string AttributeBarsPanelObjectName = "AttributeBarsPanel";
+
+        public const string HealthBarObjectName = "HealthBar";
+
+        public const string StaminaBarObjectName = "StaminaBar";
+
+        public const string HungerBarObjectName = "HungerBar";
+
+        public const string ThirstBarObjectName = "ThirstBar";
+
+        public const string LegacyAttributeHudTextObjectName = "HealthHudText";
 
         public const float TestDamageAmount = 10f;
     }

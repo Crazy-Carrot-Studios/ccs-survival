@@ -86,15 +86,21 @@ namespace CCS.Modules.Attributes.Editor
                     "CCS_TestPlayerAttributeDebugInput must route damage through CCS_NetworkAttributeReplicator.");
             }
 
-            string hudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeHud.cs";
-            if (File.Exists(hudPath))
+            string barsHudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeBarsHud.cs";
+            if (File.Exists(barsHudPath))
             {
-                string source = File.ReadAllText(hudPath);
+                string source = File.ReadAllText(barsHudPath);
                 AppendIfMissing(
                     failures,
                     source.Contains("IsLocalOwner"),
-                    "CCS_PlayerAttributeHud must gate visibility to the local owner.");
+                    "CCS_PlayerAttributeBarsHud must gate visibility to the local owner.");
             }
+
+            string legacyHudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeHud.cs";
+            AppendIfMissing(
+                failures,
+                !File.Exists(legacyHudPath),
+                "Legacy CCS_PlayerAttributeHud must be removed when attribute bar HUD is active.");
         }
 
         private static void AppendResult(List<string> failures, CCS_SurvivalValidationResult result)
