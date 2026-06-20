@@ -304,10 +304,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu.emptyServerListText is not assigned.");
                 AppendIfMissing(
                     failures,
-                    serializedMenu.FindProperty("advancedManualJoinPanel")?.objectReferenceValue != null,
-                    "CCS_MultiplayerHostingMenu.advancedManualJoinPanel is not assigned.");
-                AppendIfMissing(
-                    failures,
                     serializedMenu.FindProperty("exitButton")?.objectReferenceValue != null,
                     "CCS_MultiplayerHostingMenu.exitButton is not assigned.");
                 AppendIfMissing(
@@ -419,8 +415,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             Transform networkingPanel = hostingRoot != null
                 ? hostingRoot.Find(CCS_NetcodeTestConstants.NetworkingPanelObjectName)
                 : null;
-            Transform networkingContent = networkingPanel != null
-                ? networkingPanel.Find(CCS_NetcodeTestConstants.NetworkingContentObjectName)
+            Transform networkingCard = networkingPanel != null
+                ? networkingPanel.Find(CCS_NetcodeTestConstants.NetworkingCardObjectName)
                 : null;
 
             AppendIfMissing(
@@ -429,8 +425,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "Hosting UI must contain Mode Select panel. Run Setup Multiplayer Hosting Scene.");
             AppendIfMissing(
                 failures,
-                networkingPanel != null && networkingContent != null,
-                "Hosting UI must contain Networking panel/content. Run Setup Multiplayer Hosting Scene.");
+                networkingPanel != null && networkingCard != null,
+                "Hosting UI must contain Networking panel/card. Run Setup Multiplayer Hosting Scene.");
 
             if (modeSelectPanel != null)
             {
@@ -440,12 +436,45 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Mode Select panel must start visible in the hosting scene.");
                 AppendIfMissing(
                     failures,
-                    modeSelectPanel.Find($"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.SinglePlayerButtonObjectName}") != null,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.SinglePlayerButtonObjectName}") != null,
                     "Mode Select must contain Single Player button.");
                 AppendIfMissing(
                     failures,
-                    modeSelectPanel.Find($"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.MultiplayerButtonObjectName}") != null,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.MultiplayerButtonObjectName}") != null,
                     "Mode Select must contain Multiplayer button.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectDividerObjectName}") != null,
+                    "Mode Select must contain a header divider.");
+
+                Transform modeSelectCard = modeSelectPanel.Find(CCS_NetcodeTestConstants.ModeSelectCardObjectName);
+                if (modeSelectCard != null)
+                {
+                    RectTransform cardRect = modeSelectCard as RectTransform;
+                    ValidateAnchoredWidth(
+                        failures,
+                        cardRect,
+                        "Mode Select card",
+                        CCS_NetcodeTestConstants.ModeSelectCardWidth,
+                        40f);
+                    ValidateAnchoredHeight(
+                        failures,
+                        cardRect,
+                        "Mode Select card",
+                        CCS_NetcodeTestConstants.ModeSelectCardHeight,
+                        40f);
+                    ValidateAnchoredButtonSize(
+                        failures,
+                        modeSelectCard.Find(CCS_NetcodeTestConstants.SinglePlayerButtonObjectName) as RectTransform,
+                        "Single Player",
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMinWidth,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxWidth,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMinHeight,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxHeight);
+                }
             }
 
             if (networkingPanel != null)
@@ -481,47 +510,198 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_HostingSceneModeSelectController.backButton is not wired.");
             }
 
-            if (networkingContent != null)
+            if (networkingCard != null)
             {
-                ValidateButtonHeight(
+                RectTransform networkingCardRect = networkingCard as RectTransform;
+                ValidateCenterAnchoredCard(
                     failures,
-                    networkingContent.Find("HostJoinContainer/HostCard/HostAndStartButton")?.GetComponent<LayoutElement>(),
-                    "Host & Start");
-                ValidateButtonHeight(
+                    networkingCardRect,
+                    CCS_NetcodeTestConstants.NetworkingCardWidth,
+                    CCS_NetcodeTestConstants.NetworkingCardHeight);
+                AppendIfMissing(
                     failures,
-                    networkingContent.Find("HostJoinContainer/JoinCard/JoinButtons/RefreshServersButton")?.GetComponent<LayoutElement>(),
-                    "Refresh");
-                ValidateButtonHeight(
+                    networkingCard.Find("NamePanel/PlayerNameInput") != null,
+                    "Networking card must contain the player name field.");
+                AppendIfMissing(
                     failures,
-                    networkingContent.Find("HostJoinContainer/JoinCard/JoinButtons/JoinSelectedButton")?.GetComponent<LayoutElement>(),
-                    "Join Selected");
-                ValidateButtonHeight(
+                    networkingCard.Find("HostCard") != null && networkingCard.Find("JoinCard") != null,
+                    "Networking card must contain HostCard and JoinCard.");
+                ValidateMatchingCardSizes(
                     failures,
-                    networkingContent.Find($"FooterPanel/{CCS_NetcodeTestConstants.BackButtonObjectName}")?.GetComponent<LayoutElement>(),
-                    "Back");
-                ValidateButtonHeight(
+                    networkingCard.Find("HostCard") as RectTransform,
+                    networkingCard.Find("JoinCard") as RectTransform);
+                AppendIfMissing(
                     failures,
-                    networkingContent.Find("FooterPanel/ExitButton")?.GetComponent<LayoutElement>(),
-                    "Exit");
+                    networkingCard.Find("AdvancedManualJoinPanel") == null,
+                    "Advanced Manual Join panel must be removed from the hosting UI.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("AdvancedManualJoinToggleButton") == null,
+                    "Advanced Manual Join toggle must be removed from the hosting UI.");
+
+                ValidateAnchoredButtonSize(
+                    failures,
+                    networkingCard.Find("HostCard/HostAndStartButton") as RectTransform,
+                    "Host & Start",
+                    300f,
+                    CCS_NetcodeTestConstants.HostStartButtonMaxWidth,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                ValidateAnchoredButtonSize(
+                    failures,
+                    networkingCard.Find("JoinCard/JoinButtons/RefreshServersButton") as RectTransform,
+                    "Refresh",
+                    180f,
+                    CCS_NetcodeTestConstants.RefreshButtonMaxWidth,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                ValidateAnchoredButtonSize(
+                    failures,
+                    networkingCard.Find("JoinCard/JoinButtons/JoinSelectedButton") as RectTransform,
+                    "Join Selected",
+                    240f,
+                    CCS_NetcodeTestConstants.JoinSelectedButtonMaxWidth,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
+                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                ValidateAnchoredButtonSize(
+                    failures,
+                    networkingCard.Find(CCS_NetcodeTestConstants.BackButtonObjectName) as RectTransform,
+                    "Back",
+                    180f,
+                    CCS_NetcodeTestConstants.FooterButtonMaxWidth,
+                    CCS_NetcodeTestConstants.HostingFooterButtonMinHeight,
+                    CCS_NetcodeTestConstants.HostingFooterButtonMaxHeight);
+                ValidateAnchoredButtonSize(
+                    failures,
+                    networkingCard.Find("ExitButton") as RectTransform,
+                    "Exit",
+                    180f,
+                    CCS_NetcodeTestConstants.FooterButtonMaxWidth,
+                    CCS_NetcodeTestConstants.HostingFooterButtonMinHeight,
+                    CCS_NetcodeTestConstants.HostingFooterButtonMaxHeight);
+
+                GameObject diagnosticsPanel = networkingCard.Find("DiagnosticsPanel")?.gameObject;
+                AppendIfMissing(
+                    failures,
+                    diagnosticsPanel == null || !diagnosticsPanel.activeSelf,
+                    "Diagnostics panel must stay hidden in the polished hosting UI.");
             }
         }
 
-        private static void ValidateButtonHeight(List<string> failures, LayoutElement layoutElement, string label)
+        private static void ValidateCenterAnchoredCard(
+            List<string> failures,
+            RectTransform cardRect,
+            float expectedWidth,
+            float expectedHeight)
         {
-            if (layoutElement == null)
+            if (cardRect == null)
             {
-                failures.Add($"Hosting UI button '{label}' is missing a LayoutElement height.");
+                failures.Add("Networking card RectTransform is missing.");
                 return;
             }
 
-            float height = layoutElement.preferredHeight > 0f
-                ? layoutElement.preferredHeight
-                : layoutElement.minHeight;
             AppendIfMissing(
                 failures,
-                height >= CCS_NetcodeTestConstants.HostingMenuButtonMinHeight
-                    && height <= CCS_NetcodeTestConstants.HostingMenuButtonMaxHeight,
-                $"Hosting UI button '{label}' height must be between {CCS_NetcodeTestConstants.HostingMenuButtonMinHeight:0.#} and {CCS_NetcodeTestConstants.HostingMenuButtonMaxHeight:0.#}.");
+                Mathf.Approximately(cardRect.anchorMin.x, 0.5f)
+                    && Mathf.Approximately(cardRect.anchorMin.y, 0.5f)
+                    && Mathf.Approximately(cardRect.anchorMax.x, 0.5f)
+                    && Mathf.Approximately(cardRect.anchorMax.y, 0.5f),
+                "Networking card must be center anchored.");
+            ValidateAnchoredWidth(failures, cardRect, "Networking card", expectedWidth, 40f);
+            ValidateAnchoredHeight(failures, cardRect, "Networking card", expectedHeight, 40f);
+        }
+
+        private static void ValidateMatchingCardSizes(
+            List<string> failures,
+            RectTransform hostCard,
+            RectTransform joinCard)
+        {
+            if (hostCard == null || joinCard == null)
+            {
+                failures.Add("HostCard or JoinCard RectTransform is missing.");
+                return;
+            }
+
+            ValidateAnchoredWidth(
+                failures,
+                hostCard,
+                "Host card",
+                CCS_NetcodeTestConstants.HostCardWidth,
+                20f);
+            ValidateAnchoredHeight(
+                failures,
+                hostCard,
+                "Host card",
+                CCS_NetcodeTestConstants.HostCardHeight,
+                20f);
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(hostCard.sizeDelta.x, joinCard.sizeDelta.x)
+                    && Mathf.Approximately(hostCard.sizeDelta.y, joinCard.sizeDelta.y),
+                "HostCard and JoinCard must use matching sizes.");
+        }
+
+        private static void ValidateAnchoredWidth(
+            List<string> failures,
+            RectTransform rect,
+            string label,
+            float expectedWidth,
+            float tolerance)
+        {
+            if (rect == null)
+            {
+                failures.Add($"Hosting UI element '{label}' is missing a RectTransform width.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(rect.sizeDelta.x - expectedWidth) <= tolerance,
+                $"Hosting UI element '{label}' width must be near {expectedWidth:0.#} (±{tolerance:0.#}).");
+        }
+
+        private static void ValidateAnchoredHeight(
+            List<string> failures,
+            RectTransform rect,
+            string label,
+            float expectedHeight,
+            float tolerance)
+        {
+            if (rect == null)
+            {
+                failures.Add($"Hosting UI element '{label}' is missing a RectTransform height.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(rect.sizeDelta.y - expectedHeight) <= tolerance,
+                $"Hosting UI element '{label}' height must be near {expectedHeight:0.#} (±{tolerance:0.#}).");
+        }
+
+        private static void ValidateAnchoredButtonSize(
+            List<string> failures,
+            RectTransform rect,
+            string label,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight)
+        {
+            if (rect == null)
+            {
+                failures.Add($"Hosting UI button '{label}' is missing a RectTransform.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                rect.sizeDelta.x >= minWidth && rect.sizeDelta.x <= maxWidth,
+                $"Hosting UI button '{label}' width must be between {minWidth:0.#} and {maxWidth:0.#}.");
+            AppendIfMissing(
+                failures,
+                rect.sizeDelta.y >= minHeight && rect.sizeDelta.y <= maxHeight,
+                $"Hosting UI button '{label}' height must be between {minHeight:0.#} and {maxHeight:0.#}.");
         }
 
         private static void ValidateHostingMenuFlow(List<string> failures)
@@ -539,56 +719,51 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     source.Contains("OnHostAndStartClicked"),
                     "CCS_MultiplayerHostingMenu must expose Host & Start flow.");
-                AppendIfMissing(
-                    failures,
-                    source.Contains("advancedManualJoinPanel"),
-                    "CCS_MultiplayerHostingMenu must keep manual join behind an advanced panel.");
             }
 
             Transform hostingRoot = GameObject.Find("HostingUiRoot")?.transform;
-            Transform content = hostingRoot != null
-                ? hostingRoot.Find($"{CCS_NetcodeTestConstants.NetworkingPanelObjectName}/{CCS_NetcodeTestConstants.NetworkingContentObjectName}")
+            Transform networkingCard = hostingRoot != null
+                ? hostingRoot.Find($"{CCS_NetcodeTestConstants.NetworkingPanelObjectName}/{CCS_NetcodeTestConstants.NetworkingCardObjectName}")
                 : null;
             AppendIfMissing(
                 failures,
-                hostingRoot != null && content != null,
-                "SCN_CCS_MultiplayerHosting must contain HostingUiRoot/NetworkingPanel/NetworkingContent. Run Setup Multiplayer Hosting Scene.");
+                hostingRoot != null && networkingCard != null,
+                "SCN_CCS_MultiplayerHosting must contain HostingUiRoot/NetworkingPanel/NetworkingCard. Run Setup Multiplayer Hosting Scene.");
 
-            if (content != null)
+            if (networkingCard != null)
             {
                 AppendIfMissing(
                     failures,
-                    content.Find("NamePanel/PlayerNameInput") != null,
+                    networkingCard.Find("NamePanel/PlayerNameInput") != null,
                     "Hosting UI must contain the player name field.");
                 AppendIfMissing(
                     failures,
-                    content.Find("HostJoinContainer/HostCard/HostAndStartButton") != null,
+                    networkingCard.Find("HostCard/HostAndStartButton") != null,
                     "Hosting UI must contain Host & Start.");
                 AppendIfMissing(
                     failures,
-                    content.Find("HostJoinContainer/JoinCard/JoinButtons/JoinSelectedButton") != null,
+                    networkingCard.Find("JoinCard/JoinButtons/JoinSelectedButton") != null,
                     "Hosting UI must contain Join Selected.");
                 AppendIfMissing(
                     failures,
-                    content.Find("HostJoinContainer/JoinCard/JoinButtons/RefreshServersButton") != null,
+                    networkingCard.Find("JoinCard/JoinButtons/RefreshServersButton") != null,
                     "Hosting UI must contain Refresh.");
                 AppendIfMissing(
                     failures,
-                    content.Find("HostJoinContainer/JoinCard/ServerListScroll/Viewport/ServerListContainer") != null,
+                    networkingCard.Find("JoinCard/ServerListScroll/Viewport/ServerListContainer") != null,
                     "Hosting UI must contain a server list container.");
                 AppendIfMissing(
                     failures,
-                    content.Find("AdvancedManualJoinPanel") != null,
-                    "Hosting UI must contain Advanced Manual Join panel.");
-                AppendIfMissing(
-                    failures,
-                    content.Find("HostJoinContainer/HostCard") != null
-                        && content.Find("HostJoinContainer/JoinCard") != null,
+                    networkingCard.Find("HostCard") != null && networkingCard.Find("JoinCard") != null,
                     "Hosting UI must contain side-by-side Host Game and Join Game cards.");
                 AppendIfMissing(
                     failures,
-                    content.Find($"FooterPanel/{CCS_NetcodeTestConstants.BackButtonObjectName}") != null,
+                    networkingCard.Find(CCS_NetcodeTestConstants.BackButtonObjectName) != null,
                     "Hosting UI must contain Back button on the networking panel.");
+                AppendIfMissing(
+                    failures,
+                    networkingCard.Find("AdvancedManualJoinPanel") == null,
+                    "Hosting UI must not expose Advanced Manual Join in the polished layout.");
             }
 
             AppendIfMissing(

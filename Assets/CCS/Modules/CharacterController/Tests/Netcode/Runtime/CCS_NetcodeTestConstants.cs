@@ -64,7 +64,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string NetworkingPanelObjectName = "NetworkingPanel";
 
-        public const string NetworkingContentObjectName = "NetworkingContent";
+        public const string NetworkingCardObjectName = "NetworkingCard";
+
+        public const string NetworkingContentObjectName = NetworkingCardObjectName;
 
         public const string SinglePlayerButtonObjectName = "SinglePlayerButton";
 
@@ -72,13 +74,53 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string BackButtonObjectName = "BackButton";
 
-        public const float ModeSelectCardWidth = 580f;
+        public const float ModeSelectCardWidth = 620f;
 
-        public const float NetworkingPanelWidth = 1000f;
+        public const float ModeSelectCardHeight = 640f;
 
-        public const float HostingMenuButtonMinHeight = 40f;
+        public const float ModeSelectMenuButtonWidth = 420f;
 
-        public const float HostingMenuButtonMaxHeight = 56f;
+        public const float ModeSelectMenuButtonHeight = 64f;
+
+        public const float ModeSelectButtonSpacing = 24f;
+
+        public const float ModeSelectMenuButtonMinWidth = 300f;
+
+        public const float ModeSelectMenuButtonMaxWidth = 420f;
+
+        public const float ModeSelectMenuButtonMinHeight = 50f;
+
+        public const float NetworkingCardWidth = 1480f;
+
+        public const float NetworkingCardHeight = 900f;
+
+        public const float HostCardWidth = 600f;
+
+        public const float HostCardHeight = 380f;
+
+        public const float HostStartButtonMaxWidth = 520f;
+
+        public const float RefreshButtonMaxWidth = 240f;
+
+        public const float JoinSelectedButtonMaxWidth = 320f;
+
+        public const float FooterButtonMaxWidth = 240f;
+
+        public const float HostingPrimaryButtonMinHeight = 56f;
+
+        public const float HostingPrimaryButtonMaxHeight = 70f;
+
+        public const float HostingFooterButtonMinHeight = 48f;
+
+        public const float HostingFooterButtonMaxHeight = 64f;
+
+        public const float HostingMenuButtonMinHeight = HostingPrimaryButtonMinHeight;
+
+        public const float HostingMenuButtonMaxHeight = HostingPrimaryButtonMaxHeight;
+
+        public const float ModeSelectMenuButtonMaxHeight = 70f;
+
+        public const string ModeSelectDividerObjectName = "HeaderDivider";
 
         public const string PlayerSetupPanelObjectName = "PlayerSetupPanel";
 
