@@ -88,6 +88,45 @@ namespace CCS.Modules.Attributes
                 : CCS_SurvivalValidationResult.Pass("Health attribute definition is valid.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateStaminaDefinition(CCS_AttributeDefinition staminaDefinition)
+        {
+            List<string> failures = new List<string>();
+            AppendIfMissing(failures, staminaDefinition != null, "Stamina definition asset is missing.");
+
+            if (staminaDefinition == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            CCS_SurvivalValidationResult profileValidation =
+                CCS_SurvivalProfileValidationUtility.ValidateProfile(staminaDefinition);
+            AppendIfMissing(
+                failures,
+                profileValidation.IsSuccess,
+                profileValidation.Message);
+
+            AppendIfMissing(
+                failures,
+                staminaDefinition.ProfileId == CCS_AttributesConstants.StaminaAttributeId,
+                $"Stamina definition profileId must be {CCS_AttributesConstants.StaminaAttributeId}.");
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(staminaDefinition.DefaultValue, CCS_AttributesConstants.StaminaDefaultMax),
+                $"Stamina defaultValue must be {CCS_AttributesConstants.StaminaDefaultMax:0}.");
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(staminaDefinition.MaxValue, CCS_AttributesConstants.StaminaDefaultMax),
+                $"Stamina maxValue must be {CCS_AttributesConstants.StaminaDefaultMax:0}.");
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(staminaDefinition.MinValue, 0f),
+                "Stamina minValue must be 0.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Stamina attribute definition is valid.");
+        }
+
         public static CCS_SurvivalValidationResult ValidateTestPlayerComponents(GameObject prefabRoot)
         {
             List<string> failures = new List<string>();
@@ -129,6 +168,10 @@ namespace CCS.Modules.Attributes
             ValidateAttributeBarsPanelLayout(prefabRoot, failures);
             AppendIfMissing(
                 failures,
+                prefabRoot.GetComponent<CCS_StaminaController>() != null,
+                "Test player prefab must contain CCS_StaminaController.");
+            AppendIfMissing(
+                failures,
                 HasDebugInputComponent(prefabRoot),
                 "Test player prefab must contain CCS_TestPlayerAttributeDebugInput.");
 
@@ -136,18 +179,28 @@ namespace CCS.Modules.Attributes
             if (container != null && container.AttributeDefinitions != null)
             {
                 bool hasHealth = false;
+                bool hasStamina = false;
                 for (int i = 0; i < container.AttributeDefinitions.Count; i++)
                 {
                     CCS_AttributeDefinition definition = container.AttributeDefinitions[i];
-                    if (definition != null
-                        && definition.ProfileId == CCS_AttributesConstants.HealthAttributeId)
+                    if (definition == null)
+                    {
+                        continue;
+                    }
+
+                    if (definition.ProfileId == CCS_AttributesConstants.HealthAttributeId)
                     {
                         hasHealth = true;
-                        break;
+                    }
+
+                    if (definition.ProfileId == CCS_AttributesConstants.StaminaAttributeId)
+                    {
+                        hasStamina = true;
                     }
                 }
 
                 AppendIfMissing(failures, hasHealth, "Test player AttributeContainer must include Health definition.");
+                AppendIfMissing(failures, hasStamina, "Test player AttributeContainer must include Stamina definition.");
             }
 
             return failures.Count > 0

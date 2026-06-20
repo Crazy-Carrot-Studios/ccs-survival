@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Child canvas on networked test player prefab.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Health reads from CCS_AttributeContainer. Stamina is a static placeholder.
+// NOTES: Reads Health and Stamina from CCS_AttributeContainer snapshots only.
 // =============================================================================
 
 namespace CCS.Modules.Attributes
@@ -21,6 +21,8 @@ namespace CCS.Modules.Attributes
         [SerializeField] private CCS_AttributeContainer attributeContainer;
 
         [SerializeField] private CCS_AttributeDefinition healthDefinition;
+
+        [SerializeField] private CCS_AttributeDefinition staminaDefinition;
 
         [SerializeField] private Canvas hudCanvas;
 
@@ -100,12 +102,16 @@ namespace CCS.Modules.Attributes
 
         private void HandleAttributeChanged(CCS_AttributeChangedEvent changedEvent)
         {
-            if (!string.Equals(changedEvent.AttributeId, ResolveHealthAttributeId(), System.StringComparison.Ordinal))
+            if (string.Equals(changedEvent.AttributeId, ResolveHealthAttributeId(), System.StringComparison.Ordinal))
             {
+                RefreshHealthBar();
                 return;
             }
 
-            RefreshHealthBar();
+            if (string.Equals(changedEvent.AttributeId, ResolveStaminaAttributeId(), System.StringComparison.Ordinal))
+            {
+                RefreshStaminaBar();
+            }
         }
 
         private void RefreshHealthBar()
@@ -133,10 +139,21 @@ namespace CCS.Modules.Attributes
                 return;
             }
 
+            string attributeId = ResolveStaminaAttributeId();
+            if (attributeContainer == null
+                || !attributeContainer.TryGetValue(attributeId, out CCS_AttributeValue value))
+            {
+                staminaBar.SetValues(
+                    CCS_AttributeBarsHudStyle.StaminaBarLabel,
+                    CCS_AttributesConstants.StaminaDefaultMax,
+                    CCS_AttributesConstants.StaminaDefaultMax);
+                return;
+            }
+
             staminaBar.SetValues(
                 CCS_AttributeBarsHudStyle.StaminaBarLabel,
-                CCS_AttributeBarsHudStyle.StaminaMax,
-                CCS_AttributeBarsHudStyle.StaminaMax);
+                value.Current,
+                value.Max);
         }
 
         private void RefreshPlaceholderBars()
@@ -179,6 +196,16 @@ namespace CCS.Modules.Attributes
             }
 
             return CCS_AttributesConstants.HealthAttributeId;
+        }
+
+        private string ResolveStaminaAttributeId()
+        {
+            if (staminaDefinition != null && !string.IsNullOrWhiteSpace(staminaDefinition.ProfileId))
+            {
+                return staminaDefinition.ProfileId;
+            }
+
+            return CCS_AttributesConstants.StaminaAttributeId;
         }
 
         private string ResolveHealthLabel()

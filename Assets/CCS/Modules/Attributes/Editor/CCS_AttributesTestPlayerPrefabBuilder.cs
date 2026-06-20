@@ -36,6 +36,7 @@ namespace CCS.Modules.Attributes.Editor
         public static bool EnsureTestPlayerAttributes(string prefabPath)
         {
             CCS_AttributesAssetBuilder.EnsureHealthDefinitionAsset();
+            CCS_AttributesAssetBuilder.EnsureStaminaDefinitionAsset();
 
             GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
             if (prefabRoot == null)
@@ -48,6 +49,8 @@ namespace CCS.Modules.Attributes.Editor
             {
                 CCS_AttributeDefinition healthDefinition =
                     AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(CCS_AttributesConstants.HealthDefinitionPath);
+                CCS_AttributeDefinition staminaDefinition =
+                    AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(CCS_AttributesConstants.StaminaDefinitionPath);
                 if (healthDefinition == null)
                 {
                     Debug.LogError(
@@ -56,14 +59,23 @@ namespace CCS.Modules.Attributes.Editor
                     return false;
                 }
 
+                if (staminaDefinition == null)
+                {
+                    Debug.LogError(
+                        "[Attributes Prefab Builder] Missing stamina definition: "
+                        + CCS_AttributesConstants.StaminaDefinitionPath);
+                    return false;
+                }
+
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
 
                 bool changed = false;
                 changed |= RemoveCharacterControllerDebugHud(prefabRoot);
-                changed |= EnsureAttributeContainer(prefabRoot, healthDefinition);
+                changed |= EnsureAttributeContainer(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureAttributeService(prefabRoot);
+                changed |= EnsureStaminaController(prefabRoot, staminaDefinition);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
-                changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition);
+                changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureDebugDamageInput(prefabRoot);
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -101,7 +113,10 @@ namespace CCS.Modules.Attributes.Editor
             return changed;
         }
 
-        private static bool EnsureAttributeContainer(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
+        private static bool EnsureAttributeContainer(
+            GameObject prefabRoot,
+            CCS_AttributeDefinition healthDefinition,
+            CCS_AttributeDefinition staminaDefinition)
         {
             CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
             bool changed = false;
@@ -115,11 +130,18 @@ namespace CCS.Modules.Attributes.Editor
             SerializedProperty definitionsProperty = serializedContainer.FindProperty("attributeDefinitions");
             if (definitionsProperty != null)
             {
-                if (definitionsProperty.arraySize != 1
-                    || definitionsProperty.GetArrayElementAtIndex(0).objectReferenceValue != healthDefinition)
+                bool definitionsChanged = definitionsProperty.arraySize != 2;
+                if (!definitionsChanged)
                 {
-                    definitionsProperty.arraySize = 1;
+                    definitionsChanged |= definitionsProperty.GetArrayElementAtIndex(0).objectReferenceValue != healthDefinition;
+                    definitionsChanged |= definitionsProperty.GetArrayElementAtIndex(1).objectReferenceValue != staminaDefinition;
+                }
+
+                if (definitionsChanged)
+                {
+                    definitionsProperty.arraySize = 2;
                     definitionsProperty.GetArrayElementAtIndex(0).objectReferenceValue = healthDefinition;
+                    definitionsProperty.GetArrayElementAtIndex(1).objectReferenceValue = staminaDefinition;
                     changed = true;
                 }
             }
@@ -127,6 +149,52 @@ namespace CCS.Modules.Attributes.Editor
             if (changed)
             {
                 serializedContainer.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureStaminaController(GameObject prefabRoot, CCS_AttributeDefinition staminaDefinition)
+        {
+            CCS_StaminaController staminaController = prefabRoot.GetComponent<CCS_StaminaController>();
+            if (staminaController == null)
+            {
+                staminaController = prefabRoot.AddComponent<CCS_StaminaController>();
+            }
+
+            CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
+            SerializedObject serializedStamina = new SerializedObject(staminaController);
+            bool changed = staminaController == null;
+            changed |= SetObjectReference(serializedStamina, "attributeContainer", container);
+            changed |= SetObjectReference(serializedStamina, "staminaDefinition", staminaDefinition);
+
+            SerializedProperty drainProperty = serializedStamina.FindProperty("drainPerSecond");
+            if (drainProperty != null
+                && !Mathf.Approximately(drainProperty.floatValue, CCS_AttributesConstants.StaminaDrainPerSecond))
+            {
+                drainProperty.floatValue = CCS_AttributesConstants.StaminaDrainPerSecond;
+                changed = true;
+            }
+
+            SerializedProperty regenProperty = serializedStamina.FindProperty("regenPerSecond");
+            if (regenProperty != null
+                && !Mathf.Approximately(regenProperty.floatValue, CCS_AttributesConstants.StaminaRegenPerSecond))
+            {
+                regenProperty.floatValue = CCS_AttributesConstants.StaminaRegenPerSecond;
+                changed = true;
+            }
+
+            SerializedProperty unlockProperty = serializedStamina.FindProperty("sprintUnlockThreshold");
+            if (unlockProperty != null
+                && !Mathf.Approximately(unlockProperty.floatValue, CCS_AttributesConstants.StaminaSprintUnlockThreshold))
+            {
+                unlockProperty.floatValue = CCS_AttributesConstants.StaminaSprintUnlockThreshold;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                serializedStamina.ApplyModifiedPropertiesWithoutUndo();
             }
 
             return changed;
@@ -175,7 +243,10 @@ namespace CCS.Modules.Attributes.Editor
             return changed;
         }
 
-        private static bool EnsureAttributeBarsHud(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
+        private static bool EnsureAttributeBarsHud(
+            GameObject prefabRoot,
+            CCS_AttributeDefinition healthDefinition,
+            CCS_AttributeDefinition staminaDefinition)
         {
             bool changed = false;
             GameObject hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
@@ -238,6 +309,7 @@ namespace CCS.Modules.Attributes.Editor
             SerializedObject serializedHud = new SerializedObject(barsHud);
             bool hudChanged = SetObjectReference(serializedHud, "attributeContainer", container);
             hudChanged |= SetObjectReference(serializedHud, "healthDefinition", healthDefinition);
+            hudChanged |= SetObjectReference(serializedHud, "staminaDefinition", staminaDefinition);
             hudChanged |= SetObjectReference(serializedHud, "hudCanvas", canvas);
             hudChanged |= SetObjectReference(serializedHud, "healthBar", healthBar);
             hudChanged |= SetObjectReference(serializedHud, "staminaBar", staminaBar);
@@ -539,6 +611,11 @@ namespace CCS.Modules.Attributes.Editor
             return barView;
         }
 
+        private static Sprite GetDefaultBarFillSprite()
+        {
+            return AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        }
+
         private static float ResolveBarTopOffset(int barIndex)
         {
             float offset = CCS_AttributeBarsHudStyle.PanelPaddingTop;
@@ -690,19 +767,30 @@ namespace CCS.Modules.Attributes.Editor
             }
 
             RectTransform fillRect = fillObject.GetComponent<RectTransform>();
-            if (fillRect.anchorMin != Vector2.zero
-                || fillRect.anchorMax != Vector2.one
-                || fillRect.offsetMin != Vector2.zero
-                || fillRect.offsetMax != Vector2.zero)
+            if (fillRect.anchorMin != new Vector2(0f, 0f)
+                || fillRect.anchorMax != new Vector2(0f, 1f)
+                || fillRect.pivot != new Vector2(0f, 0.5f)
+                || fillRect.anchoredPosition != Vector2.zero
+                || !Mathf.Approximately(fillRect.sizeDelta.x, backgroundSize.x)
+                || fillRect.sizeDelta.y != 0f)
             {
-                fillRect.anchorMin = Vector2.zero;
-                fillRect.anchorMax = Vector2.one;
+                fillRect.anchorMin = new Vector2(0f, 0f);
+                fillRect.anchorMax = new Vector2(0f, 1f);
+                fillRect.pivot = new Vector2(0f, 0.5f);
+                fillRect.anchoredPosition = Vector2.zero;
                 fillRect.offsetMin = Vector2.zero;
                 fillRect.offsetMax = Vector2.zero;
+                fillRect.sizeDelta = new Vector2(backgroundSize.x, 0f);
                 changed = true;
             }
 
             Image fillImage = fillObject.GetComponent<Image>();
+            Sprite fillSprite = GetDefaultBarFillSprite();
+            if (fillSprite != null && fillImage.sprite != fillSprite)
+            {
+                fillImage.sprite = fillSprite;
+                changed = true;
+            }
             if (fillImage.color != fillColor)
             {
                 fillImage.color = fillColor;

@@ -56,6 +56,11 @@ namespace CCS.Modules.Attributes
             return TryGetAttribute(CCS_AttributesConstants.HealthAttributeId, out value);
         }
 
+        public bool TryGetStamina(out CCS_AttributeValue value)
+        {
+            return TryGetAttribute(CCS_AttributesConstants.StaminaAttributeId, out value);
+        }
+
         #endregion
     }
 }

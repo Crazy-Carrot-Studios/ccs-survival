@@ -1,3 +1,4 @@
+using CCS.Modules.Attributes;
 using UnityEngine;
 
 
@@ -49,6 +50,8 @@ namespace CCS.Modules.CharacterController
         [Header("References")]
 
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
+
+        [SerializeField] private CCS_StaminaController staminaController;
 
 
 
@@ -118,6 +121,14 @@ namespace CCS.Modules.CharacterController
 
             characterController = GetComponent<UnityEngine.CharacterController>();
 
+            if (staminaController == null)
+
+            {
+
+                staminaController = GetComponent<CCS_StaminaController>();
+
+            }
+
         }
 
 
@@ -186,7 +197,31 @@ namespace CCS.Modules.CharacterController
 
             bool jumpPressed = inputProvider.JumpPressed;
 
-            isSprinting = inputProvider.SprintHeld && moveInput.sqrMagnitude > 0.01f;
+            bool sprintIntent = inputProvider.SprintHeld && moveInput.sqrMagnitude > 0.01f;
+
+            if (staminaController != null)
+
+            {
+
+                staminaController.ReportMovementState(
+
+                    inputProvider.SprintHeld,
+
+                    moveInput.sqrMagnitude > 0.01f,
+
+                    deltaTime);
+
+                isSprinting = sprintIntent && staminaController.CanSprint;
+
+            }
+
+            else
+
+            {
+
+                isSprinting = sprintIntent;
+
+            }
 
             float desiredSpeed = isSprinting ? movementProfile.SprintSpeed : movementProfile.WalkSpeed;
 

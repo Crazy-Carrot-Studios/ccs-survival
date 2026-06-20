@@ -23,6 +23,7 @@ namespace CCS.Modules.Attributes.Editor
         public static bool EnsureAttributesAssets()
         {
             bool changed = EnsureHealthDefinitionAsset();
+            changed |= EnsureStaminaDefinitionAsset();
             if (changed)
             {
                 AssetDatabase.SaveAssets();
@@ -74,6 +75,53 @@ namespace CCS.Modules.Attributes.Editor
             {
                 serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(healthDefinition);
+            }
+
+            return changed;
+        }
+
+        public static bool EnsureStaminaDefinitionAsset()
+        {
+            CCS_AttributeDefinition staminaDefinition = AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(
+                CCS_AttributesConstants.StaminaDefinitionPath);
+            bool created = false;
+            if (staminaDefinition == null)
+            {
+                string directory = Path.GetDirectoryName(CCS_AttributesConstants.StaminaDefinitionPath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                staminaDefinition = ScriptableObject.CreateInstance<CCS_AttributeDefinition>();
+                staminaDefinition.name = "CCS_AttributeDefinition_Stamina";
+                AssetDatabase.CreateAsset(staminaDefinition, CCS_AttributesConstants.StaminaDefinitionPath);
+                created = true;
+            }
+
+            SerializedObject serializedDefinition = new SerializedObject(staminaDefinition);
+            bool changed = created;
+            changed |= SetString(serializedDefinition, "profileDisplayName", CCS_AttributesConstants.StaminaDisplayName);
+            changed |= SetString(serializedDefinition, "profileId", CCS_AttributesConstants.StaminaAttributeId);
+            changed |= SetString(
+                serializedDefinition,
+                "profileDescription",
+                "Default player stamina attribute for Master Test sprint gating.");
+            changed |= SetString(serializedDefinition, "profileVersion", CCS_AttributesConstants.ModuleVersion);
+            changed |= SetFloat(serializedDefinition, "defaultValue", CCS_AttributesConstants.StaminaDefaultMax);
+            changed |= SetFloat(serializedDefinition, "minValue", 0f);
+            changed |= SetFloat(serializedDefinition, "maxValue", CCS_AttributesConstants.StaminaDefaultMax);
+            changed |= SetBool(serializedDefinition, "allowRegeneration", true);
+            changed |= SetString(serializedDefinition, "uiLabel", CCS_AttributesConstants.StaminaDisplayName);
+            changed |= SetColor(
+                serializedDefinition,
+                "uiColor",
+                new Color(0.85f, 0.78f, 0.29f, 1f));
+
+            if (changed)
+            {
+                serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(staminaDefinition);
             }
 
             return changed;

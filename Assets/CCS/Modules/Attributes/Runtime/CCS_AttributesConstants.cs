@@ -25,6 +25,21 @@ namespace CCS.Modules.Attributes
 
         public const string HealthDisplayName = "Health";
 
+        public const string StaminaDefinitionPath =
+            ModuleRootPath + "/Tests/Profiles/CCS_AttributeDefinition_Stamina.asset";
+
+        public const string StaminaAttributeId = "ccs.survival.profile.attributes.stamina";
+
+        public const string StaminaDisplayName = "Stamina";
+
+        public const float StaminaDefaultMax = 100f;
+
+        public const float StaminaDrainPerSecond = 18f;
+
+        public const float StaminaRegenPerSecond = 12f;
+
+        public const float StaminaSprintUnlockThreshold = 20f;
+
         public const string LegacyDebugHudTextObjectName = "HealthHudText";
 
         public const string AttributeBarsPanelObjectName = "AttributeBarsPanel";

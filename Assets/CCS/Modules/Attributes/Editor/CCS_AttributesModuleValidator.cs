@@ -36,6 +36,14 @@ namespace CCS.Modules.Attributes.Editor
                 $"Missing health definition asset at {CCS_AttributesConstants.HealthDefinitionPath}.");
             AppendResult(failures, CCS_AttributesValidationUtility.ValidateHealthDefinition(healthDefinition));
 
+            CCS_AttributeDefinition staminaDefinition =
+                AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(CCS_AttributesConstants.StaminaDefinitionPath);
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_AttributesConstants.StaminaDefinitionPath),
+                $"Missing stamina definition asset at {CCS_AttributesConstants.StaminaDefinitionPath}.");
+            AppendResult(failures, CCS_AttributesValidationUtility.ValidateStaminaDefinition(staminaDefinition));
+
             GameObject testPlayerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_AttributesTestConstants.NetworkedTestPlayerPrefabPath);
             AppendIfMissing(
@@ -102,6 +110,10 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     !source.Contains("Input.GetAxisRaw"),
                     "CCS_PlayerAttributeBarsHud must not use legacy UnityEngine.Input polling.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("CCS_StaminaController"),
+                    "CCS_PlayerAttributeBarsHud must read stamina from CCS_AttributeContainer only.");
             }
 
             string barsHudStylePath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/CCS_AttributeBarsHudStyle.cs";
@@ -112,6 +124,53 @@ namespace CCS.Modules.Attributes.Editor
                     failures,
                     styleSource.Contains($"PanelHeight = {CCS_AttributeBarsHudStyle.PanelHeight:0}f"),
                     $"Attribute bar HUD panel height must be {CCS_AttributeBarsHudStyle.PanelHeight:0}.");
+            }
+
+            string staminaControllerPath = CCS_AttributesConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_StaminaController.cs";
+            if (File.Exists(staminaControllerPath))
+            {
+                string staminaSource = File.ReadAllText(staminaControllerPath);
+                AppendIfMissing(
+                    failures,
+                    staminaSource.Contains("CanSprint"),
+                    "CCS_StaminaController must expose CanSprint for movement gating.");
+                AppendIfMissing(
+                    failures,
+                    staminaSource.Contains("IsSprintLocked"),
+                    "CCS_StaminaController must expose IsSprintLocked.");
+                AppendIfMissing(
+                    failures,
+                    staminaSource.Contains("ReportMovementState"),
+                    "CCS_StaminaController must accept sprint intent from CharacterController.");
+            }
+
+            string barViewPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_AttributeBarView.cs";
+            if (File.Exists(barViewPath))
+            {
+                string barViewSource = File.ReadAllText(barViewPath);
+                AppendIfMissing(
+                    failures,
+                    barViewSource.Contains("fillImage.fillAmount"),
+                    "CCS_AttributeBarView must apply fill amount to the bar fill image.");
+                AppendIfMissing(
+                    failures,
+                    barViewSource.Contains("SetSizeWithCurrentAnchors"),
+                    "CCS_AttributeBarView must resize fill width from current/max percent.");
+            }
+
+            string motorPath = "Assets/CCS/Modules/CharacterController/Runtime/Components/CCS_CharacterMotor.cs";
+            if (File.Exists(motorPath))
+            {
+                string motorSource = File.ReadAllText(motorPath);
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("staminaController.CanSprint"),
+                    "CCS_CharacterMotor must gate sprint speed through CCS_StaminaController.CanSprint.");
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("ReportMovementState"),
+                    "CCS_CharacterMotor must report sprint intent to CCS_StaminaController.");
             }
 
             string legacyHudPath = CCS_AttributesConstants.ModuleRootPath + "/Runtime/UI/CCS_PlayerAttributeHud.cs";

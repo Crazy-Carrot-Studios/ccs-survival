@@ -9,7 +9,7 @@ using UnityEngine.UI;
 // PLACEMENT: Child of AttributeBarsPanel on networked test player prefab.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Fill scales left-to-right via Image fill amount. Values clamp to max.
+// NOTES: Fill scales left-to-right via width and Image fill amount. Values clamp to max.
 // =============================================================================
 
 namespace CCS.Modules.Attributes
@@ -25,6 +25,23 @@ namespace CCS.Modules.Attributes
         [SerializeField] private TMP_Text statusText;
 
         [SerializeField] private Image fillImage;
+
+        private static Sprite defaultFillSprite;
+
+        private RectTransform fillRect;
+
+        private RectTransform fillBackgroundRect;
+
+        private bool fillLayoutConfigured;
+
+        #endregion
+
+        #region Unity Callbacks
+
+        private void Awake()
+        {
+            ResolveFillReferences();
+        }
 
         #endregion
 
@@ -73,7 +90,90 @@ namespace CCS.Modules.Attributes
                 return;
             }
 
-            fillImage.fillAmount = Mathf.Clamp01(normalizedAmount);
+            ResolveFillReferences();
+            EnsureFillImageFilledMode();
+
+            float clampedAmount = Mathf.Clamp01(normalizedAmount);
+            fillImage.fillAmount = clampedAmount;
+            ApplyFillWidth(clampedAmount);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void ResolveFillReferences()
+        {
+            if (fillImage == null)
+            {
+                return;
+            }
+
+            fillRect = fillImage.rectTransform;
+            if (fillBackgroundRect == null && fillRect.parent is RectTransform parentRect)
+            {
+                fillBackgroundRect = parentRect;
+            }
+
+            EnsureFillSprite();
+            ConfigureFillRectAnchors();
+        }
+
+        private void EnsureFillSprite()
+        {
+            if (fillImage.sprite != null)
+            {
+                return;
+            }
+
+            if (defaultFillSprite == null)
+            {
+                defaultFillSprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
+            }
+
+            if (defaultFillSprite != null)
+            {
+                fillImage.sprite = defaultFillSprite;
+            }
+        }
+
+        private void ConfigureFillRectAnchors()
+        {
+            if (fillRect == null || fillLayoutConfigured)
+            {
+                return;
+            }
+
+            fillRect.anchorMin = new Vector2(0f, 0f);
+            fillRect.anchorMax = new Vector2(0f, 1f);
+            fillRect.pivot = new Vector2(0f, 0.5f);
+            fillRect.anchoredPosition = Vector2.zero;
+            fillRect.offsetMin = new Vector2(0f, 0f);
+            fillRect.offsetMax = new Vector2(0f, 0f);
+            fillLayoutConfigured = true;
+        }
+
+        private void EnsureFillImageFilledMode()
+        {
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillMethod = Image.FillMethod.Horizontal;
+            fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+        }
+
+        private void ApplyFillWidth(float normalizedAmount)
+        {
+            if (fillRect == null || fillBackgroundRect == null)
+            {
+                return;
+            }
+
+            float backgroundWidth = fillBackgroundRect.rect.width;
+            if (backgroundWidth <= 0.01f)
+            {
+                backgroundWidth = fillBackgroundRect.sizeDelta.x;
+            }
+
+            fillRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, backgroundWidth * normalizedAmount);
         }
 
         #endregion

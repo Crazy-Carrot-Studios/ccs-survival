@@ -615,6 +615,7 @@ GameObject:
   - component: {fileID: 8105541452704013325}
   - component: {fileID: 476861198324256389}
   - component: {fileID: 2952494997685088168}
+  - component: {fileID: 4522364921838576145}
   m_Layer: 0
   m_Name: PF_CCS_CharacterController_TestPlayer_Networked
   m_TagString: Untagged
@@ -696,6 +697,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMotor
   movementProfile: {fileID: 11400000, guid: 801f047c9d8ac5a41a9257da130a033f, type: 2}
   inputProvider: {fileID: 3066966173724100183}
+  staminaController: {fileID: 0}
 --- !u!114 &1245601209859042227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -880,6 +882,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Attributes.Runtime::CCS.Modules.Attributes.CCS_AttributeContainer
   attributeDefinitions:
   - {fileID: 11400000, guid: b8c9d0e1f2a3456789012345678abcd0, type: 2}
+  - {fileID: 11400000, guid: 456619f68a91e1b45b58883bfefdce09, type: 2}
 --- !u!114 &8105541452704013325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -923,6 +926,23 @@ MonoBehaviour:
   attributeReplicator: {fileID: 476861198324256389}
   damageKey: 25
   damageAmount: 10
+--- !u!114 &4522364921838576145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240448729846996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7973766cbc3aa89409684612a79c2954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Attributes.Runtime::CCS.Modules.Attributes.CCS_StaminaController
+  attributeContainer: {fileID: 7399152414567355896}
+  staminaDefinition: {fileID: 11400000, guid: 456619f68a91e1b45b58883bfefdce09, type: 2}
+  drainPerSecond: 18
+  regenPerSecond: 12
+  sprintUnlockThreshold: 20
 --- !u!1 &2455953433895996448
 GameObject:
   m_ObjectHideFlags: 0
@@ -1259,10 +1279,10 @@ RectTransform:
   m_Father: {fileID: 5467691208050499680}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &5484056323779919888
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1291,7 +1311,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1664,10 +1684,10 @@ RectTransform:
   m_Father: {fileID: 8433372659473144294}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &5038590471905260620
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1696,7 +1716,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1739,10 +1759,10 @@ RectTransform:
   m_Father: {fileID: 7827706355125628831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &8483725719612745033
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1771,7 +1791,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1898,6 +1918,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Attributes.Runtime::CCS.Modules.Attributes.CCS_PlayerAttributeBarsHud
   attributeContainer: {fileID: 7399152414567355896}
   healthDefinition: {fileID: 11400000, guid: b8c9d0e1f2a3456789012345678abcd0, type: 2}
+  staminaDefinition: {fileID: 11400000, guid: 456619f68a91e1b45b58883bfefdce09, type: 2}
   hudCanvas: {fileID: 5297939770032673893}
   healthBar: {fileID: 2402114992718460492}
   staminaBar: {fileID: 2545585606310651220}
@@ -3220,10 +3241,10 @@ RectTransform:
   m_Father: {fileID: 8062226815343441624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &9126877058705867696
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3252,7 +3273,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1

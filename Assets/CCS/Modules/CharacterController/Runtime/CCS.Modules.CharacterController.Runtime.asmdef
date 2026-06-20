@@ -4,6 +4,7 @@
     "references": [
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
+        "CCS.Modules.Attributes.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine"
     ],
