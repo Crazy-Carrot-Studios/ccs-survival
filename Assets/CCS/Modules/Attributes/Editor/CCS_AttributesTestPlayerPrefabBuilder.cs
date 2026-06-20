@@ -35,6 +35,8 @@ namespace CCS.Modules.Attributes.Editor
 
         public static bool EnsureTestPlayerAttributes(string prefabPath)
         {
+            CCS_AttributesAssetBuilder.EnsureHealthDefinitionAsset();
+
             GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
             if (prefabRoot == null)
             {
@@ -42,32 +44,39 @@ namespace CCS.Modules.Attributes.Editor
                 return false;
             }
 
-            CCS_AttributeDefinition healthDefinition =
-                AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(CCS_AttributesConstants.HealthDefinitionPath);
-            if (healthDefinition == null)
+            try
             {
-                Debug.LogError(
-                    "[Attributes Prefab Builder] Missing health definition: "
-                    + CCS_AttributesConstants.HealthDefinitionPath);
+                CCS_AttributeDefinition healthDefinition =
+                    AssetDatabase.LoadAssetAtPath<CCS_AttributeDefinition>(CCS_AttributesConstants.HealthDefinitionPath);
+                if (healthDefinition == null)
+                {
+                    Debug.LogError(
+                        "[Attributes Prefab Builder] Missing health definition: "
+                        + CCS_AttributesConstants.HealthDefinitionPath);
+                    return false;
+                }
+
+                RemoveMissingScriptsRecursive(prefabRoot.transform);
+
+                bool changed = false;
+                changed |= EnsureAttributeContainer(prefabRoot, healthDefinition);
+                changed |= EnsureAttributeService(prefabRoot);
+                changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
+                changed |= EnsureAttributeHud(prefabRoot, healthDefinition);
+                changed |= EnsureDebugDamageInput(prefabRoot);
+                RemoveMissingScriptsRecursive(prefabRoot.transform);
+
+                if (changed)
+                {
+                    PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
+                }
+
+                return changed;
+            }
+            finally
+            {
                 PrefabUtility.UnloadPrefabContents(prefabRoot);
-                return false;
             }
-
-            bool changed = false;
-            changed |= EnsureAttributeContainer(prefabRoot, healthDefinition);
-            changed |= EnsureAttributeService(prefabRoot);
-            changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
-            changed |= EnsureAttributeHud(prefabRoot, healthDefinition);
-            changed |= EnsureDebugDamageInput(prefabRoot);
-            RemoveMissingScriptsRecursive(prefabRoot.transform);
-
-            if (changed)
-            {
-                PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
-            }
-
-            PrefabUtility.UnloadPrefabContents(prefabRoot);
-            return changed;
         }
 
         #endregion
@@ -85,6 +94,7 @@ namespace CCS.Modules.Attributes.Editor
             }
 
             SerializedObject serializedContainer = new SerializedObject(container);
+            SerializedProperty definitionsProperty = serializedContainer.FindProperty("attributeDefinitions");
             if (definitionsProperty != null)
             {
                 if (definitionsProperty.arraySize != 1
@@ -150,19 +160,12 @@ namespace CCS.Modules.Attributes.Editor
         private static bool EnsureAttributeHud(GameObject prefabRoot, CCS_AttributeDefinition healthDefinition)
         {
             bool changed = false;
-            Transform hudRoot = prefabRoot.transform.Find(CCS_AttributesTestConstants.AttributeHudRootObjectName);
-            if (hudRoot == null)
-            {
-                GameObject hudObject = new GameObject(CCS_AttributesTestConstants.AttributeHudRootObjectName);
-                hudRoot = hudObject.transform;
-                hudRoot.SetParent(prefabRoot.transform, false);
-                changed = true;
-            }
+            GameObject hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
 
-            Canvas canvas = hudRoot.GetComponent<Canvas>();
+            Canvas canvas = hudObject.GetComponent<Canvas>();
             if (canvas == null)
             {
-                canvas = hudRoot.gameObject.AddComponent<Canvas>();
+                canvas = hudObject.AddComponent<Canvas>();
                 changed = true;
             }
 
@@ -172,40 +175,49 @@ namespace CCS.Modules.Attributes.Editor
                 changed = true;
             }
 
-            if (hudRoot.GetComponent<CanvasScaler>() == null)
+            hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
+            if (hudObject == null)
             {
-                CanvasScaler scaler = hudRoot.gameObject.AddComponent<CanvasScaler>();
+                return changed;
+            }
+
+            if (hudObject.GetComponent<CanvasScaler>() == null)
+            {
+                CanvasScaler scaler = hudObject.AddComponent<CanvasScaler>();
                 scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
                 scaler.referenceResolution = new Vector2(1920f, 1080f);
                 changed = true;
             }
 
-            if (hudRoot.GetComponent<GraphicRaycaster>() == null)
+            if (hudObject.GetComponent<GraphicRaycaster>() == null)
             {
-                hudRoot.gameObject.AddComponent<GraphicRaycaster>();
+                hudObject.AddComponent<GraphicRaycaster>();
                 changed = true;
             }
 
-            CCS_PlayerAttributeHud hud = hudRoot.GetComponent<CCS_PlayerAttributeHud>();
+            hudObject = ResolveHudRootGameObject(prefabRoot, ref changed);
+            if (hudObject == null)
+            {
+                return changed;
+            }
+
+            CCS_PlayerAttributeHud hud = hudObject.GetComponent<CCS_PlayerAttributeHud>();
             if (hud == null)
             {
-                hud = hudRoot.gameObject.AddComponent<CCS_PlayerAttributeHud>();
+                hud = hudObject.AddComponent<CCS_PlayerAttributeHud>();
                 changed = true;
             }
 
-            Transform textTransform = hudRoot.Find(CCS_AttributesTestConstants.AttributeHudTextObjectName);
-            if (textTransform == null)
+            GameObject textObject = ResolveHudTextObject(hudObject, ref changed);
+            if (textObject == null)
             {
-                GameObject textObject = new GameObject(CCS_AttributesTestConstants.AttributeHudTextObjectName);
-                textTransform = textObject.transform;
-                textTransform.SetParent(hudRoot, false);
-                changed = true;
+                return changed;
             }
 
-            RectTransform rectTransform = textTransform.GetComponent<RectTransform>();
+            RectTransform rectTransform = textObject.GetComponent<RectTransform>();
             if (rectTransform == null)
             {
-                rectTransform = textTransform.gameObject.AddComponent<RectTransform>();
+                rectTransform = textObject.AddComponent<RectTransform>();
                 changed = true;
             }
 
@@ -223,10 +235,16 @@ namespace CCS.Modules.Attributes.Editor
                 changed = true;
             }
 
-            TextMeshProUGUI healthText = textTransform.GetComponent<TextMeshProUGUI>();
+            textObject = ResolveHudTextObject(hudObject, ref changed);
+            if (textObject == null)
+            {
+                return changed;
+            }
+
+            TextMeshProUGUI healthText = textObject.GetComponent<TextMeshProUGUI>();
             if (healthText == null)
             {
-                healthText = textTransform.gameObject.AddComponent<TextMeshProUGUI>();
+                healthText = textObject.AddComponent<TextMeshProUGUI>();
                 changed = true;
             }
 
@@ -262,6 +280,77 @@ namespace CCS.Modules.Attributes.Editor
             }
 
             return changed;
+        }
+
+        private static GameObject ResolveHudRootGameObject(GameObject prefabRoot, ref bool changed)
+        {
+            if (prefabRoot == null)
+            {
+                return null;
+            }
+
+            Transform existing = FindDirectChild(
+                prefabRoot.transform,
+                CCS_AttributesTestConstants.AttributeHudRootObjectName);
+            if (existing != null)
+            {
+                return existing.gameObject;
+            }
+
+            GameObject hudObject = new GameObject(
+                CCS_AttributesTestConstants.AttributeHudRootObjectName,
+                typeof(RectTransform));
+            hudObject.transform.SetParent(prefabRoot.transform, false);
+            changed = true;
+            return hudObject;
+        }
+
+        private static GameObject ResolveHudTextObject(GameObject hudObject, ref bool changed)
+        {
+            if (hudObject == null)
+            {
+                return null;
+            }
+
+            Transform existing = FindDirectChild(
+                hudObject.transform,
+                CCS_AttributesTestConstants.AttributeHudTextObjectName);
+            if (existing != null)
+            {
+                return existing.gameObject;
+            }
+
+            GameObject textObject = new GameObject(
+                CCS_AttributesTestConstants.AttributeHudTextObjectName,
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            textObject.transform.SetParent(hudObject.transform, false);
+            changed = true;
+            return textObject;
+        }
+
+        private static Transform FindDirectChild(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                if (child == null)
+                {
+                    continue;
+                }
+
+                if (child.name == childName)
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         private static bool EnsureDebugDamageInput(GameObject prefabRoot)

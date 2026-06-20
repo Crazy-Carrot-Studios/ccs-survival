@@ -1,4 +1,5 @@
 using CCS.Modules.CharacterController.Tests.Netcode;
+using TMPro;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -15,7 +16,7 @@ using UnityEngine.UI;
 // PLACEMENT: Editor layout utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.4.2 reference-guided anchor layout — centered cards, fixed menu buttons, no advanced join UI.
+// NOTES: Rebuilds hosting UI visuals while preserving existing runtime controller wiring.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
@@ -30,8 +31,25 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         private const float NetworkingCardWidth = CCS_NetcodeTestConstants.NetworkingCardWidth;
         private const float NetworkingCardHeight = CCS_NetcodeTestConstants.NetworkingCardHeight;
 
-        private static readonly Color BackgroundColor = HexColor("#061018");
-        private static readonly Color VignetteColor = new Color(0.01f, 0.02f, 0.05f, 0.55f);
+        private static readonly Color BackgroundBaseColor = HexColor("#040A12");
+        private static readonly Color BackgroundBloomColor = new Color(16f / 255f, 39f / 255f, 70f / 255f, 0.42f);
+        private static readonly Color VignetteColor = new Color(2f / 255f, 6f / 255f, 13f / 255f, 0.48f);
+        private static readonly Color ModeSelectCardColor = new Color(10f / 255f, 20f / 255f, 35f / 255f, 220f / 255f);
+        private static readonly Color ModeSelectCardBorderColor = HexColor("#5A7898");
+        private static readonly Color ModeSelectStudioTextColor = HexColor("#F0F4FA");
+        private static readonly Color ModeSelectMainTitleColor = HexColor("#F5F7FB");
+        private static readonly Color ModeSelectSessionTextColor = HexColor("#7E9BBE");
+        private static readonly Color ModeSelectButtonTitleColor = HexColor("#F7F9FC");
+        private static readonly Color ModeSelectButtonDescriptionColor = HexColor("#D1DAE8");
+        private static readonly Color ModeSelectGoldAccentColor = HexColor("#D28A2F");
+        private static readonly Color ModeSelectCenterLineColor = HexColor("#29415D");
+        private static readonly Color ModeSelectBottomLineColor = HexColor("#22344D");
+        private static readonly Color ModeSelectSinglePlayerButtonColor = HexColor("#173C68");
+        private static readonly Color ModeSelectSinglePlayerBorderColor = HexColor("#6D95C5");
+        private static readonly Color ModeSelectSinglePlayerHoverColor = HexColor("#21518A");
+        private static readonly Color ModeSelectMultiplayerButtonColor = HexColor("#222832");
+        private static readonly Color ModeSelectMultiplayerBorderColor = HexColor("#56606F");
+        private static readonly Color ModeSelectMultiplayerHoverColor = HexColor("#2D3744");
         private static readonly Color NetworkingPanelColor = HexColor("#050A12");
         private static readonly Color MainCardColor = new Color(8f / 255f, 18f / 255f, 32f / 255f, 220f / 255f);
         private static readonly Color SubCardColor = new Color(12f / 255f, 28f / 255f, 48f / 255f, 185f / 255f);
@@ -42,7 +60,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         private static readonly Color InputBorderColor = HexColor("#263C52");
         private static readonly Color ListBorderColor = HexColor("#24394F");
         private static readonly Color DividerColor = HexColor("#2B4058");
-        private static readonly Color AccentGoldColor = new Color(0.92f, 0.62f, 0.22f, 0.95f);
+        private static readonly Color AccentGoldColor = ModeSelectGoldAccentColor;
         private static readonly Color TextPrimary = HexColor("#F2F5FA");
         private static readonly Color TextSecondary = HexColor("#8FA8C8");
         private static readonly Color TextBody = HexColor("#CAD4E2");
@@ -78,8 +96,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 canvas = CreateCanvasRoot();
             }
 
+            EnsureSceneEventSystem();
             SanitizeCanvasRoot(canvas);
             ConfigureCanvasScaler(canvas);
+            EnsureCanvasRaycaster(canvas);
 
             NetworkManager networkManager = Object.FindFirstObjectByType<NetworkManager>();
             Unity.Netcode.Transports.UTP.UnityTransport transport = networkManager != null
@@ -91,7 +111,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform root = CreateStretchPanel(
                 "HostingUiRoot",
                 canvas.transform,
-                BackgroundColor,
+                BackgroundBaseColor,
                 raycastTarget: false);
             ApplyBackgroundTreatment(root);
 
@@ -128,7 +148,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.2 networking polish).");
+            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.3 wiring + layout repair).");
             return true;
         }
 
@@ -153,86 +173,95 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 panel,
                 new Vector2(ModeSelectCardWidth, ModeSelectCardHeight),
                 Vector2.zero,
-                MainCardColor,
-                MainCardBorderColor);
+                ModeSelectCardColor,
+                ModeSelectCardBorderColor,
+                outlineDistance: 2f);
 
-            CreateAnchoredText(
+            CreateAnchoredTmpText(
                 card,
                 "StudioTitleText",
                 "CRAZY CARROT STUDIOS",
-                22,
-                FontStyle.Bold,
-                TextPrimary,
-                TextAnchor.MiddleCenter,
+                34,
+                FontStyles.Bold,
+                ModeSelectStudioTextColor,
+                TextAlignmentOptions.Center,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -48f),
-                new Vector2(520f, 30f));
-            CreateAnchoredText(
+                new Vector2(0f, -90f),
+                new Vector2(900f, 42f),
+                characterSpacing: 10f);
+            CreateGoldAccentLine(
                 card,
-                "SubtitleText",
+                CCS_NetcodeTestConstants.ModeSelectTopAccentObjectName,
+                240f,
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -128f));
+            CreateAnchoredTmpText(
+                card,
+                "MainTitleText",
                 "CHARACTER CONTROLLER TEST",
-                15,
-                FontStyle.Normal,
-                TextSecondary,
-                TextAnchor.MiddleCenter,
+                56,
+                FontStyles.Bold,
+                ModeSelectMainTitleColor,
+                TextAlignmentOptions.Center,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -88f),
-                new Vector2(520f, 22f));
-            CreateAccentDivider(
+                new Vector2(0f, -185f),
+                new Vector2(980f, 68f));
+            CreateAnchoredTmpText(
+                card,
+                "LocalTestSessionText",
+                "LOCAL TEST SESSION",
+                20,
+                FontStyles.Normal,
+                ModeSelectSessionTextColor,
+                TextAlignmentOptions.Center,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -265f),
+                new Vector2(700f, 28f),
+                characterSpacing: 8f);
+            CreateHighlightedAccentDivider(
                 card,
                 CCS_NetcodeTestConstants.ModeSelectDividerObjectName,
-                420f,
-                new Vector2(0f, -118f));
+                520f,
+                ModeSelectCenterLineColor,
+                80f,
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -320f));
 
-            singlePlayerButton = CreateAnchoredButton(
+            singlePlayerButton = CreateModeSelectMenuButton(
                 card,
                 CCS_NetcodeTestConstants.SinglePlayerButtonObjectName,
                 "SINGLE PLAYER",
+                "Jump straight into the Master Test scene offline.",
                 new Vector2(ModeSelectButtonWidth, ModeSelectButtonHeight),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -190f),
-                MenuButtonColor,
-                PrimaryButtonHoverColor,
-                18);
-            CreateAnchoredText(
-                card,
-                "SinglePlayerDescription",
-                "Start directly in the Master Test scene.",
-                12,
-                FontStyle.Normal,
-                TextHint,
-                TextAnchor.MiddleCenter,
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -262f),
-                new Vector2(460f, 18f));
-
-            multiplayerButton = CreateAnchoredButton(
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -20f),
+                ModeSelectSinglePlayerButtonColor,
+                ModeSelectSinglePlayerBorderColor,
+                ModeSelectSinglePlayerHoverColor);
+            multiplayerButton = CreateModeSelectMenuButton(
                 card,
                 CCS_NetcodeTestConstants.MultiplayerButtonObjectName,
                 "MULTIPLAYER",
+                "Host or join a local test session.",
                 new Vector2(ModeSelectButtonWidth, ModeSelectButtonHeight),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -304f),
-                MenuButtonColor,
-                PrimaryButtonHoverColor,
-                18);
-            CreateAnchoredText(
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -170f),
+                ModeSelectMultiplayerButtonColor,
+                ModeSelectMultiplayerBorderColor,
+                ModeSelectMultiplayerHoverColor);
+            CreateHighlightedAccentDivider(
                 card,
-                "MultiplayerDescription",
-                "Host or join a local multiplayer session.",
-                12,
-                FontStyle.Normal,
-                TextHint,
-                TextAnchor.MiddleCenter,
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -376f),
-                new Vector2(460f, 18f));
+                CCS_NetcodeTestConstants.ModeSelectBottomAccentObjectName,
+                520f,
+                ModeSelectBottomLineColor,
+                80f,
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, 90f));
 
             modeSelectPanel = panel.gameObject;
         }
@@ -286,6 +315,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             SetReference(serializedMenu, "emptyServerListText", card.Find("JoinCard/EmptyServerListText")?.GetComponent<Text>());
             SetReference(serializedMenu, "refreshServersButton", card.Find("JoinCard/JoinButtons/RefreshServersButton")?.GetComponent<Button>());
             SetReference(serializedMenu, "joinSelectedButton", card.Find("JoinCard/JoinButtons/JoinSelectedButton")?.GetComponent<Button>());
+            SetReference(serializedMenu, "advancedManualJoinPanel", null);
+            SetReference(serializedMenu, "advancedManualJoinToggleButton", null);
+            SetReference(serializedMenu, "manualAddressInput", null);
+            SetReference(serializedMenu, "manualPortInput", null);
+            SetReference(serializedMenu, "joinManualButton", null);
             SetReference(serializedMenu, "diagnosticsPanel", diagnosticsPanel);
             SetReference(serializedMenu, "diagnosticsText", diagnosticsText);
             SetReference(serializedMenu, "connectedPlayersText", playersText);
@@ -321,7 +355,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(0.5f, 1f),
                 new Vector2(0f, -130f),
                 new Vector2(700f, 28f));
-            CreateAccentDivider(card, "HeaderDivider", 420f, new Vector2(0f, -165f));
+            CreateHighlightedAccentDivider(
+                card,
+                "HeaderDivider",
+                520f,
+                DividerColor,
+                80f,
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -165f));
         }
 
         private static void BuildNamePanel(RectTransform card)
@@ -652,6 +693,21 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
         private static void ApplyBackgroundTreatment(RectTransform root)
         {
+            GameObject bloomObject = new GameObject(
+                "BackgroundBloom",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            bloomObject.transform.SetParent(root, false);
+            RectTransform bloomRect = bloomObject.GetComponent<RectTransform>();
+            bloomRect.anchorMin = new Vector2(0f, 0.55f);
+            bloomRect.anchorMax = Vector2.one;
+            bloomRect.offsetMin = Vector2.zero;
+            bloomRect.offsetMax = Vector2.zero;
+            bloomObject.GetComponent<Image>().color = BackgroundBloomColor;
+            bloomObject.GetComponent<Image>().raycastTarget = false;
+            bloomObject.transform.SetAsFirstSibling();
+
             RectTransform vignette = CreateStretchPanel("BackgroundVignette", root, VignetteColor, raycastTarget: false);
             vignette.SetAsFirstSibling();
         }
@@ -659,6 +715,42 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         #endregion
 
         #region Factory Helpers
+
+        private static void EnsureSceneEventSystem()
+        {
+            EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+            {
+                GameObject eventSystemObject = new GameObject("EventSystem");
+                eventSystemObject.AddComponent<EventSystem>();
+                eventSystemObject.AddComponent<InputSystemUIInputModule>();
+                return;
+            }
+
+            StandaloneInputModule legacyModule = eventSystem.GetComponent<StandaloneInputModule>();
+            if (legacyModule != null)
+            {
+                Object.DestroyImmediate(legacyModule);
+            }
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+            }
+        }
+
+        private static void EnsureCanvasRaycaster(Canvas canvas)
+        {
+            if (canvas == null)
+            {
+                return;
+            }
+
+            if (canvas.GetComponent<GraphicRaycaster>() == null)
+            {
+                canvas.gameObject.AddComponent<GraphicRaycaster>();
+            }
+        }
 
         private static Canvas CreateCanvasRoot()
         {
@@ -759,7 +851,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             Vector2 anchoredPosition,
             Color fillColor,
             Color borderColor,
-            Vector2 anchor = default)
+            Vector2 anchor = default,
+            float outlineDistance = 1.5f)
         {
             if (anchor == default)
             {
@@ -767,11 +860,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             RectTransform panel = CreateAnchoredPanel(name, parent, size, anchor, anchor, anchoredPosition, fillColor);
-            AddOutline(panel.gameObject, borderColor);
+            AddOutline(panel.gameObject, borderColor, outlineDistance);
             return panel;
         }
 
-        private static void AddOutline(GameObject target, Color borderColor)
+        private static void AddOutline(GameObject target, Color borderColor, float outlineDistance = 1.5f)
         {
             Outline outline = target.GetComponent<Outline>();
             if (outline == null)
@@ -780,7 +873,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             outline.effectColor = borderColor;
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            outline.effectDistance = new Vector2(outlineDistance, -outlineDistance);
         }
 
         private static void ConfigureAnchoredRect(
@@ -904,6 +997,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             placeholderText.fontStyle = FontStyle.Italic;
             placeholderText.color = TextSecondary;
             placeholderText.text = placeholder;
+            placeholderText.raycastTarget = false;
 
             GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             textObject.transform.SetParent(inputRoot.transform, false);
@@ -914,11 +1008,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             text.fontSize = fontSize;
             text.color = TextPrimary;
             text.supportRichText = false;
+            text.raycastTarget = false;
 
             InputField inputField = inputRoot.GetComponent<InputField>();
             inputField.textComponent = text;
             inputField.placeholder = placeholderText;
             inputField.lineType = InputField.LineType.SingleLine;
+            inputField.interactable = true;
+            inputField.readOnly = false;
             return inputField;
         }
 
@@ -966,6 +1063,178 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             colors.selectedColor = highlightColor;
             button.colors = colors;
             return button;
+        }
+
+        private static Button CreateModeSelectMenuButton(
+            RectTransform parent,
+            string name,
+            string title,
+            string description,
+            Vector2 size,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 anchoredPosition,
+            Color normalColor,
+            Color borderColor,
+            Color highlightColor)
+        {
+            GameObject buttonObject = new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button));
+            buttonObject.transform.SetParent(parent, false);
+            ConfigureAnchoredRect(buttonObject.GetComponent<RectTransform>(), size, anchorMin, anchorMax, anchoredPosition);
+
+            Image image = buttonObject.GetComponent<Image>();
+            image.color = normalColor;
+            AddOutline(buttonObject, borderColor, 1.5f);
+
+            CreateAnchoredTmpText(
+                buttonObject.GetComponent<RectTransform>(),
+                "TitleText",
+                title,
+                34,
+                FontStyles.Bold,
+                ModeSelectButtonTitleColor,
+                TextAlignmentOptions.Center,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 18f),
+                new Vector2(size.x - 80f, 42f));
+            CreateAnchoredTmpText(
+                buttonObject.GetComponent<RectTransform>(),
+                "DescriptionText",
+                description,
+                18,
+                FontStyles.Normal,
+                ModeSelectButtonDescriptionColor,
+                TextAlignmentOptions.Center,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -24f),
+                new Vector2(size.x - 100f, 30f));
+
+            Button button = buttonObject.GetComponent<Button>();
+            ColorBlock colors = button.colors;
+            colors.normalColor = normalColor;
+            colors.highlightedColor = highlightColor;
+            colors.pressedColor = highlightColor * 0.85f;
+            colors.selectedColor = highlightColor;
+            button.colors = colors;
+            return button;
+        }
+
+        private static TextMeshProUGUI CreateAnchoredTmpText(
+            RectTransform parent,
+            string name,
+            string value,
+            int fontSize,
+            FontStyles style,
+            Color color,
+            TextAlignmentOptions alignment,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            float characterSpacing = 0f)
+        {
+            GameObject textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            textObject.transform.SetParent(parent, false);
+            ConfigureAnchoredRect(textObject.GetComponent<RectTransform>(), size, anchorMin, anchorMax, anchoredPosition);
+
+            TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
+            text.font = LoadDefaultTmpFont();
+            text.fontSize = fontSize;
+            text.fontStyle = style;
+            text.color = color;
+            text.alignment = alignment;
+            text.text = value;
+            text.characterSpacing = characterSpacing;
+            text.raycastTarget = false;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            return text;
+        }
+
+        private static TMP_FontAsset LoadDefaultTmpFont()
+        {
+            TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+            if (font == null)
+            {
+                font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF");
+            }
+
+            return font;
+        }
+
+        private static void CreateGoldAccentLine(
+            RectTransform parent,
+            string name,
+            float width,
+            Vector2 anchorMin,
+            Vector2 anchoredPosition)
+        {
+            RectTransform dividerRoot = CreateAnchoredPanel(
+                name,
+                parent,
+                new Vector2(width, 8f),
+                anchorMin,
+                anchorMin,
+                anchoredPosition,
+                Color.clear);
+            CreateAnchoredPanel(
+                "Line",
+                dividerRoot,
+                new Vector2(width, 2f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                ModeSelectGoldAccentColor);
+            CreateAnchoredPanel(
+                "Accent",
+                dividerRoot,
+                new Vector2(8f, 8f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                ModeSelectGoldAccentColor);
+        }
+
+        private static void CreateHighlightedAccentDivider(
+            RectTransform parent,
+            string name,
+            float lineWidth,
+            Color lineColor,
+            float highlightWidth,
+            Vector2 anchorMin,
+            Vector2 anchoredPosition)
+        {
+            RectTransform dividerRoot = CreateAnchoredPanel(
+                name,
+                parent,
+                new Vector2(lineWidth, 8f),
+                anchorMin,
+                anchorMin,
+                anchoredPosition,
+                Color.clear);
+            CreateAnchoredPanel(
+                "Line",
+                dividerRoot,
+                new Vector2(lineWidth, 1f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                lineColor);
+            CreateAnchoredPanel(
+                "Highlight",
+                dividerRoot,
+                new Vector2(highlightWidth, 2f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                ModeSelectGoldAccentColor);
         }
 
         private static void StretchRect(RectTransform rect, Vector2 offsetMin, Vector2 offsetMax)

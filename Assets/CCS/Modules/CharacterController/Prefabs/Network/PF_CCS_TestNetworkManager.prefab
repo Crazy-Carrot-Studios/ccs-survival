@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2766398194082383972}
   - component: {fileID: 1384542314147486306}
   - component: {fileID: 3199112309110172018}
+  - component: {fileID: 8811223344556677889}
   m_Layer: 0
   m_Name: PF_CCS_TestNetworkManager
   m_TagString: Untagged
@@ -50,7 +51,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1384542314147486306}
-    PlayerPrefab: {fileID: 2240448729846996730, guid: 0a66e7585649df743b83083ced94b7be, type: 3}
+    PlayerPrefab: {fileID: 100100000, guid: 0a66e7585649df743b83083ced94b7be, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 162fb1c8289ea624a8e724be75064b7f, type: 2}
@@ -118,3 +119,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Netcode.Runtime::CCS.Modules.CharacterController.Tests.Netcode.CCS_LocalMultiplayerTestLauncher
   disableSceneTestActorsOnNetworkStart: 1
+--- !u!114 &8811223344556677889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4848582652359913343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a4b5c6d7e8490123456789abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Netcode.Runtime::CCS.Modules.CharacterController.Tests.Netcode.CCS_NetworkPrefabReferenceGuard
+  networkedPlayerPrefabFallback: {fileID: 100100000, guid: 0a66e7585649df743b83083ced94b7be, type: 3}

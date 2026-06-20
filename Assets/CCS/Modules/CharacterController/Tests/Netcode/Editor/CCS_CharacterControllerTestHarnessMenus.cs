@@ -32,6 +32,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             LogResult(ValidateMultiplayerHostingScene());
         }
 
+        public static void RunFromBatchMode()
+        {
+            RunBatchBuildAndValidate();
+            CCS_SurvivalValidationResult result = ValidateMultiplayerHostingScene();
+            LogResult(result);
+            EditorApplication.Exit(result.IsSuccess ? 0 : 1);
+        }
+
         #endregion
 
         #region Private Methods

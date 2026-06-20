@@ -74,21 +74,27 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string BackButtonObjectName = "BackButton";
 
-        public const float ModeSelectCardWidth = 620f;
+        public const float ModeSelectCardWidth = 1100f;
 
-        public const float ModeSelectCardHeight = 640f;
+        public const float ModeSelectCardHeight = 780f;
 
-        public const float ModeSelectMenuButtonWidth = 420f;
+        public const float ModeSelectMenuButtonWidth = 720f;
 
-        public const float ModeSelectMenuButtonHeight = 64f;
+        public const float ModeSelectMenuButtonHeight = 110f;
 
-        public const float ModeSelectButtonSpacing = 24f;
+        public const float ModeSelectButtonSpacing = 40f;
 
-        public const float ModeSelectMenuButtonMinWidth = 300f;
+        public const float ModeSelectMenuButtonMinWidth = 680f;
 
-        public const float ModeSelectMenuButtonMaxWidth = 420f;
+        public const float ModeSelectMenuButtonMaxWidth = 740f;
 
-        public const float ModeSelectMenuButtonMinHeight = 50f;
+        public const float ModeSelectMenuButtonMinHeight = 100f;
+
+        public const float ModeSelectMenuButtonMaxHeight = 120f;
+
+        public const string ModeSelectTopAccentObjectName = "TopAccentLine";
+
+        public const string ModeSelectBottomAccentObjectName = "BottomAccentDivider";
 
         public const float NetworkingCardWidth = 1480f;
 
@@ -118,9 +124,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float HostingMenuButtonMaxHeight = HostingPrimaryButtonMaxHeight;
 
-        public const float ModeSelectMenuButtonMaxHeight = 70f;
-
-        public const string ModeSelectDividerObjectName = "HeaderDivider";
+        public const string ModeSelectDividerObjectName = "CenterDivider";
 
         public const string PlayerSetupPanelObjectName = "PlayerSetupPanel";
 

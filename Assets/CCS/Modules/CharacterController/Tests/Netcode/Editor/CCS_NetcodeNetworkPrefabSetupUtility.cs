@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.RegularExpressions;
 using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController.Editor;
 using CCS.Modules.Interaction.Editor;
@@ -34,6 +35,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 Debug.LogWarning("[Netcode Setup] Player prefab sync reported no changes or could not run.");
             }
 
+            if (!CCS_AttributesAssetBuilder.EnsureAttributesAssets())
+            {
+                Debug.Log("[Netcode Setup] Attributes assets already valid.");
+            }
+
             if (!CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes())
             {
                 Debug.LogWarning("[Netcode Setup] Attributes prefab sync reported no changes or could not run.");
@@ -54,12 +60,35 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             changed |= WriteDefaultNetworkPrefabsListAsset();
             changed |= WriteTestNetworkPrefabsListAsset();
             changed |= WriteTestNetworkManagerPrefabAsset();
-            changed |= RefreshHostingSceneNetworkManagerInstance();
 
             if (changed)
             {
                 AssetDatabase.SaveAssets();
+            }
+
+            bool yamlChanged = false;
+            yamlChanged |= EnsureYamlPrefabRootReference(
+                CCS_NetcodeTestConstants.NetworkManagerPrefabPath,
+                "PlayerPrefab",
+                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
+            yamlChanged |= EnsureYamlPrefabRootReference(
+                CCS_NetcodeTestConstants.TestNetworkPrefabsListPath,
+                "Prefab",
+                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
+            yamlChanged |= EnsureYamlPrefabRootReference(
+                CCS_NetcodeTestConstants.NetworkManagerPrefabPath,
+                "networkedPlayerPrefabFallback",
+                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
+            changed |= yamlChanged;
+            changed |= RefreshHostingSceneNetworkManagerInstance();
+
+            if (yamlChanged)
+            {
                 AssetDatabase.Refresh();
+            }
+
+            if (changed)
+            {
                 Debug.Log("[Netcode Setup] Network prefab wiring rebuilt.");
             }
             else
@@ -73,6 +102,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         #endregion
 
         #region Private Methods
+
+        private static bool EnsureYamlPrefabRootReference(
+            string assetPath,
+            string fieldName,
+            string prefabAssetPath)
+        {
+            if (!File.Exists(assetPath) || string.IsNullOrEmpty(prefabAssetPath))
+            {
+                return false;
+            }
+
+            string prefabGuid = AssetDatabase.AssetPathToGUID(prefabAssetPath);
+            if (string.IsNullOrEmpty(prefabGuid))
+            {
+                return false;
+            }
+
+            string yaml = File.ReadAllText(assetPath);
+            string pattern =
+                $@"(\s*{Regex.Escape(fieldName)}: \{{)fileID: \d+, guid: {prefabGuid}, type: 3\}}";
+            string replacement = $"$1fileID: 100100000, guid: {prefabGuid}, type: 3}}";
+            string updatedYaml = Regex.Replace(yaml, pattern, replacement);
+            if (updatedYaml == yaml)
+            {
+                return false;
+            }
+
+            File.WriteAllText(assetPath, updatedYaml);
+            return true;
+        }
 
         private static bool ValidatePlayerPrefabAsset(out string errorMessage)
         {
@@ -206,11 +265,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     changed = true;
                 }
 
-                if (prefabProperty != null && prefabProperty.objectReferenceValue != playerPrefab)
-                {
-                    prefabProperty.objectReferenceValue = playerPrefab;
-                    changed = true;
-                }
+                changed |= ForceRebindPrefabReference(prefabProperty, playerPrefab);
 
                 if (sourcePrefabProperty != null && sourcePrefabProperty.objectReferenceValue != null)
                 {
@@ -272,11 +327,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             SerializedProperty playerPrefabProperty = networkConfig.FindPropertyRelative("PlayerPrefab");
-            if (playerPrefabProperty != null && playerPrefabProperty.objectReferenceValue != playerPrefab)
-            {
-                playerPrefabProperty.objectReferenceValue = playerPrefab;
-                changed = true;
-            }
+            changed |= ForceRebindPrefabReference(playerPrefabProperty, playerPrefab);
+            changed |= EnsureNetworkPrefabReferenceGuard(managerPrefabAsset, playerPrefab);
 
             SerializedProperty prefabsProperty = networkConfig.FindPropertyRelative("Prefabs");
             SerializedProperty prefabListsProperty = prefabsProperty?.FindPropertyRelative("NetworkPrefabsLists");
@@ -416,6 +468,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return false;
             }
 
+            if (networkManagerObject.GetComponent<CCS_NetworkPrefabReferenceGuard>() == null)
+            {
+                errorMessage = "PF_CCS_TestNetworkManager is missing CCS_NetworkPrefabReferenceGuard.";
+                return false;
+            }
+
             return true;
         }
 
@@ -426,12 +484,73 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return false;
             }
 
-            if (EditorUtility.IsPersistent(prefabReference))
+            if (!EditorUtility.IsPersistent(prefabReference) || prefabReference != expectedAsset)
             {
-                return prefabReference == expectedAsset;
+                return false;
             }
 
-            return false;
+            return EditorPrefabHasNetworkObject(prefabReference);
+        }
+
+        private static bool ForceRebindPrefabReference(SerializedProperty prefabProperty, GameObject playerPrefab)
+        {
+            if (prefabProperty == null || playerPrefab == null)
+            {
+                return false;
+            }
+
+            if (prefabProperty.objectReferenceValue == playerPrefab
+                && EditorPrefabHasNetworkObject(playerPrefab))
+            {
+                return false;
+            }
+
+            prefabProperty.objectReferenceValue = null;
+            prefabProperty.objectReferenceValue = playerPrefab;
+            return true;
+        }
+
+        private static bool EnsureNetworkPrefabReferenceGuard(GameObject managerPrefabAsset, GameObject playerPrefab)
+        {
+            CCS_NetworkPrefabReferenceGuard guard = managerPrefabAsset.GetComponent<CCS_NetworkPrefabReferenceGuard>();
+            bool changed = false;
+            if (guard == null)
+            {
+                guard = managerPrefabAsset.AddComponent<CCS_NetworkPrefabReferenceGuard>();
+                changed = true;
+            }
+
+            SerializedObject serializedGuard = new SerializedObject(guard);
+            SerializedProperty fallbackProperty = serializedGuard.FindProperty("networkedPlayerPrefabFallback");
+            if (fallbackProperty != null && fallbackProperty.objectReferenceValue != playerPrefab)
+            {
+                fallbackProperty.objectReferenceValue = playerPrefab;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                serializedGuard.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool EditorPrefabHasNetworkObject(GameObject prefabReference)
+        {
+            if (prefabReference == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                return prefabReference.GetComponent<NetworkObject>() != null;
+            }
+            catch (MissingReferenceException)
+            {
+                return false;
+            }
         }
 
         private static void WireHostingMenuNetworkReferences(GameObject networkManagerInstance)

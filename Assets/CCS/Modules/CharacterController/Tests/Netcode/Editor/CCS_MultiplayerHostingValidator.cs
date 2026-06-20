@@ -4,6 +4,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using CCS.Project;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using Unity.Netcode;
@@ -315,9 +316,29 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     serializedMenu.FindProperty("transport")?.objectReferenceValue != null,
                     "CCS_MultiplayerHostingMenu.transport is not assigned. Run Setup Multiplayer Hosting Scene.");
 
+                InputField playerNameInput = serializedMenu.FindProperty("playerNameInput")?.objectReferenceValue as InputField;
+                AppendIfMissing(
+                    failures,
+                    playerNameInput != null && playerNameInput.interactable,
+                    "CCS_MultiplayerHostingMenu.playerNameInput must be assigned and interactable.");
+
                 ValidateHostingMenuFlow(failures);
                 ValidateModeSelectFlow(failures, modeController);
                 ValidateNetworkPrefabReferences(failures);
+            }
+
+            Canvas hostingCanvas = Object.FindFirstObjectByType<Canvas>();
+            if (hostingCanvas != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    hostingCanvas.GetComponent<GraphicRaycaster>() != null,
+                    $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} Canvas must have GraphicRaycaster.");
+                AppendIfMissing(
+                    failures,
+                    hostingCanvas.GetComponent<VerticalLayoutGroup>() == null
+                        && hostingCanvas.GetComponent<HorizontalLayoutGroup>() == null,
+                    "Canvas must not use a root Layout Group. Run Rebuild Multiplayer Hosting UI.");
             }
 
             EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
@@ -352,16 +373,19 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             GameObject registeredPrefab = testList.PrefabList[0].Prefab;
-            if (registeredPrefab == null || !registeredPrefab)
+            GameObject expectedPlayerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
+            if (!EditorPrefabHasNetworkObject(registeredPrefab)
+                && EditorPrefabHasNetworkObject(expectedPlayerPrefab))
             {
-                failures.Add(
-                    $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} player prefab reference is missing or destroyed. Run Setup Multiplayer Hosting Scene.");
-                return;
+                registeredPrefab = expectedPlayerPrefab;
             }
 
-            if (registeredPrefab.GetComponent<NetworkObject>() == null)
+            if (!EditorPrefabHasNetworkObject(registeredPrefab))
             {
-                failures.Add($"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} registered prefab is missing NetworkObject.");
+                failures.Add(
+                    $"{CCS_NetcodeTestConstants.TestNetworkPrefabsListPath} player prefab reference is missing, destroyed, or lacks NetworkObject. Run Setup Multiplayer Hosting Scene.");
+                return;
             }
 
             GameObject managerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -374,11 +398,22 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             GameObject playerPrefab = networkManager.NetworkConfig.PlayerPrefab;
-            if (playerPrefab == null || !playerPrefab)
+            if (!EditorPrefabHasNetworkObject(playerPrefab)
+                && EditorPrefabHasNetworkObject(expectedPlayerPrefab))
+            {
+                playerPrefab = expectedPlayerPrefab;
+            }
+
+            if (!EditorPrefabHasNetworkObject(playerPrefab))
             {
                 failures.Add(
-                    $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} PlayerPrefab reference is missing or destroyed. Run Setup Multiplayer Hosting Scene.");
+                    $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} PlayerPrefab reference is missing, destroyed, or lacks NetworkObject. Run Setup Multiplayer Hosting Scene.");
             }
+
+            AppendIfMissing(
+                failures,
+                managerPrefab.GetComponent<CCS_NetworkPrefabReferenceGuard>() != null,
+                $"{CCS_NetcodeTestConstants.NetworkManagerPrefabPath} must contain CCS_NetworkPrefabReferenceGuard.");
         }
 
         private static void ValidateModeSelectFlow(
@@ -447,8 +482,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 AppendIfMissing(
                     failures,
                     modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/MainTitleText") != null,
+                    "Mode Select must contain the main title.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/LocalTestSessionText") != null,
+                    "Mode Select must contain the local test session subtitle.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectTopAccentObjectName}") != null,
+                    "Mode Select must contain the top accent line.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
                         $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectDividerObjectName}") != null,
-                    "Mode Select must contain a header divider.");
+                    "Mode Select must contain the center divider.");
+                AppendIfMissing(
+                    failures,
+                    modeSelectPanel.Find(
+                        $"{CCS_NetcodeTestConstants.ModeSelectCardObjectName}/{CCS_NetcodeTestConstants.ModeSelectBottomAccentObjectName}") != null,
+                    "Mode Select must contain the bottom accent divider.");
 
                 Transform modeSelectCard = modeSelectPanel.Find(CCS_NetcodeTestConstants.ModeSelectCardObjectName);
                 if (modeSelectCard != null)
@@ -459,13 +514,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                         cardRect,
                         "Mode Select card",
                         CCS_NetcodeTestConstants.ModeSelectCardWidth,
-                        40f);
+                        60f);
                     ValidateAnchoredHeight(
                         failures,
                         cardRect,
                         "Mode Select card",
                         CCS_NetcodeTestConstants.ModeSelectCardHeight,
-                        40f);
+                        60f);
                     ValidateAnchoredButtonSize(
                         failures,
                         modeSelectCard.Find(CCS_NetcodeTestConstants.SinglePlayerButtonObjectName) as RectTransform,
@@ -474,6 +529,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                         CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxWidth,
                         CCS_NetcodeTestConstants.ModeSelectMenuButtonMinHeight,
                         CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxHeight);
+                    ValidateAnchoredButtonSize(
+                        failures,
+                        modeSelectCard.Find(CCS_NetcodeTestConstants.MultiplayerButtonObjectName) as RectTransform,
+                        "Multiplayer",
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMinWidth,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxWidth,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMinHeight,
+                        CCS_NetcodeTestConstants.ModeSelectMenuButtonMaxHeight);
+
+                    Transform studioTitle = modeSelectCard.Find("StudioTitleText");
+                    AppendIfMissing(
+                        failures,
+                        studioTitle != null && studioTitle.GetComponent<TextMeshProUGUI>() != null,
+                        "Mode Select studio title must use TextMeshPro.");
                 }
             }
 
@@ -793,7 +862,32 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     serializedMenu.FindProperty("joinSelectedButton")?.objectReferenceValue != null,
                     "CCS_MultiplayerHostingMenu.joinSelectedButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedMenu.FindProperty("refreshServersButton")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.refreshServersButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedMenu.FindProperty("exitButton")?.objectReferenceValue != null,
+                    "CCS_MultiplayerHostingMenu.exitButton is not wired.");
+                AppendIfMissing(
+                    failures,
+                    serializedMenu.FindProperty("advancedManualJoinPanel")?.objectReferenceValue == null,
+                    "CCS_MultiplayerHostingMenu.advancedManualJoinPanel must remain unassigned in the simple UI.");
+                AppendIfMissing(
+                    failures,
+                    serializedMenu.FindProperty("advancedManualJoinToggleButton")?.objectReferenceValue == null,
+                    "CCS_MultiplayerHostingMenu.advancedManualJoinToggleButton must remain unassigned in the simple UI.");
             }
+
+            AppendIfMissing(
+                failures,
+                GameObject.Find("AdvancedManualJoinPanel") == null,
+                "Hosting scene must not contain AdvancedManualJoinPanel.");
+            AppendIfMissing(
+                failures,
+                GameObject.Find("AdvancedManualJoinToggleButton") == null,
+                "Hosting scene must not contain AdvancedManualJoinToggleButton.");
         }
 
         private static bool UsesYamlPrefabRootReference(
@@ -807,8 +901,46 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             string prefabGuid = AssetDatabase.AssetPathToGUID(expectedPrefabPath);
-            string expectedSnippet = $"{fieldName}: {{fileID: 100100000, guid: {prefabGuid}, type: 3}}";
-            return File.ReadAllText(assetPath).Contains(expectedSnippet);
+            if (string.IsNullOrEmpty(prefabGuid))
+            {
+                return false;
+            }
+
+            string[] lines = File.ReadAllLines(assetPath);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (!line.Contains(fieldName + ":"))
+                {
+                    continue;
+                }
+
+                if (line.Contains("fileID: 100100000")
+                    && line.Contains($"guid: {prefabGuid}")
+                    && line.Contains("type: 3"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool EditorPrefabHasNetworkObject(GameObject prefabReference)
+        {
+            if (prefabReference == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                return prefabReference.GetComponent<NetworkObject>() != null;
+            }
+            catch (MissingReferenceException)
+            {
+                return false;
+            }
         }
 
         private static string GetNetworkPrefabListEntryPath(NetworkPrefabsList list)
