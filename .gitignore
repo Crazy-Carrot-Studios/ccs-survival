@@ -111,3 +111,11 @@ InitTestScene*.unity*
 
 # Local editor workflow (not part of the project)
 .cursor/
+
+# Reallusion CCiC Unity Tools (local import tooling; not part of ccs-survival)
+/[Aa]ssets/Reallusion/CCiC Unity Tools/
+/[Aa]ssets/Reallusion/CCiC Unity Tools.meta
+/[Aa]ssets/Reallusion/DataLink_Imports/Scene Assets/
+/[Aa]ssets/Reallusion/DataLink_Imports/Scene Assets.meta
+/[Aa]ssets/Reallusion/DataLink_Imports/RL_DataLink_Server_Message_Log.txt
+/[Aa]ssets/Reallusion/DataLink_Imports/RL_DataLink_Server_Message_Log.txt.meta
