@@ -543,6 +543,34 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                         failures,
                         studioTitle != null && studioTitle.GetComponent<TextMeshProUGUI>() != null,
                         "Mode Select studio title must use TextMeshPro.");
+
+                    Transform mainTitle = modeSelectCard.Find("MainTitleText");
+                    if (mainTitle is RectTransform mainTitleRect)
+                    {
+                        TextMeshProUGUI mainTitleText = mainTitle.GetComponent<TextMeshProUGUI>();
+                        AppendIfMissing(
+                            failures,
+                            mainTitleText != null,
+                            "Mode Select main title must use TextMeshPro.");
+                        AppendIfMissing(
+                            failures,
+                            mainTitleText != null
+                                && mainTitleText.text == "CHARACTER CONTROLLER TEST",
+                            "Mode Select main title text must be CHARACTER CONTROLLER TEST.");
+                        AppendIfMissing(
+                            failures,
+                            mainTitleRect.sizeDelta.x >= CCS_NetcodeTestConstants.ModeSelectMainTitleMinWidth,
+                            $"Mode Select main title width must be at least {CCS_NetcodeTestConstants.ModeSelectMainTitleMinWidth:0.#}.");
+                        AppendIfMissing(
+                            failures,
+                            mainTitleText == null
+                                || mainTitleText.overflowMode != TextOverflowModes.Ellipsis,
+                            "Mode Select main title must not truncate with ellipsis.");
+                    }
+                    else
+                    {
+                        failures.Add("Mode Select main title RectTransform is missing.");
+                    }
                 }
             }
 
@@ -599,6 +627,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     failures,
                     networkingCard.Find("HostCard") as RectTransform,
                     networkingCard.Find("JoinCard") as RectTransform);
+                ValidateNetworkingFooterLayout(
+                    failures,
+                    networkingCardRect,
+                    networkingCard.Find("HostCard") as RectTransform,
+                    networkingCard.Find("JoinCard") as RectTransform);
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("AdvancedManualJoinPanel") == null,
@@ -614,40 +647,40 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Host & Start",
                     300f,
                     CCS_NetcodeTestConstants.HostStartButtonMaxWidth,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 ValidateAnchoredButtonSize(
                     failures,
                     networkingCard.Find("JoinCard/JoinButtons/RefreshServersButton") as RectTransform,
                     "Refresh",
                     180f,
                     CCS_NetcodeTestConstants.RefreshButtonMaxWidth,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 ValidateAnchoredButtonSize(
                     failures,
                     networkingCard.Find("JoinCard/JoinButtons/JoinSelectedButton") as RectTransform,
                     "Join Selected",
                     240f,
                     CCS_NetcodeTestConstants.JoinSelectedButtonMaxWidth,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMinHeight,
-                    CCS_NetcodeTestConstants.HostingPrimaryButtonMaxHeight);
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 ValidateAnchoredButtonSize(
                     failures,
                     networkingCard.Find(CCS_NetcodeTestConstants.BackButtonObjectName) as RectTransform,
                     "Back",
-                    180f,
-                    CCS_NetcodeTestConstants.FooterButtonMaxWidth,
-                    CCS_NetcodeTestConstants.HostingFooterButtonMinHeight,
-                    CCS_NetcodeTestConstants.HostingFooterButtonMaxHeight);
+                    CCS_NetcodeTestConstants.NetworkingBackButtonWidth - 20f,
+                    CCS_NetcodeTestConstants.NetworkingBackButtonWidth + 20f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
                 ValidateAnchoredButtonSize(
                     failures,
                     networkingCard.Find("ExitButton") as RectTransform,
                     "Exit",
-                    180f,
-                    CCS_NetcodeTestConstants.FooterButtonMaxWidth,
-                    CCS_NetcodeTestConstants.HostingFooterButtonMinHeight,
-                    CCS_NetcodeTestConstants.HostingFooterButtonMaxHeight);
+                    CCS_NetcodeTestConstants.NetworkingExitButtonWidth - 20f,
+                    CCS_NetcodeTestConstants.NetworkingExitButtonWidth + 20f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight - 6f,
+                    CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight + 6f);
 
                 GameObject diagnosticsPanel = networkingCard.Find("DiagnosticsPanel")?.gameObject;
                 AppendIfMissing(
@@ -708,6 +741,119 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 Mathf.Approximately(hostCard.sizeDelta.x, joinCard.sizeDelta.x)
                     && Mathf.Approximately(hostCard.sizeDelta.y, joinCard.sizeDelta.y),
                 "HostCard and JoinCard must use matching sizes.");
+        }
+
+        private static void ValidateNetworkingFooterLayout(
+            List<string> failures,
+            RectTransform networkingCard,
+            RectTransform hostCard,
+            RectTransform joinCard)
+        {
+            if (networkingCard == null)
+            {
+                failures.Add("Networking card RectTransform is missing for footer layout validation.");
+                return;
+            }
+
+            RectTransform footerDivider = networkingCard.Find("FooterDivider") as RectTransform;
+            RectTransform backButton = networkingCard.Find(CCS_NetcodeTestConstants.BackButtonObjectName) as RectTransform;
+            RectTransform playersPanel = networkingCard.Find("ConnectedPlayersPanel") as RectTransform;
+            RectTransform exitButton = networkingCard.Find("ExitButton") as RectTransform;
+
+            if (footerDivider == null || backButton == null || playersPanel == null || exitButton == null)
+            {
+                failures.Add("Networking footer divider or footer controls are missing.");
+                return;
+            }
+
+            float cardHeight = networkingCard.rect.height;
+            float expectedBodyBottomY = (cardHeight * 0.5f)
+                - CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset
+                - CCS_NetcodeTestConstants.HostCardHeight;
+            float expectedDividerY = (-cardHeight * 0.5f) + CCS_NetcodeTestConstants.NetworkingFooterDividerBottomOffset;
+            float expectedFooterGap = expectedBodyBottomY - expectedDividerY;
+            AppendIfMissing(
+                failures,
+                expectedFooterGap >= CCS_NetcodeTestConstants.NetworkingMinFooterBodyGap,
+                $"Footer divider must leave at least {CCS_NetcodeTestConstants.NetworkingMinFooterBodyGap:0.#}px below Host/Join cards.");
+
+            ValidateBottomAnchoredYOffset(
+                failures,
+                footerDivider,
+                "Footer divider",
+                CCS_NetcodeTestConstants.NetworkingFooterDividerBottomOffset,
+                8f);
+            ValidateBottomAnchoredYOffset(
+                failures,
+                backButton,
+                "Back button",
+                CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset,
+                10f);
+            ValidateBottomAnchoredYOffset(
+                failures,
+                playersPanel,
+                "Players panel",
+                CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset,
+                10f);
+            ValidateBottomAnchoredYOffset(
+                failures,
+                exitButton,
+                "Exit button",
+                CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset,
+                10f);
+
+            AppendIfMissing(
+                failures,
+                backButton.anchoredPosition.y < footerDivider.anchoredPosition.y,
+                "Back button must sit below the footer divider band.");
+            AppendIfMissing(
+                failures,
+                exitButton.anchoredPosition.y < footerDivider.anchoredPosition.y,
+                "Exit button must sit below the footer divider band.");
+
+            if (hostCard != null && joinCard != null)
+            {
+                float hostBottom = GetTopAnchoredBottomY(hostCard);
+                float joinBottom = GetTopAnchoredBottomY(joinCard);
+                float bodyBottom = Mathf.Min(hostBottom, joinBottom);
+                AppendIfMissing(
+                    failures,
+                    bodyBottom > footerDivider.anchoredPosition.y + 1f,
+                    "Footer divider overlaps HostCard/JoinCard body content.");
+            }
+        }
+
+        private static void ValidateBottomAnchoredYOffset(
+            List<string> failures,
+            RectTransform rect,
+            string label,
+            float expectedYOffset,
+            float tolerance)
+        {
+            if (rect == null)
+            {
+                failures.Add($"Hosting UI element '{label}' is missing for footer layout validation.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(rect.anchorMin.y, 0f) && Mathf.Approximately(rect.anchorMax.y, 0f),
+                $"Hosting UI element '{label}' must use bottom anchoring.");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(rect.anchoredPosition.y - expectedYOffset) <= tolerance,
+                $"Hosting UI element '{label}' must sit near {expectedYOffset:0.#}px from the card bottom.");
+        }
+
+        private static float GetTopAnchoredBottomY(RectTransform rect)
+        {
+            if (rect == null)
+            {
+                return float.MaxValue;
+            }
+
+            return rect.anchoredPosition.y - rect.sizeDelta.y;
         }
 
         private static void ValidateAnchoredWidth(

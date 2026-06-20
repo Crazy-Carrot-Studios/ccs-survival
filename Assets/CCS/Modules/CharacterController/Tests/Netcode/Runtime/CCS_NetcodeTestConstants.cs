@@ -74,9 +74,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string BackButtonObjectName = "BackButton";
 
-        public const float ModeSelectCardWidth = 1100f;
+        public const float ModeSelectCardWidth = 1250f;
 
-        public const float ModeSelectCardHeight = 780f;
+        public const float ModeSelectCardHeight = 820f;
+
+        public const float ModeSelectMainTitleMinWidth = 1100f;
+
+        public const float ModeSelectMainTitleWidth = 1150f;
 
         public const float ModeSelectMenuButtonWidth = 720f;
 
@@ -102,7 +106,27 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float HostCardWidth = 600f;
 
-        public const float HostCardHeight = 380f;
+        public const float HostCardHeight = 360f;
+
+        public const float NetworkingNamePanelHeight = 140f;
+
+        public const float NetworkingHostJoinCardTopOffset = 95f;
+
+        public const float NetworkingHostJoinButtonBottomOffset = 55f;
+
+        public const float NetworkingHostJoinButtonHeight = 58f;
+
+        public const float NetworkingFooterDividerBottomOffset = 140f;
+
+        public const float NetworkingFooterButtonBottomOffset = 65f;
+
+        public const float NetworkingMinFooterBodyGap = 45f;
+
+        public const float NetworkingBackButtonWidth = 230f;
+
+        public const float NetworkingPlayersPanelWidth = 260f;
+
+        public const float NetworkingExitButtonWidth = 230f;
 
         public const float HostStartButtonMaxWidth = 520f;
 

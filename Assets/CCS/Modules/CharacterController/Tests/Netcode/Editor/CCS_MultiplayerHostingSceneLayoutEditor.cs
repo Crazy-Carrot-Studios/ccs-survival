@@ -148,7 +148,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.3 wiring + layout repair).");
+            Debug.Log("[Hosting Layout] Rebuilt SCN_CCS_MultiplayerHosting UI (v0.4.3 spacing + wiring repair).");
             return true;
         }
 
@@ -195,19 +195,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 CCS_NetcodeTestConstants.ModeSelectTopAccentObjectName,
                 240f,
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -128f));
+                new Vector2(0f, -130f));
             CreateAnchoredTmpText(
                 card,
                 "MainTitleText",
                 "CHARACTER CONTROLLER TEST",
-                56,
+                52,
                 FontStyles.Bold,
                 ModeSelectMainTitleColor,
                 TextAlignmentOptions.Center,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -185f),
-                new Vector2(980f, 68f));
+                new Vector2(0f, -190f),
+                new Vector2(CCS_NetcodeTestConstants.ModeSelectMainTitleWidth, 68f),
+                overflowMode: TextOverflowModes.Overflow);
             CreateAnchoredTmpText(
                 card,
                 "LocalTestSessionText",
@@ -218,17 +219,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAlignmentOptions.Center,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -265f),
+                new Vector2(0f, -275f),
                 new Vector2(700f, 28f),
                 characterSpacing: 8f);
             CreateHighlightedAccentDivider(
                 card,
                 CCS_NetcodeTestConstants.ModeSelectDividerObjectName,
-                520f,
+                620f,
                 ModeSelectCenterLineColor,
                 80f,
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -320f));
+                new Vector2(0f, -325f));
 
             singlePlayerButton = CreateModeSelectMenuButton(
                 card,
@@ -238,7 +239,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(ModeSelectButtonWidth, ModeSelectButtonHeight),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -20f),
+                new Vector2(0f, -35f),
                 ModeSelectSinglePlayerButtonColor,
                 ModeSelectSinglePlayerBorderColor,
                 ModeSelectSinglePlayerHoverColor);
@@ -250,18 +251,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(ModeSelectButtonWidth, ModeSelectButtonHeight),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -170f),
+                new Vector2(0f, -185f),
                 ModeSelectMultiplayerButtonColor,
                 ModeSelectMultiplayerBorderColor,
                 ModeSelectMultiplayerHoverColor);
             CreateHighlightedAccentDivider(
                 card,
                 CCS_NetcodeTestConstants.ModeSelectBottomAccentObjectName,
-                520f,
+                620f,
                 ModeSelectBottomLineColor,
                 80f,
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, 90f));
+                new Vector2(0f, 85f));
 
             modeSelectPanel = panel.gameObject;
         }
@@ -353,7 +354,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleCenter,
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -130f),
+                new Vector2(0f, -138f),
                 new Vector2(700f, 28f));
             CreateHighlightedAccentDivider(
                 card,
@@ -362,7 +363,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 DividerColor,
                 80f,
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -165f));
+                new Vector2(0f, -178f));
         }
 
         private static void BuildNamePanel(RectTransform card)
@@ -370,8 +371,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform namePanel = CreateBorderedPanel(
                 "NamePanel",
                 card,
-                new Vector2(1220f, 150f),
-                new Vector2(0f, -250f),
+                new Vector2(1220f, CCS_NetcodeTestConstants.NetworkingNamePanelHeight),
+                new Vector2(0f, -265f),
                 SubCardColor,
                 SubCardBorderColor,
                 new Vector2(0.5f, 1f));
@@ -386,7 +387,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -35f),
+                new Vector2(110f, -30f),
                 new Vector2(240f, 24f));
             CreateAnchoredInputField(
                 namePanel,
@@ -395,7 +396,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(560f, 54f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -80f),
+                new Vector2(110f, -62f),
                 InputBackgroundColor,
                 InputBorderColor,
                 20);
@@ -409,7 +410,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -125f),
+                new Vector2(110f, -124f),
                 new Vector2(760f, 22f));
         }
 
@@ -418,8 +419,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform hostCard = CreateBorderedPanel(
                 "HostCard",
                 card,
-                new Vector2(600f, 380f),
-                new Vector2(-320f, -500f),
+                new Vector2(CCS_NetcodeTestConstants.HostCardWidth, CCS_NetcodeTestConstants.HostCardHeight),
+                new Vector2(-320f, -CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset),
                 SubCardColor,
                 SubCardBorderColor,
                 new Vector2(0.5f, 1f));
@@ -434,7 +435,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(50f, -55f),
+                new Vector2(50f, -50f),
                 new Vector2(300f, 32f));
             CreateAnchoredText(
                 hostCard,
@@ -446,16 +447,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.UpperLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(50f, -95f),
+                new Vector2(50f, -102f),
                 new Vector2(430f, 56f));
             CreateAnchoredButton(
                 hostCard,
                 "HostAndStartButton",
                 "HOST & START",
-                new Vector2(500f, 64f),
+                new Vector2(500f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, 65f),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonBottomOffset),
                 PrimaryButtonColor,
                 PrimaryButtonHoverColor,
                 22);
@@ -466,8 +467,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform joinCard = CreateBorderedPanel(
                 "JoinCard",
                 card,
-                new Vector2(600f, 380f),
-                new Vector2(320f, -500f),
+                new Vector2(CCS_NetcodeTestConstants.HostCardWidth, CCS_NetcodeTestConstants.HostCardHeight),
+                new Vector2(320f, -CCS_NetcodeTestConstants.NetworkingHostJoinCardTopOffset),
                 SubCardColor,
                 SubCardBorderColor,
                 new Vector2(0.5f, 1f));
@@ -482,7 +483,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(50f, -55f),
+                new Vector2(50f, -50f),
                 new Vector2(300f, 32f));
             CreateAnchoredText(
                 joinCard,
@@ -494,7 +495,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 TextAnchor.UpperLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(50f, -95f),
+                new Vector2(50f, -102f),
                 new Vector2(430f, 44f));
 
             CreateServerList(joinCard, new Vector2(520f, 130f), new Vector2(0f, -40f));
@@ -514,16 +515,16 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform buttonRow = CreateAnchoredPanel(
                 "JoinButtons",
                 joinCard,
-                new Vector2(530f, 64f),
+                new Vector2(530f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, 65f),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonBottomOffset),
                 Color.clear);
             CreateAnchoredButton(
                 buttonRow,
                 "RefreshServersButton",
                 "REFRESH",
-                new Vector2(220f, 64f),
+                new Vector2(220f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(-155f, 0f),
@@ -534,7 +535,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 buttonRow,
                 "JoinSelectedButton",
                 "JOIN SELECTED",
-                new Vector2(290f, 64f),
+                new Vector2(290f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(155f, 0f),
@@ -555,17 +556,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(1340f, 1f),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, 110f),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingFooterDividerBottomOffset),
                 DividerColor);
 
             backButton = CreateAnchoredButton(
                 card,
                 CCS_NetcodeTestConstants.BackButtonObjectName,
                 "BACK",
-                new Vector2(230f, 58f),
+                new Vector2(CCS_NetcodeTestConstants.NetworkingBackButtonWidth, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f),
-                new Vector2(100f, 55f),
+                new Vector2(100f, CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset),
                 SecondaryButtonColor,
                 SecondaryButtonHoverColor,
                 18);
@@ -573,8 +574,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             RectTransform playersPanel = CreateBorderedPanel(
                 "ConnectedPlayersPanel",
                 card,
-                new Vector2(260f, 58f),
-                new Vector2(0f, 55f),
+                new Vector2(CCS_NetcodeTestConstants.NetworkingPlayersPanelWidth, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset),
                 new Color(0.04f, 0.08f, 0.14f, 0.85f),
                 ListBorderColor,
                 new Vector2(0.5f, 0f));
@@ -595,10 +596,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 card,
                 "ExitButton",
                 "EXIT",
-                new Vector2(230f, 58f),
+                new Vector2(CCS_NetcodeTestConstants.NetworkingExitButtonWidth, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(-100f, 55f),
+                new Vector2(-100f, CCS_NetcodeTestConstants.NetworkingFooterButtonBottomOffset),
                 SecondaryButtonColor,
                 SecondaryButtonHoverColor,
                 18);
@@ -1054,6 +1055,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             text.alignment = TextAnchor.MiddleCenter;
             text.color = TextPrimary;
             text.text = label;
+            text.raycastTarget = false;
 
             Button button = buttonObject.GetComponent<Button>();
             ColorBlock colors = button.colors;
@@ -1138,7 +1140,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             Vector2 anchorMax,
             Vector2 anchoredPosition,
             Vector2 size,
-            float characterSpacing = 0f)
+            float characterSpacing = 0f,
+            TextOverflowModes overflowMode = TextOverflowModes.Ellipsis)
         {
             GameObject textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             textObject.transform.SetParent(parent, false);
@@ -1154,7 +1157,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             text.characterSpacing = characterSpacing;
             text.raycastTarget = false;
             text.textWrappingMode = TextWrappingModes.Normal;
-            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.overflowMode = overflowMode;
             return text;
         }
 
