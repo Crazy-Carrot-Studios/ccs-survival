@@ -154,6 +154,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const float NetworkingHostJoinButtonBottomOffset = 55f;
 
+        public const float NetworkingJoinHostListWidth = 520f;
+
+        public const float NetworkingJoinHostListHeight = 105f;
+
+        public const float NetworkingJoinHostListCenterYOffset = 30f;
+
+        public const float NetworkingJoinButtonBottomOffset = 45f;
+
+        public const float NetworkingJoinEmptyListFontSize = 17f;
+
+        public const float NetworkingJoinHostListGapAboveButtons = 20f;
+
+        public const float NetworkingInputWarningWidth = 480f;
+
+        public const float NetworkingInputWarningHeight = 44f;
+
+        public const float NetworkingInputWarningFontSize = 20f;
+
+        public const float NetworkingInputWarningLeftOffset = 700f;
+
+        public const float NetworkingInputWarningRowYOffset = -67f;
+
         public const float NetworkingHostJoinButtonHeight = 58f;
 
         public const float NetworkingFooterDividerBottomOffset = 95f;
@@ -204,6 +226,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string PlayerNameWarningTextObjectName = "PlayerNameWarningText";
 
+        public const string PlayerNameWarningDisplayMessage =
+            "Enter a player name before hosting or joining.";
+
         public const string PlayerNameRequiredForHostWarningMessage =
             "Enter a player name before hosting.";
 
@@ -221,6 +246,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public const string ServerNameHintMessage =
             "Required. This name appears in the local host list.";
+
+        public const string NoLocalHostSelectedWarningMessage =
+            "No local host selected.";
 
         public const string DefaultServerSessionLabel = "Local Test Session";
 

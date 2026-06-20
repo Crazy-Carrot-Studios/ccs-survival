@@ -65,7 +65,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
         private static readonly Color TextSecondary = HexColor("#8FA8C8");
         private static readonly Color TextBody = HexColor("#CAD4E2");
         private static readonly Color TextHint = HexColor("#B7C3D4");
-        private static readonly Color TextNameWarning = HexColor("#D4A050");
+        private static readonly Color TextNameWarning = HexColor("#D28A2F");
         private static readonly Color TextFooter = HexColor("#BFD0E6");
         private static readonly Color TextLabel = HexColor("#EAF0F8");
         private static readonly Color TextEmptyList = HexColor("#C9D2DF");
@@ -447,15 +447,19 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             TextMeshProUGUI playerNameWarningText = CreateAnchoredTmpText(
                 namePanel,
                 CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName,
-                CCS_NetcodeTestConstants.PlayerNameRequiredForHostWarningMessage,
-                15,
+                CCS_NetcodeTestConstants.PlayerNameWarningDisplayMessage,
+                (int)CCS_NetcodeTestConstants.NetworkingInputWarningFontSize,
                 FontStyles.Normal,
                 TextNameWarning,
                 TextAlignmentOptions.MidlineLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -112f),
-                new Vector2(760f, 20f));
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingInputWarningLeftOffset,
+                    CCS_NetcodeTestConstants.NetworkingInputWarningRowYOffset),
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingInputWarningWidth,
+                    CCS_NetcodeTestConstants.NetworkingInputWarningHeight));
             playerNameWarningText.gameObject.SetActive(false);
         }
 
@@ -511,14 +515,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 serverNamePanel,
                 CCS_NetcodeTestConstants.ServerNameWarningTextObjectName,
                 CCS_NetcodeTestConstants.ServerNameRequiredWarningMessage,
-                15,
+                (int)CCS_NetcodeTestConstants.NetworkingInputWarningFontSize,
                 FontStyles.Normal,
                 TextNameWarning,
                 TextAlignmentOptions.MidlineLeft,
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(110f, -112f),
-                new Vector2(760f, 20f));
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingInputWarningLeftOffset,
+                    CCS_NetcodeTestConstants.NetworkingInputWarningRowYOffset),
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingInputWarningWidth,
+                    CCS_NetcodeTestConstants.NetworkingInputWarningHeight));
             serverNameWarningText.gameObject.SetActive(false);
         }
 
@@ -608,19 +616,24 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(50f, -102f),
                 new Vector2(430f, 44f));
 
-            CreateServerList(joinCard, new Vector2(520f, 130f), new Vector2(0f, -40f));
+            CreateServerList(
+                joinCard,
+                new Vector2(
+                    CCS_NetcodeTestConstants.NetworkingJoinHostListWidth,
+                    CCS_NetcodeTestConstants.NetworkingJoinHostListHeight),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingJoinHostListCenterYOffset));
             CreateAnchoredText(
                 joinCard,
                 "EmptyServerListText",
                 CCS_NetcodeTestConstants.EmptyServerListMessage,
-                18,
+                (int)CCS_NetcodeTestConstants.NetworkingJoinEmptyListFontSize,
                 FontStyle.Normal,
                 TextEmptyList,
                 TextAnchor.MiddleCenter,
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -40f),
-                new Vector2(480f, 60f));
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingJoinHostListCenterYOffset),
+                new Vector2(480f, 72f));
 
             RectTransform buttonRow = CreateAnchoredPanel(
                 "JoinButtons",
@@ -628,7 +641,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 new Vector2(530f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonHeight),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingHostJoinButtonBottomOffset),
+                new Vector2(0f, CCS_NetcodeTestConstants.NetworkingJoinButtonBottomOffset),
                 Color.clear);
             CreateAnchoredButton(
                 buttonRow,

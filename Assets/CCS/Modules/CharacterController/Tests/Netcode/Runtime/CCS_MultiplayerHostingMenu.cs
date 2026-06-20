@@ -112,10 +112,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         {
             if (!TryValidateForHost(out string validationError))
             {
-                LogHostFlow(validationError);
+                LogHostingValidation(validationError);
                 return;
             }
 
+            ClearPlayerNameWarning();
+            ClearServerNameWarning();
             LogHostFlow("Host button clicked");
 
             if (!TryResolveNetworkReferences(out NetworkManager manager, out UnityTransport resolvedTransport))
@@ -201,23 +203,15 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnJoinSelectedClicked()
         {
-            if (!TryValidatePlayerNameForJoin(out string playerNameError))
+            if (!TryValidateForJoin(out string validationError))
             {
-                LogJoinFlow(playerNameError);
+                LogJoinValidation(validationError);
                 return;
             }
 
+            ClearPlayerNameWarning();
+            RestoreEmptyServerListMessageIfNeeded();
             LogJoinFlow("Join button clicked");
-
-            bool hasSelectedHost = selectedServerIndex >= 0 && selectedServerIndex < serverEntries.Count;
-            LogJoinFlow($"Selected host exists: {hasSelectedHost.ToString()}");
-
-            if (!hasSelectedHost)
-            {
-                LogJoinFlow("No host selected from join list.");
-                SetDiagnostics("Select a host from the list, or refresh after a player hosts.");
-                return;
-            }
 
             CCS_MultiplayerServerListEntry entry = serverEntries[selectedServerIndex];
 
@@ -228,8 +222,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         public void OnJoinManualClicked()
         {
-            if (!TryValidatePlayerNameForJoin(out _))
+            if (!TryValidatePlayerNameForJoin(out string validationError))
             {
+                LogJoinValidation(validationError);
                 return;
             }
 
@@ -293,7 +288,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 playerNameInput.text = string.Empty;
             }
 
-            ApplyDefaultServerName();
+            if (serverNameInput != null)
+            {
+                serverNameInput.text = string.Empty;
+            }
 
             if (manualAddressInput != null && string.IsNullOrWhiteSpace(manualAddressInput.text))
             {
@@ -396,6 +394,23 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             {
                 selectedServerIndex = -1;
             }
+        }
+
+        private void RestoreEmptyServerListMessageIfNeeded()
+        {
+            if (emptyServerListText == null || serverEntries.Count > 0)
+            {
+                return;
+            }
+
+            emptyServerListText.text = CCS_NetcodeTestConstants.EmptyServerListMessage;
+        }
+
+        private bool HasSelectedRealHost()
+        {
+            return selectedServerIndex >= 0
+                && selectedServerIndex < serverEntries.Count
+                && serverEntries.Count > 0;
         }
 
         private void ClearServerListUi()
@@ -889,9 +904,9 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             string rawPlayerName = playerNameInput != null ? playerNameInput.text : string.Empty;
             if (string.IsNullOrWhiteSpace(rawPlayerName))
             {
-                errorMessage = CCS_NetcodeTestConstants.PlayerNameRequiredForHostWarningMessage;
+                errorMessage = "Player name required.";
                 ClearServerNameWarning();
-                ShowPlayerNameWarning(CCS_NetcodeTestConstants.PlayerNameRequiredForHostWarningMessage);
+                ShowPlayerNameWarning();
                 return false;
             }
 
@@ -900,12 +915,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             string rawServerName = serverNameInput != null ? serverNameInput.text : string.Empty;
             if (string.IsNullOrWhiteSpace(rawServerName))
             {
-                errorMessage = CCS_NetcodeTestConstants.ServerNameRequiredWarningMessage;
+                errorMessage = "Server name required.";
                 ShowServerNameWarning();
                 return false;
             }
 
             ClearServerNameWarning();
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        private bool TryValidateForJoin(out string errorMessage)
+        {
+            string rawPlayerName = playerNameInput != null ? playerNameInput.text : string.Empty;
+            if (string.IsNullOrWhiteSpace(rawPlayerName))
+            {
+                errorMessage = "Player name required.";
+                ShowPlayerNameWarning();
+                return false;
+            }
+
+            ClearPlayerNameWarning();
+
+            if (!HasSelectedRealHost())
+            {
+                errorMessage = "No local host selected.";
+                ShowJoinSelectionWarning();
+                return false;
+            }
+
+            RestoreEmptyServerListMessageIfNeeded();
             errorMessage = string.Empty;
             return true;
         }
@@ -918,8 +957,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return true;
             }
 
-            errorMessage = CCS_NetcodeTestConstants.PlayerNameRequiredForJoinWarningMessage;
-            ShowPlayerNameWarning(CCS_NetcodeTestConstants.PlayerNameRequiredForJoinWarningMessage);
+            errorMessage = "Player name required.";
+            ShowPlayerNameWarning();
             return false;
         }
 
@@ -998,15 +1037,25 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             serverNameInput.ActivateInputField();
         }
 
-        private void ApplyDefaultServerName()
+        private void ShowJoinSelectionWarning()
         {
-            if (serverNameInput == null)
+            if (emptyServerListText == null)
             {
                 return;
             }
 
-            string playerName = playerNameInput != null ? playerNameInput.text : string.Empty;
-            serverNameInput.text = CCS_MultiplayerServerNameUtility.CreateDefaultServerName(playerName);
+            emptyServerListText.text = CCS_NetcodeTestConstants.NoLocalHostSelectedWarningMessage;
+            emptyServerListText.gameObject.SetActive(true);
+        }
+
+        private static void LogHostingValidation(string reason)
+        {
+            Debug.Log("[Hosting Validation] " + reason);
+        }
+
+        private static void LogJoinValidation(string reason)
+        {
+            Debug.Log("[Join Validation] " + reason);
         }
 
         private string GetSanitizedServerName()
@@ -1015,11 +1064,11 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             return CCS_MultiplayerServerNameUtility.Sanitize(rawName);
         }
 
-        private void ShowPlayerNameWarning(string warningMessage)
+        private void ShowPlayerNameWarning()
         {
             if (playerNameWarningText != null)
             {
-                playerNameWarningText.text = warningMessage;
+                playerNameWarningText.text = CCS_NetcodeTestConstants.PlayerNameWarningDisplayMessage;
                 playerNameWarningText.gameObject.SetActive(true);
             }
 

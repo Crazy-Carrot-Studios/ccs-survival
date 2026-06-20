@@ -859,6 +859,17 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     networkingCardRect,
                     networkingCard.Find("HostCard") as RectTransform,
                     networkingCard.Find("JoinCard") as RectTransform);
+                ValidateJoinCardListLayout(
+                    failures,
+                    networkingCard.Find("JoinCard") as RectTransform);
+                ValidateInputWarningLayout(
+                    failures,
+                    networkingCard.Find("NamePanel") as RectTransform,
+                    "NamePanel");
+                ValidateInputWarningLayout(
+                    failures,
+                    networkingCard.Find(CCS_NetcodeTestConstants.ServerNamePanelObjectName) as RectTransform,
+                    "ServerNamePanel");
                 AppendIfMissing(
                     failures,
                     networkingCard.Find("AdvancedManualJoinPanel") == null,
@@ -1094,6 +1105,89 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 "ServerNamePanel server name input must remain interactable.");
         }
 
+        private static void ValidateJoinCardListLayout(List<string> failures, RectTransform joinCard)
+        {
+            if (joinCard == null)
+            {
+                failures.Add("JoinCard RectTransform is missing for join list layout validation.");
+                return;
+            }
+
+            RectTransform serverListScroll = joinCard.Find("ServerListScroll") as RectTransform;
+            RectTransform buttonRow = joinCard.Find("JoinButtons") as RectTransform;
+            if (serverListScroll == null || buttonRow == null)
+            {
+                failures.Add("JoinCard server list scroll or button row is missing.");
+                return;
+            }
+
+            ValidateAnchoredWidth(
+                failures,
+                serverListScroll,
+                "Join host list",
+                CCS_NetcodeTestConstants.NetworkingJoinHostListWidth,
+                20f);
+            ValidateAnchoredHeight(
+                failures,
+                serverListScroll,
+                "Join host list",
+                CCS_NetcodeTestConstants.NetworkingJoinHostListHeight,
+                10f);
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(serverListScroll.anchoredPosition.y - CCS_NetcodeTestConstants.NetworkingJoinHostListCenterYOffset) <= 12f,
+                $"Join host list must sit near Y {CCS_NetcodeTestConstants.NetworkingJoinHostListCenterYOffset:0.#} inside JoinCard.");
+            AppendIfMissing(
+                failures,
+                Mathf.Abs(buttonRow.anchoredPosition.y - CCS_NetcodeTestConstants.NetworkingJoinButtonBottomOffset) <= 8f,
+                $"Join button row must sit near Y {CCS_NetcodeTestConstants.NetworkingJoinButtonBottomOffset:0.#} from the JoinCard bottom.");
+
+            Bounds listBounds = GetRelativeBounds(joinCard, serverListScroll);
+            Bounds buttonBounds = GetRelativeBounds(joinCard, buttonRow);
+            float listToButtonGap = listBounds.min.y - buttonBounds.max.y;
+            AppendIfMissing(
+                failures,
+                listToButtonGap >= CCS_NetcodeTestConstants.NetworkingJoinHostListGapAboveButtons,
+                "Join empty host message must not overlap Refresh / Join Selected buttons.");
+        }
+
+        private static void ValidateInputWarningLayout(
+            List<string> failures,
+            RectTransform panel,
+            string panelLabel)
+        {
+            if (panel == null)
+            {
+                failures.Add($"Hosting UI panel '{panelLabel}' is missing for warning layout validation.");
+                return;
+            }
+
+            RectTransform warningRect = panel.Find(CCS_NetcodeTestConstants.PlayerNameWarningTextObjectName) as RectTransform;
+            if (panelLabel == "ServerNamePanel")
+            {
+                warningRect = panel.Find(CCS_NetcodeTestConstants.ServerNameWarningTextObjectName) as RectTransform;
+            }
+
+            if (warningRect == null)
+            {
+                failures.Add($"{panelLabel} warning text is missing.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                warningRect.anchoredPosition.x >= CCS_NetcodeTestConstants.NetworkingInputWarningLeftOffset - 20f,
+                $"{panelLabel} warning text must sit to the right of the input field.");
+            AppendIfMissing(
+                failures,
+                warningRect.sizeDelta.x >= CCS_NetcodeTestConstants.NetworkingInputWarningWidth - 40f,
+                $"{panelLabel} warning text must use a wide warning area.");
+            AppendIfMissing(
+                failures,
+                warningRect.sizeDelta.y >= CCS_NetcodeTestConstants.NetworkingInputWarningHeight - 8f,
+                $"{panelLabel} warning text must use a tall warning area.");
+        }
+
         private static void ValidateNetworkingFooterLayout(
             List<string> failures,
             RectTransform networkingCard,
@@ -1296,8 +1390,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must validate player and server name before host.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("TryValidatePlayerNameForJoin"),
-                    "CCS_MultiplayerHostingMenu must validate player name before join.");
+                    source.Contains("TryValidateForJoin"),
+                    "CCS_MultiplayerHostingMenu must validate player name and selected host before join.");
                 AppendIfMissing(
                     failures,
                     source.Contains("playerNameWarningText"),
@@ -1308,16 +1402,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "CCS_MultiplayerHostingMenu must expose the server name warning label.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("PlayerNameRequiredForHostWarningMessage"),
-                    "CCS_MultiplayerHostingMenu must use the required player name warning for host.");
-                AppendIfMissing(
-                    failures,
-                    source.Contains("PlayerNameRequiredForJoinWarningMessage"),
-                    "CCS_MultiplayerHostingMenu must use the required player name warning for join.");
+                    source.Contains("PlayerNameWarningDisplayMessage"),
+                    "CCS_MultiplayerHostingMenu must use the player name warning display message.");
                 AppendIfMissing(
                     failures,
                     source.Contains("ServerNameRequiredWarningMessage"),
                     "CCS_MultiplayerHostingMenu must use the required server name warning message.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("NoLocalHostSelectedWarningMessage"),
+                    "CCS_MultiplayerHostingMenu must use the no-local-host join warning message.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("[Hosting Validation]"),
+                    "CCS_MultiplayerHostingMenu must log hosting validation failures.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("[Join Validation]"),
+                    "CCS_MultiplayerHostingMenu must log join validation failures.");
+                AppendIfMissing(
+                    failures,
+                    !source.Contains("ApplyDefaultServerName"),
+                    "CCS_MultiplayerHostingMenu must not prefill server name before host validation.");
                 AppendIfMissing(
                     failures,
                     source.Contains("CCS_LocalMultiplayerHostDiscovery.DiscoverLocalHosts"),
