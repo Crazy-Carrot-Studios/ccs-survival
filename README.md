@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.5.5** · Crazy Carrot Studios
+**Version 0.6.0** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -13,14 +13,11 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **CharacterController** | Movement, camera, Master Test harness |
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
+| **Weapons** | Test revolver hitscan foundation (v0.6.0) |
 
 ## Current milestone
 
-**0.5.5** — Project audit and interaction cleanup after the v0.5.4 pickup/door release.
-
-Interaction supports forward-volume detection, closest-point line of sight, Press [E] prompts when ready, movement lock during animations, and `PickUp_RH` / `WalkThroughDoor_RH` routing. Details: [Interaction module doc](Assets/CCS/Modules/Interaction/Documentation/CCS_Interaction_Module.md).
-
-No production survival loop yet.
+**0.6.0** — Revolver shooting foundation: aim/fire/reload input, camera-center hitscan, test damage target, and Master Test wiring.
 
 ## Validation and playtest
 
@@ -29,6 +26,7 @@ No production survival loop yet.
 | Project audit (docs, asmdefs, legacy leftovers) | **CCS → Project → Run Project Audit** |
 | Master Test (primary) | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
 | Interaction module | **CCS → Interaction → Validate Interaction Module** |
+| Weapons module | **CCS → Weapons → Validate Weapons Module** |
 | Character Controller Master Test | **CCS → Character Controller → Scene → Setup And Validate Master Test Scene** |
 | Attributes module | **CCS → Attributes → Validate Attributes Module** |
 | Bootstrap smoke | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
@@ -44,7 +42,7 @@ Unity 6 · URP · Input System · Netcode for GameObjects · Cinemachine 3.1
 ```text
 Assets/CCS/
 ├── Framework/     Reusable core platform
-├── Modules/       Gameplay modules (CharacterController, Attributes, Interaction)
+├── Modules/       Gameplay modules (CharacterController, Attributes, Interaction, Weapons)
 ├── Scenes/        Bootstrap, Master Test, multiplayer hosting
 └── Project/       Composition shell and project documentation
 ```
@@ -60,7 +58,7 @@ Assets/CCS/
 
 `0.x.x` — internal rebuild milestones · `1.0.0` — first alpha-ready release (future)
 
-Tagged release: **v0.5.5**
+Tagged release: **v0.6.0**
 
 ---
 

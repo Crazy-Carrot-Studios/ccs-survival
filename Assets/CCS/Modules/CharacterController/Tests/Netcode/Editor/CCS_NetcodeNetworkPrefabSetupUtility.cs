@@ -438,7 +438,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                FindObjectsInactive.Include);
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < sceneObjects.Length; i++)
             {
                 NetworkObject sceneObject = sceneObjects[i];

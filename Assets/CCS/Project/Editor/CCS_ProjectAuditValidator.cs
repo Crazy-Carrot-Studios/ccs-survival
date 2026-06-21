@@ -6,6 +6,8 @@ using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController.Editor;
 using CCS.Modules.Interaction;
 using CCS.Modules.Interaction.Editor;
+using CCS.Modules.Weapons;
+using CCS.Modules.Weapons.Editor;
 
 using CCS.Project;
 
@@ -36,6 +38,7 @@ namespace CCS.Project.Editor
             "Assets/CCS/Modules/CharacterController/Runtime/CCS.Modules.CharacterController.Runtime.asmdef",
             "Assets/CCS/Modules/Attributes/Runtime/CCS.Modules.Attributes.Runtime.asmdef",
             "Assets/CCS/Modules/Interaction/Runtime/CCS.Modules.Interaction.Runtime.asmdef",
+            "Assets/CCS/Modules/Weapons/Runtime/CCS.Modules.Weapons.Runtime.asmdef",
         };
 
         private static readonly string[] LegacyAssetPaths =
@@ -147,7 +150,8 @@ namespace CCS.Project.Editor
             string modulesReadme = ReadTextIfExists("Assets/CCS/Modules/README.md");
             if (!modulesReadme.Contains("CharacterController")
                 || !modulesReadme.Contains("Attributes")
-                || !modulesReadme.Contains("Interaction"))
+                || !modulesReadme.Contains("Interaction")
+                || !modulesReadme.Contains("Weapons"))
             {
                 failures.Add("Project audit: Modules README does not list all active modules.");
             }
@@ -171,6 +175,11 @@ namespace CCS.Project.Editor
                 failures,
                 CCS_AttributesModuleValidator.ValidateAttributesModule(),
                 "Attributes");
+
+            AppendValidatorResult(
+                failures,
+                CCS_WeaponsModuleValidator.ValidateWeaponsModule(),
+                "Weapons");
 
             notes.Add("Module validators executed.");
         }

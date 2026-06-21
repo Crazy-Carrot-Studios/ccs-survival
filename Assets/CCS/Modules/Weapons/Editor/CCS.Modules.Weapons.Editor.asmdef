@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Modules.Weapons.Editor",
+    "rootNamespace": "CCS.Modules.Weapons.Editor",
+    "references": [
+        "CCS.Core.Editor",
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "CCS.Modules.Weapons.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

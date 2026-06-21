@@ -87,6 +87,12 @@ namespace CCS.Modules.CharacterController
 
         public const string CameraZoomActionName = "CameraZoom";
 
+        public const string AimActionName = "Aim";
+
+        public const string FireActionName = "Fire";
+
+        public const string ReloadActionName = "Reload";
+
         public const string MovementProfileId = "ccs.survival.profile.character.movement.default";
 
         public const string CameraProfileId = "ccs.survival.profile.character.camera.thirdperson";

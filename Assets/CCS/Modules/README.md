@@ -9,6 +9,7 @@ Gameplay and game systems live under `Assets/CCS/Modules/`. Each feature is an i
 | CharacterController | v0.2.4 — movement, camera, Master Test scene, netcode harness |
 | Attributes | v0.3.0 — attribute model, Health, replication, test HUD |
 | Interaction | v0.5.4 — pickup/door flow, forward volume, closest-point LOS, prompt HUD |
+| Weapons | v0.6.0 — test revolver hitscan, aim/fire/reload, damage target |
 
 ## Test-player integration (intentional)
 

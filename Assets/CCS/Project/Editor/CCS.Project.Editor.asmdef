@@ -9,7 +9,9 @@
         "CCS.Modules.CharacterController.Editor",
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Interaction.Editor",
-        "CCS.Modules.Interaction.Runtime"
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Weapons.Editor",
+        "CCS.Modules.Weapons.Runtime"
     ],
     "includePlatforms": [
         "Editor"

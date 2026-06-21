@@ -162,6 +162,7 @@ namespace CCS.Modules.CharacterController
             }
 
             HardStopPlanarMotion();
+            jumpBufferTimeRemaining = 0f;
 
             if (staminaController != null)
             {

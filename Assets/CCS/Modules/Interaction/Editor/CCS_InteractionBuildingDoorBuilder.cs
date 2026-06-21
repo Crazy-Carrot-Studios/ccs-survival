@@ -55,7 +55,7 @@ namespace CCS.Modules.Interaction.Editor
         public static bool EnsureSceneBuildingDoors(int interactableLayer)
         {
             bool changed = false;
-            Transform[] allTransforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
+            Transform[] allTransforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < allTransforms.Length; i++)
             {
                 Transform candidate = allTransforms[i];
@@ -209,7 +209,7 @@ namespace CCS.Modules.Interaction.Editor
 
         private static GameObject FindSceneObjectByName(string objectName)
         {
-            Transform[] transforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
+            Transform[] transforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < transforms.Length; i++)
             {
                 Transform candidate = transforms[i];

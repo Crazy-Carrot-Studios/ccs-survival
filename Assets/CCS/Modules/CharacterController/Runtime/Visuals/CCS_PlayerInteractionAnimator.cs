@@ -15,6 +15,8 @@ using UnityEngine;
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Lock begins on scanner E accept via BeginInteractionLock. Trigger fires on completed.
+//        Normal unlock is driven by CCS_InteractionAnimationStateExitBehaviour OnStateExit.
+//        Fallback timer unlocks only if Animator state exit is missed.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -110,7 +112,42 @@ namespace CCS.Modules.CharacterController
             }
 
             StopUnlockCoroutine();
-            SetInteractionBusy(false, activeInteractionAnimationKey);
+            ReleaseInteractionLock(activeInteractionAnimationKey, logReleased: true);
+        }
+
+        public void NotifyInteractionAnimationStateEntered(CCS_InteractionAnimationKey animationKey)
+        {
+            if (!enableInteractionDebugLogs || !isInteractionBusy || animationKey != activeInteractionAnimationKey)
+            {
+                return;
+            }
+
+            Debug.Log(
+                $"[Interaction Lock] Animation state entered {FormatAnimationKey(animationKey)}",
+                this);
+        }
+
+        public void NotifyInteractionAnimationStateExited(CCS_InteractionAnimationKey animationKey)
+        {
+            if (enableInteractionDebugLogs)
+            {
+                Debug.Log(
+                    $"[Interaction Lock] Animation state exited {FormatAnimationKey(animationKey)}",
+                    this);
+            }
+
+            CompleteInteractionAnimationLock(animationKey);
+        }
+
+        public void CompleteInteractionAnimationLock(CCS_InteractionAnimationKey animationKey)
+        {
+            if (!isInteractionBusy || animationKey != activeInteractionAnimationKey || !IsLocalAnimationOwner())
+            {
+                return;
+            }
+
+            StopUnlockCoroutine();
+            ReleaseInteractionLock(animationKey, logReleased: true);
         }
 
         public void PlayInteractionAnimation(CCS_InteractionAnimationKey animationKey)
@@ -191,7 +228,13 @@ namespace CCS.Modules.CharacterController
             }
 
             unlockCoroutine = null;
-            SetInteractionBusy(false, animationKey);
+
+            if (!isInteractionBusy || animationKey != activeInteractionAnimationKey)
+            {
+                yield break;
+            }
+
+            ReleaseInteractionLock(animationKey, logReleased: true, logFallback: true);
         }
 
         private void StopUnlockCoroutine()
@@ -217,6 +260,27 @@ namespace CCS.Modules.CharacterController
             }
         }
 
+        private void ReleaseInteractionLock(
+            CCS_InteractionAnimationKey animationKey,
+            bool logReleased,
+            bool logFallback = false)
+        {
+            if (!isInteractionBusy)
+            {
+                return;
+            }
+
+            if (logReleased && enableInteractionDebugLogs)
+            {
+                string suffix = logFallback ? " (fallback timer)" : string.Empty;
+                Debug.Log(
+                    $"[Interaction Lock] Released {FormatAnimationKey(animationKey)}{suffix}",
+                    this);
+            }
+
+            SetInteractionBusy(false, animationKey);
+        }
+
         private void SetInteractionBusy(bool busy, CCS_InteractionAnimationKey animationKey, bool logChange = true)
         {
             if (isInteractionBusy == busy)
@@ -227,17 +291,19 @@ namespace CCS.Modules.CharacterController
             isInteractionBusy = busy;
             activeInteractionAnimationKey = animationKey;
 
-            if (logChange && enableInteractionDebugLogs)
+            if (logChange && busy && enableInteractionDebugLogs)
             {
-                string triggerName = CCS_InteractionAnimationKeyUtility.ToAnimatorTriggerName(animationKey);
                 Debug.Log(
-                    busy
-                        ? $"[Interaction] Movement lock started: {triggerName}"
-                        : $"[Interaction] Movement lock released: {triggerName}",
+                    $"[Interaction Lock] Started {FormatAnimationKey(animationKey)}",
                     this);
             }
 
             InteractionBusyChanged?.Invoke(busy);
+        }
+
+        private static string FormatAnimationKey(CCS_InteractionAnimationKey animationKey)
+        {
+            return CCS_InteractionAnimationKeyUtility.ToAnimatorTriggerName(animationKey);
         }
 
         private bool IsLocalAnimationOwner()

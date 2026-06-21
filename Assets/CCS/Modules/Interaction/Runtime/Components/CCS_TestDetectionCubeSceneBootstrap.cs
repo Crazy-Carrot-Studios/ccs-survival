@@ -65,7 +65,7 @@ namespace CCS.Modules.Interaction
         private static bool HasDetectionTargetInScene()
         {
             CCS_InteractableLabelTarget[] targets =
-                FindObjectsByType<CCS_InteractableLabelTarget>(FindObjectsInactive.Include);
+                FindObjectsByType<CCS_InteractableLabelTarget>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             return targets.Length > 0;
         }
 

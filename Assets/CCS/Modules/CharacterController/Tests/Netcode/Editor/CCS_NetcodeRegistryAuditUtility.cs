@@ -158,7 +158,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                FindObjectsInactive.Include);
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < sceneObjects.Length; i++)
             {
                 NetworkObject sceneObject = sceneObjects[i];
@@ -209,7 +209,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 if (masterScene.IsValid())
                 {
                     NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                        FindObjectsInactive.Include);
+                        FindObjectsInactive.Include, FindObjectsSortMode.None);
                     for (int sceneIndex = 0; sceneIndex < sceneObjects.Length; sceneIndex++)
                     {
                         NetworkObject sceneObject = sceneObjects[sceneIndex];
@@ -281,7 +281,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                FindObjectsInactive.Include);
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
             if (!allowScenePlacedNetworkObjects && sceneObjects.Length > 0)
             {
                 errorMessage =

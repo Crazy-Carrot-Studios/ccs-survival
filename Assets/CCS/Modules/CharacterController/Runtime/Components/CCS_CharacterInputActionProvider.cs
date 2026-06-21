@@ -35,6 +35,9 @@ namespace CCS.Modules.CharacterController
         private InputAction jumpAction;
         private InputAction toggleCursorAction;
         private InputAction cameraZoomAction;
+        private InputAction aimAction;
+        private InputAction fireAction;
+        private InputAction reloadAction;
         private bool cursorLocked = true;
         private bool inputAccepted = true;
         private bool sharedMapEnableHeld;
@@ -66,6 +69,15 @@ namespace CCS.Modules.CharacterController
 
         public float CameraZoomInput =>
             HasAcceptedFocusedInput && cameraZoomAction != null ? cameraZoomAction.ReadValue<float>() : 0f;
+
+        public bool AimHeld =>
+            HasAcceptedFocusedInput && aimAction != null && aimAction.IsPressed();
+
+        public bool FirePressed =>
+            HasAcceptedFocusedInput && fireAction != null && fireAction.WasPressedThisFrame();
+
+        public bool ReloadPressed =>
+            HasAcceptedFocusedInput && reloadAction != null && reloadAction.WasPressedThisFrame();
 
         public bool CursorLocked => cursorLocked;
 
@@ -165,6 +177,9 @@ namespace CCS.Modules.CharacterController
             jumpAction = null;
             toggleCursorAction = null;
             cameraZoomAction = null;
+            aimAction = null;
+            fireAction = null;
+            reloadAction = null;
 
             if (inputActionsAsset == null)
             {
@@ -178,6 +193,9 @@ namespace CCS.Modules.CharacterController
             jumpAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.JumpActionName, true);
             toggleCursorAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.ToggleCursorActionName, true);
             cameraZoomAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.CameraZoomActionName, true);
+            aimAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.AimActionName, true);
+            fireAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.FireActionName, true);
+            reloadAction = gameplayMap.FindAction(CCS_CharacterControllerConstants.ReloadActionName, true);
         }
 
         private void AcquireSharedActionMap()

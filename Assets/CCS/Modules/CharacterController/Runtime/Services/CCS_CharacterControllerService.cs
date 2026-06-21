@@ -83,7 +83,7 @@ namespace CCS.Modules.CharacterController
             }
 
             CCS_CharacterCameraController[] controllers =
-                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include);
+                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < controllers.Length; i++)
             {
                 CCS_CharacterCameraController candidate = controllers[i];

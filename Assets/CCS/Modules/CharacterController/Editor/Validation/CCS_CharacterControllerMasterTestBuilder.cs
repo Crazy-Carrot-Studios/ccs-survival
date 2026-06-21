@@ -3,6 +3,7 @@ using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.Interaction.Editor;
+using CCS.Modules.Weapons.Editor;
 using Unity.Cinemachine;
 using UnityEditor;
 
@@ -78,6 +79,8 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
             CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner();
             CCS_InteractionPromptHudPrefabBuilder.EnsureTestPlayerInteractionPromptHud();
+            CCS_WeaponsAssetBuilder.EnsureWeaponsAssets();
+            CCS_WeaponsTestPlayerPrefabBuilder.EnsureTestPlayerWeaponWiring();
 
             EnsurePrefabAssetMaterials();
 
@@ -156,6 +159,8 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureTraversalPoints(testPoints);
 
             changed |= CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
+
+            changed |= CCS_WeaponsMasterTestBuilder.EnsureMasterTestWeaponTarget();
 
             changed |= EnsureBootstrapRoot();
 
@@ -392,7 +397,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
 
-            Transform[] allTransforms = Object.FindObjectsByType<Transform>();
+            Transform[] allTransforms = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
 
             for (int i = 0; i < allTransforms.Length; i++)
 
@@ -1162,7 +1167,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            Light[] lights = Object.FindObjectsByType<Light>();
+            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
 
             Light directionalLight = null;
 
@@ -1236,7 +1241,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>();
+            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
 
             AudioListener keepListener = null;
 
@@ -1378,7 +1383,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 ? scope.GetComponentsInChildren<Transform>(true)
 
-                : Object.FindObjectsByType<Transform>();
+                : Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
 
             for (int i = 0; i < transforms.Length; i++)
 

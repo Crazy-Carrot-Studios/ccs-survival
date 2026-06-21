@@ -124,9 +124,9 @@ namespace CCS.Modules.Interaction
 
         public const float InteractionPromptFontSize = 36f;
 
-        public const float PickUpRightHandLockDuration = 1f;
+        public const float PickUpRightHandLockDuration = 2f;
 
-        public const float WalkThroughDoorRightHandLockDuration = 1.2f;
+        public const float WalkThroughDoorRightHandLockDuration = 1.3f;
 
         public const string TestDetectionCubeDisplayName = "Test Cube";
     }
