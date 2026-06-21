@@ -6,9 +6,18 @@ Gameplay and game systems live under `Assets/CCS/Modules/`. Each feature is an i
 
 | Module | Status |
 |--------|--------|
-| CharacterController | v0.2.4 — movement, camera, test prefab, master test scene, validation |
-| Attributes | v0.3.0 — generic attribute model, Health, server-authoritative replication, test HUD |
-| Interaction | v0.5.4 — pickup/door flow, forward volume, closest-point LOS, prompt HUD, Master Test targets |
+| CharacterController | v0.2.4 — movement, camera, Master Test scene, netcode harness |
+| Attributes | v0.3.0 — attribute model, Health, replication, test HUD |
+| Interaction | v0.5.4 — pickup/door flow, forward volume, closest-point LOS, prompt HUD |
+
+## Test-player integration (intentional)
+
+The canonical test player prefab integrates multiple modules:
+
+- **CharacterController.Runtime** references **Attributes.Runtime** (health HUD, stamina) and **Interaction.Runtime** (scanner, lock contracts).
+- **Interaction** does not reference CharacterController at runtime; integration is wired on the test player prefab and via CharacterController types (`CCS_PlayerInteractionAnimator`).
+
+**Future cleanup:** If module coupling grows, introduce a dedicated bridge assembly (e.g. `CharacterController.InteractionBridge`) instead of expanding direct runtime references.
 
 ## Module structure
 

@@ -1,7 +1,7 @@
 # CCS Survival — Folder Structure Reference
 
 **Project:** CCS Survival  
-**Version:** 0.5.4 — Interaction Pickup and Door Flow  
+**Version:** 0.5.5 — Project audit baseline  
 **Unity:** 6000.3.10f1 (Unity 6)  
 **Author:** James Schilz  
 **Date:** June 2026  
@@ -46,7 +46,9 @@ The Character Controller module now centers on **two test scenes** with **focuse
 |------|---------|
 | `Assets/CCS/Framework/` | Core platform |
 | `Assets/CCS/Project/` | Bootstrap, composition, docs |
-| `Assets/CCS/Modules/CharacterController/` | Only active gameplay module |
+| `Assets/CCS/Modules/CharacterController/` | Movement, camera, Master Test harness |
+| `Assets/CCS/Modules/Attributes/` | Health attributes and test HUD |
+| `Assets/CCS/Modules/Interaction/` | Pickup/door interaction, prompt, scanner |
 | `Tests/Netcode/` | Local multiplayer test harness (Netcode for GameObjects) |
 | `SCN_CCS_CharacterController_MasterTest` | Primary traversal / controller test scene |
 | `SCN_CCS_MultiplayerHosting` | Host/join UI and NetworkManager scene |
@@ -79,33 +81,13 @@ Assets/CCS/
 │
 ├── Modules/
 │   ├── README.md
-│   └── CharacterController/            # Only active gameplay module
-│       ├── Runtime/
-│       ├── Editor/
-│       │   ├── CCS_CharacterControllerMasterTestMenus.cs
-│       │   └── Validation/             # Master test builder + validator
-│       ├── Content/Input/
-│       ├── Profiles/
-│       ├── Materials/
-│       │   ├── Environment/
-│       │   ├── Player/
-│       │   ├── Network/
-│       │   └── UI/
-│       ├── Prefabs/
-│       │   ├── Player/
-│       │   ├── Camera/
-│       │   ├── Environment/
-│       │   └── Network/
-│       ├── Tests/
-│       │   ├── Runtime/
-│       │   ├── Editor/
-│       │   └── Netcode/
-│       │       ├── Editor/             # Hosting builder, validator, prefab setup
-│       │       └── Runtime/            # Hosting menu, netcode player behaviour
-│       └── Documentation/
+│   ├── CharacterController/
+│   ├── Attributes/
+│   └── Interaction/
 │
-└── Project/                            # Bootstrap and composition shell
+└── Project/                            # Bootstrap, Editor audit, composition shell
     ├── Documentation/
+    ├── Editor/                         # CCS.Project.Editor — project audit
     ├── Prefabs/
     └── Runtime/
 ```
@@ -228,7 +210,7 @@ Assets/CCS/Modules/<Feature>/
 
 ---
 
-### Interaction/ — active (v0.4.0)
+### Interaction/ — active (v0.5.4)
 
 **Assemblies:**
 - `CCS.Modules.Interaction.Runtime` / `.Editor`
@@ -239,7 +221,8 @@ Assets/CCS/Modules/<Feature>/
 
 **Canonical assets:**
 - `Tests/Profiles/CCS_InteractionScannerProfile_Default.asset`
-- `Tests/Prefabs/PF_CCS_TestInteractable_ToggleCube.prefab`
+- `Tests/Prefabs/PF_CCS_TestInteractable_PickupItem.prefab`
+- Master Test scene objects: `CCS_TestDetectionCube`, building door interactable
 - Test player scanner on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
 
 **Doc:** [CCS_Interaction_Module.md](Modules/Interaction/Documentation/CCS_Interaction_Module.md)
@@ -504,8 +487,14 @@ Repo-level direction docs. Active architecture lives in `Assets/CCS/Project/Docu
 |------|---------------|-------------------|
 | `CCS.Core.Runtime` | Unity, self | Project, Modules, gameplay |
 | `CCS.Project.Runtime` | Core | Individual module internals |
-| `CCS.Modules.CharacterController.Runtime` | Core, Project | Other modules directly |
+| `CCS.Modules.Interaction.Runtime` | Core, Project | CharacterController, Attributes |
+| `CCS.Modules.Attributes.Runtime` | Core, Project | Other gameplay modules |
+| `CCS.Modules.CharacterController.Runtime` | Core, Project, **Attributes.Runtime**, **Interaction.Runtime** | Unrelated module internals |
 | `CCS.Modules.CharacterController.Tests.Netcode.Runtime` | Core, Project, CharacterController.Runtime, Netcode | Production lobby/account services |
+
+**Intentional exception:** CharacterController.Runtime references Interaction and Attributes for the **canonical test player** (scanner, motor lock, health HUD). Interaction remains independent at runtime. Consider a bridge assembly if this coupling expands.
+
+**Future:** `CharacterController.InteractionBridge` (or similar) if integration types multiply.
 
 **Save-stable identity prefixes:**
 - Module: `ccs.survival.`
@@ -528,6 +517,9 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 | Network manager prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Network/PF_CCS_TestNetworkManager.prefab` |
 | Test ground prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab` |
 | Setup + validate master test | Menu: `CCS/Character Controller/Scene/Setup And Validate Master Test Scene` |
+| Validate interaction module | Menu: `CCS/Interaction/Validate Interaction Module` |
+| Validate attributes module | Menu: `CCS/Attributes/Validate Attributes Module` |
+| Project audit | Menu: `CCS/Project/Run Project Audit` |
 | Setup + validate hosting | Menu: `CCS/Character Controller/Scene/Setup And Validate Multiplayer Hosting Scene` |
 | Core smoke test scene | `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity` |
 | Architecture rules | `Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md` |
@@ -548,6 +540,8 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 
 | Module | Status |
 |--------|--------|
-| **CharacterController** | Movement, camera, input, master test scene, local netcode harness, builder/validator tooling |
+| **CharacterController** | Movement, camera, Master Test, netcode harness |
+| **Attributes** | Health model, replication, test HUD |
+| **Interaction** | Pickup/door flow, prompt, forward volume, LOS |
 
-No other gameplay modules exist. Create the next module only when implementation begins.
+Legacy preview scene: `CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity` (ground-only; Master Test is source of truth).

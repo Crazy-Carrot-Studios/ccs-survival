@@ -1,28 +1,36 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.5.4`
+**Current version:** `0.5.5`
 
 ## Purpose
 
 After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild scheme**. All `0.x.x` versions are internal beta/prototype/rebuild milestones. **`1.0.0` is reserved for the first public alpha-ready release** and must not be used until a controlled playable alpha slice exists.
 
+**Note:** The original phase map below is a planning guide. The project also uses **pragmatic patch tags** on the current integration line (e.g. `0.5.4` Interaction, `0.5.5` audit) when multiple modules ship together on `main`.
+
 ---
 
-## Version map
+## Version map (planning guide)
 
 | Range | Phase | Scope |
 |-------|-------|-------|
 | **0.0.x** | Project architecture | Folder cleanup, rebuild planning, versioning baseline |
 | **0.1.x** | Architecture normalization | Folder ownership, module placeholders, bootstrap baseline |
 | **0.2.x** | Character | Character controller + camera |
-| **0.3.x** | Interaction | Interaction module |
-| **0.4.x** | Inventory | Inventory module |
-| **0.5.x** | Equipment | Equipment module |
-| **0.6.x** | Save/load | Persistence module |
-| **0.7.x** | Gathering | Resources and harvesting |
-| **0.8.x** | Crafting | Crafting module |
+| **0.3.x** | Attributes | Attribute model, health, replication |
+| **0.4.x** | Character polish | Locomotion, stamina, netcode harness refinements |
+| **0.5.x** | Integrated test slice | Character visuals + interaction integration on Master Test |
+| **0.6.x+** | Next modules | Inventory, equipment, persistence (when implemented) |
 | **0.9.x** | Vertical slice | First controlled playable survival loop |
 | **1.0.0** | Public alpha | First alpha-ready release (not before 0.9.x criteria met) |
+
+### Current integration line (actual tags)
+
+| Version | Milestone |
+|---------|-----------|
+| `0.5.0`–`0.5.3` | Character visual / locomotion integration |
+| **`0.5.4`** | **Interaction Pickup and Door Flow** |
+| **`0.5.5`** | **Project audit and interaction cleanup** |
 
 ---
 
@@ -85,6 +93,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.5.5` — Project Audit and Interaction Cleanup
+
+- Documentation aligned to v0.5.4 interaction flow (removed toggle-cube references)
+- Runtime debug log cleanup; manual interaction animation test path removed
+- Project-level audit validator (`CCS → Project → Run Project Audit`)
+- Documented intentional CharacterController → Interaction/Attributes test-player coupling
 
 ### `0.5.4` — Interaction Pickup and Door Flow
 

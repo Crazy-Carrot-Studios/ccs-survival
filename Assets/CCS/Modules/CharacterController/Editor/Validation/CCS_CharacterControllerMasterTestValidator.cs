@@ -7,6 +7,7 @@ using System.IO;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Modules.Interaction;
 using CCS.Project;
 
 using Unity.Cinemachine;
@@ -611,6 +612,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             Transform doorSlab = FindChildByName(door, "DoorSlab");
+            bool usesInteractionDoor = FindChildByName(door, CCS_InteractionConstants.BuildingDoorInteractableObjectName) != null;
             if (doorMarker != null && doorSlab != null && doorMarker.DoorHingePivot == doorSlab)
             {
                 failures.Add("CCS_TestDoorMarker must not reference DoorSlab. It must reference DoorHingePivot.");
@@ -700,6 +702,10 @@ namespace CCS.Modules.CharacterController.Editor
 
                 ValidateDoorHingeSwing(failures, doorHingePivot, doorSlab, doorMarker);
             }
+            else if (usesInteractionDoor && doorHingePivot != null && doorMarker != null)
+            {
+                ValidateDoorHingeSwingFromInteractionTarget(failures, door, doorHingePivot, doorMarker);
+            }
 
             if (doorSlab != null)
             {
@@ -745,18 +751,39 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidateDoorwayClearOfWallColliders(failures, building, doorSlab);
 
-            ValidateRendererMaterial(
+            if (!usesInteractionDoor)
+            {
+                ValidateRendererMaterial(
+                    failures,
+                    door,
+                    "DoorSlab",
+                    CCS_CharacterControllerMasterTestLayoutConstants.DoorWoodMaterialPath,
+                    "Door panel");
+            }
+            else
+            {
+                Transform interactionTarget = FindChildByName(door, CCS_InteractionConstants.BuildingDoorInteractableObjectName);
+                AppendIfMissing(
+                    failures,
+                    interactionTarget != null && interactionTarget.GetComponent<CCS_InteractableLabelTarget>() != null,
+                    $"{CCS_InteractionConstants.BuildingDoorInteractableObjectName} must include {nameof(CCS_InteractableLabelTarget)}.");
+            }
 
-                failures,
+        }
 
-                door,
+        private static void ValidateDoorHingeSwingFromInteractionTarget(
+            List<string> failures,
+            Transform doorRoot,
+            Transform doorHingePivot,
+            CCS_TestDoorMarker doorMarker)
+        {
+            Transform interactionTarget = FindChildByName(doorRoot, CCS_InteractionConstants.BuildingDoorInteractableObjectName);
+            if (interactionTarget == null)
+            {
+                return;
+            }
 
-                "DoorSlab",
-
-                CCS_CharacterControllerMasterTestLayoutConstants.DoorWoodMaterialPath,
-
-                "Door panel");
-
+            ValidateDoorHingeSwing(failures, doorHingePivot, interactionTarget, doorMarker);
         }
 
 
@@ -1846,13 +1873,11 @@ namespace CCS.Modules.CharacterController.Editor
                 cameraPivot != null,
                 $"{prefabPath} must contain CameraPivot.");
 
-            Transform cameraLookTarget = cameraPivot != null
-                ? FindChildByName(cameraPivot, "CameraLookTarget")
-                : null;
+            Transform cameraLookTarget = FindChildByName(prefab.transform, "CameraLookTarget");
             AppendIfMissing(
                 failures,
                 cameraLookTarget != null,
-                $"{prefabPath} must contain CameraLookTarget under CameraPivot.");
+                $"{prefabPath} must contain CameraLookTarget for camera follow binding.");
         }
 
 

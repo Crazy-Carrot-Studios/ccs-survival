@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Editor validator invoked from CCS/Interaction/Validate Interaction Module.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.4.0 validates owner scanner flow and server-authoritative interactable path.
+// NOTES: v0.5.4 validates pickup/door flow, forward volume, and Master Test wiring.
 // =============================================================================
 
 namespace CCS.Modules.Interaction.Editor
@@ -75,14 +75,14 @@ namespace CCS.Modules.Interaction.Editor
         {
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_InteractionConstants.MasterTestScenePath,
-                OpenSceneMode.Additive);
+                OpenSceneMode.Single);
             if (!scene.IsValid())
             {
                 failures.Add($"Could not open master test scene at {CCS_InteractionConstants.MasterTestScenePath}.");
                 return;
             }
 
-            CCS_TestPickupItemSpawner spawner = Object.FindAnyObjectByType<CCS_TestPickupItemSpawner>();
+            CCS_TestPickupItemSpawner spawner = FindSpawnerInScene(scene);
             GameObject assignedPrefab = null;
             Transform assignedOrigin = null;
             if (spawner != null)
@@ -94,7 +94,6 @@ namespace CCS.Modules.Interaction.Editor
                 assignedOrigin = originProperty != null ? originProperty.objectReferenceValue as Transform : null;
             }
 
-            EditorSceneManager.CloseScene(scene, true);
             AppendIfMissing(
                 failures,
                 spawner != null,
@@ -112,6 +111,21 @@ namespace CCS.Modules.Interaction.Editor
                 failures,
                 assignedOrigin != null,
                 "Master test pickup spawner must reference TP_Spawn_Host as spawn origin.");
+        }
+
+        private static CCS_TestPickupItemSpawner FindSpawnerInScene(Scene scene)
+        {
+            CCS_TestPickupItemSpawner[] spawners = Object.FindObjectsByType<CCS_TestPickupItemSpawner>(FindObjectsSortMode.None);
+            for (int i = 0; i < spawners.Length; i++)
+            {
+                CCS_TestPickupItemSpawner candidate = spawners[i];
+                if (candidate != null && candidate.gameObject.scene == scene)
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
 
         private static void ValidateSourceContracts(List<string> failures)

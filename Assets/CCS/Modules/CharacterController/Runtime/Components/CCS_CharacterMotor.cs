@@ -31,6 +31,7 @@ namespace CCS.Modules.CharacterController
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
         [SerializeField] private CCS_StaminaController staminaController;
         [SerializeField] private Component interactionLockSourceComponent;
+        [SerializeField] private bool enableMovementDebugLogs;
 
         private UnityEngine.CharacterController characterController;
         private CCS_ICharacterControlLockSource controlLockSource;
@@ -154,7 +155,7 @@ namespace CCS.Modules.CharacterController
 
         private void ApplyLockedMovement(float deltaTime)
         {
-            if (!loggedControlLockActive)
+            if (enableMovementDebugLogs && !loggedControlLockActive)
             {
                 loggedControlLockActive = true;
                 Debug.Log("[Character Motor] Control locked; suppressing movement.", this);

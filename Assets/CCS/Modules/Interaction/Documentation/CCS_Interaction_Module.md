@@ -1,175 +1,133 @@
 # CCS Interaction Module
 
-Version: **0.4.0**
+**Version:** 0.5.4 — Pickup and WalkThroughDoor
 
 ## Purpose
 
-The Interaction module provides a **reusable interaction foundation** for survival gameplay. v0.4.0 ships a local-owner scanner, server validation path, and one networked test interactable. Future systems can build on the same contract without coupling to CharacterController.
+Reusable interaction foundation for survival gameplay: owner-side detection, server-authoritative requests, prompt presentation, and animation routing. Lives in `Assets/CCS/Modules/Interaction/` and is **not** part of CharacterController.
 
-Interaction lives in `Assets/CCS/Modules/Interaction/` and is **not** part of CharacterController.
+## Supported interactable kinds (v0.5.4)
+
+| Kind | Animation | Behavior |
+|------|-----------|----------|
+| **Pickup** | `PickUp_RH` | Collect / destroy test pickup |
+| **WalkThroughDoor** | `WalkThroughDoor_RH` | Open hinged door |
+
+Not in scope: inventory, door close/toggle, left-hand variants, crafting stations.
+
+## Readiness rules
+
+Prompt and **E** accept only when **all** pass:
+
+1. **Awareness** — overlap sphere at `InteractionScanOrigin` (Interactable layer)
+2. **Forward volume** — target bounds center in player-local box (`z > 0`, within half-width/height and strict range)
+3. **Line of sight** — sphere cast from scan origin to collider **closest point**; player colliders skipped
+
+Pickup strict range: **1.5 m**. Door strict range: **1.75 m**.
+
+## Owner flow
+
+```text
+Local owner Update
+        │
+        ▼
+Overlap candidates → pick closest in forward volume + LOS
+        │
+        ▼
+Prompt HUD when ready (CCS_InteractionPromptPresenter)
+        │
+        ▼
+E pressed → volume + LOS re-check → BeginInteractionLock
+        │
+        ▼
+CCS_InteractableExecutor → CCS_IInteractable.Interact
+        │
+        ├─ Solo / offline → local apply
+        └─ Netcode → ServerRpc → server validate → Interact
+        │
+        ▼
+InteractionCompleted → animator trigger (PickUp_RH / WalkThroughDoor_RH)
+        │
+        ▼
+Movement unlock after lock duration
+```
 
 ## Folder ownership
 
 ```text
 Assets/CCS/Modules/Interaction/
 ├── Runtime/
-│   ├── Contracts/        CCS_IInteractable
-│   ├── Components/       CCS_NetworkInteractionScanner, CCS_TestToggleInteractable
-│   ├── Data/             CCS_InteractionRequest, CCS_InteractionResult
-│   ├── Events/           CCS_InteractionCompletedEvent
-│   ├── Profiles/         CCS_InteractionScannerProfile
-│   └── Validation/       CCS_InteractionValidationUtility
-├── Editor/               Asset builder, prefab builder, validator, menu
+│   ├── Contracts/     CCS_IInteractable, lock/busy/target contracts
+│   ├── Components/    Scanner, executor, door, label target, test helpers
+│   ├── Data/          Request, result, definition, animation keys
+│   ├── Events/        InteractionCompletedEvent
+│   ├── Profiles/      CCS_InteractionScannerProfile
+│   ├── UI/            CCS_InteractionPromptPresenter
+│   └── Validation/
+├── Editor/            Builders, validators, batch entries
 ├── Tests/
-│   ├── Prefabs/          PF_CCS_TestInteractable_ToggleCube.prefab
-│   └── Profiles/         CCS_InteractionScannerProfile_Default.asset
+│   ├── Prefabs/       PF_CCS_TestInteractable_PickupItem.prefab
+│   └── Profiles/      CCS_InteractionScannerProfile_Default.asset
 └── Documentation/
 ```
 
-## Owner scanner flow
+## Master Test targets
 
-```text
-Local owner presses E (Keyboard.current)
-        │
-        ▼
-CCS_NetworkInteractionScanner raycasts from camera or player forward
-        │
-        ▼
-Find CCS_IInteractable on hit collider / parent
-        │
-        ├─ Solo / no Netcode session → local Interact
-        │
-        └─ Multiplayer
-              ├─ Host owner → server validates and applies directly
-              └─ Client owner → SubmitInteractionServerRpc
-                        │
-                        ▼
-                  Server validates sender == OwnerClientId
-                        │
-                        ▼
-                  Server validates range from scanner origin / hit point
-                        │
-                        ▼
-                  CCS_IInteractable.Interact on server
-                        │
-                        ▼
-                  Interactable state replicates (NetworkVariable, etc.)
-```
+| Object | Scene placement | Kind |
+|--------|-----------------|------|
+| `CCS_TestDetectionCube` | Near spawn | Pickup |
+| Building door interactable | Test building (~30, 30) | WalkThroughDoor |
 
-## Server validation flow
+Scene: `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity`
 
-The scanner builds a `CCS_InteractionRequest` with:
+## Test player integration
 
-- `RequesterClientId`
-- `TargetNetworkObjectId`
-- `OriginPosition` and `HitPoint`
-- `MaxRange` from `CCS_InteractionScannerProfile`
+Canonical prefab: `Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
 
-On the server, `CCS_NetworkInteractionScanner`:
+Wired by `CCS_InteractionTestPlayerPrefabBuilder`:
 
-1. Confirms the RPC sender matches the scanner owner.
-2. Resolves the target `NetworkObject` by ID.
-3. Calls `CanInteract` on the target.
-4. Validates hit distance and actor distance against profile range.
-5. Calls `Interact` only on the server for networked targets.
+| Component | Role |
+|-----------|------|
+| `CCS_NetworkInteractionScanner` | Owner detection, E input, server path |
+| `CCS_InteractionPromptPresenter` | Press [E] HUD |
+| `CCS_PlayerInteractionAnimator` | Lock + animator triggers (CharacterController) |
+| `InteractionScanOrigin` | Chest-height scan origin (local Y = 1) |
 
-## Solo behavior
+### Module coupling (intentional)
 
-When `NetworkManager` is not listening:
+`CCS.Modules.CharacterController.Runtime` references `Interaction.Runtime` and `Attributes.Runtime` for the **canonical test player** integration (scanner, prompt, motor lock, health HUD). This is accepted for the current milestone.
 
-- `CCS_NetworkInteractionScanner` treats the player as the local owner.
-- Raycast hits resolve interactables without `NetworkObjectId`.
-- `CCS_TestToggleInteractable` toggles local visual state immediately.
-- No Netcode session is required.
+**Future:** If coupling grows, extract a `CharacterController.InteractionBridge` (or similar) assembly rather than expanding direct runtime references.
 
 ## Scanner profile
 
-`CCS_InteractionScannerProfile_Default.asset`:
+`Tests/Profiles/CCS_InteractionScannerProfile_Default.asset`:
 
 | Field | Default |
 |-------|---------|
 | Profile ID | `ccs.survival.profile.interaction.scanner.default` |
-| `interactionRange` | `3` meters |
-| `interactionLayerMask` | All layers |
-| `interactionCooldownSeconds` | `0.25` |
-| `useCameraForward` | `true` |
-
-## Test interactable
-
-`PF_CCS_TestInteractable_ToggleCube.prefab`:
-
-- Networked `CCS_TestToggleInteractable` on a cube visual.
-- Toggles height and color between closed (red, low) and open (green, raised).
-- Placed once in `SCN_CCS_CharacterController_MasterTest` near `TP_Spawn_Host`.
-- Reachable by walking from spawn and pressing **E**.
-
-## Test player integration
-
-Canonical prefab:
-
-`Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
-
-Wired by `CCS_InteractionTestPlayerPrefabBuilder`:
-
-| Component | Purpose |
-|-----------|---------|
-| `CCS_NetworkInteractionScanner` | Local-owner raycast scanner; E key input |
-| `CCS_InteractionScannerProfile_Default` | Range, layer mask, cooldown, camera forward |
-
-The scanner does **not** modify movement, camera, or `CCS_CharacterController_InputActions` bindings.
-
-## Future uses
-
-The `CCS_IInteractable` contract is intended for:
-
-- Doors
-- Pickups
-- Crafting stations
-- Storage containers
-- Vendors
-- Resource nodes
-
-v0.4.0 intentionally excludes inventory, dialogue, crafting, vendors, and pickups.
+| Broad detection | 3 m overlap at scan origin |
+| Cooldown | 0.25 s |
+| Enable debug logs | Off (use profile flag for verbose scanner logging) |
 
 ## Validation
 
-Editor menu: **CCS → Interaction → Validate Interaction Module**
+**CCS → Interaction → Validate Interaction Module** (report-first; menu may repair known test assets before validate)
 
-Checks:
+Checks module folders, scanner profile, test player wiring, pickup prefab, Master Test cube and door, owner gating, solo and server paths.
 
-- Module folders and asmdefs exist
-- Scanner profile asset exists and is valid
-- Canonical player prefab has scanner + profile
-- Test interactable prefab exists
-- Master Test scene contains the toggle cube instance
-- Scanner source gates to local owner
-- Solo path does not require `NetworkManager`
-- Multiplayer path is server-authoritative
+Batch: `CCS.Modules.Interaction.Editor.CCS_InteractionValidationBatchEntry.RunFromBatchMode`
 
-## Playtest checklist
+## Playtest checklist — Solo Master Test
 
-### Solo Master Test
+- [ ] Player spawns at `TP_Spawn_Host`
+- [ ] Health HUD works; **K** damages health
+- [ ] Face pickup cube → **Press [E]** prompt appears
+- [ ] **E** collects cube; `PickUp_RH` fires; movement locks then unlocks
+- [ ] Walk to building door → prompt appears
+- [ ] **E** opens door; `WalkThroughDoor_RH` fires
+- [ ] Clean console (no errors)
 
-- [ ] Player spawns
-- [ ] Health HUD still works
-- [ ] **K** still damages health
-- [ ] Walk to toggle cube
-- [ ] Press **E** — cube toggles
-- [ ] No join notification UI
-- [ ] Nameplate remains hidden on self
+## Retired (pre–0.5.4)
 
-### Host
-
-- [ ] Host spawns
-- [ ] Host can press **E** on cube — cube toggles
-- [ ] Health HUD still works
-- [ ] Join notification still appears
-
-### Client
-
-- [ ] Client spawns
-- [ ] Client controls only self
-- [ ] Client presses **E** on cube — server validates
-- [ ] Cube toggles for both host and client
-- [ ] Remote movement/nameplates still work
-- [ ] No duplicate camera, HUD, or control
+- `CCS_TestToggleInteractable` and toggle cube prefab — removed; do not reintroduce without a new design pass.

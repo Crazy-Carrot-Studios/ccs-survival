@@ -1,97 +1,67 @@
 # CCS Survival
 
-**Version:** 0.5.4 — Interaction Pickup and Door Flow
+**Version 0.5.5** · Crazy Carrot Studios
 
-A modular Unity survival project built on the Crazy Carrot Studios framework.
+Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
-Unity 6 · URP · Input System · Controlled Rebuild
+## Active modules
 
-## Overview
+| Module | Milestone |
+|--------|-----------|
+| **Framework** | Core platform (gameplay-free) |
+| **Project** | Bootstrap, composition, validation standards |
+| **CharacterController** | Movement, camera, Master Test harness |
+| **Attributes** | Health model, replication, test HUD |
+| **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 
-CCS Survival is the survival gameplay project for Crazy Carrot Studios. It is built on the CCS Framework and uses isolated gameplay modules under `Assets/CCS/Modules/` that communicate through framework services and events.
+## Current milestone
 
-The active project scope includes framework bootstrap, Character Controller, Attributes, and the Interaction module with Master Test validation.
+**0.5.5** — Project audit and interaction cleanup after the v0.5.4 pickup/door release.
 
-## Current State
+Interaction supports forward-volume detection, closest-point line of sight, Press [E] prompts when ready, movement lock during animations, and `PickUp_RH` / `WalkThroughDoor_RH` routing. Details: [Interaction module doc](Assets/CCS/Modules/Interaction/Documentation/CCS_Interaction_Module.md).
 
-- Framework baseline integrated
-- Project bootstrap/composition in place
-- Character Controller module with test player prefab, Master Test scene, and validation
-- Attributes module with Health HUD and server-authoritative replication
-- Interaction module (`0.5.4`) with pickup and walk-through-door flow
-- No production gameplay loop yet
+No production survival loop yet.
 
-## Interaction (v0.5.4)
+## Validation and playtest
 
-The Interaction module now supports **Pickup** and **WalkThroughDoor** interactable kinds.
+| Action | Entry point |
+|--------|-------------|
+| Project audit (docs, asmdefs, legacy leftovers) | **CCS → Project → Run Project Audit** |
+| Master Test (primary) | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
+| Interaction module | **CCS → Interaction → Validate Interaction Module** |
+| Character Controller Master Test | **CCS → Character Controller → Scene → Setup And Validate Master Test Scene** |
+| Attributes module | **CCS → Attributes → Validate Attributes Module** |
+| Bootstrap smoke | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
 
-- **Prompt** shows only when the target is interaction-ready (forward volume + line of sight).
-- **Forward volume detection** uses a player-local box in front of the scan origin (chest height).
-- **Line of sight** casts from `InteractionScanOrigin` to the target collider **closest point**, skipping player colliders.
-- **Movement locks** during interaction animations via `CCS_IInteractionLockController` and motor hard-stop.
-- **Animation routing** triggers `PickUp_RH` and `WalkThroughDoor_RH` on the player animator.
-- **Master Test** includes a pickup cube near spawn and a building door interaction target.
-
-Test scene: `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity`
-
-Editor menu: **CCS → Interaction → Validate Interaction Module**
-
-## Repository Layout
-
-```text
-Assets/CCS/
-├── Framework/              # Core platform
-├── Modules/
-│   ├── CharacterController/
-│   ├── Attributes/
-│   └── Interaction/
-├── Project/                # Bootstrap, composition, scenes, docs
-└── FOLDER_STRUCTURE.md     # Folder reference
-```
-
-Cross-module shared assets and project-wide test harnesses are **not** kept as empty placeholders. Add `Shared/` or `Tests/` only when something actively uses them.
-
-## Architecture Rules
-
-- Framework contains reusable platform code only.
-- Gameplay systems live in Modules.
-- Project owns bootstrap, composition, scenes, and project documentation.
-- Do not keep placeholder module folders for features not being built yet.
-- Each new module must include runtime, test asset, validation, and docs before moving on.
+Legacy ground-only preview (retained, not primary): `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity`
 
 ## Requirements
 
-- Unity 6
-- Universal Render Pipeline
-- Unity Input System
-- Cinemachine 3.1
+Unity 6 · URP · Input System · Netcode for GameObjects · Cinemachine 3.1
 
-Open `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` and confirm a clean console before development.
+## Layout
 
-Test ground scene: `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity`
+```text
+Assets/CCS/
+├── Framework/     Reusable core platform
+├── Modules/       Gameplay modules (CharacterController, Attributes, Interaction)
+├── Scenes/        Bootstrap, Master Test, multiplayer hosting
+└── Project/       Composition shell and project documentation
+```
 
 ## Documentation
 
-**Project (bootstrap / framework gate):** [`Assets/CCS/Project/Documentation/`](Assets/CCS/Project/Documentation/README.md)
-
-**Repo-level planning:** [`Documentation/`](Documentation/README.md)
-
-- [Folder Structure](Assets/CCS/FOLDER_STRUCTURE.md)
-- [Versioning Policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md)
-- [Framework Architecture Gate](Assets/CCS/Project/Documentation/Survival_Framework_Architecture_Gate.md)
-- [Module Guidelines](Documentation/Planning/Future_Gameplay_Module_Guidelines.md)
-- [Character Controller Module](Assets/CCS/Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
-- [Interaction Module](Assets/CCS/Modules/Interaction/Documentation/CCS_Interaction_Module.md)
+- [Folder structure](Assets/CCS/FOLDER_STRUCTURE.md)
+- [Versioning policy](Assets/CCS/Project/Documentation/CCS_Versioning_Policy.md)
+- [Project documentation index](Assets/CCS/Project/Documentation/README.md)
+- [Module index](Assets/CCS/Modules/README.md)
 
 ## Versioning
 
-| | |
-|---|---|
-| `0.x.x` | Internal rebuild / beta / prototype |
-| `1.0.0` | First alpha-ready release |
+`0.x.x` — internal rebuild milestones · `1.0.0` — first alpha-ready release (future)
 
-**Current working milestone:** `0.5.4` — tagged `v0.5.4`
+Tagged release: **v0.5.5**
 
-## Ownership
+---
 
-Copyright © Crazy Carrot Studios. All rights reserved unless a license file states otherwise.
+Copyright © Crazy Carrot Studios. All rights reserved.

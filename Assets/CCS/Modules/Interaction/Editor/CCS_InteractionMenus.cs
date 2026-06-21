@@ -30,22 +30,6 @@ namespace CCS.Modules.Interaction.Editor
                     : "[Interaction] Master Test interactions already up to date.");
         }
 
-        [MenuItem(MenuRoot + "Build Master Test Detection Cube")]
-        public static void BuildMasterTestDetectionCubeMenu()
-        {
-            BuildMasterTestInteractionsMenu();
-        }
-
-        [MenuItem(MenuRoot + "Build Master Test Pickup Interaction")]
-        public static void BuildMasterTestPickupInteractionMenu()
-        {
-            bool changed = CCS_InteractionMasterTestBuilder.BuildMasterTestPickupInteraction();
-            Debug.Log(
-                changed
-                    ? "[Interaction] Master Test pickup interaction wiring updated."
-                    : "[Interaction] Master Test pickup interaction wiring already up to date.");
-        }
-
         [MenuItem(MenuRoot + "Validate Interaction Module")]
         public static void ValidateInteractionModuleMenu()
         {

@@ -1,6 +1,6 @@
 # CCS Project Documentation
 
-**Version:** 0.2.1 — Character Controller Test Ground
+**Version:** 0.5.5 — Project audit baseline
 
 ## Overview
 
@@ -22,28 +22,31 @@ Broader planning and contributor guides live in the repo [`Documentation/`](../.
 
 | Asset | Path |
 |-------|------|
-| Project bootstrap scene | `Assets/CCS/Project/Scenes/SCN_CCS_Survival_Bootstrap.unity` |
+| Project bootstrap scene | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
 | Project bootstrap prefab | `Assets/CCS/Project/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
 | Core validation scene | `Assets/CCS/Framework/Core/Runtime/Scenes/SCN_CCS_Bootstrap.unity` |
+
+## Primary test scenes
+
+| Scene | Role |
+|-------|------|
+| `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` | **Source of truth** — controller, attributes HUD, interaction |
+| `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` | Host/join Netcode harness |
+| `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity` | Legacy ground-only preview (retained) |
 
 ## Runtime assembly
 
 `Assets/CCS/Project/Runtime/CCS.Project.Runtime.asmdef` → `CCS.Core.Runtime` only.  
 Namespace: `CCS.Project`.
 
-## Runtime foundation index
+## Project audit
 
-| Topic | Path |
-|-------|------|
-| Constants | `Runtime/Foundation/Diagnostics/CCS_SurvivalRuntimeConstants.cs` |
-| Integration markers | `Runtime/Foundation/Diagnostics/CCS_SurvivalFrameworkFutureMarkers.cs` |
-| Validation | `Runtime/Foundation/Validation/` |
-| Scene bootstrap | `Runtime/Foundation/Scene/` |
-| Profiles | `Runtime/Foundation/Profiles/CCS_SurvivalProfileBase.cs` |
-| Authority / Avatar | `Runtime/Character/Authority/`, `Avatar/`, `Identity/` |
+**CCS → Project → Run Project Audit** — report-first checks for version/doc consistency, active modules, asmdefs, and legacy interaction leftovers. Does not regenerate scenes.
 
 ## Modules
 
-Module conventions and active module docs live under [`Assets/CCS/Modules/`](../Modules/README.md).
+Module conventions and active module docs: [`Assets/CCS/Modules/`](../Modules/README.md)
 
-Character Controller module doc: [`CCS_CharacterController_Module.md`](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
+- [Character Controller](../Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
+- [Attributes](../Modules/Attributes/Documentation/CCS_Attributes_Module.md)
+- [Interaction](../Modules/Interaction/Documentation/CCS_Interaction_Module.md)

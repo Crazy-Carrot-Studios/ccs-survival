@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Project.Editor",
+    "rootNamespace": "CCS.Project.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "CCS.Modules.Attributes.Editor",
+        "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.CharacterController.Editor",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Interaction.Editor",
+        "CCS.Modules.Interaction.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -17,6 +17,7 @@ using UnityEngine.InputSystem;
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Awareness overlap plus forward interaction volume validation on E only.
+// TODO: Consider splitting awareness scan, readiness validation, and server submit into focused types.
 // =============================================================================
 
 namespace CCS.Modules.Interaction
@@ -328,9 +329,13 @@ namespace CCS.Modules.Interaction
 
             if (!validationPassed)
             {
-                Debug.Log(
-                    $"[Interaction] Interaction blocked: target={pickupReadyLabelTarget.name}, inVolume={inVolume}, los={lineOfSight}",
-                    this);
+                if (scannerProfile != null && scannerProfile.EnableDebugLogs)
+                {
+                    Debug.Log(
+                        $"[Interaction] Interaction blocked: target={pickupReadyLabelTarget.name}, inVolume={inVolume}, los={lineOfSight}",
+                        this);
+                }
+
                 return;
             }
 

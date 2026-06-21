@@ -36,7 +36,6 @@ namespace CCS.Modules.Interaction
 
             if (!IsSpawned || NetworkManager == null || !NetworkManager.IsListening)
             {
-                Debug.Log($"[Interaction Test] Pickup interacted: {name}", this);
                 result = CCS_InteractionResult.Success(
                     targetId,
                     CCS_InteractionAnimationKey.PickUp_RH,
@@ -51,7 +50,6 @@ namespace CCS.Modules.Interaction
                 return false;
             }
 
-            Debug.Log($"[Interaction Test] Pickup interacted: {name}", this);
             result = CCS_InteractionResult.Success(
                 NetworkObject != null ? NetworkObject.NetworkObjectId : targetId,
                 CCS_InteractionAnimationKey.PickUp_RH,

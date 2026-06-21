@@ -7,8 +7,6 @@ using Unity.Netcode;
 
 using UnityEngine;
 
-using UnityEngine.InputSystem;
-
 // =============================================================================
 // SCRIPT: CCS_PlayerInteractionAnimator
 // CATEGORY: Modules / CharacterController / Runtime / Visuals
@@ -31,9 +29,7 @@ namespace CCS.Modules.CharacterController
 
         [SerializeField] private Animator animator;
         [SerializeField] private Component interactionSourceComponent;
-        [SerializeField] private bool enableManualInteractionAnimationTest = false;
-        [SerializeField] private CCS_InteractionAnimationKey manualTestAnimationKey =
-            CCS_InteractionAnimationKey.PickUp_RH;
+        [SerializeField] private bool enableInteractionDebugLogs;
         [SerializeField] private float pickUpRightHandLockDuration = CCS_InteractionConstants.PickUpRightHandLockDuration;
         [SerializeField] private float walkThroughDoorRightHandLockDuration =
             CCS_InteractionConstants.WalkThroughDoorRightHandLockDuration;
@@ -87,23 +83,6 @@ namespace CCS.Modules.CharacterController
 
             StopUnlockCoroutine();
             SetInteractionBusy(false, activeInteractionAnimationKey, logChange: false);
-        }
-
-        private void Update()
-        {
-            if (!enableManualInteractionAnimationTest || !IsLocalAnimationOwner())
-            {
-                return;
-            }
-
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.eKey.wasPressedThisFrame)
-            {
-                return;
-            }
-
-            BeginInteractionLock(manualTestAnimationKey);
-            PlayInteractionAnimation(manualTestAnimationKey);
         }
 
         #endregion
@@ -248,13 +227,13 @@ namespace CCS.Modules.CharacterController
             isInteractionBusy = busy;
             activeInteractionAnimationKey = animationKey;
 
-            if (logChange)
+            if (logChange && enableInteractionDebugLogs)
             {
                 string triggerName = CCS_InteractionAnimationKeyUtility.ToAnimatorTriggerName(animationKey);
                 Debug.Log(
                     busy
-                        ? $"[Interaction Test] Interaction busy locked: {triggerName}"
-                        : $"[Interaction Test] Interaction busy unlocked: {triggerName}",
+                        ? $"[Interaction] Movement lock started: {triggerName}"
+                        : $"[Interaction] Movement lock released: {triggerName}",
                     this);
             }
 
