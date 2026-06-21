@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.6.0`
+**Current version:** `0.5.6`
 
 ## Purpose
 
@@ -31,6 +31,8 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | `0.5.0`–`0.5.3` | Character visual / locomotion integration |
 | **`0.5.4`** | **Interaction Pickup and Door Flow** |
 | **`0.5.5`** | **Project audit and interaction cleanup** |
+| **`0.5.6`** | **Isolate player animation clips** |
+| **`0.6.0`** | **Revolver shooting foundation** |
 
 ---
 

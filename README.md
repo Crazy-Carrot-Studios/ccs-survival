@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.6.0** · Crazy Carrot Studios
+**Version 0.5.6** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,7 +17,7 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 
 ## Current milestone
 
-**0.6.0** — Revolver shooting foundation: aim/fire/reload input, camera-center hitscan, test damage target, and Master Test wiring.
+**0.5.6** — Isolate player animation clips: duplicate vendor locomotion/interaction clips into CCS-owned `Content/Animations/` and rewire the player Animator Controller.
 
 ## Validation and playtest
 
@@ -28,6 +28,7 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | Interaction module | **CCS → Interaction → Validate Interaction Module** |
 | Weapons module | **CCS → Weapons → Validate Weapons Module** |
 | Character Controller Master Test | **CCS → Character Controller → Scene → Setup And Validate Master Test Scene** |
+| Player animation isolation | **CCS → Character Controller → Animations → Validate Player Animation Isolation** |
 | Attributes module | **CCS → Attributes → Validate Attributes Module** |
 | Bootstrap smoke | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
 
@@ -58,7 +59,7 @@ Assets/CCS/
 
 `0.x.x` — internal rebuild milestones · `1.0.0` — first alpha-ready release (future)
 
-Tagged release: **v0.6.0**
+Tagged release: **v0.5.6**
 
 ---
 

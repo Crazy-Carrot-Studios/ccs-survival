@@ -117,6 +117,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidatePlayerPrefabAssets(failures);
 
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation());
+
             ValidateCameraProfile(failures);
 
             ValidateCcsRuntimeScriptsDoNotWriteOrbitalAxisValues(failures);
@@ -3453,6 +3457,14 @@ namespace CCS.Modules.CharacterController.Editor
         }
 
 
+
+        private static void AppendValidationResult(List<string> failures, CCS_SurvivalValidationResult result)
+        {
+            if (!result.IsSuccess)
+            {
+                failures.Add(result.Message);
+            }
+        }
 
         private static void AppendIfMissing(List<string> failures, bool condition, string message)
 

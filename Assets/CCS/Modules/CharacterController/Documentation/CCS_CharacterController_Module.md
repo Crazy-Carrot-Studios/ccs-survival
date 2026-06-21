@@ -12,7 +12,9 @@ Profile-driven third-person movement and Cinemachine camera control for `ccs-sur
 Assets/CCS/Modules/CharacterController/
 ├── Runtime/              # Movement, camera, input, service, validation
 ├── Editor/               # Master test builder, validator, prefab builder
-├── Content/Input/        # Module-owned Input Actions
+├── Content/
+│   ├── Input/            # Module-owned Input Actions
+│   └── Animations/       # CCS-owned duplicated runtime animation clips (v0.5.6+)
 ├── Profiles/             # Movement, camera, and test display ScriptableObject profiles
 ├── Prefabs/              # Camera rig, environment, NPC, network manager assets
 ├── Documentation/        # This document
@@ -82,6 +84,32 @@ Applied by `CCS_TestPlayerDisplayProfileApplicator` to:
 | Jump | Button | Controlled by movement profile |
 | ToggleCursor | Button | Escape + Start |
 | CameraZoom | Axis | Scroll Y + D-Pad up/down (not implemented yet) |
+
+## Animation Asset Policy
+
+v0.5.6 isolates production player animation clips under `Content/Animations/`.
+
+| Folder | Purpose |
+|--------|---------|
+| `Content/Animations/Locomotion/` | Idle, walk, run/sprint, jump, in-air clips |
+| `Content/Animations/Interaction/` | Pickup, door, and other interact clips |
+| `Content/Animations/Combat/Revolver/` | Reserved for future revolver/combat clips |
+
+Rules:
+
+- Third-party packs (Starter Assets, Movement Animset Pro, Invector, etc.) are **source libraries only**.
+- `AC_CCS_Player_Locomotion_StarterAssets.controller` must reference **CCS-owned `.anim` copies** only.
+- Do not edit vendor clips directly or wire vendor FBX sub-assets into production Animator Controllers.
+- When adding clips from a vendor pack, duplicate/extract into `Content/Animations/` first.
+
+Tooling:
+
+| Menu | Action |
+|------|--------|
+| **CCS → Character Controller → Animations → Isolate Player Animation Clips** | Duplicate vendor clips and rewire player AC |
+| **CCS → Character Controller → Animations → Validate Player Animation Isolation** | Fail if any AC motion is outside `Content/Animations/` |
+
+See also: [Content/Animations/README.md](../Content/Animations/README.md)
 
 ## Movement profile
 

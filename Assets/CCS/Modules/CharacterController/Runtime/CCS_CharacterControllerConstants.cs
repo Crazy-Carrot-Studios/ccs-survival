@@ -28,6 +28,17 @@ namespace CCS.Modules.CharacterController
         public const string LookActionReferencePath =
             ModuleRootPath + "/Content/Input/CCS_CharacterController_LookActionReference.asset";
 
+        public const string ContentAnimationsRootPath = ModuleRootPath + "/Content/Animations";
+
+        public const string LocomotionAnimationsPath = ContentAnimationsRootPath + "/Locomotion";
+
+        public const string InteractionAnimationsPath = ContentAnimationsRootPath + "/Interaction";
+
+        public const string CombatRevolverAnimationsPath = ContentAnimationsRootPath + "/Combat/Revolver";
+
+        public const string PlayerLocomotionAnimatorControllerPath =
+            ModuleRootPath + "/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
+
         public const string DefaultMovementProfilePath =
             ModuleRootPath + "/Profiles/Movement/CCS_CharacterMovementProfile_Default.asset";
 

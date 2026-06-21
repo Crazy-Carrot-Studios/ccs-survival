@@ -75,6 +75,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             CCS_CharacterControllerMasterTestEnvironmentPrefabBuilder.RebuildEnvironmentPrefabs();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
+            CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
             CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner();
