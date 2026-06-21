@@ -2,11 +2,13 @@
 
 ## What Project owns
 
-- Game bootstrap and install sequencing (`CCS_SurvivalBootstrap`, `CCS_SurvivalInstaller`)
+- Bootstrap composition prefab and install sequencing (`CCS_SurvivalBootstrap`, `CCS_SurvivalInstaller`)
 - Project runtime context, validation, and diagnostics contracts
-- Bootstrap scenes and composition prefabs
 - Project-level documentation and architecture references
+- Editor project audit (`CCS.Project.Editor`)
 - Character module skeleton (transitional until moved to `Assets/CCS/Modules/`)
+
+Project-wide scenes live under `Assets/CCS/Scenes/` (bootstrap, Master Test, multiplayer hosting).
 
 ## What Project does not own
 

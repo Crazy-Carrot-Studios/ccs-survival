@@ -102,11 +102,19 @@ There is **no** `Assets/CCS/Shared/` or `Assets/CCS/Tests/` at the project root.
 flowchart TD
     Core["Framework/Core\nCCS.Core.Runtime"]
     Project["Project\nCCS.Project.Runtime"]
+    Attr["Modules/Attributes\nCCS.Modules.Attributes.*"]
+    IX["Modules/Interaction\nCCS.Modules.Interaction.*"]
     CC["Modules/CharacterController\nCCS.Modules.CharacterController.*"]
     Netcode["Tests/Netcode\nCCS.Modules.CharacterController.Tests.Netcode.*"]
 
+    Attr --> Project
+    Attr --> Core
+    IX --> Project
+    IX --> Core
     CC --> Project
     CC --> Core
+    CC -. "test player integration" .-> Attr
+    CC -. "test player integration" .-> IX
     Netcode --> CC
     Netcode --> Project
     Project --> Core
@@ -115,6 +123,8 @@ flowchart TD
 | Rule | Detail |
 |------|--------|
 | Dependency direction | **Modules → Project → Core** (never reversed) |
+| Interaction / Attributes | Independent modules; no runtime references to CharacterController |
+| Test-player coupling | CharacterController.Runtime → Attributes + Interaction (canonical test player only) |
 | Netcode test assembly | `Tests.Netcode.Runtime` → CharacterController.Runtime + Project + Netcode |
 | Module registration | Manual installer order in `CCS_SurvivalInstaller` |
 | Global state | No singleton managers or static service locators |
@@ -337,7 +347,7 @@ Hosting and netcode asset wiring. Assigns **project prefab assets only**.
 |------|-------|---------|
 | `Assets/CCS/Scenes/Bootstrap/` | `SCN_CCS_Survival_Bootstrap.unity` | Project bootstrap entry |
 | `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_MasterTest.unity` | **Primary** controller + traversal test scene |
-| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_Test.unity` | Legacy ground-only test scene |
+| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_Test.unity` | Legacy ground-only preview scene |
 | `Assets/CCS/Scenes/Network/` | `SCN_CCS_MultiplayerHosting.unity` | Host/join UI; contains `PF_CCS_TestNetworkManager` instance |
 
 **Master test scene layout (source of truth):**
@@ -387,17 +397,26 @@ Test **scripts** only — scenes and prefabs live under `Assets/CCS/Scenes/` and
 
 ## Project/
 
-Composition shell — bootstrap, install sequencing, validation contracts, and project docs. Does **not** own feature gameplay implementations.
+Composition shell — bootstrap, install sequencing, validation contracts, editor audit, and project docs. Does **not** own feature gameplay implementations or project-wide scenes.
 
 See [Project/README.md](Project/README.md).
 
 ```text
 Assets/CCS/Project/
 ├── Documentation/    # Active architecture and standards
+├── Editor/           # CCS.Project.Editor — project audit (CCS → Project → Run Project Audit)
 ├── Prefabs/          # Bootstrap composition prefab
-├── Runtime/          # CCS.Project.Runtime
-└── Scenes/           # Project entry scene
+└── Runtime/          # CCS.Project.Runtime
 ```
+
+Project-wide scenes live under **`Assets/CCS/Scenes/`** (not under `Project/`):
+
+| Scene | Path |
+|-------|------|
+| Bootstrap entry | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
+| Master Test (primary) | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
+| Legacy ground preview | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity` |
+| Multiplayer hosting | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` |
 
 ### Runtime/ — `CCS.Project.Runtime.asmdef`
 
@@ -414,12 +433,11 @@ References `CCS.Core.Runtime` only. Namespace: `CCS.Project`.
 
 > **Transitional:** Some character skeleton code still lives under `Project/Runtime/Character/` until fully moved into module assemblies.
 
-### Scenes & Prefabs
+### Prefabs
 
 | Asset | Path |
 |-------|------|
-| Entry scene | `Scenes/SCN_CCS_Survival_Bootstrap.unity` |
-| Bootstrap root | `Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
+| Bootstrap root | `Assets/CCS/Project/Prefabs/PF_CCS_Survival_BootstrapRoot.prefab` |
 
 ### Documentation/
 
@@ -531,8 +549,11 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 - [Repository README](../../README.md)
 - [Modules README](Modules/README.md)
 - [Project README](Project/README.md)
+- [Project Documentation index](Project/Documentation/README.md)
 - [Framework Core README](Framework/Core/README.md)
 - [Character Controller Module](Modules/CharacterController/Documentation/CCS_CharacterController_Module.md)
+- [Attributes Module](Modules/Attributes/Documentation/CCS_Attributes_Module.md)
+- [Interaction Module](Modules/Interaction/Documentation/CCS_Interaction_Module.md)
 
 ---
 
@@ -544,4 +565,4 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup/door flow, prompt, forward volume, LOS |
 
-Legacy preview scene: `CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity` (ground-only; Master Test is source of truth).
+Legacy preview scene: `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity` (ground-only; Master Test is source of truth).

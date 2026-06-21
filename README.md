@@ -33,7 +33,7 @@ No production survival loop yet.
 | Attributes module | **CCS → Attributes → Validate Attributes Module** |
 | Bootstrap smoke | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
 
-Legacy ground-only preview (retained, not primary): `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity`
+Legacy ground-only preview (retained, not primary): `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity`
 
 ## Requirements
 
