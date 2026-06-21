@@ -6,8 +6,10 @@
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
         "CCS.Modules.Interaction.Runtime",
-        "CCS.Modules.CharacterController.Tests.Netcode.Runtime",
-        "Unity.Netcode.Runtime"
+        "CCS.Modules.CharacterController.Runtime",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor"

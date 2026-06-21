@@ -310,8 +310,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             CCS_NetworkPlayerNameplate[] nameplates =
                 UnityEngine.Object.FindObjectsByType<CCS_NetworkPlayerNameplate>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
             for (int i = 0; i < nameplates.Length; i++)
             {
                 CCS_NetworkPlayerNameplate candidate = nameplates[i];
@@ -378,8 +377,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             CCS_NetworkPlayerNameplate[] nameplates =
                 UnityEngine.Object.FindObjectsByType<CCS_NetworkPlayerNameplate>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
             for (int i = 0; i < nameplates.Length; i++)
             {
                 CCS_NetworkPlayerNameplate nameplate = nameplates[i];

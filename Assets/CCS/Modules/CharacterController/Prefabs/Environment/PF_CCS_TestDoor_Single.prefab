@@ -61,9 +61,12 @@ GameObject:
   - component: {fileID: 300172}
   - component: {fileID: 300190}
   - component: {fileID: 300181}
-  m_Layer: 0
-  m_Name: DoorSlab
-  m_TagString: Untagged
+  - component: {fileID: 910000050}
+  - component: {fileID: 910000060}
+  - component: {fileID: 910000070}
+  m_Layer: 6
+  m_Name: CCS_BuildingDoor_Interactable
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -161,6 +164,54 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &910000050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b4c5d6e7f8091a2b3c4d5e6f708192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractableLabelTarget
+  definition:
+    interactionKind: 1
+    displayName: Door
+    promptText: Press [E]
+    animationKey: 1
+    destroyOnSuccess: 0
+    strictRange: 1.5
+--- !u!114 &910000060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4c5d6e7f8091a2b3c4d5e6f709182bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractableExecutor
+--- !u!114 &910000070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7e8a9b0c1d234567890abcdef012345, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractableDoor
+  doorPivot: {fileID: 1874549081461088440}
+  openAngle: 90
+  openDuration: 0.35
+  opensInward: 1
+  startsOpen: 0
 --- !u!1 &4604797792978096957
 GameObject:
   m_ObjectHideFlags: 0

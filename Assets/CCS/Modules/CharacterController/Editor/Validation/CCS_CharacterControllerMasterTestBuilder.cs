@@ -77,6 +77,7 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
             CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner();
+            CCS_InteractionPromptHudPrefabBuilder.EnsureTestPlayerInteractionPromptHud();
 
             EnsurePrefabAssetMaterials();
 
@@ -154,7 +155,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= EnsureTraversalPoints(testPoints);
 
-            changed |= CCS_InteractionMasterTestBuilder.EnsureMasterTestInteractable();
+            changed |= CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
 
             changed |= EnsureBootstrapRoot();
 
@@ -391,7 +392,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
 
-            Transform[] allTransforms = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+            Transform[] allTransforms = Object.FindObjectsByType<Transform>();
 
             for (int i = 0; i < allTransforms.Length; i++)
 
@@ -1161,7 +1162,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            Light[] lights = Object.FindObjectsByType<Light>();
 
             Light directionalLight = null;
 
@@ -1235,7 +1236,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>();
 
             AudioListener keepListener = null;
 
@@ -1377,7 +1378,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 ? scope.GetComponentsInChildren<Transform>(true)
 
-                : Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+                : Object.FindObjectsByType<Transform>();
 
             for (int i = 0; i < transforms.Length; i++)
 

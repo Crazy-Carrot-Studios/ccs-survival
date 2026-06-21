@@ -406,14 +406,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 GameObject.Find("PF_CCS_TestNetworkManager") != null,
                 $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} is missing PF_CCS_TestNetworkManager.");
 
-            CCS_MultiplayerHostingMenu menu = Object.FindFirstObjectByType<CCS_MultiplayerHostingMenu>();
+            CCS_MultiplayerHostingMenu menu = Object.FindAnyObjectByType<CCS_MultiplayerHostingMenu>();
             AppendIfMissing(
                 failures,
                 menu != null,
                 $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} is missing CCS_MultiplayerHostingMenu.");
 
             CCS_HostingSceneModeSelectController modeController =
-                Object.FindFirstObjectByType<CCS_HostingSceneModeSelectController>();
+                Object.FindAnyObjectByType<CCS_HostingSceneModeSelectController>();
             AppendIfMissing(
                 failures,
                 modeController != null,
@@ -488,7 +488,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 ValidateNetworkPrefabReferences(failures);
             }
 
-            Canvas hostingCanvas = Object.FindFirstObjectByType<Canvas>();
+            Canvas hostingCanvas = Object.FindAnyObjectByType<Canvas>();
             if (hostingCanvas != null)
             {
                 AppendIfMissing(
@@ -502,7 +502,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Canvas must not use a root Layout Group. Run Rebuild Multiplayer Hosting UI.");
             }
 
-            EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            EventSystem eventSystem = Object.FindAnyObjectByType<EventSystem>();
             AppendIfMissing(
                 failures,
                 eventSystem != null,
@@ -1562,7 +1562,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 GameObject.Find("PlayerSetupPanel") == null && GameObject.Find("MainContentPanel") == null,
                 "Hosting UI still contains legacy panels. Run Setup Multiplayer Hosting Scene.");
 
-            Canvas hostingCanvas = Object.FindFirstObjectByType<Canvas>();
+            Canvas hostingCanvas = Object.FindAnyObjectByType<Canvas>();
             if (hostingCanvas != null)
             {
                 AppendIfMissing(
@@ -1572,7 +1572,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                     "Canvas must not use a root Layout Group. Run Rebuild Multiplayer Hosting UI.");
             }
 
-            CCS_MultiplayerHostingMenu menu = Object.FindFirstObjectByType<CCS_MultiplayerHostingMenu>();
+            CCS_MultiplayerHostingMenu menu = Object.FindAnyObjectByType<CCS_MultiplayerHostingMenu>();
             if (menu != null)
             {
                 SerializedObject serializedMenu = new SerializedObject(menu);
@@ -1796,8 +1796,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             for (int i = 0; i < sceneObjects.Length; i++)
             {
                 NetworkObject sceneObject = sceneObjects[i];

@@ -86,7 +86,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             Debug.Log(
                 LogPrefix
                 + $" {action} NetworkObjectId={ownerNetworkObject?.NetworkObjectId.ToString() ?? "n/a"} "
-                + $"ProviderId={inputProvider?.GetInstanceID().ToString() ?? "n/a"} "
+                + $"ProviderId={inputProvider?.GetEntityId().ToString() ?? "n/a"} "
                 + $"ProviderPath={GetGameObjectPath(inputProvider != null ? inputProvider.transform : null)}",
                 inputProvider);
         }

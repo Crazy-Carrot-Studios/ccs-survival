@@ -5,7 +5,9 @@
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
         "Unity.InputSystem",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

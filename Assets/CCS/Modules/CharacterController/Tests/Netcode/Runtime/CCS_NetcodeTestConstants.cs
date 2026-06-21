@@ -10,6 +10,8 @@
 
 using UnityEngine;
 
+using CCS.Modules.Interaction;
+
 namespace CCS.Modules.CharacterController.Tests.Netcode
 {
     public static class CCS_NetcodeTestConstants
@@ -36,13 +38,13 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string NetworkedPlayerPrefabPath =
             CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
 
-        public const string TestToggleInteractablePrefabPath =
-            "Assets/CCS/Modules/Interaction/Tests/Prefabs/PF_CCS_TestInteractable_ToggleCube.prefab";
+        public const string TestPickupInteractablePrefabPath =
+            CCS_InteractionConstants.TestPickupInteractablePrefabPath;
 
         public static readonly string[] RequiredNetworkPrefabPaths =
         {
             NetworkedPlayerPrefabPath,
-            TestToggleInteractablePrefabPath,
+            TestPickupInteractablePrefabPath,
         };
 
         public const string TestNetworkPrefabsListPath =

@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractionScannerProfile
   profileDisplayName: Interaction Scanner Default
   profileId: ccs.survival.profile.interaction.scanner.default
-  profileDescription: Default interaction scanner profile for v0.4.0 Interaction foundation.
-  profileVersion: 0.4.0
+  profileDescription: Default interaction scanner profile for v0.4.0 Interaction
+    foundation.
+  profileVersion: 0.5.4
   enableDebugLogs: 0
   interactionRange: 3
   interactionLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 64
   interactionCooldownSeconds: 0.25
   useCameraForward: 1

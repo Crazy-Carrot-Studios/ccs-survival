@@ -5,11 +5,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_InteractionMenus
 // CATEGORY: Modules / Interaction / Editor
-// PURPOSE: Registers the Interaction module validation editor menu.
+// PURPOSE: Registers the Interaction module validation and setup editor menus.
 // PLACEMENT: Editor-only static registration. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Repairs assets, player wiring, and scene placement before validation.
+// NOTES: Repairs assets, player wiring, pickup cube, and building door before validation.
 // =============================================================================
 
 namespace CCS.Modules.Interaction.Editor
@@ -20,12 +20,38 @@ namespace CCS.Modules.Interaction.Editor
 
         #region Public Methods
 
+        [MenuItem(MenuRoot + "Build Master Test Interactions")]
+        public static void BuildMasterTestInteractionsMenu()
+        {
+            bool changed = CCS_InteractionDetectionTestBuilder.BuildMasterTestInteractions();
+            Debug.Log(
+                changed
+                    ? "[Interaction] Master Test interactions updated (pickup cube + building door)."
+                    : "[Interaction] Master Test interactions already up to date.");
+        }
+
+        [MenuItem(MenuRoot + "Build Master Test Detection Cube")]
+        public static void BuildMasterTestDetectionCubeMenu()
+        {
+            BuildMasterTestInteractionsMenu();
+        }
+
+        [MenuItem(MenuRoot + "Build Master Test Pickup Interaction")]
+        public static void BuildMasterTestPickupInteractionMenu()
+        {
+            bool changed = CCS_InteractionMasterTestBuilder.BuildMasterTestPickupInteraction();
+            Debug.Log(
+                changed
+                    ? "[Interaction] Master Test pickup interaction wiring updated."
+                    : "[Interaction] Master Test pickup interaction wiring already up to date.");
+        }
+
         [MenuItem(MenuRoot + "Validate Interaction Module")]
         public static void ValidateInteractionModuleMenu()
         {
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
-            CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionScanner();
-            CCS_InteractionMasterTestBuilder.EnsureMasterTestInteractable();
+            CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionWiring();
+            CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
             LogResult(CCS_InteractionModuleValidator.ValidateInteractionModule());
         }
 

@@ -19,8 +19,7 @@ namespace CCS.Modules.CharacterController
         public static void EnsureSingleActiveListener(AudioListener preferredListener = null)
         {
             AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             if (listeners.Length == 0)
             {

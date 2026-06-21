@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 using CCS.Modules.CharacterController;
 
+using CCS.Modules.Interaction;
+
 using Unity.Netcode;
 
 using UnityEngine;
@@ -342,7 +344,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             if (networkManager.IsServer)
             {
                 RepositionAllConnectedPlayers("MasterTestSceneLoaded");
-                CCS_MasterTestInteractableSpawnController.EnsureNetworkInstanceIfServer();
+                CCS_TestPickupItemSpawner.EnsureNetworkInstanceIfServer();
             }
 
             RefreshAllNetworkPlayerConfigurations("MasterTestSceneLoaded");

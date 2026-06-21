@@ -1,4 +1,5 @@
 using CCS.Modules.CharacterController;
+using CCS.Modules.Interaction;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
@@ -22,7 +23,7 @@ namespace CCS.Modules.CharacterController.Tests
     {
         #region Variables
 
-        private static readonly HashSet<int> ConfiguredOfflinePlayerIds = new HashSet<int>();
+        private static readonly HashSet<GameObject> ConfiguredOfflinePlayers = new HashSet<GameObject>();
 
         #endregion
 
@@ -44,8 +45,7 @@ namespace CCS.Modules.CharacterController.Tests
                 return false;
             }
 
-            int playerInstanceId = playerRoot.GetInstanceID();
-            if (ConfiguredOfflinePlayerIds.Contains(playerInstanceId))
+            if (ConfiguredOfflinePlayers.Contains(playerRoot))
             {
                 return false;
             }
@@ -55,7 +55,7 @@ namespace CCS.Modules.CharacterController.Tests
             EnableOfflineGameplay(playerRoot);
             BindSceneCamera(playerRoot, sceneCameraController, displayProfile);
 
-            ConfiguredOfflinePlayerIds.Add(playerInstanceId);
+            ConfiguredOfflinePlayers.Add(playerRoot);
 
             CCS_TestPlayerSessionContext context = new CCS_TestPlayerSessionContext(
                 ownerClientId: 0,
@@ -125,11 +125,28 @@ namespace CCS.Modules.CharacterController.Tests
 
             cameraController.enabled = true;
             cameraController.BindFollowTargets(followTarget, lookTarget);
+            EnsureMainCameraTagged(cameraController);
         }
 
         #endregion
 
         #region Private Methods
+
+        private static void EnsureMainCameraTagged(CCS_CharacterCameraController cameraController)
+        {
+            if (Camera.main != null)
+            {
+                return;
+            }
+
+            Camera sceneCamera = cameraController != null
+                ? cameraController.GetComponentInChildren<Camera>(true)
+                : null;
+            if (sceneCamera != null)
+            {
+                sceneCamera.tag = "MainCamera";
+            }
+        }
 
         private static void ApplyProfileTuning(GameObject playerRoot, CCS_TestPlayerDisplayProfile displayProfile)
         {
@@ -185,6 +202,14 @@ namespace CCS.Modules.CharacterController.Tests
             {
                 embeddedCamera.enabled = false;
             }
+
+            CCS_NetworkInteractionScanner interactionScanner =
+                playerRoot.GetComponent<CCS_NetworkInteractionScanner>();
+            if (interactionScanner != null)
+            {
+                interactionScanner.enabled = true;
+                interactionScanner.EnsureOfflineInteractionSession();
+            }
         }
 
         private static void ApplyOfflineNameplate(GameObject playerRoot, CCS_TestPlayerDisplayProfile displayProfile)
@@ -219,9 +244,7 @@ namespace CCS.Modules.CharacterController.Tests
         private static CCS_CharacterCameraController ResolveSceneCameraController()
         {
             CCS_CharacterCameraController[] cameraControllers =
-                Object.FindObjectsByType<CCS_CharacterCameraController>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                Object.FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include);
             for (int i = 0; i < cameraControllers.Length; i++)
             {
                 CCS_CharacterCameraController candidate = cameraControllers[i];

@@ -19,7 +19,8 @@ namespace CCS.Modules.CharacterController
     {
         #region Variables
 
-        private static readonly Dictionary<int, int> SharedActionAssetEnableCounts = new Dictionary<int, int>();
+        private static readonly Dictionary<InputActionAsset, int> SharedActionAssetEnableCounts =
+            new Dictionary<InputActionAsset, int>();
 
         [Header("Input Actions")]
         [SerializeField] private InputActionAsset inputActionsAsset;
@@ -186,7 +187,7 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            int assetKey = inputActionsAsset.GetInstanceID();
+            InputActionAsset assetKey = inputActionsAsset;
             SharedActionAssetEnableCounts.TryGetValue(assetKey, out int enableCount);
             if (enableCount == 0)
             {
@@ -204,7 +205,7 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            int assetKey = inputActionsAsset.GetInstanceID();
+            InputActionAsset assetKey = inputActionsAsset;
             if (!SharedActionAssetEnableCounts.TryGetValue(assetKey, out int enableCount))
             {
                 sharedMapEnableHeld = false;

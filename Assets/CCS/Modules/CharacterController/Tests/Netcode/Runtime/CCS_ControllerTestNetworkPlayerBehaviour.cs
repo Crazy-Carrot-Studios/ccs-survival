@@ -133,8 +133,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         {
             CCS_ControllerTestNetworkPlayerBehaviour[] behaviours =
                 Object.FindObjectsByType<CCS_ControllerTestNetworkPlayerBehaviour>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Include);
             for (int i = 0; i < behaviours.Length; i++)
             {
                 CCS_ControllerTestNetworkPlayerBehaviour behaviour = behaviours[i];
@@ -516,7 +515,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         private void DisableForeignCameraControllers(CCS_CharacterCameraController activeController)
         {
             CCS_CharacterCameraController[] cameraControllers =
-                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include);
             for (int i = 0; i < cameraControllers.Length; i++)
             {
                 CCS_CharacterCameraController candidate = cameraControllers[i];

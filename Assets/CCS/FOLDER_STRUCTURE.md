@@ -1,7 +1,7 @@
 # CCS Survival — Folder Structure Reference
 
 **Project:** CCS Survival  
-**Version:** Character Controller v0.2.4 — Unified Test Player + Condensed Scene Menus  
+**Version:** 0.5.4 — Interaction Pickup and Door Flow  
 **Unity:** 6000.3.10f1 (Unity 6)  
 **Author:** James Schilz  
 **Date:** June 2026  

@@ -91,7 +91,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 return false;
             }
 
-            Canvas canvas = Object.FindFirstObjectByType<Canvas>();
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
                 canvas = CreateCanvasRoot();
@@ -102,7 +102,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             ConfigureCanvasScaler(canvas);
             EnsureCanvasRaycaster(canvas);
 
-            NetworkManager networkManager = Object.FindFirstObjectByType<NetworkManager>();
+            NetworkManager networkManager = Object.FindAnyObjectByType<NetworkManager>();
             Unity.Netcode.Transports.UTP.UnityTransport transport = networkManager != null
                 ? networkManager.GetComponent<Unity.Netcode.Transports.UTP.UnityTransport>()
                 : null;
@@ -842,7 +842,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
         private static void EnsureSceneEventSystem()
         {
-            EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            EventSystem eventSystem = Object.FindAnyObjectByType<EventSystem>();
             if (eventSystem == null)
             {
                 GameObject eventSystemObject = new GameObject("EventSystem");
@@ -883,7 +883,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasObject.AddComponent<GraphicRaycaster>();
 
-            if (Object.FindFirstObjectByType<EventSystem>() == null)
+            if (Object.FindAnyObjectByType<EventSystem>() == null)
             {
                 GameObject eventSystemObject = new GameObject("EventSystem");
                 eventSystemObject.AddComponent<EventSystem>();

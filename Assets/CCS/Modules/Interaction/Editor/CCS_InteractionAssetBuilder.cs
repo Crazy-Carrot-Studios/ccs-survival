@@ -7,7 +7,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_InteractionAssetBuilder
 // CATEGORY: Modules / Interaction / Editor
-// PURPOSE: Creates scanner profile and test toggle interactable prefab assets.
+// PURPOSE: Creates scanner profile and test pickup interactable prefab assets.
 // PLACEMENT: Editor utility invoked from Interaction validation and master test setup.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
@@ -24,7 +24,7 @@ namespace CCS.Modules.Interaction.Editor
         {
             bool changed = false;
             changed |= EnsureScannerProfileAsset();
-            changed |= EnsureToggleInteractablePrefab();
+            changed |= EnsurePickupInteractablePrefab();
 
             if (changed)
             {
@@ -68,9 +68,10 @@ namespace CCS.Modules.Interaction.Editor
             changed |= SetBool(serializedProfile, "useCameraForward", true);
 
             SerializedProperty layerMaskProperty = serializedProfile.FindProperty("interactionLayerMask");
-            if (layerMaskProperty != null && layerMaskProperty.intValue != ~0)
+            int interactableLayerMaskValue = CCS_InteractionLayerUtility.GetInteractableLayerMask().value;
+            if (layerMaskProperty != null && layerMaskProperty.intValue != interactableLayerMaskValue)
             {
-                layerMaskProperty.intValue = ~0;
+                layerMaskProperty.intValue = interactableLayerMaskValue;
                 changed = true;
             }
 
@@ -83,59 +84,50 @@ namespace CCS.Modules.Interaction.Editor
             return changed;
         }
 
-        public static bool EnsureToggleInteractablePrefab()
+        public static bool EnsurePickupInteractablePrefab()
         {
             GameObject existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_InteractionConstants.TestToggleInteractablePrefabPath);
+                CCS_InteractionConstants.TestPickupInteractablePrefabPath);
             if (existingPrefab != null
-                && existingPrefab.GetComponent<CCS_TestToggleInteractable>() != null
+                && existingPrefab.GetComponent<CCS_TestPickupInteractable>() != null
                 && existingPrefab.GetComponent<NetworkObject>() != null
-                && existingPrefab.GetComponentInChildren<Collider>() != null)
+                && existingPrefab.GetComponent<BoxCollider>() != null)
             {
                 return false;
             }
 
-            string directory = Path.GetDirectoryName(CCS_InteractionConstants.TestToggleInteractablePrefabPath);
+            string directory = Path.GetDirectoryName(CCS_InteractionConstants.TestPickupInteractablePrefabPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
 
-            GameObject root = new GameObject("PF_CCS_TestInteractable_ToggleCube");
+            GameObject root = new GameObject("PF_CCS_TestInteractable_PickupItem");
             try
             {
                 root.AddComponent<NetworkObject>();
-                CCS_TestToggleInteractable interactable = root.AddComponent<CCS_TestToggleInteractable>();
+                root.AddComponent<CCS_TestPickupInteractable>();
+
+                BoxCollider boxCollider = root.AddComponent<BoxCollider>();
+                boxCollider.size = new Vector3(0.45f, 0.45f, 0.45f);
+                boxCollider.center = new Vector3(0f, 0.225f, 0f);
 
                 GameObject visualRoot = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 visualRoot.name = "VisualRoot";
                 visualRoot.transform.SetParent(root.transform, false);
-                visualRoot.transform.localPosition = new Vector3(0f, 0.5f, 0f);
-                visualRoot.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+                visualRoot.transform.localPosition = new Vector3(0f, 0.225f, 0f);
+                visualRoot.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+
+                Object.DestroyImmediate(visualRoot.GetComponent<BoxCollider>());
 
                 MeshRenderer renderer = visualRoot.GetComponent<MeshRenderer>();
                 if (renderer != null)
                 {
                     renderer.sharedMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                    renderer.sharedMaterial.color = new Color(0.85f, 0.2f, 0.2f, 1f);
+                    renderer.sharedMaterial.color = new Color(0.95f, 0.75f, 0.15f, 1f);
                 }
 
-                SerializedObject serializedInteractable = new SerializedObject(interactable);
-                SerializedProperty visualRootProperty = serializedInteractable.FindProperty("visualRoot");
-                SerializedProperty rendererProperty = serializedInteractable.FindProperty("visualRenderer");
-                if (visualRootProperty != null)
-                {
-                    visualRootProperty.objectReferenceValue = visualRoot.transform;
-                }
-
-                if (rendererProperty != null)
-                {
-                    rendererProperty.objectReferenceValue = renderer;
-                }
-
-                serializedInteractable.ApplyModifiedPropertiesWithoutUndo();
-
-                PrefabUtility.SaveAsPrefabAsset(root, CCS_InteractionConstants.TestToggleInteractablePrefabPath);
+                PrefabUtility.SaveAsPrefabAsset(root, CCS_InteractionConstants.TestPickupInteractablePrefabPath);
                 return true;
             }
             finally

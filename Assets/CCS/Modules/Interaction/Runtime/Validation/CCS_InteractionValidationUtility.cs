@@ -99,10 +99,10 @@ namespace CCS.Modules.Interaction
                 : CCS_SurvivalValidationResult.Pass("Canonical test player interaction scanner is wired.");
         }
 
-        public static CCS_SurvivalValidationResult ValidateTestInteractablePrefab(GameObject prefabRoot)
+        public static CCS_SurvivalValidationResult ValidateTestPickupInteractablePrefab(GameObject prefabRoot)
         {
             List<string> failures = new List<string>();
-            AppendIfMissing(failures, prefabRoot != null, "Test interactable prefab is missing.");
+            AppendIfMissing(failures, prefabRoot != null, "Test pickup interactable prefab is missing.");
 
             if (prefabRoot == null)
             {
@@ -112,19 +112,19 @@ namespace CCS.Modules.Interaction
             AppendIfMissing(
                 failures,
                 prefabRoot.GetComponent<NetworkObject>() != null,
-                $"{CCS_InteractionConstants.TestToggleInteractablePrefabPath} must contain NetworkObject.");
+                $"{CCS_InteractionConstants.TestPickupInteractablePrefabPath} must contain NetworkObject.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponent<CCS_TestToggleInteractable>() != null,
-                $"{CCS_InteractionConstants.TestToggleInteractablePrefabPath} must contain CCS_TestToggleInteractable.");
+                prefabRoot.GetComponent<CCS_TestPickupInteractable>() != null,
+                $"{CCS_InteractionConstants.TestPickupInteractablePrefabPath} must contain CCS_TestPickupInteractable.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponentInChildren<Collider>() != null,
-                $"{CCS_InteractionConstants.TestToggleInteractablePrefabPath} must contain a collider for scanning.");
+                prefabRoot.GetComponent<BoxCollider>() != null,
+                $"{CCS_InteractionConstants.TestPickupInteractablePrefabPath} must contain a BoxCollider for scanning.");
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Test interactable prefab is valid.");
+                : CCS_SurvivalValidationResult.Pass("Test pickup interactable prefab is valid.");
         }
 
         #endregion

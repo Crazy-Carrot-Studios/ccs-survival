@@ -78,7 +78,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             NetworkManager manager = NetworkManager.Singleton != null
                 ? NetworkManager.Singleton
-                : FindFirstObjectByType<NetworkManager>();
+                : FindAnyObjectByType<NetworkManager>();
             if (manager == null)
             {
                 Debug.LogError("[Hosting Smoke] NetworkManager was not found.");

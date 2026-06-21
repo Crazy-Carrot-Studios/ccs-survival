@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.2.0`
+**Current version:** `0.5.4`
 
 ## Purpose
 
@@ -85,6 +85,14 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.5.4` — Interaction Pickup and Door Flow
+
+- Pickup and WalkThroughDoor interactable kinds with executor routing
+- Forward interaction volume and closest-point line-of-sight validation
+- Press [E] prompt when interaction-ready; movement lock during animations
+- PickUp_RH and WalkThroughDoor_RH animator triggers
+- Master Test pickup cube and building door targets
 
 ### `0.2.0` — Character Controller Foundation
 

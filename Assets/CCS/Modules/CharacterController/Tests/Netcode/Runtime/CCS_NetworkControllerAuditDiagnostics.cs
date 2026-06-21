@@ -167,7 +167,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private static int CountEnabledCameras()
         {
-            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude);
             int count = 0;
             for (int i = 0; i < cameras.Length; i++)
             {
@@ -183,8 +183,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         private static int CountEnabledAudioListeners()
         {
             AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
             int count = 0;
             for (int i = 0; i < listeners.Length; i++)
             {

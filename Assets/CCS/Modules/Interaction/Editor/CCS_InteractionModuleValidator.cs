@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using CCS.Modules.CharacterController.Tests.Netcode;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -49,17 +48,17 @@ namespace CCS.Modules.Interaction.Editor
                 failures,
                 CCS_InteractionValidationUtility.ValidatePlayerScannerComponents(testPlayerPrefab));
 
-            GameObject togglePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_InteractionConstants.TestToggleInteractablePrefabPath);
+            GameObject pickupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_InteractionConstants.TestPickupInteractablePrefabPath);
             AppendIfMissing(
                 failures,
-                togglePrefab != null,
-                $"Missing test interactable prefab at {CCS_InteractionConstants.TestToggleInteractablePrefabPath}.");
+                pickupPrefab != null,
+                $"Missing test pickup prefab at {CCS_InteractionConstants.TestPickupInteractablePrefabPath}.");
             AppendResult(
                 failures,
-                CCS_InteractionValidationUtility.ValidateTestInteractablePrefab(togglePrefab));
+                CCS_InteractionValidationUtility.ValidateTestPickupInteractablePrefab(pickupPrefab));
 
-            ValidateMasterTestSceneInteractable(failures);
+            ValidateMasterTestScenePickupSpawner(failures);
             ValidateSourceContracts(failures);
 
             return failures.Count > 0
@@ -72,7 +71,7 @@ namespace CCS.Modules.Interaction.Editor
 
         #region Private Methods
 
-        private static void ValidateMasterTestSceneInteractable(List<string> failures)
+        private static void ValidateMasterTestScenePickupSpawner(List<string> failures)
         {
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_InteractionConstants.MasterTestScenePath,
@@ -83,30 +82,36 @@ namespace CCS.Modules.Interaction.Editor
                 return;
             }
 
-            CCS_MasterTestInteractableSpawnController controller =
-                Object.FindFirstObjectByType<CCS_MasterTestInteractableSpawnController>();
+            CCS_TestPickupItemSpawner spawner = Object.FindAnyObjectByType<CCS_TestPickupItemSpawner>();
             GameObject assignedPrefab = null;
-            if (controller != null)
+            Transform assignedOrigin = null;
+            if (spawner != null)
             {
-                SerializedObject serializedController = new SerializedObject(controller);
-                SerializedProperty prefabProperty = serializedController.FindProperty("toggleInteractablePrefab");
+                SerializedObject serializedSpawner = new SerializedObject(spawner);
+                SerializedProperty prefabProperty = serializedSpawner.FindProperty("pickupItemPrefab");
+                SerializedProperty originProperty = serializedSpawner.FindProperty("spawnOrigin");
                 assignedPrefab = prefabProperty != null ? prefabProperty.objectReferenceValue as GameObject : null;
+                assignedOrigin = originProperty != null ? originProperty.objectReferenceValue as Transform : null;
             }
 
             EditorSceneManager.CloseScene(scene, true);
             AppendIfMissing(
                 failures,
-                controller != null,
-                $"Master test scene must contain {nameof(CCS_MasterTestInteractableSpawnController)}.");
+                spawner != null,
+                $"Master test scene must contain {nameof(CCS_TestPickupItemSpawner)}.");
             AppendIfMissing(
                 failures,
                 assignedPrefab != null,
-                "Master test interactable spawn controller must reference PF_CCS_TestInteractable_ToggleCube.");
+                "Master test pickup spawner must reference PF_CCS_TestInteractable_PickupItem.");
             AppendIfMissing(
                 failures,
                 assignedPrefab != null
-                && AssetDatabase.GetAssetPath(assignedPrefab) == CCS_InteractionConstants.TestToggleInteractablePrefabPath,
-                $"Master test interactable spawn controller must reference {CCS_InteractionConstants.TestToggleInteractablePrefabPath}.");
+                && AssetDatabase.GetAssetPath(assignedPrefab) == CCS_InteractionConstants.TestPickupInteractablePrefabPath,
+                $"Master test pickup spawner must reference {CCS_InteractionConstants.TestPickupInteractablePrefabPath}.");
+            AppendIfMissing(
+                failures,
+                assignedOrigin != null,
+                "Master test pickup spawner must reference TP_Spawn_Host as spawn origin.");
         }
 
         private static void ValidateSourceContracts(List<string> failures)
@@ -128,21 +133,25 @@ namespace CCS.Modules.Interaction.Editor
                     failures,
                     source.Contains("!NetworkManager.IsListening"),
                     "CCS_NetworkInteractionScanner must support solo/offline without NetworkManager.");
+                AppendIfMissing(
+                    failures,
+                    source.Contains("Keyboard.current"),
+                    "CCS_NetworkInteractionScanner must use the Input System keyboard.");
             }
 
-            string togglePath = CCS_InteractionConstants.ModuleRootPath
-                + "/Runtime/Components/CCS_TestToggleInteractable.cs";
-            if (File.Exists(togglePath))
+            string pickupPath = CCS_InteractionConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_TestPickupInteractable.cs";
+            if (File.Exists(pickupPath))
             {
-                string source = File.ReadAllText(togglePath);
+                string source = File.ReadAllText(pickupPath);
                 AppendIfMissing(
                     failures,
-                    source.Contains("NetworkVariableWritePermission.Server"),
-                    "CCS_TestToggleInteractable must use server write permission for replicated state.");
+                    source.Contains("RequireComponent(typeof(BoxCollider))"),
+                    "CCS_TestPickupInteractable must require BoxCollider.");
                 AppendIfMissing(
                     failures,
-                    source.Contains("!IsServer"),
-                    "CCS_TestToggleInteractable must reject non-server networked apply.");
+                    source.Contains("CCS_IInteractable"),
+                    "CCS_TestPickupInteractable must implement CCS_IInteractable.");
             }
         }
 

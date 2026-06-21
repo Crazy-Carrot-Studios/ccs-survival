@@ -2132,8 +2132,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             CCS_PlayerJoinNotificationFeed[] allFeeds =
                 Object.FindObjectsByType<CCS_PlayerJoinNotificationFeed>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Include);
             if (allFeeds.Length != 1)
             {
                 failures.Add("Master test scene must contain exactly one CCS_PlayerJoinNotificationFeed.");
@@ -2700,7 +2699,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            Light[] lights = Object.FindObjectsByType<Light>();
 
             int directionalCount = 0;
 
@@ -2736,7 +2735,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+            AudioListener[] listeners = Object.FindObjectsByType<AudioListener>();
 
             int enabledCount = 0;
 
@@ -2778,9 +2777,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 Object.FindObjectsByType<CCS_ControllerTestNetworkPlayerBehaviour>(
 
-                    FindObjectsInactive.Include,
-
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Include);
 
             for (int i = 0; i < networkedPlayers.Length; i++)
 
@@ -2806,9 +2803,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             NetworkObject[] sceneNetworkObjects = Object.FindObjectsByType<NetworkObject>(
 
-                FindObjectsInactive.Include,
-
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int i = 0; i < sceneNetworkObjects.Length; i++)
 
@@ -2848,9 +2843,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             NetworkManager[] networkManagers = Object.FindObjectsByType<NetworkManager>(
 
-                FindObjectsInactive.Include,
-
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int i = 0; i < networkManagers.Length; i++)
 
@@ -2901,8 +2894,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             TMP_Text[] sceneTexts = Object.FindObjectsByType<TMP_Text>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int i = 0; i < sceneTexts.Length; i++)
 
@@ -2928,8 +2920,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             MonoBehaviour[] sceneBehaviours = Object.FindObjectsByType<MonoBehaviour>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int i = 0; i < sceneBehaviours.Length; i++)
 
@@ -2991,7 +2982,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         {
 
-            Transform[] transforms = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+            Transform[] transforms = Object.FindObjectsByType<Transform>();
 
             for (int i = 0; i < transforms.Length; i++)
 

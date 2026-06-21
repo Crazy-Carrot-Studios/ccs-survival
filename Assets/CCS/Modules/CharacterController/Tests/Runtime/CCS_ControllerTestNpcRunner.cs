@@ -171,8 +171,7 @@ namespace CCS.Modules.CharacterController.Tests
         {
             Dictionary<string, Transform> pointsById = new Dictionary<string, Transform>();
             CCS_ControllerTestPoint[] testPoints = FindObjectsByType<CCS_ControllerTestPoint>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
             for (int i = 0; i < testPoints.Length; i++)
             {

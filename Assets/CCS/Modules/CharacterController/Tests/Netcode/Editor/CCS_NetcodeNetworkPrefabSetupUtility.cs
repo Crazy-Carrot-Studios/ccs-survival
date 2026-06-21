@@ -51,7 +51,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 Debug.LogWarning("[Netcode Setup] Interaction prefab sync reported no changes or could not run.");
             }
 
-            if (!CCS_InteractionMasterTestBuilder.EnsureMasterTestInteractable())
+            if (!CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction())
             {
                 Debug.Log("[Netcode Setup] Master test interactable spawn controller already valid.");
             }
@@ -89,7 +89,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             yamlChanged |= EnsureYamlPrefabRootReference(
                 CCS_NetcodeTestConstants.NetworkManagerPrefabPath,
                 "toggleInteractablePrefabFallback",
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath);
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
             yamlChanged |= EnsureYamlNetworkPrefabsArray(
                 CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath,
                 "networkPrefabs",
@@ -438,8 +438,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             NetworkObject[] sceneObjects = Object.FindObjectsByType<NetworkObject>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             for (int i = 0; i < sceneObjects.Length; i++)
             {
                 NetworkObject sceneObject = sceneObjects[i];
@@ -575,7 +574,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
             GameObject togglePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath);
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
             NetworkPrefabsList prefabsList = AssetDatabase.LoadAssetAtPath<NetworkPrefabsList>(
                 CCS_NetcodeTestConstants.TestNetworkPrefabsListPath);
 
@@ -665,7 +664,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 CCS_NetcodeTestConstants.TestNetworkPrefabsListPath,
                 CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath,
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath,
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath,
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath,
             };
 
             bool importedAny = false;
@@ -757,7 +756,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
             GameObject togglePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath);
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
             NetworkPrefabsList prefabsList = AssetDatabase.LoadAssetAtPath<NetworkPrefabsList>(
                 CCS_NetcodeTestConstants.TestNetworkPrefabsListPath);
             if (playerPrefab == null || togglePrefab == null || prefabsList == null)
@@ -1019,7 +1018,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
             GameObject togglePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath);
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
             SerializedObject serializedGuard = new SerializedObject(guard);
             SerializedProperty playerProperty = serializedGuard.FindProperty("networkedPlayerPrefabFallback");
             SerializedProperty toggleProperty = serializedGuard.FindProperty("toggleInteractablePrefabFallback");
@@ -1050,14 +1049,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             yamlChanged |= EnsureYamlPrefabRootReference(
                 CCS_NetcodeTestConstants.NetworkManagerPrefabPath,
                 "toggleInteractablePrefabFallback",
-                CCS_NetcodeTestConstants.TestToggleInteractablePrefabPath);
+                CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
 
             return changed || yamlChanged;
         }
 
         private static void WireHostingMenuNetworkReferences(GameObject networkManagerInstance)
         {
-            CCS_MultiplayerHostingMenu menu = Object.FindFirstObjectByType<CCS_MultiplayerHostingMenu>();
+            CCS_MultiplayerHostingMenu menu = Object.FindAnyObjectByType<CCS_MultiplayerHostingMenu>();
             if (menu == null || networkManagerInstance == null)
             {
                 return;

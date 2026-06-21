@@ -101,7 +101,7 @@ namespace CCS.Modules.CharacterController.Tests
         private static CCS_CharacterCameraController ResolveSceneCameraController()
         {
             CCS_CharacterCameraController[] cameraControllers =
-                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsByType<CCS_CharacterCameraController>(FindObjectsInactive.Include);
             for (int i = 0; i < cameraControllers.Length; i++)
             {
                 CCS_CharacterCameraController candidate = cameraControllers[i];
