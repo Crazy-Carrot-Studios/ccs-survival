@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Weapons;
+using CCS.Modules.Weapons.Editor;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using TMPro;
@@ -66,6 +67,8 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureNetworkComponents(prefabRoot);
             changed |= EnsurePlayerLocomotionComponents(prefabRoot);
             changed |= EnsureRevolverUpperBodyAnimator(prefabRoot);
+            changed |= CCS_WeaponsTestPlayerPrefabBuilder.RemovePlayerWeaponVisualArtifacts(prefabRoot);
+            changed |= CCS_EquipmentSocketPlayerBuilder.EnsurePlayerEquipmentSocketFoundation(prefabRoot);
             changed |= EnsureNetworkObjectTransformSettings(prefabRoot);
             changed |= RemoveCharacterControllerDebugHud(prefabRoot);
             changed |= WireNetworkNameplate(prefabRoot.transform);

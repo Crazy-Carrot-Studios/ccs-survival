@@ -50,6 +50,7 @@ namespace CCS.Modules.Weapons
         private bool loggedMissingDefinition;
         private bool loggedMissingMuzzlePoint;
         private bool loggedMissingSceneCamera;
+        private bool weaponOwnershipActive;
 
         #endregion
 
@@ -67,6 +68,10 @@ namespace CCS.Modules.Weapons
             aimLocomotionController != null && aimLocomotionController.IsAimMovementActive;
 
         public bool RevolverAimHeld => IsAiming;
+
+        public bool HasWeaponOwnership => weaponOwnershipActive;
+
+        public Transform MuzzlePointTransform => muzzlePoint;
 
         public bool RevolverIsReloading => isReloading;
 
@@ -118,6 +123,12 @@ namespace CCS.Modules.Weapons
             }
 
             SyncAimStateForEvents();
+
+            if (!weaponOwnershipActive)
+            {
+                return;
+            }
+
             HandleReloadInput();
             HandleFireInput();
         }
@@ -130,6 +141,17 @@ namespace CCS.Modules.Weapons
         {
             currentAmmo = revolverDefinition != null ? revolverDefinition.CylinderCapacity : 0;
             RaiseStateChanged();
+        }
+
+        public void SetWeaponOwnershipActive(bool active)
+        {
+            weaponOwnershipActive = active;
+            RaiseStateChanged();
+        }
+
+        public void SetMuzzlePoint(Transform nextMuzzlePoint)
+        {
+            muzzlePoint = nextMuzzlePoint;
         }
 
         public void ConfigureSceneWeaponCamera(
@@ -246,6 +268,11 @@ namespace CCS.Modules.Weapons
 
         private void HandleReloadInput()
         {
+            if (!weaponOwnershipActive || !IsAiming)
+            {
+                return;
+            }
+
             if (!inputProvider.ReloadPressed || isReloading || currentAmmo >= MaxAmmo)
             {
                 return;
@@ -256,6 +283,11 @@ namespace CCS.Modules.Weapons
 
         private void HandleFireInput()
         {
+            if (!weaponOwnershipActive || !IsAiming)
+            {
+                return;
+            }
+
             if (!inputProvider.FirePressed)
             {
                 return;

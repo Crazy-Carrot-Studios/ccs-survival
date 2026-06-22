@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2346fcc0280a1c4e9800761df332549, type: 3}
   m_Name: CCS_RevolverDefinition_Test
   m_EditorClassIdentifier: CCS.Modules.Weapons.Runtime::CCS.Modules.Weapons.CCS_RevolverDefinition
-  profileDisplayName: Test Revolver
+  profileDisplayName: M1879 Revolver
   profileId: ccs.survival.profile.weapons.revolver.test
   profileDescription: Test revolver definition for v0.6.1 hitscan weapon manual playtest.
-  profileVersion: 0.6.1
+  profileVersion: 0.6.5
   enableDebugLogs: 0
-  displayName: Test Revolver
+  displayName: M1879 Revolver
   cylinderCapacity: 6
   damage: 25
   fireCooldownSeconds: 0.35

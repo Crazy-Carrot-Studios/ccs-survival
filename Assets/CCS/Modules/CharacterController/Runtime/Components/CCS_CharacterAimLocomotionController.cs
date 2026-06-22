@@ -20,7 +20,10 @@ namespace CCS.Modules.CharacterController
 
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
         [SerializeField] private CCS_CharacterCameraFollowAnchor cameraFollowAnchor;
+        [SerializeField] private Component weaponAimGateComponent;
         [SerializeField] private bool enableMovementDebugLogs;
+
+        private CCS_IWeaponAimGate weaponAimGate;
 
         private CCS_CharacterCameraController sceneCameraController;
         private bool isAimMovementActive;
@@ -52,6 +55,7 @@ namespace CCS.Modules.CharacterController
         private void Awake()
         {
             ResolveReferences();
+            ResolveWeaponAimGate();
         }
 
         private void OnDisable()
@@ -67,7 +71,9 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            bool shouldAim = inputProvider.AimHeld && HasSceneCameraConfigured;
+            bool shouldAim = inputProvider.AimHeld
+                && HasSceneCameraConfigured
+                && CanUseAimMovement();
             SetAimMovementActive(shouldAim);
         }
 
@@ -105,6 +111,29 @@ namespace CCS.Modules.CharacterController
             {
                 cameraFollowAnchor = GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
             }
+
+            ResolveWeaponAimGate();
+        }
+
+        private void ResolveWeaponAimGate()
+        {
+            if (weaponAimGate != null)
+            {
+                return;
+            }
+
+            if (weaponAimGateComponent is CCS_IWeaponAimGate fromComponent)
+            {
+                weaponAimGate = fromComponent;
+                return;
+            }
+
+            weaponAimGate = GetComponent<CCS_IWeaponAimGate>();
+        }
+
+        private bool CanUseAimMovement()
+        {
+            return weaponAimGate == null || weaponAimGate.CanUseAimMovement;
         }
 
         private void SetAimMovementActive(bool active, bool forceCameraUpdate = false)

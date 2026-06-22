@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController;
+using CCS.Modules.CharacterController.Editor.EquipmentFitStudio;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.Interaction.Editor;
 using CCS.Modules.Weapons.Editor;
@@ -77,6 +78,8 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_CharacterControllerMasterTestEnvironmentPrefabBuilder.RebuildEnvironmentPrefabs();
             CCS_CharacterMovementAssetBuilder.EnsureMovementProfileAssets();
             CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
+            CCS_EquipmentSocketProfileBuilder.EnsureDefaultEquipmentSocketProfile();
+            CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();

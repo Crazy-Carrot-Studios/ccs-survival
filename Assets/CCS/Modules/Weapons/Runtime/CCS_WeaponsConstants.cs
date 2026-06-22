@@ -5,7 +5,7 @@
 // PLACEMENT: Runtime constants. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.0 — test revolver hitscan foundation. No inventory or equipment yet.
+// NOTES: v0.6.5 — revolver M1879 pickup, holster, and equipped visual foundation.
 // =============================================================================
 
 using UnityEngine;
@@ -14,11 +14,81 @@ namespace CCS.Modules.Weapons
 {
     public static class CCS_WeaponsConstants
     {
-        public const string ModuleVersion = "0.6.1";
+        public const string ModuleVersion = "0.6.5";
 
         public const string ModuleLogCategory = "Weapons";
 
         public const string ModuleRootPath = "Assets/CCS/Modules/Weapons";
+
+        public const string RevolverM1879WeaponId = "ccs.weapon.revolver.m1879";
+
+        public const string RevolverM1879ContentRootPath = ModuleRootPath + "/Content/RevolverM1879";
+
+        public const string RevolverM1879ModelsPath = RevolverM1879ContentRootPath + "/Models";
+
+        public const string RevolverM1879MaterialsPath = RevolverM1879ContentRootPath + "/Materials";
+
+        public const string RevolverM1879TexturesPath = RevolverM1879ContentRootPath + "/Textures";
+
+        public const string RevolverM1879PrefabsPath = RevolverM1879ContentRootPath + "/Prefabs";
+
+        public const string RevolverM1879ModelAssetPath = RevolverM1879ModelsPath + "/CCS_RevolverM1879_Model.fbx";
+
+        public const string RevolverM1879ShellModelAssetPath =
+            RevolverM1879ModelsPath + "/CCS_RevolverM1879_ShellVisual.fbx";
+
+        public const string RevolverM1879BulletModelAssetPath =
+            RevolverM1879ModelsPath + "/CCS_RevolverM1879_BulletVisual.fbx";
+
+        public const string RevolverM1879MaterialAssetPath =
+            RevolverM1879MaterialsPath + "/CCS_RevolverM1879_Material.mat";
+
+        public const string RevolverM1879WoodGripMaterialAssetPath =
+            RevolverM1879MaterialsPath + "/CCS_RevolverM1879_WoodGrip.mat";
+
+        public const string RevolverM1879MetalMaterialAssetPath =
+            RevolverM1879MaterialsPath + "/CCS_RevolverM1879_Metal.mat";
+
+        public const string RevolverM1879ShellMaterialAssetPath =
+            RevolverM1879MaterialsPath + "/CCS_RevolverM1879_ShellMaterial.mat";
+
+        public const string RevolverM1879BulletMaterialAssetPath =
+            RevolverM1879MaterialsPath + "/CCS_RevolverM1879_BulletMaterial.mat";
+
+        public const string RevolverM1879AlbedoTexturePath =
+            RevolverM1879TexturesPath + "/CCS_RevolverM1879_Albedo.tga";
+
+        public const string RevolverM1879NormalTexturePath =
+            RevolverM1879TexturesPath + "/CCS_RevolverM1879_Normal.tga";
+
+        public const string RevolverM1879MetallicTexturePath =
+            RevolverM1879TexturesPath + "/CCS_RevolverM1879_Metallic.tga";
+
+        public const string RevolverM1879VisualDefinitionPath =
+            RevolverM1879ContentRootPath + "/CCS_RevolverM1879VisualDefinition.asset";
+
+        public const string RevolverM1879WorldPickupPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_WorldPickup.prefab";
+
+        public const string RevolverM1879HolsteredPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_Holstered.prefab";
+
+        public const string RevolverM1879EquippedPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_Equipped.prefab";
+
+        public const string RevolverM1879BulletVisualPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_BulletVisual.prefab";
+
+        public const string RevolverM1879ShellVisualPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_ShellVisual.prefab";
+
+        public const string RevolverM1879WorldPickupInstanceName = "CCS_RevolverM1879_WorldPickup";
+
+        public const string LegacyReichsrevolverSourceRootPath = "Assets/Reichsrevolver_M1879";
+
+        public const string VendorSourceReichsrevolverRootPath = "Assets/VendorSource/Reichsrevolver_M1879";
+
+        public const string VendorSourceReichsrevolverPrefabGuid = "20d6fada1e8caa1488140d8433a67d6b";
 
         public const string RevolverDefinitionProfileId = "ccs.survival.profile.weapons.revolver.test";
 
@@ -82,6 +152,69 @@ namespace CCS.Modules.Weapons
 
         public const string PlayerRightHandSocketName = "RightHand";
 
+        public const string PlayerRightHipSocketName = "RightHip";
+
+        public const string PlayerSocketsRootName = "Sockets";
+
+        public const string RevolverHandSocketName = "CCS_RevolverHandSocket_Right";
+
+        public const string RevolverHolsterSocketName = "CCS_RevolverHolsterSocket_RightHip";
+
+        public const string ShellEjectPointObjectName = "ShellEjectPoint";
+
+        public const string BulletVisualSpawnPointObjectName = "BulletVisualSpawnPoint";
+
+        public const string CylinderPointObjectName = "CylinderPoint";
+
+        public const string RevolverModelRootObjectName = "ModelRoot";
+
+        public const string RevolverMaterializedVisualChildName = "RevolverVisual";
+
+        public const string RevolverM1879MaterializedVisualPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_MaterializedVisual.prefab";
+
+        public static readonly Vector3 RevolverHandSocketLocalPosition = new Vector3(0.02f, 0.02f, 0.04f);
+
+        public static readonly Vector3 RevolverHandSocketLocalEuler = Vector3.zero;
+
+        public static readonly Vector3 RevolverHolsterSocketLocalPosition = new Vector3(0.28f, 0.82f, -0.10f);
+
+        public static readonly Vector3 RevolverHolsterSocketLocalEuler = new Vector3(0f, 90f, -12f);
+
+        public static readonly Vector3 DefaultHolsteredLocalPosition = Vector3.zero;
+
+        public static readonly Vector3 DefaultHolsteredLocalEuler = new Vector3(0f, 180f, 90f);
+
+        public static readonly Vector3 DefaultHolsteredLocalScale = Vector3.one;
+
+        public static readonly Vector3 DefaultEquippedLocalPosition = Vector3.zero;
+
+        public static readonly Vector3 DefaultEquippedLocalEuler = new Vector3(90f, 0f, 0f);
+
+        public static readonly Vector3 DefaultEquippedLocalScale = Vector3.one;
+
+        public static readonly Vector3 DefaultMuzzleLocalPosition = new Vector3(0f, 0.24f, 0f);
+
+        public static readonly Vector3 DefaultShellEjectLocalPosition = new Vector3(0.04f, 0.05f, 0f);
+
+        public static readonly Vector3 DefaultBulletVisualSpawnLocalPosition = new Vector3(0f, 0.24f, 0f);
+
+        public static readonly Vector3 DefaultCylinderLocalPosition = new Vector3(0f, 0.1f, 0.02f);
+
+        public const float RevolverWorldPickupForwardDistance = 2f;
+
+        public const float RevolverWorldPickupRightDistance = 2.25f;
+
+        public const float RevolverWorldPickupHeightOffset = 0.85f;
+
+        public const float DefaultBulletVisualSpeed = 120f;
+
+        public const float DefaultBulletVisualLifetime = 0.25f;
+
+        public const float DefaultShellVisualLifetime = 3f;
+
+        public const float DefaultShellEjectForce = 1.25f;
+
         public const float TestDamageTargetForwardDistance = -10f;
 
         public const float TestDamageTargetLateralOffset = -5f;
@@ -106,6 +239,6 @@ namespace CCS.Modules.Weapons
 
         public const float MuzzlePointMinimumLocalHeight = 1.2f;
 
-        public const string DefaultRevolverDisplayName = "Test Revolver";
+        public const string DefaultRevolverDisplayName = "M1879 Revolver";
     }
 }

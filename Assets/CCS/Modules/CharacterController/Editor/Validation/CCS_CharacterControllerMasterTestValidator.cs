@@ -120,6 +120,31 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
+                CCS_EquipmentSocketValidationUtility.ValidateAnimationRiggingPackageInstalled());
+            AppendValidationResult(
+                failures,
+                CCS_EquipmentSocketValidationUtility.ValidateDefaultEquipmentSocketProfile());
+
+            GameObject networkedPrefabForEquipment = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefabForEquipment != null)
+            {
+                AppendValidationResult(
+                    failures,
+                    CCS_EquipmentSocketValidationUtility.ValidatePlayerEquipmentSocketFoundation(
+                        networkedPrefabForEquipment));
+                AppendValidationResult(
+                    failures,
+                    CCS_EquipmentSocketValidationUtility.ValidatePlayerWeaponIkFoundation(
+                        networkedPrefabForEquipment));
+            }
+
+            AppendValidationResult(
+                failures,
+                CCS.Modules.CharacterController.Editor.EquipmentFitStudio.CCS_EquipmentFitStudioValidationUtility.ValidateEquipmentFitStudioFoundation());
+
+            AppendValidationResult(
+                failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation());
 
             AppendValidationResult(

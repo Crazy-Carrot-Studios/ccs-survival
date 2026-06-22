@@ -24,6 +24,7 @@ namespace CCS.Modules.Weapons.Editor
             bool changed = false;
             changed |= EnsureRevolverDefinitionAsset();
             changed |= EnsureTestDamageTargetPrefab();
+            changed |= CCS_WeaponsVisualAssetBuilder.EnsureRevolverM1879VisualAssets();
 
             if (changed)
             {

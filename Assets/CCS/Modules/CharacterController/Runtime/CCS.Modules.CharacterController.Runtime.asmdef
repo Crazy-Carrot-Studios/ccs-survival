@@ -8,7 +8,8 @@
         "CCS.Modules.Interaction.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Unity.Animation.Rigging"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

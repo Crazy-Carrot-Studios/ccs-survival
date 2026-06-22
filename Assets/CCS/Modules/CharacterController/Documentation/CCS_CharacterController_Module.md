@@ -132,6 +132,56 @@ Profile types: `CCS_CharacterCameraProfile`, `CCS_CharacterCameraProfileSet`.
 
 Default active mode: `ThirdPersonSurvival`.
 
+## Equipment Sockets + IK Foundation (v0.6.6)
+
+v0.6.6 adds future-ready equipment socket metadata and zero-weight Animation Rigging IK targets. Weapon visuals are **not** attached yet — world revolver pickup remains the only gun visual.
+
+### Standards
+
+- Sockets are **direct children of animated humanoid skeleton bones** (or approved test fallback anchors when bones are missing).
+- Weapon/equipment prefabs attach at local zero under sockets; fit tuning lives on the socket definition transform.
+- IK targets live under `VisualRoot/CCS_WeaponIKTargets`.
+- `Rig_WeaponIK` and all IK constraint weights default to **0** until weapon visuals return.
+
+### Profile assets
+
+| Asset | Path |
+|-------|------|
+| Default socket profile | `Profiles/EquipmentSockets/CCS_DefaultEquipmentSocketProfile.asset` |
+| Socket definitions | `Profiles/EquipmentSockets/Sockets/*.asset` |
+
+Types: `CCS_EquipmentSocketDefinition`, `CCS_EquipmentSocketProfile`.
+
+### Runtime components
+
+| Component | Role |
+|-----------|------|
+| `CCS_EquipmentSocketAnchor` | Metadata marker on each socket transform |
+| `CCS_EquipmentSocketRegistry` | Lookup service: `TryGetSocket(socketId, out Transform)` |
+
+### Default socket table
+
+| Socket ID | Parent bone | Allowed item types |
+|-----------|-------------|-------------------|
+| `CCS_HolsterSocket_RightHip` | Hips | `weapon.revolver`, `weapon.pistol` |
+| `CCS_HolsterSocket_LeftHip` | Hips | `weapon.pistol`, `tool.knife`, `tool.hand` |
+| `CCS_HandSocket_Right` | RightHand | `weapon.revolver`, `weapon.pistol`, `weapon.rifle`, `weapon.shotgun`, `weapon.bow`, `tool.knife`, `tool.hand` |
+| `CCS_HandSocket_Left` | LeftHand | `tool.lantern`, `tool.offhand`, `weapon.rifle`, `weapon.shotgun`, `weapon.bow` |
+| `CCS_BackSocket_LongGun_A` | Chest (fallback Spine) | `weapon.rifle`, `weapon.shotgun`, `weapon.bow` — blocks Back B |
+| `CCS_BackSocket_LongGun_B` | Chest (fallback Spine) | `weapon.rifle`, `weapon.shotgun`, `weapon.bow` — blocks Back A |
+
+Test-only fallback anchors (`CCS_TestBoneSocketFallbacks`) are created only when required humanoid bones are unavailable. Real CC4/humanoid characters must not use fallback anchors.
+
+## Equipment Fit Studio (v0.6.7)
+
+Editor-only tuning tool for socket and IK target authoring. See [CCS_Equipment_Fit_Studio.md](CCS_Equipment_Fit_Studio.md).
+
+| Menu | Action |
+|------|--------|
+| **CCS → Character Controller → Equipment → Equipment Fit Studio** | Open socket/IK tuning window with live preview |
+
+Saved values go to ScriptableObject profiles. Builders reapply profiles. Validators fail if editor preview objects remain in scenes or prefabs.
+
 ## Cinemachine setup (v0.2.4)
 
 - Package: Cinemachine 3.1
@@ -153,12 +203,13 @@ Default active mode: `ThirdPersonSurvival`.
 
 Validation utilities live in `Editor/Validation/`.
 
-Checks include asmdefs, input actions, profiles, canonical test player prefab wiring, master test scene layout, Cinemachine Orbital Follow wiring, network player contracts, and no legacy `UnityEngine.Input` usage in module runtime code.
+Checks include asmdefs, input actions, profiles, canonical test player prefab wiring, master test scene layout, Cinemachine Orbital Follow wiring, network player contracts, equipment socket/IK foundation (v0.6.6), Animation Rigging package presence, and no legacy `UnityEngine.Input` usage in module runtime code.
 
 ## Out of scope (current milestone)
 
 - Interaction, inventory, crafting, stats, combat, save/load
-- Final character art, animation controller, IK, equipment sockets
+- Final character art and production animation polish
+- Attached weapon visuals, holster/equipped gun meshes, and enabled weapon IK
 - Production HUD
 
 ## Related

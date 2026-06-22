@@ -268,6 +268,22 @@ namespace CCS.Modules.Weapons
 
         {
 
+            if (revolverController != null && !revolverController.HasWeaponOwnership)
+
+            {
+
+                SetHudVisible(false);
+
+                return;
+
+            }
+
+
+
+            SetHudVisible(true);
+
+
+
             if (hudText != null)
 
             {
@@ -387,6 +403,32 @@ namespace CCS.Modules.Weapons
                     reticleImage.rectTransform.localScale = Vector3.one;
 
                 }
+
+            }
+
+        }
+
+
+
+        private void SetHudVisible(bool visible)
+
+        {
+
+            if (hudText != null)
+
+            {
+
+                hudText.enabled = visible;
+
+            }
+
+
+
+            if (!visible)
+
+            {
+
+                SetReticleVisible(false);
 
             }
 

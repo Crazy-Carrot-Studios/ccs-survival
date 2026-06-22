@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.CharacterController;
@@ -219,8 +220,8 @@ namespace CCS.Modules.Weapons
             string source = File.ReadAllText(feedbackPath);
             AppendIfMissing(
                 failures,
-                source.Contains("muzzlePoint.position"),
-                "CCS_RevolverFireFeedback must start tracers from muzzlePoint.position.");
+                source.Contains("muzzlePoint.position") || source.Contains("MuzzlePointTransform"),
+                "CCS_RevolverFireFeedback must start tracers from the active muzzle transform.");
             AppendIfMissing(
                 failures,
                 source.Contains("transform.root"),
@@ -256,9 +257,403 @@ namespace CCS.Modules.Weapons
                 : CCS_SurvivalValidationResult.Pass("Hitscan raycaster uses camera-center aim selection.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateRevolverM1879VisualFoundation()
+        {
+            List<string> failures = new List<string>();
+            AppendIfMissing(
+                failures,
+                Directory.Exists(CCS_WeaponsConstants.RevolverM1879ContentRootPath),
+                "Missing RevolverM1879 content root folder.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879ModelAssetPath),
+                "Missing CCS_RevolverM1879_Model.fbx.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879VisualDefinitionPath),
+                "Missing CCS_RevolverM1879VisualDefinition.asset.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath),
+                "Missing PF_CCS_RevolverM1879_WorldPickup.prefab.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879MaterializedVisualPrefabPath),
+                "Missing PF_CCS_RevolverM1879_MaterializedVisual.prefab.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.RevolverM1879HolsteredPrefabPath),
+                "Holstered revolver prefab must be removed for world-pickup-only scope.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.RevolverM1879EquippedPrefabPath),
+                "Equipped revolver prefab must be removed for world-pickup-only scope.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.RevolverM1879BulletVisualPrefabPath),
+                "Bullet visual prefab must be removed for world-pickup-only scope.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.RevolverM1879ShellVisualPrefabPath),
+                "Shell visual prefab must be removed for world-pickup-only scope.");
+
+            ValidatePrefabUsesCcsAssetsOnly(failures, CCS_WeaponsConstants.RevolverM1879MaterializedVisualPrefabPath);
+            ValidatePrefabUsesCcsAssetsOnly(failures, CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath);
+            ValidateWorldPickupPrefabContent(failures, CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath);
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Revolver M1879 world pickup assets are present and CCS-owned.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidatePlayerWeaponLoadoutComponents(GameObject prefabRoot)
+        {
+            List<string> failures = new List<string>();
+            AppendIfMissing(failures, prefabRoot != null, "Canonical test player prefab is missing.");
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>() != null,
+                "Test player must contain CCS_PlayerWeaponLoadout.");
+            AppendIfMissing(
+                failures,
+                !PlayerPrefabContainsComponentName(
+                    CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath,
+                    "CCS_RevolverWeaponVisualFeedback"),
+                "Test player must not contain CCS_RevolverWeaponVisualFeedback in world-pickup-only scope.");
+            AppendIfMissing(
+                failures,
+                FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.RevolverHolsterSocketName) == null,
+                "Test player must not contain holster socket "
+                + CCS_WeaponsConstants.RevolverHolsterSocketName
+                + ".");
+            AppendIfMissing(
+                failures,
+                FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.RevolverHandSocketName) == null,
+                "Test player must not contain hand socket " + CCS_WeaponsConstants.RevolverHandSocketName + ".");
+            AppendIfMissing(
+                failures,
+                FindDeepChild(prefabRoot.transform, "PF_CCS_RevolverM1879_Holstered_Instance") == null,
+                "Test player must not contain holstered revolver visual instance.");
+            AppendIfMissing(
+                failures,
+                FindDeepChild(prefabRoot.transform, "PF_CCS_RevolverM1879_Equipped_Instance") == null,
+                "Test player must not contain equipped revolver visual instance.");
+
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            AppendIfMissing(
+                failures,
+                aimLocomotion != null,
+                "Test player must contain CCS_CharacterAimLocomotionController for weapon aim gate wiring.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Player weapon ownership loadout is valid without attached gun visuals.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRevolverOwnershipAndMuzzleContract()
+        {
+            List<string> failures = new List<string>();
+            string controllerPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverController.cs";
+            if (!File.Exists(controllerPath))
+            {
+                return CCS_SurvivalValidationResult.Fail("Missing CCS_RevolverController source.");
+            }
+
+            string source = File.ReadAllText(controllerPath);
+            AppendIfMissing(
+                failures,
+                source.Contains("SetWeaponOwnershipActive"),
+                "CCS_RevolverController must gate gameplay on weapon ownership.");
+            AppendIfMissing(
+                failures,
+                source.Contains("weaponOwnershipActive"),
+                "CCS_RevolverController must track weapon ownership state.");
+            AppendIfMissing(
+                failures,
+                source.Contains("!IsAiming"),
+                "CCS_RevolverController must block fire/reload when not aiming.");
+
+            string loadoutPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_PlayerWeaponLoadout.cs";
+            if (File.Exists(loadoutPath))
+            {
+                string loadoutSource = File.ReadAllText(loadoutPath);
+                AppendIfMissing(
+                    failures,
+                    loadoutSource.Contains("GrantWeapon"),
+                    "CCS_PlayerWeaponLoadout must grant weapon ownership from world pickup.");
+                AppendIfMissing(
+                    failures,
+                    !loadoutSource.Contains("ShowEquippedVisual"),
+                    "CCS_PlayerWeaponLoadout must not spawn equipped gun visuals in world-pickup-only scope.");
+                AppendIfMissing(
+                    failures,
+                    !loadoutSource.Contains("ShowHolsteredVisual"),
+                    "CCS_PlayerWeaponLoadout must not spawn holstered gun visuals in world-pickup-only scope.");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Revolver ownership contract is valid for world-pickup-only scope.");
+        }
+
         #endregion
 
         #region Private Methods
+
+        private static void ValidatePrefabUsesCcsAssetsOnly(List<string> failures, string prefabPath)
+        {
+            if (!File.Exists(prefabPath))
+            {
+                return;
+            }
+
+            string prefabText = File.ReadAllText(prefabPath);
+            if (prefabText.Contains(CCS_WeaponsConstants.LegacyReichsrevolverSourceRootPath))
+            {
+                failures.Add(prefabPath + " must not reference " + CCS_WeaponsConstants.LegacyReichsrevolverSourceRootPath + ".");
+            }
+
+            if (prefabText.Contains(CCS_WeaponsConstants.VendorSourceReichsrevolverRootPath))
+            {
+                failures.Add(prefabPath + " must not reference " + CCS_WeaponsConstants.VendorSourceReichsrevolverRootPath + ".");
+            }
+
+            if (prefabText.Contains("Reichsrevolver_M1879/Scripts"))
+            {
+                failures.Add(prefabPath + " must not reference imported Reichsrevolver vendor scripts.");
+            }
+
+            if (prefabText.Contains(CCS_WeaponsConstants.VendorSourceReichsrevolverPrefabGuid))
+            {
+                failures.Add(prefabPath + " must not contain nested vendor Reichsrevolver prefab instances.");
+            }
+
+            if (prefabText.Contains("m_Controller:") || prefabText.Contains("RevolverController"))
+            {
+                failures.Add(prefabPath + " must not reference imported revolver Animator Controller or RevolverController script.");
+            }
+
+            if (prefabText.Contains("UnityEngine.Animation"))
+            {
+                failures.Add(prefabPath + " must not contain imported Animation components.");
+            }
+        }
+
+        private static void ValidateWorldPickupPrefabContent(List<string> failures, string prefabPath)
+        {
+            if (!File.Exists(prefabPath))
+            {
+                return;
+            }
+
+            string prefabText = File.ReadAllText(prefabPath);
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.RevolverModelRootObjectName),
+                prefabPath + " must contain ModelRoot.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.RevolverMaterializedVisualChildName),
+                prefabPath + " must contain ModelRoot/RevolverVisual.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("SkinnedMeshRenderer:") || prefabText.Contains("m_Name: Revolver_Mesh"),
+                prefabPath + " must contain the materialized revolver mesh hierarchy under ModelRoot/RevolverVisual.");
+            ValidateWorldPickupHasNoDuplicateVisualRoots(failures, prefabPath, prefabText);
+            ValidatePrefabUsesCcsMaterialGuids(failures, prefabPath, prefabText);
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("CCS_WeaponPickupInteractable"),
+                prefabPath + " must contain CCS_WeaponPickupInteractable.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("BoxCollider:"),
+                prefabPath + " must contain an interaction collider.");
+        }
+
+        private static void ValidateWorldPickupHasNoDuplicateVisualRoots(
+            List<string> failures,
+            string prefabPath,
+            string prefabText)
+        {
+            AppendIfMissing(
+                failures,
+                !ContainsTopLevelPrefabChildName(prefabText, "RevolverMesh"),
+                prefabPath + " must not contain top-level RevolverMesh.");
+            AppendIfMissing(
+                failures,
+                !ContainsTopLevelPrefabChildName(prefabText, "Body"),
+                prefabPath + " must not contain top-level Body outside ModelRoot.");
+            AppendIfMissing(
+                failures,
+                !ContainsTopLevelPrefabChildName(prefabText, "Revolver_Mesh"),
+                prefabPath + " must not contain top-level Revolver_Mesh outside ModelRoot.");
+        }
+
+        private static bool ContainsTopLevelPrefabChildName(string prefabText, string childName)
+        {
+            int rootIndex = prefabText.IndexOf("m_Name: PF_CCS_RevolverM1879_WorldPickup");
+            if (rootIndex < 0)
+            {
+                return prefabText.Contains("m_Name: " + childName);
+            }
+
+            int childIndex = prefabText.IndexOf("m_Name: " + childName, rootIndex);
+            if (childIndex < 0)
+            {
+                return false;
+            }
+
+            int modelRootIndex = prefabText.IndexOf(
+                "m_Name: " + CCS_WeaponsConstants.RevolverModelRootObjectName,
+                rootIndex);
+            if (modelRootIndex < 0)
+            {
+                return true;
+            }
+
+            int nextRootSibling = prefabText.IndexOf("\n--- !u!", modelRootIndex + 1);
+            if (nextRootSibling < 0)
+            {
+                return childIndex > modelRootIndex;
+            }
+
+            return childIndex > rootIndex && childIndex < modelRootIndex;
+        }
+
+        private static bool PlayerPrefabContainsComponentName(string prefabPath, string componentTypeName)
+        {
+            if (!File.Exists(prefabPath))
+            {
+                return false;
+            }
+
+            return File.ReadAllText(prefabPath).Contains(componentTypeName);
+        }
+
+        private static void ValidateRevolverVisualPrefabContent(
+            List<string> failures,
+            string prefabPath,
+            bool requireEquippedAnchors)
+        {
+            if (!File.Exists(prefabPath))
+            {
+                return;
+            }
+
+            string prefabText = File.ReadAllText(prefabPath);
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.RevolverModelRootObjectName),
+                prefabPath + " must contain ModelRoot with full CCS materialized revolver visual.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("SkinnedMeshRenderer:") || prefabText.Contains("m_Name: Revolver_Mesh"),
+                prefabPath + " must contain the full materialized revolver mesh hierarchy.");
+            ValidatePrefabUsesCcsMaterialGuids(failures, prefabPath, prefabText);
+            AppendIfMissing(
+                failures,
+                !prefabText.Contains("m_Name: RevolverMesh"),
+                prefabPath + " must not use legacy RevolverMesh-only visual root.");
+
+            if (requireEquippedAnchors)
+            {
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("m_Name: " + CCS_WeaponsConstants.MuzzlePointObjectName),
+                    prefabPath + " must contain MuzzlePoint.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("m_Name: " + CCS_WeaponsConstants.ShellEjectPointObjectName),
+                    prefabPath + " must contain ShellEjectPoint.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("m_Name: " + CCS_WeaponsConstants.BulletVisualSpawnPointObjectName),
+                    prefabPath + " must contain BulletVisualSpawnPoint.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("m_Name: " + CCS_WeaponsConstants.CylinderPointObjectName),
+                    prefabPath + " must contain CylinderPoint.");
+            }
+
+            AppendIfMissing(
+                failures,
+                !prefabText.Contains("CCS_WeaponPickupInteractable"),
+                prefabPath + " must not contain world pickup interaction components.");
+        }
+
+        private static void ValidatePrefabUsesCcsMaterialGuids(
+            List<string> failures,
+            string prefabPath,
+            string prefabText)
+        {
+            bool usesCcsMaterial = false;
+            string[] materialPaths =
+            {
+                CCS_WeaponsConstants.RevolverM1879MaterialAssetPath,
+                CCS_WeaponsConstants.RevolverM1879MetalMaterialAssetPath,
+                CCS_WeaponsConstants.RevolverM1879WoodGripMaterialAssetPath,
+            };
+
+            for (int i = 0; i < materialPaths.Length; i++)
+            {
+                string metaPath = materialPaths[i] + ".meta";
+                if (!File.Exists(metaPath))
+                {
+                    continue;
+                }
+
+                string metaText = File.ReadAllText(metaPath);
+                int guidIndex = metaText.IndexOf("guid: ", StringComparison.Ordinal);
+                if (guidIndex < 0)
+                {
+                    continue;
+                }
+
+                int guidStart = guidIndex + 6;
+                int guidEnd = metaText.IndexOf('\n', guidStart);
+                if (guidEnd < 0)
+                {
+                    guidEnd = metaText.Length;
+                }
+
+                string guid = metaText.Substring(guidStart, guidEnd - guidStart).Trim();
+                if (!string.IsNullOrEmpty(guid) && prefabText.Contains(guid))
+                {
+                    usesCcsMaterial = true;
+                    break;
+                }
+            }
+
+            AppendIfMissing(
+                failures,
+                usesCcsMaterial,
+                prefabPath + " must assign CCS revolver materials from Content/RevolverM1879/Materials.");
+        }
+
+        private static void ValidateEquippedPrefabHasMuzzlePoint(List<string> failures)
+        {
+            if (!File.Exists(CCS_WeaponsConstants.RevolverM1879EquippedPrefabPath))
+            {
+                return;
+            }
+
+            string prefabText = File.ReadAllText(CCS_WeaponsConstants.RevolverM1879EquippedPrefabPath);
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.MuzzlePointObjectName),
+                "Equipped revolver prefab must contain MuzzlePoint.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.ShellEjectPointObjectName),
+                "Equipped revolver prefab must contain ShellEjectPoint.");
+        }
 
         private static Transform FindDeepChild(Transform root, string childName)
         {

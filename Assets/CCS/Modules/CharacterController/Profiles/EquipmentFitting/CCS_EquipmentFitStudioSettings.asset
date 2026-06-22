@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d2a13a07a30c14eae95a8ba4835169, type: 3}
+  m_Name: CCS_EquipmentFitStudioSettings
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_EquipmentFitStudioSettings
+  defaultSocketProfile: {fileID: 11400000, guid: e4181b9c1968f04489310bc04920b45f, type: 2}
+  defaultPreviewWeaponPrefab: {fileID: 7384546915950577294, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+  defaultWeaponId: weapon.revolver
+  defaultCharacterRigId: ccs.testplayer.humanoid
+  previewCameraFov: 35
+  previewCameraNearClip: 0.01
+  previewCameraFarClip: 100
+  previewBackgroundColor: {r: 0.16, g: 0.16, b: 0.18, a: 1}
+  nudgePositionSmall: 0.01
+  nudgePositionLarge: 0.05
+  nudgeRotationSmall: 1
+  nudgeRotationLarge: 5
+  autoFrameOnSelection: 1
+  showHints: 1
+  showGizmos: 1
