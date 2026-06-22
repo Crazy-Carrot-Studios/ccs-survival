@@ -73,7 +73,10 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
+            CCS_CharacterCameraLayerUtility.EnsurePlayerLayerAndTag();
             CCS_CharacterControllerMasterTestEnvironmentPrefabBuilder.RebuildEnvironmentPrefabs();
+            CCS_CharacterMovementAssetBuilder.EnsureMovementProfileAssets();
+            CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
@@ -159,8 +162,6 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= EnsureTraversalPoints(testPoints);
 
-            changed |= CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
-
             changed |= CCS_WeaponsMasterTestBuilder.EnsureMasterTestWeaponTarget();
 
             changed |= EnsureBootstrapRoot();
@@ -178,6 +179,12 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureDirectionalLight();
 
             changed |= EnsureSingleAudioListener();
+
+            changed |= CCS_InteractionDetectionTestBuilder.EnsureMasterTestInteractionPrerequisites();
+            changed |= DestroyAllByName("CCS_TestPickupItemSpawner");
+            changed |= DestroyAllByName("PF_CCS_TestInteractable_PickupItem");
+            changed |= DestroyAllByName("CCS_TestDetectionCubeSceneBootstrap");
+            changed |= CCS_InteractionDetectionTestBuilder.ApplyMasterTestInteractionsToActiveScene();
 
 
 
@@ -1038,8 +1045,11 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = ConfigureSceneCameraControllerForRuntimeBinding(prefabRoot);
+            changed |= CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
             Transform tpCameraTransform = prefabRoot.transform.Find("CinemachineCamera_TP");
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureCinemachineLookInput(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureThirdPersonCameraPriority(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureAimCamera(prefabRoot);
             if (changed)
             {
                 PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
@@ -1106,8 +1116,11 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             changed |= ConfigureSceneCameraControllerForRuntimeBinding(existing.gameObject);
+            changed |= CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
             Transform tpCameraTransform = existing.Find("CinemachineCamera_TP");
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureCinemachineLookInput(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureThirdPersonCameraPriority(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureAimCamera(existing.gameObject);
 
             return changed;
         }
@@ -1384,7 +1397,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 ? scope.GetComponentsInChildren<Transform>(true)
 
-                : Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+                : Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
             for (int i = 0; i < transforms.Length; i++)
 

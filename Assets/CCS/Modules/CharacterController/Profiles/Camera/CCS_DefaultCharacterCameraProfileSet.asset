@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfileSet
   defaultProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
   firstPersonProfile: {fileID: 0}
-  aimOverShoulderProfile: {fileID: 0}
+  aimOverShoulderProfile: {fileID: 11400000, guid: 6a177b1952465b84c980557398ed4793, type: 2}
   topDownProfile: {fileID: 0}
   horseProfile: {fileID: 0}
   vehicleProfile: {fileID: 0}

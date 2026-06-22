@@ -20,7 +20,7 @@ namespace CCS.Modules.Interaction.Editor
         {
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
             CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionWiring();
-            CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
+            CCS_InteractionDetectionTestBuilder.BuildMasterTestInteractions();
 
             CCS_SurvivalValidationResult result = CCS_InteractionModuleValidator.ValidateInteractionModule();
             if (result.IsSuccess)

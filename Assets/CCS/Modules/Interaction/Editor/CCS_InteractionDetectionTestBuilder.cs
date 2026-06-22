@@ -22,11 +22,7 @@ namespace CCS.Modules.Interaction.Editor
 
         public static bool BuildMasterTestInteractions()
         {
-            bool changed = false;
-            changed |= CCS_InteractionLayerUtility.EnsureInteractableLayer();
-            changed |= CCS_InteractionAssetBuilder.EnsureScannerProfileAsset();
-            changed |= CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerDetectionWiring();
-            changed |= CCS_InteractionBuildingDoorBuilder.EnsureTestDoorSinglePrefab();
+            bool changed = EnsureMasterTestInteractionPrerequisites();
 
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_InteractionConstants.MasterTestScenePath,
@@ -39,23 +35,39 @@ namespace CCS.Modules.Interaction.Editor
                 return changed;
             }
 
-            int interactableLayer = LayerMask.NameToLayer(CCS_InteractionConstants.InteractableLayerName);
+            changed |= ApplyMasterTestInteractionsToActiveScene();
 
-            changed |= DisablePickupTestObjects();
-            bool cubeEnsured = EnsureDetectionCube(out bool cubeChanged);
-            changed |= cubeChanged;
-            changed |= CCS_InteractionBuildingDoorBuilder.RemoveLegacyWalkThroughDoorSlab();
-            changed |= CCS_InteractionBuildingDoorBuilder.EnsureSceneBuildingDoors(interactableLayer);
-            changed |= EnsureDetectionBootstrap(out bool bootstrapChanged);
-            changed |= bootstrapChanged;
-
-            if (cubeEnsured || changed)
+            if (changed)
             {
                 EditorSceneManager.MarkSceneDirty(scene);
                 EditorSceneManager.SaveScene(scene);
             }
 
-            return changed || cubeEnsured;
+            return changed;
+        }
+
+        public static bool EnsureMasterTestInteractionPrerequisites()
+        {
+            bool changed = false;
+            changed |= CCS_InteractionLayerUtility.EnsureInteractableLayer();
+            changed |= CCS_InteractionAssetBuilder.EnsureScannerProfileAsset();
+            changed |= CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerDetectionWiring();
+            changed |= CCS_InteractionBuildingDoorBuilder.EnsureTestDoorSinglePrefab();
+            return changed;
+        }
+
+        public static bool ApplyMasterTestInteractionsToActiveScene()
+        {
+            int interactableLayer = LayerMask.NameToLayer(CCS_InteractionConstants.InteractableLayerName);
+
+            bool changed = RemovePickupItemSpawners();
+            changed |= EnsureDetectionCube(out bool cubeChanged);
+            changed |= cubeChanged;
+            changed |= CCS_InteractionBuildingDoorBuilder.RemoveLegacyWalkThroughDoorSlab();
+            changed |= CCS_InteractionBuildingDoorBuilder.EnsureSceneBuildingDoors(interactableLayer);
+            changed |= EnsureDetectionBootstrap(out bool bootstrapChanged);
+            changed |= bootstrapChanged;
+            return changed;
         }
 
         public static bool BuildMasterTestDetectionCube()
@@ -72,14 +84,27 @@ namespace CCS.Modules.Interaction.Editor
 
         #region Private Methods
 
-        private static bool DisablePickupTestObjects()
+        private static bool RemovePickupItemSpawners()
         {
             bool changed = false;
+            CCS_TestPickupItemSpawner[] spawners = Object.FindObjectsByType<CCS_TestPickupItemSpawner>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            for (int i = spawners.Length - 1; i >= 0; i--)
+            {
+                CCS_TestPickupItemSpawner spawner = spawners[i];
+                if (spawner != null)
+                {
+                    Object.DestroyImmediate(spawner.gameObject);
+                    changed = true;
+                }
+            }
+
             GameObject[] roots = SceneManager.GetActiveScene().GetRootGameObjects();
             for (int i = 0; i < roots.Length; i++)
             {
                 Transform[] children = roots[i].GetComponentsInChildren<Transform>(true);
-                for (int j = 0; j < children.Length; j++)
+                for (int j = children.Length - 1; j >= 0; j--)
                 {
                     Transform child = children[j];
                     if (child == null)
@@ -87,10 +112,9 @@ namespace CCS.Modules.Interaction.Editor
                         continue;
                     }
 
-                    if (child.name == CCS_InteractionConstants.PickupItemSpawnerObjectName
-                        && child.gameObject.activeSelf)
+                    if (child.name == CCS_InteractionConstants.TestPickupInteractableInstanceName)
                     {
-                        child.gameObject.SetActive(false);
+                        Object.DestroyImmediate(child.gameObject);
                         changed = true;
                     }
                 }
@@ -271,22 +295,40 @@ namespace CCS.Modules.Interaction.Editor
         private static bool EnsureDetectionBootstrap(out bool changed)
         {
             changed = false;
-            CCS_TestDetectionCubeSceneBootstrap bootstrap =
-                FindSceneObjectByName(CCS_InteractionConstants.TestDetectionCubeBootstrapObjectName)
-                    ?.GetComponent<CCS_TestDetectionCubeSceneBootstrap>();
+            GameObject bootstrapObject = FindSceneObjectByName(
+                CCS_InteractionConstants.TestDetectionCubeBootstrapObjectName);
 
-            if (bootstrap != null)
+            if (FindSceneDetectionCube() != null)
             {
-                if (!bootstrap.gameObject.activeSelf)
+                CCS_TestDetectionCubeSceneBootstrap[] bootstraps =
+                    Object.FindObjectsByType<CCS_TestDetectionCubeSceneBootstrap>(
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.None);
+                for (int i = bootstraps.Length - 1; i >= 0; i--)
                 {
-                    bootstrap.gameObject.SetActive(true);
+                    CCS_TestDetectionCubeSceneBootstrap bootstrap = bootstraps[i];
+                    if (bootstrap != null)
+                    {
+                        Object.DestroyImmediate(bootstrap.gameObject);
+                        changed = true;
+                    }
+                }
+
+                return changed;
+            }
+
+            if (bootstrapObject != null)
+            {
+                if (!bootstrapObject.activeSelf)
+                {
+                    bootstrapObject.SetActive(true);
                     changed = true;
                 }
 
                 return changed;
             }
 
-            GameObject bootstrapObject = new GameObject(CCS_InteractionConstants.TestDetectionCubeBootstrapObjectName);
+            bootstrapObject = new GameObject(CCS_InteractionConstants.TestDetectionCubeBootstrapObjectName);
             Undo.RegisterCreatedObjectUndo(bootstrapObject, "Create Detection Cube Bootstrap");
             bootstrapObject.AddComponent<CCS_TestDetectionCubeSceneBootstrap>();
             if (!bootstrapObject.scene.IsValid())

@@ -1,5 +1,6 @@
 using CCS.Modules.CharacterController;
 using CCS.Modules.Interaction;
+using CCS.Modules.Weapons;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
@@ -117,15 +118,61 @@ namespace CCS.Modules.CharacterController.Tests
                 playerCameraController.enabled = false;
             }
 
-            float followHeight = displayProfile != null ? displayProfile.CameraFollowHeight : 0.92f;
+            CCS_CharacterCameraProfile lookProfile = cameraController.CameraProfileSet != null
+                ? cameraController.CameraProfileSet.DefaultProfile
+                : displayProfile != null ? displayProfile.CameraProfile : null;
+
             if (followAnchor != null)
             {
-                followAnchor.Configure(playerRoot.transform, lookTarget, followHeight);
+                followAnchor.Configure(playerRoot.transform, lookTarget, lookProfile);
+                followAnchor.InitializeSpawnOrientation(force: true);
             }
 
             cameraController.enabled = true;
             cameraController.BindFollowTargets(followTarget, lookTarget);
             EnsureMainCameraTagged(cameraController);
+            ConfigureAimLocomotion(playerRoot, cameraController);
+            ConfigureRevolverWeapon(playerRoot, cameraController);
+        }
+
+        private static void ConfigureAimLocomotion(
+            GameObject playerRoot,
+            CCS_CharacterCameraController cameraController)
+        {
+            if (playerRoot == null)
+            {
+                return;
+            }
+
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                playerRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            if (aimLocomotion == null)
+            {
+                return;
+            }
+
+            aimLocomotion.ConfigureSceneCamera(cameraController);
+        }
+
+        private static void ConfigureRevolverWeapon(
+            GameObject playerRoot,
+            CCS_CharacterCameraController cameraController)
+        {
+            if (playerRoot == null)
+            {
+                return;
+            }
+
+            CCS_RevolverController revolverController = playerRoot.GetComponent<CCS_RevolverController>();
+            if (revolverController == null)
+            {
+                return;
+            }
+
+            Camera outputCamera = cameraController != null
+                ? cameraController.GetOutputCamera()
+                : null;
+            revolverController.ConfigureSceneWeaponCamera(cameraController, outputCamera);
         }
 
         #endregion

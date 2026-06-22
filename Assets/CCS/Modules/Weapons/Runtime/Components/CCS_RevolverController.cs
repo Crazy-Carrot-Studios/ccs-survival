@@ -6,6 +6,7 @@ using CCS.Modules.CharacterController;
 using Unity.Netcode;
 
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // =============================================================================
 // SCRIPT: CCS_RevolverController
@@ -14,14 +15,15 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root or WeaponRoot child.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.0 local-owner solo path. TODO: server-authoritative fire must validate
-//        owner, cooldown, ammo, origin, range, and hit target before applying damage.
+// NOTES: v0.6.1 local-owner solo path with scene aim camera integration.
+//        TODO: server-authoritative fire must validate owner, cooldown, ammo,
+//        origin, range, and hit target before applying damage.
 // =============================================================================
 
 namespace CCS.Modules.Weapons
 {
     [DefaultExecutionOrder(120)]
-    public sealed class CCS_RevolverController : MonoBehaviour
+    public sealed class CCS_RevolverController : MonoBehaviour, CCS_IRevolverAnimationState
     {
         #region Variables
 
@@ -30,16 +32,24 @@ namespace CCS.Modules.Weapons
 
         [Header("References")]
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
+        [SerializeField] private CCS_CharacterAimLocomotionController aimLocomotionController;
+        [SerializeField] private CCS_CharacterCameraController sceneCameraController;
         [SerializeField] private Camera aimCamera;
         [SerializeField] private Transform muzzlePoint;
-        [SerializeField] private bool enableWeaponDebugLogs;
+        [FormerlySerializedAs("enableWeaponDebugLogs")]
+        [SerializeField] private bool enableRuntimeWeaponDebug;
+        [SerializeField] private bool enableAimRayDebug;
+        [SerializeField] private bool enableMuzzleDebug;
 
         private NetworkObject cachedNetworkObject;
         private Coroutine reloadCoroutine;
         private int currentAmmo;
         private bool isReloading;
         private float lastFireTime = float.NegativeInfinity;
-        private bool isAiming;
+        private bool loggedMissingInputProvider;
+        private bool loggedMissingDefinition;
+        private bool loggedMissingMuzzlePoint;
+        private bool loggedMissingSceneCamera;
 
         #endregion
 
@@ -53,11 +63,22 @@ namespace CCS.Modules.Weapons
 
         public bool IsReloading => isReloading;
 
-        public bool IsAiming => isAiming;
+        public bool IsAiming =>
+            aimLocomotionController != null && aimLocomotionController.IsAimMovementActive;
+
+        public bool RevolverAimHeld => IsAiming;
+
+        public bool RevolverIsReloading => isReloading;
 
         #endregion
 
         #region Events
+
+        public event Action RevolverFired;
+
+        public event Action RevolverReloadStarted;
+
+        public event Action RevolverReloadCompleted;
 
         public event Action<CCS_RevolverFireResultEvent> FireResolved;
 
@@ -79,24 +100,24 @@ namespace CCS.Modules.Weapons
         {
             StopReloadCoroutine();
             isReloading = false;
-            isAiming = false;
             RaiseStateChanged();
         }
 
         private void Update()
         {
-            if (!IsLocalWeaponOwner() || revolverDefinition == null || inputProvider == null || !inputProvider.InputAccepted)
+            if (!IsLocalWeaponOwner())
             {
-                if (isAiming)
-                {
-                    isAiming = false;
-                    RaiseStateChanged();
-                }
-
                 return;
             }
 
-            UpdateAimState();
+            LogMissingSetupOnce();
+
+            if (revolverDefinition == null || inputProvider == null || !inputProvider.InputAccepted)
+            {
+                return;
+            }
+
+            SyncAimStateForEvents();
             HandleReloadInput();
             HandleFireInput();
         }
@@ -111,6 +132,38 @@ namespace CCS.Modules.Weapons
             RaiseStateChanged();
         }
 
+        public void ConfigureSceneWeaponCamera(
+            CCS_CharacterCameraController cameraController,
+            Camera outputCamera)
+        {
+            sceneCameraController = cameraController;
+            if (outputCamera != null)
+            {
+                aimCamera = outputCamera;
+            }
+
+            if (aimLocomotionController != null)
+            {
+                aimLocomotionController.ConfigureSceneCamera(cameraController);
+            }
+
+            if (enableRuntimeWeaponDebug)
+            {
+                if (sceneCameraController == null)
+                {
+                    Debug.LogWarning("[Weapons] No scene camera controller assigned for revolver aim.", this);
+                }
+                else if (!sceneCameraController.HasAimCameraConfigured)
+                {
+                    Debug.LogWarning("[Weapons] Scene camera rig is missing CinemachineCamera_Aim.", this);
+                }
+                else
+                {
+                    Debug.Log("[Weapons] Revolver scene camera configured.", this);
+                }
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -122,21 +175,72 @@ namespace CCS.Modules.Weapons
                 inputProvider = GetComponent<CCS_CharacterInputActionProvider>();
             }
 
+            if (aimLocomotionController == null)
+            {
+                aimLocomotionController = GetComponent<CCS_CharacterAimLocomotionController>();
+            }
+
             if (cachedNetworkObject == null)
             {
                 cachedNetworkObject = GetComponentInParent<NetworkObject>();
             }
         }
 
-        private void UpdateAimState()
+        private void LogMissingSetupOnce()
         {
-            bool nextAiming = inputProvider.AimHeld;
-            if (isAiming == nextAiming)
+            if (!enableRuntimeWeaponDebug)
             {
                 return;
             }
 
-            isAiming = nextAiming;
+            if (inputProvider == null && !loggedMissingInputProvider)
+            {
+                loggedMissingInputProvider = true;
+                Debug.LogWarning("[Weapons] No input provider found on revolver owner.", this);
+            }
+
+            if (revolverDefinition == null && !loggedMissingDefinition)
+            {
+                loggedMissingDefinition = true;
+                Debug.LogWarning("[Weapons] No revolver definition assigned.", this);
+            }
+
+            if (muzzlePoint == null && !loggedMissingMuzzlePoint)
+            {
+                loggedMissingMuzzlePoint = true;
+                Debug.LogWarning("[Weapons] No muzzle point assigned.", this);
+            }
+            else if (enableMuzzleDebug && muzzlePoint != null && !loggedMissingMuzzlePoint)
+            {
+                Debug.Log(
+                    $"[Weapons] Muzzle point={muzzlePoint.name} worldPos={muzzlePoint.position}",
+                    this);
+            }
+
+            if (sceneCameraController == null && !loggedMissingSceneCamera)
+            {
+                loggedMissingSceneCamera = true;
+                Debug.LogWarning("[Weapons] No scene camera controller assigned for aim mode.", this);
+            }
+        }
+
+        private bool cachedAimStateForEvents;
+
+        private void SyncAimStateForEvents()
+        {
+            bool nextAiming = IsAiming;
+            if (cachedAimStateForEvents == nextAiming)
+            {
+                return;
+            }
+
+            cachedAimStateForEvents = nextAiming;
+
+            if (enableRuntimeWeaponDebug)
+            {
+                Debug.Log(nextAiming ? "[Weapons] Aim started." : "[Weapons] Aim ended.", this);
+            }
+
             RaiseStateChanged();
         }
 
@@ -155,6 +259,11 @@ namespace CCS.Modules.Weapons
             if (!inputProvider.FirePressed)
             {
                 return;
+            }
+
+            if (enableRuntimeWeaponDebug)
+            {
+                Debug.Log("[Weapons] Fire pressed.", this);
             }
 
             if (isReloading && !revolverDefinition.AllowFireWhileReloading)
@@ -181,7 +290,7 @@ namespace CCS.Modules.Weapons
             Camera resolvedCamera = ResolveAimCamera();
             if (resolvedCamera == null)
             {
-                if (enableWeaponDebugLogs)
+                if (enableRuntimeWeaponDebug)
                 {
                     Debug.LogWarning("[Weapons] Revolver fire skipped: no aim camera.", this);
                 }
@@ -189,29 +298,33 @@ namespace CCS.Modules.Weapons
                 return;
             }
 
-            float spread = isAiming
+            float spread = IsAiming
                 ? revolverDefinition.AimSpreadDegrees
                 : revolverDefinition.HipSpreadDegrees;
 
-            CCS_WeaponHitscanResult hitscanResult = CCS_HitscanWeaponRaycaster.CastFromCamera(
+            CCS_WeaponHitscanResult hitscanResult = CCS_HitscanWeaponRaycaster.CastFromCameraCenter(
                 resolvedCamera,
+                muzzlePoint,
                 revolverDefinition.MaxRange,
                 spread,
                 revolverDefinition.HitMask,
                 transform.root,
-                enableWeaponDebugLogs);
+                drawDebugRay: enableRuntimeWeaponDebug || enableAimRayDebug,
+                drawMuzzleDebug: enableRuntimeWeaponDebug || enableMuzzleDebug);
 
             currentAmmo--;
             lastFireTime = Time.time;
             RaiseStateChanged();
 
-            if (enableWeaponDebugLogs)
+            if (enableRuntimeWeaponDebug || enableAimRayDebug || enableMuzzleDebug)
             {
                 string hitLabel = hitscanResult.DidHit && hitscanResult.HitObject != null
                     ? hitscanResult.HitObject.name
                     : "miss";
+                string muzzleLabel = muzzlePoint != null ? muzzlePoint.name : "missing";
                 Debug.Log(
-                    $"[Weapons] Revolver fired. Ammo={currentAmmo}/{MaxAmmo} Hit={hitLabel}",
+                    $"[Weapons] Shot fired. Camera={resolvedCamera.name} Muzzle={muzzleLabel} "
+                    + $"MuzzlePos={hitscanResult.RayOrigin} Ammo={currentAmmo}/{MaxAmmo} Hit={hitLabel}",
                     this);
             }
 
@@ -222,18 +335,20 @@ namespace CCS.Modules.Weapons
                 currentAmmo,
                 false);
             FireResolved?.Invoke(fireEvent);
+            RevolverFired?.Invoke();
         }
 
         private void HandleDryFire()
         {
             lastFireTime = Time.time;
 
-            if (enableWeaponDebugLogs)
+            if (enableRuntimeWeaponDebug)
             {
-                Debug.Log("[Weapons] Revolver dry fire.", this);
+                Debug.Log("[Weapons] Dry fire.", this);
             }
 
             DryFired?.Invoke(new CCS_RevolverDryFireEvent(currentAmmo));
+            RevolverFired?.Invoke();
             FireResolved?.Invoke(new CCS_RevolverFireResultEvent(
                 new CCS_WeaponHitscanResult(
                     false,
@@ -268,6 +383,13 @@ namespace CCS.Modules.Weapons
             StopReloadCoroutine();
             isReloading = true;
             RaiseStateChanged();
+            RevolverReloadStarted?.Invoke();
+
+            if (enableRuntimeWeaponDebug)
+            {
+                Debug.Log("[Weapons] Reload started.", this);
+            }
+
             reloadCoroutine = StartCoroutine(ReloadAfterDuration());
         }
 
@@ -279,10 +401,11 @@ namespace CCS.Modules.Weapons
             isReloading = false;
             currentAmmo = MaxAmmo;
             RaiseStateChanged();
+            RevolverReloadCompleted?.Invoke();
 
-            if (enableWeaponDebugLogs)
+            if (enableRuntimeWeaponDebug)
             {
-                Debug.Log($"[Weapons] Revolver reload complete. Ammo={currentAmmo}/{MaxAmmo}", this);
+                Debug.Log($"[Weapons] Reload completed. Ammo={currentAmmo}/{MaxAmmo}", this);
             }
         }
 
@@ -314,7 +437,7 @@ namespace CCS.Modules.Weapons
             StateChanged?.Invoke(new CCS_RevolverStateChangedEvent(
                 currentAmmo,
                 MaxAmmo,
-                isAiming,
+                IsAiming,
                 isReloading));
         }
 

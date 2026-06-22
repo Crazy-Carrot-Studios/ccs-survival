@@ -317,26 +317,65 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 cameraFollowAnchor = GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
             }
 
-            if (cameraFollowAnchor != null)
+            if (cameraFollowAnchor == null)
             {
-                cameraFollowAnchor.ResolveReferences();
-                return;
+                GameObject anchorObject = new GameObject(CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
+                anchorObject.transform.SetParent(transform, false);
+                cameraFollowAnchor = anchorObject.AddComponent<CCS_CharacterCameraFollowAnchor>();
             }
 
-            Transform legacyLookTarget = transform.Find("CameraPivot/CameraLookTarget");
-            GameObject anchorObject = new GameObject("CameraFollowAnchor");
-            anchorObject.transform.SetParent(transform, false);
-            cameraFollowAnchor = anchorObject.AddComponent<CCS_CharacterCameraFollowAnchor>();
-
-            if (legacyLookTarget != null)
+            Transform followAnchorTransform = cameraFollowAnchor.transform;
+            Transform pitchTarget = followAnchorTransform.Find(
+                CCS_CharacterControllerConstants.CameraPitchTargetObjectName);
+            if (pitchTarget == null)
             {
-                legacyLookTarget.SetParent(anchorObject.transform, false);
+                GameObject pitchObject = new GameObject(CCS_CharacterControllerConstants.CameraPitchTargetObjectName);
+                pitchTarget = pitchObject.transform;
+                pitchTarget.SetParent(followAnchorTransform, false);
             }
 
-            cameraFollowAnchor.Configure(
-                transform,
-                legacyLookTarget != null ? legacyLookTarget : cameraLookTarget,
-                1.05f);
+            Transform lookTarget = pitchTarget.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName);
+            if (lookTarget == null)
+            {
+                Transform legacyLookTarget = transform.Find("CameraPivot/CameraLookTarget");
+                if (legacyLookTarget != null)
+                {
+                    legacyLookTarget.SetParent(pitchTarget, false);
+                    lookTarget = legacyLookTarget;
+                }
+            }
+
+            followAnchorTransform.localPosition = Vector3.zero;
+            pitchTarget.localPosition = new Vector3(
+                0f,
+                CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight,
+                0f);
+
+            if (lookTarget == null)
+            {
+                GameObject lookTargetObject = new GameObject(CCS_CharacterControllerConstants.CameraLookTargetObjectName);
+                lookTarget = lookTargetObject.transform;
+                lookTarget.SetParent(pitchTarget, false);
+                lookTarget.localPosition = CCS_CharacterControllerConstants.CameraLookTargetLocalPosition;
+            }
+
+            CCS_CharacterCameraProfile lookProfile = null;
+            CCS_CharacterCameraController sceneCameraRig = ResolveSceneCameraRig();
+            if (sceneCameraRig != null && sceneCameraRig.CameraProfileSet != null)
+            {
+                lookProfile = sceneCameraRig.CameraProfileSet.DefaultProfile;
+            }
+            else
+            {
+                CCS_TestPlayerOfflineBootstrap bootstrap = GetComponent<CCS_TestPlayerOfflineBootstrap>();
+                if (bootstrap != null && bootstrap.DisplayProfile != null)
+                {
+                    lookProfile = bootstrap.DisplayProfile.CameraProfile;
+                }
+            }
+
+            cameraFollowAnchor.Configure(transform, lookTarget, lookProfile);
+            cameraFollowAnchor.ResolveReferences();
         }
 
         private void ApplyNameplateVisibility()
@@ -474,12 +513,30 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
             boundSceneCameraRig = sceneCameraRig;
             sceneCameraRig.enabled = true;
+
+            CCS_CharacterCameraProfile lookProfile = sceneCameraRig.CameraProfileSet != null
+                ? sceneCameraRig.CameraProfileSet.DefaultProfile
+                : null;
+            if (cameraFollowAnchor != null)
+            {
+                cameraFollowAnchor.Configure(transform, lookTarget, lookProfile);
+                cameraFollowAnchor.InitializeSpawnOrientation(force: true);
+            }
+
             sceneCameraRig.BindFollowTargets(followTarget, lookTarget);
             CCS_NetworkPlayerDebugLog.LogCameraBind(
                 NetworkObject,
                 sceneCameraRig,
                 followTarget,
                 lookTarget);
+
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                GetComponent<CCS_CharacterAimLocomotionController>();
+            if (aimLocomotion != null)
+            {
+                aimLocomotion.ConfigureSceneCamera(sceneCameraRig);
+            }
+
             CCS_TestPlayerSessionEvents.RaiseLocalPlayerReady(
                 new CCS_TestPlayerSessionContext(
                     OwnerClientId,

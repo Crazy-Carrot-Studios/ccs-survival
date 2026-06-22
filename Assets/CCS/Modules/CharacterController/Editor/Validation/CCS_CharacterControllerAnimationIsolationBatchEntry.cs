@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Invoked via Unity -batchmode -executeMethod ...RunFromBatchMode.
+// NOTES: v0.6.4 — validates revolver upper-body isolation and no Invector runtime references.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -20,17 +20,30 @@ namespace CCS.Modules.CharacterController.Editor
         {
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
 
-            CCS_SurvivalValidationResult result =
-                CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation();
-            if (result.IsSuccess)
+            CCS_SurvivalValidationResult[] validations =
             {
-                Debug.Log("[Animation Isolation Batch] Validation passed: " + result.Message);
-                EditorApplication.Exit(0);
+                CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAimLocomotionAnimatorParameters(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences()
+            };
+
+            for (int i = 0; i < validations.Length; i++)
+            {
+                CCS_SurvivalValidationResult result = validations[i];
+                if (result.IsSuccess)
+                {
+                    continue;
+                }
+
+                Debug.LogError("[Animation Isolation Batch] Validation failed: " + result.Message);
+                EditorApplication.Exit(1);
                 return;
             }
 
-            Debug.LogError("[Animation Isolation Batch] Validation failed: " + result.Message);
-            EditorApplication.Exit(1);
+            Debug.Log("[Animation Isolation Batch] Validation passed: player animation isolation, aim strafe, and revolver upper-body wiring validated.");
+            EditorApplication.Exit(0);
         }
     }
 }

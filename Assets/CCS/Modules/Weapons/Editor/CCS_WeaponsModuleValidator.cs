@@ -48,6 +48,9 @@ namespace CCS.Modules.Weapons.Editor
             AppendResult(
                 failures,
                 CCS_WeaponsValidationUtility.ValidatePlayerRevolverComponents(testPlayerPrefab));
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverFireFeedbackSourceContract());
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateHitscanUsesCameraCenterAim());
+            ValidateRevolverMuzzleReference(failures, testPlayerPrefab);
 
             ValidateInputActions(failures);
             ValidateNoLegacyInputUsage(failures);
@@ -62,6 +65,27 @@ namespace CCS.Modules.Weapons.Editor
         #endregion
 
         #region Private Methods
+
+        private static void ValidateRevolverMuzzleReference(List<string> failures, GameObject testPlayerPrefab)
+        {
+            if (testPlayerPrefab == null)
+            {
+                return;
+            }
+
+            CCS_RevolverController revolverController = testPlayerPrefab.GetComponent<CCS_RevolverController>();
+            if (revolverController == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedController = new SerializedObject(revolverController);
+            SerializedProperty muzzleProperty = serializedController.FindProperty("muzzlePoint");
+            AppendIfMissing(
+                failures,
+                muzzleProperty != null && muzzleProperty.objectReferenceValue != null,
+                "Test player revolver controller must assign MuzzlePoint.");
+        }
 
         private static void ValidateInputActions(List<string> failures)
         {
@@ -135,21 +159,20 @@ namespace CCS.Modules.Weapons.Editor
             }
 
             CCS_TestDamageTarget[] targets = Object.FindObjectsByType<CCS_TestDamageTarget>(FindObjectsSortMode.None);
-            bool foundInScene = false;
+            int sceneTargetCount = 0;
             for (int i = 0; i < targets.Length; i++)
             {
                 CCS_TestDamageTarget target = targets[i];
                 if (target != null && target.gameObject.scene == scene)
                 {
-                    foundInScene = true;
-                    break;
+                    sceneTargetCount++;
                 }
             }
 
             AppendIfMissing(
                 failures,
-                foundInScene,
-                $"Master test scene must contain {CCS_WeaponsConstants.TestDamageTargetObjectName}.");
+                sceneTargetCount == 1,
+                $"Master test scene must contain exactly one {CCS_WeaponsConstants.TestDamageTargetObjectName}.");
         }
 
         private static void AppendResult(List<string> failures, CCS_SurvivalValidationResult result)

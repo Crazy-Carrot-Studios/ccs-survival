@@ -192,6 +192,8 @@ namespace CCS.Modules.CharacterController
                 failures.Add("gravity must be negative.");
             }
 
+            ValidateAimMovementSettings(profile, failures);
+
             if (failures.Count > 0)
             {
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
@@ -279,9 +281,18 @@ namespace CCS.Modules.CharacterController
                 return CCS_SurvivalValidationResult.Fail("verticalOrbitMin must be less than verticalOrbitMax.");
             }
 
-            if (profile.ZoomDistanceMin <= 0f || profile.ZoomDistanceMax < profile.ZoomDistanceMin)
+            if (profile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum
+                || profile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum)
             {
-                return CCS_SurvivalValidationResult.Fail("Zoom distance range is invalid.");
+                return CCS_SurvivalValidationResult.Fail(
+                    "Third-person camera distance must be between 2.85 and 3.25.");
+            }
+
+            if (profile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
+                || profile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Tracking target local height must be between 1.40 and 1.60 for third-person framing.");
             }
 
             return CCS_SurvivalValidationResult.Pass("Camera profile validated.");
@@ -402,18 +413,21 @@ namespace CCS.Modules.CharacterController
                 }
                 else
                 {
-                    CinemachineOrbitalFollow orbitalFollow =
-                        cameraController.CinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
-                    if (orbitalFollow == null)
+                    CinemachineThirdPersonFollow thirdPersonFollow =
+                        cameraController.CinemachineCamera.GetComponent<CinemachineThirdPersonFollow>();
+                    if (thirdPersonFollow == null)
                     {
-                        failures.Add("CinemachineCamera is missing CinemachineOrbitalFollow.");
+                        failures.Add("CinemachineCamera is missing CinemachineThirdPersonFollow.");
+                    }
+                    else if (thirdPersonFollow.CameraDistance < CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum
+                             || thirdPersonFollow.CameraDistance > CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum)
+                    {
+                        failures.Add("CinemachineCamera third-person distance is outside the tuned survival range.");
                     }
 
-                    CinemachineRotationComposer rotationComposer =
-                        cameraController.CinemachineCamera.GetComponent<CinemachineRotationComposer>();
-                    if (rotationComposer == null)
+                    if (cameraController.CinemachineCamera.GetComponent<CinemachineThirdPersonAim>() != null)
                     {
-                        failures.Add("CinemachineCamera is missing CinemachineRotationComposer.");
+                        failures.Add("Third-person CinemachineCamera must not use Third Person Aim.");
                     }
                 }
             }
@@ -497,6 +511,84 @@ namespace CCS.Modules.CharacterController
             {
                 failures.Add($"{fieldName} must be {expected.ToString("0.###")} (found {actual.ToString("0.###")}).");
             }
+        }
+
+        private static void ValidateAimMovementSettings(
+            CCS_CharacterMovementProfile profile,
+            List<string> failures)
+        {
+            if (profile.AimMovementSpeedMultiplier <= 0f || profile.AimMovementSpeedMultiplier > 1f)
+            {
+                failures.Add("aimMovementSpeedMultiplier must be > 0 and <= 1.");
+            }
+
+            if (!profile.AimDisableSprint)
+            {
+                failures.Add("aimDisableSprint must be enabled for aim strafe locomotion.");
+            }
+
+            if (profile.AimRotationSpeedDegrees < CCS_CharacterControllerConstants.MinimumAimRotationSpeedDegrees)
+            {
+                failures.Add(
+                    "aimRotationSpeedDegrees must be >= "
+                    + CCS_CharacterControllerConstants.MinimumAimRotationSpeedDegrees.ToString("0.###")
+                    + ".");
+            }
+
+            if (profile.AimStrafeDeadZone < 0f)
+            {
+                failures.Add("aimStrafeDeadZone must be >= 0.");
+            }
+
+            if (profile.AimBackpedalMultiplier <= 0f || profile.AimBackpedalMultiplier > 1f)
+            {
+                failures.Add("aimBackpedalMultiplier must be > 0 and <= 1.");
+            }
+
+            if (profile.AimSideStrafeMultiplier <= 0f || profile.AimSideStrafeMultiplier > 1f)
+            {
+                failures.Add("aimSideStrafeMultiplier must be > 0 and <= 1.");
+            }
+        }
+
+        public static CCS_SurvivalValidationResult ValidateAimLocomotionPlayerComponents(GameObject prefabRoot)
+        {
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Player prefab reference is null.");
+            }
+
+            List<string> failures = new List<string>();
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>() != null,
+                "Prefab missing CCS_CharacterAimLocomotionController.");
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponent<CCS_CharacterMotor>() != null,
+                "Prefab missing CCS_CharacterMotor for aim locomotion.");
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true) != null,
+                "Prefab missing CCS_CharacterCameraFollowAnchor for aim movement basis.");
+
+            CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
+            if (motor != null && motor.MovementProfile == null)
+            {
+                failures.Add("Prefab motor movement profile is not assigned.");
+            }
+            else if (motor != null)
+            {
+                CCS_SurvivalValidationResult profileValidation = ValidateMovementProfile(motor.MovementProfile);
+                if (!profileValidation.IsSuccess)
+                {
+                    failures.Add(profileValidation.Message);
+                }
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Aim locomotion player components validated.");
         }
 
         #endregion

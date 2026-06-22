@@ -5,7 +5,7 @@
 // PLACEMENT: Runtime data enum. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Only GroundedThirdPerson is active in v0.2.0.
+// NOTES: GroundedThirdPerson and AimStrafeLocomotion are active in v0.6.3.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -16,6 +16,7 @@ namespace CCS.Modules.CharacterController
         Swimming = 1,
         Mounted = 2,
         Vehicle = 3,
-        Disabled = 4
+        Disabled = 4,
+        AimStrafeLocomotion = 5
     }
 }

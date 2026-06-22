@@ -111,6 +111,44 @@ namespace CCS.Modules.CharacterController.Editor
 
             "Assets/CCS/Modules/CharacterController/Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset";
 
+        public const string AimCameraProfilePath =
+            CCS_CharacterControllerConstants.AimCameraProfilePath;
+
+        public const float ExpectedThirdPersonCameraDistance = CCS_CharacterControllerConstants.ThirdPersonCameraDistanceTuned;
+
+        public const float ExpectedAimCameraDistance = CCS_CharacterControllerConstants.AimCameraDistanceTuned;
+
+        public const float ExpectedTrackingTargetLocalHeight = CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight;
+
+        public const float ExpectedThirdPersonShoulderOffsetX = 0.20f;
+
+        public const float ExpectedThirdPersonShoulderOffsetY = 0.20f;
+
+        public const float ExpectedThirdPersonShoulderOffsetZ = 0f;
+
+        public const float ExpectedThirdPersonVerticalArmLength = 0.45f;
+
+        public const float ExpectedThirdPersonFieldOfView = 62f;
+
+        public const float ExpectedAimShoulderOffsetX = 0.58f;
+
+        public const float ExpectedAimShoulderOffsetY = 0.10f;
+
+        public const float ExpectedAimShoulderOffsetZ = 0f;
+
+        public const float ExpectedAimVerticalArmLength = 0.24f;
+
+        public const float ExpectedAimCameraSide = 1f;
+
+        public const float ExpectedAimBlendDurationSeconds = 0.45f;
+
+        public const float ExpectedAimBlendDurationMaxSeconds = 0.5f;
+
+        public const float ExpectedAimFieldOfView = 52f;
+
+        public static readonly Vector3 ExpectedCameraLookTargetLocalPosition =
+            CCS_CharacterControllerConstants.CameraLookTargetLocalPosition;
+
         public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.6f, 0.222f);
 
         public static readonly Vector3 GlassesVisualLocalEuler = new Vector3(180f, 180f, 90f);
@@ -121,21 +159,17 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static readonly Vector3 CapsuleVisualLocalScale = new Vector3(0.7f, 1f, 0.7f);
 
-        public const float CameraPivotFollowTargetHeight = 0.92f;
+        public const float CameraPitchTargetLocalHeight = CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight;
 
-        public const float ExpectedOrbitalRadius = 5.75f;
+        public const float ExpectedVerticalArmLength = ExpectedThirdPersonVerticalArmLength;
 
-        public const float ExpectedFollowTargetHeight = 0.92f;
+        public const float ExpectedVerticalOrbitDefault = 0f;
 
-        public const float ExpectedCameraShoulderOffsetY = 0.08f;
+        public const float ExpectedVerticalOrbitMin = -45f;
 
-        public const float ExpectedVerticalArmLength = 0.25f;
+        public const float ExpectedVerticalOrbitMax = 70f;
 
-        public const float ExpectedVerticalOrbitDefault = -10f;
-
-        public const float ExpectedVerticalOrbitMin = -30f;
-
-        public const float ExpectedVerticalOrbitMax = 55f;
+        public const float MinimumAimVerticalOrbitMax = 55f;
 
         public const float ExpectedMouseSensitivityX = 0.12f;
 

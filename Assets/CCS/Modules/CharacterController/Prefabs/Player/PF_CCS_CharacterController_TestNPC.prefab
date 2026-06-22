@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 8222045331211175896}
   - component: {fileID: 702650882604534316}
   - component: {fileID: 7235964212152498894}
+  - component: {fileID: 8782349627296201810}
   m_Layer: 0
   m_Name: PF_CCS_CharacterController_TestNPC
   m_TagString: Untagged
@@ -180,6 +181,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMotor
   movementProfile: {fileID: 11400000, guid: 801f047c9d8ac5a41a9257da130a033f, type: 2}
   inputProvider: {fileID: 8222045331211175896}
+  aimLocomotionController: {fileID: 8782349627296201810}
+  cameraFollowAnchor: {fileID: 0}
+  staminaController: {fileID: 0}
+  interactionLockSourceComponent: {fileID: 0}
+  enableMovementDebugLogs: 0
 --- !u!114 &7235964212152498894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,6 +215,21 @@ MonoBehaviour:
   - ccs.test.character.cover.inside
   - ccs.test.character.loop.complete
   routePoints: []
+--- !u!114 &8782349627296201810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8128056817000699320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 904dbb22589664d4fa5882cb0356b288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterAimLocomotionController
+  inputProvider: {fileID: 8222045331211175896}
+  cameraFollowAnchor: {fileID: 0}
+  enableMovementDebugLogs: 0
 --- !u!1 &8325175282818945528
 GameObject:
   m_ObjectHideFlags: 0

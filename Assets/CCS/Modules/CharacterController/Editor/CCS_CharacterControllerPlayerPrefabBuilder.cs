@@ -1,5 +1,6 @@
 using System.IO;
 using CCS.Modules.CharacterController;
+using CCS.Modules.Weapons;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using TMPro;
@@ -57,17 +58,20 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
             changed |= EnsureGlassesVisual(prefabRoot.transform);
             changed |= EnsureCameraPivotSetup(prefabRoot.transform);
+            changed |= ApplyDisplayProfileLayout(prefabRoot);
             changed |= EnsureCameraFollowAnchorSetup(prefabRoot.transform);
+            changed |= EnsurePlayerCameraCollisionExclusion(prefabRoot);
             changed |= EnsurePlayerCameraPivotReferences(prefabRoot);
             changed |= RemoveEmbeddedCinemachine(prefabRoot);
             changed |= EnsureNetworkComponents(prefabRoot);
+            changed |= EnsurePlayerLocomotionComponents(prefabRoot);
+            changed |= EnsureRevolverUpperBodyAnimator(prefabRoot);
             changed |= EnsureNetworkObjectTransformSettings(prefabRoot);
             changed |= RemoveCharacterControllerDebugHud(prefabRoot);
             changed |= WireNetworkNameplate(prefabRoot.transform);
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
             changed |= EnsureOfflineBootstrap(prefabRoot);
             changed |= WireDisplayProfile(prefabRoot);
-            changed |= ApplyDisplayProfileLayout(prefabRoot);
 
             RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -441,10 +445,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
-            Vector3 expectedPivotPosition = new Vector3(
-                0f,
-                CCS_CharacterControllerMasterTestLayoutConstants.CameraPivotFollowTargetHeight,
-                0f);
+            Vector3 expectedPivotPosition = Vector3.zero;
             if (cameraPivot.localPosition != expectedPivotPosition)
             {
                 cameraPivot.localPosition = expectedPivotPosition;
@@ -505,26 +506,70 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            Transform lookTarget = followAnchorTransform.Find("CameraLookTarget");
-            Transform legacyLookTarget = playerRoot.Find("CameraPivot/CameraLookTarget");
-            if (lookTarget == null && legacyLookTarget != null)
+            if (followAnchorTransform.localPosition != Vector3.zero)
             {
-                legacyLookTarget.SetParent(followAnchorTransform, false);
+                followAnchorTransform.localPosition = Vector3.zero;
+                changed = true;
+            }
+
+            Transform pitchTarget = followAnchorTransform.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName);
+            if (pitchTarget == null)
+            {
+                GameObject pitchObject = new GameObject(CCS_CharacterControllerConstants.CameraPitchTargetObjectName);
+                pitchTarget = pitchObject.transform;
+                pitchTarget.SetParent(followAnchorTransform, false);
+                changed = true;
+            }
+
+            Vector3 expectedPitchLocalPosition = new Vector3(
+                0f,
+                CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight,
+                0f);
+            if (pitchTarget.localPosition != expectedPitchLocalPosition)
+            {
+                pitchTarget.localPosition = expectedPitchLocalPosition;
+                changed = true;
+            }
+
+            if (pitchTarget.localRotation != Quaternion.identity)
+            {
+                pitchTarget.localRotation = Quaternion.identity;
+                changed = true;
+            }
+
+            Transform lookTarget = pitchTarget.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName);
+            Transform legacyLookTarget = followAnchorTransform.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName);
+            if (lookTarget == null && legacyLookTarget != null && legacyLookTarget.parent != pitchTarget)
+            {
+                legacyLookTarget.SetParent(pitchTarget, false);
                 lookTarget = legacyLookTarget;
                 changed = true;
             }
 
             if (lookTarget == null)
             {
-                GameObject lookTargetObject = new GameObject("CameraLookTarget");
+                Transform legacyPivotLookTarget = playerRoot.Find("CameraPivot/CameraLookTarget");
+                if (legacyPivotLookTarget != null)
+                {
+                    legacyPivotLookTarget.SetParent(pitchTarget, false);
+                    lookTarget = legacyPivotLookTarget;
+                    changed = true;
+                }
+            }
+
+            if (lookTarget == null)
+            {
+                GameObject lookTargetObject = new GameObject(CCS_CharacterControllerConstants.CameraLookTargetObjectName);
                 lookTarget = lookTargetObject.transform;
-                lookTarget.SetParent(followAnchorTransform, false);
+                lookTarget.SetParent(pitchTarget, false);
                 changed = true;
             }
 
-            if (lookTarget.localPosition != Vector3.zero)
+            Vector3 expectedLookTargetLocalPosition = CCS_CharacterControllerConstants.CameraLookTargetLocalPosition;
+
+            if (lookTarget.localPosition != expectedLookTargetLocalPosition)
             {
-                lookTarget.localPosition = Vector3.zero;
+                lookTarget.localPosition = expectedLookTargetLocalPosition;
                 changed = true;
             }
 
@@ -534,10 +579,47 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            followAnchor.Configure(
-                playerRoot,
-                lookTarget,
-                CCS_CharacterControllerMasterTestLayoutConstants.CameraPivotFollowTargetHeight);
+            CCS_CharacterCameraProfile lookProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+                CCS_CharacterControllerConstants.DefaultCameraProfilePath);
+            followAnchor.Configure(playerRoot, lookTarget, lookProfile);
+
+            return changed;
+        }
+
+        private static bool EnsurePlayerCameraCollisionExclusion(GameObject playerRoot)
+        {
+            CCS_CharacterCameraLayerUtility.EnsurePlayerLayerAndTag();
+            int playerLayer = LayerMask.NameToLayer(CCS_CharacterControllerConstants.PlayerLayerName);
+            if (playerLayer < 0)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            if (!playerRoot.CompareTag(CCS_CharacterControllerConstants.PlayerTag))
+            {
+                playerRoot.tag = CCS_CharacterControllerConstants.PlayerTag;
+                changed = true;
+            }
+
+            if (playerRoot.layer != playerLayer)
+            {
+                playerRoot.layer = playerLayer;
+                changed = true;
+            }
+
+            Collider[] colliders = playerRoot.GetComponentsInChildren<Collider>(true);
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider collider = colliders[i];
+                if (collider == null || collider.gameObject.layer == playerLayer)
+                {
+                    continue;
+                }
+
+                collider.gameObject.layer = playerLayer;
+                changed = true;
+            }
 
             return changed;
         }
@@ -554,12 +636,19 @@ namespace CCS.Modules.CharacterController.Editor
             SerializedObject serializedCamera = new SerializedObject(cameraController);
             SerializedProperty pivotProperty = serializedCamera.FindProperty("cameraPivot");
             SerializedProperty lookTargetProperty = serializedCamera.FindProperty("cameraLookTarget");
-            Transform cameraPivot = playerRoot.transform.Find("CameraPivot");
-            Transform cameraLookTarget = cameraPivot != null ? cameraPivot.Find("CameraLookTarget") : null;
+            Transform followAnchor = FindChildRecursive(
+                playerRoot.transform,
+                CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
+            Transform pitchTarget = followAnchor != null
+                ? followAnchor.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName)
+                : null;
+            Transform cameraLookTarget = pitchTarget != null
+                ? pitchTarget.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName)
+                : null;
 
-            if (pivotProperty != null && cameraPivot != null && pivotProperty.objectReferenceValue != cameraPivot)
+            if (pivotProperty != null && pitchTarget != null && pivotProperty.objectReferenceValue != pitchTarget)
             {
-                pivotProperty.objectReferenceValue = cameraPivot;
+                pivotProperty.objectReferenceValue = pitchTarget;
                 changed = true;
             }
 
@@ -623,6 +712,69 @@ namespace CCS.Modules.CharacterController.Editor
             Mesh capsuleMesh = temp.GetComponent<MeshFilter>().sharedMesh;
             Object.DestroyImmediate(temp);
             return capsuleMesh;
+        }
+
+        private static bool EnsurePlayerLocomotionComponents(GameObject prefabRoot)
+        {
+            CCS_CharacterInputActionProvider inputProvider =
+                prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+            CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
+            if (inputProvider == null || motor == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+
+            CCS_CharacterMovementProfile movementProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterMovementProfile>(
+                CCS_CharacterControllerConstants.DefaultMovementProfilePath);
+            if (movementProfile != null && motor.MovementProfile != movementProfile)
+            {
+                motor.SetMovementProfile(movementProfile);
+                changed = true;
+            }
+
+            SerializedObject serializedMotor = new SerializedObject(motor);
+            SerializedProperty inputProperty = serializedMotor.FindProperty("inputProvider");
+            if (inputProperty != null && inputProperty.objectReferenceValue != inputProvider)
+            {
+                inputProperty.objectReferenceValue = inputProvider;
+                serializedMotor.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            changed |= EnsureAimLocomotionController(prefabRoot, inputProvider, motor);
+            return changed;
+        }
+
+        private static bool EnsureRevolverUpperBodyAnimator(GameObject prefabRoot)
+        {
+            Transform visualRoot = FindChildRecursive(prefabRoot.transform, "VisualRoot");
+            if (visualRoot == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
+                visualRoot.GetComponent<CCS_RevolverUpperBodyAnimator>();
+            if (upperBodyAnimator == null)
+            {
+                upperBodyAnimator = visualRoot.gameObject.AddComponent<CCS_RevolverUpperBodyAnimator>();
+                changed = true;
+            }
+
+            Animator animator = visualRoot.GetComponentInChildren<Animator>(true);
+            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_PlayerInteractionAnimator interactionAnimator =
+                visualRoot.GetComponent<CCS_PlayerInteractionAnimator>();
+
+            SerializedObject serializedAnimator = new SerializedObject(upperBodyAnimator);
+            changed |= SetObjectReference(serializedAnimator, "animator", animator);
+            changed |= SetObjectReference(serializedAnimator, "revolverAnimationStateComponent", revolverController);
+            changed |= SetObjectReference(serializedAnimator, "interactionLockSourceComponent", interactionAnimator);
+            serializedAnimator.ApplyModifiedPropertiesWithoutUndo();
+            return changed;
         }
 
         private static bool EnsureNetworkComponents(GameObject networkedRoot)
@@ -741,8 +893,15 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
             Transform glassesVisual = networkedRoot.transform.Find(
                 CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
-            Transform cameraPivot = networkedRoot.transform.Find("CameraPivot");
-            Transform cameraLookTarget = cameraPivot != null ? cameraPivot.Find("CameraLookTarget") : null;
+            Transform followAnchor = FindChildRecursive(
+                networkedRoot.transform,
+                CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
+            Transform cameraPivot = followAnchor != null
+                ? followAnchor.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName)
+                : null;
+            Transform cameraLookTarget = cameraPivot != null
+                ? cameraPivot.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName)
+                : null;
 
             SerializedObject serializedBehaviour = new SerializedObject(behaviour);
             bool changed = false;
@@ -970,6 +1129,46 @@ namespace CCS.Modules.CharacterController.Editor
             if (inputProperty != null && inputProperty.objectReferenceValue != inputProvider)
             {
                 inputProperty.objectReferenceValue = inputProvider;
+                serializedMotor.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            changed |= EnsureAimLocomotionController(prefabRoot, inputProvider, motor);
+
+            return changed;
+        }
+
+        private static bool EnsureAimLocomotionController(
+            GameObject prefabRoot,
+            CCS_CharacterInputActionProvider inputProvider,
+            CCS_CharacterMotor motor)
+        {
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            bool changed = false;
+            if (aimLocomotion == null)
+            {
+                aimLocomotion = prefabRoot.AddComponent<CCS_CharacterAimLocomotionController>();
+                changed = true;
+            }
+
+            CCS_CharacterCameraFollowAnchor followAnchor =
+                prefabRoot.GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
+
+            SerializedObject serializedAimLocomotion = new SerializedObject(aimLocomotion);
+            bool aimChanged = SetObjectReference(serializedAimLocomotion, "inputProvider", inputProvider);
+            aimChanged |= SetObjectReference(serializedAimLocomotion, "cameraFollowAnchor", followAnchor);
+            if (aimChanged)
+            {
+                serializedAimLocomotion.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            SerializedObject serializedMotor = new SerializedObject(motor);
+            bool motorChanged = SetObjectReference(serializedMotor, "aimLocomotionController", aimLocomotion);
+            motorChanged |= SetObjectReference(serializedMotor, "cameraFollowAnchor", followAnchor);
+            if (motorChanged)
+            {
                 serializedMotor.ApplyModifiedPropertiesWithoutUndo();
                 changed = true;
             }

@@ -4,6 +4,7 @@
     "references": [
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Weapons.Runtime",
         "CCS.Project.Runtime",
         "Unity.Cinemachine",
         "Unity.Netcode.Runtime",

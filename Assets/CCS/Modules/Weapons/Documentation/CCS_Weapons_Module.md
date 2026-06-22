@@ -35,7 +35,7 @@ Weapon input actions live on the CharacterController Input Actions asset:
 ## Master Test
 
 - Test player prefab receives `CCS_RevolverController`, `MuzzlePoint`, and weapon HUD wiring via editor builders.
-- Master Test scene receives `CCS_TestWeaponDamageTarget` at a safe forward/lateral offset from `TP_Spawn_Host`.
+- Master Test scene receives a red capsule `CCS_TestWeaponDamageTarget` (black glasses, no movement) southwest of `TP_Spawn_Host`, away from the building and stairs course.
 
 ## Networking
 

@@ -1,24 +1,22 @@
 using Unity.Cinemachine;
-using Unity.Cinemachine.TargetTracking;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 // =============================================================================
 // SCRIPT: CCS_CharacterCameraController
 // CATEGORY: Modules / CharacterController / Runtime / Components
-// PURPOSE: Binds Cinemachine targets and applies profile tuning for scene camera rigs.
-// PLACEMENT: Scene camera rig root. Player prefab keeps pivot references only.
+// PURPOSE: Binds shared rig targets and applies Third Person Follow profile tuning.
+// PLACEMENT: Scene camera rig root. Player prefab owns the shared camera rig target.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Rig binder only. Cinemachine Input Axis Controller owns look on Orbital Follow.
-//        Rotation Composer frames LookAt. Never writes orbital axis Value/Center.
+// NOTES: TP and Aim share one tracking target yaw/pitch. Priority blend only changes offset/distance.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
 {
     public sealed class CCS_CharacterCameraController : MonoBehaviour
     {
-        public const string DefaultCinemachineRigDescription = "Orbital Follow + Rotation Composer";
+        public const string DefaultCinemachineRigDescription = "Third Person Follow + Third Person Aim";
 
         #region Variables
 
@@ -36,10 +34,18 @@ namespace CCS.Modules.CharacterController
         [FormerlySerializedAs("thirdPersonCamera")]
         [SerializeField] private CinemachineCamera cinemachineCamera;
 
+        [SerializeField] private CinemachineCamera aimCinemachineCamera;
+
+        [SerializeField] private bool enableRuntimeCameraDebug;
+
+        [SerializeField] private bool enableAimRayDebug;
+
         private CCS_CharacterCameraMode activeCameraMode = CCS_CharacterCameraMode.ThirdPersonSurvival;
         private CCS_CharacterCameraProfile activeProfile;
-        private CinemachineOrbitalFollow orbitalFollow;
-        private CinemachineRotationComposer rotationComposer;
+        private CinemachineThirdPersonFollow thirdPersonFollow;
+        private CinemachineThirdPersonFollow aimThirdPersonFollow;
+        private CinemachineThirdPersonAim aimThirdPersonAim;
+        private bool isAimModeActive;
 
         #endregion
 
@@ -57,6 +63,12 @@ namespace CCS.Modules.CharacterController
 
         public CinemachineCamera CinemachineCamera => cinemachineCamera;
 
+        public CinemachineCamera AimCinemachineCamera => aimCinemachineCamera;
+
+        public bool IsAimModeActive => isAimModeActive;
+
+        public bool HasAimCameraConfigured => aimCinemachineCamera != null;
+
         public string CinemachineRigDescription => DescribeCinemachineRig();
 
         #endregion
@@ -65,14 +77,20 @@ namespace CCS.Modules.CharacterController
 
         private void Awake()
         {
-            ResolveCinemachineCamera();
+            ResolveCinemachineCameras();
             ResolveCinemachineComponents();
             ApplyActiveProfile();
+            ApplyAimProfile();
+            ApplyBrainBlendFromAimProfile();
+            isAimModeActive = false;
+            ApplyCameraPriorities();
         }
 
         private void OnEnable()
         {
             ApplyActiveProfile();
+            ApplyAimProfile();
+            ApplyBrainBlendFromAimProfile();
         }
 
         private void OnDisable()
@@ -88,20 +106,31 @@ namespace CCS.Modules.CharacterController
         {
             cameraProfileSet = profileSet;
             ApplyActiveProfile();
+            ApplyAimProfile();
+            ApplyBrainBlendFromAimProfile();
         }
 
-        public void BindFollowTargets(Transform pivot, Transform lookTarget)
+        public void BindFollowTargets(Transform trackingTarget, Transform lookTarget)
         {
-            cameraPivot = pivot;
+            cameraPivot = trackingTarget;
             cameraLookTarget = lookTarget;
-            ResolveCinemachineCamera();
+            ResolveCinemachineCameras();
             ResolveCinemachineComponents();
             ApplyActiveProfile();
+            ApplyAimProfile();
             RegisterMovementCamera();
+            ApplyBrainBlendFromAimProfile();
+
+            if (enableRuntimeCameraDebug || enableAimRayDebug)
+            {
+                Debug.Log(
+                    $"[Character Camera] Bound tracking={trackingTarget?.name ?? "null"} "
+                    + $"look={lookTarget?.name ?? "null"}",
+                    this);
+            }
         }
 
-        public bool HasFollowTargetsAssigned =>
-            cameraPivot != null && cameraLookTarget != null;
+        public bool HasFollowTargetsAssigned => cameraPivot != null;
 
         public Camera GetOutputCamera()
         {
@@ -122,31 +151,61 @@ namespace CCS.Modules.CharacterController
             CCS_CharacterMovementCameraContext.Clear(GetOutputCamera());
         }
 
+        public void SetAimModeActive(bool aimActive)
+        {
+            if (isAimModeActive == aimActive)
+            {
+                return;
+            }
+
+            isAimModeActive = aimActive;
+            ApplyCameraPriorities();
+
+            if (enableRuntimeCameraDebug)
+            {
+                Debug.Log(
+                    aimActive
+                        ? "[Character Camera] Aim mode started."
+                        : "[Character Camera] Aim mode ended.",
+                    this);
+            }
+        }
+
         #endregion
 
         #region Private Methods
 
-        private void ResolveCinemachineCamera()
+        private void ResolveCinemachineCameras()
         {
-            if (cinemachineCamera != null)
+            if (cinemachineCamera == null)
             {
-                return;
+                Transform tpTransform = transform.Find(CCS_CharacterControllerConstants.ThirdPersonCinemachineCameraName);
+                cinemachineCamera = tpTransform != null
+                    ? tpTransform.GetComponent<CinemachineCamera>()
+                    : GetComponentInChildren<CinemachineCamera>(true);
             }
 
-            cinemachineCamera = GetComponentInChildren<CinemachineCamera>(true);
+            if (aimCinemachineCamera == null)
+            {
+                Transform aimTransform = transform.Find(CCS_CharacterControllerConstants.AimCinemachineCameraName);
+                if (aimTransform != null)
+                {
+                    aimCinemachineCamera = aimTransform.GetComponent<CinemachineCamera>();
+                }
+            }
         }
 
         private void ResolveCinemachineComponents()
         {
-            if (cinemachineCamera == null)
-            {
-                orbitalFollow = null;
-                rotationComposer = null;
-                return;
-            }
-
-            orbitalFollow = cinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
-            rotationComposer = cinemachineCamera.GetComponent<CinemachineRotationComposer>();
+            thirdPersonFollow = cinemachineCamera != null
+                ? cinemachineCamera.GetComponent<CinemachineThirdPersonFollow>()
+                : null;
+            aimThirdPersonFollow = aimCinemachineCamera != null
+                ? aimCinemachineCamera.GetComponent<CinemachineThirdPersonFollow>()
+                : null;
+            aimThirdPersonAim = aimCinemachineCamera != null
+                ? aimCinemachineCamera.GetComponent<CinemachineThirdPersonAim>()
+                : null;
         }
 
         private void ApplyActiveProfile()
@@ -161,88 +220,205 @@ namespace CCS.Modules.CharacterController
             }
 
             ApplyFollowTargets();
-            ApplyOrbitalFollowProfileSettings();
-            ApplyRotationComposerProfileSettings();
+            ApplyThirdPersonProfileSettings();
+        }
+
+        private void ApplyAimProfile()
+        {
+            ApplyAimFollowTargets();
+            ApplyAimCameraProfileSettings();
         }
 
         private void ApplyFollowTargets()
         {
-            if (cinemachineCamera == null)
+            ApplyFollowTargetsToCamera(cinemachineCamera);
+        }
+
+        private void ApplyAimFollowTargets()
+        {
+            ApplyFollowTargetsToCamera(aimCinemachineCamera);
+        }
+
+        private void ApplyFollowTargetsToCamera(CinemachineCamera camera)
+        {
+            if (camera == null || cameraPivot == null)
             {
                 return;
             }
 
-            if (cameraPivot != null)
+            camera.Target.TrackingTarget = cameraPivot;
+            CameraTarget target = camera.Target;
+            target.CustomLookAtTarget = false;
+            target.LookAtTarget = null;
+            camera.Target = target;
+        }
+
+        private void ApplyThirdPersonProfileSettings()
+        {
+            ApplyThirdPersonFollowProfileSettings(thirdPersonFollow, activeProfile);
+            ApplyLensProfileSettings(cinemachineCamera, activeProfile);
+        }
+
+        private void ApplyAimCameraProfileSettings()
+        {
+            CCS_CharacterCameraProfile aimProfile = cameraProfileSet != null
+                ? cameraProfileSet.AimOverShoulderProfile
+                : null;
+            if (aimProfile == null)
             {
-                cinemachineCamera.Target.TrackingTarget = cameraPivot;
+                return;
             }
 
-            if (cameraLookTarget != null)
+            ApplyThirdPersonFollowProfileSettings(aimThirdPersonFollow, aimProfile);
+            ApplyThirdPersonAimSettings(aimThirdPersonAim, aimProfile);
+            ApplyLensProfileSettings(aimCinemachineCamera, aimProfile);
+        }
+
+        private static void ApplyThirdPersonFollowProfileSettings(
+            CinemachineThirdPersonFollow targetFollow,
+            CCS_CharacterCameraProfile profile)
+        {
+            if (targetFollow == null || profile == null)
             {
-                cinemachineCamera.Target.LookAtTarget = cameraLookTarget;
+                return;
+            }
+
+            Vector3 shoulderOffset = profile.ThirdPersonShoulderOffset;
+
+            targetFollow.Damping = new Vector3(
+                profile.FollowDampingX,
+                profile.FollowDampingY,
+                profile.FollowDampingZ);
+            targetFollow.ShoulderOffset = shoulderOffset;
+            targetFollow.VerticalArmLength = profile.ThirdPersonVerticalArmLength;
+            targetFollow.CameraSide = Mathf.Clamp01(Mathf.Abs(profile.ThirdPersonCameraSide));
+            targetFollow.CameraDistance = profile.ThirdPersonCameraDistance;
+
+#if CINEMACHINE_PHYSICS
+            LayerMask collisionFilter = profile.CollisionLayerMask;
+            if (collisionFilter.value == -1)
+            {
+                collisionFilter = new LayerMask { value = 1 << LayerMask.NameToLayer("Default") };
+            }
+
+            var obstacleSettings = targetFollow.AvoidObstacles;
+            obstacleSettings.Enabled = profile.ObstacleAvoidanceEnabled;
+            obstacleSettings.CollisionFilter = collisionFilter;
+            obstacleSettings.IgnoreTag = profile.CollisionIgnoreTag;
+            obstacleSettings.CameraRadius = profile.ObstacleAvoidanceRadius;
+            obstacleSettings.DampingIntoCollision = profile.CollisionDampingInto;
+            obstacleSettings.DampingFromCollision = profile.CollisionDampingFrom;
+            targetFollow.AvoidObstacles = obstacleSettings;
+#endif
+        }
+
+        private static void ApplyThirdPersonAimSettings(
+            CinemachineThirdPersonAim thirdPersonAim,
+            CCS_CharacterCameraProfile profile)
+        {
+            if (thirdPersonAim == null || profile == null)
+            {
+                return;
+            }
+
+#if CINEMACHINE_PHYSICS
+            LayerMask aimCollisionFilter = profile.CollisionLayerMask;
+            if (aimCollisionFilter.value == -1)
+            {
+                aimCollisionFilter = new LayerMask { value = 1 << LayerMask.NameToLayer("Default") };
+            }
+
+            thirdPersonAim.AimCollisionFilter = aimCollisionFilter;
+            thirdPersonAim.IgnoreTag = profile.CollisionIgnoreTag;
+            thirdPersonAim.AimDistance = 200f;
+            thirdPersonAim.NoiseCancellation = true;
+#endif
+        }
+
+        private void ApplyBrainBlendFromAimProfile()
+        {
+            CCS_CharacterCameraProfile aimProfile = cameraProfileSet != null
+                ? cameraProfileSet.AimOverShoulderProfile
+                : null;
+            if (aimProfile == null)
+            {
+                return;
+            }
+
+            Camera outputCamera = GetOutputCamera();
+            if (outputCamera == null)
+            {
+                return;
+            }
+
+            CinemachineBrain brain = outputCamera.GetComponent<CinemachineBrain>();
+            if (brain == null)
+            {
+                return;
+            }
+
+            CinemachineBlendDefinition defaultBlend = brain.DefaultBlend;
+            if (!Mathf.Approximately(defaultBlend.Time, aimProfile.AimBlendDurationSeconds))
+            {
+                defaultBlend.Time = aimProfile.AimBlendDurationSeconds;
+                brain.DefaultBlend = defaultBlend;
             }
         }
 
-        private void ApplyOrbitalFollowProfileSettings()
+        private static void ApplyLensProfileSettings(CinemachineCamera camera, CCS_CharacterCameraProfile profile)
         {
-            if (orbitalFollow == null || activeProfile == null)
+            if (camera == null || profile == null)
             {
                 return;
             }
 
-            Vector3 shoulderOffset = activeProfile.CameraShoulderOffset;
-            shoulderOffset.x *= activeProfile.CameraSide >= 0f ? 1f : -1f;
-            shoulderOffset.y = activeProfile.CameraHeight;
-            orbitalFollow.TargetOffset = shoulderOffset;
-            orbitalFollow.OrbitStyle = CinemachineOrbitalFollow.OrbitStyles.Sphere;
-            orbitalFollow.Radius = activeProfile.OrbitalRadius;
-            orbitalFollow.RecenteringTarget = CinemachineOrbitalFollow.ReferenceFrames.TrackingTarget;
-
-            InputAxis verticalAxis = orbitalFollow.VerticalAxis;
-            verticalAxis.Range = new Vector2(activeProfile.VerticalOrbitMin, activeProfile.VerticalOrbitMax);
-            verticalAxis.Validate();
-            orbitalFollow.VerticalAxis = verticalAxis;
-
-            TrackerSettings trackerSettings = orbitalFollow.TrackerSettings;
-            trackerSettings.BindingMode = BindingMode.LockToTargetWithWorldUp;
-            trackerSettings.PositionDamping = new Vector3(
-                activeProfile.FollowDampingX,
-                activeProfile.FollowDampingY,
-                activeProfile.FollowDampingZ);
-            trackerSettings.Validate();
-            orbitalFollow.TrackerSettings = trackerSettings;
+            LensSettings lens = camera.Lens;
+            if (!Mathf.Approximately(lens.FieldOfView, profile.FieldOfView))
+            {
+                lens.FieldOfView = profile.FieldOfView;
+                camera.Lens = lens;
+            }
         }
 
-        private void ApplyRotationComposerProfileSettings()
+        private void ApplyCameraPriorities()
         {
-            if (rotationComposer == null || activeProfile == null)
+            SetCameraPriority(
+                cinemachineCamera,
+                isAimModeActive
+                    ? CCS_CharacterControllerConstants.CinemachineCameraInactivePriority
+                    : CCS_CharacterControllerConstants.ThirdPersonCameraActivePriority);
+            SetCameraPriority(
+                aimCinemachineCamera,
+                isAimModeActive
+                    ? CCS_CharacterControllerConstants.AimCameraActivePriority
+                    : CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
+        }
+
+        private static void SetCameraPriority(CinemachineCamera camera, int priority)
+        {
+            if (camera == null)
             {
                 return;
             }
 
-            rotationComposer.Damping = new Vector2(
-                activeProfile.FollowDampingX,
-                activeProfile.FollowDampingY);
+            PrioritySettings prioritySettings = camera.Priority;
+            if (prioritySettings.Value != priority)
+            {
+                prioritySettings.Value = priority;
+                camera.Priority = prioritySettings;
+            }
         }
 
         private string DescribeCinemachineRig()
         {
-            if (orbitalFollow == null && rotationComposer == null)
+            if (thirdPersonFollow == null)
             {
                 return "Unassigned";
             }
 
-            if (orbitalFollow != null && rotationComposer != null)
-            {
-                return DefaultCinemachineRigDescription;
-            }
-
-            if (orbitalFollow != null)
-            {
-                return "Orbital Follow";
-            }
-
-            return rotationComposer != null ? "Rotation Composer" : "Unassigned";
+            return aimThirdPersonFollow != null
+                ? DefaultCinemachineRigDescription
+                : "Third Person Follow";
         }
 
         #endregion

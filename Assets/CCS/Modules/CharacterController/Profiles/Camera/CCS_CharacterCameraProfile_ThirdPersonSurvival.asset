@@ -14,29 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
   profileDisplayName: Third Person Survival
   profileId: ccs.survival.profile.character.camera.thirdperson
-  profileDescription: Full-body third-person survival camera tuned for v0.2.3 polish.
-  profileVersion: 0.2.3
+  profileDescription: Centered third-person survival camera using Cinemachine Third
+    Person Follow.
+  profileVersion: 0.6.2-close-camera-tune
   enableDebugLogs: 0
   cameraMode: 0
-  orbitalRadius: 5.75
-  followTargetHeight: 0.92
-  cameraHeight: 0.08
-  cameraShoulderOffset: {x: 0.48, y: 0.05, z: 0}
-  verticalArmLength: 0.25
-  cameraSide: 1
-  verticalOrbitDefault: -10
-  verticalOrbitMin: -30
-  verticalOrbitMax: 55
+  trackingTargetLocalHeight: 1.48
+  thirdPersonShoulderOffset: {x: 0.2, y: 0.2, z: 0}
+  thirdPersonVerticalArmLength: 0.45
+  thirdPersonCameraSide: 0
+  thirdPersonCameraDistance: 3
+  verticalOrbitDefault: 0
+  verticalOrbitMin: -45
+  verticalOrbitMax: 70
+  defaultYawMode: 0
   mouseSensitivityX: 0.12
   mouseSensitivityY: 0.1
   gamepadSensitivityX: 90
   gamepadSensitivityY: 70
   lookSmoothing: 12
-  followDampingX: 0.25
-  followDampingY: 0.3
-  followDampingZ: 0.25
+  followDampingX: 0.1
+  followDampingY: 0.12
+  followDampingZ: 0.1
   obstacleAvoidanceEnabled: 1
+  collisionLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  collisionIgnoreTag: Player
   obstacleAvoidanceRadius: 0.25
-  zoomDistanceMin: 4.25
-  zoomDistanceMax: 7.25
-  aimTransitionSpeed: 8
+  collisionDampingInto: 0.08
+  collisionDampingFrom: 0.35
+  validationDisableObstacleAvoidanceForBaselinePass: 1
+  aimBlendDurationSeconds: 0.5
+  fieldOfView: 62
+  aimLookSensitivityMultiplier: 0.85

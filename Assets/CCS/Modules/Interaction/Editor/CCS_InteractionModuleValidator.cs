@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using CCS.Modules.Interaction;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -58,7 +59,7 @@ namespace CCS.Modules.Interaction.Editor
                 failures,
                 CCS_InteractionValidationUtility.ValidateTestPickupInteractablePrefab(pickupPrefab));
 
-            ValidateMasterTestScenePickupSpawner(failures);
+            ValidateMasterTestSceneDetectionCube(failures);
             ValidateSourceContracts(failures);
 
             return failures.Count > 0
@@ -71,7 +72,7 @@ namespace CCS.Modules.Interaction.Editor
 
         #region Private Methods
 
-        private static void ValidateMasterTestScenePickupSpawner(List<string> failures)
+        private static void ValidateMasterTestSceneDetectionCube(List<string> failures)
         {
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_InteractionConstants.MasterTestScenePath,
@@ -82,46 +83,77 @@ namespace CCS.Modules.Interaction.Editor
                 return;
             }
 
-            CCS_TestPickupItemSpawner spawner = FindSpawnerInScene(scene);
-            GameObject assignedPrefab = null;
-            Transform assignedOrigin = null;
-            if (spawner != null)
+            CCS_TestPickupItemSpawner[] spawners =
+                Object.FindObjectsByType<CCS_TestPickupItemSpawner>(FindObjectsSortMode.None);
+            int spawnerCount = 0;
+            for (int i = 0; i < spawners.Length; i++)
             {
-                SerializedObject serializedSpawner = new SerializedObject(spawner);
-                SerializedProperty prefabProperty = serializedSpawner.FindProperty("pickupItemPrefab");
-                SerializedProperty originProperty = serializedSpawner.FindProperty("spawnOrigin");
-                assignedPrefab = prefabProperty != null ? prefabProperty.objectReferenceValue as GameObject : null;
-                assignedOrigin = originProperty != null ? originProperty.objectReferenceValue as Transform : null;
+                if (spawners[i] != null && spawners[i].gameObject.scene == scene)
+                {
+                    spawnerCount++;
+                }
             }
 
             AppendIfMissing(
                 failures,
-                spawner != null,
-                $"Master test scene must contain {nameof(CCS_TestPickupItemSpawner)}.");
+                spawnerCount == 0,
+                $"Master test scene must not contain {nameof(CCS_TestPickupItemSpawner)} when using the baked detection cube.");
+
+            GameObject detectionCube = FindDetectionCubeInScene(scene);
             AppendIfMissing(
                 failures,
-                assignedPrefab != null,
-                "Master test pickup spawner must reference PF_CCS_TestInteractable_PickupItem.");
+                detectionCube != null,
+                $"Master test scene must contain {CCS_InteractionConstants.TestDetectionCubeObjectName}.");
+
+            if (detectionCube == null)
+            {
+                return;
+            }
+
+            int interactableLayer = LayerMask.NameToLayer(CCS_InteractionConstants.InteractableLayerName);
             AppendIfMissing(
                 failures,
-                assignedPrefab != null
-                && AssetDatabase.GetAssetPath(assignedPrefab) == CCS_InteractionConstants.TestPickupInteractablePrefabPath,
-                $"Master test pickup spawner must reference {CCS_InteractionConstants.TestPickupInteractablePrefabPath}.");
+                detectionCube.activeInHierarchy,
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must be active.");
             AppendIfMissing(
                 failures,
-                assignedOrigin != null,
-                "Master test pickup spawner must reference TP_Spawn_Host as spawn origin.");
+                detectionCube.layer == interactableLayer,
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must use the Interactable layer.");
+            AppendIfMissing(
+                failures,
+                detectionCube.CompareTag(CCS_InteractionConstants.InteractableTagName),
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must use the Interactable tag.");
+
+            CCS_InteractableLabelTarget labelTarget = detectionCube.GetComponent<CCS_InteractableLabelTarget>();
+            AppendIfMissing(
+                failures,
+                labelTarget != null,
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include {nameof(CCS_InteractableLabelTarget)}.");
+            AppendIfMissing(
+                failures,
+                detectionCube.GetComponent<CCS_InteractableExecutor>() != null,
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include {nameof(CCS_InteractableExecutor)}.");
+            AppendIfMissing(
+                failures,
+                detectionCube.GetComponent<BoxCollider>() != null,
+                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include a BoxCollider.");
         }
 
-        private static CCS_TestPickupItemSpawner FindSpawnerInScene(Scene scene)
+        private static GameObject FindDetectionCubeInScene(Scene scene)
         {
-            CCS_TestPickupItemSpawner[] spawners = Object.FindObjectsByType<CCS_TestPickupItemSpawner>(FindObjectsSortMode.None);
-            for (int i = 0; i < spawners.Length; i++)
+            GameObject[] roots = scene.GetRootGameObjects();
+            for (int i = 0; i < roots.Length; i++)
             {
-                CCS_TestPickupItemSpawner candidate = spawners[i];
-                if (candidate != null && candidate.gameObject.scene == scene)
+                Transform[] transforms = roots[i].GetComponentsInChildren<Transform>(true);
+                for (int j = 0; j < transforms.Length; j++)
                 {
-                    return candidate;
+                    Transform candidate = transforms[j];
+                    if (candidate != null
+                        && candidate.name == CCS_InteractionConstants.TestDetectionCubeObjectName
+                        && candidate.gameObject.scene == scene)
+                    {
+                        return candidate.gameObject;
+                    }
                 }
             }
 

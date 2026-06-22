@@ -119,53 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &26956906
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 26956908}
-  - component: {fileID: 26956907}
-  m_Layer: 0
-  m_Name: CCS_TestPickupItemSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &26956907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 26956906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_TestPickupItemSpawner
-  pickupItemPrefab: {fileID: 820000001, guid: c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1, type: 3}
-  spawnOrigin: {fileID: 1846383184}
-  spawnForwardDistance: 2.5
---- !u!4 &26956908
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 26956906}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &116916582
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,7 +501,7 @@ PrefabInstance:
     - target: {fileID: 200030, guid: 0cb0d27ec87f1a942a47a42088c4aa94, type: 3}
       propertyPath: m_ControllerManager.Controllers.Array.data[2].Owner
       value: 
-      objectReference: {fileID: 444604194}
+      objectReference: {fileID: 0}
     - target: {fileID: 200030, guid: 0cb0d27ec87f1a942a47a42088c4aa94, type: 3}
       propertyPath: m_ControllerManager.Controllers.Array.data[2].Enabled
       value: 1
@@ -628,17 +581,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f7fa279626eef34cbbe38dc87ddf2f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraController
---- !u!114 &444604194 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 200122, guid: 0cb0d27ec87f1a942a47a42088c4aa94, type: 3}
-  m_PrefabInstance: {fileID: 444604192}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b5d7c088409d9a40b7b09aa707777f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineOrbitalFollow
 --- !u!1 &551188970
 GameObject:
   m_ObjectHideFlags: 0
@@ -744,53 +686,6 @@ MonoBehaviour:
   panelRoot: {fileID: 1093141158}
   entriesContainer: {fileID: 2053806420}
   entryTemplate: {fileID: 1048221856}
---- !u!1 &745836645
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 745836647}
-  - component: {fileID: 745836646}
-  m_Layer: 0
-  m_Name: CCS_TestPickupItemSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &745836646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745836645}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_TestPickupItemSpawner
-  pickupItemPrefab: {fileID: 820000001, guid: c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1, type: 3}
-  spawnOrigin: {fileID: 1846383184}
-  spawnForwardDistance: 2.5
---- !u!4 &745836647
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745836645}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &795661881
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,50 +928,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c5d6e7f8091a2b3c4d5e6f709182bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_InteractableExecutor
---- !u!1 &872000101
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 872000110}
-  - component: {fileID: 872000120}
-  m_Layer: 0
-  m_Name: CCS_TestDetectionCubeSceneBootstrap
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &872000110
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872000101}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &872000120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872000101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e2f3a4b5c6789012345678abcdef01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_TestDetectionCubeSceneBootstrap
 --- !u!1 &919421269
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,53 +959,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1777555532}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &922048473
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 922048475}
-  - component: {fileID: 922048474}
-  m_Layer: 0
-  m_Name: CCS_TestPickupItemSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &922048474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 922048473}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.Interaction.Runtime::CCS.Modules.Interaction.CCS_TestPickupItemSpawner
-  pickupItemPrefab: {fileID: 820000001, guid: c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1, type: 3}
-  spawnOrigin: {fileID: 1846383184}
-  spawnForwardDistance: 2.5
---- !u!4 &922048475
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 922048473}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1006844553
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1169,15 +973,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7164596562621824295, guid: 59ee106eed61129489434e269dca4b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 28.933754
+      value: 12.292746
       objectReference: {fileID: 0}
     - target: {fileID: 7164596562621824295, guid: 59ee106eed61129489434e269dca4b82, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.25
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 7164596562621824295, guid: 59ee106eed61129489434e269dca4b82, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 22.992302
+      value: 12.452999
       objectReference: {fileID: 0}
     - target: {fileID: 7164596562621824295, guid: 59ee106eed61129489434e269dca4b82, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1857,6 +1661,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -2114,6 +1919,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1777555532}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1862980343
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 150636, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_Name
+      value: ReichsrevolverM1879
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 17.40837
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.000000074034176
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 24.397217
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439302, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 20d6fada1e8caa1488140d8433a67d6b, type: 3}
 --- !u!1 &1995345076
 GameObject:
   m_ObjectHideFlags: 0
@@ -2172,6 +2034,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2009365930}
   - component: {fileID: 2009365929}
+  - component: {fileID: 2009365931}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -2187,7 +2050,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2009365928}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1.1
@@ -2239,7 +2102,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -2259,6 +2122,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2009365931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009365928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1001 &2043443637
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2422,9 +2314,6 @@ SceneRoots:
   - {fileID: 2009365930}
   - {fileID: 1268490505}
   - {fileID: 1752574737}
-  - {fileID: 745836647}
   - {fileID: 872000010}
-  - {fileID: 872000110}
-  - {fileID: 922048475}
-  - {fileID: 26956908}
   - {fileID: 1006844553}
+  - {fileID: 1862980343}

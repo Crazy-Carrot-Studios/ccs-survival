@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 910010}
   - component: {fileID: 910050}
   - component: {fileID: 910060}
+  - component: {fileID: 6463843085579182175}
   m_Layer: 0
   m_Name: VisualRoot
   m_TagString: Untagged
@@ -66,6 +67,23 @@ MonoBehaviour:
   enableInteractionDebugLogs: 0
   pickUpRightHandLockDuration: 2
   walkThroughDoorRightHandLockDuration: 1.3
+--- !u!114 &6463843085579182175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 271a7628d5fa4f14dad658a0e691512a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_RevolverUpperBodyAnimator
+  animator: {fileID: 22796}
+  revolverAnimationStateComponent: {fileID: 4905833786765227334}
+  interactionLockSourceComponent: {fileID: 910060}
+  layerFadeInSpeed: 8
+  layerFadeOutSpeed: 10
 --- !u!1 &882010001
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,9 +915,10 @@ GameObject:
   - component: {fileID: 4522364921838576145}
   - component: {fileID: 8234567890123456789}
   - component: {fileID: 4905833786765227334}
-  m_Layer: 0
+  - component: {fileID: 6516404878749442230}
+  m_Layer: 8
   m_Name: PF_CCS_CharacterController_TestPlayer_Networked
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -927,6 +946,7 @@ Transform:
   - {fileID: 1953037104444081331}
   - {fileID: 5567645847508170169}
   - {fileID: 350868239487233168}
+  - {fileID: 3552899528688594280}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &8706417999176212068
@@ -982,6 +1002,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMotor
   movementProfile: {fileID: 11400000, guid: 801f047c9d8ac5a41a9257da130a033f, type: 2}
   inputProvider: {fileID: 3066966173724100183}
+  aimLocomotionController: {fileID: 6516404878749442230}
+  cameraFollowAnchor: {fileID: 1267658892253411985}
   staminaController: {fileID: 4522364921838576145}
   interactionLockSourceComponent: {fileID: 910060}
   enableMovementDebugLogs: 0
@@ -998,9 +1020,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraController
   cameraProfileSet: {fileID: 11400000, guid: bbd8bb9938f66774591592beec8234a6, type: 2}
-  cameraPivot: {fileID: 5002101633730367245}
+  cameraPivot: {fileID: 4242180070148307545}
   cameraLookTarget: {fileID: 3741156813962738970}
   cinemachineCamera: {fileID: 0}
+  aimCinemachineCamera: {fileID: 0}
+  enableRuntimeCameraDebug: 0
+  enableAimRayDebug: 0
 --- !u!114 &3984767143395715816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,8 +1133,8 @@ MonoBehaviour:
   motor: {fileID: 2994450901270807121}
   controllerService: {fileID: 3984767143395715816}
   playerCameraController: {fileID: 1245601209859042227}
-  cameraPivot: {fileID: 5002101633730367245}
-  cameraLookTarget: {fileID: 0}
+  cameraPivot: {fileID: 4242180070148307545}
+  cameraLookTarget: {fileID: 3741156813962738970}
 --- !u!114 &882010020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,9 +1298,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.Weapons.Runtime::CCS.Modules.Weapons.CCS_RevolverController
   revolverDefinition: {fileID: 11400000, guid: d3d4ea6bf7d9c854f8f8c19ba87c9aa9, type: 2}
   inputProvider: {fileID: 3066966173724100183}
+  aimLocomotionController: {fileID: 6516404878749442230}
+  sceneCameraController: {fileID: 0}
   aimCamera: {fileID: 0}
   muzzlePoint: {fileID: 3552899528688594280}
-  enableWeaponDebugLogs: 0
+  enableRuntimeWeaponDebug: 0
+  enableAimRayDebug: 0
+  enableMuzzleDebug: 0
+--- !u!114 &6516404878749442230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240448729846996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 904dbb22589664d4fa5882cb0356b288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterAimLocomotionController
+  inputProvider: {fileID: 3066966173724100183}
+  cameraFollowAnchor: {fileID: 1267658892253411985}
+  enableMovementDebugLogs: 0
 --- !u!1 &2455953433895996448
 GameObject:
   m_ObjectHideFlags: 0
@@ -1683,7 +1727,7 @@ RectTransform:
   m_GameObject: {fileID: 3080908715531483992}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1191375220918377940}
@@ -1713,6 +1757,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1774,6 +1819,11 @@ MonoBehaviour:
   hudText: {fileID: 3438282536281745376}
   reticleImage: {fileID: 1890729974945783195}
   showReticleWhileAiming: 1
+  statusFlashSeconds: 0.75
+  lowAmmoThreshold: 2
+  ammoNormalColor: {r: 0.08, g: 0.52, b: 0.12, a: 1}
+  ammoLowColor: {r: 0.85, g: 0.12, b: 0.08, a: 1}
+  reloadColor: {r: 0.95, g: 0.58, b: 0.08, a: 1}
 --- !u!1 &3139427301927228153
 GameObject:
   m_ObjectHideFlags: 0
@@ -2126,8 +2176,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3552899528688594280}
+  m_Children: []
   m_Father: {fileID: 910010}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4473007604911807633
@@ -2394,6 +2443,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -2562,7 +2612,7 @@ Transform:
   m_GameObject: {fileID: 5329951920719150015}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.92, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2636,14 +2686,14 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0.08, g: 0.52, b: 0.12, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2666,7 +2716,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -3701,6 +3751,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3552899528688594280}
+  - component: {fileID: 1987455430236001592}
   m_Layer: 0
   m_Name: MuzzlePoint
   m_TagString: Untagged
@@ -3717,12 +3768,29 @@ Transform:
   m_GameObject: {fileID: 6992448790702157210}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.12}
+  m_LocalPosition: {x: 0.35, y: 1.35, z: 0.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6631910047017972686}
+  m_Father: {fileID: 8263640393967947809}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1987455430236001592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6992448790702157210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3141398992038745895c541c01c9ba3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Weapons.Runtime::CCS.Modules.Weapons.CCS_RevolverFireFeedback
+  revolverController: {fileID: 4905833786765227334}
+  muzzlePoint: {fileID: 3552899528688594280}
+  tracerDurationSeconds: 0.12
+  tracerWidth: 0.035
+  tracerColor: {r: 1, g: 0.85, b: 0.2, a: 1}
 --- !u!1 &7026098108711356375
 GameObject:
   m_ObjectHideFlags: 0
@@ -3749,11 +3817,11 @@ Transform:
   m_GameObject: {fileID: 7026098108711356375}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.92, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3741156813962738970}
+  - {fileID: 4242180070148307545}
   m_Father: {fileID: 8263640393967947809}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1267658892253411985
@@ -3769,8 +3837,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraFollowAnchor
   bodyRoot: {fileID: 8263640393967947809}
-  heightOffset: 0.92
+  pitchTarget: {fileID: 4242180070148307545}
   lookTarget: {fileID: 3741156813962738970}
+  inputProvider: {fileID: 3066966173724100183}
+  activeLookProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
+  enableRuntimeCameraDebug: 0
 --- !u!1 &7123456789012345678
 GameObject:
   m_ObjectHideFlags: 0
@@ -3967,6 +4038,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -4435,6 +4507,38 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &8249458482733255587
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4242180070148307545}
+  m_Layer: 0
+  m_Name: CameraPitchTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4242180070148307545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8249458482733255587}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.48, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3741156813962738970}
+  m_Father: {fileID: 2825066720895580173}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8561367087294839363
 GameObject:
   m_ObjectHideFlags: 0
@@ -4516,11 +4620,11 @@ Transform:
   m_GameObject: {fileID: 8592423414664928009}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2825066720895580173}
+  m_Father: {fileID: 4242180070148307545}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9020265117590482663
 GameObject:

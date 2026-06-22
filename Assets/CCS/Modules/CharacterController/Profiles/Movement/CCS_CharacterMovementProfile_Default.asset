@@ -15,7 +15,7 @@ MonoBehaviour:
   profileDisplayName: Default Movement
   profileId: ccs.survival.profile.character.movement.default
   profileDescription: Polished third-person grounded movement tuning for v0.2.3.
-  profileVersion: 0.2.3
+  profileVersion: 0.6.3-aim-strafe-movement
   enableDebugLogs: 0
   walkSpeed: 4.25
   sprintSpeed: 6.5
@@ -28,3 +28,9 @@ MonoBehaviour:
   jumpBufferTime: 0.1
   rotationSmoothing: 720
   airControl: 0.4
+  aimMovementSpeedMultiplier: 0.55
+  aimRotationSpeedDegrees: 720
+  aimDisableSprint: 1
+  aimStrafeDeadZone: 0.05
+  aimBackpedalMultiplier: 0.8
+  aimSideStrafeMultiplier: 0.9

@@ -8,6 +8,7 @@ using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
 using CCS.Modules.Interaction;
+using CCS.Modules.Weapons;
 using CCS.Project;
 
 using Unity.Cinemachine;
@@ -121,6 +122,36 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation());
 
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAimLocomotionAnimatorParameters());
+
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation());
+
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation());
+
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences());
+
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab != null)
+            {
+                AppendValidationResult(
+                    failures,
+                    CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorRootMotionDisabled(
+                        networkedPrefab));
+                AppendValidationResult(
+                    failures,
+                    CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerRevolverUpperBodyAnimator(
+                        networkedPrefab));
+            }
+
             ValidateCameraProfile(failures);
 
             ValidateCcsRuntimeScriptsDoNotWriteOrbitalAxisValues(failures);
@@ -154,6 +185,88 @@ namespace CCS.Modules.CharacterController.Editor
 
 
             return CCS_SurvivalValidationResult.Pass("Character controller master test scene validated.");
+
+        }
+
+
+
+        public static CCS_SurvivalValidationResult ValidateMasterTestCameraBaseline()
+
+        {
+
+            List<string> failures = new List<string>();
+
+
+
+            if (!System.IO.File.Exists(CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath))
+
+            {
+
+                return CCS_SurvivalValidationResult.Fail(
+
+                    $"Missing asset: {CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath}");
+
+            }
+
+
+
+            Scene scene = EditorSceneManager.OpenScene(
+
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
+
+                OpenSceneMode.Single);
+
+            if (!scene.IsValid())
+
+            {
+
+                return CCS_SurvivalValidationResult.Fail(
+
+                    $"Could not open {CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath}.");
+
+            }
+
+
+
+            ValidateCameraProfile(failures);
+
+            ValidatePlayerCameraTargetsOnPrefab(
+
+                failures,
+
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
+            ValidatePlayerCameraCollisionExclusion(
+
+                failures,
+
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
+            ValidateCameraFollowAnchorRotationChain(
+
+                failures,
+
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
+            ValidateCameraRigPrefabAsset(failures, baselinePass: true);
+
+            ValidateSceneCameraRigBaseline(failures);
+
+
+
+            if (failures.Count > 0)
+
+            {
+
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+
+            }
+
+
+
+            return CCS_SurvivalValidationResult.Pass(
+
+                "Character controller master test camera baseline validated without obstacle avoidance.");
 
         }
 
@@ -1419,7 +1532,7 @@ namespace CCS.Modules.CharacterController.Editor
                 "Scene camera rig must reference CinemachineCamera_TP so solo spawn can bind follow targets.");
 
             Transform tpCamera = sceneCameraController.transform.Find("CinemachineCamera_TP");
-            ValidateCinemachineLookInput(failures, tpCamera);
+            ValidateCinemachineLookInput(failures, tpCamera, requireObstacleAvoidanceEnabled: true);
 
             if (pivotProperty != null && pivotProperty.objectReferenceValue != null)
             {
@@ -1501,15 +1614,55 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
+            ValidatePlayerCameraCollisionExclusion(
+                failures,
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
+            ValidateCameraFollowAnchorRotationChain(
+                failures,
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+
             ValidateNetworkPlayerUsesSharedYellowVisuals(failures);
             ValidateNetworkPlayerMovementAuthority(failures);
             ValidateOfflineBootstrapOnNetworkedPrefab(failures);
             ValidateTestPlayerDisplayProfileAsset(failures);
             ValidateNetworkedPrefabDisplayProfileAssignment(failures);
             ValidatePlayerJumpConfiguration(failures);
+            ValidateAimLocomotionSetup(failures);
             ValidateNameplateOwnershipVisibility(failures);
             ValidateAttributeBarsHudOnPlayerPrefab(failures);
             ValidateNoCharacterDebugHudOnPlayerPrefab(failures);
+            ValidatePlayerWeaponAimAlignment(failures);
+        }
+
+        private static void ValidatePlayerWeaponAimAlignment(List<string> failures)
+        {
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab == null)
+            {
+                return;
+            }
+
+            AppendValidationResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidatePlayerRevolverComponents(networkedPrefab));
+            AppendValidationResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateRevolverFireFeedbackSourceContract());
+            AppendValidationResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateHitscanUsesCameraCenterAim());
+
+            Transform followAnchor = FindChildByName(networkedPrefab.transform, CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
+            Transform pitchTarget = followAnchor != null
+                ? followAnchor.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName)
+                : null;
+            if (pitchTarget != null
+                && pitchTarget.localPosition.y < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight)
+            {
+                failures.Add("CameraPitchTarget local height must be between 1.40m and 1.60m from player root for third-person framing.");
+            }
         }
 
         private static void ValidateAttributeBarsHudOnPlayerPrefab(List<string> failures)
@@ -1835,6 +1988,59 @@ namespace CCS.Modules.CharacterController.Editor
             }
         }
 
+        private static void ValidateAimLocomotionSetup(List<string> failures)
+        {
+            GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (networkedPrefab == null)
+            {
+                return;
+            }
+
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerValidationUtility.ValidateAimLocomotionPlayerComponents(networkedPrefab));
+
+            CCS_CharacterMovementProfile movementProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterMovementProfile>(
+                CCS_CharacterControllerConstants.DefaultMovementProfilePath);
+            if (movementProfile != null)
+            {
+                AppendValidationResult(
+                    failures,
+                    CCS_CharacterControllerValidationUtility.ValidateMovementProfile(movementProfile));
+            }
+
+            string revolverSourcePath =
+                "Assets/CCS/Modules/Weapons/Runtime/Components/CCS_RevolverController.cs";
+            if (File.Exists(revolverSourcePath))
+            {
+                string revolverSource = File.ReadAllText(revolverSourcePath);
+                AppendIfMissing(
+                    failures,
+                    !revolverSource.Contains("Input.GetMouseButton"),
+                    "Revolver controller must not poll mouse input directly for aim movement.");
+                AppendIfMissing(
+                    failures,
+                    !revolverSource.Contains("CCS_CharacterMotor"),
+                    "Revolver controller must not own character movement logic.");
+                AppendIfMissing(
+                    failures,
+                    revolverSource.Contains("CCS_CharacterAimLocomotionController"),
+                    "Revolver controller must read aim state from CCS_CharacterAimLocomotionController.");
+            }
+
+            string motorSourcePath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Components/CCS_CharacterMotor.cs";
+            if (File.Exists(motorSourcePath))
+            {
+                string motorSource = File.ReadAllText(motorSourcePath);
+                AppendIfMissing(
+                    failures,
+                    !motorSource.Contains("Input.GetMouseButton"),
+                    "Character motor must not poll mouse input directly for aim movement.");
+            }
+        }
+
 
 
         private static void ValidatePlayerBodyMaterialPrefab(List<string> failures, string prefabPath)
@@ -1871,17 +2077,64 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            Transform cameraPivot = FindChildByName(prefab.transform, "CameraPivot");
+            Transform followAnchor = FindChildByName(prefab.transform, CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
             AppendIfMissing(
                 failures,
-                cameraPivot != null,
-                $"{prefabPath} must contain CameraPivot.");
+                followAnchor != null,
+                $"{prefabPath} must contain {CCS_CharacterControllerConstants.CameraFollowAnchorObjectName}.");
 
-            Transform cameraLookTarget = FindChildByName(prefab.transform, "CameraLookTarget");
+            if (followAnchor != null && followAnchor.localPosition != Vector3.zero)
+            {
+                failures.Add($"{prefabPath} CameraFollowAnchor local position must be (0,0,0).");
+            }
+
+            Transform pitchTarget = followAnchor != null
+                ? followAnchor.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName)
+                : null;
+            AppendIfMissing(
+                failures,
+                pitchTarget != null,
+                $"{prefabPath} must contain {CCS_CharacterControllerConstants.CameraPitchTargetObjectName} under CameraFollowAnchor.");
+
+            if (pitchTarget != null)
+            {
+                if (pitchTarget.localPosition.y < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
+                    || pitchTarget.localPosition.y > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
+                {
+                    failures.Add(
+                        $"{prefabPath} CameraPitchTarget local Y must be between "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight} and "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight} for third-person framing.");
+                }
+
+                if (Mathf.Abs(
+                        pitchTarget.localPosition.y - CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight) > 0.02f)
+                {
+                    failures.Add(
+                        $"{prefabPath} CameraPitchTarget local Y must apply as "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight:0.00}.");
+                }
+            }
+
+            Transform cameraLookTarget = pitchTarget != null
+                ? pitchTarget.Find(CCS_CharacterControllerConstants.CameraLookTargetObjectName)
+                : null;
             AppendIfMissing(
                 failures,
                 cameraLookTarget != null,
-                $"{prefabPath} must contain CameraLookTarget for camera follow binding.");
+                $"{prefabPath} must contain {CCS_CharacterControllerConstants.CameraLookTargetObjectName} under CameraPitchTarget.");
+
+            if (cameraLookTarget != null
+                && cameraLookTarget.localPosition != CCS_CharacterControllerConstants.CameraLookTargetLocalPosition)
+            {
+                failures.Add($"{prefabPath} CameraLookTarget local position must match the profile-driven chest/head reference.");
+            }
+
+            CCS_CharacterCameraController cameraController = prefab.GetComponent<CCS_CharacterCameraController>();
+            if (cameraController != null && pitchTarget != null && cameraController.CameraPivot != pitchTarget)
+            {
+                failures.Add($"{prefabPath} camera controller tracking pivot must reference CameraPitchTarget.");
+            }
         }
 
 
@@ -1979,35 +2232,86 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            if (Mathf.Abs(profile.OrbitalRadius - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedOrbitalRadius) > 0.01f)
+            ValidateThirdPersonSurvivalCameraProfile(failures, profile);
+            ValidateAimCameraProfile(failures);
+        }
+
+        private static void ValidateThirdPersonSurvivalCameraProfile(List<string> failures, CCS_CharacterCameraProfile profile)
+        {
+            if (profile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum
+                || profile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum)
             {
-                failures.Add("Third-person camera profile orbitalRadius must be 5.75 for full-body framing.");
+                failures.Add("Third-person camera profile distance must be between 2.85 and 3.25.");
             }
 
-            if (Mathf.Abs(profile.FollowTargetHeight - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedFollowTargetHeight) > 0.01f)
+            if (profile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
+                || profile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
             {
-                failures.Add("Third-person camera profile followTargetHeight must be 0.92.");
+                failures.Add("Third-person camera profile tracking target height must be between 1.40 and 1.60.");
             }
 
-            if (Mathf.Abs(profile.CameraHeight - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedCameraShoulderOffsetY) > 0.01f)
+            if (profile.ThirdPersonVerticalArmLength < CCS_CharacterControllerConstants.ThirdPersonVerticalArmLengthMinimum
+                || profile.ThirdPersonVerticalArmLength > CCS_CharacterControllerConstants.ThirdPersonVerticalArmLengthMaximum)
             {
-                failures.Add("Third-person camera profile cameraHeight must be 0.08.");
+                failures.Add("Third-person camera profile vertical arm length must be between 0.35 and 0.55.");
             }
 
-            if (Mathf.Abs(profile.VerticalArmLength - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalArmLength) > 0.01f)
+            if (profile.ThirdPersonShoulderOffset.x < -0.10f || profile.ThirdPersonShoulderOffset.x > 0.35f)
             {
-                failures.Add("Third-person camera profile verticalArmLength must be 0.25.");
+                failures.Add("Third-person camera profile shoulder offset X must be between -0.10 and 0.35.");
+            }
+
+            if (profile.ThirdPersonShoulderOffset.y < 0.10f || profile.ThirdPersonShoulderOffset.y > 0.35f)
+            {
+                failures.Add("Third-person camera profile shoulder offset Y must be between 0.10 and 0.35.");
+            }
+
+            if (profile.ThirdPersonCameraSide < -0.15f || profile.ThirdPersonCameraSide > 0.15f)
+            {
+                failures.Add("Third-person camera profile camera side must be between -0.15 and 0.15.");
+            }
+
+            if (profile.FieldOfView < 58f || profile.FieldOfView > 66f)
+            {
+                failures.Add("Third-person camera profile FOV must be between 58 and 66.");
+            }
+
+            if (!profile.ObstacleAvoidanceEnabled)
+            {
+                failures.Add("Third-person camera profile obstacle avoidance must be enabled.");
+            }
+
+            if (CCS_CharacterCameraLayerUtility.IsEverythingLayerMask(profile.CollisionLayerMask))
+            {
+                failures.Add("Third-person camera profile collision layer mask must not be Everything.");
+            }
+
+            if (CCS_CharacterCameraLayerUtility.LayerMaskIncludesExcludedLayers(profile.CollisionLayerMask))
+            {
+                failures.Add(
+                    "Third-person camera profile collision layer mask must exclude Player, UI, and interaction layers.");
+            }
+
+            if (profile.CollisionIgnoreTag != CCS_CharacterControllerConstants.PlayerTag)
+            {
+                failures.Add("Third-person camera profile collision ignore tag must be Player.");
+            }
+
+            if (!profile.ValidationDisableObstacleAvoidanceForBaselinePass)
+            {
+                failures.Add(
+                    "Third-person camera profile must enable validationDisableObstacleAvoidanceForBaselinePass.");
             }
 
             if (Mathf.Abs(profile.VerticalOrbitDefault - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitDefault) > 0.01f)
             {
-                failures.Add("Third-person camera profile verticalOrbitDefault must be -10 for full-body framing.");
+                failures.Add("Third-person camera profile default pitch must be 0 for neutral spawn framing.");
             }
 
             if (Mathf.Abs(profile.VerticalOrbitMin - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
                 || Mathf.Abs(profile.VerticalOrbitMax - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
             {
-                failures.Add("Third-person camera profile vertical orbit limits must be -30 to 55.");
+                failures.Add("Third-person camera profile pitch limits must be -45 to 70.");
             }
 
             if (Mathf.Abs(profile.MouseSensitivityX - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedMouseSensitivityX) > 0.001f
@@ -2020,6 +2324,102 @@ namespace CCS.Modules.CharacterController.Editor
                 || Mathf.Abs(profile.GamepadSensitivityY - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedGamepadSensitivityY) > 0.01f)
             {
                 failures.Add("Third-person camera profile gamepad look sensitivity must be X=90 and Y=70.");
+            }
+        }
+
+        private static void ValidateAimCameraProfile(List<string> failures)
+        {
+            CCS_CharacterCameraProfile aimProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+                CCS_CharacterControllerMasterTestLayoutConstants.AimCameraProfilePath);
+            AppendIfMissing(
+                failures,
+                aimProfile != null,
+                $"Missing aim camera profile: {CCS_CharacterControllerMasterTestLayoutConstants.AimCameraProfilePath}.");
+
+            if (aimProfile == null)
+            {
+                return;
+            }
+
+            if (aimProfile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.AimCameraDistanceMinimum
+                || aimProfile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.AimCameraDistanceMaximum)
+            {
+                failures.Add("Aim camera profile distance must be between 1.35 and 1.75.");
+            }
+
+            if (aimProfile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
+                || aimProfile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
+            {
+                failures.Add("Aim camera profile tracking target height must be between 1.40 and 1.60.");
+            }
+
+            if (aimProfile.ThirdPersonVerticalArmLength < CCS_CharacterControllerConstants.AimVerticalArmLengthMinimum
+                || aimProfile.ThirdPersonVerticalArmLength > CCS_CharacterControllerConstants.AimVerticalArmLengthMaximum)
+            {
+                failures.Add("Aim camera profile vertical arm length must be between 0.18 and 0.32.");
+            }
+
+            if (aimProfile.ThirdPersonShoulderOffset.x < 0.50f || aimProfile.ThirdPersonShoulderOffset.x > 0.70f)
+            {
+                failures.Add("Aim camera profile shoulder offset X must be between 0.50 and 0.70.");
+            }
+
+            if (aimProfile.ThirdPersonShoulderOffset.y < 0.05f || aimProfile.ThirdPersonShoulderOffset.y > 0.22f)
+            {
+                failures.Add("Aim camera profile shoulder offset Y must be between 0.05 and 0.22.");
+            }
+
+            if (aimProfile.ThirdPersonCameraSide < 0.90f || aimProfile.ThirdPersonCameraSide > 1.00f)
+            {
+                failures.Add("Aim camera profile camera side must be between 0.90 and 1.00.");
+            }
+
+            if (aimProfile.FieldOfView < 48f || aimProfile.FieldOfView > 56f)
+            {
+                failures.Add("Aim camera profile FOV must be between 48 and 56.");
+            }
+
+            if (!aimProfile.ObstacleAvoidanceEnabled)
+            {
+                failures.Add("Aim camera profile obstacle avoidance must be enabled.");
+            }
+
+            if (CCS_CharacterCameraLayerUtility.IsEverythingLayerMask(aimProfile.CollisionLayerMask))
+            {
+                failures.Add("Aim camera profile collision layer mask must not be Everything.");
+            }
+
+            if (CCS_CharacterCameraLayerUtility.LayerMaskIncludesExcludedLayers(aimProfile.CollisionLayerMask))
+            {
+                failures.Add(
+                    "Aim camera profile collision layer mask must exclude Player, UI, and interaction layers.");
+            }
+
+            if (aimProfile.CollisionIgnoreTag != CCS_CharacterControllerConstants.PlayerTag)
+            {
+                failures.Add("Aim camera profile collision ignore tag must be Player.");
+            }
+
+            if (!aimProfile.ValidationDisableObstacleAvoidanceForBaselinePass)
+            {
+                failures.Add(
+                    "Aim camera profile must enable validationDisableObstacleAvoidanceForBaselinePass.");
+            }
+
+            if (aimProfile.AimBlendDurationSeconds > CCS_CharacterControllerMasterTestLayoutConstants.ExpectedAimBlendDurationMaxSeconds)
+            {
+                failures.Add("Aim camera profile aimBlendDurationSeconds must be <= 0.5 for responsive aim transitions.");
+            }
+
+            if (Mathf.Abs(aimProfile.VerticalOrbitDefault - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitDefault) > 0.01f)
+            {
+                failures.Add("Aim camera profile default pitch must be 0 for neutral spawn framing.");
+            }
+
+            if (Mathf.Abs(aimProfile.VerticalOrbitMin - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
+                || Mathf.Abs(aimProfile.VerticalOrbitMax - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
+            {
+                failures.Add("Aim camera profile pitch limits must be -45 to 70.");
             }
         }
 
@@ -2435,6 +2835,39 @@ namespace CCS.Modules.CharacterController.Editor
                 tpCamera != null,
                 "Camera rig is missing a third-person Cinemachine camera.");
 
+            Transform aimCamera = FindChildByName(
+                cameraRig,
+                CCS_CharacterControllerConstants.AimCinemachineCameraName);
+            AppendIfMissing(
+                failures,
+                aimCamera != null,
+                "Camera rig is missing CinemachineCamera_Aim.");
+
+            Camera[] sceneCameras = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
+            int mainCameraCount = 0;
+            for (int i = 0; i < sceneCameras.Length; i++)
+            {
+                Camera sceneCamera = sceneCameras[i];
+                if (sceneCamera != null
+                    && sceneCamera.CompareTag("MainCamera")
+                    && sceneCamera.gameObject.scene == cameraRig.gameObject.scene)
+                {
+                    mainCameraCount++;
+                }
+            }
+
+            AppendIfMissing(
+                failures,
+                mainCameraCount == 1,
+                "Master test scene must contain exactly one Main Camera.");
+
+            CCS_CharacterCameraProfileSet profileSet = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfileSet>(
+                CCS_CharacterControllerConstants.DefaultCameraProfileSetPath);
+            AppendIfMissing(
+                failures,
+                profileSet != null && profileSet.AimOverShoulderProfile != null,
+                "Default camera profile set must assign an aim-over-shoulder profile.");
+
             CCS_CharacterCameraController sceneCameraController =
                 cameraRig.GetComponent<CCS_CharacterCameraController>();
             if (sceneCameraController != null)
@@ -2445,39 +2878,142 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     cinemachineProperty != null && cinemachineProperty.objectReferenceValue != null,
                     "Scene camera rig controller must reference CinemachineCamera_TP.");
+
+                SerializedProperty aimCinemachineProperty = serializedCamera.FindProperty("aimCinemachineCamera");
+                AppendIfMissing(
+                    failures,
+                    aimCinemachineProperty != null && aimCinemachineProperty.objectReferenceValue != null,
+                    "Scene camera rig controller must reference CinemachineCamera_Aim.");
             }
 
-            CinemachineOrbitalFollow orbitalFollow = tpCamera != null
-                ? tpCamera.GetComponent<CinemachineOrbitalFollow>()
+            CinemachineThirdPersonFollow thirdPersonFollow = tpCamera != null
+                ? tpCamera.GetComponent<CinemachineThirdPersonFollow>()
                 : null;
-            if (orbitalFollow != null)
+            if (thirdPersonFollow != null)
             {
-                if (Mathf.Abs(orbitalFollow.Radius - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedOrbitalRadius) > 0.15f)
+                ValidateTunedCameraFloat(
+                    failures,
+                    "CinemachineCamera_TP",
+                    thirdPersonFollow.CameraDistance,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceTuned,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum);
+
+#if CINEMACHINE_PHYSICS
+                ValidateCinemachineCollisionFilter(failures, thirdPersonFollow, "CinemachineCamera_TP");
+                if (!thirdPersonFollow.AvoidObstacles.Enabled)
                 {
-                    failures.Add("Camera rig orbital radius must be about 5.75 for full-body framing.");
+                    failures.Add("Third-person camera collision avoidance must be enabled.");
+                }
+#endif
+            }
+
+            ValidateCinemachineLookInput(failures, tpCamera, requireObstacleAvoidanceEnabled: true);
+            if (aimCamera != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    aimCamera.GetComponent<CinemachineThirdPersonFollow>() != null,
+                    "CinemachineCamera_Aim must use Third Person Follow.");
+
+                AppendIfMissing(
+                    failures,
+                    aimCamera.GetComponent<CinemachineThirdPersonAim>() != null,
+                    "CinemachineCamera_Aim must use Third Person Aim extension.");
+
+                ValidateCinemachineRotationControl(failures, aimCamera, "CinemachineCamera_Aim");
+
+                AppendIfMissing(
+                    failures,
+                    tpCamera.GetComponent<CinemachineThirdPersonAim>() == null,
+                    "CinemachineCamera_TP must not use Third Person Aim.");
+
+                CinemachineThirdPersonFollow aimThirdPersonFollow =
+                    aimCamera.GetComponent<CinemachineThirdPersonFollow>();
+                if (aimThirdPersonFollow != null)
+                {
+                    ValidateTunedCameraFloat(
+                        failures,
+                        "CinemachineCamera_Aim",
+                        aimThirdPersonFollow.CameraDistance,
+                        CCS_CharacterControllerConstants.AimCameraDistanceTuned,
+                        CCS_CharacterControllerConstants.AimCameraDistanceMinimum,
+                        CCS_CharacterControllerConstants.AimCameraDistanceMaximum);
+
+                    if (aimThirdPersonFollow.ShoulderOffset.x < 0.50f || aimThirdPersonFollow.ShoulderOffset.x > 0.70f)
+                    {
+                        failures.Add("Aim camera shoulder offset X must be between 0.50 and 0.70 for right-shoulder framing.");
+                    }
+
+#if CINEMACHINE_PHYSICS
+                    ValidateCinemachineCollisionFilter(failures, aimThirdPersonFollow, "CinemachineCamera_Aim");
+                    if (!aimThirdPersonFollow.AvoidObstacles.Enabled)
+                    {
+                        failures.Add("Aim camera collision avoidance must be enabled.");
+                    }
+#endif
                 }
 
-                if (Mathf.Abs(orbitalFollow.TargetOffset.y - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedCameraShoulderOffsetY) > 0.05f)
+                Transform mainCameraTransform = cameraRig.Find("Main Camera");
+                if (mainCameraTransform != null)
                 {
-                    failures.Add("Camera rig orbital target offset Y must be about 0.08.");
+                    CinemachineBrain brain = mainCameraTransform.GetComponent<CinemachineBrain>();
+                    if (brain != null
+                        && brain.DefaultBlend.Time > CCS_CharacterControllerMasterTestLayoutConstants.ExpectedAimBlendDurationMaxSeconds)
+                    {
+                        failures.Add("Cinemachine Brain default blend must be <= 0.5 seconds for aim transitions.");
+                    }
                 }
             }
 
-            CinemachineRotationComposer rotationComposer = tpCamera != null
-                ? tpCamera.GetComponent<CinemachineRotationComposer>()
-                : null;
-            AppendIfMissing(
-                failures,
-                rotationComposer != null && rotationComposer.enabled,
-                "CinemachineCamera_TP must use Rotation Composer for LookAt framing.");
-
-            ValidateCinemachineLookInput(failures, tpCamera);
-            ValidateCameraRigPrefabAsset(failures);
+            ValidateCameraRigPrefabAsset(failures, baselinePass: false);
         }
 
 
 
-        private static void ValidateCameraRigPrefabAsset(List<string> failures)
+        private static void ValidateSceneCameraRigBaseline(List<string> failures)
+        {
+            Transform cameraRig = GameObject.Find(CCS_CharacterControllerMasterTestLayoutConstants.CameraRigInstanceName)?.transform;
+            if (cameraRig == null)
+            {
+                return;
+            }
+
+            Transform tpCamera = FindChildByName(cameraRig, "CinemachineCamera_TP");
+            Transform aimCamera = FindChildByName(
+                cameraRig,
+                CCS_CharacterControllerConstants.AimCinemachineCameraName);
+
+            ValidateCinemachineLookInput(failures, tpCamera, requireObstacleAvoidanceEnabled: false);
+            if (aimCamera != null)
+            {
+                ValidateCinemachineRotationControl(failures, aimCamera, "CinemachineCamera_Aim");
+            }
+
+            CinemachineThirdPersonFollow thirdPersonFollow = tpCamera != null
+                ? tpCamera.GetComponent<CinemachineThirdPersonFollow>()
+                : null;
+            CinemachineThirdPersonFollow aimThirdPersonFollow = aimCamera != null
+                ? aimCamera.GetComponent<CinemachineThirdPersonFollow>()
+                : null;
+
+#if CINEMACHINE_PHYSICS
+            if (thirdPersonFollow != null && thirdPersonFollow.AvoidObstacles.Enabled)
+            {
+                failures.Add(
+                    "Baseline camera validation requires third-person obstacle avoidance to be disabled.");
+            }
+
+            if (aimThirdPersonFollow != null && aimThirdPersonFollow.AvoidObstacles.Enabled)
+            {
+                failures.Add("Baseline camera validation requires aim obstacle avoidance to be disabled.");
+            }
+#endif
+        }
+
+
+
+        private static void ValidateCameraRigPrefabAsset(List<string> failures, bool baselinePass)
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_CharacterControllerMasterTestLayoutConstants.CameraRigPrefabPath);
@@ -2492,12 +3028,238 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             Transform tpCamera = prefab.transform.Find("CinemachineCamera_TP");
-            ValidateCinemachineLookInput(failures, tpCamera);
+            ValidateCinemachineLookInput(
+                failures,
+                tpCamera,
+                requireObstacleAvoidanceEnabled: !baselinePass);
+
+            Transform aimCamera = prefab.transform.Find(CCS_CharacterControllerConstants.AimCinemachineCameraName);
+            AppendIfMissing(
+                failures,
+                aimCamera != null,
+                "Camera rig prefab must contain CinemachineCamera_Aim.");
+
+            if (aimCamera != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    aimCamera.GetComponent<CinemachineThirdPersonFollow>() != null,
+                    "Camera rig prefab aim camera must use Third Person Follow.");
+
+                AppendIfMissing(
+                    failures,
+                    aimCamera.GetComponent<CinemachineThirdPersonAim>() != null,
+                    "Camera rig prefab aim camera must use Third Person Aim.");
+
+                ValidateCinemachineRotationControl(failures, aimCamera, "CinemachineCamera_Aim");
+
+                CinemachineThirdPersonFollow aimThirdPersonFollow =
+                    aimCamera.GetComponent<CinemachineThirdPersonFollow>();
+                if (aimThirdPersonFollow != null)
+                {
+                    ValidateTunedCameraFloat(
+                        failures,
+                        "CinemachineCamera_Aim",
+                        aimThirdPersonFollow.CameraDistance,
+                        CCS_CharacterControllerConstants.AimCameraDistanceTuned,
+                        CCS_CharacterControllerConstants.AimCameraDistanceMinimum,
+                        CCS_CharacterControllerConstants.AimCameraDistanceMaximum);
+
+#if CINEMACHINE_PHYSICS
+                    if (baselinePass)
+                    {
+                        if (aimThirdPersonFollow.AvoidObstacles.Enabled)
+                        {
+                            failures.Add(
+                                "Baseline validation requires aim camera obstacle avoidance to be disabled.");
+                        }
+                    }
+                    else
+                    {
+                        ValidateCinemachineCollisionFilter(failures, aimThirdPersonFollow, "CinemachineCamera_Aim");
+                        if (!aimThirdPersonFollow.AvoidObstacles.Enabled)
+                        {
+                            failures.Add("Aim camera collision avoidance must be enabled.");
+                        }
+                    }
+#endif
+                }
+            }
         }
 
 
 
-        private static void ValidateCinemachineLookInput(List<string> failures, Transform tpCamera)
+        private static void ValidateCinemachineRotationControl(
+            List<string> failures,
+            Transform cameraTransform,
+            string cameraName)
+        {
+            if (cameraTransform == null)
+            {
+                return;
+            }
+
+            CinemachineRotateWithFollowTarget rotateWithFollowTarget =
+                cameraTransform.GetComponent<CinemachineRotateWithFollowTarget>();
+            AppendIfMissing(
+                failures,
+                rotateWithFollowTarget != null && rotateWithFollowTarget.enabled,
+                $"{cameraName} must use Rotate With Follow Target rotation control.");
+
+            AppendIfMissing(
+                failures,
+                cameraTransform.GetComponent<CinemachineRotationComposer>() == null,
+                $"{cameraName} must not use Rotation Composer.");
+
+            CinemachineCamera cinemachineCamera = cameraTransform.GetComponent<CinemachineCamera>();
+            if (cinemachineCamera != null)
+            {
+                CameraTarget target = cinemachineCamera.Target;
+                if (target.CustomLookAtTarget || target.LookAtTarget != null)
+                {
+                    failures.Add($"{cameraName} Look At target must remain unset for survival/aim cameras.");
+                }
+            }
+        }
+
+
+
+#if CINEMACHINE_PHYSICS
+        private static void ValidateCinemachineCollisionFilter(
+            List<string> failures,
+            CinemachineThirdPersonFollow thirdPersonFollow,
+            string cameraName)
+        {
+            if (thirdPersonFollow == null)
+            {
+                return;
+            }
+
+            LayerMask collisionFilter = thirdPersonFollow.AvoidObstacles.CollisionFilter;
+            if (CCS_CharacterCameraLayerUtility.IsEverythingLayerMask(collisionFilter))
+            {
+                failures.Add($"{cameraName} collision filter must not be Everything.");
+            }
+
+            if (CCS_CharacterCameraLayerUtility.LayerMaskIncludesExcludedLayers(collisionFilter))
+            {
+                failures.Add(
+                    $"{cameraName} collision filter must exclude Player, UI, and interaction layers.");
+            }
+        }
+#else
+        private static void ValidateCinemachineCollisionFilter(
+            List<string> failures,
+            CinemachineThirdPersonFollow thirdPersonFollow,
+            string cameraName)
+        {
+        }
+#endif
+
+
+
+        private static void ValidatePlayerCameraCollisionExclusion(List<string> failures, string prefabPath)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null)
+            {
+                return;
+            }
+
+            if (!prefab.CompareTag(CCS_CharacterControllerConstants.PlayerTag))
+            {
+                failures.Add($"{prefabPath} player root must use the Player tag for camera collision exclusion.");
+            }
+
+            int playerLayer = LayerMask.NameToLayer(CCS_CharacterControllerConstants.PlayerLayerName);
+            if (playerLayer < 0)
+            {
+                failures.Add("Project must define a Player layer for camera collision exclusion.");
+                return;
+            }
+
+            if (prefab.layer != playerLayer)
+            {
+                failures.Add($"{prefabPath} player root must be on the Player layer.");
+            }
+
+            Collider[] colliders = prefab.GetComponentsInChildren<Collider>(true);
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider collider = colliders[i];
+                if (collider == null)
+                {
+                    continue;
+                }
+
+                if (collider.gameObject.layer != playerLayer)
+                {
+                    failures.Add(
+                        $"{prefabPath} collider '{collider.name}' must be on the Player layer for camera collision exclusion.");
+                }
+            }
+        }
+
+
+
+        private static void ValidateCameraFollowAnchorRotationChain(List<string> failures, string prefabPath)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null)
+            {
+                return;
+            }
+
+            Transform followAnchor = FindChildByName(
+                prefab.transform,
+                CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
+            AppendIfMissing(
+                failures,
+                followAnchor != null && followAnchor.GetComponent<CCS_CharacterCameraFollowAnchor>() != null,
+                $"{prefabPath} must contain CameraFollowAnchor with CCS_CharacterCameraFollowAnchor for yaw control.");
+
+            Transform pitchTarget = followAnchor != null
+                ? followAnchor.Find(CCS_CharacterControllerConstants.CameraPitchTargetObjectName)
+                : null;
+            AppendIfMissing(
+                failures,
+                pitchTarget != null,
+                $"{prefabPath} CameraPitchTarget must exist under CameraFollowAnchor for pitch and Cinemachine tracking.");
+
+            if (pitchTarget != null)
+            {
+                if (pitchTarget.localPosition.y < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
+                    || pitchTarget.localPosition.y > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
+                {
+                    failures.Add(
+                        $"{prefabPath} CameraPitchTarget local Y must be between "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight} and "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight} for third-person framing.");
+                }
+
+                if (Mathf.Abs(
+                        pitchTarget.localPosition.y - CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight) > 0.02f)
+                {
+                    failures.Add(
+                        $"{prefabPath} CameraPitchTarget local Y must apply as "
+                        + $"{CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight:0.00}.");
+                }
+            }
+
+            CCS_CharacterCameraController cameraController = prefab.GetComponent<CCS_CharacterCameraController>();
+            if (cameraController != null && pitchTarget != null && cameraController.CameraPivot != pitchTarget)
+            {
+                failures.Add(
+                    $"{prefabPath} camera controller tracking pivot must reference CameraPitchTarget.");
+            }
+        }
+
+
+
+        private static void ValidateCinemachineLookInput(
+            List<string> failures,
+            Transform tpCamera,
+            bool requireObstacleAvoidanceEnabled)
         {
             AppendIfMissing(
                 failures,
@@ -2511,151 +3273,73 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                tpCamera.GetComponent<CinemachineOrbitalFollow>() != null,
-                "CinemachineCamera_TP must use Orbital Follow for position control.");
+                tpCamera.GetComponent<CinemachineThirdPersonFollow>() != null,
+                "CinemachineCamera_TP must use Third Person Follow for position control.");
 
             AppendIfMissing(
                 failures,
-                tpCamera.GetComponent<CinemachineRotationComposer>() != null,
-                "CinemachineCamera_TP must use Rotation Composer for LookAt framing.");
+                tpCamera.GetComponent<CinemachineOrbitalFollow>() == null,
+                "CinemachineCamera_TP must not use Orbital Follow with Third Person Follow architecture.");
 
             AppendIfMissing(
                 failures,
-                tpCamera.GetComponent<CinemachineThirdPersonFollow>() == null,
-                "CinemachineCamera_TP must not use Third Person Follow with Orbital Follow architecture.");
+                tpCamera.GetComponent<CinemachineRotationComposer>() == null,
+                "CinemachineCamera_TP must not use Rotation Composer with Third Person Follow architecture.");
 
             AppendIfMissing(
                 failures,
-                tpCamera.GetComponent<CinemachinePanTilt>() == null,
-                "CinemachineCamera_TP must not use Pan Tilt with Orbital Follow architecture.");
+                tpCamera.GetComponent<CinemachineInputAxisController>() == null,
+                "CinemachineCamera_TP must not use Input Axis Controller; shared rig target owns look.");
 
             AppendIfMissing(
                 failures,
                 !HasLegacyBoundPivotComponent(tpCamera),
                 "CinemachineCamera_TP must not contain CCS_CinemachineBoundPivot.");
 
-            CinemachineOrbitalFollow orbitalFollow = tpCamera.GetComponent<CinemachineOrbitalFollow>();
+            ValidateCinemachineRotationControl(failures, tpCamera, "CinemachineCamera_TP");
+
+            CinemachineThirdPersonFollow thirdPersonFollow = tpCamera.GetComponent<CinemachineThirdPersonFollow>();
             AppendIfMissing(
                 failures,
-                orbitalFollow != null && orbitalFollow.enabled,
-                "CinemachineCamera_TP must use an enabled Cinemachine Orbital Follow component.");
+                thirdPersonFollow != null && thirdPersonFollow.enabled,
+                "CinemachineCamera_TP must use an enabled Third Person Follow component.");
 
-            CinemachineInputAxisController axisController = tpCamera.GetComponent<CinemachineInputAxisController>();
-            AppendIfMissing(
-                failures,
-                axisController != null && axisController.enabled,
-                "CinemachineCamera_TP must contain an enabled Cinemachine Input Axis Controller.");
-
-            if (orbitalFollow != null)
+            if (thirdPersonFollow != null)
             {
-                if (Mathf.Abs(orbitalFollow.VerticalAxis.Range.x - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
-                    || Mathf.Abs(orbitalFollow.VerticalAxis.Range.y - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
-                {
-                    failures.Add("Cinemachine Orbital Follow vertical orbit clamp must be -30 to 55.");
-                }
-
-                if (Mathf.Abs(orbitalFollow.VerticalAxis.Value - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitDefault) > 0.01f)
-                {
-                    failures.Add("Cinemachine Orbital Follow default vertical orbit must start near -10.");
-                }
-            }
-
-            if (axisController == null)
-            {
-                return;
-            }
-
-            SerializedObject serializedAxisController = new SerializedObject(axisController);
-            SerializedProperty controllers = GetAxisControllersProperty(serializedAxisController);
-            AppendIfMissing(
-                failures,
-                controllers != null && controllers.arraySize >= 2,
-                "Cinemachine Input Axis Controller must expose look orbit X/Y driven axes.");
-
-            if (controllers == null)
-            {
-                return;
-            }
-
-            bool foundHorizontalOrbit = false;
-            bool foundVerticalOrbit = false;
-            for (int i = 0; i < controllers.arraySize; i++)
-            {
-                SerializedProperty controller = controllers.GetArrayElementAtIndex(i);
-                SerializedProperty nameProperty = controller.FindPropertyRelative("Name");
-                if (nameProperty == null)
-                {
-                    continue;
-                }
-
-                string axisName = nameProperty.stringValue;
-                bool isHorizontalOrbit = axisName == CCS_CharacterControllerConstants.LookOrbitHorizontalAxisName;
-                bool isVerticalOrbit = axisName == CCS_CharacterControllerConstants.LookOrbitVerticalAxisName;
-                if (!isHorizontalOrbit && !isVerticalOrbit)
-                {
-                    continue;
-                }
-
-                SerializedProperty enabledProperty = controller.FindPropertyRelative("Enabled");
-                AppendIfMissing(
+                ValidateTunedCameraFloat(
                     failures,
-                    enabledProperty == null || enabledProperty.boolValue,
-                    $"Cinemachine look axis {axisName} must be enabled.");
+                    "CinemachineCamera_TP",
+                    thirdPersonFollow.CameraDistance,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceTuned,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum,
+                    CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum);
 
-                SerializedProperty ownerProperty = controller.FindPropertyRelative("Owner");
-                if (orbitalFollow != null
-                    && ownerProperty != null
-                    && ownerProperty.objectReferenceValue != orbitalFollow)
+                if (tpCamera.GetComponent<CinemachineThirdPersonAim>() != null)
                 {
-                    failures.Add($"Cinemachine look axis {axisName} must target Cinemachine Orbital Follow.");
+                    failures.Add("CinemachineCamera_TP must not use Third Person Aim.");
                 }
 
-                SerializedProperty inputProperty = controller.FindPropertyRelative("Input");
-                SerializedProperty inputActionProperty = inputProperty != null
-                    ? inputProperty.FindPropertyRelative("InputAction")
-                    : null;
-                AppendIfMissing(
-                    failures,
-                    inputActionProperty != null && inputActionProperty.objectReferenceValue != null,
-                    $"Cinemachine look axis {axisName} must reference the Gameplay/Look input action.");
-
-                if (isHorizontalOrbit)
+#if CINEMACHINE_PHYSICS
+                if (requireObstacleAvoidanceEnabled)
                 {
-                    foundHorizontalOrbit = true;
-                    SerializedProperty gainProperty = inputProperty?.FindPropertyRelative("Gain");
-                    if (gainProperty != null
-                        && Mathf.Abs(gainProperty.floatValue - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedMouseSensitivityX) > 0.001f)
+                    ValidateCinemachineCollisionFilter(failures, thirdPersonFollow, "CinemachineCamera_TP");
+                    if (!thirdPersonFollow.AvoidObstacles.Enabled)
                     {
-                        failures.Add("Cinemachine look orbit X gain must be 0.12 for mouse X sensitivity.");
+                        failures.Add("Third-person camera collision avoidance must be enabled.");
                     }
                 }
-
-                if (isVerticalOrbit)
+                else if (thirdPersonFollow.AvoidObstacles.Enabled)
                 {
-                    foundVerticalOrbit = true;
-                    SerializedProperty gainProperty = inputProperty?.FindPropertyRelative("Gain");
-                    if (gainProperty != null
-                        && Mathf.Abs(gainProperty.floatValue + CCS_CharacterControllerMasterTestLayoutConstants.ExpectedMouseSensitivityY) > 0.001f)
-                    {
-                        failures.Add("Cinemachine look orbit Y gain must be -0.10 for mouse Y sensitivity.");
-                    }
-
-                    SerializedProperty cancelDeltaTimeProperty = inputProperty?.FindPropertyRelative("CancelDeltaTime");
-                    AppendIfMissing(
-                        failures,
-                        cancelDeltaTimeProperty != null && cancelDeltaTimeProperty.boolValue,
-                        $"Cinemachine look axis {axisName} must enable Cancel Delta Time for mouse look.");
+                    failures.Add(
+                        "Baseline camera validation requires third-person obstacle avoidance to be disabled.");
                 }
-            }
 
-            AppendIfMissing(
-                failures,
-                foundHorizontalOrbit,
-                "Cinemachine Input Axis Controller must include Look Orbit X.");
-            AppendIfMissing(
-                failures,
-                foundVerticalOrbit,
-                "Cinemachine Input Axis Controller must include Look Orbit Y.");
+                if (thirdPersonFollow.AvoidObstacles.CameraRadius <= 0.01f)
+                {
+                    failures.Add("Third-person camera collision radius must be greater than zero.");
+                }
+#endif
+            }
         }
 
 
@@ -3113,6 +3797,29 @@ namespace CCS.Modules.CharacterController.Editor
             {
                 failures.Add(
                     $"{objectName} position is {FormatVector(actualPosition)} but expected {FormatVector(expectedPosition)}.");
+            }
+        }
+
+
+
+        private static void ValidateTunedCameraFloat(
+            List<string> failures,
+            string label,
+            float actualValue,
+            float expectedValue,
+            float minimumValue,
+            float maximumValue,
+            float tolerance = 0.02f)
+        {
+            if (actualValue < minimumValue || actualValue > maximumValue)
+            {
+                failures.Add($"{label} distance must be between {minimumValue:0.00} and {maximumValue:0.00}.");
+                return;
+            }
+
+            if (Mathf.Abs(actualValue - expectedValue) > tolerance)
+            {
+                failures.Add($"{label} distance must apply as {expectedValue:0.00} but was {actualValue:0.00}.");
             }
         }
 

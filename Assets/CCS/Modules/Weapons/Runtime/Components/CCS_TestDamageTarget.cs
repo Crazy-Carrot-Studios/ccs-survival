@@ -20,8 +20,8 @@ namespace CCS.Modules.Weapons
         [SerializeField] private bool resetOnPlay = true;
         [SerializeField] private bool enableWeaponDebugLogs;
         [SerializeField] private Renderer targetRenderer;
-        [SerializeField] private Color healthyColor = new Color(0.35f, 0.75f, 0.35f, 1f);
-        [SerializeField] private Color damagedColor = new Color(0.85f, 0.65f, 0.2f, 1f);
+        [SerializeField] private Color healthyColor = new Color(0.85f, 0.2f, 0.2f, 1f);
+        [SerializeField] private Color damagedColor = new Color(0.85f, 0.55f, 0.15f, 1f);
         [SerializeField] private Color deadColor = new Color(0.35f, 0.35f, 0.35f, 1f);
         [SerializeField] private float deadScaleMultiplier = 0.85f;
 

@@ -53,10 +53,24 @@ namespace CCS.Modules.Weapons.Editor
 
         private static bool EnsureDamageTargetInScene()
         {
+            Transform spawnOrigin = FindSpawnOriginInScene();
+            if (spawnOrigin == null)
+            {
+                Debug.LogError(
+                    "[Weapons Builder] Missing spawn origin: "
+                    + CCS_WeaponsConstants.MasterTestSpawnOriginObjectPath);
+                return false;
+            }
+
+            if (!TryGetDamageTargetWorldPose(spawnOrigin, out Vector3 position, out Quaternion rotation))
+            {
+                return false;
+            }
+
             GameObject existingTarget = FindDamageTargetInScene();
             if (existingTarget != null)
             {
-                return false;
+                return ApplyDamageTargetWorldPose(existingTarget, position, rotation);
             }
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -69,22 +83,6 @@ namespace CCS.Modules.Weapons.Editor
                 return false;
             }
 
-            Transform spawnOrigin = FindSpawnOriginInScene();
-            if (spawnOrigin == null)
-            {
-                Debug.LogError(
-                    "[Weapons Builder] Missing spawn origin: "
-                    + CCS_WeaponsConstants.MasterTestSpawnOriginObjectPath);
-                return false;
-            }
-
-            Vector3 forward = spawnOrigin.forward;
-            Vector3 right = spawnOrigin.right;
-            Vector3 position = spawnOrigin.position
-                + (forward * CCS_WeaponsConstants.TestDamageTargetForwardDistance)
-                + (right * CCS_WeaponsConstants.TestDamageTargetLateralOffset)
-                + (Vector3.up * CCS_WeaponsConstants.TestDamageTargetHeightOffset);
-
             GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
             if (instance == null)
             {
@@ -92,13 +90,71 @@ namespace CCS.Modules.Weapons.Editor
             }
 
             instance.name = CCS_WeaponsConstants.TestDamageTargetObjectName;
-            instance.transform.SetPositionAndRotation(position, Quaternion.LookRotation(-forward, Vector3.up));
+            ApplyDamageTargetWorldPose(instance, position, rotation);
             return true;
+        }
+
+        private static bool TryGetDamageTargetWorldPose(
+            Transform spawnOrigin,
+            out Vector3 position,
+            out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            if (spawnOrigin == null)
+            {
+                return false;
+            }
+
+            Vector3 forward = spawnOrigin.forward;
+            Vector3 right = spawnOrigin.right;
+            position = spawnOrigin.position
+                + (forward * CCS_WeaponsConstants.TestDamageTargetForwardDistance)
+                + (right * CCS_WeaponsConstants.TestDamageTargetLateralOffset)
+                + (Vector3.up * CCS_WeaponsConstants.TestDamageTargetHeightOffset);
+            rotation = Quaternion.LookRotation(-forward, Vector3.up);
+            return true;
+        }
+
+        private static bool ApplyDamageTargetWorldPose(
+            GameObject targetObject,
+            Vector3 position,
+            Quaternion rotation)
+        {
+            if (targetObject == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            Transform targetTransform = targetObject.transform;
+            if (targetTransform.position != position)
+            {
+                targetTransform.position = position;
+                changed = true;
+            }
+
+            if (targetTransform.rotation != rotation)
+            {
+                targetTransform.rotation = rotation;
+                changed = true;
+            }
+
+            if (targetObject.name != CCS_WeaponsConstants.TestDamageTargetObjectName)
+            {
+                targetObject.name = CCS_WeaponsConstants.TestDamageTargetObjectName;
+                changed = true;
+            }
+
+            return changed;
         }
 
         private static GameObject FindDamageTargetInScene()
         {
-            CCS_TestDamageTarget[] targets = Object.FindObjectsByType<CCS_TestDamageTarget>(FindObjectsSortMode.None);
+            CCS_TestDamageTarget[] targets = Object.FindObjectsByType<CCS_TestDamageTarget>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
             for (int i = 0; i < targets.Length; i++)
             {
                 CCS_TestDamageTarget target = targets[i];

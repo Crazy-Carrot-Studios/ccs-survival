@@ -66,9 +66,9 @@ namespace CCS.Modules.CharacterController.Tests
 
         public CCS_CharacterCameraProfile CameraProfile => cameraProfile;
 
-        public float CameraFollowHeight => cameraProfile != null
-            ? cameraProfile.FollowTargetHeight
-            : 0.92f;
+        public float TrackingTargetLocalHeight => cameraProfile != null
+            ? cameraProfile.TrackingTargetLocalHeight
+            : CCS_CharacterControllerConstants.CameraPitchTargetLocalHeight;
 
         public Vector3 CapsuleVisualLocalPosition => capsuleVisualLocalPosition;
 

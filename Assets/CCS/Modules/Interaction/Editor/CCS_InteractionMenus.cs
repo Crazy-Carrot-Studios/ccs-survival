@@ -35,7 +35,7 @@ namespace CCS.Modules.Interaction.Editor
         {
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();
             CCS_InteractionTestPlayerPrefabBuilder.EnsureTestPlayerInteractionWiring();
-            CCS_InteractionMasterTestBuilder.EnsureMasterTestPickupInteraction();
+            CCS_InteractionDetectionTestBuilder.BuildMasterTestInteractions();
             LogResult(CCS_InteractionModuleValidator.ValidateInteractionModule());
         }
 

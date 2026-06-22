@@ -60,7 +60,7 @@ namespace CCS.Modules.Weapons.Editor
             changed |= SetString(
                 serializedDefinition,
                 "profileDescription",
-                "Test revolver definition for v0.6.0 hitscan weapon foundation.");
+                "Test revolver definition for v0.6.1 hitscan weapon manual playtest.");
             changed |= SetString(serializedDefinition, "profileVersion", CCS_WeaponsConstants.ModuleVersion);
             changed |= SetString(serializedDefinition, "displayName", CCS_WeaponsConstants.DefaultRevolverDisplayName);
             changed |= SetInt(serializedDefinition, "cylinderCapacity", 6);
@@ -90,34 +90,7 @@ namespace CCS.Modules.Weapons.Editor
 
         public static bool EnsureTestDamageTargetPrefab()
         {
-            GameObject existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_WeaponsConstants.TestDamageTargetPrefabPath);
-            if (existingPrefab != null)
-            {
-                return false;
-            }
-
-            string directory = Path.GetDirectoryName(CCS_WeaponsConstants.TestDamageTargetPrefabPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            GameObject root = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            root.name = "PF_CCS_TestWeaponDamageTarget";
-            Object.DestroyImmediate(root.GetComponent<Collider>());
-            BoxCollider boxCollider = root.AddComponent<BoxCollider>();
-            boxCollider.size = Vector3.one;
-
-            CCS_TestDamageTarget damageTarget = root.AddComponent<CCS_TestDamageTarget>();
-            SerializedObject serializedTarget = new SerializedObject(damageTarget);
-            SetFloat(serializedTarget, "maxHealth", 100f);
-            SetBool(serializedTarget, "resetOnPlay", true);
-            serializedTarget.ApplyModifiedPropertiesWithoutUndo();
-
-            PrefabUtility.SaveAsPrefabAsset(root, CCS_WeaponsConstants.TestDamageTargetPrefabPath);
-            Object.DestroyImmediate(root);
-            return true;
+            return CCS_WeaponsTestDamageTargetPrefabBuilder.EnsureTestDamageTargetPrefab();
         }
 
         #endregion

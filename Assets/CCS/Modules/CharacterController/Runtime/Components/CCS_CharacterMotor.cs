@@ -29,6 +29,8 @@ namespace CCS.Modules.CharacterController
 
         [Header("References")]
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
+        [SerializeField] private CCS_CharacterAimLocomotionController aimLocomotionController;
+        [SerializeField] private CCS_CharacterCameraFollowAnchor cameraFollowAnchor;
         [SerializeField] private CCS_StaminaController staminaController;
         [SerializeField] private Component interactionLockSourceComponent;
         [SerializeField] private bool enableMovementDebugLogs;
@@ -42,12 +44,19 @@ namespace CCS.Modules.CharacterController
         private float coyoteTimeRemaining;
         private float jumpBufferTimeRemaining;
         private bool loggedControlLockActive;
+        private bool loggedSprintBlockedWhileAiming;
 
         #endregion
 
         #region Properties
 
         public CCS_CharacterMovementProfile MovementProfile => movementProfile;
+
+        public bool IsAimMovementActive =>
+            aimLocomotionController != null && aimLocomotionController.IsAimMovementActive;
+
+        public Vector2 AimMoveInput =>
+            aimLocomotionController != null ? aimLocomotionController.AimMoveInput : Vector2.zero;
 
         public bool IsGrounded => characterController != null && characterController.isGrounded;
 
@@ -59,7 +68,10 @@ namespace CCS.Modules.CharacterController
 
         public bool IsSprinting => isSprinting;
 
-        public CCS_CharacterMovementMode MovementMode => CCS_CharacterMovementMode.GroundedThirdPerson;
+        public CCS_CharacterMovementMode MovementMode =>
+            IsAimMovementActive
+                ? CCS_CharacterMovementMode.AimStrafeLocomotion
+                : CCS_CharacterMovementMode.GroundedThirdPerson;
 
         #endregion
 
@@ -74,6 +86,7 @@ namespace CCS.Modules.CharacterController
             }
 
             ResolveControlLockSource();
+            ResolveAimLocomotionReferences();
         }
 
         private void Update()
@@ -108,9 +121,32 @@ namespace CCS.Modules.CharacterController
             isSprinting = false;
         }
 
+        public void SetAimLocomotionController(CCS_CharacterAimLocomotionController controller)
+        {
+            aimLocomotionController = controller;
+        }
+
+        public void SetCameraFollowAnchor(CCS_CharacterCameraFollowAnchor followAnchor)
+        {
+            cameraFollowAnchor = followAnchor;
+        }
+
         #endregion
 
         #region Private Methods
+
+        private void ResolveAimLocomotionReferences()
+        {
+            if (aimLocomotionController == null)
+            {
+                aimLocomotionController = GetComponent<CCS_CharacterAimLocomotionController>();
+            }
+
+            if (cameraFollowAnchor == null)
+            {
+                cameraFollowAnchor = GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
+            }
+        }
 
         private void ResolveControlLockSource()
         {
@@ -195,6 +231,17 @@ namespace CCS.Modules.CharacterController
 
         private void ApplyLocomotionMovement(float deltaTime)
         {
+            if (IsAimMovementActive)
+            {
+                ApplyAimStrafeMovement(deltaTime);
+                return;
+            }
+
+            ApplyThirdPersonMovement(deltaTime);
+        }
+
+        private void ApplyThirdPersonMovement(float deltaTime)
+        {
             Vector2 moveInput = inputProvider.MoveInput;
             bool jumpPressed = inputProvider.JumpPressed;
             bool sprintIntent = inputProvider.SprintHeld && moveInput.sqrMagnitude > 0.01f;
@@ -231,6 +278,115 @@ namespace CCS.Modules.CharacterController
                 desiredDirection.Normalize();
             }
 
+            ApplyPlanarMovement(
+                deltaTime,
+                moveInput,
+                desiredDirection,
+                movementProfile.RotationSmoothing,
+                rotateTowardMovementDirection: true,
+                jumpPressed);
+        }
+
+        private void ApplyAimStrafeMovement(float deltaTime)
+        {
+            ResolveAimLocomotionReferences();
+
+            Vector2 moveInput = inputProvider.MoveInput;
+            bool jumpPressed = inputProvider.JumpPressed;
+            bool sprintIntent = inputProvider.SprintHeld && moveInput.sqrMagnitude > 0.01f;
+
+            if (movementProfile.AimDisableSprint && sprintIntent)
+            {
+                if (enableMovementDebugLogs && !loggedSprintBlockedWhileAiming)
+                {
+                    loggedSprintBlockedWhileAiming = true;
+                    Debug.Log("[Character Motor] Sprint blocked while aiming.", this);
+                }
+
+                sprintIntent = false;
+            }
+            else
+            {
+                loggedSprintBlockedWhileAiming = false;
+            }
+
+            if (staminaController != null)
+            {
+                staminaController.ReportMovementState(false, moveInput.sqrMagnitude > 0.01f, deltaTime);
+            }
+
+            isSprinting = false;
+
+            float walkSpeed = movementProfile.WalkSpeed;
+            if (staminaController != null)
+            {
+                walkSpeed *= staminaController.MovementSpeedMultiplier;
+            }
+
+            float deadZone = movementProfile.AimStrafeDeadZone;
+            float deadZoneSqr = deadZone * deadZone;
+            bool hasMoveInput = moveInput.sqrMagnitude > deadZoneSqr;
+
+            CCS_CharacterCameraFollowAnchor followAnchor = cameraFollowAnchor;
+            if (followAnchor == null && aimLocomotionController != null)
+            {
+                followAnchor = aimLocomotionController.CameraFollowAnchor;
+            }
+
+            Vector3 aimForward = followAnchor != null
+                ? followAnchor.PlanarForward
+                : CCS_CharacterMovementCameraContext.GetPlanarForward();
+            Vector3 aimRight = followAnchor != null
+                ? followAnchor.PlanarRight
+                : CCS_CharacterMovementCameraContext.GetPlanarRight();
+
+            Vector3 desiredDirection = (aimForward * moveInput.y) + (aimRight * moveInput.x);
+            if (desiredDirection.sqrMagnitude > 1f)
+            {
+                desiredDirection.Normalize();
+            }
+
+            float targetSpeed = 0f;
+            if (hasMoveInput)
+            {
+                float speedMultiplier = movementProfile.AimMovementSpeedMultiplier;
+                float absX = Mathf.Abs(moveInput.x);
+                float absY = Mathf.Abs(moveInput.y);
+                if (absY >= absX)
+                {
+                    speedMultiplier *= moveInput.y >= 0f
+                        ? 1f
+                        : movementProfile.AimBackpedalMultiplier;
+                }
+                else
+                {
+                    speedMultiplier *= movementProfile.AimSideStrafeMultiplier;
+                }
+
+                targetSpeed = walkSpeed * speedMultiplier;
+            }
+
+            TargetSpeed = targetSpeed;
+
+            ApplyPlanarMovement(
+                deltaTime,
+                moveInput,
+                desiredDirection,
+                movementProfile.AimRotationSpeedDegrees,
+                rotateTowardMovementDirection: false,
+                jumpPressed,
+                aimFacingForward: aimForward);
+        }
+
+        private void ApplyPlanarMovement(
+            float deltaTime,
+            Vector2 moveInput,
+            Vector3 desiredDirection,
+            float rotationSpeedDegrees,
+            bool rotateTowardMovementDirection,
+            bool jumpPressed,
+            Vector3 aimFacingForward = default)
+        {
             Vector3 targetHorizontalVelocity = desiredDirection * TargetSpeed;
             float accelRate = TargetSpeed > currentSpeed
                 ? movementProfile.Acceleration
@@ -248,13 +404,14 @@ namespace CCS.Modules.CharacterController
 
             currentSpeed = new Vector3(horizontalVelocity.x, 0f, horizontalVelocity.z).magnitude;
 
-            if (desiredDirection.sqrMagnitude > 0.01f)
+            Vector3 facingDirection = rotateTowardMovementDirection ? desiredDirection : aimFacingForward;
+            if (facingDirection.sqrMagnitude > 0.01f)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(desiredDirection, Vector3.up);
+                Quaternion targetRotation = Quaternion.LookRotation(facingDirection, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(
                     transform.rotation,
                     targetRotation,
-                    movementProfile.RotationSmoothing * deltaTime);
+                    rotationSpeedDegrees * deltaTime);
             }
 
             UpdateJumpTimers(deltaTime, jumpPressed);
@@ -286,6 +443,10 @@ namespace CCS.Modules.CharacterController
                     JumpExecuted = jumpExecuted
                 });
             }
+
+            Vector3 cameraForward = rotateTowardMovementDirection
+                ? CCS_CharacterMovementCameraContext.GetPlanarForward()
+                : aimFacingForward;
 
             CCS_CharacterMotorAuditHook.MoveLogged?.Invoke(new CCS_CharacterMotorAuditHook.MotorMoveSample
             {

@@ -93,13 +93,7 @@ namespace CCS.Modules.CharacterController.Tests
 
             followAnchor.ResolveReferences();
             Transform lookTarget = followAnchor.LookTarget;
-            followAnchor.Configure(playerRoot, lookTarget, displayProfile.CameraFollowHeight);
-
-            Transform cameraPivot = playerRoot.Find("CameraPivot");
-            if (cameraPivot != null)
-            {
-                cameraPivot.localPosition = new Vector3(0f, displayProfile.CameraFollowHeight, 0f);
-            }
+            followAnchor.Configure(playerRoot, lookTarget, displayProfile.CameraProfile);
         }
 
         #endregion

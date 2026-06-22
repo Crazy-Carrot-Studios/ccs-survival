@@ -58,6 +58,7 @@ namespace CCS.Modules.Weapons.Editor
             changed |= EnsureRevolverController(prefabRoot, revolverDefinition);
             changed |= EnsureMuzzlePoint(prefabRoot);
             changed |= EnsureWeaponHud(prefabRoot);
+            changed |= EnsureFireFeedback(prefabRoot);
 
             if (changed)
             {
@@ -88,6 +89,10 @@ namespace CCS.Modules.Weapons.Editor
             changed |= SetObjectReference(serializedController, "inputProvider", inputProvider);
             changed |= SetObjectReference(serializedController, "muzzlePoint", muzzlePoint);
 
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            changed |= SetObjectReference(serializedController, "aimLocomotionController", aimLocomotion);
+
             if (changed)
             {
                 serializedController.ApplyModifiedPropertiesWithoutUndo();
@@ -104,29 +109,36 @@ namespace CCS.Modules.Weapons.Editor
 
         private static bool EnsureMuzzlePoint(GameObject prefabRoot)
         {
+            bool changed = false;
             Transform existing = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.MuzzlePointObjectName);
-            if (existing != null)
+            Transform muzzleParent = prefabRoot.transform;
+
+            if (existing == null)
             {
-                return false;
+                GameObject muzzleObject = new GameObject(CCS_WeaponsConstants.MuzzlePointObjectName);
+                existing = muzzleObject.transform;
+                existing.SetParent(muzzleParent, false);
+                changed = true;
+            }
+            else if (existing.parent != muzzleParent)
+            {
+                existing.SetParent(muzzleParent, false);
+                changed = true;
             }
 
-            Transform weaponRoot = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.WeaponRootObjectName);
-            if (weaponRoot == null)
+            if (existing.localPosition != CCS_WeaponsConstants.MuzzlePointLocalPosition)
             {
-                Transform visualRoot = prefabRoot.transform.Find("VisualRoot");
-                GameObject weaponRootObject = new GameObject(CCS_WeaponsConstants.WeaponRootObjectName);
-                weaponRootObject.transform.SetParent(visualRoot != null ? visualRoot : prefabRoot.transform, false);
-                weaponRoot = weaponRootObject.transform;
+                existing.localPosition = CCS_WeaponsConstants.MuzzlePointLocalPosition;
+                changed = true;
             }
 
-            Transform rightHand = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.PlayerRightHandSocketName);
-            Transform muzzleParent = rightHand != null ? rightHand : weaponRoot;
+            if (existing.localRotation != Quaternion.identity)
+            {
+                existing.localRotation = Quaternion.identity;
+                changed = true;
+            }
 
-            GameObject muzzleObject = new GameObject(CCS_WeaponsConstants.MuzzlePointObjectName);
-            muzzleObject.transform.SetParent(muzzleParent, false);
-            muzzleObject.transform.localPosition = new Vector3(0f, 0f, 0.12f);
-            muzzleObject.transform.localRotation = Quaternion.identity;
-            return true;
+            return changed;
         }
 
         private static bool EnsureWeaponHud(GameObject prefabRoot)
@@ -151,6 +163,13 @@ namespace CCS.Modules.Weapons.Editor
                 changed = true;
             }
 
+            RectTransform hudRectTransform = hudRootObject.GetComponent<RectTransform>();
+            if (hudRectTransform != null && hudRectTransform.localScale != Vector3.one)
+            {
+                hudRectTransform.localScale = Vector3.one;
+                changed = true;
+            }
+
             changed |= EnsureHudCanvas(hudRootObject);
 
             CCS_RevolverHudPresenter presenter = hudRootObject.GetComponent<CCS_RevolverHudPresenter>();
@@ -172,6 +191,62 @@ namespace CCS.Modules.Weapons.Editor
             if (presenterChanged)
             {
                 serializedPresenter.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureFireFeedback(GameObject prefabRoot)
+        {
+            Transform muzzleTransform = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.MuzzlePointObjectName);
+            CCS_RevolverFireFeedback fireFeedback = null;
+
+            if (muzzleTransform != null)
+            {
+                fireFeedback = muzzleTransform.GetComponent<CCS_RevolverFireFeedback>();
+            }
+
+            CCS_RevolverFireFeedback rootFeedback = prefabRoot.GetComponent<CCS_RevolverFireFeedback>();
+            if (rootFeedback != null)
+            {
+                if (fireFeedback == null && muzzleTransform != null)
+                {
+                    Object.DestroyImmediate(rootFeedback, true);
+                    fireFeedback = muzzleTransform.gameObject.AddComponent<CCS_RevolverFireFeedback>();
+                }
+                else if (fireFeedback != rootFeedback)
+                {
+                    Object.DestroyImmediate(rootFeedback, true);
+                }
+            }
+
+            if (fireFeedback == null)
+            {
+                if (muzzleTransform != null)
+                {
+                    fireFeedback = muzzleTransform.gameObject.AddComponent<CCS_RevolverFireFeedback>();
+                }
+                else
+                {
+                    fireFeedback = prefabRoot.AddComponent<CCS_RevolverFireFeedback>();
+                }
+            }
+
+            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+
+            SerializedObject serializedFeedback = new SerializedObject(fireFeedback);
+            bool changed = SetObjectReference(serializedFeedback, "revolverController", revolverController);
+            changed |= SetObjectReference(serializedFeedback, "muzzlePoint", muzzleTransform);
+
+            if (changed)
+            {
+                serializedFeedback.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            if (!fireFeedback.enabled)
+            {
+                fireFeedback.enabled = true;
                 changed = true;
             }
 
@@ -267,9 +342,27 @@ namespace CCS.Modules.Weapons.Editor
                 changed = true;
             }
 
-            if (hudText.color != Color.white)
+            if (hudText.color != CCS_WeaponsConstants.WeaponHudAmmoNormalColor)
             {
-                hudText.color = Color.white;
+                hudText.color = CCS_WeaponsConstants.WeaponHudAmmoNormalColor;
+                changed = true;
+            }
+
+            if (!Mathf.Approximately(hudText.outlineWidth, CCS_WeaponsConstants.WeaponHudOutlineWidth))
+            {
+                hudText.outlineWidth = CCS_WeaponsConstants.WeaponHudOutlineWidth;
+                changed = true;
+            }
+
+            if (hudText.outlineColor != CCS_WeaponsConstants.WeaponHudOutlineColor)
+            {
+                hudText.outlineColor = CCS_WeaponsConstants.WeaponHudOutlineColor;
+                changed = true;
+            }
+
+            if (hudText.fontStyle != FontStyles.Bold)
+            {
+                hudText.fontStyle = FontStyles.Bold;
                 changed = true;
             }
 

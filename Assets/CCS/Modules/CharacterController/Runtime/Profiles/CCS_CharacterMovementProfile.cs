@@ -59,6 +59,25 @@ namespace CCS.Modules.CharacterController
         [Tooltip("Airborne movement acceleration multiplier.")]
         [SerializeField] private float airControl = 0.35f;
 
+        [Header("Aim Strafe Locomotion")]
+        [Tooltip("Walk speed multiplier while aiming.")]
+        [SerializeField] private float aimMovementSpeedMultiplier = 0.55f;
+
+        [Tooltip("Body rotation speed toward aim yaw while aiming, in degrees per second.")]
+        [SerializeField] private float aimRotationSpeedDegrees = 720f;
+
+        [Tooltip("When true, sprint input is ignored while aim movement is active.")]
+        [SerializeField] private bool aimDisableSprint = true;
+
+        [Tooltip("Move input magnitude below this is treated as idle while aiming.")]
+        [SerializeField] private float aimStrafeDeadZone = 0.05f;
+
+        [Tooltip("Backward aim move speed multiplier applied on top of aimMovementSpeedMultiplier.")]
+        [SerializeField] private float aimBackpedalMultiplier = 0.80f;
+
+        [Tooltip("Side strafe speed multiplier applied on top of aimMovementSpeedMultiplier.")]
+        [SerializeField] private float aimSideStrafeMultiplier = 0.90f;
+
         #endregion
 
         #region Properties
@@ -84,6 +103,18 @@ namespace CCS.Modules.CharacterController
         public float RotationSmoothing => rotationSmoothing;
 
         public float AirControl => airControl;
+
+        public float AimMovementSpeedMultiplier => aimMovementSpeedMultiplier;
+
+        public float AimRotationSpeedDegrees => aimRotationSpeedDegrees;
+
+        public bool AimDisableSprint => aimDisableSprint;
+
+        public float AimStrafeDeadZone => aimStrafeDeadZone;
+
+        public float AimBackpedalMultiplier => aimBackpedalMultiplier;
+
+        public float AimSideStrafeMultiplier => aimSideStrafeMultiplier;
 
         #endregion
     }
