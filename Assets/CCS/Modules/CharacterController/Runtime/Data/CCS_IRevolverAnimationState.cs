@@ -14,6 +14,8 @@ namespace CCS.Modules.CharacterController
 {
     public interface CCS_IRevolverAnimationState
     {
+        bool IsRevolverOwned { get; }
+
         bool RevolverAimHeld { get; }
 
         bool RevolverIsReloading { get; }

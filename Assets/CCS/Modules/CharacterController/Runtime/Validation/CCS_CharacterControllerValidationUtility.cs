@@ -29,7 +29,9 @@ namespace CCS.Modules.CharacterController
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.EditorAsmdefPath), "Editor asmdef missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.InputActionsAssetPath), "Input actions asset missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultMovementProfilePath), "Default movement profile missing.");
-            AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfilePath), "Default camera profile missing.");
+            AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfilePath), "Third-person survival camera profile missing.");
+            AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath), "First-person body-aware camera profile missing.");
+            AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.FirstPersonAimCameraProfilePath), "First-person aim camera profile missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfileSetPath), "Default camera profile set missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.TestPrefabPath), "Test prefab missing.");
             AppendIfMissing(failures, File.Exists(CCS_CharacterControllerConstants.TestGroundPrefabPath), "Test ground prefab missing.");
@@ -270,29 +272,51 @@ namespace CCS.Modules.CharacterController
                 return baseValidation;
             }
 
-            if (profile.CameraMode != CCS_CharacterCameraMode.ThirdPersonSurvival)
-            {
-                return CCS_SurvivalValidationResult.Fail(
-                    "Default camera profile must use ThirdPersonSurvival mode in v0.2.0.");
-            }
-
             if (profile.VerticalOrbitMin >= profile.VerticalOrbitMax)
             {
                 return CCS_SurvivalValidationResult.Fail("verticalOrbitMin must be less than verticalOrbitMax.");
-            }
-
-            if (profile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum
-                || profile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum)
-            {
-                return CCS_SurvivalValidationResult.Fail(
-                    "Third-person camera distance must be between 2.85 and 3.25.");
             }
 
             if (profile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
                 || profile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
             {
                 return CCS_SurvivalValidationResult.Fail(
-                    "Tracking target local height must be between 1.40 and 1.60 for third-person framing.");
+                    "Tracking target local height must be between 1.40 and 1.60.");
+            }
+
+            if (profile.CameraMode == CCS_CharacterCameraMode.ThirdPersonSurvival)
+            {
+                if (profile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMinimum
+                    || profile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.ThirdPersonCameraDistanceMaximum)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        "Third-person camera distance must be between 2.85 and 3.25.");
+                }
+            }
+
+            if (profile.CameraMode == CCS_CharacterCameraMode.FirstPersonBodyAware
+                || profile.CameraMode == CCS_CharacterCameraMode.FirstPerson)
+            {
+                if (profile.FirstPersonForwardEyeOffset < CCS_CharacterControllerConstants.FirstPersonForwardEyeOffsetMinimum
+                    || profile.FirstPersonForwardEyeOffset > CCS_CharacterControllerConstants.FirstPersonForwardEyeOffsetMaximum)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        "First-person forward eye offset must stay in front of the face (0.08 to 0.14).");
+                }
+
+                if (profile.FieldOfView < CCS_CharacterControllerConstants.FirstPersonFieldOfViewMinimum
+                    || profile.FieldOfView > CCS_CharacterControllerConstants.FirstPersonFieldOfViewMaximum)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        "First-person field of view must be between 65 and 75.");
+                }
+
+                if (profile.NearClipPlane < CCS_CharacterControllerConstants.FirstPersonNearClipMinimum
+                    || profile.NearClipPlane > CCS_CharacterControllerConstants.FirstPersonNearClipMaximum)
+                {
+                    return CCS_SurvivalValidationResult.Fail(
+                        "First-person near clip must be between 0.02 and 0.05.");
+                }
             }
 
             return CCS_SurvivalValidationResult.Pass("Camera profile validated.");
@@ -319,10 +343,427 @@ namespace CCS.Modules.CharacterController
             if (profileSet.DefaultProfile.CameraMode != CCS_CharacterCameraMode.ThirdPersonSurvival)
             {
                 return CCS_SurvivalValidationResult.Fail(
-                    "Camera profile set default must be ThirdPersonSurvival.");
+                    "Camera profile set default must be ThirdPersonSurvival in v0.6.9.");
+            }
+
+            if (profileSet.ThirdPersonSurvivalProfile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Camera profile set must retain ThirdPersonSurvival profile for future mode switching.");
+            }
+
+            if (profileSet.AimOverShoulderProfile == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(
+                    "Camera profile set must retain AimOverShoulder profile for future mode switching.");
             }
 
             return CCS_SurvivalValidationResult.Pass("Camera profile set validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateFirstPersonBodyAwareCameraFoundation()
+        {
+            List<string> failures = new List<string>();
+            string controllerPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_CharacterCameraController.cs";
+            string visibilityPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_LocalFirstPersonHeadVisibility.cs";
+            string layerUtilityPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_CharacterCameraLayerUtility.cs";
+            string followAnchorPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_CharacterCameraFollowAnchor.cs";
+            string motorPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_CharacterMotor.cs";
+            string rigBuilderPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Editor/CCS_CharacterCameraRigInputBuilder.cs";
+            string headTrackerPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_FirstPersonBodyCameraAnchor.cs";
+            string prefabPath = CCS_CharacterControllerConstants.TestPrefabPath;
+
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath),
+                "Missing CCS_CharacterCameraProfile_FirstPersonBodyAware.asset.");
+            AppendIfMissing(
+                failures,
+                File.Exists(visibilityPath),
+                "Missing CCS_LocalFirstPersonHeadVisibility.");
+            AppendIfMissing(
+                failures,
+                File.Exists(layerUtilityPath),
+                "Missing CCS_CharacterCameraLayerUtility runtime helper.");
+
+            if (File.Exists(controllerPath))
+            {
+                string controllerSource = File.ReadAllText(controllerPath);
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("ThirdPersonSurvival"),
+                    "CCS_CharacterCameraController must default to ThirdPersonSurvival in v0.6.9.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("SetFirearmAimModeActive"),
+                    "CCS_CharacterCameraController must switch to FirstPersonAim while firearm aiming.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("BindCarryStateSourceFromPlayer"),
+                    "CCS_CharacterCameraController must bind weapon carry state from the local player.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CCS_IWeaponCarryStateCameraSource"),
+                    "CCS_CharacterCameraController must subscribe to weapon carry state for local camera switching.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("debugCameraModeTransitions"),
+                    "CCS_CharacterCameraController must expose debugCameraModeTransitions (default off).");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("DeactivateLegacyFirstPersonAimCamera"),
+                    "CCS_CharacterCameraController must deactivate legacy CinemachineCamera_FP_Aim.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("FirstPersonBodyAwareCameraActivePriority"),
+                    "CCS_CharacterCameraController must raise CinemachineCamera_FP_BodyAware priority during FirstPersonAim.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("ResolveFirstPersonProfile()"),
+                    "CCS_CharacterCameraController must apply FirstPersonBodyAware look profile during firearm aim.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("LegacyFirstPersonAimCameraInactivePriority"),
+                    "CCS_CharacterCameraController must keep legacy CinemachineCamera_FP_Aim at inactive priority.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("SetFirstPersonHeadMask"),
+                    "CCS_CharacterCameraController must drive local self head masking during FirstPersonAim.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CCS_LocalFirstPersonHeadVisibility"),
+                    "CCS_CharacterCameraController must bind CCS_LocalFirstPersonHeadVisibility from the local player.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("BuildFirstPersonBodyAwareCullingMask"),
+                    "CCS_CharacterCameraController must build BodyAware culling mask excluding local hidden head/body.");
+                AppendIfMissing(
+                    failures,
+                    !controllerSource.Contains("CCS_FirstPersonBodyVisibilityController"),
+                    "CCS_CharacterCameraController must not use global renderer-disable head visibility.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("BodyAware drives FirstPersonAim"),
+                    "CCS_CharacterCameraController debug must report BodyAware routing for FirstPersonAim.");
+                AppendIfMissing(
+                    failures,
+                    !controllerSource.Contains("enableRuntimeCameraDebug = true"),
+                    "enableRuntimeCameraDebug must default off in source.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("ApplyFirstPersonHardLock"),
+                    "CCS_CharacterCameraController must hard-lock first-person Cinemachine follow with zero damping.");
+            }
+
+            string carryStatePath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/../Weapons/Runtime/Data/CCS_WeaponCarryState.cs";
+            string carryControllerPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/../Weapons/Runtime/Components/CCS_WeaponCarryStateController.cs";
+            string aimLocomotionPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_CharacterAimLocomotionController.cs";
+            AppendIfMissing(failures, File.Exists(carryStatePath), "Missing CCS_WeaponCarryState enum.");
+            AppendIfMissing(failures, File.Exists(carryControllerPath), "Missing CCS_WeaponCarryStateController.");
+            if (File.Exists(carryControllerPath))
+            {
+                string carryControllerSource = File.ReadAllText(carryControllerPath);
+                AppendIfMissing(
+                    failures,
+                    carryControllerSource.Contains("CCS_IWeaponCarryStateCameraSource"),
+                    "CCS_WeaponCarryStateController must implement CCS_IWeaponCarryStateCameraSource.");
+                AppendIfMissing(
+                    failures,
+                    carryControllerSource.Contains("ShouldDriveLocalCameraInternal"),
+                    "CCS_WeaponCarryStateController must gate local camera ownership for solo/host/client.");
+            }
+
+            string loadoutPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/../Weapons/Runtime/Components/CCS_PlayerWeaponLoadout.cs";
+            if (File.Exists(loadoutPath))
+            {
+                string loadoutSource = File.ReadAllText(loadoutPath);
+                AppendIfMissing(
+                    failures,
+                    !loadoutSource.Contains("CCS_IWeaponAimGate"),
+                    "CCS_PlayerWeaponLoadout must not implement CCS_IWeaponAimGate; carry state owns aim routing.");
+            }
+
+            if (File.Exists(aimLocomotionPath))
+            {
+                string aimLocomotionSource = File.ReadAllText(aimLocomotionPath);
+                AppendIfMissing(
+                    failures,
+                    aimLocomotionSource.Contains("CCS_IWeaponCarryStateCameraSource"),
+                    "CCS_CharacterAimLocomotionController must resolve weapon carry state for combat locomotion.");
+            }
+
+            if (File.Exists(followAnchorPath))
+            {
+                string followAnchorSource = File.ReadAllText(followAnchorPath);
+                AppendIfMissing(
+                    failures,
+                    followAnchorSource.Contains("FirstPersonBodyAware"),
+                    "CCS_CharacterCameraFollowAnchor must couple body yaw during FirstPersonBodyAware aim.");
+                AppendIfMissing(
+                    failures,
+                    followAnchorSource.Contains("bodyRoot.rotation = Quaternion.Euler(0f, yawDegrees, 0f)"),
+                    "First-person yaw must rotate the player body.");
+                AppendIfMissing(
+                    failures,
+                    followAnchorSource.Contains("pitchTarget.localRotation = Quaternion.Euler(pitchDegrees, 0f, 0f)"),
+                    "First-person pitch must remain camera-only on CameraPitchTarget.");
+            }
+
+            if (File.Exists(motorPath))
+            {
+                string motorSource = File.ReadAllText(motorPath);
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("ApplyFirstPersonMovement"),
+                    "CCS_CharacterMotor must support first-person locomotion without third-person rotation lag.");
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("ApplyFirstPersonAimMovement"),
+                    "CCS_CharacterMotor must route first-person aim through body-yaw-coupled locomotion.");
+                AppendIfMissing(
+                    failures,
+                    motorSource.Contains("skipBodyRotation: true"),
+                    "First-person locomotion must not apply motor body rotation lag.");
+            }
+
+            if (File.Exists(headTrackerPath))
+            {
+                string headTrackerSource = File.ReadAllText(headTrackerPath);
+                AppendIfMissing(
+                    failures,
+                    headTrackerSource.Contains("GetBoneTransform(HumanBodyBones.Head)"),
+                    "CCS_FirstPersonBodyCameraAnchor must resolve the humanoid head bone.");
+                AppendIfMissing(
+                    failures,
+                    headTrackerSource.Contains("InheritHeadBoneRotation"),
+                    "CCS_FirstPersonBodyCameraAnchor must keep inheritHeadBoneRotation disabled by default.");
+                AppendIfMissing(
+                    failures,
+                    !headTrackerSource.Contains("headBone.rotation"),
+                    "Head-tracked first-person camera must not copy animated head rotation by default.");
+            }
+
+            if (File.Exists(visibilityPath))
+            {
+                string visibilitySource = File.ReadAllText(visibilityPath);
+                AppendIfMissing(
+                    failures,
+                    !visibilitySource.Contains("renderer.enabled"),
+                    "CCS_LocalFirstPersonHeadVisibility must not globally disable head renderers.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("LocalSelfHeadHiddenLayerName"),
+                    "CCS_LocalFirstPersonHeadVisibility must use CCS_LocalSelfHeadHidden layer masking.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("LocalFirstPersonBodyLayerName"),
+                    "CCS_LocalFirstPersonHeadVisibility must use CCS_LocalFirstPersonBody for headless fallback.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("CombinedBodyHeadlessFallback"),
+                    "CCS_LocalFirstPersonHeadVisibility must support combined-body headless fallback.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("CCS_LocalFirstPersonHeadMaskMode"),
+                    "CCS_LocalFirstPersonHeadVisibility must report SeparateRendererMask vs CombinedBodyHeadlessFallback.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("headlessBodyRenderer"),
+                    "CCS_LocalFirstPersonHeadVisibility must reference local headless body renderer.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("IsLocalOwner"),
+                    "CCS_LocalFirstPersonHeadVisibility must gate masking to local owner only.");
+                AppendIfMissing(
+                    failures,
+                    !visibilitySource.Contains("HideFullBody") && !visibilitySource.Contains("torsoRenderers"),
+                    "CCS_LocalFirstPersonHeadVisibility must not hide torso/arms/legs/feet.");
+                AppendIfMissing(
+                    failures,
+                    visibilitySource.Contains("ProtectedNameTokens"),
+                    "CCS_LocalFirstPersonHeadVisibility must protect weapon/hand renderers from masking.");
+            }
+
+            string headlessMeshBuilderPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Editor/CCS_FirstPersonHeadlessBodyMeshBuilder.cs";
+            AppendIfMissing(
+                failures,
+                File.Exists(headlessMeshBuilderPath),
+                "Missing CCS_FirstPersonHeadlessBodyMeshBuilder editor utility.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyMeshAssetPath),
+                "Missing baked CCS_CC3_FirstPerson_HeadlessBody mesh asset for combined body fallback.");
+
+            if (File.Exists(CCS_CharacterControllerConstants.DefaultCameraProfileSetPath))
+            {
+                string profileSetText = File.ReadAllText(CCS_CharacterControllerConstants.DefaultCameraProfileSetPath);
+                AppendIfMissing(
+                    failures,
+                    profileSetText.Contains("guid: 95981624f2ea5294b9a7edcdc78671d4"),
+                    "Default camera profile set must reference ThirdPersonSurvival as defaultProfile.");
+            }
+
+            if (File.Exists(rigBuilderPath))
+            {
+                string rigBuilderSource = File.ReadAllText(rigBuilderPath);
+                AppendIfMissing(
+                    failures,
+                    rigBuilderSource.Contains("trackerSettings.PositionDamping = Vector3.zero"),
+                    "First-person Cinemachine follow must use zero position damping.");
+                AppendIfMissing(
+                    failures,
+                    rigBuilderSource.Contains("RemoveLegacyFirstPersonAimCamera"),
+                    "Camera rig builder must remove legacy CinemachineCamera_FP_Aim from the active rig.");
+            }
+
+            if (File.Exists(CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath))
+            {
+                string profileText = File.ReadAllText(
+                    CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath);
+                AppendIfMissing(
+                    failures,
+                    profileText.Contains("headTrackedLocalOffset: {x: 0, y: 0.06, z: 0.1}"),
+                    "FirstPersonBodyAware head-tracked offset must sit closer to eye position (v0.6.14: 0.06 / 0.10).");
+                AppendIfMissing(
+                    failures,
+                    !profileText.Contains("headTrackedLocalOffset: {x: 0, y: 0.04, z: 0.18}"),
+                    "FirstPersonBodyAware must not retain pre-v0.6.14 hand-forward head-tracked offset.");
+                AppendIfMissing(
+                    failures,
+                    profileText.Contains("lookSmoothing: 0")
+                        && profileText.Contains("followDampingX: 0"),
+                    "FirstPersonBodyAware profile must use zero damping and look smoothing.");
+                AppendIfMissing(
+                    failures,
+                    profileText.Contains("verticalOrbitMin: -53"),
+                    "FirstPersonBodyAware pitch min must clamp look-down before torso clipping (v0.6.12: -53).");
+                AppendIfMissing(
+                    failures,
+                    !profileText.Contains("verticalOrbitMin: -58"),
+                    "FirstPersonBodyAware must not retain legacy -58 look-down clamp.");
+                AppendIfMissing(
+                    failures,
+                    !profileText.Contains("verticalOrbitMin: -50"),
+                    "v0.6.14 reverted v0.6.13 pitch tweak; BodyAware must use -53 look-down clamp.");
+                AppendIfMissing(
+                    failures,
+                    profileText.Contains("useHeadTrackedAnchor: 1"),
+                    "FirstPersonBodyAware must enable head-tracked camera anchor.");
+                AppendIfMissing(
+                    failures,
+                    profileText.Contains("inheritHeadBoneRotation: 0"),
+                    "FirstPersonBodyAware must not inherit head bone rotation by default.");
+            }
+
+            string revolverAimRigPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/../Weapons/Runtime/Aiming/CCS_RevolverReticleAimRig.cs";
+            AppendIfMissing(
+                failures,
+                !File.Exists(revolverAimRigPath),
+                "v0.6.13 direct weapon reticle aim rig must not return (CCS_RevolverReticleAimRig).");
+
+            if (File.Exists(prefabPath))
+            {
+                string prefabText = File.ReadAllText(prefabPath);
+                AppendIfMissing(
+                    failures,
+                    !prefabText.Contains("CCS_RevolverReticleAimRig"),
+                    prefabPath + " must not include v0.6.13 CCS_RevolverReticleAimRig.");
+                AppendIfMissing(
+                    failures,
+                    !prefabText.Contains("m_Name: Rig_RevolverAim"),
+                    prefabPath + " must not retain v0.6.13 Rig_RevolverAim.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("m_Name: " + CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName),
+                    prefabPath + " must contain FirstPersonCameraAnchor under CameraPitchTarget.");
+                AppendIfMissing(
+                    failures,
+                    !prefabText.Contains("m_Name: " + CCS_CharacterControllerConstants.FirstPersonAimCameraAnchorObjectName),
+                    prefabPath + " must not require FirstPersonAimCameraAnchor for runtime aim.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains(CCS_CharacterControllerConstants.LocalFirstPersonHeadVisibilityTypeName),
+                    prefabPath + " must include CCS_LocalFirstPersonHeadVisibility.");
+                AppendIfMissing(
+                    failures,
+                    !prefabText.Contains("CCS_FirstPersonBodyVisibilityController"),
+                    prefabPath + " must not retain global renderer-disable CCS_FirstPersonBodyVisibilityController.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains(CCS_CharacterControllerConstants.FirstPersonBodyCameraAnchorTypeName),
+                    prefabPath + " must include CCS_FirstPersonBodyCameraAnchor.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("CCS_WeaponCarryStateController"),
+                    prefabPath + " must include CCS_WeaponCarryStateController for carry/aim visual sync.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("weaponAimGateComponent: {fileID: 4076866618874431801}"),
+                    prefabPath + " weaponAimGateComponent must reference CCS_WeaponCarryStateController.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyObjectName),
+                    prefabPath + " must include CCS_FirstPersonHeadlessBody headless renderer.");
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyMeshAssetName),
+                    prefabPath + " must reference baked CCS_CC3_FirstPerson_HeadlessBody mesh asset.");
+            }
+
+            string cameraRigPath = CCS_CharacterControllerConstants.CameraRigPrefabPath;
+            if (File.Exists(cameraRigPath))
+            {
+                string rigText = File.ReadAllText(cameraRigPath);
+                AppendIfMissing(
+                    failures,
+                    rigText.Contains("m_Name: " + CCS_CharacterControllerConstants.FirstPersonBodyAwareCinemachineCameraName),
+                    cameraRigPath + " must contain CinemachineCamera_FP_BodyAware.");
+                AppendIfMissing(
+                    failures,
+                    !rigText.Contains("m_Name: " + CCS_CharacterControllerConstants.FirstPersonAimCinemachineCameraName),
+                    cameraRigPath + " must not retain active CinemachineCamera_FP_Aim.");
+                AppendIfMissing(
+                    failures,
+                    rigText.Contains("m_Name: " + CCS_CharacterControllerConstants.ThirdPersonCinemachineCameraName),
+                    cameraRigPath + " must retain CinemachineCamera_TP.");
+                AppendIfMissing(
+                    failures,
+                    rigText.Contains("m_Name: " + CCS_CharacterControllerConstants.AimCinemachineCameraName),
+                    cameraRigPath + " must retain CinemachineCamera_Aim.");
+                AppendIfMissing(
+                    failures,
+                    rigText.Contains("PositionDamping: {x: 0, y: 0, z: 0}"),
+                    cameraRigPath + " first-person CinemachineFollow must use zero position damping.");
+            }
+
+            string weaponsResolverPath = CCS_CharacterControllerConstants.ModuleRootPath
+                + "/../Weapons/Runtime/Aiming/CCS_WeaponAimResolver.cs";
+            if (File.Exists(weaponsResolverPath))
+            {
+                string resolverSource = File.ReadAllText(weaponsResolverPath);
+                AppendIfMissing(
+                    failures,
+                    resolverSource.Contains("CCS_WeaponAimResolver"),
+                    "CCS_WeaponAimResolver must remain available for reticle/tracer alignment.");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass(
+                    "Third-person default, BodyAware-only FirstPersonAim routing, separated head mask, combined-body headless fallback, and carry-state camera switching validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateTestPrefab(GameObject prefabRoot)

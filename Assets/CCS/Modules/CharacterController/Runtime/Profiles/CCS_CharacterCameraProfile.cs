@@ -234,7 +234,40 @@ namespace CCS.Modules.CharacterController
 
         [SerializeField] private float aimLookSensitivityMultiplier = 0.85f;
 
+        [Header("First Person Body Aware")]
 
+        [Tooltip("Local forward offset from CameraPitchTarget to place the eye camera in front of the face.")]
+
+        [SerializeField] private float firstPersonForwardEyeOffset = 0.22f;
+
+        [Tooltip("Local vertical fine-tune for the first-person eye anchor.")]
+
+        [SerializeField] private float firstPersonVerticalEyeOffset = 0.05f;
+
+        [Tooltip("Near clip plane for first-person lens tuning.")]
+
+        [SerializeField] private float nearClipPlane = 0.03f;
+
+        [Tooltip("When enabled, FirstPersonCameraAnchor position follows the animated head bone.")]
+
+        [SerializeField] private bool useHeadTrackedAnchor = true;
+
+        [Tooltip("Local offset from the head bone used for head-tracked first-person camera placement.")]
+
+        [SerializeField] private Vector3 headTrackedLocalOffset = new Vector3(0f, 0.04f, 0.18f);
+
+        [Tooltip("How quickly the first-person anchor lerps toward the head-tracked target position.")]
+
+        [SerializeField] private float headTrackingPositionLerpSpeed = 30f;
+
+        [Tooltip("Experimental. When false, camera rotation stays input-driven and does not copy head bone rotation.")]
+
+        [SerializeField] private bool inheritHeadBoneRotation;
+
+        [Tooltip("Fixed local offset for FirstPersonAimCameraAnchor under CameraPitchTarget when head tracking is disabled.")]
+
+        [SerializeField] private Vector3 fixedFirstPersonAimAnchorLocalOffset =
+            new Vector3(0f, 0.28f, 0.36f);
 
         #endregion
 
@@ -362,7 +395,21 @@ namespace CCS.Modules.CharacterController
 
         public float AimLookSensitivityMultiplier => aimLookSensitivityMultiplier;
 
+        public float FirstPersonForwardEyeOffset => firstPersonForwardEyeOffset;
 
+        public float FirstPersonVerticalEyeOffset => firstPersonVerticalEyeOffset;
+
+        public float NearClipPlane => nearClipPlane;
+
+        public bool UseHeadTrackedAnchor => useHeadTrackedAnchor;
+
+        public Vector3 HeadTrackedLocalOffset => headTrackedLocalOffset;
+
+        public float HeadTrackingPositionLerpSpeed => headTrackingPositionLerpSpeed;
+
+        public bool InheritHeadBoneRotation => inheritHeadBoneRotation;
+
+        public Vector3 FixedFirstPersonAimAnchorLocalOffset => fixedFirstPersonAimAnchorLocalOffset;
 
         public bool ValidationDisableObstacleAvoidanceForBaselinePass =>
             validationDisableObstacleAvoidanceForBaselinePass;

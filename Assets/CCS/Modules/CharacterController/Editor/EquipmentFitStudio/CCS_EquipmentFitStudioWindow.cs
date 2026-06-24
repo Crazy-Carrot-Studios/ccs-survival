@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using CCS.Modules.CharacterController.Editor;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.Weapons.Editor;
@@ -20,7 +21,7 @@ using UnityEngine.Animations.Rigging;
 
 namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 {
-    public sealed class CCS_EquipmentFitStudioWindow : EditorWindow
+    public sealed partial class CCS_EquipmentFitStudioWindow : EditorWindow
     {
         #region Variables
 
@@ -33,6 +34,34 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private CCS_EquipmentFitStudioPreviewItem previewItem = new CCS_EquipmentFitStudioPreviewItem();
 
         private Vector2 scrollPosition;
+
+        private Vector2 presetScrollPosition;
+
+        private const float LeftPanelMinWidth = 280f;
+
+        private const float LeftPanelMaxWidth = 340f;
+
+        private const float LeftPanelPreferredWidth = 310f;
+
+        private const float RightPanelMinWidth = 300f;
+
+        private const float RightPanelMaxWidth = 360f;
+
+        private const float MinWindowWidth = 1200f;
+
+        private const float MinWindowHeight = 700f;
+
+        private const float DefaultWindowWidth = 1450f;
+
+        private const float DefaultWindowHeight = 820f;
+
+        private const float BottomActionBarHeight = 80f;
+
+        private const float PresetOverlayHeight = 72f;
+
+        private const float WrappedButtonMinWidth = 108f;
+
+        private Rect lastPreviewRect;
 
         private string statusMessage = "Ready.";
 
@@ -63,113 +92,130 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         public static void OpenWindow()
         {
             CCS_EquipmentFitStudioWindow window = GetWindow<CCS_EquipmentFitStudioWindow>("Equipment Fit Studio");
-            window.minSize = new Vector2(980f, 640f);
+            window.minSize = new Vector2(MinWindowWidth, MinWindowHeight);
+            Rect current = window.position;
+            float width = Mathf.Max(MinWindowWidth, DefaultWindowWidth);
+            float height = Mathf.Max(MinWindowHeight, DefaultWindowHeight);
+            window.position = new Rect(
+                current.x > 0f ? current.x : (Screen.currentResolution.width - width) * 0.5f,
+                current.y > 0f ? current.y : (Screen.currentResolution.height - height) * 0.5f,
+                width,
+                height);
             window.Show();
         }
 
         private void OnEnable()
         {
+            CCS_EquipmentFitStudioImGuiUtility.EnsureLogSubscription();
             CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
             settings = AssetDatabase.LoadAssetAtPath<CCS_EquipmentFitStudioSettings>(
                 CCS_EquipmentConstants.EquipmentFitStudioSettingsPath);
             previewCamera.EnsureCamera(settings);
             SceneView.duringSceneGui += OnSceneGui;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            TryAssignDefaultPlayer();
+            LoadFitTargetFromEditorPrefs();
+            SyncFitTargetRoutingToState();
+            if (!EditorApplication.isPlaying)
+            {
+                RequestAutoLoadPreview(deferUntilAfterGui: true);
+            }
         }
 
         private void OnDisable()
         {
             SceneView.duringSceneGui -= OnSceneGui;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            CleanupTemporaryObjects(resetIkPreviewWeights: true);
+            CCS_EquipmentFitStudioPlayModeAimFitUtility.CleanupEditorOverrides(state.PlayerRoot);
+            CCS_EquipmentFitStudioIkDiagnosticsUtility.ResetIkPreviewToZero(state.PlayerRoot);
+            CCS_EquipmentFitStudioPosePreviewUtility.ClearAllPosePreview();
+            CleanupTemporaryObjects(resetIkPreviewWeights: true, clearTestAttachments: true);
+            CCS_EquipmentFitStudioPreviewPlayerUtility.ClearPreviewPlayer();
+            state.PlayerRoot = null;
+            state.UsesEditorPreviewPlayer = false;
+            state.ForceAimPoseActive = false;
+            CCS_EquipmentFitStudioImGuiUtility.ResetForWindowClose();
         }
 
         private void OnGUI()
         {
             CCS_EquipmentFitStudioStyles.EnsureInitialized();
-            DrawTopBar();
-            DrawModeTabs();
-            EditorGUILayout.BeginHorizontal();
-            DrawLeftPanel();
-            DrawPreviewPanel();
-            EditorGUILayout.EndHorizontal();
-            DrawStatusBar();
+            minSize = new Vector2(MinWindowWidth, MinWindowHeight);
+            CCS_EquipmentFitStudioImGuiUtility.DrawVerticalScope(DrawRevampedLayout);
+            ProcessRevampedDeferredActions();
         }
 
         #endregion
 
         #region Private Methods
 
-        private void DrawTopBar()
+        private void DrawHeader()
         {
-            EditorGUILayout.LabelField("CCS Equipment Fit Studio", CCS_EquipmentFitStudioStyles.TitleLabel);
             EditorGUILayout.BeginHorizontal();
-            state.PlayerRoot = (GameObject)EditorGUILayout.ObjectField(
-                "Player",
-                state.PlayerRoot,
-                typeof(GameObject),
-                true);
-            if (GUILayout.Button("Find Player", GUILayout.Width(90f)))
-            {
-                TryAssignDefaultPlayer();
-            }
-
-            int socketIndex = GetSelectedSocketIndex();
-            socketIndex = EditorGUILayout.Popup("Socket", socketIndex, CCS_EquipmentConstants.RequiredSocketIds);
-            state.SelectedSocketId = CCS_EquipmentConstants.RequiredSocketIds[socketIndex];
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Spawn Preview Item"))
-            {
-                SpawnPreviewItem();
-            }
-
-            if (GUILayout.Button("Clear Preview"))
-            {
-                previewItem.DestroyPreview();
-                state.PreviewItemSpawned = false;
-            }
-
+            EditorGUILayout.LabelField("CCS Equipment Fit Studio", CCS_EquipmentFitStudioStyles.TitleLabel, GUILayout.ExpandWidth(true));
+            EditorGUILayout.LabelField(
+                CCS_EquipmentConstants.EquipmentFitStudioVersionLabel,
+                CCS_EquipmentFitStudioStyles.HeaderMetaLabel,
+                GUILayout.Width(60f));
+            DrawStatusBadge();
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawModeTabs()
+        private void DrawStatusBadge()
         {
-            state.Mode = (CCS_EquipmentFitStudioMode)GUILayout.Toolbar(
-                (int)state.Mode,
-                new[]
-                {
-                    "Socket Tuner",
-                    "IK Target Tuner",
-                    "Preview View",
-                    "Hand/Finger Pose",
-                    "Save / Validate",
-                });
+            GUIStyle badgeStyle = CCS_EquipmentFitStudioStyles.StatusOkLabel;
+            string badge = "GREEN: Preview Zeroed";
+            if (RequiresCleanup())
+            {
+                badgeStyle = CCS_EquipmentFitStudioStyles.StatusErrorLabel;
+                badge = "RED: Cleanup Required";
+            }
+            else if (state.HasPendingSaveCapture)
+            {
+                badgeStyle = CCS_EquipmentFitStudioStyles.StatusWarnLabel;
+                badge = "YELLOW: Unsaved Captured Values";
+            }
+            else if (state.IkPendingChange.HasCaptured)
+            {
+                badgeStyle = CCS_EquipmentFitStudioStyles.StatusWarnLabel;
+                badge = "YELLOW: Unsaved Changes";
+            }
+
+            EditorGUILayout.LabelField(badge, badgeStyle, GUILayout.Width(220f));
         }
 
-        private void DrawLeftPanel()
+        private void DrawSetupSummaryBar()
         {
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Width(360f));
-            switch (state.Mode)
-            {
-                case CCS_EquipmentFitStudioMode.SocketTuner:
-                    DrawSocketTunerPanel();
-                    break;
-                case CCS_EquipmentFitStudioMode.IkTargetTuner:
-                    DrawIkTargetTunerPanel();
-                    break;
-                case CCS_EquipmentFitStudioMode.PreviewView:
-                    DrawPreviewControlsPanel();
-                    break;
-                case CCS_EquipmentFitStudioMode.HandPoseFoundation:
-                    DrawHandPoseFoundationPanel();
-                    break;
-                case CCS_EquipmentFitStudioMode.SaveValidate:
-                    DrawSaveValidatePanel();
-                    break;
-            }
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(
+                "Player: " + (state.PlayerRoot != null ? state.PlayerRoot.name : "None")
+                + "  |  Weapon: " + state.SelectedWeaponId
+                + "  |  Socket: " + CCS_EquipmentFitStudioRevolverFitUtility.GetSocketDisplayLabel(state.SelectedSocketId),
+                EditorStyles.wordWrappedLabel,
+                GUILayout.ExpandWidth(true));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawWorkflowPanel()
+        {
+            float leftPanelWidth = GetLeftPanelWidth();
+            scrollPosition = EditorGUILayout.BeginScrollView(
+                scrollPosition,
+                GUILayout.Width(leftPanelWidth),
+                GUILayout.MinWidth(LeftPanelMinWidth),
+                GUILayout.MaxWidth(LeftPanelMaxWidth),
+                GUILayout.ExpandHeight(true));
+
+            DrawActiveFitTargetPanel();
+            EditorGUILayout.Space(4f);
+            CCS_EquipmentFitStudioWorkflowGuide.DrawProfileStatusPanel(
+                state.HasUnsavedChanges,
+                previewItem.IsSpawned,
+                HasTestAttachments(),
+                HasNonZeroIkPreviewWeights());
+            EditorGUILayout.Space(6f);
+            CCS_EquipmentFitStudioWorkflowAccordion.DrawDecisionHelper(state.SelectedSocketId);
+            EditorGUILayout.Space(6f);
+            CCS_EquipmentFitStudioWorkflowAccordion.DrawAccordion(GetActiveWorkflowStep(), BuildWorkflowCallbacks());
 
             EditorGUILayout.EndScrollView();
         }
@@ -177,17 +223,201 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private void DrawPreviewPanel()
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            Rect previewRect = GUILayoutUtility.GetRect(10f, 10000f, 10f, 10000f, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            previewCamera.EnsureRenderTexture(Mathf.Max(320, (int)previewRect.width), Mathf.Max(180, (int)previewRect.height));
-            previewCamera.HandleInput(previewRect, Event.current);
-            previewCamera.RenderNow();
-            if (previewCamera.RenderTexture != null)
+
+            Rect previewRect = GUILayoutUtility.GetRect(
+                GUIContent.none,
+                GUIStyle.none,
+                GUILayout.ExpandWidth(true),
+                GUILayout.ExpandHeight(true),
+                GUILayout.MinHeight(400f));
+            lastPreviewRect = previewRect;
+
+            if (previewRect.width > 1f && previewRect.height > 1f)
             {
-                GUI.DrawTexture(previewRect, previewCamera.RenderTexture, ScaleMode.StretchToFill, false);
+                EditorGUI.DrawRect(previewRect, new Color(0.06f, 0.07f, 0.09f));
+                Rect innerRect = new Rect(
+                    previewRect.x + 3f,
+                    previewRect.y + 3f,
+                    previewRect.width - 6f,
+                    previewRect.height - 6f);
+                previewCamera.EnsureRenderTexture(
+                    Mathf.Max(64, (int)innerRect.width),
+                    Mathf.Max(64, (int)innerRect.height));
+                previewCamera.HandleInput(innerRect, Event.current);
+                previewCamera.RenderNow();
+                if (previewCamera.RenderTexture != null)
+                {
+                    GUI.DrawTexture(innerRect, previewCamera.RenderTexture, ScaleMode.StretchToFill, false);
+                }
+
+                DrawPreviewOverlay(innerRect);
+                DrawPreviewOverlayStatus(innerRect);
+                DrawPreviewPresetOverlay(innerRect);
             }
 
-            DrawPreviewItemStatus();
-            DrawPreviewPresetButtons();
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawPreviewOverlayStatus(Rect previewRect)
+        {
+            string zeroedText = previewItem.IsSpawned
+                ? (previewItem.IsZeroed ? "GREEN: Preview Zeroed" : "RED: Preview Not Zeroed")
+                : "Preview: not spawned";
+            GUIStyle style = previewItem.IsSpawned && previewItem.IsZeroed
+                ? CCS_EquipmentFitStudioStyles.StatusOkLabel
+                : previewItem.IsSpawned
+                    ? CCS_EquipmentFitStudioStyles.StatusErrorLabel
+                    : CCS_EquipmentFitStudioStyles.StatusWarnLabel;
+            Rect statusRect = new Rect(previewRect.x + 8f, previewRect.yMax - 28f, previewRect.width - 16f, 22f);
+            GUI.Label(statusRect, zeroedText, style);
+        }
+
+        private void DrawPreviewPresetOverlay(Rect previewRect)
+        {
+            Rect presetRect = new Rect(
+                previewRect.x + 8f,
+                previewRect.yMax - PresetOverlayHeight - 32f,
+                previewRect.width - 16f,
+                PresetOverlayHeight);
+            DrawPreviewPresetButtonsAtRect(presetRect);
+        }
+
+        private void DrawPreviewOverlay(Rect previewRect)
+        {
+            Rect overlayRect = new Rect(previewRect.x + 8f, previewRect.y + 8f, previewRect.width - 16f, 72f);
+            GUI.Label(
+                overlayRect,
+                "Socket: " + state.SelectedSocketId
+                + "\nMode: " + state.Mode
+                + "\nPreview: " + (previewItem.IsSpawned ? "Spawned" : "None")
+                + " | Zeroed: " + (previewItem.IsSpawned && previewItem.IsZeroed ? "Yes" : "No"),
+                CCS_EquipmentFitStudioStyles.PreviewOverlayLabel);
+        }
+
+        private void DrawBottomActionBar()
+        {
+            EditorGUILayout.BeginVertical(
+                CCS_EquipmentFitStudioStyles.BottomBarBackground,
+                GUILayout.MinHeight(BottomActionBarHeight),
+                GUILayout.ExpandWidth(true));
+
+            EditorGUILayout.BeginHorizontal();
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Spawn Preview",
+                    CCS_EquipmentFitStudioButtonKind.SpawnPreview,
+                    "Creates a temporary editor-only visual under the selected socket.",
+                    CanSpawnPreview(out _),
+                    GUILayout.MinWidth(120f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                SpawnPreviewItem();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Clear Preview",
+                    CCS_EquipmentFitStudioButtonKind.ClearPreview,
+                    "Removes preview item and resets IK preview weights.",
+                    previewItem.IsSpawned,
+                    GUILayout.MinWidth(110f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                ClearPreviewAndWeights();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Capture",
+                    CCS_EquipmentFitStudioButtonKind.Capture,
+                    CanCaptureLiveValues()
+                        ? "Copies the current socket values into a pending save buffer."
+                        : "Select a player and socket before capturing values.",
+                    CanCaptureLiveValues(),
+                    GUILayout.MinWidth(90f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                CaptureLiveValues();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    CanUsePlayModeAimFit() ? "Save Hand Profile" : "Save Profile",
+                    CCS_EquipmentFitStudioButtonKind.SaveProfile,
+                    CanSavePendingCapture()
+                        ? "Saves the captured socket values into the selected revolver fit profile asset."
+                        : "Capture live values before saving.",
+                    CanSavePendingCapture(),
+                    GUILayout.MinWidth(100f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                SaveActiveProfile();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Apply Saved",
+                    CCS_EquipmentFitStudioButtonKind.ApplyProfile,
+                    "Applies saved profile values to the selected player socket.",
+                    HasRevolverAttachmentFitProfileForSelectedSocket() && CanUseEditFitTuning(),
+                    GUILayout.MinWidth(100f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                ApplyActiveSavedProfile();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    GetActiveTargetPrimaryTestButtonLabel(),
+                    CCS_EquipmentFitStudioButtonKind.TestFit,
+                    "Tests the saved fit profile for the active slot.",
+                    HasRevolverAttachmentFitProfileForSelectedSocket() && CanUseEditFitTuning(),
+                    GUILayout.MinWidth(140f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                TestSavedActiveTargetFit();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Test Hip",
+                    CCS_EquipmentFitStudioButtonKind.TestFit,
+                    "Temporary editor holster test from saved right hip profile.",
+                    File.Exists(CCS_EquipmentConstants.RevolverM1879RightHipHolsterFitPath) && CanUseEditFitTuning(),
+                    GUILayout.MinWidth(100f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                TestSavedHolsterFit();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Test Hand",
+                    CCS_EquipmentFitStudioButtonKind.TestFit,
+                    "Temporary editor equipped test from saved right hand profile.",
+                    File.Exists(CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath) && CanUseEditFitTuning(),
+                    GUILayout.MinWidth(105f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                TestSavedEquippedFit();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Validate",
+                    CCS_EquipmentFitStudioButtonKind.Validate,
+                    "Runs Fit Studio and revolver profile validation.",
+                    true,
+                    GUILayout.MinWidth(80f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                RunValidation();
+            }
+
+            if (CCS_EquipmentFitStudioStyles.DrawBottomActionButton(
+                    "Cleanup",
+                    CCS_EquipmentFitStudioButtonKind.Warning,
+                    "Removes preview, test attachments, and preview camera objects.",
+                    RequiresCleanup(),
+                    GUILayout.MinWidth(80f),
+                    GUILayout.ExpandWidth(true)))
+            {
+                CleanupTemporaryObjects(resetIkPreviewWeights: true, clearTestAttachments: true);
+                SetStatus("Cleanup complete.", MessageType.Info);
+            }
+
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
         }
 
@@ -197,7 +427,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             CCS_EquipmentSocketAnchor anchor = socketTransform != null
                 ? socketTransform.GetComponent<CCS_EquipmentSocketAnchor>()
                 : null;
-            DrawHint("Move the socket until the item sits where it should attach.");
+            DrawHint(CCS_EquipmentFitStudioRevolverFitUtility.GetSocketTuningHint(state.SelectedSocketId));
             DrawHint("Keep the preview item zeroed. Only the socket should move.");
 
             if (socketTransform == null)
@@ -227,27 +457,11 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             DrawNudgeControls(settings, ref position, ref euler, ref scale, socketTransform);
             DrawPendingDiff(state.SocketPendingChange, socketTransform);
 
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Capture Live Socket"))
-            {
-                state.SocketPendingChange.Capture(
-                    state.SelectedSocketId,
-                    socketTransform.localPosition,
-                    socketTransform.localEulerAngles,
-                    socketTransform.localScale);
-            }
-
-            if (GUILayout.Button("Reset To Profile"))
-            {
-                ResetSocketToProfile(socketTransform);
-            }
-
-            if (GUILayout.Button("Mirror Right ↔ Left"))
-            {
-                MirrorSelectedSocket(socketTransform);
-            }
-
-            EditorGUILayout.EndHorizontal();
+            DrawWrappedButtons(
+                GetLeftPanelWidth(),
+                new FitStudioButtonSpec("Capture Live Socket", CaptureLiveValues),
+                new FitStudioButtonSpec("Reset To Profile", () => ResetSocketToProfile(socketTransform)),
+                new FitStudioButtonSpec("Mirror Right ↔ Left", () => MirrorSelectedSocket(socketTransform)));
         }
 
         private void DrawIkTargetTunerPanel()
@@ -312,12 +526,13 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private void DrawPreviewControlsPanel()
         {
             DrawHint("Left drag = orbit. Middle drag or Shift+drag = pan. Mouse wheel = zoom.");
-            DrawPreviewPresetButtons();
+            DrawPreviewPresetButtons(GetLeftPanelWidth());
         }
 
         private void DrawHandPoseFoundationPanel()
         {
-            DrawHint("Finger pose controls are foundation-only in v0.6.7.");
+            DrawHint("Finger pose controls are foundation-only in v0.6.8.");
+            DrawHint("Runtime finger posing is not wired yet — save notes and curl values only.");
             Animator animator = GetPlayerAnimator();
             DrawFingerBoneDetection("Right Hand", animator, true);
             DrawFingerBoneDetection("Left Hand", animator, false);
@@ -329,11 +544,28 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             EditorGUILayout.Slider("Little Curl (future)", 0f, 0f, 1f);
             EditorGUI.EndDisabledGroup();
 
+            if (state.SelectedHandPoseDefinition == null)
+            {
+                LoadRevolverProfileSelections();
+            }
+
             state.SelectedHandPoseDefinition = (CCS_HandPoseDefinition)EditorGUILayout.ObjectField(
                 "Hand Pose Asset",
                 state.SelectedHandPoseDefinition,
                 typeof(CCS_HandPoseDefinition),
                 false);
+            if (state.SelectedHandPoseDefinition != null
+                && !string.IsNullOrEmpty(state.SelectedHandPoseDefinition.Notes))
+            {
+                EditorGUILayout.HelpBox(state.SelectedHandPoseDefinition.Notes, MessageType.Info);
+            }
+
+            if (GUILayout.Button("Load Revolver Right-Hand Grip Pose"))
+            {
+                state.SelectedHandPoseDefinition =
+                    CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverRightHandGripPose();
+            }
+
             if (GUILayout.Button("Create Hand Pose Asset"))
             {
                 CreateHandPoseAsset();
@@ -344,40 +576,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         {
             DrawPendingDiff(state.SocketPendingChange, GetSelectedSocketTransform());
             DrawPendingDiff(state.IkPendingChange, GetSelectedIkTargetTransform());
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save To Socket Definition"))
-            {
-                SaveSocketToDefinition(showDialog: true);
-            }
-
-            if (GUILayout.Button("Save To Attachment Fit Profile"))
-            {
-                SaveAttachmentFitProfile(showDialog: true);
-            }
-
-            if (GUILayout.Button("Save To IK Pose Profile"))
-            {
-                SaveIkPoseProfile(showDialog: true);
-            }
-
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Apply Profile To Player"))
-            {
-                ApplySocketProfileToPlayer();
-            }
-
-            if (GUILayout.Button("Rebuild / Apply"))
-            {
-                RebuildAndApply();
-            }
-
-            if (GUILayout.Button("Validate"))
-            {
-                RunValidation();
-            }
-
-            EditorGUILayout.EndHorizontal();
+            DrawHint("Use the bottom action bar for Capture, Save, Apply, Test, Validate, and Cleanup.");
         }
 
         private void DrawStatusBar()
@@ -416,29 +615,134 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             }
         }
 
-        private void DrawPreviewPresetButtons()
+        private void DrawPreviewPresetButtons(float containerWidth)
         {
+            DrawWrappedButtons(
+                containerWidth,
+                new FitStudioButtonSpec("Frame", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.Frame, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Full Body", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.FullBody, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Right Hand", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.RightHand, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Left Hand", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.LeftHand, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Right Hip", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.RightHip, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Left Hip", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.LeftHip, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Back", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.Back, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Trigger Close-Up", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.TriggerCloseUp, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Muzzle View", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.MuzzleView, state.PlayerRoot, state.SelectedSocketId)));
+        }
+
+        private void DrawPreviewPresetButtonsAtRect(Rect area)
+        {
+            FitStudioButtonSpec[] buttons =
+            {
+                new FitStudioButtonSpec("Frame", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.Frame, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Full Body", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.FullBody, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Right Hand", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.RightHand, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Left Hand", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.LeftHand, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Right Hip", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.RightHip, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Left Hip", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.LeftHip, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Back", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.Back, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Trigger Close-Up", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.TriggerCloseUp, state.PlayerRoot, state.SelectedSocketId)),
+                new FitStudioButtonSpec("Muzzle View", () => previewCamera.ApplyPreset(CCS_EquipmentFitStudioCameraPreset.MuzzleView, state.PlayerRoot, state.SelectedSocketId)),
+            };
+
+            float buttonWidth = WrappedButtonMinWidth;
+            float buttonHeight = 20f;
+            float x = area.x;
+            float y = area.y;
+            float maxX = area.xMax;
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                FitStudioButtonSpec button = buttons[i];
+                if (!button.Visible || button.OnClick == null)
+                {
+                    continue;
+                }
+
+                if (x + buttonWidth > maxX)
+                {
+                    x = area.x;
+                    y += buttonHeight + 4f;
+                }
+
+                Rect buttonRect = new Rect(x, y, buttonWidth, buttonHeight);
+                if (GUI.Button(buttonRect, button.Label))
+                {
+                    button.OnClick.Invoke();
+                }
+
+                x += buttonWidth + 4f;
+            }
+        }
+
+        private readonly struct FitStudioButtonSpec
+        {
+            public FitStudioButtonSpec(string label, System.Action onClick, bool visible = true)
+            {
+                Label = label;
+                OnClick = onClick;
+                Visible = visible;
+            }
+
+            public string Label { get; }
+
+            public System.Action OnClick { get; }
+
+            public bool Visible { get; }
+        }
+
+        private static void DrawWrappedButtons(float containerWidth, params FitStudioButtonSpec[] buttons)
+        {
+            float safeWidth = Mathf.Max(WrappedButtonMinWidth, containerWidth);
+            int buttonsPerRow = Mathf.Max(1, Mathf.FloorToInt(safeWidth / (WrappedButtonMinWidth + 4f)));
+            int visibleCount = 0;
+
             EditorGUILayout.BeginHorizontal();
-            DrawPresetButton("Frame", CCS_EquipmentFitStudioCameraPreset.Frame);
-            DrawPresetButton("Full Body", CCS_EquipmentFitStudioCameraPreset.FullBody);
-            DrawPresetButton("Right Hand", CCS_EquipmentFitStudioCameraPreset.RightHand);
-            DrawPresetButton("Left Hand", CCS_EquipmentFitStudioCameraPreset.LeftHand);
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            DrawPresetButton("Right Hip", CCS_EquipmentFitStudioCameraPreset.RightHip);
-            DrawPresetButton("Left Hip", CCS_EquipmentFitStudioCameraPreset.LeftHip);
-            DrawPresetButton("Back", CCS_EquipmentFitStudioCameraPreset.Back);
-            DrawPresetButton("Trigger Close-Up", CCS_EquipmentFitStudioCameraPreset.TriggerCloseUp);
-            DrawPresetButton("Muzzle View", CCS_EquipmentFitStudioCameraPreset.MuzzleView);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                FitStudioButtonSpec button = buttons[i];
+                if (!button.Visible || button.OnClick == null)
+                {
+                    continue;
+                }
+
+                if (visibleCount > 0 && visibleCount % buttonsPerRow == 0)
+                {
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.BeginHorizontal();
+                }
+
+                if (GUILayout.Button(button.Label, GUILayout.MinWidth(WrappedButtonMinWidth), GUILayout.ExpandWidth(true)))
+                {
+                    button.OnClick.Invoke();
+                }
+
+                visibleCount++;
+            }
+
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawPresetButton(string label, CCS_EquipmentFitStudioCameraPreset preset)
+        private float GetLeftPanelWidth()
         {
-            if (GUILayout.Button(label))
+            float availableWidth = Mathf.Max(MinWindowWidth, position.width) - RightPanelMinWidth - 24f;
+            float leftWidth = Mathf.Clamp(LeftPanelPreferredWidth, LeftPanelMinWidth, LeftPanelMaxWidth);
+            if (availableWidth - leftWidth < RightPanelMinWidth)
             {
-                previewCamera.ApplyPreset(preset, state.PlayerRoot, state.SelectedSocketId);
+                leftWidth = Mathf.Max(LeftPanelMinWidth, availableWidth - RightPanelMinWidth);
             }
+
+            return leftWidth;
+        }
+
+        private float GetRightPanelWidth()
+        {
+            float availableWidth = Mathf.Max(MinWindowWidth, position.width) - LeftPanelMinWidth - 24f;
+            return Mathf.Clamp(RightPanelMinWidth, RightPanelMinWidth, RightPanelMaxWidth);
+        }
+
+        private float GetPreviewPanelContentWidth()
+        {
+            return Mathf.Max(RightPanelMinWidth, position.width - GetLeftPanelWidth() - 24f);
         }
 
         private static void DrawHint(string message)
@@ -448,17 +752,44 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private static void DrawPendingDiff(CCS_EquipmentFitStudioPendingChange pending, Transform target)
         {
-            if (target == null || !pending.HasChanges)
+            if (!pending.HasCaptured)
             {
                 return;
             }
 
-            EditorGUILayout.LabelField(
-                pending.Label + " Position: " + pending.OldPosition + " -> " + pending.NewPosition);
-            EditorGUILayout.LabelField(
-                pending.Label + " Rotation: " + pending.OldEulerAngles + " -> " + pending.NewEulerAngles);
-            EditorGUILayout.LabelField(
-                pending.Label + " Scale: " + pending.OldScale + " -> " + pending.NewScale);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("PENDING PROFILE SAVE", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Socket: " + pending.Label);
+            if (!string.IsNullOrEmpty(pending.ProfileAssetName))
+            {
+                EditorGUILayout.LabelField("Profile: " + pending.ProfileAssetName + ".asset");
+            }
+
+            if (pending.HasTransformChanges)
+            {
+                EditorGUILayout.LabelField(
+                    "Position:\nOld: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.OldPosition)
+                    + "\nNew: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.NewPosition));
+                EditorGUILayout.LabelField(
+                    "Rotation:\nOld: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.OldEulerAngles)
+                    + "\nNew: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.NewEulerAngles));
+                EditorGUILayout.LabelField(
+                    "Scale:\nOld: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.OldScale)
+                    + "\nNew: " + CCS_EquipmentFitStudioPendingChange.FormatVector3(pending.NewScale));
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "No transform changes detected. You can still save, but the profile already matches this socket.",
+                    MessageType.Info);
+            }
+
+            if (target == null)
+            {
+                EditorGUILayout.HelpBox("Live socket transform is unavailable. Re-select the player.", MessageType.Warning);
+            }
+
+            EditorGUILayout.EndVertical();
         }
 
         private static void DrawNudgeControls(
@@ -476,29 +807,89 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
             EditorGUILayout.LabelField("Position Nudge");
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+X")) position.x += posSmall;
-            if (GUILayout.Button("-X")) position.x -= posSmall;
-            if (GUILayout.Button("+Y")) position.y += posSmall;
-            if (GUILayout.Button("-Y")) position.y -= posSmall;
-            if (GUILayout.Button("+Z")) position.z += posSmall;
-            if (GUILayout.Button("-Z")) position.z -= posSmall;
+            if (GUILayout.Button("+X", GUILayout.ExpandWidth(true)))
+            {
+                position.x += posSmall;
+            }
+
+            if (GUILayout.Button("-X", GUILayout.ExpandWidth(true)))
+            {
+                position.x -= posSmall;
+            }
+
+            if (GUILayout.Button("+Y", GUILayout.ExpandWidth(true)))
+            {
+                position.y += posSmall;
+            }
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("-Y", GUILayout.ExpandWidth(true)))
+            {
+                position.y -= posSmall;
+            }
+
+            if (GUILayout.Button("+Z", GUILayout.ExpandWidth(true)))
+            {
+                position.z += posSmall;
+            }
+
+            if (GUILayout.Button("-Z", GUILayout.ExpandWidth(true)))
+            {
+                position.z -= posSmall;
+            }
+
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.LabelField("Rotation Nudge");
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Pitch +")) euler.x += rotSmall;
-            if (GUILayout.Button("Pitch -")) euler.x -= rotSmall;
-            if (GUILayout.Button("Yaw +")) euler.y += rotSmall;
-            if (GUILayout.Button("Yaw -")) euler.y -= rotSmall;
-            if (GUILayout.Button("Roll +")) euler.z += rotSmall;
-            if (GUILayout.Button("Roll -")) euler.z -= rotSmall;
+            if (GUILayout.Button("Pitch +", GUILayout.ExpandWidth(true)))
+            {
+                euler.x += rotSmall;
+            }
+
+            if (GUILayout.Button("Pitch -", GUILayout.ExpandWidth(true)))
+            {
+                euler.x -= rotSmall;
+            }
+
+            if (GUILayout.Button("Yaw +", GUILayout.ExpandWidth(true)))
+            {
+                euler.y += rotSmall;
+            }
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Yaw -", GUILayout.ExpandWidth(true)))
+            {
+                euler.y -= rotSmall;
+            }
+
+            if (GUILayout.Button("Roll +", GUILayout.ExpandWidth(true)))
+            {
+                euler.z += rotSmall;
+            }
+
+            if (GUILayout.Button("Roll -", GUILayout.ExpandWidth(true)))
+            {
+                euler.z -= rotSmall;
+            }
+
             EditorGUILayout.EndHorizontal();
 
             if (allowScale)
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Scale +")) scale += Vector3.one * 0.01f;
-                if (GUILayout.Button("Scale -")) scale -= Vector3.one * 0.01f;
+                if (GUILayout.Button("Scale +", GUILayout.ExpandWidth(true)))
+                {
+                    scale += Vector3.one * 0.01f;
+                }
+
+                if (GUILayout.Button("Scale -", GUILayout.ExpandWidth(true)))
+                {
+                    scale -= Vector3.one * 0.01f;
+                }
+
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -512,22 +903,43 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private void SpawnPreviewItem()
         {
+            state.LastPreviewError = string.Empty;
+            if (!CanSpawnPreview(out string blockingReason))
+            {
+                state.LastPreviewError = blockingReason;
+                Debug.LogWarning("[Equipment Fit Studio] " + blockingReason);
+                SetStatus(blockingReason, MessageType.Error);
+                return;
+            }
+
             Transform socketTransform = GetSelectedSocketTransform();
             GameObject source = settings != null ? settings.DefaultPreviewWeaponPrefab : null;
-            if (previewItem.SpawnUnderSocket(socketTransform, source))
+            if (!previewItem.TrySpawnUnderSocket(socketTransform, source, out string spawnError))
             {
-                state.PreviewItemSpawned = true;
-                if (settings != null && settings.AutoFrameOnSelection)
-                {
-                    previewCamera.FrameTransform(socketTransform, 1.2f);
-                }
+                state.LastPreviewError = spawnError;
+                Debug.LogWarning("[Equipment Fit Studio] " + spawnError);
+                SetStatus(spawnError, MessageType.Error);
+                return;
+            }
 
-                SetStatus("Preview item spawned under " + state.SelectedSocketId + ".", MessageType.Info);
-            }
-            else
-            {
-                SetStatus("Could not spawn preview item.", MessageType.Error);
-            }
+            state.PreviewItemSpawned = true;
+            state.LastPreviewError = string.Empty;
+            state.WorkflowStepOverride = null;
+            state.JustSavedProfileThisSession = false;
+            Transform frameTarget = previewItem.PreviewRoot != null
+                ? previewItem.PreviewRoot.transform
+                : socketTransform;
+            previewCamera.FrameTransform(frameTarget, 1.35f);
+            previewCamera.ApplyPreset(
+                state.SelectedSocketId == CCS_EquipmentConstants.HandSocketRightId
+                    ? CCS_EquipmentFitStudioCameraPreset.RightHand
+                    : state.SelectedSocketId == CCS_EquipmentConstants.HolsterSocketRightHipId
+                        ? CCS_EquipmentFitStudioCameraPreset.RightHip
+                        : CCS_EquipmentFitStudioCameraPreset.Frame,
+                state.PlayerRoot,
+                state.SelectedSocketId);
+            SetStatus("Preview spawned under " + state.SelectedSocketId + " (zeroed).", MessageType.Info);
+            Repaint();
         }
 
         private void SaveSocketToDefinition(bool showDialog)
@@ -651,7 +1063,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private void RebuildAndApply()
         {
-            CleanupTemporaryObjects(resetIkPreviewWeights: true);
+            CleanupTemporaryObjects(resetIkPreviewWeights: true, clearTestAttachments: true);
             CCS_EquipmentSocketProfileBuilder.EnsureDefaultEquipmentSocketProfile();
             CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
@@ -664,6 +1076,14 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private void RunValidation()
         {
+            CleanupTemporaryObjects(resetIkPreviewWeights: true, clearTestAttachments: true);
+            CCS_EquipmentFitStudioPreviewPlayerUtility.ClearPreviewPlayer();
+            if (state.UsesEditorPreviewPlayer)
+            {
+                state.PlayerRoot = null;
+                state.UsesEditorPreviewPlayer = false;
+            }
+
             CCS_SurvivalValidationResult result = CCS_EquipmentFitStudioValidationUtility.ValidateEquipmentFitStudioFoundation();
             statusMessage = result.Message;
             statusType = result.IsSuccess ? MessageType.Info : MessageType.Error;
@@ -671,6 +1091,14 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private void ResetSocketToProfile(Transform socketTransform)
         {
+            if (CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
+                    state.SelectedSocketId,
+                    socketTransform))
+            {
+                previewItem.EnforceZeroedTransform();
+                return;
+            }
+
             CCS_EquipmentSocketDefinition definition = FindSocketDefinition(state.SelectedSocketId);
             if (definition == null || socketTransform == null)
             {
@@ -681,6 +1109,120 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             socketTransform.localRotation = Quaternion.Euler(definition.LocalEulerAngles);
             socketTransform.localScale = definition.LocalScale;
             previewItem.EnforceZeroedTransform();
+        }
+
+        private void LoadRevolverProfileSelections()
+        {
+            state.SelectedAttachmentFitProfile =
+                CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverAttachmentFitProfile(state.SelectedSocketId);
+            state.SelectedIkPoseProfile = CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverAimIkPoseProfile();
+            if (state.SelectedHandPoseDefinition == null)
+            {
+                state.SelectedHandPoseDefinition =
+                    CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverRightHandGripPose();
+            }
+
+            InitializePendingBaselineFromProfile();
+        }
+
+        private void InitializePendingBaselineFromProfile()
+        {
+            CCS_WeaponAttachmentFitProfile profile = state.SelectedAttachmentFitProfile;
+            if (profile != null)
+            {
+                state.SocketPendingChange.SetBaseline(
+                    profile.SocketLocalPosition,
+                    profile.SocketLocalEulerAngles,
+                    profile.SocketLocalScale);
+                state.SocketPendingChange.ProfileAssetName = profile.name;
+            }
+            else
+            {
+                state.SocketPendingChange.SetBaseline(Vector3.zero, Vector3.zero, Vector3.one);
+                state.SocketPendingChange.ProfileAssetName = string.Empty;
+            }
+
+            state.HasPendingSaveCapture = false;
+            state.SavedProfileThisSession = false;
+            state.JustSavedProfileThisSession = false;
+        }
+
+        private bool HasRevolverAttachmentFitProfileForSelectedSocket()
+        {
+            return !string.IsNullOrEmpty(
+                CCS_EquipmentFitStudioRevolverFitUtility.GetRevolverAttachmentFitProfilePath(state.SelectedSocketId));
+        }
+
+        private void SaveRevolverAttachmentFitProfile(Transform socketTransform)
+        {
+            if (socketTransform == null)
+            {
+                SetStatus("Select a socket before saving revolver fit profile.", MessageType.Error);
+                return;
+            }
+
+            if (!CCS_EquipmentFitStudioRevolverFitUtility.SaveRevolverAttachmentFitProfile(
+                    state.SelectedSocketId,
+                    socketTransform))
+            {
+                SetStatus("Could not save revolver fit profile for " + state.SelectedSocketId + ".", MessageType.Error);
+                return;
+            }
+
+            state.SelectedAttachmentFitProfile =
+                CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverAttachmentFitProfile(state.SelectedSocketId);
+            state.SocketPendingChange.SetBaseline(
+                socketTransform.localPosition,
+                socketTransform.localEulerAngles,
+                socketTransform.localScale);
+            SetStatus(
+                "Saved revolver fit profile for " + state.SelectedSocketId + ".",
+                MessageType.Info);
+        }
+
+        private void ApplyRevolverAttachmentFitProfile(Transform socketTransform)
+        {
+            if (socketTransform == null)
+            {
+                SetStatus("Select a socket before applying revolver fit profile.", MessageType.Error);
+                return;
+            }
+
+            if (!CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
+                    state.SelectedSocketId,
+                    socketTransform))
+            {
+                SetStatus("Could not apply revolver fit profile for " + state.SelectedSocketId + ".", MessageType.Error);
+                return;
+            }
+
+            previewItem.EnforceZeroedTransform();
+            SetStatus("Applied revolver fit profile to " + state.SelectedSocketId + ".", MessageType.Info);
+        }
+
+        private void SaveRevolverAimIkPoseProfile()
+        {
+            Transform ikRoot = GetIkTargetsRoot();
+            if (ikRoot == null)
+            {
+                SetStatus("Missing CCS_WeaponIKTargets on selected player.", MessageType.Error);
+                return;
+            }
+
+            previewRigWeight = 0f;
+            previewRightHandIkWeight = 0f;
+            previewLeftHandIkWeight = 0f;
+            previewAimWeight = 0f;
+            ApplyIkPreviewWeights();
+
+            if (!CCS_EquipmentFitStudioRevolverFitUtility.SaveRevolverAimIkPoseProfile(ikRoot))
+            {
+                SetStatus("Could not save revolver aim IK profile.", MessageType.Error);
+                return;
+            }
+
+            state.SelectedIkPoseProfile = CCS_EquipmentFitStudioRevolverFitUtility.LoadRevolverAimIkPoseProfile();
+            SetStatus("Saved revolver aim IK profile with zero weights.", MessageType.Info);
         }
 
         private void MirrorSelectedSocket(Transform socketTransform)
@@ -709,17 +1251,55 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             state.SelectedHandPoseDefinition = pose;
         }
 
-        private void TryAssignDefaultPlayer()
+        private void TryAssignDefaultPlayer(bool forceRefresh = false)
         {
-            if (state.PlayerRoot != null)
+            if (EditorApplication.isPlaying)
             {
+                state.FitStudioMode = CCS_EquipmentFitStudioFitMode.PlayModeRuntimeTest;
+                state.UsesEditorPreviewPlayer = false;
+                if (forceRefresh
+                    || state.PlayerRoot == null
+                    || !IsValidRuntimePlayerTarget(state.PlayerRoot))
+                {
+                    if (CCS_EquipmentFitStudioPreviewPlayerUtility.TryFindRuntimePlayer(
+                            out GameObject runtimePlayer,
+                            out _))
+                    {
+                        state.PlayerRoot = runtimePlayer;
+                    }
+                    else
+                    {
+                        state.PlayerRoot = null;
+                    }
+                }
+
+                return;
+            }
+
+            state.FitStudioMode = CCS_EquipmentFitStudioFitMode.EditFitPreview;
+            if (!forceRefresh
+                && state.PlayerRoot != null
+                && CCS_EquipmentFitStudioPreviewPlayerUtility.IsValidEditFitPlayerTarget(state.PlayerRoot))
+            {
+                state.UsesEditorPreviewPlayer =
+                    CCS_EquipmentFitStudioPreviewPlayerUtility.IsPreviewPlayer(state.PlayerRoot);
+                return;
+            }
+
+            GameObject existingPreview = CCS_EquipmentFitStudioPreviewPlayerUtility.FindExistingPreviewPlayer();
+            if (existingPreview != null)
+            {
+                state.PlayerRoot = existingPreview;
+                state.UsesEditorPreviewPlayer = true;
                 return;
             }
 
             CCS_EquipmentSocketRegistry registry = Object.FindFirstObjectByType<CCS_EquipmentSocketRegistry>();
-            if (registry != null)
+            if (registry != null
+                && !CCS_EquipmentFitStudioPreviewPlayerUtility.IsPreviewPlayer(registry.gameObject))
             {
                 state.PlayerRoot = registry.gameObject;
+                state.UsesEditorPreviewPlayer = false;
                 return;
             }
 
@@ -728,7 +1308,37 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 && prefabStage.prefabContentsRoot.GetComponent<CCS_EquipmentSocketRegistry>() != null)
             {
                 state.PlayerRoot = prefabStage.prefabContentsRoot;
+                state.UsesEditorPreviewPlayer = false;
+                return;
             }
+
+            state.PlayerRoot = null;
+            state.UsesEditorPreviewPlayer = false;
+        }
+
+        private static bool IsValidRuntimePlayerTarget(GameObject playerRoot)
+        {
+            return playerRoot != null
+                && !CCS_EquipmentFitStudioPreviewPlayerUtility.IsPreviewPlayer(playerRoot)
+                && playerRoot.GetComponent<CCS_EquipmentSocketRegistry>() != null;
+        }
+
+        private bool CanUseEditFitTuning()
+        {
+            return state.FitStudioMode == CCS_EquipmentFitStudioFitMode.EditFitPreview
+                && !EditorApplication.isPlaying;
+        }
+
+        private bool CanUsePlayModeAimFit()
+        {
+            return state.FitStudioMode == CCS_EquipmentFitStudioFitMode.PlayModeAimFit
+                && EditorApplication.isPlaying
+                && state.SelectedSocketId == CCS_EquipmentConstants.HandSocketRightId;
+        }
+
+        private bool CanUseFitCaptureAndSave()
+        {
+            return CanUseEditFitTuning() || CanUsePlayModeAimFit();
         }
 
         private Transform GetSelectedSocketTransform()
@@ -915,32 +1525,365 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 Handles.color = previewItem.IsZeroed ? Color.green : Color.red;
                 Handles.Label(previewItem.PreviewRoot.transform.position, "Preview zeroed: " + previewItem.IsZeroed);
             }
+
+            if (HasTestAttachments())
+            {
+                DrawTestFitSceneLabels();
+            }
+        }
+
+        private void DrawTestFitSceneLabels()
+        {
+            if (state.PlayerRoot == null)
+            {
+                return;
+            }
+
+            Transform[] transforms = state.PlayerRoot.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                Transform candidate = transforms[i];
+                if (candidate.name == CCS_EquipmentConstants.EditorTestHolsterFitObjectName
+                    || candidate.name == CCS_EquipmentConstants.EditorTestEquippedFitObjectName)
+                {
+                    Handles.color = Color.cyan;
+                    Handles.Label(candidate.position, "EDITOR TEST FIT — NOT SAVED");
+                }
+            }
         }
 
         private void OnPlayModeStateChanged(PlayModeStateChange change)
         {
-            if (state.HasUnsavedChanges && change == PlayModeStateChange.ExitingEditMode)
+            if (state.HasPendingSaveCapture
+                && (change == PlayModeStateChange.ExitingEditMode || change == PlayModeStateChange.ExitingPlayMode))
             {
-                Debug.LogWarning("[Equipment Fit Studio] Pending unsaved changes exist before Play Mode.");
+                bool continueAnyway = EditorUtility.DisplayDialog(
+                    "Unsaved Fit Values",
+                    "You have captured fit values that are not saved to the profile asset. Save before testing in Play Mode.",
+                    "Continue Anyway",
+                    "Cancel");
+                if (!continueAnyway && change == PlayModeStateChange.ExitingEditMode)
+                {
+                    EditorApplication.isPlaying = false;
+                    return;
+                }
             }
 
-            if (change == PlayModeStateChange.EnteredEditMode || change == PlayModeStateChange.ExitingPlayMode)
+            if (change == PlayModeStateChange.ExitingEditMode)
             {
-                CleanupTemporaryObjects(resetIkPreviewWeights: true);
+                CCS_EquipmentFitStudioPreviewPlayerUtility.ClearPreviewPlayer();
+                CCS_EquipmentFitStudioPosePreviewUtility.ClearAllPosePreview();
+                state.PosePreviewMode = CCS_EquipmentFitStudioPosePreviewMode.Neutral;
+                state.UserManuallySelectedPosePreview = false;
+                state.UsesEditorPreviewPlayer = false;
+                state.PlayerRoot = null;
+                state.FitStudioMode = CCS_EquipmentFitStudioFitMode.PlayModeAimFit;
+            }
+
+            if (change == PlayModeStateChange.EnteredPlayMode)
+            {
+                state.FitStudioMode = CCS_EquipmentFitStudioFitMode.PlayModeAimFit;
+                TryAssignDefaultPlayer(forceRefresh: true);
+            }
+
+            if (change == PlayModeStateChange.ExitingPlayMode)
+            {
+                CCS_EquipmentFitStudioPlayModeAimFitUtility.CleanupEditorOverrides(state.PlayerRoot);
+                CCS_EquipmentFitStudioIkDiagnosticsUtility.ResetIkPreviewToZero(state.PlayerRoot);
+                state.ForceAimPoseActive = false;
+                CCS_EquipmentFitStudioPosePreviewUtility.ClearAllPosePreview();
+                state.PosePreviewMode = CCS_EquipmentFitStudioPosePreviewMode.Neutral;
+                state.UserManuallySelectedPosePreview = false;
+                CleanupTemporaryObjects(resetIkPreviewWeights: true, clearTestAttachments: true);
+            }
+
+            if (change == PlayModeStateChange.EnteredEditMode)
+            {
+                CCS_EquipmentFitStudioPreviewPlayerUtility.ClearPreviewPlayer();
+                state.UsesEditorPreviewPlayer = false;
+                state.PlayerRoot = null;
+                state.FitStudioMode = CCS_EquipmentFitStudioFitMode.EditFitPreview;
+                SyncFitTargetRoutingToState();
+                RequestAutoLoadPreview(deferUntilAfterGui: true);
             }
         }
 
-        private void CleanupTemporaryObjects(bool resetIkPreviewWeights)
+        private void CaptureLiveValues()
+        {
+            switch (state.Mode)
+            {
+                case CCS_EquipmentFitStudioMode.IkTargetTuner:
+                    Transform ikTarget = GetSelectedIkTargetTransform();
+                    if (ikTarget == null)
+                    {
+                        SetStatus("Select a player with IK targets before capture.", MessageType.Error);
+                        return;
+                    }
+
+                    state.IkPendingChange.Capture(
+                        state.SelectedIkTargetName,
+                        ikTarget.localPosition,
+                        ikTarget.localEulerAngles,
+                        Vector3.one);
+                    SetStatus("Captured IK target values.", MessageType.Info);
+                    break;
+                default:
+                    if (CanUsePlayModeAimFit())
+                    {
+                        if (!CCS_EquipmentFitStudioPlayModeAimFitUtility.TryCaptureFromRuntimeAttachmentRoot(
+                                state.PlayerRoot,
+                                state.SocketPendingChange,
+                                out string runtimeMessage,
+                                out MessageType runtimeMessageType))
+                        {
+                            SetStatus(runtimeMessage, runtimeMessageType);
+                            Repaint();
+                            return;
+                        }
+
+                        state.HasPendingSaveCapture = true;
+                        state.SavedProfileThisSession = false;
+                        state.JustSavedProfileThisSession = false;
+                        state.WorkflowStepOverride = CCS_EquipmentFitStudioWorkflowStep.SaveProfile;
+                        SetStatus(runtimeMessage, runtimeMessageType);
+                        Repaint();
+                        break;
+                    }
+
+                    if (!CCS_EquipmentFitStudioCaptureUtility.TryCaptureSocketValues(
+                            state.PlayerRoot,
+                            GetSelectedSocketTransform(),
+                            state.SelectedSocketId,
+                            previewItem.IsSpawned,
+                            state.SocketPendingChange,
+                            out string message,
+                            out MessageType messageType))
+                    {
+                        SetStatus(message, messageType);
+                        Repaint();
+                        return;
+                    }
+
+                    state.HasPendingSaveCapture = true;
+                    state.SavedProfileThisSession = false;
+                    state.JustSavedProfileThisSession = false;
+                    state.WorkflowStepOverride = CCS_EquipmentFitStudioWorkflowStep.SaveProfile;
+                    SetStatus(message, messageType);
+                    Repaint();
+                    break;
+            }
+        }
+
+        private void SaveActiveProfile()
+        {
+            switch (state.Mode)
+            {
+                case CCS_EquipmentFitStudioMode.IkTargetTuner:
+                    SaveRevolverAimIkPoseProfile();
+                    break;
+                default:
+                    if (!CanSavePendingCapture())
+                    {
+                        SetStatus("Capture values first. Save needs a pending captured transform.", MessageType.Warning);
+                        return;
+                    }
+
+                    if (!HasRevolverAttachmentFitProfileForSelectedSocket())
+                    {
+                        SetStatus(
+                            "No revolver fit profile is mapped for this socket. Select Right Hip Holster or Right Hand.",
+                            MessageType.Error);
+                        return;
+                    }
+
+                    if (!CCS_EquipmentFitProfilePersistenceUtility.TrySavePendingCaptureDetailed(
+                            state.SocketPendingChange,
+                            state.SelectedSocketId,
+                            out CCS_EquipmentFitProfileSaveResult saveResult))
+                    {
+                        SetStatus(saveResult.Message, MessageType.Error);
+                        Repaint();
+                        return;
+                    }
+
+                    state.LastSaveConfirmationMessage = saveResult.Message;
+                    state.SelectedAttachmentFitProfile =
+                        CCS_EquipmentFitProfilePersistenceUtility.LoadProfileFromDisk(saveResult.ProfilePath);
+                    state.HasPendingSaveCapture = false;
+                    state.SavedProfileThisSession = true;
+                    state.JustSavedProfileThisSession = true;
+                    state.WorkflowStepOverride = CCS_EquipmentFitStudioWorkflowStep.TestSavedFit;
+                    SetStatus(GetSlotSpecificSaveStatusMessage(), MessageType.Info);
+                    Repaint();
+                    break;
+            }
+        }
+
+        private bool CanCaptureLiveValues()
+        {
+            if (!CanUseFitCaptureAndSave())
+            {
+                return false;
+            }
+
+            if (state.Mode == CCS_EquipmentFitStudioMode.IkTargetTuner)
+            {
+                return GetSelectedIkTargetTransform() != null;
+            }
+
+            return state.PlayerRoot != null
+                && GetSelectedSocketTransform() != null
+                && HasRevolverAttachmentFitProfileForSelectedSocket();
+        }
+
+        private bool CanSavePendingCapture()
+        {
+            if (!CanUseFitCaptureAndSave())
+            {
+                return false;
+            }
+
+            if (state.Mode == CCS_EquipmentFitStudioMode.IkTargetTuner)
+            {
+                return GetIkTargetsRoot() != null;
+            }
+
+            return state.HasPendingSaveCapture
+                && state.SocketPendingChange.HasCaptured
+                && HasRevolverAttachmentFitProfileForSelectedSocket();
+        }
+
+        private void ApplyActiveSavedProfile()
+        {
+            switch (state.Mode)
+            {
+                case CCS_EquipmentFitStudioMode.IkTargetTuner:
+                    Transform ikRoot = GetIkTargetsRoot();
+                    if (CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAimIkPoseProfile(ikRoot))
+                    {
+                        SetStatus("Applied saved revolver aim IK profile.", MessageType.Info);
+                    }
+                    else
+                    {
+                        SetStatus("Could not apply saved aim IK profile.", MessageType.Error);
+                    }
+
+                    break;
+                default:
+                    ApplyRevolverAttachmentFitProfile(GetSelectedSocketTransform());
+                    ApplySocketProfileToPlayer();
+                    break;
+            }
+        }
+
+        private void TestSavedHolsterFit()
+        {
+            GameObject source = settings != null ? settings.DefaultPreviewWeaponPrefab : null;
+            if (CCS_EquipmentFitStudioTestAttachmentUtility.TestSavedHolsterFit(state.PlayerRoot, source))
+            {
+                SetStatus("Test holster fit attached from reloaded profile (editor-only).", MessageType.Info);
+                Repaint();
+            }
+            else
+            {
+                SetStatus("Could not test saved holster fit.", MessageType.Error);
+            }
+        }
+
+        private void TestSavedEquippedFit()
+        {
+            GameObject source = settings != null ? settings.DefaultPreviewWeaponPrefab : null;
+            if (CCS_EquipmentFitStudioTestAttachmentUtility.TestSavedEquippedFit(state.PlayerRoot, source))
+            {
+                SetStatus("Test equipped fit attached (editor-only).", MessageType.Info);
+            }
+            else
+            {
+                SetStatus("Could not test saved equipped fit.", MessageType.Error);
+            }
+        }
+
+        private void ClearTestAttachments()
+        {
+            CCS_EquipmentFitStudioTestAttachmentUtility.ClearTestAttachments(state.PlayerRoot);
+            SetStatus("Cleared editor test attachments.", MessageType.Info);
+        }
+
+        private void ClearPreviewAndWeights()
+        {
+            previewItem.DestroyPreview();
+            state.PreviewItemSpawned = false;
+            previewRigWeight = 0f;
+            previewRightHandIkWeight = 0f;
+            previewLeftHandIkWeight = 0f;
+            previewAimWeight = 0f;
+            ApplyIkPreviewWeights();
+            SetStatus("Preview cleared and IK preview weights reset.", MessageType.Info);
+        }
+
+        private bool HasTestAttachments()
+        {
+            return CCS_EquipmentFitStudioTestAttachmentUtility.HasAnyTestAttachment(state.PlayerRoot);
+        }
+
+        private bool HasNonZeroIkPreviewWeights()
+        {
+            return previewRigWeight != 0f
+                || previewRightHandIkWeight != 0f
+                || previewLeftHandIkWeight != 0f
+                || previewAimWeight != 0f;
+        }
+
+        private bool RequiresCleanup()
+        {
+            return previewItem.IsSpawned
+                || HasTestAttachments()
+                || HasNonZeroIkPreviewWeights()
+                || CCS_EquipmentFitStudioPosePreviewUtility.IsPosePreviewActive
+                || CCS_EquipmentFitStudioPreviewPlayerUtility.FindExistingPreviewPlayer() != null;
+        }
+
+        private CCS_EquipmentFitStudioWorkflowStep GetActiveWorkflowStep()
+        {
+            return CCS_EquipmentFitStudioWorkflowAccordion.ResolveActiveStep(
+                state.PlayerRoot,
+                state.SelectedWeaponId,
+                state.SelectedSocketId,
+                previewItem.IsSpawned,
+                state.HasPendingSaveCapture,
+                state.JustSavedProfileThisSession,
+                HasTestAttachments(),
+                IsSelectedSocketCompatible(),
+                state.WorkflowStepOverride);
+        }
+
+        private void CleanupTemporaryObjects(bool resetIkPreviewWeights, bool clearTestAttachments)
         {
             previewItem.DestroyPreview();
             previewCamera.DestroyCamera();
             state.PreviewItemSpawned = false;
+            if (clearTestAttachments)
+            {
+                CCS_EquipmentFitStudioTestAttachmentUtility.ClearTestAttachments(state.PlayerRoot);
+            }
+
             if (resetIkPreviewWeights)
             {
                 ResetIkPreviewWeights();
             }
 
-            CCS_EquipmentFitStudioCleanupUtility.CleanupPreviewObjectsInOpenScenes();
+            CCS_EquipmentFitStudioPosePreviewUtility.ClearAllPosePreview();
+            state.PosePreviewMode = CCS_EquipmentFitStudioPosePreviewMode.Neutral;
+            state.UserManuallySelectedPosePreview = false;
+
+            if (state.UsesEditorPreviewPlayer)
+            {
+                CCS_EquipmentFitStudioPreviewPlayerUtility.ClearPreviewPlayer();
+                state.PlayerRoot = null;
+                state.UsesEditorPreviewPlayer = false;
+            }
+
+            CCS_EquipmentFitStudioCleanupUtility.CleanupEditorTemporaryObjectsInOpenScenes();
         }
 
         private int GetSelectedSocketIndex()

@@ -1051,7 +1051,10 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
             Transform tpCameraTransform = prefabRoot.transform.Find("CinemachineCamera_TP");
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureCinemachineLookInput(tpCameraTransform);
-            changed |= CCS_CharacterCameraRigInputBuilder.EnsureThirdPersonCameraPriority(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureFirstPersonBodyAwareCameras(prefabRoot);
+            changed |= CCS_CharacterCameraRigInputBuilder.SetThirdPersonCameraPriority(
+                tpCameraTransform,
+                CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureAimCamera(prefabRoot);
             if (changed)
             {
@@ -1122,7 +1125,10 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
             Transform tpCameraTransform = existing.Find("CinemachineCamera_TP");
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureCinemachineLookInput(tpCameraTransform);
-            changed |= CCS_CharacterCameraRigInputBuilder.EnsureThirdPersonCameraPriority(tpCameraTransform);
+            changed |= CCS_CharacterCameraRigInputBuilder.EnsureFirstPersonBodyAwareCameras(existing.gameObject);
+            changed |= CCS_CharacterCameraRigInputBuilder.SetThirdPersonCameraPriority(
+                tpCameraTransform,
+                CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
             changed |= CCS_CharacterCameraRigInputBuilder.EnsureAimCamera(existing.gameObject);
 
             return changed;
@@ -1146,15 +1152,42 @@ namespace CCS.Modules.CharacterController.Editor
                 ? tpCameraTransform.GetComponent<CinemachineCamera>()
                 : null;
 
+            Transform fpCameraTransform = cameraRigRoot.transform.Find(
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCinemachineCameraName);
+            CinemachineCamera firstPersonCamera = fpCameraTransform != null
+                ? fpCameraTransform.GetComponent<CinemachineCamera>()
+                : null;
+            Transform fpAimCameraTransform = cameraRigRoot.transform.Find(
+                CCS_CharacterControllerConstants.FirstPersonAimCinemachineCameraName);
             bool changed = false;
+            if (fpAimCameraTransform != null)
+            {
+                Object.DestroyImmediate(fpAimCameraTransform.gameObject, true);
+                changed = true;
+            }
+
             SerializedObject serializedCamera = new SerializedObject(cameraController);
             SerializedProperty cinemachineProperty = serializedCamera.FindProperty("cinemachineCamera");
+            SerializedProperty firstPersonProperty = serializedCamera.FindProperty("firstPersonCinemachineCamera");
+            SerializedProperty firstPersonAimProperty = serializedCamera.FindProperty("firstPersonAimCinemachineCamera");
             SerializedProperty pivotProperty = serializedCamera.FindProperty("cameraPivot");
             SerializedProperty lookTargetProperty = serializedCamera.FindProperty("cameraLookTarget");
 
             if (cinemachineProperty != null && cinemachineProperty.objectReferenceValue != cinemachineCamera)
             {
                 cinemachineProperty.objectReferenceValue = cinemachineCamera;
+                changed = true;
+            }
+
+            if (firstPersonProperty != null && firstPersonProperty.objectReferenceValue != firstPersonCamera)
+            {
+                firstPersonProperty.objectReferenceValue = firstPersonCamera;
+                changed = true;
+            }
+
+            if (firstPersonAimProperty != null && firstPersonAimProperty.objectReferenceValue != null)
+            {
+                firstPersonAimProperty.objectReferenceValue = null;
                 changed = true;
             }
 

@@ -15,7 +15,7 @@ using UnityEngine;
 namespace CCS.Modules.Weapons
 {
     [DefaultExecutionOrder(115)]
-    public sealed class CCS_PlayerWeaponLoadout : MonoBehaviour, CCS_IWeaponAimGate
+    public sealed class CCS_PlayerWeaponLoadout : MonoBehaviour
     {
         #region Variables
 
@@ -33,13 +33,20 @@ namespace CCS.Modules.Weapons
 
         public string CurrentWeaponId => currentWeaponId;
 
-        public bool CanUseAimMovement => hasRevolver;
+        public bool HasWeapon(string weaponId)
+        {
+            return hasRevolver && !string.IsNullOrEmpty(weaponId) && currentWeaponId == weaponId;
+        }
 
         #endregion
 
         #region Events
 
         public event Action WeaponGranted;
+
+        public event Action RevolverGranted;
+
+        public event Action<string> WeaponGrantedWithId;
 
         #endregion
 
@@ -72,6 +79,8 @@ namespace CCS.Modules.Weapons
             }
 
             WeaponGranted?.Invoke();
+            RevolverGranted?.Invoke();
+            WeaponGrantedWithId?.Invoke(currentWeaponId);
         }
 
         #endregion

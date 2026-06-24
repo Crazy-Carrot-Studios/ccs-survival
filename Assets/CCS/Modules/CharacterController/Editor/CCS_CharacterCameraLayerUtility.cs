@@ -33,7 +33,29 @@ namespace CCS.Modules.CharacterController.Editor
         {
             bool changed = EnsurePlayerTag();
             changed |= EnsurePlayerLayer();
+            changed |= EnsureLocalSelfHeadHiddenLayer();
+            changed |= EnsureLocalFirstPersonBodyLayer();
             return changed;
+        }
+
+        public static bool EnsureLocalFirstPersonBodyLayer()
+        {
+            if (LayerMask.NameToLayer(CCS_CharacterControllerConstants.LocalFirstPersonBodyLayerName) >= 0)
+            {
+                return false;
+            }
+
+            return EnsureUserLayer(CCS_CharacterControllerConstants.LocalFirstPersonBodyLayerName);
+        }
+
+        public static bool EnsureLocalSelfHeadHiddenLayer()
+        {
+            if (LayerMask.NameToLayer(CCS_CharacterControllerConstants.LocalSelfHeadHiddenLayerName) >= 0)
+            {
+                return false;
+            }
+
+            return EnsureUserLayer(CCS_CharacterControllerConstants.LocalSelfHeadHiddenLayerName);
         }
 
         public static LayerMask GetCameraObstructionLayerMask()
@@ -111,6 +133,11 @@ namespace CCS.Modules.CharacterController.Editor
                 return false;
             }
 
+            return EnsureUserLayer(CCS_CharacterControllerConstants.PlayerLayerName);
+        }
+
+        private static bool EnsureUserLayer(string layerName)
+        {
             Object[] tagManagerAssets = AssetDatabase.LoadAllAssetsAtPath(TagManagerAssetPath);
             if (tagManagerAssets == null || tagManagerAssets.Length == 0)
             {
@@ -132,13 +159,13 @@ namespace CCS.Modules.CharacterController.Editor
                     continue;
                 }
 
-                layerSlot.stringValue = CCS_CharacterControllerConstants.PlayerLayerName;
+                layerSlot.stringValue = layerName;
                 tagManager.ApplyModifiedPropertiesWithoutUndo();
                 AssetDatabase.SaveAssets();
                 return true;
             }
 
-            Debug.LogError("[Camera Layer Utility] No free user layer slot available for Player.");
+            Debug.LogError("[Camera Layer Utility] No free user layer slot available for " + layerName + ".");
             return false;
         }
 

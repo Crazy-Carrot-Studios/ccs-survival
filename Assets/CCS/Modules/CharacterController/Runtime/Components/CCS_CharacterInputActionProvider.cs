@@ -45,6 +45,10 @@ namespace CCS.Modules.CharacterController
         private Vector2 externalMoveInput;
         private bool externalMoveActive;
 
+#if UNITY_EDITOR
+        private bool editorMovementFreezeActive;
+#endif
+
         #endregion
 
         #region Properties
@@ -52,7 +56,9 @@ namespace CCS.Modules.CharacterController
         public bool InputAccepted => inputAccepted;
 
         public Vector2 MoveInput =>
-            externalMoveActive
+            editorMovementFreezeActive
+                ? Vector2.zero
+                : externalMoveActive
                 ? externalMoveInput
                 : HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
 

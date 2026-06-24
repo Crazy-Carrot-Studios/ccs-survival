@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: CCS_DefaultCharacterCameraProfileSet
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfileSet
   defaultProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
-  firstPersonProfile: {fileID: 0}
+  thirdPersonSurvivalProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
+  firstPersonProfile: {fileID: 11400000, guid: 8cbf3ba88e834d141866f3b58f32274b, type: 2}
+  firstPersonAimProfile: {fileID: 11400000, guid: 22f3bd3b76aeab846b4bca65664c2f55, type: 2}
   aimOverShoulderProfile: {fileID: 11400000, guid: 6a177b1952465b84c980557398ed4793, type: 2}
   topDownProfile: {fileID: 0}
   horseProfile: {fileID: 0}

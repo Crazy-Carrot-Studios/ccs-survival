@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.5.6`
+**Current version:** `0.6.15`
 
 ## Purpose
 
@@ -33,6 +33,15 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.5.5`** | **Project audit and interaction cleanup** |
 | **`0.5.6`** | **Isolate player animation clips** |
 | **`0.6.0`** | **Revolver shooting foundation** |
+| **`0.6.7`** | **Equipment Fit Studio foundation** |
+| **`0.6.8`** | **Revolver fit profile tuning + Fit Studio UI polish + fire visuals** |
+| **`0.6.9`** | **Third-person default + first-person weapon aim** |
+| **`0.6.10`** | **Wild West one-handed revolver aim default** |
+| **`0.6.11`** | **Hard replace two-handed revolver aim with Wild West one-handed** |
+| **`0.6.12`** | **BodyAware-only first-person aim camera** |
+| **`0.6.14`** | **Local self head layer mask for separated head renderers** |
+| **`0.6.15`** | **Local self headless first-person body fallback (combined CC3 body)** |
+| **`0.6.16`** | **Revolver hand fit correction** (planned) |
 
 ---
 

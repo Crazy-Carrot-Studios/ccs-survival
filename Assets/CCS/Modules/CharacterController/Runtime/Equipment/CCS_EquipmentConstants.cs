@@ -5,7 +5,7 @@
 // PLACEMENT: Static constants. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.7 adds Equipment Fit Studio paths and preview object names.
+// NOTES: v0.6.8 adds Revolver M1879 fit profile pack paths and canonical IDs.
 // =============================================================================
 
 using UnityEngine;
@@ -34,6 +34,12 @@ namespace CCS.Modules.CharacterController
         public const string WeaponIkRigObjectName = "Rig_WeaponIK";
 
         public const string RightHandIkTargetObjectName = "CCS_RightHandIKTarget";
+
+        public const string RightPalmFitGuideObjectName = "RightPalmFitGuide";
+
+        public const string RightTriggerFingerGuideObjectName = "RightTriggerFingerGuide";
+
+        public const string RightBarrelForwardGuideObjectName = "RightBarrelForwardGuide";
 
         public const string RightElbowHintObjectName = "CCS_RightElbowHint";
 
@@ -104,12 +110,75 @@ namespace CCS.Modules.CharacterController
 
         public const string EditorPreviewCameraObjectName = "CCS_EquipmentFitPreviewCamera";
 
+        public const string EditorTestHolsterFitObjectName = "CCS_EDITOR_TEST_HOLSTER_FIT_DO_NOT_SAVE";
+
+        public const string EditorTestEquippedFitObjectName = "CCS_EDITOR_TEST_EQUIPPED_FIT_DO_NOT_SAVE";
+
+        public const string EditorFitPreviewPlayerObjectName = "CCS_EDITOR_FIT_PREVIEW_PLAYER_DO_NOT_SAVE";
+
+        public const string RuntimeHolsterAttachmentRootObjectName = "CCS_RUNTIME_Revolver_HolsterAttachmentRoot";
+
+        public const string RuntimeHolsteredVisualObjectName = "CCS_RUNTIME_Revolver_HolsteredVisual";
+
+        public const string RuntimeEquippedAttachmentRootObjectName = "CCS_RUNTIME_Revolver_EquippedAttachmentRoot";
+
+        public const string RuntimeEquippedAimConvergenceRootObjectName = "CCS_RUNTIME_Revolver_AimConvergenceRoot";
+
+        public const string RuntimeEquippedVisualObjectName = "CCS_RUNTIME_Revolver_EquippedVisual";
+
+        public static readonly string[] EditorTemporaryObjectNames =
+        {
+            EditorPreviewItemObjectName,
+            EditorPreviewCameraObjectName,
+            EditorTestHolsterFitObjectName,
+            EditorTestEquippedFitObjectName,
+            EditorFitPreviewPlayerObjectName,
+            "EDITOR_TEST_FIT_LABEL_DO_NOT_SAVE",
+        };
+
+        public static readonly string[] RuntimeTemporaryObjectNames =
+        {
+            RuntimeHolsterAttachmentRootObjectName,
+            RuntimeHolsteredVisualObjectName,
+            RuntimeEquippedAttachmentRootObjectName,
+            RuntimeEquippedAimConvergenceRootObjectName,
+            RuntimeEquippedVisualObjectName,
+        };
+
+        public const string EquipmentFitStudioVersionLabel = "v0.6.8";
+
         public const string EquipmentFitStudioMenuPath =
             "CCS/Character Controller/Equipment/Equipment Fit Studio";
 
-        public const string DefaultPreviewWeaponId = "weapon.revolver";
+        public const string DefaultPreviewWeaponId = RevolverM1879WeaponId;
 
-        public const string DefaultCharacterRigId = "ccs.testplayer.humanoid";
+        public const string DefaultCharacterRigId = TestPlayerCc3BasePlusRigId;
+
+        public const string RevolverM1879WeaponId = "ccs.weapon.revolver.m1879";
+
+        public const string TestPlayerCc3BasePlusRigId = "ccs.character.testplayer.cc3_base_plus";
+
+        public const string RevolverM1879AimPoseId = "revolver.aim.basic";
+
+        public const string RevolverM1879RightHandGripPoseId = "revolver.right_hand.trigger_ready";
+
+        public const string RevolverM1879FitProfileFolderPath =
+            EquipmentFittingProfileRootPath + "/RevolverM1879";
+
+        public const string RevolverM1879RightHipHolsterFitPath =
+            RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_RightHipHolster_Fit.asset";
+
+        public const string RevolverM1879RightHandEquippedFitPath =
+            RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_RightHandEquipped_Fit.asset";
+
+        public const string RevolverM1879AimIkPosePath =
+            RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_AimIKPose.asset";
+
+        public const string RevolverM1879RightHandGripPosePath =
+            RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_RightHandGripPose.asset";
+
+        public const string RevolverM1879FitTuningNotesPath =
+            RevolverM1879FitProfileFolderPath + "/README.md";
     }
 
     public static class CCS_EquipmentItemTypes

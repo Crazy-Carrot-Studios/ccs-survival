@@ -125,12 +125,27 @@ Jump is **enabled** on the default test profile (`jumpEnabled: true`).
 
 | Asset | Path |
 |-------|------|
-| Third-person profile | `Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset` |
+| **Third-person survival (default v0.6.9)** | `Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset` |
+| First-person body-aware (future scroll mode) | `Profiles/Camera/CCS_CharacterCameraProfile_FirstPersonBodyAware.asset` |
+| First-person firearm aim | `Profiles/Camera/CCS_CharacterCameraProfile_FirstPersonAim.asset` |
+| Aim-over-shoulder profile | `Profiles/Camera/CCS_CharacterCameraProfile_AimOverShoulder.asset` (retained for future mode switching) |
 | Profile set | `Profiles/Camera/CCS_DefaultCharacterCameraProfileSet.asset` |
 
 Profile types: `CCS_CharacterCameraProfile`, `CCS_CharacterCameraProfileSet`.
 
-Default active mode: `ThirdPersonSurvival`.
+**v0.6.9 third-person default + first-person weapon aim:** exploration uses `ThirdPersonSurvival`. RMB firearm aim (local owner only) blends to `FirstPersonAim` (~**0.15s** in / **0.25s** out). `FirstPersonAim` uses fixed `FirstPersonAimCameraAnchor` under `CameraPitchTarget` at local offset `(0, 0.28, 0.36)` — **not** head-tracked. Yaw follows body / `CameraFollowAnchor`; pitch on `CameraPitchTarget`; roll **0**; damping **0**. `FirstPersonBodyAware` may keep head tracking for future full first-person exploration but is not the default. Look-down pitch clamp: **-50°** aim (max **75°**). **Body yaw follows camera/reticle yaw** while aiming. Optional `CCS_FirstPersonBodyVisibilityController` hides head/face renderers for the **local owner only** during aim.
+
+**Weapon carry state:** `CCS_WeaponCarryState` (`None`, `Holstered`, `EquippedInHands`, `Aiming`) drives combat strafe locomotion and holster/equipped visuals. Holstered/no weapon uses normal third-person locomotion. Weapon in hands or aiming uses combat/strafe locomotion.
+
+**Local camera switching (v0.6.9 fix):** `CCS_WeaponCarryStateController` implements `CCS_IWeaponCarryStateCameraSource`. The scene `CCS_CharacterCameraController` binds to the local player carry source in `BindFollowTargets` and switches `ThirdPersonSurvival` ↔ `FirstPersonAim` when carry state changes. Solo/offline counts as local. Remote players never drive the local camera. Optional `debugCameraModeTransitions` on the scene camera controller logs transitions when enabled.
+
+**FirstPersonAim sightline (v0.6.12 BodyAware only):** RMB firearm aim routes to `CinemachineCamera_FP_BodyAware` with head-tracked `FirstPersonCameraAnchor`. Legacy `CinemachineCamera_FP_Aim` and `FirstPersonAimCameraAnchor` are removed from runtime routing. Look-down pitch clamp on BodyAware profile is **-53°** (was -58°). Gameplay aim uses `CCS_WeaponAimResolver` via the active output camera (unchanged). Enable `enableRuntimeCameraDebug` on the scene camera rig to inspect active camera, pitch clamp, and BodyAware routing.
+
+**Local self head visibility (v0.6.14–0.6.15):** `CCS_LocalFirstPersonHeadVisibility` hides the local owner's head in first-person BodyAware aim without globally disabling renderers or syncing network state. Separated head renderers (eyes, teeth, eyelashes, glasses) move to layer `CCS_LocalSelfHeadHidden`, culled from the BodyAware output camera. Combined CC3 `CC_Game_Body` uses `CombinedBodyHeadlessFallback`: the full body moves to `CCS_LocalSelfHeadHidden` while `VisualRoot/CCS_FirstPersonHeadlessBody` renders baked mesh `Content/Meshes/FirstPerson/CCS_CC3_FirstPerson_HeadlessBody.asset` on layer `CCS_LocalFirstPersonBody`. Third-person and remote viewers still see the full head/body. Debug toggles (`enableRuntimeCameraDebug`, etc.) default **off**.
+
+**Wild West one-handed revolver aim (v0.6.11 proper aim set):** isolated CCS-owned clips under `Content/Animations/Revolver/WildWest/` drive the existing `RevolverUpperBody` animator layer with enter/loop/exit states for idle and moving aim. States: `Revolver_IdleToAim`, `Revolver_AimIdle_FullDraw`, `Revolver_AimToIdle`, `Revolver_WalkToAimWalk`, `Revolver_AimWalk`, `Revolver_AimWalkToWalk`, `Revolver_Fire`. `RevolverAimHeld` follows RMB; `RevolverIsMoving` follows locomotion speed. Legacy two-handed Invector-derived aim/fire clips remain archived under `Content/Animations/Combat/Revolver/` and must not be assigned to any active Animator state. `RevolverRightHandPreview` layer is removed from the active controller. `CCS_RevolverUpperBodyAnimator` keeps layer weight active during aim enter/exit transitions and exposes Play Mode debug (enabled on Master Test player). See `Documentation/AnimationReports/CCS_WildWestAnimationInventory.md` for source→CCS clip mapping. Vendor Wild West FBX assets under `Assets/YashMakesGames/` remain source-only.
+
+Reticle/hitscan/tracer use the active gameplay camera output via `CCS_WeaponAimResolver` (unchanged from v0.6.8).
 
 ## Equipment Sockets + IK Foundation (v0.6.6)
 
@@ -181,6 +196,14 @@ Editor-only tuning tool for socket and IK target authoring. See [CCS_Equipment_F
 | **CCS → Character Controller → Equipment → Equipment Fit Studio** | Open socket/IK tuning window with live preview |
 
 Saved values go to ScriptableObject profiles. Builders reapply profiles. Validators fail if editor preview objects remain in scenes or prefabs.
+
+## v0.6.8 Revolver Fit Profile Tuning
+
+Profile pack under `Profiles/EquipmentFitting/RevolverM1879/` stores holster, equipped-hand, aim IK, and grip pose foundation data for `ccs.weapon.revolver.m1879` on `ccs.character.testplayer.cc3_base_plus`.
+
+Use Equipment Fit Studio to preview and save fit values. v0.6.8 final layout is Editor Mode only with Fit Target first. Runtime holster/equipped visuals, **reticle-aligned aim** (`CCS_WeaponAimResolver`), and **right-shoulder aim camera alignment** are separate concerns — Fit Studio tunes profile offsets only. Visual gun convergence is experimental/OFF by default (rotating the weapon breaks hand fit).
+
+**Fire visual readability (v0.6.8):** cosmetic bullet tracers spawn from equipped `FitGuides/MuzzlePoint` toward the reticle aim point with a short readable trail; spent shells extract only on reload. Gameplay damage still follows `CCS_WeaponAimResolver` hitscan — fire visuals do not apply damage.
 
 ## Cinemachine setup (v0.2.4)
 

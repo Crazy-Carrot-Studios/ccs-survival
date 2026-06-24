@@ -70,14 +70,67 @@ namespace CCS.Modules.CharacterController
         public const string RevolverUpperBodyMaskPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_UpperBody.mask";
 
-        public const string RevolverAimIdleClipPath =
+        public const string WildWestAnimationPackRootPath = "Assets/YashMakesGames/Wild West Animation Pack";
+
+        public const string WildWestRevolverAnimationsPath = ContentAnimationsRootPath + "/Revolver/WildWest";
+
+        public const string WildWestRevolverRightArmMaskPath =
+            WildWestRevolverAnimationsPath + "/CCS_Revolver_RightArm_UpperBody.mask";
+
+        public const string WildWestRevolverAimIdleFullDrawClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimIdle_FullDraw.anim";
+
+        public const string WildWestRevolverAimWalkClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimWalk.anim";
+
+        public const string WildWestRevolverIdleToAimClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_IdleToAim.anim";
+
+        public const string WildWestRevolverAimToIdleClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimToIdle.anim";
+
+        public const string WildWestRevolverWalkToAimWalkClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_WalkToAimWalk.anim";
+
+        public const string WildWestRevolverAimWalkToWalkClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimWalkToWalk.anim";
+
+        public const string WildWestRevolverFireFanningClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Fire_Fanning.anim";
+
+        public const string WildWestRevolverAimIdleClipPath =
+            WildWestRevolverAimIdleFullDrawClipPath;
+
+        public const string WildWestRevolverFireFanningLegacyRhClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Fire_Fanning_RH.anim";
+
+        public const string WildWestRevolverWalkAimedClipPath =
+            WildWestRevolverAimWalkClipPath;
+
+        public const string WildWestRevolverHipAimedWalkClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_HipAimedWalk_RH.anim";
+
+        public const string WildWestRevolverDrawQuickdrawClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Draw_Quickdraw_RH.anim";
+
+        public const string WildWestRevolverHolsterClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Holster_RH.anim";
+
+        public const string WildWestRevolverReloadIdleClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Reload_Idle_RH.anim";
+
+        public const string RevolverAimIdleLegacyClipPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_AimIdle_UpperBody.anim";
 
-        public const string RevolverIdlePistolClipPath =
-            CombatRevolverAnimationsPath + "/CCS_Revolver_IdlePistol_UpperBody.anim";
-
-        public const string RevolverFireClipPath =
+        public const string RevolverFireLegacyClipPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_Fire_UpperBody.anim";
+
+        public const string RevolverAimIdleClipPath = WildWestRevolverAimIdleClipPath;
+
+        public const string RevolverFireClipPath = WildWestRevolverFireFanningClipPath;
+
+        public const string RevolverIdlePistolLegacyClipPath =
+            CombatRevolverAnimationsPath + "/CCS_Revolver_IdlePistol_UpperBody.anim";
 
         public const string RevolverReloadClipPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_Reload_UpperBody.anim";
@@ -86,7 +139,19 @@ namespace CCS.Modules.CharacterController
 
         public const string AnimatorRevolverEmptyStateName = "Revolver_Empty";
 
-        public const string AnimatorRevolverAimIdleStateName = "Revolver_AimIdle";
+        public const string AnimatorRevolverIdleToAimStateName = "Revolver_IdleToAim";
+
+        public const string AnimatorRevolverAimIdleFullDrawStateName = "Revolver_AimIdle_FullDraw";
+
+        public const string AnimatorRevolverAimToIdleStateName = "Revolver_AimToIdle";
+
+        public const string AnimatorRevolverWalkToAimWalkStateName = "Revolver_WalkToAimWalk";
+
+        public const string AnimatorRevolverAimWalkStateName = "Revolver_AimWalk";
+
+        public const string AnimatorRevolverAimWalkToWalkStateName = "Revolver_AimWalkToWalk";
+
+        public const string AnimatorRevolverAimIdleStateName = AnimatorRevolverAimIdleFullDrawStateName;
 
         public const string AnimatorRevolverFireStateName = "Revolver_Fire";
 
@@ -100,6 +165,20 @@ namespace CCS.Modules.CharacterController
 
         public const string AnimatorRevolverIsReloadingParameter = "RevolverIsReloading";
 
+        public const string AnimatorRevolverIsMovingParameter = "RevolverIsMoving";
+
+        public const float RevolverAimWalkSpeedThreshold = 0.08f;
+
+        public const string AnimatorRevolverRightHandPreviewLayerName = "RevolverRightHandPreview";
+
+        public const string AnimatorRevolverWildWestEmptyStateName = "Revolver_WW_Empty";
+
+        public const string AnimatorRevolverWildWestAimIdleStateName = "Revolver_WW_AimIdle_RH";
+
+        public const string AnimatorRevolverWildWestFireStateName = "Revolver_WW_Fire_Fanning_RH";
+
+        public const string AnimatorRevolverWildWestReloadStateName = "Revolver_WW_Reload_RH";
+
         public const string PlayerLocomotionAnimatorControllerPath =
             ModuleRootPath + "/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
 
@@ -108,6 +187,14 @@ namespace CCS.Modules.CharacterController
 
         public const string DefaultCameraProfilePath =
             ModuleRootPath + "/Profiles/Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset";
+
+        public const string ThirdPersonSurvivalCameraProfilePath = DefaultCameraProfilePath;
+
+        public const string FirstPersonBodyAwareCameraProfilePath =
+            ModuleRootPath + "/Profiles/Camera/CCS_CharacterCameraProfile_FirstPersonBodyAware.asset";
+
+        public const string FirstPersonAimCameraProfilePath =
+            ModuleRootPath + "/Profiles/Camera/CCS_CharacterCameraProfile_FirstPersonAim.asset";
 
         public const string DefaultCameraProfileSetPath =
             ModuleRootPath + "/Profiles/Camera/CCS_DefaultCharacterCameraProfileSet.asset";
@@ -121,17 +208,52 @@ namespace CCS.Modules.CharacterController
 
         public const string AimCinemachineCameraName = "CinemachineCamera_Aim";
 
+        public const string FirstPersonBodyAwareCinemachineCameraName = "CinemachineCamera_FP_BodyAware";
+
+        public const string FirstPersonAimCinemachineCameraName = "CinemachineCamera_FP_Aim";
+
         public const string CameraPitchTargetObjectName = "CameraPitchTarget";
 
         public const string CameraLookTargetObjectName = "CameraLookTarget";
 
         public const string CameraFollowAnchorObjectName = "CameraFollowAnchor";
 
+        public const string FirstPersonCameraAnchorObjectName = "FirstPersonCameraAnchor";
+
+        public const string FirstPersonAimCameraAnchorObjectName = "FirstPersonAimCameraAnchor";
+
+        public const string FirstPersonBodyLookProbeObjectName = "FirstPersonBodyLookProbe";
+
         public const string PlayerLayerName = "Player";
 
         public const string PlayerTag = "Player";
 
         public const string InteractableLayerName = "Interactable";
+
+        public const string LocalSelfHeadHiddenLayerName = "CCS_LocalSelfHeadHidden";
+
+        public const string LocalFirstPersonBodyLayerName = "CCS_LocalFirstPersonBody";
+
+        public const string LocalFirstPersonHeadVisibilityTypeName = "CCS_LocalFirstPersonHeadVisibility";
+
+        public const string FirstPersonHeadlessBodyObjectName = "CCS_FirstPersonHeadlessBody";
+
+        public const string FirstPersonHeadlessBodyMeshAssetName = "CCS_CC3_FirstPerson_HeadlessBody";
+
+        public const string FirstPersonHeadlessBodyMeshFolderPath =
+            ModuleRootPath + "/Content/Meshes/FirstPerson";
+
+        public const string FirstPersonHeadlessBodyMeshAssetPath =
+            FirstPersonHeadlessBodyMeshFolderPath + "/" + FirstPersonHeadlessBodyMeshAssetName + ".asset";
+
+        public const string PlayerVisualPrefabPath =
+            ModuleRootPath + "/Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab";
+
+        public const string Cc3BasePlusBodyFbxPath =
+            "Assets/Reallusion/DataLink_Imports/CC3_Base_Plus/CC3_Base_Plus.fbx";
+
+        public const string Cc3BasePlusPrefabPath =
+            "Assets/Reallusion/DataLink_Imports/CC3_Base_Plus/Prefabs/CC3_Base_Plus.prefab";
 
         public const float CameraPitchTargetLocalHeight = 1.48f;
 
@@ -140,6 +262,100 @@ namespace CCS.Modules.CharacterController
         public const float CameraPitchTargetMinimumLocalHeight = 1.40f;
 
         public const float CameraPitchTargetMaximumLocalHeight = 1.60f;
+
+        public const float FirstPersonForwardEyeOffsetDefault = 0.22f;
+
+        public const float FirstPersonForwardEyeOffsetMinimum = 0.18f;
+
+        public const float FirstPersonForwardEyeOffsetMaximum = 0.26f;
+
+        public const float FirstPersonVerticalEyeOffsetDefault = 0.05f;
+
+        public const float FirstPersonVerticalEyeOffsetMinimum = 0.03f;
+
+        public const float FirstPersonVerticalEyeOffsetMaximum = 0.08f;
+
+        public const float FirstPersonFieldOfViewDefault = 70f;
+
+        public const float FirstPersonFieldOfViewMinimum = 65f;
+
+        public const float FirstPersonFieldOfViewMaximum = 75f;
+
+        public const float FirstPersonAimFieldOfViewDefault = 66f;
+
+        public const float FirstPersonAimFieldOfViewMinimum = 60f;
+
+        public const float FirstPersonAimFieldOfViewMaximum = 70f;
+
+        public const float FirstPersonAimForwardEyeOffsetDefault = 0.26f;
+
+        public const float FirstPersonAimForwardEyeOffsetMinimum = 0.18f;
+
+        public const float FirstPersonAimForwardEyeOffsetMaximum = 0.34f;
+
+        public const float FirstPersonAimVerticalEyeOffsetDefault = 0.14f;
+
+        public const float FirstPersonAimVerticalEyeOffsetMinimum = 0.08f;
+
+        public const float FirstPersonAimVerticalEyeOffsetMaximum = 0.22f;
+
+        public const float FirstPersonAimHorizontalEyeOffsetDefault = 0f;
+
+        public const float FirstPersonAimHorizontalEyeOffsetMinimum = -0.02f;
+
+        public const float FirstPersonAimHorizontalEyeOffsetMaximum = 0.04f;
+
+        public const float FirstPersonNearClipDefault = 0.03f;
+
+        public const float FirstPersonNearClipMinimum = 0.02f;
+
+        public const float FirstPersonNearClipMaximum = 0.05f;
+
+        public const float FirstPersonPitchMinimum = -53f;
+
+        public const float FirstPersonPitchMinimumLegacy = -58f;
+
+        public const float FirstPersonPitchMaximum = 75f;
+
+        public const float FirstPersonPitchMinimumValidationFloor = -60f;
+
+        public const float FirstPersonAimPitchMinimum = -50f;
+
+        public const float FirstPersonAimPitchMinimumValidationFloor = -60f;
+
+        public static readonly Vector3 FirstPersonBodyAwareHeadTrackedLocalOffsetDefault = new Vector3(0f, 0.06f, 0.10f);
+
+        public static readonly Vector3 FirstPersonBodyAwareHeadTrackedLocalOffsetPrevious = new Vector3(0f, 0.04f, 0.18f);
+
+        public static readonly Vector3 FirstPersonAimHeadTrackedLocalOffsetDefault = new Vector3(0f, 0.14f, 0.26f);
+
+        public static readonly Vector3 FirstPersonAimFixedAnchorLocalOffsetDefault = new Vector3(0f, 0.28f, 0.36f);
+
+        public const float FirstPersonAimFixedAnchorHorizontalMinimum = -0.04f;
+
+        public const float FirstPersonAimFixedAnchorHorizontalMaximum = 0.06f;
+
+        public const float FirstPersonAimFixedAnchorVerticalMinimum = 0.22f;
+
+        public const float FirstPersonAimFixedAnchorVerticalMaximum = 0.38f;
+
+        public const float FirstPersonAimFixedAnchorForwardMinimum = 0.28f;
+
+        public const float FirstPersonAimFixedAnchorForwardMaximum = 0.46f;
+
+        public static readonly Vector3 FirstPersonHeadTrackedLocalOffsetDefault = FirstPersonBodyAwareHeadTrackedLocalOffsetDefault;
+
+        public const float FirstPersonHeadTrackingPositionLerpSpeedDefault = 30f;
+
+        public const string FirstPersonBodyCameraAnchorTypeName = "CCS_FirstPersonBodyCameraAnchor";
+
+        public const float FirstPersonAimBlendMaximumSeconds = 0.12f;
+
+        public const float FirearmAimCameraBlendInSeconds = 0.15f;
+
+        public const float FirearmAimCameraBlendOutSeconds = 0.25f;
+
+        public const float FirstPersonCinemachineDamping = 0f;
 
         public const float ThirdPersonCameraDistanceTuned = 3.0f;
 
@@ -151,7 +367,23 @@ namespace CCS.Modules.CharacterController
 
         public const float AimCameraDistanceMinimum = 1.35f;
 
-        public const float AimCameraDistanceMaximum = 1.75f;
+        public const float AimCameraDistanceMaximum = 1.65f;
+
+        public const float AimCameraShoulderOffsetXMinimum = 0.60f;
+
+        public const float AimCameraShoulderOffsetXMaximum = 0.85f;
+
+        public const float AimCameraShoulderOffsetYMinimum = 0.08f;
+
+        public const float AimCameraShoulderOffsetYMaximum = 0.20f;
+
+        public const float AimCameraFieldOfViewMinimum = 48f;
+
+        public const float AimCameraFieldOfViewMaximum = 55f;
+
+        public const float AimCameraBlendMinimumSeconds = 0.35f;
+
+        public const float AimCameraBlendMaximumSeconds = 0.50f;
 
         public const float ThirdPersonVerticalArmLengthMinimum = 0.35f;
 
@@ -161,11 +393,19 @@ namespace CCS.Modules.CharacterController
 
         public const float AimVerticalArmLengthMaximum = 0.32f;
 
-        public const int ThirdPersonCameraActivePriority = 10;
+        public const int ThirdPersonCameraActivePriority = 20;
 
-        public const int AimCameraActivePriority = 20;
+        public const int FirstPersonCameraActivePriority = 10;
+
+        public const int AimCameraActivePriority = 0;
+
+        public const int FirstPersonAimCameraActivePriority = 30;
+
+        public const int FirstPersonBodyAwareCameraActivePriority = 30;
 
         public const int CinemachineCameraInactivePriority = 0;
+
+        public const int LegacyFirstPersonAimCameraInactivePriority = -10;
 
         public const string TestPrefabPath =
             "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";

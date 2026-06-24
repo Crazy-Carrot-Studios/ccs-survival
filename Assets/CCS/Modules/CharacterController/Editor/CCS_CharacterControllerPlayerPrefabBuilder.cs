@@ -582,9 +582,359 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            CCS_CharacterCameraProfile lookProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
-                CCS_CharacterControllerConstants.DefaultCameraProfilePath);
+            changed |= EnsureFirstPersonCameraAnchors(pitchTarget);
+
+            CCS_CharacterCameraProfileSet profileSet = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfileSet>(
+                CCS_CharacterControllerConstants.DefaultCameraProfileSetPath);
+            CCS_CharacterCameraProfile lookProfile = profileSet != null && profileSet.DefaultProfile != null
+                ? profileSet.DefaultProfile
+                : AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+                    CCS_CharacterControllerConstants.ThirdPersonSurvivalCameraProfilePath);
             followAnchor.Configure(playerRoot, lookTarget, lookProfile);
+
+            changed |= RemoveLegacyFirstPersonBodyVisibilityController(playerRoot);
+
+            CCS_LocalFirstPersonHeadVisibility headVisibility =
+                playerRoot.GetComponent<CCS_LocalFirstPersonHeadVisibility>();
+            if (headVisibility == null)
+            {
+                headVisibility = playerRoot.gameObject.AddComponent<CCS_LocalFirstPersonHeadVisibility>();
+                changed = true;
+            }
+
+            changed |= EnsureLocalFirstPersonHeadVisibility(playerRoot, headVisibility);
+
+            changed |= EnsureFirstPersonBodyCameraAnchor(playerRoot, followAnchor, pitchTarget);
+            changed |= EnsureWeaponCarryStateController(playerRoot);
+
+            return changed;
+        }
+
+        private static bool EnsureWeaponCarryStateController(Transform playerRoot)
+        {
+            if (playerRoot == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            CCS_WeaponCarryStateController carryController =
+                playerRoot.GetComponent<CCS_WeaponCarryStateController>();
+            if (carryController == null)
+            {
+                carryController = playerRoot.gameObject.AddComponent<CCS_WeaponCarryStateController>();
+                changed = true;
+            }
+
+            SerializedObject serializedCarry = new SerializedObject(carryController);
+            changed |= SetObjectReference(
+                serializedCarry,
+                "inputProvider",
+                playerRoot.GetComponent<CCS_CharacterInputActionProvider>());
+            changed |= SetObjectReference(
+                serializedCarry,
+                "playerWeaponLoadout",
+                playerRoot.GetComponent<CCS_PlayerWeaponLoadout>());
+            serializedCarry.ApplyModifiedPropertiesWithoutUndo();
+
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                playerRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            if (aimLocomotion != null)
+            {
+                SerializedObject serializedAim = new SerializedObject(aimLocomotion);
+                changed |= SetObjectReference(serializedAim, "weaponAimGateComponent", carryController);
+                serializedAim.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            CCS_PlayerEquipmentVisualController equipmentVisual =
+                playerRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+            if (equipmentVisual != null)
+            {
+                SerializedObject serializedVisual = new SerializedObject(equipmentVisual);
+                changed |= SetObjectReference(serializedVisual, "weaponCarryStateController", carryController);
+                serializedVisual.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureFirstPersonBodyCameraAnchor(
+            Transform playerRoot,
+            CCS_CharacterCameraFollowAnchor followAnchor,
+            Transform pitchTarget)
+        {
+            bool changed = false;
+            CCS_FirstPersonBodyCameraAnchor headTracker =
+                playerRoot.GetComponent<CCS_FirstPersonBodyCameraAnchor>();
+            if (headTracker == null)
+            {
+                headTracker = playerRoot.gameObject.AddComponent<CCS_FirstPersonBodyCameraAnchor>();
+                changed = true;
+            }
+
+            Animator animator = playerRoot.GetComponentInChildren<Animator>(true);
+            Transform fpAnchor = pitchTarget != null
+                ? pitchTarget.Find(CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName)
+                : null;
+
+            SerializedObject serializedTracker = new SerializedObject(headTracker);
+            changed |= SetObjectReference(serializedTracker, "characterAnimator", animator);
+            changed |= SetObjectReference(serializedTracker, "cameraFollowAnchor", followAnchor);
+            changed |= SetObjectReference(serializedTracker, "pitchTarget", pitchTarget);
+            changed |= SetObjectReference(serializedTracker, "firstPersonCameraAnchor", fpAnchor);
+            serializedTracker.ApplyModifiedPropertiesWithoutUndo();
+
+            return changed;
+        }
+
+        private static bool RemoveLegacyFirstPersonBodyVisibilityController(Transform playerRoot)
+        {
+            if (playerRoot == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            MonoBehaviour[] behaviours = playerRoot.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour == null)
+                {
+                    continue;
+                }
+
+                string typeName = behaviour.GetType().Name;
+                if (typeName == "CCS_FirstPersonBodyVisibilityController")
+                {
+                    Object.DestroyImmediate(behaviour, true);
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureLocalFirstPersonHeadVisibility(
+            Transform playerRoot,
+            CCS_LocalFirstPersonHeadVisibility headVisibility)
+        {
+            if (playerRoot == null || headVisibility == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            Animator animator = playerRoot.GetComponentInChildren<Animator>(true);
+            Transform visualRoot = playerRoot.Find("VisualRoot");
+            if (visualRoot == null)
+            {
+                visualRoot = playerRoot;
+            }
+
+            changed |= CCS_FirstPersonHeadlessBodyMeshBuilder.EnsureHeadlessBodyMeshAsset();
+            changed |= EnsureFirstPersonHeadlessBodyRenderer(visualRoot);
+
+            SkinnedMeshRenderer combinedBodyRenderer =
+                CCS_FirstPersonHeadlessBodyMeshBuilder.FindCombinedBodyRendererInHierarchy(visualRoot);
+            SkinnedMeshRenderer headlessBodyRenderer = ResolveHeadlessBodyRenderer(visualRoot);
+            Mesh headlessMesh = AssetDatabase.LoadAssetAtPath<Mesh>(
+                CCS_CharacterControllerConstants.FirstPersonHeadlessBodyMeshAssetPath);
+
+            SerializedObject serializedVisibility = new SerializedObject(headVisibility);
+            changed |= SetObjectReference(serializedVisibility, "characterAnimator", animator);
+            changed |= SetObjectReference(serializedVisibility, "visualRoot", visualRoot);
+            changed |= SetObjectReference(serializedVisibility, "combinedBodyRenderer", combinedBodyRenderer);
+            changed |= SetObjectReference(serializedVisibility, "headlessBodyRenderer", headlessBodyRenderer);
+            changed |= SetObjectReference(serializedVisibility, "headlessBodyMesh", headlessMesh);
+            changed |= SetStringValue(
+                serializedVisibility,
+                "headlessMeshAssetPath",
+                CCS_CharacterControllerConstants.FirstPersonHeadlessBodyMeshAssetPath);
+            serializedVisibility.ApplyModifiedPropertiesWithoutUndo();
+
+            if (combinedBodyRenderer != null && headlessMesh != null)
+            {
+                CCS_FirstPersonHeadlessMeshStats stats = CCS_FirstPersonHeadlessBodyMeshBuilder.BakeHeadlessMesh(
+                    combinedBodyRenderer,
+                    CCS_FirstPersonHeadlessBodyMeshBuilder.DefaultHeadBoneWeightThreshold,
+                    CCS_FirstPersonHeadlessBodyMeshBuilder.DefaultProtectedLimbWeightThreshold,
+                    CCS_FirstPersonHeadlessBodyMeshBuilder.DefaultNeckTrimLocalHeight);
+                headVisibility.ApplyHeadlessMeshStats(stats);
+            }
+
+            headVisibility.ResolveReferences();
+            headVisibility.DiscoverHeadRenderers();
+            EditorUtility.SetDirty(headVisibility);
+
+            return changed;
+        }
+
+        private static bool EnsureFirstPersonHeadlessBodyRenderer(Transform visualRoot)
+        {
+            if (visualRoot == null)
+            {
+                return false;
+            }
+
+            SkinnedMeshRenderer sourceRenderer =
+                CCS_FirstPersonHeadlessBodyMeshBuilder.FindCombinedBodyRendererInHierarchy(visualRoot);
+            if (sourceRenderer == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            Transform headlessRoot = visualRoot.Find(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyObjectName);
+            if (headlessRoot == null)
+            {
+                GameObject headlessObject = new GameObject(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyObjectName);
+                headlessRoot = headlessObject.transform;
+                headlessRoot.SetParent(visualRoot, false);
+                changed = true;
+            }
+
+            SkinnedMeshRenderer headlessRenderer = headlessRoot.GetComponent<SkinnedMeshRenderer>();
+            if (headlessRenderer == null)
+            {
+                headlessRenderer = headlessRoot.gameObject.AddComponent<SkinnedMeshRenderer>();
+                changed = true;
+            }
+
+            Mesh headlessMesh = AssetDatabase.LoadAssetAtPath<Mesh>(
+                CCS_CharacterControllerConstants.FirstPersonHeadlessBodyMeshAssetPath);
+
+            if (headlessRenderer.sharedMesh != headlessMesh && headlessMesh != null)
+            {
+                headlessRenderer.sharedMesh = headlessMesh;
+                changed = true;
+            }
+
+            if (headlessRenderer.rootBone != sourceRenderer.rootBone)
+            {
+                headlessRenderer.rootBone = sourceRenderer.rootBone;
+                changed = true;
+            }
+
+            if (headlessRenderer.bones == null || headlessRenderer.bones.Length != sourceRenderer.bones.Length)
+            {
+                headlessRenderer.bones = sourceRenderer.bones;
+                changed = true;
+            }
+
+            Material[] sourceMaterials = sourceRenderer.sharedMaterials;
+            if (headlessRenderer.sharedMaterials == null
+                || headlessRenderer.sharedMaterials.Length != sourceMaterials.Length)
+            {
+                headlessRenderer.sharedMaterials = sourceMaterials;
+                changed = true;
+            }
+
+            if (headlessRenderer.updateWhenOffscreen != sourceRenderer.updateWhenOffscreen)
+            {
+                headlessRenderer.updateWhenOffscreen = sourceRenderer.updateWhenOffscreen;
+                changed = true;
+            }
+
+            if (headlessRenderer.enabled)
+            {
+                headlessRenderer.enabled = false;
+                changed = true;
+            }
+
+            if (headlessRoot.gameObject.layer != 0)
+            {
+                headlessRoot.gameObject.layer = 0;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static SkinnedMeshRenderer ResolveHeadlessBodyRenderer(Transform visualRoot)
+        {
+            if (visualRoot == null)
+            {
+                return null;
+            }
+
+            Transform headlessRoot = visualRoot.Find(CCS_CharacterControllerConstants.FirstPersonHeadlessBodyObjectName);
+            return headlessRoot != null ? headlessRoot.GetComponent<SkinnedMeshRenderer>() : null;
+        }
+
+        private static bool SetStringValue(SerializedObject serializedObject, string propertyName, string value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.stringValue == value)
+            {
+                return false;
+            }
+
+            property.stringValue = value;
+            return true;
+        }
+
+        private static bool EnsureFirstPersonCameraAnchors(Transform pitchTarget)
+        {
+            if (pitchTarget == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            Transform fpAnchor = pitchTarget.Find(CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName);
+            if (fpAnchor == null)
+            {
+                GameObject anchorObject = new GameObject(CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName);
+                fpAnchor = anchorObject.transform;
+                fpAnchor.SetParent(pitchTarget, false);
+                changed = true;
+            }
+
+            Vector3 expectedAnchorPosition = new Vector3(
+                0f,
+                CCS_CharacterControllerConstants.FirstPersonVerticalEyeOffsetDefault,
+                CCS_CharacterControllerConstants.FirstPersonForwardEyeOffsetDefault);
+            if (fpAnchor.localPosition != expectedAnchorPosition)
+            {
+                fpAnchor.localPosition = expectedAnchorPosition;
+                changed = true;
+            }
+
+            if (fpAnchor.localRotation != Quaternion.identity)
+            {
+                fpAnchor.localRotation = Quaternion.identity;
+                changed = true;
+            }
+
+            Transform probe = pitchTarget.Find(CCS_CharacterControllerConstants.FirstPersonBodyLookProbeObjectName);
+            if (probe == null)
+            {
+                GameObject probeObject = new GameObject(CCS_CharacterControllerConstants.FirstPersonBodyLookProbeObjectName);
+                probe = probeObject.transform;
+                probe.SetParent(pitchTarget, false);
+                changed = true;
+            }
+
+            Vector3 expectedProbePosition = new Vector3(0f, 0.02f, 0.03f);
+            if (probe.localPosition != expectedProbePosition)
+            {
+                probe.localPosition = expectedProbePosition;
+                changed = true;
+            }
+
+            if (probe.localRotation != Quaternion.identity)
+            {
+                probe.localRotation = Quaternion.identity;
+                changed = true;
+            }
+
+            Transform fpAimAnchor = pitchTarget.Find(CCS_CharacterControllerConstants.FirstPersonAimCameraAnchorObjectName);
+            if (fpAimAnchor != null)
+            {
+                Object.DestroyImmediate(fpAimAnchor.gameObject, true);
+                changed = true;
+            }
 
             return changed;
         }
@@ -960,6 +1310,18 @@ namespace CCS.Modules.CharacterController.Editor
             return true;
         }
 
+        private static bool ForceSetBool(SerializedObject serializedObject, string propertyName, bool value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.boolValue == value)
+            {
+                return false;
+            }
+
+            property.boolValue = value;
+            return true;
+        }
+
         private static bool WireNetworkNameplate(Transform networkedRoot)
         {
             CCS_NetworkPlayerNameplate nameplate = networkedRoot.GetComponent<CCS_NetworkPlayerNameplate>();
@@ -1159,8 +1521,11 @@ namespace CCS.Modules.CharacterController.Editor
                 prefabRoot.GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
 
             SerializedObject serializedAimLocomotion = new SerializedObject(aimLocomotion);
+            CCS_WeaponCarryStateController carryController =
+                prefabRoot.GetComponent<CCS_WeaponCarryStateController>();
             bool aimChanged = SetObjectReference(serializedAimLocomotion, "inputProvider", inputProvider);
             aimChanged |= SetObjectReference(serializedAimLocomotion, "cameraFollowAnchor", followAnchor);
+            aimChanged |= SetObjectReference(serializedAimLocomotion, "weaponAimGateComponent", carryController);
             if (aimChanged)
             {
                 serializedAimLocomotion.ApplyModifiedPropertiesWithoutUndo();

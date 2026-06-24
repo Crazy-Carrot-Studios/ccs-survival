@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_HitscanWeaponRaycaster
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Camera-center aim selection with muzzle-origin shot validation for third-person weapons.
-// PLACEMENT: Static utility. Invoked by CCS_RevolverController.
+// PLACEMENT: Static utility. Invoked by CCS_RevolverController via CCS_WeaponAimResolver.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Reticle uses viewport center ray. Gameplay hit follows camera aim. Tracer starts at muzzle.
@@ -48,126 +48,45 @@ namespace CCS.Modules.Weapons
             bool drawMuzzleDebug,
             float debugRayDuration = 0.35f)
         {
-            if (aimCamera == null)
-            {
-                return new CCS_WeaponHitscanResult(
-                    false,
-                    Vector3.zero,
-                    Vector3.up,
-                    null,
-                    0f,
-                    Vector3.zero,
-                    Vector3.forward);
-            }
-
-            Ray cameraAimRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            Vector3 targetPoint = cameraAimRay.origin + (cameraAimRay.direction * maxRange);
-            bool didCameraHit = TryRaycast(cameraAimRay, maxRange, hitMask, ignoreRoot, out RaycastHit cameraHit);
-            if (didCameraHit)
-            {
-                targetPoint = cameraHit.point;
-            }
-
-            Vector3 muzzleOrigin = muzzlePoint != null
-                ? muzzlePoint.position
-                : cameraAimRay.origin;
-            Vector3 shotDirection = ApplySpread((targetPoint - muzzleOrigin).normalized, spreadDegrees);
-
-            if (drawDebugRay)
-            {
-                Debug.DrawRay(cameraAimRay.origin, cameraAimRay.direction * maxRange, Color.cyan, debugRayDuration);
-            }
-
-            if (drawMuzzleDebug)
-            {
-                Debug.DrawRay(muzzleOrigin, shotDirection * maxRange, Color.yellow, debugRayDuration);
-            }
-
-            if (TryRaycast(new Ray(muzzleOrigin, shotDirection), maxRange, hitMask, ignoreRoot, out RaycastHit muzzleHit))
-            {
-                return new CCS_WeaponHitscanResult(
-                    true,
-                    muzzleHit.point,
-                    muzzleHit.normal,
-                    muzzleHit.collider.gameObject,
-                    muzzleHit.distance,
-                    muzzleOrigin,
-                    shotDirection);
-            }
-
-            if (didCameraHit)
-            {
-                return new CCS_WeaponHitscanResult(
-                    true,
-                    cameraHit.point,
-                    cameraHit.normal,
-                    cameraHit.collider.gameObject,
-                    Vector3.Distance(muzzleOrigin, cameraHit.point),
-                    muzzleOrigin,
-                    shotDirection);
-            }
-
-            return new CCS_WeaponHitscanResult(
-                false,
-                targetPoint,
-                Vector3.up,
-                null,
+            return CCS_WeaponAimResolver.ResolveHitscan(
+                aimCamera,
+                CCS_WeaponAimResolver.DefaultReticleViewportPoint,
+                equippedVisualMuzzle: null,
+                fallbackMuzzle: muzzlePoint,
                 maxRange,
-                muzzleOrigin,
-                shotDirection);
+                spreadDegrees,
+                hitMask,
+                ignoreRoot,
+                drawCameraRayDebug: drawDebugRay,
+                drawMuzzleRayDebug: drawMuzzleDebug,
+                debugRayDuration);
         }
 
-        #endregion
-
-        #region Private Methods
-
-        private static bool TryRaycast(
-            Ray ray,
+        public static CCS_WeaponHitscanResult CastFromAimResolver(
+            Camera aimCamera,
+            Vector2 viewportPoint,
+            Transform equippedVisualMuzzle,
+            Transform fallbackMuzzle,
             float maxRange,
+            float spreadDegrees,
             LayerMask hitMask,
             Transform ignoreRoot,
-            out RaycastHit closestHit)
+            bool drawCameraRayDebug,
+            bool drawMuzzleRayDebug,
+            float debugRayDuration = 0.35f)
         {
-            closestHit = default;
-            RaycastHit[] hits = Physics.RaycastAll(
-                ray.origin,
-                ray.direction,
+            return CCS_WeaponAimResolver.ResolveHitscan(
+                aimCamera,
+                viewportPoint,
+                equippedVisualMuzzle,
+                fallbackMuzzle,
                 maxRange,
+                spreadDegrees,
                 hitMask,
-                QueryTriggerInteraction.Ignore);
-            System.Array.Sort(hits, (left, right) => left.distance.CompareTo(right.distance));
-
-            for (int i = 0; i < hits.Length; i++)
-            {
-                RaycastHit hit = hits[i];
-                if (hit.collider == null)
-                {
-                    continue;
-                }
-
-                if (ignoreRoot != null && hit.collider.transform.IsChildOf(ignoreRoot))
-                {
-                    continue;
-                }
-
-                closestHit = hit;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static Vector3 ApplySpread(Vector3 forward, float spreadDegrees)
-        {
-            if (spreadDegrees <= 0.01f || forward.sqrMagnitude <= 0.0001f)
-            {
-                return forward.normalized;
-            }
-
-            float yaw = Random.Range(-spreadDegrees, spreadDegrees);
-            float pitch = Random.Range(-spreadDegrees, spreadDegrees);
-            Quaternion spreadRotation = Quaternion.Euler(pitch, yaw, 0f);
-            return (spreadRotation * forward).normalized;
+                ignoreRoot,
+                drawCameraRayDebug,
+                drawMuzzleRayDebug,
+                debugRayDuration);
         }
 
         #endregion

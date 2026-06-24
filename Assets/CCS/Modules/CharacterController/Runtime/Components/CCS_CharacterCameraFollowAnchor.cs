@@ -16,9 +16,7 @@ using UnityEngine;
 
 // CREATED: 2026-06-07
 
-// NOTES: Cinemachine Third Person Follow tracks CameraPitchTarget. Both TP and Aim cameras
-
-//        share this single yaw/pitch state. Body rotation does not re-aim the camera.
+// NOTES: Third-person decouples camera yaw from body. First-person couples yaw to body rotation.
 
 // =============================================================================
 
@@ -62,7 +60,9 @@ namespace CCS.Modules.CharacterController
 
         private bool spawnOrientationApplied;
 
+        private Transform firstPersonCameraAnchor;
 
+        private Transform firstPersonAimCameraAnchor;
 
         #endregion
 
@@ -82,7 +82,9 @@ namespace CCS.Modules.CharacterController
 
         public Transform LookTarget => lookTarget;
 
+        public Transform FirstPersonCameraAnchor => firstPersonCameraAnchor;
 
+        public Transform FirstPersonAimCameraAnchor => firstPersonAimCameraAnchor;
 
         public Transform BodyRoot => bodyRoot;
 
@@ -106,36 +108,50 @@ namespace CCS.Modules.CharacterController
 
         public Vector3 PlanarRight => GetPlanarRightInternal();
 
+        public bool UsesFirstPersonBodyYawCoupling => UsesFirstPersonBodyYawCouplingProfile(activeLookProfile);
 
+        public bool BodyYawMatchesCameraYaw => GetBodyYawMatchesCameraYaw();
+
+        public CCS_CharacterCameraProfile ActiveLookProfile => activeLookProfile;
+
+        public float MinPitchDegrees => ResolveLookProfile()?.MinPitch ?? 0f;
+
+        public float MaxPitchDegrees => ResolveLookProfile()?.MaxPitch ?? 0f;
+
+        public float BodyYawDegrees => bodyRoot != null ? bodyRoot.eulerAngles.y : 0f;
+
+        public float CameraYawDegrees => yawDegrees;
+
+        public float YawDeltaDegrees =>
+            bodyRoot != null ? Mathf.DeltaAngle(bodyRoot.eulerAngles.y, yawDegrees) : 0f;
 
         #endregion
 
-
-
         #region Unity Callbacks
 
-
-
         private void Awake()
-
         {
-
             ResolveReferences();
-
         }
 
-
+        private void Update()
+        {
+            if (UsesFirstPersonBodyYawCoupling)
+            {
+                UpdateAnchorPosition();
+                ApplyLookInput();
+                ApplyRigRotation();
+            }
+        }
 
         private void LateUpdate()
-
         {
-
-            UpdateAnchorPosition();
-
-            ApplyLookInput();
-
-            ApplyRigRotation();
-
+            if (!UsesFirstPersonBodyYawCoupling)
+            {
+                UpdateAnchorPosition();
+                ApplyLookInput();
+                ApplyRigRotation();
+            }
         }
 
 
@@ -336,6 +352,26 @@ namespace CCS.Modules.CharacterController
 
             }
 
+            if (firstPersonCameraAnchor == null && pitchTarget != null)
+
+            {
+
+                firstPersonCameraAnchor = pitchTarget.Find(
+
+                    CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName);
+
+            }
+
+            if (firstPersonAimCameraAnchor == null && pitchTarget != null)
+
+            {
+
+                firstPersonAimCameraAnchor = pitchTarget.Find(
+
+                    CCS_CharacterControllerConstants.FirstPersonAimCameraAnchorObjectName);
+
+            }
+
 
 
             if (inputProvider == null && bodyRoot != null)
@@ -393,6 +429,110 @@ namespace CCS.Modules.CharacterController
                 lookTarget.localRotation = Quaternion.identity;
 
             }
+
+            ApplyFirstPersonAnchorLayout(profile);
+
+            ApplyFirstPersonAimAnchorLayout(profile);
+
+        }
+
+        private void ApplyFirstPersonAimAnchorLayout(CCS_CharacterCameraProfile profile)
+
+        {
+
+            if (pitchTarget == null || profile == null)
+
+            {
+
+                return;
+
+            }
+
+            if (profile.CameraMode != CCS_CharacterCameraMode.FirstPersonAim)
+
+            {
+
+                return;
+
+            }
+
+            if (firstPersonAimCameraAnchor == null)
+
+            {
+
+                firstPersonAimCameraAnchor = pitchTarget.Find(
+
+                    CCS_CharacterControllerConstants.FirstPersonAimCameraAnchorObjectName);
+
+            }
+
+            if (firstPersonAimCameraAnchor == null)
+
+            {
+
+                return;
+
+            }
+
+            Vector3 expectedLocalPosition = profile.FixedFirstPersonAimAnchorLocalOffset;
+
+            firstPersonAimCameraAnchor.localPosition = expectedLocalPosition;
+
+            firstPersonAimCameraAnchor.localRotation = Quaternion.identity;
+
+        }
+
+        private void ApplyFirstPersonAnchorLayout(CCS_CharacterCameraProfile profile)
+
+        {
+
+            if (pitchTarget == null || profile == null)
+
+            {
+
+                return;
+
+            }
+
+            if (profile.CameraMode != CCS_CharacterCameraMode.FirstPersonBodyAware
+                && profile.CameraMode != CCS_CharacterCameraMode.FirstPerson
+                && profile.CameraMode != CCS_CharacterCameraMode.FirstPersonAim)
+
+            {
+
+                return;
+
+            }
+
+            if (firstPersonCameraAnchor == null)
+
+            {
+
+                firstPersonCameraAnchor = pitchTarget.Find(
+
+                    CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName);
+
+            }
+
+            if (firstPersonCameraAnchor == null)
+
+            {
+
+                return;
+
+            }
+
+            Vector3 expectedLocalPosition = new Vector3(
+
+                0f,
+
+                profile.FirstPersonVerticalEyeOffset,
+
+                profile.FirstPersonForwardEyeOffset);
+
+            firstPersonCameraAnchor.localPosition = expectedLocalPosition;
+
+            firstPersonCameraAnchor.localRotation = Quaternion.identity;
 
         }
 
@@ -467,33 +607,62 @@ namespace CCS.Modules.CharacterController
 
 
         private void ApplyRigRotation()
-
         {
+            if (UsesFirstPersonBodyYawCoupling && bodyRoot != null)
+            {
+                bodyRoot.rotation = Quaternion.Euler(0f, yawDegrees, 0f);
+                transform.rotation = bodyRoot.rotation;
+
+                if (pitchTarget != null)
+                {
+                    pitchTarget.localRotation = Quaternion.Euler(pitchDegrees, 0f, 0f);
+                    desiredWorldRotation = pitchTarget.rotation;
+                }
+                else
+                {
+                    desiredWorldRotation = transform.rotation;
+                }
+
+                return;
+            }
 
             transform.rotation = Quaternion.Euler(0f, yawDegrees, 0f);
 
-
-
             if (pitchTarget != null)
-
             {
-
                 pitchTarget.localRotation = Quaternion.Euler(pitchDegrees, 0f, 0f);
-
                 desiredWorldRotation = pitchTarget.rotation;
-
             }
-
             else
-
             {
-
                 transform.rotation = Quaternion.Euler(pitchDegrees, yawDegrees, 0f);
-
                 desiredWorldRotation = transform.rotation;
+            }
+        }
 
+        private static bool IsFirstPersonLookProfile(CCS_CharacterCameraProfile profile)
+        {
+            return profile != null
+                && (profile.CameraMode == CCS_CharacterCameraMode.FirstPersonBodyAware
+                    || profile.CameraMode == CCS_CharacterCameraMode.FirstPerson
+                    || profile.CameraMode == CCS_CharacterCameraMode.FirstPersonAim);
+        }
+
+        private static bool UsesFirstPersonBodyYawCouplingProfile(CCS_CharacterCameraProfile profile)
+        {
+            return profile != null
+                && (profile.CameraMode == CCS_CharacterCameraMode.FirstPersonAim
+                    || profile.CameraMode == CCS_CharacterCameraMode.FirstPersonBodyAware);
+        }
+
+        private bool GetBodyYawMatchesCameraYaw()
+        {
+            if (bodyRoot == null)
+            {
+                return false;
             }
 
+            return Mathf.Abs(Mathf.DeltaAngle(bodyRoot.eulerAngles.y, yawDegrees)) < 1f;
         }
 
 

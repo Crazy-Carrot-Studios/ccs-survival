@@ -55,6 +55,9 @@ namespace CCS.Modules.Weapons
         public const string RevolverM1879BulletMaterialAssetPath =
             RevolverM1879MaterialsPath + "/CCS_RevolverM1879_BulletMaterial.mat";
 
+        public const string RevolverM1879BulletTrailMaterialAssetPath =
+            RevolverM1879MaterialsPath + "/MAT_CCS_Revolver_BulletTrail.mat";
+
         public const string RevolverM1879AlbedoTexturePath =
             RevolverM1879TexturesPath + "/CCS_RevolverM1879_Albedo.tga";
 
@@ -81,6 +84,18 @@ namespace CCS.Modules.Weapons
 
         public const string RevolverM1879ShellVisualPrefabPath =
             RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_ShellVisual.prefab";
+
+        public const string RevolverM1879BulletTracerVisualPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_BulletTracerVisual.prefab";
+
+        public const string RevolverM1879MuzzleFlashPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_MuzzleFlash.prefab";
+
+        public const string RevolverM1879MuzzleSmokePrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_MuzzleSmoke.prefab";
+
+        public const string RevolverM1879SpentShellVisualPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_SpentShellVisual.prefab";
 
         public const string RevolverM1879WorldPickupInstanceName = "CCS_RevolverM1879_WorldPickup";
 
@@ -144,6 +159,8 @@ namespace CCS.Modules.Weapons
 
         public const string MuzzlePointObjectName = "MuzzlePoint";
 
+        public const string FitGuidesObjectName = "FitGuides";
+
         public const string WeaponHudRootName = "WeaponHudRoot";
 
         public const string WeaponHudTextObjectName = "WeaponHudText";
@@ -168,10 +185,19 @@ namespace CCS.Modules.Weapons
 
         public const string RevolverModelRootObjectName = "ModelRoot";
 
+        public const string RevolverGripPointObjectName = "GripPoint";
+
+        public const string RevolverMuzzleForwardPointObjectName = "MuzzleForwardPoint";
+
+        public const string RevolverTriggerPointObjectName = "TriggerPoint";
+
         public const string RevolverMaterializedVisualChildName = "RevolverVisual";
 
         public const string RevolverM1879MaterializedVisualPrefabPath =
             RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_MaterializedVisual.prefab";
+
+        public const string RevolverM1879VisualOnlyPrefabPath =
+            RevolverM1879PrefabsPath + "/PF_CCS_RevolverM1879_VisualOnly.prefab";
 
         public static readonly Vector3 RevolverHandSocketLocalPosition = new Vector3(0.02f, 0.02f, 0.04f);
 
@@ -211,9 +237,41 @@ namespace CCS.Modules.Weapons
 
         public const float DefaultBulletVisualLifetime = 0.25f;
 
+        public const float DefaultBulletVisualScaleMultiplier = 2f;
+
+        public const float MinBulletVisualScaleMultiplier = 1f;
+
+        public const float MaxBulletVisualScaleMultiplier = 3f;
+
+        public const float DefaultSpentShellVisualScaleMultiplier = 1.5f;
+
+        public const float MinSpentShellVisualScaleMultiplier = 1f;
+
+        public const float MaxSpentShellVisualScaleMultiplier = 2.5f;
+
+        public const float DefaultBulletTrailLifetime = 0.08f;
+
+        public const float MinBulletTrailLifetime = 0.03f;
+
+        public const float MaxBulletTrailLifetime = 0.15f;
+
+        public const float DefaultBulletTrailWidth = 0.035f;
+
+        public const float MinBulletTrailWidth = 0.01f;
+
+        public const float MaxBulletTrailWidth = 0.08f;
+
         public const float DefaultShellVisualLifetime = 3f;
 
         public const float DefaultShellEjectForce = 1.25f;
+
+        public const float MuzzleFlashLifetimeMin = 0.04f;
+
+        public const float MuzzleFlashLifetimeMax = 0.08f;
+
+        public const float MuzzleSmokeLifetimeMin = 0.5f;
+
+        public const float MuzzleSmokeLifetimeMax = 1.5f;
 
         public const float TestDamageTargetForwardDistance = -10f;
 
@@ -240,5 +298,39 @@ namespace CCS.Modules.Weapons
         public const float MuzzlePointMinimumLocalHeight = 1.2f;
 
         public const string DefaultRevolverDisplayName = "M1879 Revolver";
+
+        public const string RevolverAimRigRootObjectName = "CCS_RevolverAimRigRoot";
+
+        public const string RevolverAimRigObjectName = "Rig_RevolverAim";
+
+        public const string RevolverRightHandAimConstraintObjectName = "RightHandAimConstraint";
+
+        public const string RevolverArmReticleIkRootObjectName = "CCS_RevolverArmReticleIKRoot";
+
+        public const string ReticleAimWorldTargetObjectName = "ReticleAimWorldTarget";
+
+        public const string RightHandReticleIkTargetObjectName = "RightHandReticleIKTarget";
+
+        public const string RightElbowHintObjectName = "RightElbowHint";
+
+        public const string ChestAimTargetObjectName = "ChestAimTarget";
+
+        public const string RevolverArmReticleIkRigObjectName = "Rig_RevolverArmReticleIK";
+
+        public const string RightArmTwoBoneIkConstraintObjectName = "RightArmTwoBoneIK";
+
+        public const string ChestAimBiasConstraintObjectName = "ChestAimBias";
+
+        public const string RightShoulderAimBiasConstraintObjectName = "RightShoulderAimBias";
+
+        public const float RevolverArmReticleIkFallbackDistanceDefault = 45f;
+
+        public const float RevolverArmReticleIkFallbackDistanceMinimum = 35f;
+
+        public const float RevolverArmReticleIkFallbackDistanceMaximum = 50f;
+
+        public const float RevolverArmReticleIkMaxHorizontalCorrectionDegrees = 10f;
+
+        public const float RevolverArmReticleIkMaxVerticalCorrectionDegrees = 6f;
     }
 }

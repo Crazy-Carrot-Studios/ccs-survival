@@ -38,28 +38,38 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         #region Public Methods
 
-        public bool SpawnUnderSocket(Transform socketTransform, GameObject previewSourcePrefab)
+        public bool TrySpawnUnderSocket(
+            Transform socketTransform,
+            GameObject previewSourcePrefab,
+            out string errorMessage)
         {
+            errorMessage = string.Empty;
             DestroyPreview();
             if (socketTransform == null)
             {
+                errorMessage = "Preview failed: selected socket transform not found on player.";
                 return false;
             }
 
-            GameObject visualSource = ResolvePreviewVisualSource(previewSourcePrefab);
+            GameObject visualSource = CCS_EquipmentFitStudioVisualSourceUtility.ResolveRevolverPreviewVisualSource(previewSourcePrefab);
             if (visualSource == null)
             {
-                Debug.LogWarning("[Equipment Fit Studio] Could not resolve ModelRoot/RevolverVisual preview source.");
+                errorMessage = "Preview failed: ModelRoot/RevolverVisual not found on source prefab.";
                 return false;
             }
 
             previewRoot = Object.Instantiate(visualSource);
             previewRoot.name = CCS_EquipmentConstants.EditorPreviewItemObjectName;
-            previewRoot.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+            previewRoot.hideFlags = HideFlags.DontSave;
             previewRoot.transform.SetParent(socketTransform, false);
-            StripGameplayComponents(previewRoot);
+            CCS_EquipmentFitStudioVisualSourceUtility.StripGameplayComponents(previewRoot);
             ResetPreviewItemToZero();
             return true;
+        }
+
+        public bool SpawnUnderSocket(Transform socketTransform, GameObject previewSourcePrefab)
+        {
+            return TrySpawnUnderSocket(socketTransform, previewSourcePrefab, out _);
         }
 
         public void ResetPreviewItemToZero()
@@ -93,76 +103,6 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             {
                 Object.DestroyImmediate(previewRoot);
                 previewRoot = null;
-            }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static GameObject ResolvePreviewVisualSource(GameObject previewSourcePrefab)
-        {
-            if (previewSourcePrefab == null)
-            {
-                previewSourcePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath);
-            }
-
-            if (previewSourcePrefab == null)
-            {
-                return null;
-            }
-
-            Transform modelRoot = previewSourcePrefab.transform.Find(CCS_WeaponsConstants.RevolverModelRootObjectName);
-            if (modelRoot == null)
-            {
-                return null;
-            }
-
-            Transform revolverVisual = modelRoot.Find(CCS_WeaponsConstants.RevolverMaterializedVisualChildName);
-            return revolverVisual != null ? revolverVisual.gameObject : null;
-        }
-
-        private static void StripGameplayComponents(GameObject root)
-        {
-            Collider[] colliders = root.GetComponentsInChildren<Collider>(true);
-            for (int i = 0; i < colliders.Length; i++)
-            {
-                Object.DestroyImmediate(colliders[i], true);
-            }
-
-            MonoBehaviour[] behaviours = root.GetComponentsInChildren<MonoBehaviour>(true);
-            for (int i = 0; i < behaviours.Length; i++)
-            {
-                MonoBehaviour behaviour = behaviours[i];
-                if (behaviour != null)
-                {
-                    Object.DestroyImmediate(behaviour, true);
-                }
-            }
-
-            Animator[] animators = root.GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
-            {
-                Object.DestroyImmediate(animators[i], true);
-            }
-
-            Animation[] animations = root.GetComponentsInChildren<Animation>(true);
-            for (int i = 0; i < animations.Length; i++)
-            {
-                Object.DestroyImmediate(animations[i], true);
-            }
-
-            AudioSource[] audioSources = root.GetComponentsInChildren<AudioSource>(true);
-            for (int i = 0; i < audioSources.Length; i++)
-            {
-                Object.DestroyImmediate(audioSources[i], true);
-            }
-
-            ParticleSystem[] particles = root.GetComponentsInChildren<ParticleSystem>(true);
-            for (int i = 0; i < particles.Length; i++)
-            {
-                Object.DestroyImmediate(particles[i], true);
             }
         }
 

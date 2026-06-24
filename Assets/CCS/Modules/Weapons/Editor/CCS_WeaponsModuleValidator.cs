@@ -100,7 +100,17 @@ namespace CCS.Modules.Weapons.Editor
 
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverFireFeedbackSourceContract());
 
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverFireVisualsFoundation());
+
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateHitscanUsesCameraCenterAim());
+
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateWeaponAimResolverFoundation());
+
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateWeaponAimConvergenceFoundation());
+
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverArmReticleIKFoundation(testPlayerPrefab));
+
+            AppendResult(failures, CCS_WeaponsEditorAimValidationUtility.ValidateVisualOnlyMuzzlePointOrientation());
 
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverM1879VisualFoundation());
 
@@ -235,9 +245,10 @@ namespace CCS.Modules.Weapons.Editor
 
                 failures,
 
-                gateProperty != null && gateProperty.objectReferenceValue != null,
+                gateProperty != null
+                    && gateProperty.objectReferenceValue is CCS_WeaponCarryStateController,
 
-                "Aim locomotion must wire weaponAimGateComponent to CCS_PlayerWeaponLoadout.");
+                "Aim locomotion must wire weaponAimGateComponent to CCS_WeaponCarryStateController.");
 
         }
 

@@ -161,6 +161,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime());
+
+            AppendValidationResult(
+                failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences());
 
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -1677,7 +1681,19 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_WeaponsValidationUtility.ValidateRevolverFireFeedbackSourceContract());
             AppendValidationResult(
                 failures,
+                CCS_WeaponsValidationUtility.ValidateRevolverFireVisualsFoundation());
+            AppendValidationResult(
+                failures,
                 CCS_WeaponsValidationUtility.ValidateHitscanUsesCameraCenterAim());
+            AppendValidationResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateWeaponAimConvergenceFoundation());
+            AppendValidationResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateRevolverArmReticleIKFoundation(networkedPrefab));
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerValidationUtility.ValidateFirstPersonBodyAwareCameraFoundation());
 
             Transform followAnchor = FindChildByName(networkedPrefab.transform, CCS_CharacterControllerConstants.CameraFollowAnchorObjectName);
             Transform pitchTarget = followAnchor != null
@@ -2369,7 +2385,12 @@ namespace CCS.Modules.CharacterController.Editor
             if (aimProfile.ThirdPersonCameraDistance < CCS_CharacterControllerConstants.AimCameraDistanceMinimum
                 || aimProfile.ThirdPersonCameraDistance > CCS_CharacterControllerConstants.AimCameraDistanceMaximum)
             {
-                failures.Add("Aim camera profile distance must be between 1.35 and 1.75.");
+                failures.Add(
+                    "Aim camera profile distance must be between "
+                    + CCS_CharacterControllerConstants.AimCameraDistanceMinimum
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraDistanceMaximum
+                    + ".");
             }
 
             if (aimProfile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
@@ -2384,14 +2405,26 @@ namespace CCS.Modules.CharacterController.Editor
                 failures.Add("Aim camera profile vertical arm length must be between 0.18 and 0.32.");
             }
 
-            if (aimProfile.ThirdPersonShoulderOffset.x < 0.50f || aimProfile.ThirdPersonShoulderOffset.x > 0.70f)
+            if (aimProfile.ThirdPersonShoulderOffset.x < CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum
+                || aimProfile.ThirdPersonShoulderOffset.x > CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum)
             {
-                failures.Add("Aim camera profile shoulder offset X must be between 0.50 and 0.70.");
+                failures.Add(
+                    "Aim camera profile shoulder offset X must be between "
+                    + CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum
+                    + ".");
             }
 
-            if (aimProfile.ThirdPersonShoulderOffset.y < 0.05f || aimProfile.ThirdPersonShoulderOffset.y > 0.22f)
+            if (aimProfile.ThirdPersonShoulderOffset.y < CCS_CharacterControllerConstants.AimCameraShoulderOffsetYMinimum
+                || aimProfile.ThirdPersonShoulderOffset.y > CCS_CharacterControllerConstants.AimCameraShoulderOffsetYMaximum)
             {
-                failures.Add("Aim camera profile shoulder offset Y must be between 0.05 and 0.22.");
+                failures.Add(
+                    "Aim camera profile shoulder offset Y must be between "
+                    + CCS_CharacterControllerConstants.AimCameraShoulderOffsetYMinimum
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraShoulderOffsetYMaximum
+                    + ".");
             }
 
             if (aimProfile.ThirdPersonCameraSide < 0.90f || aimProfile.ThirdPersonCameraSide > 1.00f)
@@ -2399,9 +2432,26 @@ namespace CCS.Modules.CharacterController.Editor
                 failures.Add("Aim camera profile camera side must be between 0.90 and 1.00.");
             }
 
-            if (aimProfile.FieldOfView < 48f || aimProfile.FieldOfView > 56f)
+            if (aimProfile.FieldOfView < CCS_CharacterControllerConstants.AimCameraFieldOfViewMinimum
+                || aimProfile.FieldOfView > CCS_CharacterControllerConstants.AimCameraFieldOfViewMaximum)
             {
-                failures.Add("Aim camera profile FOV must be between 48 and 56.");
+                failures.Add(
+                    "Aim camera profile FOV must be between "
+                    + CCS_CharacterControllerConstants.AimCameraFieldOfViewMinimum
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraFieldOfViewMaximum
+                    + ".");
+            }
+
+            if (aimProfile.AimBlendDurationSeconds < CCS_CharacterControllerConstants.AimCameraBlendMinimumSeconds
+                || aimProfile.AimBlendDurationSeconds > CCS_CharacterControllerConstants.AimCameraBlendMaximumSeconds)
+            {
+                failures.Add(
+                    "Aim camera profile blend duration must be between "
+                    + CCS_CharacterControllerConstants.AimCameraBlendMinimumSeconds
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraBlendMaximumSeconds
+                    + ".");
             }
 
             if (!aimProfile.ObstacleAvoidanceEnabled)

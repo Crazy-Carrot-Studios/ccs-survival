@@ -213,6 +213,28 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
+        public static bool EnsureFirstPersonBodyAwareCameras(GameObject cameraRigRoot)
+        {
+            if (cameraRigRoot == null)
+            {
+                return false;
+            }
+
+            CCS_CharacterCameraAssetBuilder.EnsureCameraProfileAssets();
+            bool changed = false;
+            changed |= EnsureFirstPersonCamera(
+                cameraRigRoot,
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCinemachineCameraName,
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath,
+                CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
+            changed |= RemoveLegacyFirstPersonAimCamera(cameraRigRoot);
+            changed |= WireSceneCameraControllerFirstPersonReferences(cameraRigRoot);
+            changed |= SetThirdPersonCameraPriority(
+                cameraRigRoot.transform.Find(CCS_CharacterControllerConstants.ThirdPersonCinemachineCameraName),
+                CCS_CharacterControllerConstants.ThirdPersonCameraActivePriority);
+            return changed;
+        }
+
         #endregion
 
         #region Private Methods
@@ -606,6 +628,223 @@ namespace CCS.Modules.CharacterController.Editor
             serializedCamera.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(cameraController);
             return true;
+        }
+
+        private static bool WireSceneCameraControllerFirstPersonReferences(GameObject cameraRigRoot)
+        {
+            CCS_CharacterCameraController cameraController = cameraRigRoot.GetComponent<CCS_CharacterCameraController>();
+            if (cameraController == null)
+            {
+                return false;
+            }
+
+            Transform fpTransform = cameraRigRoot.transform.Find(
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCinemachineCameraName);
+            CinemachineCamera fpCamera = fpTransform != null ? fpTransform.GetComponent<CinemachineCamera>() : null;
+            if (fpCamera == null)
+            {
+                return false;
+            }
+
+            SerializedObject serializedCamera = new SerializedObject(cameraController);
+            bool changed = false;
+            SerializedProperty fpProperty = serializedCamera.FindProperty("firstPersonCinemachineCamera");
+            if (fpProperty != null && fpProperty.objectReferenceValue != fpCamera)
+            {
+                fpProperty.objectReferenceValue = fpCamera;
+                changed = true;
+            }
+
+            SerializedProperty fpAimProperty = serializedCamera.FindProperty("firstPersonAimCinemachineCamera");
+            if (fpAimProperty != null && fpAimProperty.objectReferenceValue != null)
+            {
+                fpAimProperty.objectReferenceValue = null;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                serializedCamera.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(cameraController);
+            }
+
+            return changed;
+        }
+
+        private static bool RemoveLegacyFirstPersonAimCamera(GameObject cameraRigRoot)
+        {
+            if (cameraRigRoot == null)
+            {
+                return false;
+            }
+
+            Transform legacyTransform = cameraRigRoot.transform.Find(
+                CCS_CharacterControllerConstants.FirstPersonAimCinemachineCameraName);
+            if (legacyTransform == null)
+            {
+                return false;
+            }
+
+            Object.DestroyImmediate(legacyTransform.gameObject, true);
+            return true;
+        }
+
+        private static bool EnsureFirstPersonCamera(
+            GameObject cameraRigRoot,
+            string cameraObjectName,
+            string profilePath,
+            int priority)
+        {
+            Transform cameraTransform = cameraRigRoot.transform.Find(cameraObjectName);
+            if (cameraTransform == null)
+            {
+                GameObject cameraObject = new GameObject(cameraObjectName);
+                cameraTransform = cameraObject.transform;
+                cameraTransform.SetParent(cameraRigRoot.transform, false);
+                cameraObject.AddComponent<CinemachineCamera>();
+            }
+
+            bool changed = RemoveCustomBoundPivot(cameraTransform);
+            changed |= RemoveLegacyOrbitalComponents(cameraTransform);
+            changed |= RemoveThirdPersonComponents(cameraTransform);
+            changed |= EnsureCinemachineFollow(cameraTransform);
+            changed |= EnsureRotateWithFollowTarget(cameraTransform);
+            changed |= EnsureCameraTargetSettings(cameraTransform);
+            changed |= ApplyFirstPersonLens(cameraTransform, profilePath);
+            changed |= SetThirdPersonCameraPriority(cameraTransform, priority);
+            return changed;
+        }
+
+        private static bool RemoveThirdPersonComponents(Transform cameraTransform)
+        {
+            bool changed = false;
+            CinemachineThirdPersonFollow thirdPersonFollow =
+                cameraTransform.GetComponent<CinemachineThirdPersonFollow>();
+            if (thirdPersonFollow != null)
+            {
+                Object.DestroyImmediate(thirdPersonFollow, true);
+                changed = true;
+            }
+
+            CinemachineThirdPersonAim thirdPersonAim = cameraTransform.GetComponent<CinemachineThirdPersonAim>();
+            if (thirdPersonAim != null)
+            {
+                Object.DestroyImmediate(thirdPersonAim, true);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureCinemachineFollow(Transform cameraTransform)
+        {
+            CinemachineFollow follow = cameraTransform.GetComponent<CinemachineFollow>();
+            if (follow == null)
+            {
+                follow = cameraTransform.gameObject.AddComponent<CinemachineFollow>();
+            }
+
+            bool changed = false;
+            if (follow.FollowOffset != Vector3.zero)
+            {
+                follow.FollowOffset = Vector3.zero;
+                changed = true;
+            }
+
+            var trackerSettings = follow.TrackerSettings;
+            if (trackerSettings.PositionDamping != Vector3.zero)
+            {
+                trackerSettings.PositionDamping = Vector3.zero;
+                changed = true;
+            }
+
+            if (trackerSettings.RotationDamping != Vector3.zero)
+            {
+                trackerSettings.RotationDamping = Vector3.zero;
+                changed = true;
+            }
+
+            if (!Mathf.Approximately(trackerSettings.QuaternionDamping, 0f))
+            {
+                trackerSettings.QuaternionDamping = 0f;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                follow.TrackerSettings = trackerSettings;
+                EditorUtility.SetDirty(follow);
+            }
+
+            return changed;
+        }
+
+        private static bool ApplyFirstPersonLens(Transform cameraTransform, string profilePath)
+        {
+            CinemachineCamera cinemachineCamera = cameraTransform.GetComponent<CinemachineCamera>();
+            CCS_CharacterCameraProfile profile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(profilePath);
+            if (cinemachineCamera == null || profile == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            LensSettings lens = cinemachineCamera.Lens;
+            if (!Mathf.Approximately(lens.FieldOfView, profile.FieldOfView))
+            {
+                lens.FieldOfView = profile.FieldOfView;
+                changed = true;
+            }
+
+            if (!Mathf.Approximately(lens.NearClipPlane, profile.NearClipPlane))
+            {
+                lens.NearClipPlane = profile.NearClipPlane;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                cinemachineCamera.Lens = lens;
+                EditorUtility.SetDirty(cinemachineCamera);
+            }
+
+            return changed;
+        }
+
+        public static bool SetThirdPersonCameraPriority(Transform cameraTransform, int priority)
+        {
+            if (cameraTransform == null)
+            {
+                return false;
+            }
+
+            CinemachineCamera cinemachineCamera = cameraTransform.GetComponent<CinemachineCamera>();
+            if (cinemachineCamera == null)
+            {
+                return false;
+            }
+
+            PrioritySettings prioritySettings = cinemachineCamera.Priority;
+            bool changed = false;
+            if (!prioritySettings.Enabled)
+            {
+                prioritySettings.Enabled = true;
+                changed = true;
+            }
+
+            if (prioritySettings.Value != priority)
+            {
+                prioritySettings.Value = priority;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                cinemachineCamera.Priority = prioritySettings;
+                EditorUtility.SetDirty(cinemachineCamera);
+            }
+
+            return changed;
         }
 
         #endregion

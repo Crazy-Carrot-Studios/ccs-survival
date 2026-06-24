@@ -69,7 +69,7 @@ namespace CCS.Modules.CharacterController
         public bool IsSprinting => isSprinting;
 
         public CCS_CharacterMovementMode MovementMode =>
-            IsAimMovementActive
+            IsCombatLocomotionActive()
                 ? CCS_CharacterMovementMode.AimStrafeLocomotion
                 : CCS_CharacterMovementMode.GroundedThirdPerson;
 
@@ -231,13 +231,180 @@ namespace CCS.Modules.CharacterController
 
         private void ApplyLocomotionMovement(float deltaTime)
         {
-            if (IsAimMovementActive)
+            if (IsCombatLocomotionActive())
             {
-                ApplyAimStrafeMovement(deltaTime);
+                if (IsFirstPersonAimLocomotionActive())
+                {
+                    ApplyFirstPersonAimMovement(deltaTime);
+                }
+                else
+                {
+                    ApplyAimStrafeMovement(deltaTime);
+                }
+
                 return;
             }
 
             ApplyThirdPersonMovement(deltaTime);
+        }
+
+        private bool IsCombatLocomotionActive()
+        {
+            return aimLocomotionController != null && aimLocomotionController.IsCombatLocomotionActive;
+        }
+
+        private bool IsFirstPersonAimLocomotionActive()
+        {
+            ResolveCameraFollowAnchorReference();
+            return cameraFollowAnchor != null && cameraFollowAnchor.UsesFirstPersonBodyYawCoupling;
+        }
+
+        private void ResolveCameraFollowAnchorReference()
+        {
+            if (cameraFollowAnchor == null && aimLocomotionController != null)
+            {
+                cameraFollowAnchor = aimLocomotionController.CameraFollowAnchor;
+            }
+
+            if (cameraFollowAnchor == null)
+            {
+                cameraFollowAnchor = GetComponentInChildren<CCS_CharacterCameraFollowAnchor>(true);
+            }
+        }
+
+        private void ApplyFirstPersonMovement(float deltaTime)
+        {
+            Vector2 moveInput = inputProvider.MoveInput;
+            bool jumpPressed = inputProvider.JumpPressed;
+            bool sprintIntent = inputProvider.SprintHeld && moveInput.sqrMagnitude > 0.01f;
+
+            if (staminaController != null)
+            {
+                staminaController.ReportMovementState(
+                    inputProvider.SprintHeld,
+                    moveInput.sqrMagnitude > 0.01f,
+                    deltaTime);
+                isSprinting = sprintIntent && staminaController.CanSprint;
+            }
+            else
+            {
+                isSprinting = sprintIntent;
+            }
+
+            float walkSpeed = movementProfile.WalkSpeed;
+            if (staminaController != null)
+            {
+                walkSpeed *= staminaController.MovementSpeedMultiplier;
+            }
+
+            float desiredSpeed = isSprinting ? movementProfile.SprintSpeed : walkSpeed;
+            TargetSpeed = moveInput.sqrMagnitude > 0.01f ? desiredSpeed : 0f;
+
+            ResolveCameraFollowAnchorReference();
+            Vector3 viewForward = cameraFollowAnchor != null
+                ? cameraFollowAnchor.PlanarForward
+                : CCS_CharacterMovementCameraContext.GetPlanarForward();
+            Vector3 viewRight = cameraFollowAnchor != null
+                ? cameraFollowAnchor.PlanarRight
+                : CCS_CharacterMovementCameraContext.GetPlanarRight();
+
+            Vector3 desiredDirection = (viewForward * moveInput.y) + (viewRight * moveInput.x);
+            if (desiredDirection.sqrMagnitude > 1f)
+            {
+                desiredDirection.Normalize();
+            }
+
+            ApplyPlanarMovement(
+                deltaTime,
+                moveInput,
+                desiredDirection,
+                movementProfile.RotationSmoothing,
+                rotateTowardMovementDirection: false,
+                jumpPressed,
+                aimFacingForward: viewForward,
+                skipBodyRotation: true);
+        }
+
+        private void ApplyFirstPersonAimMovement(float deltaTime)
+        {
+            Vector2 moveInput = inputProvider.MoveInput;
+            bool jumpPressed = inputProvider.JumpPressed;
+
+            if (movementProfile.AimDisableSprint && inputProvider.SprintHeld)
+            {
+                if (enableMovementDebugLogs && !loggedSprintBlockedWhileAiming)
+                {
+                    loggedSprintBlockedWhileAiming = true;
+                    Debug.Log("[Character Motor] Sprint blocked while aiming.", this);
+                }
+            }
+            else
+            {
+                loggedSprintBlockedWhileAiming = false;
+            }
+
+            if (staminaController != null)
+            {
+                staminaController.ReportMovementState(false, moveInput.sqrMagnitude > 0.01f, deltaTime);
+            }
+
+            isSprinting = false;
+
+            float walkSpeed = movementProfile.WalkSpeed;
+            if (staminaController != null)
+            {
+                walkSpeed *= staminaController.MovementSpeedMultiplier;
+            }
+
+            float deadZone = movementProfile.AimStrafeDeadZone;
+            float deadZoneSqr = deadZone * deadZone;
+            bool hasMoveInput = moveInput.sqrMagnitude > deadZoneSqr;
+
+            ResolveCameraFollowAnchorReference();
+            Vector3 viewForward = cameraFollowAnchor != null
+                ? cameraFollowAnchor.PlanarForward
+                : CCS_CharacterMovementCameraContext.GetPlanarForward();
+            Vector3 viewRight = cameraFollowAnchor != null
+                ? cameraFollowAnchor.PlanarRight
+                : CCS_CharacterMovementCameraContext.GetPlanarRight();
+
+            Vector3 desiredDirection = (viewForward * moveInput.y) + (viewRight * moveInput.x);
+            if (desiredDirection.sqrMagnitude > 1f)
+            {
+                desiredDirection.Normalize();
+            }
+
+            float targetSpeed = 0f;
+            if (hasMoveInput)
+            {
+                float speedMultiplier = movementProfile.AimMovementSpeedMultiplier;
+                float absX = Mathf.Abs(moveInput.x);
+                float absY = Mathf.Abs(moveInput.y);
+                if (absY >= absX)
+                {
+                    speedMultiplier *= moveInput.y >= 0f
+                        ? 1f
+                        : movementProfile.AimBackpedalMultiplier;
+                }
+                else
+                {
+                    speedMultiplier *= movementProfile.AimSideStrafeMultiplier;
+                }
+
+                targetSpeed = walkSpeed * speedMultiplier;
+            }
+
+            TargetSpeed = targetSpeed;
+
+            ApplyPlanarMovement(
+                deltaTime,
+                moveInput,
+                desiredDirection,
+                movementProfile.AimRotationSpeedDegrees,
+                rotateTowardMovementDirection: false,
+                jumpPressed,
+                aimFacingForward: viewForward,
+                skipBodyRotation: true);
         }
 
         private void ApplyThirdPersonMovement(float deltaTime)
@@ -385,7 +552,8 @@ namespace CCS.Modules.CharacterController
             float rotationSpeedDegrees,
             bool rotateTowardMovementDirection,
             bool jumpPressed,
-            Vector3 aimFacingForward = default)
+            Vector3 aimFacingForward = default,
+            bool skipBodyRotation = false)
         {
             Vector3 targetHorizontalVelocity = desiredDirection * TargetSpeed;
             float accelRate = TargetSpeed > currentSpeed
@@ -405,7 +573,7 @@ namespace CCS.Modules.CharacterController
             currentSpeed = new Vector3(horizontalVelocity.x, 0f, horizontalVelocity.z).magnitude;
 
             Vector3 facingDirection = rotateTowardMovementDirection ? desiredDirection : aimFacingForward;
-            if (facingDirection.sqrMagnitude > 0.01f)
+            if (!skipBodyRotation && facingDirection.sqrMagnitude > 0.01f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(facingDirection, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(

@@ -55,6 +55,27 @@ namespace CCS.Project.Editor
             }
 
             Debug.Log("[Project Audit] Passed: " + auditResult.Message);
+
+            CCS_SurvivalValidationResult animationInventoryResult =
+                CCS_AnimationInventoryReporter.GenerateWildWestInventory();
+            if (!animationInventoryResult.IsSuccess)
+            {
+                Debug.LogError("[Animation Inventory] Failed: " + animationInventoryResult.Message);
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            Debug.Log("[Animation Inventory] " + animationInventoryResult.Message);
+
+            CCS_SurvivalValidationResult animationReportValidation =
+                CCS_AnimationInventoryReporter.ValidateReportsExist();
+            if (!animationReportValidation.IsSuccess)
+            {
+                Debug.LogError("[Animation Inventory] Failed: " + animationReportValidation.Message);
+                EditorApplication.Exit(1);
+                return;
+            }
+
             Debug.Log("[Master Test Batch] Setup, validation, and project audit completed successfully.");
             EditorApplication.Exit(0);
         }

@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: ScriptableObject asset under Profiles/Camera/.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Only ThirdPersonSurvival is required in v0.2.0. Future slots are optional.
+// NOTES: v0.6.9 defaults to ThirdPersonSurvival; FirstPersonAim used while firearm aiming.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -25,7 +25,11 @@ namespace CCS.Modules.CharacterController
         [SerializeField] private CCS_CharacterCameraProfile defaultProfile;
 
         [Header("Future Slots")]
+        [SerializeField] private CCS_CharacterCameraProfile thirdPersonSurvivalProfile;
+
         [SerializeField] private CCS_CharacterCameraProfile firstPersonProfile;
+
+        [SerializeField] private CCS_CharacterCameraProfile firstPersonAimProfile;
 
         [SerializeField] private CCS_CharacterCameraProfile aimOverShoulderProfile;
 
@@ -41,7 +45,11 @@ namespace CCS.Modules.CharacterController
 
         public CCS_CharacterCameraProfile DefaultProfile => defaultProfile;
 
+        public CCS_CharacterCameraProfile ThirdPersonSurvivalProfile => thirdPersonSurvivalProfile;
+
         public CCS_CharacterCameraProfile FirstPersonProfile => firstPersonProfile;
+
+        public CCS_CharacterCameraProfile FirstPersonAimProfile => firstPersonAimProfile;
 
         public CCS_CharacterCameraProfile AimOverShoulderProfile => aimOverShoulderProfile;
 
@@ -59,8 +67,13 @@ namespace CCS.Modules.CharacterController
         {
             switch (cameraMode)
             {
+                case CCS_CharacterCameraMode.ThirdPersonSurvival:
+                    return thirdPersonSurvivalProfile != null ? thirdPersonSurvivalProfile : defaultProfile;
                 case CCS_CharacterCameraMode.FirstPerson:
+                case CCS_CharacterCameraMode.FirstPersonBodyAware:
                     return firstPersonProfile != null ? firstPersonProfile : defaultProfile;
+                case CCS_CharacterCameraMode.FirstPersonAim:
+                    return firstPersonAimProfile != null ? firstPersonAimProfile : defaultProfile;
                 case CCS_CharacterCameraMode.AimOverShoulder:
                     return aimOverShoulderProfile != null ? aimOverShoulderProfile : defaultProfile;
                 case CCS_CharacterCameraMode.TopDown:

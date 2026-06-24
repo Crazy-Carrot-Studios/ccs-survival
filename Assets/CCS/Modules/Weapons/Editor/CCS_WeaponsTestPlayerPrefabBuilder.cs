@@ -120,6 +120,8 @@ namespace CCS.Modules.Weapons.Editor
 
             changed |= EnsurePlayerWeaponLoadout(prefabRoot);
 
+            changed |= EnsurePlayerEquipmentVisualController(prefabRoot);
+
             changed |= EnsureWeaponHud(prefabRoot);
 
             changed |= EnsureFireFeedback(prefabRoot);
@@ -179,6 +181,19 @@ namespace CCS.Modules.Weapons.Editor
             changed |= DestroyDeepChildIfExists(prefabRoot.transform, "PF_CCS_RevolverM1879_Equipped_Instance");
             changed |= DestroyDeepChildIfExists(prefabRoot.transform, "PF_CCS_RevolverM1879_Holstered");
             changed |= DestroyDeepChildIfExists(prefabRoot.transform, "PF_CCS_RevolverM1879_Equipped");
+
+            changed |= DestroyDeepChildIfExists(
+                prefabRoot.transform,
+                CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName);
+            changed |= DestroyDeepChildIfExists(
+                prefabRoot.transform,
+                CCS_EquipmentConstants.RuntimeHolsteredVisualObjectName);
+            changed |= DestroyDeepChildIfExists(
+                prefabRoot.transform,
+                CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName);
+            changed |= DestroyDeepChildIfExists(
+                prefabRoot.transform,
+                CCS_EquipmentConstants.RuntimeEquippedVisualObjectName);
 
             Transform holsterSocket = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.RevolverHolsterSocketName);
 
@@ -379,6 +394,88 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
+        private static bool EnsurePlayerEquipmentVisualController(GameObject prefabRoot)
+
+        {
+
+            CCS_PlayerEquipmentVisualController controller =
+
+                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+
+            if (controller == null)
+
+            {
+
+                controller = prefabRoot.AddComponent<CCS_PlayerEquipmentVisualController>();
+
+            }
+
+
+
+            CCS_EquipmentSocketRegistry socketRegistry = prefabRoot.GetComponent<CCS_EquipmentSocketRegistry>();
+
+            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>();
+
+            CCS_CharacterAimLocomotionController aimLocomotion =
+
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+
+            CCS_WeaponAttachmentFitProfile hipFit = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
+
+                CCS_EquipmentConstants.RevolverM1879RightHipHolsterFitPath);
+
+            CCS_WeaponAttachmentFitProfile handFit = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
+
+                CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath);
+
+            GameObject visualOnlyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+
+                CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath);
+
+
+
+            SerializedObject serializedController = new SerializedObject(controller);
+
+            bool changed = SetObjectReference(serializedController, "equipmentSocketRegistry", socketRegistry);
+
+            changed |= SetObjectReference(serializedController, "playerWeaponLoadout", loadout);
+
+            changed |= SetObjectReference(serializedController, "aimLocomotionController", aimLocomotion);
+
+            changed |= SetObjectReference(serializedController, "rightHipHolsterFitProfile", hipFit);
+
+            changed |= SetObjectReference(serializedController, "rightHandEquippedFitProfile", handFit);
+
+            changed |= SetObjectReference(serializedController, "revolverVisualOnlyPrefab", visualOnlyPrefab);
+
+            if (changed)
+
+            {
+
+                serializedController.ApplyModifiedPropertiesWithoutUndo();
+
+            }
+
+
+
+            if (!controller.enabled)
+
+            {
+
+                controller.enabled = true;
+
+                changed = true;
+
+            }
+
+
+
+            return changed;
+
+        }
+
+
+
         private static bool EnsureAimLocomotionWeaponGate(GameObject prefabRoot)
 
         {
@@ -387,9 +484,11 @@ namespace CCS.Modules.Weapons.Editor
 
                 prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
 
-            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>();
+            CCS_WeaponCarryStateController carryController =
 
-            if (aimLocomotion == null || loadout == null)
+                prefabRoot.GetComponent<CCS_WeaponCarryStateController>();
+
+            if (aimLocomotion == null || carryController == null)
 
             {
 
@@ -401,7 +500,7 @@ namespace CCS.Modules.Weapons.Editor
 
             SerializedObject serializedAimLocomotion = new SerializedObject(aimLocomotion);
 
-            bool changed = SetObjectReference(serializedAimLocomotion, "weaponAimGateComponent", loadout);
+            bool changed = SetObjectReference(serializedAimLocomotion, "weaponAimGateComponent", carryController);
 
             if (changed)
 
@@ -672,14 +771,29 @@ namespace CCS.Modules.Weapons.Editor
 
 
             CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
-
-
+            CCS_PlayerEquipmentVisualController equipmentVisualController =
+                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
 
             SerializedObject serializedFeedback = new SerializedObject(fireFeedback);
-
             bool changed = SetObjectReference(serializedFeedback, "revolverController", revolverController);
-
             changed |= SetObjectReference(serializedFeedback, "muzzlePoint", muzzleTransform);
+            changed |= SetObjectReference(serializedFeedback, "equipmentVisualController", equipmentVisualController);
+            changed |= SetObjectReference(
+                serializedFeedback,
+                "bulletTracerPrefab",
+                AssetDatabase.LoadAssetAtPath<GameObject>(CCS_WeaponsConstants.RevolverM1879BulletTracerVisualPrefabPath));
+            changed |= SetObjectReference(
+                serializedFeedback,
+                "muzzleFlashPrefab",
+                AssetDatabase.LoadAssetAtPath<GameObject>(CCS_WeaponsConstants.RevolverM1879MuzzleFlashPrefabPath));
+            changed |= SetObjectReference(
+                serializedFeedback,
+                "muzzleSmokePrefab",
+                AssetDatabase.LoadAssetAtPath<GameObject>(CCS_WeaponsConstants.RevolverM1879MuzzleSmokePrefabPath));
+            changed |= SetObjectReference(
+                serializedFeedback,
+                "spentShellPrefab",
+                AssetDatabase.LoadAssetAtPath<GameObject>(CCS_WeaponsConstants.RevolverM1879SpentShellVisualPrefabPath));
 
 
 

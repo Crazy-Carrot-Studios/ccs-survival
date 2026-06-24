@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CCS.Modules.CharacterController.Editor.EquipmentFitStudio;
+using CCS.Modules.Weapons;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
@@ -56,6 +57,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureSocketRegistry(prefabRoot, profile);
             changed |= EnsureWeaponIkTargets(visualRoot);
             changed |= EnsureWeaponIkRig(visualRoot, animator, hasHumanoidRig);
+            changed |= CCS_RevolverArmReticleIKBuilder.EnsureRevolverArmReticleIk(prefabRoot, visualRoot, animator);
 
             if (hasHumanoidRig)
             {

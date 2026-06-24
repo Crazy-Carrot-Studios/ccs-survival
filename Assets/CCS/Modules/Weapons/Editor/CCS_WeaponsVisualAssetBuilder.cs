@@ -59,6 +59,8 @@ namespace CCS.Modules.Weapons.Editor
             changed |= EnsureGunMaterialReferences();
             changed |= EnsureVisualDefinitionDefaults();
             changed |= EnsureMaterializedVisualPrefab();
+            changed |= EnsureVisualOnlyPrefab();
+            changed |= CCS_WeaponsFireVisualAssetBuilder.EnsureFireVisualPrefabs();
             changed |= RemoveDeprecatedVisualPrefabs();
             changed |= EnsureVisualDefinitionAsset();
             changed |= EnsureWorldPickupPrefab();
@@ -180,6 +182,38 @@ namespace CCS.Modules.Weapons.Editor
             return SavePrefabIfChanged(
                 prefabRoot,
                 CCS_WeaponsConstants.RevolverM1879MaterializedVisualPrefabPath,
+                changed);
+        }
+
+        private static bool EnsureVisualOnlyPrefab()
+        {
+            GameObject prefabRoot = LoadOrCreatePrefabRoot(CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath);
+            if (prefabRoot == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            if (prefabRoot.name != "PF_CCS_RevolverM1879_VisualOnly")
+            {
+                prefabRoot.name = "PF_CCS_RevolverM1879_VisualOnly";
+                changed = true;
+            }
+
+            changed |= RemoveLegacyVisualChildren(prefabRoot.transform);
+            changed |= EnsureModelRootVisual(
+                prefabRoot.transform,
+                localPosition: Vector3.zero,
+                localEuler: Vector3.zero,
+                localScale: Vector3.one);
+            changed |= RemoveDuplicateRootVisualBranches(prefabRoot.transform);
+            changed |= DisableCollidersRecursive(prefabRoot.transform);
+            changed |= StripVendorScripts(prefabRoot);
+            changed |= StripImportedRuntimeComponents(prefabRoot);
+            changed |= EnsureVisualOnlyMuzzleAnchors(prefabRoot.transform);
+            return SavePrefabIfChanged(
+                prefabRoot,
+                CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath,
                 changed);
         }
 
@@ -384,6 +418,12 @@ namespace CCS.Modules.Weapons.Editor
             changed |= SetBool(serializedDefinition, "equipOnAim", false);
             changed |= SetBool(serializedDefinition, "holsterWhenAimReleased", false);
             changed |= SetBool(serializedDefinition, "enableShellVisual", false);
+            changed |= SetBool(serializedDefinition, "enableVisualAimConvergence", false);
+            changed |= SetFloat(serializedDefinition, "convergenceSpeed", 18f);
+            changed |= SetFloat(serializedDefinition, "maxYawCorrectionDegrees", 15f);
+            changed |= SetFloat(serializedDefinition, "maxPitchCorrectionDegrees", 10f);
+            changed |= SetFloat(serializedDefinition, "maxRollCorrectionDegrees", 3f);
+            changed |= SetFloat(serializedDefinition, "nearTargetDistance", 2f);
 
             if (changed)
             {
@@ -741,6 +781,33 @@ Rebuild via **CCS → Weapons → Validate Weapons Module** or Master Test batch
             }
 
             return definition;
+        }
+
+        private static bool EnsureVisualOnlyMuzzleAnchors(Transform prefabRoot)
+        {
+            CCS_RevolverVisualDefinition visualDefinition = LoadVisualDefinitionForBuild();
+            if (visualDefinition == null)
+            {
+                return false;
+            }
+
+            Transform modelRoot = prefabRoot.Find(CCS_WeaponsConstants.RevolverModelRootObjectName);
+            Transform gunVisual = modelRoot != null
+                ? modelRoot.Find(CCS_WeaponsConstants.RevolverMaterializedVisualChildName)
+                : null;
+            if (gunVisual == null)
+            {
+                return false;
+            }
+
+            return EnsureVisualMuzzleAnchors(gunVisual, visualDefinition);
+        }
+
+        private static bool EnsureVisualMuzzleAnchors(
+            Transform gunVisualRoot,
+            CCS_RevolverVisualDefinition visualDefinition)
+        {
+            return CCS_WeaponsFireVisualAssetBuilder.EnsureVisualFitGuideAnchors(gunVisualRoot, visualDefinition);
         }
 
         private static bool EnsureEquippedAnchorPoints(

@@ -220,8 +220,13 @@ namespace CCS.Modules.Weapons
             string source = File.ReadAllText(feedbackPath);
             AppendIfMissing(
                 failures,
-                source.Contains("muzzlePoint.position") || source.Contains("MuzzlePointTransform"),
-                "CCS_RevolverFireFeedback must start tracers from the active muzzle transform.");
+                source.Contains("HitscanResult.RayOrigin"),
+                "CCS_RevolverFireFeedback must start tracers from resolved hitscan muzzle origin.");
+            AppendIfMissing(
+                failures,
+                source.Contains("HitscanResult.HitPoint") || source.Contains("hitscan.HitPoint")
+                    || source.Contains("HitscanResult.RayDirection") || source.Contains("hitscan.RayDirection"),
+                "CCS_RevolverFireFeedback must end tracers at resolved hit or aim direction.");
             AppendIfMissing(
                 failures,
                 source.Contains("transform.root"),
@@ -229,7 +234,7 @@ namespace CCS.Modules.Weapons
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Revolver fire feedback uses muzzle-origin tracers.");
+                : CCS_SurvivalValidationResult.Pass("Revolver fire feedback uses aim-resolved muzzle-origin tracers.");
         }
 
         public static CCS_SurvivalValidationResult ValidateHitscanUsesCameraCenterAim()
@@ -245,12 +250,12 @@ namespace CCS.Modules.Weapons
             string source = File.ReadAllText(raycasterPath);
             AppendIfMissing(
                 failures,
-                source.Contains("ViewportPointToRay"),
-                "Hitscan raycaster must build aim from camera viewport center.");
+                source.Contains("CCS_WeaponAimResolver"),
+                "Hitscan raycaster must delegate to CCS_WeaponAimResolver.");
             AppendIfMissing(
                 failures,
-                source.Contains("CastFromCameraCenter"),
-                "Hitscan raycaster must expose CastFromCameraCenter for reticle-aligned shots.");
+                source.Contains("CastFromAimResolver"),
+                "Hitscan raycaster must expose CastFromAimResolver.");
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
@@ -282,8 +287,12 @@ namespace CCS.Modules.Weapons
                 "Missing PF_CCS_RevolverM1879_MaterializedVisual.prefab.");
             AppendIfMissing(
                 failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath),
+                "Missing PF_CCS_RevolverM1879_VisualOnly.prefab.");
+            AppendIfMissing(
+                failures,
                 !File.Exists(CCS_WeaponsConstants.RevolverM1879HolsteredPrefabPath),
-                "Holstered revolver prefab must be removed for world-pickup-only scope.");
+                "Holstered revolver prefab must be removed for profile-driven runtime visual scope.");
             AppendIfMissing(
                 failures,
                 !File.Exists(CCS_WeaponsConstants.RevolverM1879EquippedPrefabPath),
@@ -298,15 +307,17 @@ namespace CCS.Modules.Weapons
                 "Shell visual prefab must be removed for world-pickup-only scope.");
 
             ValidatePrefabUsesCcsAssetsOnly(failures, CCS_WeaponsConstants.RevolverM1879MaterializedVisualPrefabPath);
+            ValidatePrefabUsesCcsAssetsOnly(failures, CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath);
             ValidatePrefabUsesCcsAssetsOnly(failures, CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath);
+            ValidateVisualOnlyPrefabContent(failures, CCS_WeaponsConstants.RevolverM1879VisualOnlyPrefabPath);
             ValidateWorldPickupPrefabContent(failures, CCS_WeaponsConstants.RevolverM1879WorldPickupPrefabPath);
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Revolver M1879 world pickup assets are present and CCS-owned.");
+                : CCS_SurvivalValidationResult.Pass("Revolver M1879 visual foundation and visual-only prefab are present.");
         }
 
-        public static CCS_SurvivalValidationResult ValidatePlayerWeaponLoadoutComponents(GameObject prefabRoot)
+        public static CCS_SurvivalValidationResult ValidatePlayerEquipmentVisualBridge(GameObject prefabRoot)
         {
             List<string> failures = new List<string>();
             AppendIfMissing(failures, prefabRoot != null, "Canonical test player prefab is missing.");
@@ -315,26 +326,61 @@ namespace CCS.Modules.Weapons
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
+            CCS_PlayerEquipmentVisualController visualController =
+                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+            AppendIfMissing(
+                failures,
+                visualController != null,
+                "Test player must contain CCS_PlayerEquipmentVisualController.");
             AppendIfMissing(
                 failures,
                 prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>() != null,
                 "Test player must contain CCS_PlayerWeaponLoadout.");
             AppendIfMissing(
                 failures,
-                !PlayerPrefabContainsComponentName(
-                    CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath,
-                    "CCS_RevolverWeaponVisualFeedback"),
-                "Test player must not contain CCS_RevolverWeaponVisualFeedback in world-pickup-only scope.");
+                prefabRoot.GetComponent<CCS_EquipmentSocketRegistry>() != null,
+                "Test player must contain CCS_EquipmentSocketRegistry.");
             AppendIfMissing(
                 failures,
-                FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.RevolverHolsterSocketName) == null,
-                "Test player must not contain holster socket "
-                + CCS_WeaponsConstants.RevolverHolsterSocketName
-                + ".");
-            AppendIfMissing(
-                failures,
-                FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.RevolverHandSocketName) == null,
-                "Test player must not contain hand socket " + CCS_WeaponsConstants.RevolverHandSocketName + ".");
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>() != null,
+                "Test player must contain CCS_CharacterAimLocomotionController.");
+
+            if (visualController != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    visualController.HasVisualBridgeWiring,
+                    "Equipment visual controller must reference socket registry, loadout, aim state, visual-only prefab, and fit profiles.");
+
+                if (visualController.RightHipHolsterFitProfile != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        visualController.RightHipHolsterFitProfile.name
+                            == "CCS_RevolverM1879_RightHipHolster_Fit",
+                        "Equipment visual controller must reference CCS_RevolverM1879_RightHipHolster_Fit.asset.");
+                }
+
+                if (visualController.RightHandEquippedFitProfile != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        visualController.RightHandEquippedFitProfile.name
+                            == "CCS_RevolverM1879_RightHandEquipped_Fit",
+                        "Equipment visual controller must reference CCS_RevolverM1879_RightHandEquipped_Fit.asset.");
+                }
+            }
+
+            for (int i = 0; i < CCS_EquipmentConstants.RuntimeTemporaryObjectNames.Length; i++)
+            {
+                AppendIfMissing(
+                    failures,
+                    FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.RuntimeTemporaryObjectNames[i]) == null,
+                    "Test player prefab must not contain saved runtime visual object "
+                    + CCS_EquipmentConstants.RuntimeTemporaryObjectNames[i]
+                    + ".");
+            }
+
             AppendIfMissing(
                 failures,
                 FindDeepChild(prefabRoot.transform, "PF_CCS_RevolverM1879_Holstered_Instance") == null,
@@ -344,16 +390,14 @@ namespace CCS.Modules.Weapons
                 FindDeepChild(prefabRoot.transform, "PF_CCS_RevolverM1879_Equipped_Instance") == null,
                 "Test player must not contain equipped revolver visual instance.");
 
-            CCS_CharacterAimLocomotionController aimLocomotion =
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
-            AppendIfMissing(
-                failures,
-                aimLocomotion != null,
-                "Test player must contain CCS_CharacterAimLocomotionController for weapon aim gate wiring.");
-
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Player weapon ownership loadout is valid without attached gun visuals.");
+                : CCS_SurvivalValidationResult.Pass("Player equipment visual bridge is wired without saved runtime visuals.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidatePlayerWeaponLoadoutComponents(GameObject prefabRoot)
+        {
+            return ValidatePlayerEquipmentVisualBridge(prefabRoot);
         }
 
         public static CCS_SurvivalValidationResult ValidateRevolverOwnershipAndMuzzleContract()
@@ -389,17 +433,449 @@ namespace CCS.Modules.Weapons
                     "CCS_PlayerWeaponLoadout must grant weapon ownership from world pickup.");
                 AppendIfMissing(
                     failures,
-                    !loadoutSource.Contains("ShowEquippedVisual"),
-                    "CCS_PlayerWeaponLoadout must not spawn equipped gun visuals in world-pickup-only scope.");
+                    loadoutSource.Contains("RevolverGranted"),
+                    "CCS_PlayerWeaponLoadout must expose RevolverGranted for visual bridge wiring.");
+            }
+
+            string visualControllerPath =
+                CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_PlayerEquipmentVisualController.cs";
+            AppendIfMissing(
+                failures,
+                File.Exists(visualControllerPath),
+                "Missing CCS_PlayerEquipmentVisualController source.");
+            if (File.Exists(visualControllerPath))
+            {
+                string visualSource = File.ReadAllText(visualControllerPath);
                 AppendIfMissing(
                     failures,
-                    !loadoutSource.Contains("ShowHolsteredVisual"),
-                    "CCS_PlayerWeaponLoadout must not spawn holstered gun visuals in world-pickup-only scope.");
+                    visualSource.Contains("RuntimeHolsteredVisualObjectName")
+                        || visualSource.Contains("CCS_RUNTIME_Revolver_HolsteredVisual"),
+                    "Equipment visual controller must spawn holstered runtime visual instances.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("RuntimeEquippedVisualObjectName")
+                        || visualSource.Contains("CCS_RUNTIME_Revolver_EquippedVisual"),
+                    "Equipment visual controller must spawn equipped runtime visual instances.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("CCS_WeaponMuzzlePointUtility")
+                        || visualSource.Contains("CurrentAimConvergence")
+                        || visualSource.Contains("BindEquippedVisual"),
+                    "Equipment visual controller must resolve equipped visual muzzle via convergence or utility.");
+                AppendIfMissing(
+                    failures,
+                    !visualSource.Contains("SetMuzzlePoint"),
+                    "Equipment visual controller must not rebind gameplay muzzle.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("ReloadFitProfilesFromDisk"),
+                    "Equipment visual controller must reload fit profiles from disk in editor.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("CCS_WeaponAttachmentFitProfileApplicator"),
+                    "Equipment visual controller must apply saved profiles through attachment-root applicator.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("RevolverFitProfilePaths"),
+                    "Equipment visual controller must reload fit profiles using RevolverFitProfilePaths.");
+                AppendIfMissing(
+                    failures,
+                    !visualSource.Contains("0.11f, -0.04f, 0.05f"),
+                    "Equipment visual controller must not hardcode holster seed/default fit values.");
             }
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Revolver ownership contract is valid for world-pickup-only scope.");
+                : CCS_SurvivalValidationResult.Pass("Revolver ownership and profile-driven visual bridge contracts are valid.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateWeaponAimResolverFoundation()
+        {
+            List<string> failures = new List<string>();
+            string resolverPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Aiming/CCS_WeaponAimResolver.cs";
+            string solutionPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Aiming/CCS_WeaponAimSolution.cs";
+            string muzzleUtilityPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Aiming/CCS_WeaponMuzzlePointUtility.cs";
+
+            AppendIfMissing(failures, File.Exists(resolverPath), "Missing CCS_WeaponAimResolver.");
+            AppendIfMissing(failures, File.Exists(solutionPath), "Missing CCS_WeaponAimSolution.");
+            AppendIfMissing(failures, File.Exists(muzzleUtilityPath), "Missing CCS_WeaponMuzzlePointUtility.");
+
+            string controllerPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverController.cs";
+            if (File.Exists(controllerPath))
+            {
+                string controllerSource = File.ReadAllText(controllerPath);
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CCS_WeaponAimResolver"),
+                    "CCS_RevolverController must use CCS_WeaponAimResolver when firing.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("GetReticleViewportPoint"),
+                    "CCS_RevolverController must use HUD reticle viewport point for aim resolution.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CurrentEquippedMuzzlePoint"),
+                    "CCS_RevolverController must use equipped visual muzzle when available.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("debugAimAlignment"),
+                    "CCS_RevolverController must expose debug aim alignment toggle.");
+            }
+
+            string hudPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverHudPresenter.cs";
+            if (File.Exists(hudPath))
+            {
+                string hudSource = File.ReadAllText(hudPath);
+                AppendIfMissing(
+                    failures,
+                    hudSource.Contains("GetReticleViewportPoint"),
+                    "CCS_RevolverHudPresenter must expose GetReticleViewportPoint.");
+            }
+
+            string visualPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_PlayerEquipmentVisualController.cs";
+            if (File.Exists(visualPath))
+            {
+                string visualSource = File.ReadAllText(visualPath);
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("CurrentEquippedMuzzlePoint"),
+                    "Equipment visual controller must expose CurrentEquippedMuzzlePoint.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("HasEquippedMuzzlePoint"),
+                    "Equipment visual controller must expose HasEquippedMuzzlePoint.");
+                AppendIfMissing(
+                    failures,
+                    !visualSource.Contains("SetMuzzlePoint"),
+                    "Equipment visual controller must not rebind gameplay muzzle.");
+            }
+
+            string feedbackPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverFireFeedback.cs";
+            if (File.Exists(feedbackPath))
+            {
+                string feedbackSource = File.ReadAllText(feedbackPath);
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("HitscanResult.RayOrigin"),
+                    "CCS_RevolverFireFeedback must start tracers from resolved hitscan muzzle origin.");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Weapon aim resolver foundation validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateWeaponAimConvergenceFoundation()
+        {
+            List<string> failures = new List<string>();
+            string convergencePath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Aiming/CCS_RevolverVisualAimConvergence.cs";
+            string settingsPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Aiming/CCS_RevolverVisualAimConvergenceSettings.cs";
+
+            AppendIfMissing(failures, File.Exists(convergencePath), "Missing CCS_RevolverVisualAimConvergence.");
+            AppendIfMissing(failures, File.Exists(settingsPath), "Missing CCS_RevolverVisualAimConvergenceSettings.");
+
+            string visualPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_PlayerEquipmentVisualController.cs";
+            if (File.Exists(visualPath))
+            {
+                string visualSource = File.ReadAllText(visualPath);
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("RuntimeEquippedAimConvergenceRootObjectName"),
+                    "Equipment visual controller must create AimConvergenceRoot for equipped revolver.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("CurrentAimConvergenceRoot"),
+                    "Equipment visual controller must expose CurrentAimConvergenceRoot.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("TickEquippedVisualAimConvergence"),
+                    "Equipment visual controller must tick visual aim convergence.");
+                AppendIfMissing(
+                    failures,
+                    visualSource.Contains("ZeroLocalTransform"),
+                    "Equipped visual must remain zeroed under AimConvergenceRoot.");
+                AppendIfMissing(
+                    failures,
+                    !visualSource.Contains("rightHandEquippedFitProfile.SocketLocal"),
+                    "Equipment visual controller must not mutate fit profile assets at runtime.");
+            }
+
+            string controllerPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverController.cs";
+            if (File.Exists(controllerPath))
+            {
+                string controllerSource = File.ReadAllText(controllerPath);
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("TickVisualAimConvergence"),
+                    "CCS_RevolverController must tick visual aim convergence while aiming.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("enableVisualAimConvergence"),
+                    "CCS_RevolverController must expose enableVisualAimConvergence.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("debugVisualConvergence"),
+                    "CCS_RevolverController must expose debugVisualConvergence.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("debugAimCameraAlignment"),
+                    "CCS_RevolverController must expose debugAimCameraAlignment.");
+                AppendIfMissing(
+                    failures,
+                    !controllerSource.Contains("enableVisualAimConvergence = true"),
+                    "enableVisualAimConvergence must default off in source.");
+                AppendIfMissing(
+                    failures,
+                    !controllerSource.Contains("debugVisualConvergence = true"),
+                    "debugVisualConvergence must default off in source.");
+                AppendIfMissing(
+                    failures,
+                    !controllerSource.Contains("debugAimCameraAlignment = true"),
+                    "debugAimCameraAlignment must default off in source.");
+            }
+
+            string settingsPathContent = File.Exists(settingsPath) ? File.ReadAllText(settingsPath) : string.Empty;
+            AppendIfMissing(
+                failures,
+                settingsPathContent.Contains("false,") || settingsPathContent.Contains("false\n"),
+                "CCS_RevolverVisualAimConvergenceSettings.Default must disable convergence.");
+
+            string convergenceSource = File.Exists(convergencePath) ? File.ReadAllText(convergencePath) : string.Empty;
+            AppendIfMissing(
+                failures,
+                convergenceSource.Contains("CCS_WeaponAimResolver"),
+                "Visual aim convergence must use CCS_WeaponAimResolver for aim solution.");
+            AppendIfMissing(
+                failures,
+                convergenceSource.Contains("ResetConvergenceRotation"),
+                "Visual aim convergence must reset when holstering.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Weapon aim convergence foundation validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRevolverArmReticleIKFoundation(GameObject prefabRoot)
+        {
+            List<string> failures = new List<string>();
+            string armIkPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Aiming/CCS_RevolverArmReticleIK.cs";
+            AppendIfMissing(failures, File.Exists(armIkPath), "Missing CCS_RevolverArmReticleIK runtime source.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Aiming/CCS_RevolverReticleAimRig.cs"),
+                "v0.6.13 CCS_RevolverReticleAimRig must be removed.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Aiming/CCS_RevolverArmAimBias.cs"),
+                "LateUpdate CCS_RevolverArmAimBias must be removed in favor of Animation Rigging arm IK.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(
+                    "Assets/CCS/Modules/CharacterController/Editor/Equipment/CCS_RevolverReticleAimRigBuilder.cs"),
+                "v0.6.13 CCS_RevolverReticleAimRigBuilder must be removed.");
+            AppendIfMissing(
+                failures,
+                !File.Exists(
+                    "Assets/CCS/Modules/CharacterController/Editor/Equipment/CCS_RevolverArmAimBiasBuilder.cs"),
+                "CCS_RevolverArmAimBiasBuilder must be removed in favor of CCS_RevolverArmReticleIKBuilder.");
+
+            if (File.Exists(armIkPath))
+            {
+                string armIkSource = File.ReadAllText(armIkPath);
+                AppendIfMissing(
+                    failures,
+                    armIkSource.Contains("ShouldDriveArmReticleIk"),
+                    "CCS_RevolverArmReticleIK must gate on revolver owned + RMB aim held.");
+                AppendIfMissing(
+                    failures,
+                    armIkSource.Contains("RightHandReticleIKTarget"),
+                    "CCS_RevolverArmReticleIK must derive hand IK target from animated hand with clamped correction.");
+                AppendIfMissing(
+                    failures,
+                    armIkSource.Contains("twoBoneIkRotationWeight = 0f"),
+                    "CCS_RevolverArmReticleIK must keep TwoBoneIK rotation weight at zero by default.");
+                AppendIfMissing(
+                    failures,
+                    armIkSource.Contains("UnityEngine.Animations.Rigging"),
+                    "CCS_RevolverArmReticleIK must use Unity Animation Rigging.");
+                AppendIfMissing(
+                    failures,
+                    !armIkSource.Contains("equippedAttachmentRoot.localPosition ="),
+                    "CCS_RevolverArmReticleIK must not mutate equipped attachment local transform.");
+                AppendIfMissing(
+                    failures,
+                    armIkSource.Contains("rigBlendSpeed"),
+                    "CCS_RevolverArmReticleIK must blend rig weight while RMB aim is held.");
+            }
+
+            string resolverPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Aiming/CCS_WeaponAimResolver.cs";
+            if (File.Exists(resolverPath))
+            {
+                string resolverSource = File.ReadAllText(resolverPath);
+                AppendIfMissing(
+                    failures,
+                    resolverSource.Contains("muzzleToAimDirection"),
+                    "CCS_WeaponAimResolver must compute muzzle-to-aim direction for fire alignment.");
+            }
+
+            string controllerPath = CCS_WeaponsConstants.ModuleRootPath
+                + "/Runtime/Components/CCS_RevolverController.cs";
+            if (File.Exists(controllerPath))
+            {
+                string controllerSource = File.ReadAllText(controllerPath);
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CCS_WeaponAimResolver.Resolve"),
+                    "CCS_RevolverController fire path must use CCS_WeaponAimResolver reticle aim point.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("CastFromAimResolver"),
+                    "CCS_RevolverController fire path must cast hitscan from aim resolver.");
+            }
+
+            string weaponsAsmdefPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/CCS.Modules.Weapons.Runtime.asmdef";
+            if (File.Exists(weaponsAsmdefPath))
+            {
+                string asmdefText = File.ReadAllText(weaponsAsmdefPath);
+                AppendIfMissing(
+                    failures,
+                    asmdefText.Contains("Unity.Animation.Rigging"),
+                    "Weapons.Runtime must reference Unity.Animation.Rigging for arm reticle IK.");
+            }
+
+            AppendIfMissing(failures, prefabRoot != null, "Canonical test player prefab is missing for arm reticle IK validation.");
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            CCS_RevolverArmReticleIK armReticleIk = prefabRoot.GetComponentInChildren<CCS_RevolverArmReticleIK>(true);
+            AppendIfMissing(
+                failures,
+                armReticleIk != null,
+                "Test player must contain CCS_RevolverArmReticleIK on VisualRoot.");
+
+            MonoBehaviour[] behaviours = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour == null)
+                {
+                    continue;
+                }
+
+                string typeName = behaviour.GetType().Name;
+                if (typeName == "CCS_RevolverReticleAimRig" || typeName == "CCS_RevolverArmAimBias")
+                {
+                    failures.Add("Test player must not contain legacy direct weapon/hand aim component: " + typeName + ".");
+                }
+            }
+
+            Transform visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.VisualRootObjectName);
+            AppendIfMissing(failures, visualRoot != null, "Test player must contain VisualRoot.");
+            if (visualRoot != null)
+            {
+                Transform ikRoot = visualRoot.Find(CCS_WeaponsConstants.RevolverArmReticleIkRootObjectName);
+                AppendIfMissing(
+                    failures,
+                    ikRoot != null,
+                    "VisualRoot must contain " + CCS_WeaponsConstants.RevolverArmReticleIkRootObjectName + ".");
+                if (ikRoot != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        ikRoot.Find(CCS_WeaponsConstants.ReticleAimWorldTargetObjectName) != null,
+                        "Arm reticle IK root must contain ReticleAimWorldTarget.");
+                    AppendIfMissing(
+                        failures,
+                        ikRoot.Find(CCS_WeaponsConstants.RightHandReticleIkTargetObjectName) != null,
+                        "Arm reticle IK root must contain RightHandReticleIKTarget.");
+                    AppendIfMissing(
+                        failures,
+                        ikRoot.Find(CCS_WeaponsConstants.RightElbowHintObjectName) != null,
+                        "Arm reticle IK root must contain RightElbowHint.");
+                }
+
+                AppendIfMissing(
+                    failures,
+                    visualRoot.Find(CCS_WeaponsConstants.RevolverAimRigRootObjectName) == null,
+                    "VisualRoot must not contain legacy " + CCS_WeaponsConstants.RevolverAimRigRootObjectName + ".");
+            }
+
+            Animator animator = visualRoot != null
+                ? visualRoot.GetComponentInChildren<Animator>(true)
+                : null;
+            Transform armIkRigTransform = animator != null
+                ? animator.transform.Find(CCS_WeaponsConstants.RevolverArmReticleIkRigObjectName)
+                : null;
+            AppendIfMissing(
+                failures,
+                armIkRigTransform != null,
+                "Animator must contain " + CCS_WeaponsConstants.RevolverArmReticleIkRigObjectName + ".");
+            if (armIkRigTransform != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    armIkRigTransform.Find(CCS_WeaponsConstants.RightArmTwoBoneIkConstraintObjectName) != null,
+                    "Rig_RevolverArmReticleIK must contain RightArmTwoBoneIK.");
+                AppendIfMissing(
+                    failures,
+                    armIkRigTransform.Find(CCS_WeaponsConstants.ChestAimBiasConstraintObjectName) != null,
+                    "Rig_RevolverArmReticleIK must contain ChestAimBias.");
+                AppendIfMissing(
+                    failures,
+                    armIkRigTransform.Find(CCS_WeaponsConstants.RightShoulderAimBiasConstraintObjectName) != null,
+                    "Rig_RevolverArmReticleIK must contain RightShoulderAimBias.");
+                AppendIfMissing(
+                    failures,
+                    armIkRigTransform.Find(CCS_WeaponsConstants.RevolverRightHandAimConstraintObjectName) == null,
+                    "RightHandAimConstraint direct reticle aim must not remain active.");
+            }
+
+            Transform legacyRigTransform = animator != null
+                ? animator.transform.Find(CCS_WeaponsConstants.RevolverAimRigObjectName)
+                : null;
+            AppendIfMissing(
+                failures,
+                legacyRigTransform == null,
+                "Animator must not contain legacy " + CCS_WeaponsConstants.RevolverAimRigObjectName + ".");
+
+            CCS_PlayerEquipmentVisualController visualController =
+                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+            AppendIfMissing(
+                failures,
+                visualController != null,
+                "Test player must contain CCS_PlayerEquipmentVisualController for fit profile validation.");
+            if (visualController != null && visualController.RightHandEquippedFitProfile != null)
+            {
+                CCS_WeaponAttachmentFitProfile equippedFit = visualController.RightHandEquippedFitProfile;
+                AppendIfMissing(
+                    failures,
+                    equippedFit.SocketLocalPosition == new Vector3(0.026999999f, 0.16999996f, -0.010999995f),
+                    "Right-hand equipped fit profile socket local position must remain unchanged from v0.6.8 baseline.");
+                AppendIfMissing(
+                    failures,
+                    Mathf.Approximately(equippedFit.SocketLocalEulerAngles.x, 286.93f)
+                        && Mathf.Approximately(equippedFit.SocketLocalEulerAngles.y, 199.89786f),
+                    "Right-hand equipped fit profile socket local euler must remain unchanged from v0.6.8 baseline.");
+            }
+
+            Transform fallbackMuzzle = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.MuzzlePointObjectName);
+            AppendIfMissing(
+                failures,
+                fallbackMuzzle != null,
+                "Test player must contain fallback MuzzlePoint for fire/tracer alignment.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass(
+                    "Revolver arm reticle IK foundation validated. TwoBoneIK rotation weight=0, fit profile unchanged.");
         }
 
         #endregion
@@ -535,6 +1011,202 @@ namespace CCS.Modules.Weapons
             }
 
             return File.ReadAllText(prefabPath).Contains(componentTypeName);
+        }
+
+        private static void ValidateVisualOnlyPrefabContent(List<string> failures, string prefabPath)
+        {
+            ValidateRevolverVisualPrefabContent(failures, prefabPath, requireEquippedAnchors: false);
+            if (!File.Exists(prefabPath))
+            {
+                return;
+            }
+
+            string prefabText = File.ReadAllText(prefabPath);
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: PF_CCS_RevolverM1879_VisualOnly"),
+                prefabPath + " must use PF_CCS_RevolverM1879_VisualOnly root name.");
+            AppendIfMissing(
+                failures,
+                !prefabText.Contains("BoxCollider:"),
+                prefabPath + " must not contain colliders.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.MuzzlePointObjectName),
+                prefabPath + " must contain MuzzlePoint for equipped visual aim alignment.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.FitGuidesObjectName),
+                prefabPath + " must contain FitGuides with weapon anchor points.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.CylinderPointObjectName),
+                prefabPath + " must contain CylinderPoint fit guide.");
+            AppendIfMissing(
+                failures,
+                prefabText.Contains("m_Name: " + CCS_WeaponsConstants.ShellEjectPointObjectName),
+                prefabPath + " must contain ShellEjectPoint fit guide.");
+            AppendIfMissing(
+                failures,
+                !prefabText.Contains("CCS_WeaponPickupInteractable"),
+                prefabPath + " must not contain pickup interaction components.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRevolverFireVisualsFoundation()
+        {
+            List<string> failures = new List<string>();
+            string feedbackPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverFireFeedback.cs";
+            string tracerPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverBulletTracerVisual.cs";
+            string flashPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverMuzzleFlashVisual.cs";
+            string smokePath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverMuzzleSmokeVisual.cs";
+            string shellPath = CCS_WeaponsConstants.ModuleRootPath + "/Runtime/Components/CCS_RevolverSpentShellVisual.cs";
+
+            AppendIfMissing(failures, File.Exists(tracerPath), "Missing CCS_RevolverBulletTracerVisual.");
+            AppendIfMissing(failures, File.Exists(flashPath), "Missing CCS_RevolverMuzzleFlashVisual.");
+            AppendIfMissing(failures, File.Exists(smokePath), "Missing CCS_RevolverMuzzleSmokeVisual.");
+            AppendIfMissing(failures, File.Exists(shellPath), "Missing CCS_RevolverSpentShellVisual.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879BulletTracerVisualPrefabPath),
+                "Missing PF_CCS_RevolverM1879_BulletTracerVisual.prefab.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879MuzzleFlashPrefabPath),
+                "Missing PF_CCS_RevolverM1879_MuzzleFlash.prefab.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879MuzzleSmokePrefabPath),
+                "Missing PF_CCS_RevolverM1879_MuzzleSmoke.prefab.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879SpentShellVisualPrefabPath),
+                "Missing PF_CCS_RevolverM1879_SpentShellVisual.prefab.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_WeaponsConstants.RevolverM1879BulletTrailMaterialAssetPath),
+                "Missing MAT_CCS_Revolver_BulletTrail.mat.");
+
+            if (File.Exists(feedbackPath))
+            {
+                string feedbackSource = File.ReadAllText(feedbackPath);
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("HitscanResult.RayOrigin"),
+                    "CCS_RevolverFireFeedback must use HitscanResult.RayOrigin for fire visuals.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("RevolverReloadStarted"),
+                    "CCS_RevolverFireFeedback must extract spent shells on reload only.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("debugFireVisuals"),
+                    "CCS_RevolverFireFeedback must expose debugFireVisuals.");
+                AppendIfMissing(
+                    failures,
+                    !feedbackSource.Contains("debugFireVisuals = true"),
+                    "debugFireVisuals must default off in source.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("HandleReloadStarted")
+                        && feedbackSource.Contains("SpawnSpentShell"),
+                    "Spent shell visuals must spawn during reload extraction only.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("bulletVisualScaleMultiplier"),
+                    "CCS_RevolverFireFeedback must expose bulletVisualScaleMultiplier.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("spentShellVisualScaleMultiplier"),
+                    "CCS_RevolverFireFeedback must expose spentShellVisualScaleMultiplier.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("bulletTrailEnabled"),
+                    "CCS_RevolverFireFeedback must expose bulletTrailEnabled.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("bulletTrailLifetime"),
+                    "CCS_RevolverFireFeedback must expose bulletTrailLifetime.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("bulletTrailWidth"),
+                    "CCS_RevolverFireFeedback must expose bulletTrailWidth.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("DefaultBulletVisualScaleMultiplier"),
+                    "Bullet visual scale multiplier must use validated default constant.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("MinBulletVisualScaleMultiplier")
+                        && feedbackSource.Contains("MaxBulletVisualScaleMultiplier"),
+                    "Bullet visual scale multiplier must clamp to safe range.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("MinSpentShellVisualScaleMultiplier")
+                        && feedbackSource.Contains("MaxSpentShellVisualScaleMultiplier"),
+                    "Spent shell visual scale multiplier must clamp to safe range.");
+                AppendIfMissing(
+                    failures,
+                    feedbackSource.Contains("localScale = Vector3.one * scale"),
+                    "Visual scale multipliers must apply to spawned visual instances only.");
+                AppendIfMissing(
+                    failures,
+                    !ContainsPerShotShellEjection(feedbackSource),
+                    "Revolver fire feedback must not eject shells per shot.");
+            }
+
+            if (File.Exists(tracerPath))
+            {
+                string tracerSource = File.ReadAllText(tracerPath);
+                AppendIfMissing(
+                    failures,
+                    !tracerSource.Contains("ApplyWeaponDamage") && !tracerSource.Contains("CCS_TestDamageTarget"),
+                    "Bullet tracer visual must not apply damage.");
+                AppendIfMissing(
+                    failures,
+                    tracerSource.Contains("TrailRenderer"),
+                    "Bullet tracer visual must support a readable TrailRenderer streak.");
+                AppendIfMissing(
+                    failures,
+                    tracerSource.Contains("ConfigureTrail"),
+                    "Bullet tracer visual must configure trail lifetime and width.");
+                AppendIfMissing(
+                    failures,
+                    tracerSource.Contains("MinBulletTrailLifetime")
+                        && tracerSource.Contains("MaxBulletTrailWidth"),
+                    "Bullet trail tuning must clamp to safe cosmetic ranges.");
+            }
+
+            string bulletTracerPrefabPath = CCS_WeaponsConstants.RevolverM1879BulletTracerVisualPrefabPath;
+            if (File.Exists(bulletTracerPrefabPath))
+            {
+                string prefabText = File.ReadAllText(bulletTracerPrefabPath);
+                AppendIfMissing(
+                    failures,
+                    prefabText.Contains("TrailRenderer:"),
+                    "PF_CCS_RevolverM1879_BulletTracerVisual must include TrailRenderer for readability.");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Revolver fire visuals foundation validated.");
+        }
+
+        private static bool ContainsPerShotShellEjection(string feedbackSource)
+        {
+            int fireHandlerStart = feedbackSource.IndexOf("HandleFireResolved", System.StringComparison.Ordinal);
+            if (fireHandlerStart < 0)
+            {
+                return false;
+            }
+
+            int reloadHandlerStart = feedbackSource.IndexOf("HandleReloadStarted", fireHandlerStart, System.StringComparison.Ordinal);
+            if (reloadHandlerStart < 0)
+            {
+                reloadHandlerStart = feedbackSource.Length;
+            }
+
+            string fireHandlerBlock = feedbackSource.Substring(fireHandlerStart, reloadHandlerStart - fireHandlerStart);
+            return fireHandlerBlock.Contains("SpawnSpentShell");
         }
 
         private static void ValidateRevolverVisualPrefabContent(

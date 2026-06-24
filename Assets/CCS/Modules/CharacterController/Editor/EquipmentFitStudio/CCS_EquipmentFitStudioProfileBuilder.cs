@@ -25,6 +25,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             bool changed = false;
             changed |= EnsureSettingsAsset();
             changed |= EnsureDefaultIkPoseProfile();
+            changed |= CCS_RevolverM1879FitProfileBuilder.EnsureRevolverM1879FitProfilePack();
             changed |= CCS_EquipmentFitStudioCleanupUtility.CleanupAllPreviewObjects();
 
             if (changed)
@@ -99,8 +100,8 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             {
                 profile.ApplyIdentity(
                     "fit.revolver.default",
-                    CCS_EquipmentConstants.DefaultPreviewWeaponId,
-                    CCS_EquipmentConstants.DefaultCharacterRigId,
+                    CCS_EquipmentConstants.RevolverM1879WeaponId,
+                    CCS_EquipmentConstants.TestPlayerCc3BasePlusRigId,
                     "pose.default");
                 EditorUtility.SetDirty(profile);
             }

@@ -35,7 +35,13 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private bool isDraggingPan;
 
+        private bool isDraggingLook;
+
         private Vector2 lastMousePosition;
+
+        private GameObject framePlayerRoot;
+
+        private string frameSocketId = string.Empty;
 
         private int textureWidth = 640;
 
@@ -128,9 +134,15 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                         lastMousePosition = currentEvent.mousePosition;
                         currentEvent.Use();
                     }
-                    else if (currentEvent.button == 2 || (currentEvent.button == 0 && currentEvent.shift))
+                    else if (currentEvent.button == 2)
                     {
                         isDraggingPan = true;
+                        lastMousePosition = currentEvent.mousePosition;
+                        currentEvent.Use();
+                    }
+                    else if (currentEvent.button == 1)
+                    {
+                        isDraggingLook = true;
                         lastMousePosition = currentEvent.mousePosition;
                         currentEvent.Use();
                     }
@@ -140,6 +152,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 case EventType.MouseUp:
                     isDraggingOrbit = false;
                     isDraggingPan = false;
+                    isDraggingLook = false;
                     break;
 
                 case EventType.MouseDrag:
@@ -159,6 +172,13 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                         focusPoint -= (right * delta.x + up * delta.y) * 0.0025f * distance;
                         currentEvent.Use();
                     }
+                    else if (isDraggingLook)
+                    {
+                        orbitYaw += delta.x * 0.35f;
+                        orbitPitch -= delta.y * 0.35f;
+                        orbitPitch = Mathf.Clamp(orbitPitch, -80f, 80f);
+                        currentEvent.Use();
+                    }
 
                     break;
 
@@ -166,6 +186,15 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                     distance += currentEvent.delta.y * 0.08f;
                     distance = Mathf.Clamp(distance, 0.15f, 8f);
                     currentEvent.Use();
+                    break;
+
+                case EventType.KeyDown:
+                    if (currentEvent.keyCode == KeyCode.F)
+                    {
+                        FrameCurrentFocus();
+                        currentEvent.Use();
+                    }
+
                     break;
             }
         }
@@ -183,6 +212,34 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             UpdateCameraTransform();
         }
 
+        public void SetFrameContext(GameObject playerRoot, string socketId)
+        {
+            framePlayerRoot = playerRoot;
+            frameSocketId = socketId ?? string.Empty;
+        }
+
+        public void ResetCameraOrientation()
+        {
+            orbitYaw = 0f;
+            orbitPitch = 15f;
+            distance = 1.5f;
+            UpdateCameraTransform();
+        }
+
+        public void FrameCurrentFocus()
+        {
+            if (framePlayerRoot == null)
+            {
+                return;
+            }
+
+            Transform target = ResolvePresetTarget(framePlayerRoot, CCS_EquipmentFitStudioCameraPreset.Frame, frameSocketId);
+            if (target != null)
+            {
+                FrameTransform(target, 1.15f);
+            }
+        }
+
         public void ApplyPreset(CCS_EquipmentFitStudioCameraPreset preset, GameObject playerRoot, string socketId)
         {
             if (playerRoot == null)
@@ -190,6 +247,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 return;
             }
 
+            SetFrameContext(playerRoot, socketId);
             Transform target = ResolvePresetTarget(playerRoot, preset, socketId);
             if (target == null)
             {
@@ -207,6 +265,23 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                     focusPoint = target.position;
                     distance = 1.8f;
                     orbitYaw = 180f;
+                    orbitPitch = 5f;
+                    break;
+                case CCS_EquipmentFitStudioCameraPreset.UpperBody:
+                    focusPoint = playerRoot.transform.position + Vector3.up * 1.25f;
+                    distance = 1.4f;
+                    orbitPitch = 5f;
+                    orbitYaw = -25f;
+                    break;
+                case CCS_EquipmentFitStudioCameraPreset.RightShoulder:
+                    focusPoint = target.position + Vector3.up * 0.15f;
+                    distance = 0.9f;
+                    orbitYaw = -35f;
+                    orbitPitch = 8f;
+                    break;
+                case CCS_EquipmentFitStudioCameraPreset.WeaponCloseUp:
+                    focusPoint = target.position + target.forward * 0.05f;
+                    distance = 0.45f;
                     orbitPitch = 5f;
                     break;
                 case CCS_EquipmentFitStudioCameraPreset.TriggerCloseUp:
@@ -370,5 +445,8 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         Back = 6,
         TriggerCloseUp = 7,
         MuzzleView = 8,
+        UpperBody = 9,
+        RightShoulder = 10,
+        WeaponCloseUp = 11,
     }
 }

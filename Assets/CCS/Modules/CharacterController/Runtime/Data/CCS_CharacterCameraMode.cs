@@ -5,7 +5,7 @@
 // PLACEMENT: Runtime data enum. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Only ThirdPersonSurvival is active in v0.2.0.
+// NOTES: v0.6.9 defaults to FirstPersonBodyAware. ThirdPersonSurvival retained for future mode switching.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -17,6 +17,8 @@ namespace CCS.Modules.CharacterController
         TopDown = 2,
         AimOverShoulder = 3,
         Horse = 4,
-        Vehicle = 5
+        Vehicle = 5,
+        FirstPersonBodyAware = 6,
+        FirstPersonAim = 7
     }
 }

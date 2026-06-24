@@ -26,6 +26,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateAimLocomotionAnimatorParameters(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences()
             };
 

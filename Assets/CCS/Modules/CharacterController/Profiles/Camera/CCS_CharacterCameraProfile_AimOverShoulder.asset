@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
   profileDisplayName: Aim Over Shoulder
   profileId: ccs.survival.profile.character.camera.aimovershoulder
-  profileDescription: Right-shoulder aim camera tuned for v0.6.2 manual playtest.
-  profileVersion: 0.6.2-close-camera-tune
+  profileDescription: Right-shoulder aim camera tuned for v0.6.8 revolver reticle alignment.
+  profileVersion: 0.6.8-aim-camera-alignment
   enableDebugLogs: 0
   cameraMode: 3
   trackingTargetLocalHeight: 1.48
-  thirdPersonShoulderOffset: {x: 0.58, y: 0.1, z: 0}
+  thirdPersonShoulderOffset: {x: 0.65, y: 0.12, z: 0}
   thirdPersonVerticalArmLength: 0.24
   thirdPersonCameraSide: 1
   thirdPersonCameraDistance: 1.5

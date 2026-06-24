@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_EquipmentFitStudioSettings
   defaultSocketProfile: {fileID: 11400000, guid: e4181b9c1968f04489310bc04920b45f, type: 2}
   defaultPreviewWeaponPrefab: {fileID: 7384546915950577294, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
-  defaultWeaponId: weapon.revolver
-  defaultCharacterRigId: ccs.testplayer.humanoid
+  defaultWeaponId: ccs.weapon.revolver.m1879
+  defaultCharacterRigId: ccs.character.testplayer.cc3_base_plus
   previewCameraFov: 35
   previewCameraNearClip: 0.01
   previewCameraFarClip: 100

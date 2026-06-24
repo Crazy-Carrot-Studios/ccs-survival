@@ -263,10 +263,6 @@ namespace CCS.Modules.CharacterController.Editor
                 requireLoopTime: true);
             ValidateRequiredRevolverClipAsset(
                 failures,
-                CCS_CharacterControllerConstants.RevolverIdlePistolClipPath,
-                requireLoopTime: true);
-            ValidateRequiredRevolverClipAsset(
-                failures,
                 CCS_CharacterControllerConstants.RevolverFireClipPath,
                 requireLoopTime: false);
             ValidateRequiredRevolverClipAsset(
@@ -305,6 +301,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 HasAnimatorParameter(controller, CCS_CharacterControllerConstants.AnimatorRevolverIsReloadingParameter),
                 "Player Animator Controller must define RevolverIsReloading.");
+            AppendIfMissing(
+                failures,
+                HasAnimatorParameter(controller, CCS_CharacterControllerConstants.AnimatorRevolverIsMovingParameter),
+                "Player Animator Controller must define RevolverIsMoving.");
 
             int layerIndex = FindLayerIndex(controller, CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
             AppendIfMissing(
@@ -334,22 +334,314 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateRevolverStateClip(
                 failures,
                 stateMachine,
-                CCS_CharacterControllerConstants.AnimatorRevolverAimIdleStateName,
-                CCS_CharacterControllerConstants.RevolverAimIdleClipPath);
+                CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath);
+            ValidateRevolverStateClip(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath);
+            ValidateRevolverStateClip(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverAimToIdleClipPath);
+            ValidateRevolverStateClip(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverWalkToAimWalkStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverWalkToAimWalkClipPath);
+            ValidateRevolverStateClip(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimWalkStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverAimWalkClipPath);
+            ValidateRevolverStateClip(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimWalkToWalkStateName,
+                CCS_CharacterControllerConstants.WildWestRevolverAimWalkToWalkClipPath);
             ValidateRevolverStateClip(
                 failures,
                 stateMachine,
                 CCS_CharacterControllerConstants.AnimatorRevolverFireStateName,
-                CCS_CharacterControllerConstants.RevolverFireClipPath);
+                CCS_CharacterControllerConstants.WildWestRevolverFireFanningClipPath);
             ValidateRevolverStateClip(
                 failures,
                 stateMachine,
                 CCS_CharacterControllerConstants.AnimatorRevolverReloadStateName,
                 CCS_CharacterControllerConstants.RevolverReloadClipPath);
+            ValidateRevolverStateClipMustNotEqual(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                CCS_CharacterControllerConstants.RevolverAimIdleLegacyClipPath);
+            ValidateRevolverStateClipMustNotEqual(
+                failures,
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverFireStateName,
+                CCS_CharacterControllerConstants.RevolverFireLegacyClipPath);
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass("Revolver upper-body animation isolation validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRevolverWildWestDefaultAimRuntime(GameObject prefabRoot = null)
+        {
+            List<string> failures = new List<string>();
+
+            AppendIfMissing(
+                failures,
+                Directory.Exists(CCS_CharacterControllerConstants.WildWestRevolverAnimationsPath),
+                "Missing Wild West revolver animation folder at "
+                + CCS_CharacterControllerConstants.WildWestRevolverAnimationsPath
+                + ".");
+
+            string[] requiredRuntimeClips =
+            {
+                CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverAimWalkClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverAimToIdleClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverWalkToAimWalkClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverAimWalkToWalkClipPath,
+                CCS_CharacterControllerConstants.WildWestRevolverFireFanningClipPath,
+            };
+
+            for (int i = 0; i < requiredRuntimeClips.Length; i++)
+            {
+                string clipPath = requiredRuntimeClips[i];
+                AppendIfMissing(failures, File.Exists(clipPath), "Missing isolated Wild West runtime clip: " + clipPath + ".");
+                if (File.Exists(clipPath))
+                {
+                    AppendIfMissing(
+                        failures,
+                        !clipPath.Contains("YashMakesGames"),
+                        "Wild West runtime clip must be CCS-owned, not vendor path: " + clipPath + ".");
+                }
+            }
+
+            AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            AppendIfMissing(failures, controller != null, "Player Animator Controller is missing.");
+            if (controller != null)
+            {
+                int layerIndex = FindLayerIndex(
+                    controller,
+                    CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
+                AppendIfMissing(
+                    failures,
+                    layerIndex >= 0,
+                    "Player Animator Controller must define RevolverUpperBody layer.");
+
+                if (layerIndex >= 0)
+                {
+                    AnimatorControllerLayer layer = controller.layers[layerIndex];
+                    AvatarMask expectedMask = AssetDatabase.LoadAssetAtPath<AvatarMask>(
+                        CCS_CharacterControllerConstants.RevolverUpperBodyMaskPath);
+                    AppendIfMissing(
+                        failures,
+                        layer.avatarMask == expectedMask,
+                        "RevolverUpperBody layer must use CCS_Revolver_UpperBody.mask.");
+
+                    AnimatorStateMachine stateMachine = layer.stateMachine;
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverAimToIdleClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverWalkToAimWalkStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverWalkToAimWalkClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverAimWalkStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverAimWalkClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverAimWalkToWalkStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverAimWalkToWalkClipPath);
+                    ValidateRevolverStateClip(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverFireStateName,
+                        CCS_CharacterControllerConstants.WildWestRevolverFireFanningClipPath);
+                    ValidateRevolverStateClipMustNotEqual(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                        CCS_CharacterControllerConstants.RevolverAimIdleLegacyClipPath);
+                    ValidateRevolverStateClipMustNotEqual(
+                        failures,
+                        stateMachine,
+                        CCS_CharacterControllerConstants.AnimatorRevolverFireStateName,
+                        CCS_CharacterControllerConstants.RevolverFireLegacyClipPath);
+                    ValidateNoVendorRevolverClipsOnRevolverUpperBodyLayer(failures, layer);
+                }
+
+                int previewLayerIndex = FindLayerIndex(
+                    controller,
+                    CCS_CharacterControllerConstants.AnimatorRevolverRightHandPreviewLayerName);
+                AppendIfMissing(
+                    failures,
+                    previewLayerIndex < 0,
+                    "RevolverRightHandPreview layer must be removed from the active player Animator Controller.");
+
+                ValidateNoLegacyRevolverClipsOnController(failures, controller);
+                ValidateWildWestAimClipHasUpperBodyMuscleCurves(failures);
+            }
+
+            string revolverAnimatorSourcePath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
+            if (File.Exists(revolverAnimatorSourcePath))
+            {
+                string revolverAnimatorSource = File.ReadAllText(revolverAnimatorSourcePath);
+                AppendIfMissing(
+                    failures,
+                    !revolverAnimatorSource.Contains("useWildWestRightHandRevolverAimPreview"),
+                    "CCS_RevolverUpperBodyAnimator must not expose useWildWestRightHandRevolverAimPreview toggle.");
+                AppendIfMissing(
+                    failures,
+                    !revolverAnimatorSource.Contains("EnterPreviewAimState"),
+                    "CCS_RevolverUpperBodyAnimator must not force-enter RevolverRightHandPreview aim state.");
+                AppendIfMissing(
+                    failures,
+                    !revolverAnimatorSource.Contains("AnimatorRevolverRightHandPreviewLayerName"),
+                    "CCS_RevolverUpperBodyAnimator must not drive RevolverRightHandPreview layer at runtime.");
+                AppendIfMissing(
+                    failures,
+                    revolverAnimatorSource.Contains("RevolverIsMoving"),
+                    "CCS_RevolverUpperBodyAnimator must drive RevolverIsMoving from locomotion speed.");
+                AppendIfMissing(
+                    failures,
+                    revolverAnimatorSource.Contains("ResolveAimPhaseLabel"),
+                    "CCS_RevolverUpperBodyAnimator debug must classify aim phase (enter/loop/exit/fire/empty).");
+                AppendIfMissing(
+                    failures,
+                    revolverAnimatorSource.Contains("enableRevolverAnimationDebug"),
+                    "CCS_RevolverUpperBodyAnimator must expose enableRevolverAnimationDebug.");
+                AppendIfMissing(
+                    failures,
+                    revolverAnimatorSource.Contains("GetCurrentAnimatorClipInfo"),
+                    "CCS_RevolverUpperBodyAnimator debug must report the active clip via GetCurrentAnimatorClipInfo.");
+                AppendIfMissing(
+                    failures,
+                    revolverAnimatorSource.Contains("f9Key"),
+                    "CCS_RevolverUpperBodyAnimator must expose Master Test F9 force-play debug hotkey.");
+            }
+
+            string revolverControllerSource =
+                "Assets/CCS/Modules/Weapons/Runtime/Components/CCS_RevolverController.cs";
+            if (File.Exists(revolverControllerSource))
+            {
+                string sourceText = File.ReadAllText(revolverControllerSource);
+                AppendIfMissing(
+                    failures,
+                    sourceText.Contains("inputProvider.AimHeld"),
+                    "CCS_RevolverController.RevolverAimHeld must follow RMB aim input while weapon is owned.");
+            }
+
+            if (prefabRoot != null)
+            {
+                CCS_RevolverUpperBodyAnimator upperBodyAnimator =
+                    prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
+                AppendIfMissing(
+                    failures,
+                    upperBodyAnimator != null,
+                    "Player prefab must contain CCS_RevolverUpperBodyAnimator on VisualRoot.");
+
+                if (upperBodyAnimator != null)
+                {
+                    SerializedObject serializedAnimator = new SerializedObject(upperBodyAnimator);
+                    SerializedProperty previewToggle = serializedAnimator.FindProperty(
+                        "useWildWestRightHandRevolverAimPreview");
+                    AppendIfMissing(
+                        failures,
+                        previewToggle == null,
+                        "CCS_RevolverUpperBodyAnimator must not serialize useWildWestRightHandRevolverAimPreview.");
+                }
+
+                Animator animator = prefabRoot.GetComponentInChildren<Animator>(true);
+                AppendIfMissing(failures, animator != null, "Master Test player must contain an Animator.");
+                AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(prefabRoot));
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Revolver Wild West hard-replace aim runtime validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidatePlayerAnimatorUsesExpectedController(GameObject prefabRoot)
+        {
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("Player prefab reference is null.");
+            }
+
+            List<string> failures = new List<string>();
+            Animator animator = prefabRoot.GetComponentInChildren<Animator>(true);
+            AppendIfMissing(failures, animator != null, "Player prefab must contain an Animator.");
+            if (animator == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            AnimatorController expectedController = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            AppendIfMissing(
+                failures,
+                expectedController != null,
+                "Expected player Animator Controller asset is missing at "
+                + CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath
+                + ".");
+
+            RuntimeAnimatorController assignedController = animator.runtimeAnimatorController;
+            AppendIfMissing(
+                failures,
+                assignedController != null,
+                "Player prefab Animator must assign AC_CCS_Player_Locomotion_StarterAssets.");
+
+            if (assignedController != null && expectedController != null)
+            {
+                RuntimeAnimatorController resolvedController = assignedController;
+                if (assignedController is AnimatorOverrideController overrideController)
+                {
+                    resolvedController = overrideController.runtimeAnimatorController;
+                }
+
+                AppendIfMissing(
+                    failures,
+                    resolvedController == expectedController,
+                    "Player prefab Animator must use "
+                    + CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath
+                    + " (found "
+                    + AssetDatabase.GetAssetPath(resolvedController)
+                    + ").");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Player prefab Animator Controller assignment validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRevolverWildWestHardReplaceAimRuntime(GameObject prefabRoot = null)
+        {
+            return ValidateRevolverWildWestDefaultAimRuntime(prefabRoot);
         }
 
         public static CCS_SurvivalValidationResult ValidateNoInvectorRuntimeReferences()
@@ -396,15 +688,36 @@ namespace CCS.Modules.CharacterController.Editor
                 return CCS_SurvivalValidationResult.Fail("Player prefab reference is null.");
             }
 
+            List<string> failures = new List<string>();
+
             CCS_RevolverUpperBodyAnimator upperBodyAnimator =
                 prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
+            AppendIfMissing(
+                failures,
+                upperBodyAnimator != null,
+                "Player prefab must contain CCS_RevolverUpperBodyAnimator on VisualRoot.");
+
             if (upperBodyAnimator == null)
             {
-                return CCS_SurvivalValidationResult.Fail(
-                    "Player prefab must contain CCS_RevolverUpperBodyAnimator on VisualRoot.");
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
-            return CCS_SurvivalValidationResult.Pass("Player prefab revolver upper-body animator validated.");
+            AppendValidationFailures(failures, ValidateRevolverWildWestHardReplaceAimRuntime(prefabRoot));
+            AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(prefabRoot));
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Player prefab revolver upper-body animator validated.");
+        }
+
+        private static void AppendValidationFailures(List<string> failures, CCS_SurvivalValidationResult result)
+        {
+            if (result.IsSuccess)
+            {
+                return;
+            }
+
+            failures.Add(result.Message);
         }
 
         public static CCS_SurvivalValidationResult ValidatePlayerAnimatorRootMotionDisabled(GameObject prefabRoot)
@@ -514,6 +827,196 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     !IsVendorFbxSubAssetPath(clipPath),
                     stateName + " must not reference vendor FBX sub-asset: " + clipPath);
+            }
+        }
+
+        private static void ValidateRevolverStateClipMustNotEqual(
+            List<string> failures,
+            AnimatorStateMachine stateMachine,
+            string stateName,
+            string forbiddenClipPath)
+        {
+            AnimatorState state = FindState(stateMachine, stateName);
+            if (state == null || !(state.motion is AnimationClip clip))
+            {
+                return;
+            }
+
+            string clipPath = NormalizeAssetPath(AssetDatabase.GetAssetPath(clip));
+            AppendIfMissing(
+                failures,
+                clipPath != NormalizeAssetPath(forbiddenClipPath),
+                stateName + " must not reference legacy runtime clip " + forbiddenClipPath + " (found " + clipPath + ").");
+        }
+
+        private static void ValidateNoVendorRevolverClipsOnRevolverUpperBodyLayer(
+            List<string> failures,
+            AnimatorControllerLayer layer)
+        {
+            if (layer.stateMachine == null)
+            {
+                return;
+            }
+
+            CollectVendorClipAssignments(failures, layer.stateMachine, layer.name);
+        }
+
+        private static void CollectVendorClipAssignments(
+            List<string> failures,
+            AnimatorStateMachine stateMachine,
+            string layerName)
+        {
+            ChildAnimatorState[] states = stateMachine.states;
+            for (int i = 0; i < states.Length; i++)
+            {
+                AnimatorState state = states[i].state;
+                if (state?.motion is not AnimationClip clip)
+                {
+                    continue;
+                }
+
+                string clipPath = NormalizeAssetPath(AssetDatabase.GetAssetPath(clip));
+                if (clipPath.Contains("YashMakesGames") || clipPath.Contains("Wild West Animation Pack"))
+                {
+                    failures.Add(
+                        "Active Animator state "
+                        + layerName
+                        + "/"
+                        + state.name
+                        + " must use CCS-duplicated Wild West clips, not vendor path: "
+                        + clipPath
+                        + ".");
+                }
+            }
+
+            ChildAnimatorStateMachine[] childMachines = stateMachine.stateMachines;
+            for (int i = 0; i < childMachines.Length; i++)
+            {
+                if (childMachines[i].stateMachine != null)
+                {
+                    CollectVendorClipAssignments(failures, childMachines[i].stateMachine, layerName);
+                }
+            }
+        }
+
+        private static void ValidateNoLegacyRevolverClipsOnController(
+            List<string> failures,
+            AnimatorController controller)
+        {
+            if (controller == null)
+            {
+                return;
+            }
+
+            string[] legacyClipPaths =
+            {
+                CCS_CharacterControllerConstants.RevolverAimIdleLegacyClipPath,
+                CCS_CharacterControllerConstants.RevolverFireLegacyClipPath,
+                CCS_CharacterControllerConstants.RevolverIdlePistolLegacyClipPath,
+            };
+
+            for (int layerIndex = 0; layerIndex < controller.layers.Length; layerIndex++)
+            {
+                AnimatorControllerLayer layer = controller.layers[layerIndex];
+                if (layer.stateMachine == null)
+                {
+                    continue;
+                }
+
+                CollectLegacyClipAssignments(failures, layer.stateMachine, layer.name, legacyClipPaths);
+            }
+        }
+
+        private static void CollectLegacyClipAssignments(
+            List<string> failures,
+            AnimatorStateMachine stateMachine,
+            string layerName,
+            string[] legacyClipPaths)
+        {
+            ChildAnimatorState[] states = stateMachine.states;
+            for (int i = 0; i < states.Length; i++)
+            {
+                AnimatorState state = states[i].state;
+                if (state?.motion is not AnimationClip clip)
+                {
+                    continue;
+                }
+
+                string clipPath = NormalizeAssetPath(AssetDatabase.GetAssetPath(clip));
+                for (int legacyIndex = 0; legacyIndex < legacyClipPaths.Length; legacyIndex++)
+                {
+                    if (clipPath == NormalizeAssetPath(legacyClipPaths[legacyIndex]))
+                    {
+                        failures.Add(
+                            "Active Animator state "
+                            + layerName
+                            + "/"
+                            + state.name
+                            + " must not reference legacy runtime clip "
+                            + legacyClipPaths[legacyIndex]
+                            + ".");
+                    }
+                }
+            }
+
+            ChildAnimatorStateMachine[] childMachines = stateMachine.stateMachines;
+            for (int i = 0; i < childMachines.Length; i++)
+            {
+                if (childMachines[i].stateMachine != null)
+                {
+                    CollectLegacyClipAssignments(
+                        failures,
+                        childMachines[i].stateMachine,
+                        layerName,
+                        legacyClipPaths);
+                }
+            }
+        }
+
+        private static void ValidateWildWestAimClipHasUpperBodyMuscleCurves(List<string> failures)
+        {
+            AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath);
+            AppendIfMissing(
+                failures,
+                clip != null,
+                "Missing Wild West aim idle clip at "
+                + CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath
+                + ".");
+
+            if (clip == null)
+            {
+                return;
+            }
+
+            string[] requiredMuscleAttributes =
+            {
+                "Right Shoulder Down-Up",
+                "Right Arm Down-Up",
+                "RightHandT.x",
+                "Chest Front-Back",
+            };
+
+            EditorCurveBinding[] bindings = AnimationUtility.GetCurveBindings(clip);
+            for (int i = 0; i < requiredMuscleAttributes.Length; i++)
+            {
+                string requiredAttribute = requiredMuscleAttributes[i];
+                bool found = false;
+                for (int bindingIndex = 0; bindingIndex < bindings.Length; bindingIndex++)
+                {
+                    if (bindings[bindingIndex].propertyName == requiredAttribute)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                AppendIfMissing(
+                    failures,
+                    found,
+                    "Wild West aim idle clip must contain muscle curve "
+                    + requiredAttribute
+                    + " for masked upper-body/right-arm playback.");
             }
         }
 

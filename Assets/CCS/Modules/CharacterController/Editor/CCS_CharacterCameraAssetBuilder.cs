@@ -48,6 +48,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= EnsureThirdPersonSurvivalProfileAsset();
 
+            changed |= EnsureFirstPersonBodyAwareProfileAsset();
+
+            changed |= EnsureFirstPersonAimProfileAsset();
+
             changed |= EnsureAimOverShoulderProfileAsset();
 
             changed |= EnsureDefaultProfileSetWiring();
@@ -66,6 +70,26 @@ namespace CCS.Modules.CharacterController.Editor
 
             return changed;
 
+        }
+
+        public static bool ApplyFirstPersonBodyAwareDefaults()
+        {
+            bool changed = EnsureCameraProfileAssets();
+            changed |= CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
+            string cameraRigPath = CCS_CharacterControllerConstants.CameraRigPrefabPath;
+            GameObject cameraRigPrefabRoot = PrefabUtility.LoadPrefabContents(cameraRigPath);
+            if (cameraRigPrefabRoot != null)
+            {
+                changed |= CCS_CharacterCameraRigInputBuilder.EnsureFirstPersonBodyAwareCameras(cameraRigPrefabRoot);
+                PrefabUtility.SaveAsPrefabAsset(cameraRigPrefabRoot, cameraRigPath);
+                PrefabUtility.UnloadPrefabContents(cameraRigPrefabRoot);
+            }
+            if (changed)
+            {
+                AssetDatabase.SaveAssets();
+            }
+
+            return changed;
         }
 
 
@@ -143,6 +167,90 @@ namespace CCS.Modules.CharacterController.Editor
             SerializedObject serializedProfile = new SerializedObject(profile);
 
             bool changed = ApplyAimOverShoulderProfileValues(serializedProfile);
+
+            if (changed)
+
+            {
+
+                serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+
+                EditorUtility.SetDirty(profile);
+
+            }
+
+
+
+            return changed;
+
+        }
+
+
+
+        private static bool EnsureFirstPersonBodyAwareProfileAsset()
+
+        {
+
+            CCS_CharacterCameraProfile profile = LoadOrCreateProfile(
+
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath,
+
+                "CCS_CharacterCameraProfile_FirstPersonBodyAware");
+
+            if (profile == null)
+
+            {
+
+                return false;
+
+            }
+
+
+
+            SerializedObject serializedProfile = new SerializedObject(profile);
+
+            bool changed = ApplyFirstPersonBodyAwareProfileValues(serializedProfile);
+
+            if (changed)
+
+            {
+
+                serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+
+                EditorUtility.SetDirty(profile);
+
+            }
+
+
+
+            return changed;
+
+        }
+
+
+
+        private static bool EnsureFirstPersonAimProfileAsset()
+
+        {
+
+            CCS_CharacterCameraProfile profile = LoadOrCreateProfile(
+
+                CCS_CharacterControllerConstants.FirstPersonAimCameraProfilePath,
+
+                "CCS_CharacterCameraProfile_FirstPersonAim");
+
+            if (profile == null)
+
+            {
+
+                return false;
+
+            }
+
+
+
+            SerializedObject serializedProfile = new SerializedObject(profile);
+
+            bool changed = ApplyFirstPersonAimProfileValues(serializedProfile);
 
             if (changed)
 
@@ -329,9 +437,9 @@ namespace CCS.Modules.CharacterController.Editor
 
                 "profileDescription",
 
-                "Right-shoulder aim camera tuned for v0.6.2 manual playtest.");
+                "Right-shoulder aim camera tuned for v0.6.8 revolver reticle alignment.");
 
-            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.2-close-camera-tune");
+            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.8-aim-camera-alignment");
 
             changed |= ForceSetEnum(
 
@@ -349,7 +457,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 "thirdPersonShoulderOffset",
 
-                new Vector3(0.58f, 0.10f, 0f));
+                new Vector3(0.65f, 0.12f, 0f));
 
             changed |= ForceSetFloat(serializedProfile, "thirdPersonVerticalArmLength", 0.24f);
 
@@ -416,6 +524,246 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
+        private static bool ApplyFirstPersonBodyAwareProfileValues(SerializedObject serializedProfile)
+
+        {
+
+            bool changed = false;
+
+            changed |= ForceSetString(serializedProfile, "profileDisplayName", "First Person Body Aware");
+
+            changed |= ForceSetString(
+
+                serializedProfile,
+
+                "profileId",
+
+                "ccs.survival.profile.character.camera.firstpersonbodyaware");
+
+            changed |= ForceSetString(
+
+                serializedProfile,
+
+                "profileDescription",
+
+                "Body-aware first-person survival camera. Eye-forward offset keeps the view out of the skull while preserving torso/limb visibility.");
+
+            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.14-local-self-head-mask");
+
+            changed |= ForceSetEnum(
+
+                serializedProfile,
+
+                "cameraMode",
+
+                (int)CCS_CharacterCameraMode.FirstPersonBodyAware);
+
+            changed |= ForceSetFloat(serializedProfile, "trackingTargetLocalHeight", 1.48f);
+
+            changed |= ForceSetFloat(serializedProfile, "fieldOfView", CCS_CharacterControllerConstants.FirstPersonFieldOfViewDefault);
+
+            changed |= ForceSetFloat(serializedProfile, "nearClipPlane", CCS_CharacterControllerConstants.FirstPersonNearClipDefault);
+
+            changed |= ForceSetFloat(
+
+                serializedProfile,
+
+                "firstPersonForwardEyeOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonForwardEyeOffsetDefault);
+
+            changed |= ForceSetFloat(
+
+                serializedProfile,
+
+                "firstPersonVerticalEyeOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonVerticalEyeOffsetDefault);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitDefault", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMin", CCS_CharacterControllerConstants.FirstPersonPitchMinimum);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMax", CCS_CharacterControllerConstants.FirstPersonPitchMaximum);
+
+            changed |= ForceSetFloat(serializedProfile, "mouseSensitivityX", 0.12f);
+
+            changed |= ForceSetFloat(serializedProfile, "mouseSensitivityY", 0.10f);
+
+            changed |= ForceSetFloat(serializedProfile, "gamepadSensitivityX", 90f);
+
+            changed |= ForceSetFloat(serializedProfile, "gamepadSensitivityY", 70f);
+
+            changed |= ForceSetFloat(serializedProfile, "lookSmoothing", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingX", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingY", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingZ", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "aimBlendDurationSeconds", 0.1f);
+
+            changed |= ApplyFirstPersonHeadTrackingProfileValues(serializedProfile);
+
+            changed |= ForceSetBool(serializedProfile, "obstacleAvoidanceEnabled", false);
+
+            changed |= ForceSetBool(serializedProfile, "validationDisableObstacleAvoidanceForBaselinePass", true);
+
+            return changed;
+
+        }
+
+
+
+        private static bool ApplyFirstPersonAimProfileValues(SerializedObject serializedProfile)
+
+        {
+
+            bool changed = false;
+
+            changed |= ForceSetString(serializedProfile, "profileDisplayName", "First Person Aim");
+
+            changed |= ForceSetString(
+
+                serializedProfile,
+
+                "profileId",
+
+                "ccs.survival.profile.character.camera.firstpersonaim");
+
+            changed |= ForceSetString(
+
+                serializedProfile,
+
+                "profileDescription",
+
+                "First-person aim profile with fixed FirstPersonAimCameraAnchor above the gun hand while retaining zero damping and tightened pitch clamp.");
+
+            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.9-fixed-first-person-aim-anchor");
+
+            changed |= ForceSetEnum(
+
+                serializedProfile,
+
+                "cameraMode",
+
+                (int)CCS_CharacterCameraMode.FirstPersonAim);
+
+            changed |= ForceSetFloat(serializedProfile, "trackingTargetLocalHeight", 1.48f);
+
+            changed |= ForceSetFloat(serializedProfile, "fieldOfView", CCS_CharacterControllerConstants.FirstPersonAimFieldOfViewDefault);
+
+            changed |= ForceSetFloat(serializedProfile, "nearClipPlane", CCS_CharacterControllerConstants.FirstPersonNearClipDefault);
+
+            changed |= ForceSetFloat(
+
+                serializedProfile,
+
+                "firstPersonForwardEyeOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonAimForwardEyeOffsetDefault);
+
+            changed |= ForceSetFloat(
+
+                serializedProfile,
+
+                "firstPersonVerticalEyeOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonAimVerticalEyeOffsetDefault);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitDefault", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMin", CCS_CharacterControllerConstants.FirstPersonAimPitchMinimum);
+
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMax", CCS_CharacterControllerConstants.FirstPersonPitchMaximum);
+
+            changed |= ForceSetFloat(serializedProfile, "mouseSensitivityX", 0.10f);
+
+            changed |= ForceSetFloat(serializedProfile, "mouseSensitivityY", 0.085f);
+
+            changed |= ForceSetFloat(serializedProfile, "gamepadSensitivityX", 80f);
+
+            changed |= ForceSetFloat(serializedProfile, "gamepadSensitivityY", 62f);
+
+            changed |= ForceSetFloat(serializedProfile, "lookSmoothing", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingX", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingY", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "followDampingZ", 0f);
+
+            changed |= ForceSetFloat(serializedProfile, "aimBlendDurationSeconds", 0.1f);
+
+            changed |= ForceSetFloat(serializedProfile, "aimLookSensitivityMultiplier", 0.85f);
+
+            changed |= ApplyFirstPersonAimFixedAnchorProfileValues(serializedProfile);
+
+            changed |= ForceSetBool(serializedProfile, "obstacleAvoidanceEnabled", false);
+
+            changed |= ForceSetBool(serializedProfile, "validationDisableObstacleAvoidanceForBaselinePass", true);
+
+            return changed;
+
+        }
+
+
+
+        private static bool ApplyFirstPersonHeadTrackingProfileValues(SerializedObject serializedProfile)
+
+        {
+
+            bool changed = false;
+
+            changed |= ForceSetBool(serializedProfile, "useHeadTrackedAnchor", true);
+
+            changed |= ForceSetVector3(
+
+                serializedProfile,
+
+                "headTrackedLocalOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareHeadTrackedLocalOffsetDefault);
+
+            changed |= ForceSetFloat(
+
+                serializedProfile,
+
+                "headTrackingPositionLerpSpeed",
+
+                CCS_CharacterControllerConstants.FirstPersonHeadTrackingPositionLerpSpeedDefault);
+
+            changed |= ForceSetBool(serializedProfile, "inheritHeadBoneRotation", false);
+
+            return changed;
+
+        }
+
+        private static bool ApplyFirstPersonAimFixedAnchorProfileValues(SerializedObject serializedProfile)
+
+        {
+
+            bool changed = false;
+
+            changed |= ForceSetBool(serializedProfile, "useHeadTrackedAnchor", false);
+
+            changed |= ForceSetVector3(
+
+                serializedProfile,
+
+                "fixedFirstPersonAimAnchorLocalOffset",
+
+                CCS_CharacterControllerConstants.FirstPersonAimFixedAnchorLocalOffsetDefault);
+
+            changed |= ForceSetBool(serializedProfile, "inheritHeadBoneRotation", false);
+
+            return changed;
+
+        }
+
+
+
         private static bool EnsureDefaultProfileSetWiring()
 
         {
@@ -424,15 +772,23 @@ namespace CCS.Modules.CharacterController.Editor
 
                 CCS_CharacterControllerConstants.DefaultCameraProfileSetPath);
 
-            CCS_CharacterCameraProfile defaultProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+            CCS_CharacterCameraProfile firstPersonProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
 
-                CCS_CharacterControllerConstants.DefaultCameraProfilePath);
+                CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraProfilePath);
+
+            CCS_CharacterCameraProfile firstPersonAimProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+
+                CCS_CharacterControllerConstants.FirstPersonAimCameraProfilePath);
+
+            CCS_CharacterCameraProfile thirdPersonProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
+
+                CCS_CharacterControllerConstants.ThirdPersonSurvivalCameraProfilePath);
 
             CCS_CharacterCameraProfile aimProfile = AssetDatabase.LoadAssetAtPath<CCS_CharacterCameraProfile>(
 
                 CCS_CharacterControllerConstants.AimCameraProfilePath);
 
-            if (profileSet == null || defaultProfile == null || aimProfile == null)
+            if (profileSet == null || firstPersonProfile == null || thirdPersonProfile == null || aimProfile == null)
 
             {
 
@@ -446,29 +802,19 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
 
-            SerializedProperty defaultProperty = serializedProfileSet.FindProperty("defaultProfile");
+            changed |= SetProfileReference(serializedProfileSet, "defaultProfile", thirdPersonProfile);
 
-            if (defaultProperty != null && defaultProperty.objectReferenceValue != defaultProfile)
+            changed |= SetProfileReference(serializedProfileSet, "firstPersonProfile", firstPersonProfile);
 
-            {
+            changed |= SetProfileReference(serializedProfileSet, "thirdPersonSurvivalProfile", thirdPersonProfile);
 
-                defaultProperty.objectReferenceValue = defaultProfile;
+            changed |= SetProfileReference(serializedProfileSet, "aimOverShoulderProfile", aimProfile);
 
-                changed = true;
-
-            }
-
-
-
-            SerializedProperty aimProperty = serializedProfileSet.FindProperty("aimOverShoulderProfile");
-
-            if (aimProperty != null && aimProperty.objectReferenceValue != aimProfile)
+            if (firstPersonAimProfile != null)
 
             {
 
-                aimProperty.objectReferenceValue = aimProfile;
-
-                changed = true;
+                changed |= SetProfileReference(serializedProfileSet, "firstPersonAimProfile", firstPersonAimProfile);
 
             }
 
@@ -487,6 +833,34 @@ namespace CCS.Modules.CharacterController.Editor
 
 
             return changed;
+
+        }
+
+
+
+        private static bool SetProfileReference(
+
+            SerializedObject serializedProfileSet,
+
+            string propertyName,
+
+            CCS_CharacterCameraProfile profile)
+
+        {
+
+            SerializedProperty property = serializedProfileSet.FindProperty(propertyName);
+
+            if (property == null || property.objectReferenceValue == profile)
+
+            {
+
+                return false;
+
+            }
+
+            property.objectReferenceValue = profile;
+
+            return true;
 
         }
 

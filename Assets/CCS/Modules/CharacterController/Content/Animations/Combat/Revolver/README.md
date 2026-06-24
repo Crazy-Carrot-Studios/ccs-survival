@@ -1,6 +1,8 @@
-# Combat / Revolver Upper-Body Animations
+# Combat / Revolver Upper-Body Animations (Archive)
 
-CCS-owned revolver upper-body clips isolated from Invector shooter source FBXs (v0.6.4).
+CCS-owned legacy two-handed revolver upper-body clips isolated from Invector shooter source FBXs (v0.6.4).
+
+**v0.6.11:** these clips are **archive-only**. Active runtime RMB aim uses Wild West one-handed clips under `Content/Animations/Revolver/WildWest/`.
 
 ## Policy
 
@@ -26,7 +28,7 @@ CCS-owned revolver upper-body clips isolated from Invector shooter source FBXs (
 ## Animator layer
 
 - Layer name: `RevolverUpperBody` (Override, script-controlled weight).
-- States: `Revolver_Empty`, `Revolver_AimIdle`, `Revolver_Fire`, `Revolver_Reload`.
+- States (v0.6.11): `Revolver_Empty`, `Revolver_IdleToAim`, `Revolver_AimIdle_FullDraw`, `Revolver_AimToIdle`, `Revolver_WalkToAimWalk`, `Revolver_AimWalk`, `Revolver_AimWalkToWalk`, `Revolver_Fire`, `Revolver_Reload`.
 - Driven at runtime by `CCS_RevolverUpperBodyAnimator` on the player `VisualRoot`.
 
 ## Source FBXs (vendor-only)

@@ -1,6 +1,6 @@
 # CCS Equipment Fit Studio
 
-**Version:** 0.6.7  
+**Version:** 0.6.9  
 **Type:** Editor-only tuning tool  
 **Menu:** `CCS → Character Controller → Equipment → Equipment Fit Studio`
 
@@ -124,3 +124,109 @@ Preview visuals clone **`ModelRoot/RevolverVisual`** from `PF_CCS_RevolverM1879_
 
 - [CCS Character Controller Module](CCS_CharacterController_Module.md)
 - [CCS Weapons Module](../../Weapons/Documentation/CCS_Weapons_Module.md)
+
+## v0.6.8 Editor-Only Fit Studio Revamp
+
+Equipment Fit Studio is an **Editor Mode only** profile-tuning tool. Play Mode is for **runtime verification** after saving — not for tuning or saving profiles in the main window.
+
+### Fit Target first
+
+The first control is **Fit Target**:
+
+| Fit Target | Socket | Profile | Pose | Camera focus |
+|------------|--------|---------|------|----------------|
+| **Holstered Item** | `CCS_HolsterSocket_RightHip` | `CCS_RevolverM1879_RightHipHolster_Fit.asset` | Neutral | Right Hip |
+| **Equipped Item** | `CCS_HandSocket_Right` | `CCS_RevolverM1879_RightHandEquipped_Fit.asset` | Revolver Aim | Upper body / right hand / weapon |
+
+Changing Fit Target auto-loads preview player, pose, profile values, weapon preview, and camera framing.
+
+### Window layout
+
+- Header: **CCS Equipment Fit Studio | Editor Mode Only | Profile Tuning**
+- Top bar: Fit Target, Weapon/Item, Profile Asset, status (loaded from SO / clean or dirty)
+- Left guide panel: four cards (Select Fit Target → Auto Load Preview → Adjust Transform → Save Profile)
+- Center: large orbit/pan/zoom preview viewport with camera presets
+- Right: **Attachment / Profile Offset** fields and nudge controls
+- Bottom bar: Load Preview, Reset to Profile, Reset to Default, Validate, **Save Profile**
+
+Opens at **1450×820** (minimum **1200×700**) for docked and smaller monitors.
+
+### Play Mode (minimal)
+
+If Fit Studio is opened during Play Mode, it shows only:
+
+```text
+Equipment Fit Studio works in Editor Mode only.
+Exit Play Mode to edit equipment fit profiles.
+Use Play Mode only to test saved profiles in-game.
+```
+
+No tuning controls, save controls, or runtime profile details are shown.
+
+### Preview camera
+
+Mouse controls inside the preview viewport:
+
+- Left drag: orbit
+- Middle drag: pan
+- Scroll wheel: zoom
+- F key (viewport focused): frame current target
+
+Camera preset controls live **outside** the preview image in a compact toolbar:
+
+- Fit Target Default, Frame, Reset Camera
+- Optional preset dropdown (Target Default, Full Body, Upper Body, Right Hand, Right Hip, Weapon Close-Up)
+
+No preset button grid is drawn inside the viewport.
+
+### Preview rules
+
+- Preview visual stays **zeroed** (`0,0,0` / identity / `1,1,1`) under the socket
+- Editable values are the **attachment/profile offset** on the socket only
+- Preview camera: left-drag orbit, middle/Alt+drag pan, scroll zoom, right-drag look, **F** frame focus
+
+### Save workflow
+
+1. Select Fit Target
+2. Preview auto-loads (or click **Load Preview**)
+3. Adjust offset in the right panel
+4. **Save Profile** — writes to the mapped SO, reloads from disk, verifies match
+
+Holstered Item must never save to the right-hand profile; Equipped Item must never save to the hip profile.
+
+### Play Mode (read-only in Fit Studio)
+
+If Fit Studio is opened during Play Mode, tuning and save controls are hidden. Use Play Mode to verify:
+
+1. Pick up revolver → holster uses saved hip profile
+2. Hold RMB → equipped uses saved hand profile
+3. Release RMB → holster returns
+
+### IK and one-hand mask (deferred)
+
+IK is **not** part of the main fitting workflow. Production IK weights remain **0**.
+
+The current revolver aim source pose is **two-handed**. Final one-handed revolver animation mask is the next animation milestone — tuning proceeds in the current aim pose without blocking save.
+
+### Runtime visual bridge
+
+`CCS_PlayerEquipmentVisualController` applies saved profiles at runtime using `PF_CCS_RevolverM1879_VisualOnly.prefab`.
+
+Equipped visual `FitGuides/MuzzlePoint` supplies the gameplay tracer origin when aiming. v0.6.8 adds cosmetic fire visuals (tracer/flash/smoke) and reload-only spent shell extraction — **no per-shot casing ejection** (revolver realism). v0.6.9 keeps third-person as the default exploration camera; first-person aim activates only while RMB firearm aim is held. Reticle/hitscan still follow the active camera via `CCS_WeaponAimResolver`.
+
+### Cleanup
+
+Temporary objects (`CCS_EDITOR_FIT_PREVIEW_PLAYER_DO_NOT_SAVE`, preview item, preview camera, test fit attachments) are removed on window close, Load Preview, Validate, Play Mode transitions, and batch/builders. None may be saved to scene or prefab.
+
+## Upcoming: One-Hand Revolver Aim Mask (next animation milestone)
+
+**Goal:** duplicate/create a revolver upper-body avatar mask that **excludes the left arm**:
+
+- Keep spine, chest, right shoulder, right arm, right hand active
+- Exclude left shoulder, left arm, left hand
+- Use for revolver aim/fire/reload preview and runtime
+- Keep the current two-handed animation path for future rifles, shotguns, bows, and two-hand stances
+
+Planned asset name: `CCS_Revolver_UpperBody_RightArm.mask` with optional preview/runtime option `RevolverOneHandUpperBody`.
+
+**Not implemented in v0.6.8** — avoids risking the working runtime aim/fire/reload path.

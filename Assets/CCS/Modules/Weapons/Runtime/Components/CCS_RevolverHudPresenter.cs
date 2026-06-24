@@ -48,6 +48,8 @@ namespace CCS.Modules.Weapons
 
         [SerializeField] private Image reticleImage;
 
+        [SerializeField] private Vector2 reticleViewportPoint = CCS_WeaponAimResolver.DefaultReticleViewportPoint;
+
         [SerializeField] private bool showReticleWhileAiming = true;
 
         [SerializeField] private float statusFlashSeconds = 0.75f;
@@ -178,6 +180,21 @@ namespace CCS.Modules.Weapons
 
             }
 
+        }
+
+
+
+        #endregion
+
+
+
+        #region Public Methods
+
+
+
+        public Vector2 GetReticleViewportPoint()
+        {
+            return reticleViewportPoint;
         }
 
 

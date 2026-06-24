@@ -66,6 +66,14 @@ namespace CCS.Modules.Weapons
         [SerializeField] private float shellLifetimeSeconds = CCS_WeaponsConstants.DefaultShellVisualLifetime;
         [SerializeField] private float shellEjectForce = CCS_WeaponsConstants.DefaultShellEjectForce;
 
+        [Header("Aim Convergence (Experimental — Default OFF)")]
+        [SerializeField] private bool enableVisualAimConvergence;
+        [SerializeField] private float convergenceSpeed = 18f;
+        [SerializeField] private float maxYawCorrectionDegrees = 15f;
+        [SerializeField] private float maxPitchCorrectionDegrees = 10f;
+        [SerializeField] private float maxRollCorrectionDegrees = 3f;
+        [SerializeField] private float nearTargetDistance = 2f;
+
         #endregion
 
         #region Properties
@@ -123,6 +131,27 @@ namespace CCS.Modules.Weapons
         public float ShellLifetimeSeconds => shellLifetimeSeconds;
 
         public float ShellEjectForce => shellEjectForce;
+
+        public bool EnableVisualAimConvergence => enableVisualAimConvergence;
+
+        public float ConvergenceSpeed => convergenceSpeed;
+
+        public float MaxYawCorrectionDegrees => maxYawCorrectionDegrees;
+
+        public float MaxPitchCorrectionDegrees => maxPitchCorrectionDegrees;
+
+        public float MaxRollCorrectionDegrees => maxRollCorrectionDegrees;
+
+        public float NearTargetDistance => nearTargetDistance;
+
+        public CCS_RevolverVisualAimConvergenceSettings AimConvergenceSettings =>
+            new CCS_RevolverVisualAimConvergenceSettings(
+                enableVisualAimConvergence,
+                convergenceSpeed,
+                maxYawCorrectionDegrees,
+                maxPitchCorrectionDegrees,
+                maxRollCorrectionDegrees,
+                nearTargetDistance);
 
         #endregion
     }

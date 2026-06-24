@@ -4,11 +4,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_CharacterAimLocomotionController
 // CATEGORY: Modules / CharacterController / Runtime / Components
-// PURPOSE: Owns aim movement mode state and scene aim camera activation.
+// PURPOSE: Owns combat locomotion and local firearm first-person aim camera activation.
 // PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Reads AimHeld from CCS_CharacterInputActionProvider. Weapons read state only.
+// NOTES: v0.6.9 — third-person default; first-person aim camera only while firearm aiming (local owner).
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -26,27 +26,57 @@ namespace CCS.Modules.CharacterController
         private CCS_IWeaponAimGate weaponAimGate;
 
         private CCS_CharacterCameraController sceneCameraController;
-        private bool isAimMovementActive;
+        private bool isCombatLocomotionActive;
+        private bool isFirearmAimCameraActive;
+
+#if UNITY_EDITOR
+        private bool editorAimFitOverrideActive;
+#endif
 
         #endregion
 
         #region Properties
 
-        public bool IsAimMovementActive => isAimMovementActive;
+        public bool IsAimMovementActive => isCombatLocomotionActive;
+
+        public bool IsCombatLocomotionActive => isCombatLocomotionActive;
+
+        public bool IsFirearmAimCameraActive => isFirearmAimCameraActive;
 
         public Vector2 AimMoveInput =>
-            isAimMovementActive && inputProvider != null ? inputProvider.MoveInput : Vector2.zero;
+            isCombatLocomotionActive && inputProvider != null ? inputProvider.MoveInput : Vector2.zero;
 
         public CCS_CharacterCameraFollowAnchor CameraFollowAnchor => cameraFollowAnchor;
 
         public bool HasSceneCameraConfigured =>
-            sceneCameraController != null && sceneCameraController.HasAimCameraConfigured;
+            sceneCameraController != null && sceneCameraController.HasFirearmAimCameraConfigured;
+
+#if UNITY_EDITOR
+        public bool IsEditorAimFitOverrideActive => editorAimFitOverrideActive;
+
+        public void SetEditorAimFitOverride(bool active)
+        {
+            editorAimFitOverrideActive = active;
+            if (active)
+            {
+                SetFirearmAimCameraActive(true, forceCameraUpdate: true);
+                SetCombatLocomotionActive(true, forceCameraUpdate: true);
+            }
+            else
+            {
+                SetFirearmAimCameraActive(false, forceCameraUpdate: true);
+                SetCombatLocomotionActive(false, forceCameraUpdate: true);
+            }
+        }
+#endif
 
         #endregion
 
         #region Events
 
         public event Action<bool> AimMovementActiveChanged;
+
+        public event Action<bool> FirearmAimCameraActiveChanged;
 
         #endregion
 
@@ -60,21 +90,38 @@ namespace CCS.Modules.CharacterController
 
         private void OnDisable()
         {
-            SetAimMovementActive(false, forceCameraUpdate: true);
+#if UNITY_EDITOR
+            editorAimFitOverrideActive = false;
+#endif
+            SetCombatLocomotionActive(false, forceCameraUpdate: true);
         }
 
         private void Update()
         {
-            if (inputProvider == null || !inputProvider.InputAccepted)
+#if UNITY_EDITOR
+            if (editorAimFitOverrideActive)
             {
-                SetAimMovementActive(false);
+                SetCombatLocomotionActive(true, forceCameraUpdate: false);
+                SetFirearmAimCameraActive(true, forceCameraUpdate: false);
+                return;
+            }
+#endif
+
+            if (inputProvider == null)
+            {
+                SetCombatLocomotionActive(false);
                 return;
             }
 
-            bool shouldAim = inputProvider.AimHeld
-                && HasSceneCameraConfigured
-                && CanUseAimMovement();
-            SetAimMovementActive(shouldAim);
+            bool shouldUseCombatLocomotion = weaponAimGate != null && weaponAimGate.CanUseAimMovement;
+
+            if (!inputProvider.InputAccepted)
+            {
+                SetCombatLocomotionActive(shouldUseCombatLocomotion);
+                return;
+            }
+
+            SetCombatLocomotionActive(shouldUseCombatLocomotion);
         }
 
         #endregion
@@ -122,47 +169,71 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            if (weaponAimGateComponent is CCS_IWeaponAimGate fromComponent)
+            if (weaponAimGateComponent is CCS_IWeaponAimGate fromComponent
+                && weaponAimGateComponent is CCS_IWeaponCarryStateCameraSource)
             {
                 weaponAimGate = fromComponent;
                 return;
             }
 
-            weaponAimGate = GetComponent<CCS_IWeaponAimGate>();
+            MonoBehaviour[] behaviours = GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is CCS_IWeaponAimGate gate
+                    && behaviours[i] is CCS_IWeaponCarryStateCameraSource)
+                {
+                    weaponAimGate = gate;
+                    weaponAimGateComponent = behaviours[i];
+                    return;
+                }
+            }
         }
 
-        private bool CanUseAimMovement()
+        private void SetCombatLocomotionActive(bool active, bool forceCameraUpdate = false)
         {
-            return weaponAimGate == null || weaponAimGate.CanUseAimMovement;
-        }
-
-        private void SetAimMovementActive(bool active, bool forceCameraUpdate = false)
-        {
-            if (!forceCameraUpdate && isAimMovementActive == active)
+            if (!forceCameraUpdate && isCombatLocomotionActive == active)
             {
                 return;
             }
 
-            isAimMovementActive = active;
+            isCombatLocomotionActive = active;
+
+            if (enableMovementDebugLogs)
+            {
+                Debug.Log(
+                    active
+                        ? "[Character Motor] Combat locomotion entered."
+                        : "[Character Motor] Combat locomotion exited.",
+                    this);
+            }
+
+            AimMovementActiveChanged?.Invoke(active);
+        }
+
+        private void SetFirearmAimCameraActive(bool active, bool forceCameraUpdate = false)
+        {
+            if (!forceCameraUpdate && isFirearmAimCameraActive == active)
+            {
+                return;
+            }
+
+            isFirearmAimCameraActive = active;
 
             if (sceneCameraController != null)
             {
-                sceneCameraController.SetAimModeActive(active);
+                sceneCameraController.SetFirearmAimModeActive(active);
             }
 
             if (enableMovementDebugLogs)
             {
-                if (active)
-                {
-                    Debug.Log("[Character Motor] Aim movement entered.", this);
-                }
-                else
-                {
-                    Debug.Log("[Character Motor] Aim movement exited.", this);
-                }
+                Debug.Log(
+                    active
+                        ? "[Character Camera] Firearm first-person aim entered."
+                        : "[Character Camera] Firearm first-person aim exited.",
+                    this);
             }
 
-            AimMovementActiveChanged?.Invoke(active);
+            FirearmAimCameraActiveChanged?.Invoke(active);
         }
 
         #endregion
