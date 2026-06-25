@@ -48,6 +48,9 @@ namespace CCS.Modules.CharacterController
 
         [SerializeField] private bool enableRuntimeCameraDebug;
 
+        [SerializeField] private float rootYawFollowDegreesPerSecond =
+            CCS_CharacterControllerConstants.ThirdPersonAimBodyYawFollowDegreesPerSecondDefault;
+
 
 
         private float yawDegrees;
@@ -107,6 +110,8 @@ namespace CCS.Modules.CharacterController
 
 
         public Vector3 PlanarRight => GetPlanarRightInternal();
+
+        public bool UsesAimBodyYawCoupling => UsesAimBodyYawCouplingProfile(activeLookProfile);
 
         public bool UsesFirstPersonBodyYawCoupling => UsesFirstPersonBodyYawCouplingProfile(activeLookProfile);
 
@@ -608,9 +613,13 @@ namespace CCS.Modules.CharacterController
 
         private void ApplyRigRotation()
         {
-            if (UsesFirstPersonBodyYawCoupling && bodyRoot != null)
+            if ((UsesFirstPersonBodyYawCoupling || UsesAimBodyYawCoupling) && bodyRoot != null)
             {
-                bodyRoot.rotation = Quaternion.Euler(0f, yawDegrees, 0f);
+                float targetYaw = yawDegrees;
+                float currentBodyYaw = bodyRoot.eulerAngles.y;
+                float maxStep = rootYawFollowDegreesPerSecond * Time.deltaTime;
+                float nextBodyYaw = Mathf.MoveTowardsAngle(currentBodyYaw, targetYaw, maxStep);
+                bodyRoot.rotation = Quaternion.Euler(0f, nextBodyYaw, 0f);
                 transform.rotation = bodyRoot.rotation;
 
                 if (pitchTarget != null)
@@ -646,6 +655,11 @@ namespace CCS.Modules.CharacterController
                 && (profile.CameraMode == CCS_CharacterCameraMode.FirstPersonBodyAware
                     || profile.CameraMode == CCS_CharacterCameraMode.FirstPerson
                     || profile.CameraMode == CCS_CharacterCameraMode.FirstPersonAim);
+        }
+
+        private static bool UsesAimBodyYawCouplingProfile(CCS_CharacterCameraProfile profile)
+        {
+            return profile != null && profile.CameraMode == CCS_CharacterCameraMode.AimOverShoulder;
         }
 
         private static bool UsesFirstPersonBodyYawCouplingProfile(CCS_CharacterCameraProfile profile)

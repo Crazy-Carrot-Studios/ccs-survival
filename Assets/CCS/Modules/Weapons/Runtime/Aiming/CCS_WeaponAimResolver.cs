@@ -70,6 +70,104 @@ namespace CCS.Modules.Weapons
                 usedVisualMuzzle);
         }
 
+        public static CCS_WeaponHitscanResult ResolveMuzzleAuthoritativeHitscan(
+            Transform equippedVisualMuzzle,
+            Transform fallbackMuzzle,
+            float maxRange,
+            float spreadDegrees,
+            LayerMask hitMask,
+            Transform ignoreRoot,
+            bool drawMuzzleRayDebug,
+            float debugRayDuration = 0.35f)
+        {
+            Transform muzzleTransform = equippedVisualMuzzle != null ? equippedVisualMuzzle : fallbackMuzzle;
+            if (muzzleTransform == null)
+            {
+                return new CCS_WeaponHitscanResult(
+                    false,
+                    Vector3.zero,
+                    Vector3.up,
+                    null,
+                    0f,
+                    Vector3.zero,
+                    Vector3.forward);
+            }
+
+            Vector3 origin = muzzleTransform.position;
+            Vector3 direction = muzzleTransform.forward.normalized;
+            Vector3 shotDirection = ApplySpread(direction, spreadDegrees);
+
+            if (drawMuzzleRayDebug)
+            {
+                Debug.DrawRay(origin, shotDirection * maxRange, Color.blue, debugRayDuration);
+            }
+
+            if (TryRaycast(
+                    new Ray(origin, shotDirection),
+                    maxRange,
+                    hitMask,
+                    ignoreRoot,
+                    out RaycastHit muzzleHit))
+            {
+                return new CCS_WeaponHitscanResult(
+                    true,
+                    muzzleHit.point,
+                    muzzleHit.normal,
+                    muzzleHit.collider.gameObject,
+                    muzzleHit.distance,
+                    origin,
+                    shotDirection);
+            }
+
+            Vector3 missPoint = origin + (shotDirection * maxRange);
+            DrawDebugPoint(missPoint, Color.red, 0.05f, debugRayDuration);
+            return new CCS_WeaponHitscanResult(
+                false,
+                missPoint,
+                Vector3.up,
+                null,
+                maxRange,
+                origin,
+                shotDirection);
+        }
+
+        public static CCS_WeaponAimSolution ResolveMuzzleForward(
+            Transform equippedVisualMuzzle,
+            Transform fallbackMuzzle,
+            float maxRange,
+            LayerMask hitMask,
+            Transform ignoreRoot)
+        {
+            Transform muzzleTransform = equippedVisualMuzzle != null ? equippedVisualMuzzle : fallbackMuzzle;
+            if (muzzleTransform == null)
+            {
+                return default;
+            }
+
+            Vector3 origin = muzzleTransform.position;
+            Vector3 direction = muzzleTransform.forward.normalized;
+            bool hasHit = TryRaycast(
+                new Ray(origin, direction),
+                maxRange,
+                hitMask,
+                ignoreRoot,
+                out RaycastHit hit);
+            Vector3 aimPoint = hasHit
+                ? hit.point
+                : origin + (direction * maxRange);
+
+            return new CCS_WeaponAimSolution(
+                hasHit,
+                origin,
+                direction,
+                aimPoint,
+                origin,
+                direction,
+                Vector3.Distance(origin, aimPoint),
+                hasHit ? hit : default,
+                equippedVisualMuzzle != null);
+        }
+
         public static CCS_WeaponHitscanResult ResolveHitscan(
             Camera aimCamera,
             Vector2 viewportPoint,

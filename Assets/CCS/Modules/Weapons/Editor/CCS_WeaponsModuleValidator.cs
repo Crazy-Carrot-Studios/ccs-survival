@@ -110,6 +110,18 @@ namespace CCS.Modules.Weapons.Editor
 
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverArmReticleIKFoundation(testPlayerPrefab));
 
+            AppendResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateRuntimeRevolverVisualBehaviorFoundation(testPlayerPrefab));
+
+            AppendResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateFirstPersonRevolverArmPresentationRemoved(testPlayerPrefab));
+
+            AppendResult(
+                failures,
+                CCS_WeaponsValidationUtility.ValidateAnimationFitStudioWeaponIntegrationFoundation());
+
             AppendResult(failures, CCS_WeaponsEditorAimValidationUtility.ValidateVisualOnlyMuzzlePointOrientation());
 
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverM1879VisualFoundation());

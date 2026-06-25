@@ -12,7 +12,7 @@ using UnityEngine;
 // SCRIPT: CCS_AnimationInventoryReporter
 // CATEGORY: Modules / CharacterController / Editor / AnimationInventory
 // PURPOSE: Scans vendor animation packs and writes markdown/CSV inventory reports.
-// PLACEMENT: Editor menu CCS → Character Controller → Animation → Generate Wild West Animation Inventory.
+// PLACEMENT: Editor utility invoked by Master Test batch inventory pass. No user-facing menu.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-23
 // NOTES: Source-only inventory pass. Does not wire vendor clips into production animators.
@@ -37,26 +37,19 @@ namespace CCS.Modules.CharacterController.Editor
         private static readonly string[] CombatStateKeywords = { "aimed", "hip aimed", "cover", "full cover", "half cover" };
         private static readonly string[] BodySideKeywords = { "left", "right", "dual" };
 
-        [MenuItem("CCS/Character Controller/Animation/Generate Wild West Animation Inventory")]
-        public static void GenerateFromMenu()
-        {
-            CCS_SurvivalValidationResult result = GenerateWildWestInventory();
-            if (result.IsSuccess)
-            {
-                Debug.Log("[Animation Inventory] " + result.Message);
-            }
-            else
-            {
-                Debug.LogError("[Animation Inventory] " + result.Message);
-            }
-        }
-
         public static CCS_SurvivalValidationResult GenerateWildWestInventory()
         {
             if (!AssetDatabase.IsValidFolder(WildWestPackRoot))
             {
-                return CCS_SurvivalValidationResult.Fail(
-                    "Wild West animation pack folder not found: " + WildWestPackRoot);
+                CCS_SurvivalValidationResult ownedClipsResult = ValidateCcsOwnedWildWestClips();
+                if (!ownedClipsResult.IsSuccess)
+                {
+                    return ownedClipsResult;
+                }
+
+                return CCS_SurvivalValidationResult.Pass(
+                    "Vendor Wild West pack absent; validated CCS-owned isolated Wild West clips. "
+                    + ownedClipsResult.Message);
             }
 
             EnsureReportDirectory();
@@ -92,6 +85,35 @@ namespace CCS.Modules.CharacterController.Editor
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass("Wild West animation inventory reports present.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateCcsOwnedWildWestClips()
+        {
+            List<string> failures = new List<string>();
+            AppendClipExists(
+                failures,
+                CCS_CharacterControllerConstants.WildWestRevolverAimIdleRhClipPath);
+            AppendClipExists(
+                failures,
+                CCS_CharacterControllerConstants.WildWestRevolverFireFanningRhClipPath);
+            AppendClipExists(
+                failures,
+                CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath);
+            AppendClipExists(
+                failures,
+                CCS_CharacterControllerConstants.WildWestRevolverFireFanningClipPath);
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("CCS-owned Wild West revolver clips present.");
+        }
+
+        private static void AppendClipExists(List<string> failures, string clipPath)
+        {
+            if (!File.Exists(clipPath))
+            {
+                failures.Add("Missing CCS-owned Wild West clip: " + clipPath);
+            }
         }
 
         private static void EnsureReportDirectory()

@@ -1,5 +1,6 @@
 using System.IO;
 using CCS.Modules.CharacterController;
+using CCS.Modules.CharacterController.Editor.Common;
 using CCS.Project;
 using UnityEditor;
 using UnityEngine;
@@ -253,42 +254,13 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private static void EnsureAnimationModeStarted()
         {
-            if (!AnimationMode.InAnimationMode())
-            {
-                AnimationMode.StartAnimationMode();
-                animationModeStarted = true;
-            }
+            CCS_RevolverAimPreviewPoseUtility.EnsureAnimationMode();
+            animationModeStarted = AnimationMode.InAnimationMode();
         }
 
         private static void ApplyRevolverAimPose(Animator animator)
         {
-            if (animator == null)
-            {
-                return;
-            }
-
-            PrepareAnimatorForPreview(animator);
-            ResetRevolverTriggers(animator);
-
-            animator.SetBool(IsAimingMovementModeHash, true);
-            animator.SetFloat(AimMoveXHash, 0f);
-            animator.SetFloat(AimMoveYHash, 0f);
-            animator.SetBool(RevolverAimHeldHash, true);
-            animator.SetBool(RevolverIsReloadingHash, false);
-
-            int revolverLayerIndex = animator.GetLayerIndex(
-                CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
-            if (revolverLayerIndex >= 0)
-            {
-                animator.SetLayerWeight(revolverLayerIndex, 1f);
-                animator.Play(
-                    CCS_CharacterControllerConstants.AnimatorRevolverAimIdleStateName,
-                    revolverLayerIndex,
-                    0f);
-            }
-
-            animator.Play(CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName, 0, 0f);
-            animator.Update(0.001f);
+            CCS_RevolverAimPreviewPoseUtility.ApplyRevolverAimPose(animator);
         }
 
         private static void ApplyRevolverFireFramePose(Animator animator)
@@ -336,10 +308,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private static void PrepareAnimatorForPreview(Animator animator)
         {
-            animator.enabled = true;
-            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
-            animator.fireEvents = false;
-            animator.keepAnimatorStateOnDisable = true;
+            CCS_RevolverAimPreviewPoseUtility.PrepareAnimatorForPreview(animator);
         }
 
         private static void ResetRevolverTriggers(Animator animator)

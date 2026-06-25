@@ -107,7 +107,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private void OnEnable()
         {
             CCS_EquipmentFitStudioImGuiUtility.EnsureLogSubscription();
-            CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
+            EditorApplication.delayCall += DeferredEnsureEquipmentFitStudioAssets;
             settings = AssetDatabase.LoadAssetAtPath<CCS_EquipmentFitStudioSettings>(
                 CCS_EquipmentConstants.EquipmentFitStudioSettingsPath);
             previewCamera.EnsureCamera(settings);
@@ -121,8 +121,20 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             }
         }
 
+        private void DeferredEnsureEquipmentFitStudioAssets()
+        {
+            EditorApplication.delayCall -= DeferredEnsureEquipmentFitStudioAssets;
+            if (this == null)
+            {
+                return;
+            }
+
+            CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
+        }
+
         private void OnDisable()
         {
+            EditorApplication.delayCall -= DeferredEnsureEquipmentFitStudioAssets;
             SceneView.duringSceneGui -= OnSceneGui;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             CCS_EquipmentFitStudioPlayModeAimFitUtility.CleanupEditorOverrides(state.PlayerRoot);
@@ -914,7 +926,12 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
             Transform socketTransform = GetSelectedSocketTransform();
             GameObject source = settings != null ? settings.DefaultPreviewWeaponPrefab : null;
-            if (!previewItem.TrySpawnUnderSocket(socketTransform, source, out string spawnError))
+            string attachmentRootName =
+                CCS_EquipmentFitStudioPreviewAttachmentUtility.GetAttachmentRootObjectName(state.FitTarget);
+            Transform attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(
+                socketTransform,
+                attachmentRootName);
+            if (!previewItem.TrySpawnUnderAttachmentRoot(attachmentRoot, source, out string spawnError))
             {
                 state.LastPreviewError = spawnError;
                 Debug.LogWarning("[Equipment Fit Studio] " + spawnError);
@@ -1091,11 +1108,14 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private void ResetSocketToProfile(Transform socketTransform)
         {
-            if (CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
+            if (state.PlayerRoot != null
+                && CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
                     state.SelectedSocketId,
-                    socketTransform))
+                    state.PlayerRoot,
+                    state.FitTarget))
             {
                 previewItem.EnforceZeroedTransform();
+                SyncPendingFromAttachmentRoot(GetPreviewAttachmentRootTransform());
                 return;
             }
 
@@ -1109,6 +1129,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             socketTransform.localRotation = Quaternion.Euler(definition.LocalEulerAngles);
             socketTransform.localScale = definition.LocalScale;
             previewItem.EnforceZeroedTransform();
+            SyncPendingFromAttachmentRoot(GetPreviewAttachmentRootTransform());
         }
 
         private void LoadRevolverProfileSelections()
@@ -1525,6 +1546,8 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 Handles.color = previewItem.IsZeroed ? Color.green : Color.red;
                 Handles.Label(previewItem.PreviewRoot.transform.position, "Preview zeroed: " + previewItem.IsZeroed);
             }
+
+            DrawWeaponRotationSceneGizmos();
 
             if (HasTestAttachments())
             {

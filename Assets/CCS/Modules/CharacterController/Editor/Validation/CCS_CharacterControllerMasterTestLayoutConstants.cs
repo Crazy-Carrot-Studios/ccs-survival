@@ -1,4 +1,5 @@
 using CCS.Modules.CharacterController.Tests;
+using CCS.Project;
 using UnityEngine;
 
 // SCRIPT: CCS_CharacterControllerMasterTestLayoutConstants
@@ -93,6 +94,10 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const string MasterTestSpawnControllerObjectName = "CCS_MasterTestSpawnController";
 
+        public const string MasterTestTestingManagerObjectName = CCS_ProjectAudioConstants.MasterTestTestingManagerObjectName;
+
+        public const string MasterTestAmbientAudioObjectName = CCS_ProjectAudioConstants.MasterTestAmbientAudioObjectName;
+
         public const string DefaultPlayerDisplayName = "Player";
 
         public static readonly Vector3 NameplateRootLocalPosition = new Vector3(0f, 2.12f, 0f);
@@ -130,13 +135,17 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const float ExpectedThirdPersonFieldOfView = 62f;
 
-        public const float ExpectedAimShoulderOffsetX = 0.58f;
+        public const float ExpectedAimShoulderOffsetX =
+            CCS_CharacterControllerConstants.AimCameraShoulderOffsetXTuned;
 
-        public const float ExpectedAimShoulderOffsetY = 0.10f;
+        public const float ExpectedAimShoulderOffsetY = 0.15f;
 
         public const float ExpectedAimShoulderOffsetZ = 0f;
 
-        public const float ExpectedAimVerticalArmLength = 0.24f;
+        public const float ExpectedAimTrackingTargetLocalHeight =
+            CCS_CharacterControllerConstants.AimCameraTrackingHeightTuned;
+
+        public const float ExpectedAimVerticalArmLength = 0.28f;
 
         public const float ExpectedAimCameraSide = 1f;
 
@@ -144,7 +153,8 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const float ExpectedAimBlendDurationMaxSeconds = 0.5f;
 
-        public const float ExpectedAimFieldOfView = 52f;
+        public const float ExpectedAimFieldOfView =
+            CCS_CharacterControllerConstants.AimCameraFieldOfViewTuned;
 
         public static readonly Vector3 ExpectedCameraLookTargetLocalPosition =
             CCS_CharacterControllerConstants.CameraLookTargetLocalPosition;
@@ -168,6 +178,12 @@ namespace CCS.Modules.CharacterController.Editor
         public const float ExpectedVerticalOrbitMin = -45f;
 
         public const float ExpectedVerticalOrbitMax = 70f;
+
+        public const float ExpectedAimVerticalOrbitMin =
+            CCS_CharacterControllerConstants.ThirdPersonAimPitchDownLimitDegrees;
+
+        public const float ExpectedAimVerticalOrbitMax =
+            CCS_CharacterControllerConstants.ThirdPersonAimPitchUpLimitDegrees;
 
         public const float MinimumAimVerticalOrbitMax = 55f;
 
@@ -424,6 +440,10 @@ namespace CCS.Modules.CharacterController.Editor
             TestPointsParentName,
 
             MasterTestSpawnControllerObjectName,
+
+            MasterTestTestingManagerObjectName,
+
+            MasterTestAmbientAudioObjectName,
 
             CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName,
 

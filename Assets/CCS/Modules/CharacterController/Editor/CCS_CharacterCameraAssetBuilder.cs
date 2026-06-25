@@ -437,9 +437,9 @@ namespace CCS.Modules.CharacterController.Editor
 
                 "profileDescription",
 
-                "Right-shoulder aim camera tuned for v0.6.8 revolver reticle alignment.");
+                "Tight third-person over-the-shoulder aim camera for v0.6.15 revolver aim.");
 
-            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.8-aim-camera-alignment");
+            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.15-aim-over-shoulder-tight");
 
             changed |= ForceSetEnum(
 
@@ -449,7 +449,10 @@ namespace CCS.Modules.CharacterController.Editor
 
                 (int)CCS_CharacterCameraMode.AimOverShoulder);
 
-            changed |= ForceSetFloat(serializedProfile, "trackingTargetLocalHeight", 1.48f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "trackingTargetLocalHeight",
+                CCS_CharacterControllerConstants.AimCameraTrackingHeightTuned);
 
             changed |= ForceSetVector3(
 
@@ -457,21 +460,30 @@ namespace CCS.Modules.CharacterController.Editor
 
                 "thirdPersonShoulderOffset",
 
-                new Vector3(0.65f, 0.12f, 0f));
+                new Vector3(
+                    CCS_CharacterControllerConstants.AimCameraShoulderOffsetXTuned,
+                    0.15f,
+                    0f));
 
-            changed |= ForceSetFloat(serializedProfile, "thirdPersonVerticalArmLength", 0.24f);
+            changed |= ForceSetFloat(serializedProfile, "thirdPersonVerticalArmLength", 0.28f);
 
             changed |= ForceSetFloat(serializedProfile, "thirdPersonCameraSide", 1f);
 
-            changed |= ForceSetFloat(serializedProfile, "thirdPersonCameraDistance", 1.5f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "thirdPersonCameraDistance",
+                CCS_CharacterControllerConstants.AimCameraDistanceTuned);
 
-            changed |= ForceSetFloat(serializedProfile, "fieldOfView", 52f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "fieldOfView",
+                CCS_CharacterControllerConstants.AimCameraFieldOfViewTuned);
 
             changed |= ForceSetFloat(serializedProfile, "verticalOrbitDefault", 0f);
 
-            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMin", -45f);
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMin", -35f);
 
-            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMax", 70f);
+            changed |= ForceSetFloat(serializedProfile, "verticalOrbitMax", 55f);
 
             changed |= ForceSetEnum(
 

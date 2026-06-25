@@ -467,7 +467,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 52
+    FieldOfView: 58
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -499,10 +499,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineThirdPersonFollow
   Damping: {x: 0.06, y: 0.08, z: 0.06}
-  ShoulderOffset: {x: 0.65, y: 0.12, z: 0}
-  VerticalArmLength: 0.24
+  ShoulderOffset: {x: 0.45, y: 0.15, z: 0}
+  VerticalArmLength: 0.28
   CameraSide: 1
-  CameraDistance: 1.5
+  CameraDistance: 1.85
   AvoidObstacles:
     Enabled: 1
     CollisionFilter:

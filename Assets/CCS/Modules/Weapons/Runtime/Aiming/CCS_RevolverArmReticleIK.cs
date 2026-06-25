@@ -24,6 +24,7 @@ namespace CCS.Modules.Weapons
         [SerializeField] private CCS_PlayerEquipmentVisualController equipmentVisualController;
         [SerializeField] private CCS_RevolverHudPresenter hudPresenter;
         [SerializeField] private CCS_RevolverDefinition revolverDefinition;
+        [SerializeField] private CCS_CharacterAimLocomotionController aimLocomotionController;
         [SerializeField] private Transform reticleAimWorldTarget;
         [SerializeField] private Transform rightHandReticleIkTarget;
         [SerializeField] private Transform rightElbowHint;
@@ -42,6 +43,8 @@ namespace CCS.Modules.Weapons
         [SerializeField] private float rightShoulderAimWeight = 0.18f;
         [SerializeField] private float maxHorizontalCorrectionDegrees = 10f;
         [SerializeField] private float maxVerticalCorrectionDegrees = 6f;
+        [Tooltip("Default OFF. Pulls arm/hand toward reticle via Animation Rigging.")]
+        [SerializeField] private bool enableArmToReticleIK;
         [SerializeField] private bool enableRevolverArmIkDebug;
 
         private CCS_IRevolverAnimationState revolverAnimationState;
@@ -63,6 +66,8 @@ namespace CCS.Modules.Weapons
         public float CurrentRigBlend => currentRigBlend;
 
         public bool EnableRevolverArmIkDebug => enableRevolverArmIkDebug;
+
+        public bool EnableArmToReticleIk => enableArmToReticleIK;
 
         #endregion
 
@@ -107,6 +112,17 @@ namespace CCS.Modules.Weapons
         #endregion
 
         #region Public Methods
+
+        public void SetArmToReticleIkEnabled(bool enabled)
+        {
+            enableArmToReticleIK = enabled;
+            if (!enabled)
+            {
+                currentRigBlend = 0f;
+                InitializeRigDefaults();
+                hasSmoothedReticleTarget = false;
+            }
+        }
 
         public string BuildDebugOverlayText()
         {
@@ -189,6 +205,11 @@ namespace CCS.Modules.Weapons
                 {
                     revolverDefinition = revolverController.RevolverDefinition;
                 }
+            }
+
+            if (aimLocomotionController == null)
+            {
+                aimLocomotionController = GetComponentInParent<CCS_CharacterAimLocomotionController>();
             }
 
             if (revolverAnimationState == null)
@@ -290,7 +311,7 @@ namespace CCS.Modules.Weapons
 
         private bool ShouldDriveArmReticleIk()
         {
-            if (revolverAnimationState == null)
+            if (!enableArmToReticleIK || revolverAnimationState == null)
             {
                 return false;
             }

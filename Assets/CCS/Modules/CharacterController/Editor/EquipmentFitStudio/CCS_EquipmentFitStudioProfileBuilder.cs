@@ -25,6 +25,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             bool changed = false;
             changed |= EnsureSettingsAsset();
             changed |= EnsureDefaultIkPoseProfile();
+            changed |= EnsureAxisTestProfile();
             changed |= CCS_RevolverM1879FitProfileBuilder.EnsureRevolverM1879FitProfilePack();
             changed |= CCS_EquipmentFitStudioCleanupUtility.CleanupAllPreviewObjects();
 
@@ -103,6 +104,47 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                     CCS_EquipmentConstants.RevolverM1879WeaponId,
                     CCS_EquipmentConstants.TestPlayerCc3BasePlusRigId,
                     "pose.default");
+                EditorUtility.SetDirty(profile);
+            }
+
+            return created;
+        }
+
+        private static bool EnsureAxisTestProfile()
+        {
+            EnsureFolder(CCS_EquipmentConstants.EquipmentFitStudioAxisTestProfileFolderPath);
+            CCS_WeaponAttachmentFitProfile profile = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
+                CCS_EquipmentConstants.EquipmentFitStudioAxisTestProfilePath);
+            bool created = false;
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<CCS_WeaponAttachmentFitProfile>();
+                profile.name = "CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP";
+                AssetDatabase.CreateAsset(profile, CCS_EquipmentConstants.EquipmentFitStudioAxisTestProfilePath);
+                created = true;
+            }
+
+            if (created)
+            {
+                profile.SetIdentity(
+                    "CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP",
+                    CCS_EquipmentConstants.RevolverM1879WeaponId,
+                    CCS_EquipmentConstants.TestPlayerCc3BasePlusRigId,
+                    CCS_EquipmentConstants.HandSocketRightId);
+                profile.ApplySocketTransform(
+                    "CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP",
+                    Vector3.zero,
+                    Vector3.zero,
+                    Vector3.one);
+                SerializedObject serializedProfile = new SerializedObject(profile);
+                SerializedProperty notesProperty = serializedProfile.FindProperty("notes");
+                if (notesProperty != null)
+                {
+                    notesProperty.stringValue =
+                        "Editor-only axis test profile for Fit Studio validation. Do not ship or use in production.";
+                    serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+                }
+
                 EditorUtility.SetDirty(profile);
             }
 

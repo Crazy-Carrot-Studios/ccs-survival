@@ -58,6 +58,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureWeaponIkTargets(visualRoot);
             changed |= EnsureWeaponIkRig(visualRoot, animator, hasHumanoidRig);
             changed |= CCS_RevolverArmReticleIKBuilder.EnsureRevolverArmReticleIk(prefabRoot, visualRoot, animator);
+            changed |= RemoveFirstPersonRevolverArmPresentationArtifacts(prefabRoot, visualRoot);
 
             if (hasHumanoidRig)
             {
@@ -750,6 +751,61 @@ namespace CCS.Modules.CharacterController.Editor
                 default:
                     return CCS_EquipmentConstants.FallbackSpineAnchorName;
             }
+        }
+
+        private static bool RemoveFirstPersonRevolverArmPresentationArtifacts(GameObject prefabRoot, Transform visualRoot)
+        {
+            bool changed = false;
+            if (prefabRoot == null)
+            {
+                return false;
+            }
+
+            MonoBehaviour[] behaviours = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour == null)
+                {
+                    continue;
+                }
+
+                if (behaviour.GetType().Name != "CCS_FirstPersonRevolverArmPresentationController")
+                {
+                    continue;
+                }
+
+                Object.DestroyImmediate(behaviour, true);
+                changed = true;
+            }
+
+            Transform aimAnchor = FindDeepChild(
+                prefabRoot.transform,
+                CCS_CharacterControllerConstants.FirstPersonAimCameraAnchorObjectName);
+            if (aimAnchor != null)
+            {
+                changed |= DestroyChildIfPresent(aimAnchor, CCS_WeaponsConstants.FirstPersonRevolverRightHandTargetObjectName);
+                changed |= DestroyChildIfPresent(aimAnchor, CCS_WeaponsConstants.FirstPersonRevolverRightElbowHintObjectName);
+            }
+
+            return changed;
+        }
+
+        private static bool DestroyChildIfPresent(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return false;
+            }
+
+            Transform child = parent.Find(childName);
+            if (child == null)
+            {
+                return false;
+            }
+
+            Object.DestroyImmediate(child.gameObject, true);
+            return true;
         }
 
         private static Transform FindDeepChild(Transform root, string childName)

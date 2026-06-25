@@ -70,7 +70,8 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
             CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
                 route.SocketId,
-                socketTransform);
+                state.PlayerRoot,
+                route.FitTarget);
 
             CCS_EquipmentFitStudioPosePreviewUtility.TryApplyPosePreview(
                 state.PlayerRoot,
@@ -78,9 +79,15 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 out string poseError);
             state.LastPosePreviewError = poseError;
 
+            string attachmentRootName =
+                CCS_EquipmentFitStudioPreviewAttachmentUtility.GetAttachmentRootObjectName(route.FitTarget);
+            Transform attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(
+                socketTransform,
+                attachmentRootName);
+
             previewItem.DestroyPreview();
             GameObject source = settings != null ? settings.DefaultPreviewWeaponPrefab : null;
-            if (!previewItem.TrySpawnUnderSocket(socketTransform, source, out string spawnError))
+            if (!previewItem.TrySpawnUnderAttachmentRoot(attachmentRoot, source, out string spawnError))
             {
                 errorMessage = spawnError;
                 return false;

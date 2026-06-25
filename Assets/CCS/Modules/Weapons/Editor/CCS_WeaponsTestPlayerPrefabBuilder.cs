@@ -124,6 +124,8 @@ namespace CCS.Modules.Weapons.Editor
 
             changed |= EnsureWeaponHud(prefabRoot);
 
+            changed |= EnsureMasterTestAimVisualComponents(prefabRoot);
+
             changed |= EnsureFireFeedback(prefabRoot);
 
             changed |= EnsureAimLocomotionWeaponGate(prefabRoot);
@@ -173,6 +175,14 @@ namespace CCS.Modules.Weapons.Editor
                     Object.DestroyImmediate(behaviour, true);
                     changed = true;
                 }
+            }
+
+            CCS_FirstPersonAimCameraOverrideController fovOverride =
+                prefabRoot.GetComponent<CCS_FirstPersonAimCameraOverrideController>();
+            if (fovOverride != null)
+            {
+                Object.DestroyImmediate(fovOverride, true);
+                changed = true;
             }
 
 
@@ -696,7 +706,118 @@ namespace CCS.Modules.Weapons.Editor
 
         }
 
+        private static bool EnsureMasterTestAimVisualComponents(GameObject prefabRoot)
+        {
+            bool changed = false;
+            Transform hudRoot = prefabRoot.transform.Find(CCS_WeaponsConstants.WeaponHudRootName);
+            Transform visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.VisualRootObjectName);
+            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverHudPresenter hudPresenter = hudRoot != null
+                ? hudRoot.GetComponent<CCS_RevolverHudPresenter>()
+                : null;
+            CCS_PlayerEquipmentVisualController equipmentVisual =
+                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+            Animator animator = visualRoot != null ? visualRoot.GetComponentInChildren<Animator>(true) : null;
+            CCS_RevolverUpperBodyAnimator upperBodyAnimator = visualRoot != null
+                ? visualRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true)
+                : null;
+            Image reticleImage = hudRoot != null
+                ? hudRoot.Find(CCS_WeaponsConstants.WeaponReticleObjectName)?.GetComponent<Image>()
+                : null;
 
+            if (hudRoot != null)
+            {
+                CCS_MuzzleDrivenReticleController muzzleReticle =
+                    hudRoot.GetComponent<CCS_MuzzleDrivenReticleController>();
+                if (muzzleReticle == null)
+                {
+                    muzzleReticle = hudRoot.gameObject.AddComponent<CCS_MuzzleDrivenReticleController>();
+                    changed = true;
+                }
+
+                SerializedObject serializedReticle = new SerializedObject(muzzleReticle);
+                bool reticleChanged = false;
+                reticleChanged |= SetEnum(
+                    serializedReticle,
+                    "reticleMode",
+                    (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift);
+                reticleChanged |= SetBool(serializedReticle, "enableReticleClamp", true);
+                reticleChanged |= SetFloat(
+                    serializedReticle,
+                    "maxMuzzleReticleOffsetPixels",
+                    CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault);
+                reticleChanged |= SetFloat(
+                    serializedReticle,
+                    "safeScreenPaddingPixels",
+                    CCS_WeaponsConstants.MasterTestReticleSafeScreenPaddingPixelsDefault);
+                reticleChanged |= SetObjectReference(serializedReticle, "revolverController", revolverController);
+                reticleChanged |= SetObjectReference(serializedReticle, "equipmentVisualController", equipmentVisual);
+                reticleChanged |= SetObjectReference(serializedReticle, "hudPresenter", hudPresenter);
+                reticleChanged |= SetObjectReference(serializedReticle, "revolverUpperBodyAnimator", upperBodyAnimator);
+                reticleChanged |= SetObjectReference(serializedReticle, "reticleTransform", reticleImage != null ? reticleImage.rectTransform : null);
+                reticleChanged |= SetObjectReference(serializedReticle, "reticleCanvas", hudRoot.GetComponent<Canvas>());
+                if (reticleChanged)
+                {
+                    serializedReticle.ApplyModifiedPropertiesWithoutUndo();
+                    changed = true;
+                }
+            }
+
+            if (visualRoot != null)
+            {
+                CCS_RevolverBodyAimFollowController bodyAimFollow =
+                    visualRoot.GetComponent<CCS_RevolverBodyAimFollowController>();
+                if (bodyAimFollow == null)
+                {
+                    bodyAimFollow = visualRoot.gameObject.AddComponent<CCS_RevolverBodyAimFollowController>();
+                    changed = true;
+                }
+
+                SerializedObject serializedBodyAim = new SerializedObject(bodyAimFollow);
+                bool bodyChanged = false;
+                bodyChanged |= SetBool(serializedBodyAim, "enableBodyAimFollow", true);
+                bodyChanged |= SetObjectReference(serializedBodyAim, "animator", animator);
+                bodyChanged |= SetObjectReference(serializedBodyAim, "revolverAnimationStateComponent", revolverController);
+                bodyChanged |= SetObjectReference(
+                    serializedBodyAim,
+                    "cameraFollowAnchor",
+                    aimLocomotion != null ? aimLocomotion.CameraFollowAnchor : null);
+                if (bodyChanged)
+                {
+                    serializedBodyAim.ApplyModifiedPropertiesWithoutUndo();
+                    changed = true;
+                }
+            }
+
+            if (revolverController != null)
+            {
+                if (upperBodyAnimator != null)
+                {
+                    SerializedObject serializedUpperBody = new SerializedObject(upperBodyAnimator);
+                    bool upperBodyChanged = false;
+                    upperBodyChanged |= SetBool(serializedUpperBody, "suppressFireUpperBodyAnimation", true);
+                    if (upperBodyChanged)
+                    {
+                        serializedUpperBody.ApplyModifiedPropertiesWithoutUndo();
+                        changed = true;
+                    }
+                }
+
+                SerializedObject serializedRevolver = new SerializedObject(revolverController);
+                bool revolverChanged = false;
+                revolverChanged |= SetBool(serializedRevolver, "enableVisualAimConvergence", false);
+                revolverChanged |= SetBool(serializedRevolver, "enableMuzzleAuthoritativeShots", false);
+                if (revolverChanged)
+                {
+                    serializedRevolver.ApplyModifiedPropertiesWithoutUndo();
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
 
         private static bool EnsureFireFeedback(GameObject prefabRoot)
 
@@ -1121,14 +1242,30 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
-            if (reticleImage.color != Color.white)
-
+            if (reticleImage.color != CCS_WeaponsConstants.WeaponReticleFillColor)
             {
-
-                reticleImage.color = Color.white;
-
+                reticleImage.color = CCS_WeaponsConstants.WeaponReticleFillColor;
                 changed = true;
+            }
 
+            Outline reticleOutline = reticleImage.GetComponent<Outline>();
+            if (reticleOutline == null)
+            {
+                reticleOutline = reticleImage.gameObject.AddComponent<Outline>();
+                changed = true;
+            }
+
+            if (reticleOutline.effectColor != CCS_WeaponsConstants.WeaponReticleOutlineColor)
+            {
+                reticleOutline.effectColor = CCS_WeaponsConstants.WeaponReticleOutlineColor;
+                changed = true;
+            }
+
+            Vector2 reticleOutlineDistance = new Vector2(1f, -1f);
+            if (reticleOutline.effectDistance != reticleOutlineDistance)
+            {
+                reticleOutline.effectDistance = reticleOutlineDistance;
+                changed = true;
             }
 
 
@@ -1219,6 +1356,42 @@ namespace CCS.Modules.Weapons.Editor
 
             return true;
 
+        }
+
+        private static bool SetBool(SerializedObject serializedObject, string propertyName, bool value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.propertyType != SerializedPropertyType.Boolean || property.boolValue == value)
+            {
+                return false;
+            }
+
+            property.boolValue = value;
+            return true;
+        }
+
+        private static bool SetFloat(SerializedObject serializedObject, string propertyName, float value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.propertyType != SerializedPropertyType.Float || Mathf.Approximately(property.floatValue, value))
+            {
+                return false;
+            }
+
+            property.floatValue = value;
+            return true;
+        }
+
+        private static bool SetEnum(SerializedObject serializedObject, string propertyName, int enumValue)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.propertyType != SerializedPropertyType.Enum || property.enumValueIndex == enumValue)
+            {
+                return false;
+            }
+
+            property.enumValueIndex = enumValue;
+            return true;
         }
 
 

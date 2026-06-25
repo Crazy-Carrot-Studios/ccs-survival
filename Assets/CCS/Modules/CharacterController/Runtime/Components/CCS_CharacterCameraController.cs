@@ -91,10 +91,8 @@ namespace CCS.Modules.CharacterController
 
         public bool IsAimModeActive => isFirearmAimModeActive;
 
-        public bool IsFirstPersonAimActive => isFirearmAimModeActive;
-
         public bool HasFirearmAimCameraConfigured =>
-            firstPersonCinemachineCamera != null && cameraProfileSet?.FirstPersonProfile != null;
+            aimCinemachineCamera != null && cameraProfileSet?.AimOverShoulderProfile != null;
 
         public bool HasAimCameraConfigured => HasFirearmAimCameraConfigured;
 
@@ -330,8 +328,8 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            bool wantsFirstPersonAim = boundCarryStateSource.WantsFirstPersonAimCamera;
-            ApplyFirearmAimMode(wantsFirstPersonAim, "CarryState");
+            bool wantsAimOverShoulder = boundCarryStateSource.WantsAimOverShoulderCamera;
+            ApplyFirearmAimMode(wantsAimOverShoulder, "CarryState");
         }
 
         #endregion
@@ -347,17 +345,16 @@ namespace CCS.Modules.CharacterController
 
             isFirearmAimModeActive = aimActive;
             activeCameraMode = aimActive
-                ? CCS_CharacterCameraMode.FirstPersonAim
+                ? CCS_CharacterCameraMode.AimOverShoulder
                 : CCS_CharacterCameraMode.ThirdPersonSurvival;
             ApplyBrainBlendForFirearmAimTransition(aimActive);
             ApplyLookProfileForAimState();
             ApplyCameraPriorities();
-            ApplyFirstPersonProfile();
-            SetFirstPersonHeadMask(aimActive);
+            SetFirstPersonHeadMask(false);
 
             if (debugCameraModeTransitions || enableRuntimeCameraDebug)
             {
-                string modeLabel = aimActive ? "FirstPersonAim" : "ThirdPersonSurvival";
+                string modeLabel = aimActive ? "AimOverShoulder" : "ThirdPersonSurvival";
                 Debug.Log(
                     "[Camera] CarryState="
                     + (boundCarryStateSource != null
@@ -695,12 +692,6 @@ namespace CCS.Modules.CharacterController
 
         private CCS_CharacterCameraProfile ResolveAimBlendProfile()
         {
-            CCS_CharacterCameraProfile fpAim = ResolveFirstPersonAimProfile();
-            if (fpAim != null)
-            {
-                return fpAim;
-            }
-
             return cameraProfileSet != null ? cameraProfileSet.AimOverShoulderProfile : null;
         }
 
@@ -817,10 +808,12 @@ namespace CCS.Modules.CharacterController
 
             if (isFirearmAimModeActive)
             {
-                CCS_CharacterCameraProfile bodyAwareProfile = ResolveFirstPersonProfile();
-                if (bodyAwareProfile != null)
+                CCS_CharacterCameraProfile aimProfile = cameraProfileSet != null
+                    ? cameraProfileSet.AimOverShoulderProfile
+                    : null;
+                if (aimProfile != null)
                 {
-                    boundFollowAnchor.SetLookProfile(bodyAwareProfile);
+                    boundFollowAnchor.SetLookProfile(aimProfile);
                 }
 
                 return;
@@ -835,20 +828,18 @@ namespace CCS.Modules.CharacterController
         private void ApplyCameraPriorities()
         {
             DeactivateLegacyFirstPersonAimCamera();
-            SetCameraPriority(aimCinemachineCamera, CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
+            SetCameraPriority(
+                firstPersonCinemachineCamera,
+                CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
 
             if (isFirearmAimModeActive)
             {
                 SetCameraPriority(cinemachineCamera, CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
-                SetCameraPriority(
-                    firstPersonCinemachineCamera,
-                    CCS_CharacterControllerConstants.FirstPersonBodyAwareCameraActivePriority);
+                SetCameraPriority(aimCinemachineCamera, CCS_CharacterControllerConstants.AimCameraActivePriority);
                 return;
             }
 
-            SetCameraPriority(
-                firstPersonCinemachineCamera,
-                CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
+            SetCameraPriority(aimCinemachineCamera, CCS_CharacterControllerConstants.CinemachineCameraInactivePriority);
             SetCameraPriority(
                 cinemachineCamera,
                 CCS_CharacterControllerConstants.ThirdPersonCameraActivePriority);
@@ -873,9 +864,9 @@ namespace CCS.Modules.CharacterController
 
         private string ResolveActiveCinemachineCameraName()
         {
-            if (isFirearmAimModeActive && firstPersonCinemachineCamera != null)
+            if (isFirearmAimModeActive && aimCinemachineCamera != null)
             {
-                return firstPersonCinemachineCamera.name;
+                return aimCinemachineCamera.name;
             }
 
             if (cinemachineCamera != null
@@ -892,14 +883,12 @@ namespace CCS.Modules.CharacterController
         {
             if (isFirearmAimModeActive)
             {
-                if (firstPersonCinemachineCamera?.Target.TrackingTarget != null)
+                if (aimCinemachineCamera?.Target.TrackingTarget != null)
                 {
-                    return firstPersonCinemachineCamera.Target.TrackingTarget.name;
+                    return aimCinemachineCamera.Target.TrackingTarget.name;
                 }
 
-                return firstPersonCameraAnchor != null
-                    ? firstPersonCameraAnchor.name
-                    : "Missing";
+                return cameraPivot != null ? cameraPivot.name : "Missing";
             }
 
             return cameraPivot != null ? cameraPivot.name : "Missing";

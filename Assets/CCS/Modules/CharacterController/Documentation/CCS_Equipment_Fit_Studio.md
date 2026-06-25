@@ -1,6 +1,6 @@
 # CCS Equipment Fit Studio
 
-**Version:** 0.6.9  
+**Version:** 0.6.16  
 **Type:** Editor-only tuning tool  
 **Menu:** `CCS → Character Controller → Equipment → Equipment Fit Studio`
 
@@ -181,9 +181,56 @@ No preset button grid is drawn inside the viewport.
 
 ### Preview rules
 
-- Preview visual stays **zeroed** (`0,0,0` / identity / `1,1,1`) under the socket
-- Editable values are the **attachment/profile offset** on the socket only
+- Preview visual stays **zeroed** (`0,0,0` / identity / `1,1,1`) under the **preview attachment root**
+- Editable values are the **attachment/profile offset** on the preview attachment root (not the visual child)
+- Socket anchor stays at its definition; profile position/rotation/scale apply to the attachment root via the same applicator used at runtime
 - Preview camera: left-drag orbit, middle/Alt+drag pan, scroll zoom, right-drag look, **F** frame focus
+
+## v0.6.15 Weapon Rotation Basis / Roll Axis Fix
+
+Equipment Fit Studio now exposes **weapon-space Pitch / Yaw / Roll** controls so artists can fit holstered and equipped revolvers without guessing Unity Euler X/Y/Z.
+
+### Weapon Rotation Controls (preferred)
+
+In the right **Attachment / Profile Offset** panel:
+
+| Control | Effect |
+|---------|--------|
+| **Pitch + / -** | Muzzle up/down (local X) |
+| **Yaw + / -** | Muzzle left/right (local Y) |
+| **Roll / Side Tilt + / -** | Side tilt around weapon forward / barrel axis |
+
+Rotation nudge step sizes: **1°** (small), **5°** (medium), **15°** (large).
+
+**Weapon Forward Axis** selects which local axis is treated as barrel forward for roll (default **Local -Z** for the revolver visual). If roll still looks like yaw, change this setting and enable axis visualization.
+
+### Profile Euler (advanced)
+
+Numeric **Profile Euler (Display)** fields remain for save/load compatibility. Prefer Pitch/Yaw/Roll buttons for fitting. The tool keeps separate edit state (`pendingLocalRotation` / `pendingDisplayEuler`) to avoid Euler read/write drift during IMGUI repaints.
+
+### Axis visualization and diagnostics
+
+Optional toggles (Scene view):
+
+- **Show Socket Local Axes** — red X, green Y, blue Z at socket anchor
+- **Show Weapon Local Axes** — attachment root and preview visual
+- **Show Weapon Forward / Barrel Axis** — yellow/white forward line (and muzzle when available)
+
+Collapsed **Axis Diagnostics** shows quaternion/Euler readout, selected forward axis, world forward direction, and last axis action.
+
+**Axis Hard Tests** (`Test Pitch/Yaw/Roll +15`, `Reset Axis Test`) help verify each control produces a distinct motion. A warning appears if roll appears aligned with yaw.
+
+### Transform hierarchy (editor preview)
+
+```text
+Socket Anchor
+└─ Preview Attachment Root   ← profile position/rotation/scale applied here
+   └─ Preview Visual          ← always zeroed (CCS_EDITOR_PREVIEW_ITEM)
+```
+
+### Safe startup
+
+Fit Studio **OnEnable** defers heavy asset ensure/builder work to the next editor frame so restoring a saved layout with Fit Studio open does not hang Unity startup.
 
 ### Save workflow
 
@@ -212,7 +259,7 @@ The current revolver aim source pose is **two-handed**. Final one-handed revolve
 
 `CCS_PlayerEquipmentVisualController` applies saved profiles at runtime using `PF_CCS_RevolverM1879_VisualOnly.prefab`.
 
-Equipped visual `FitGuides/MuzzlePoint` supplies the gameplay tracer origin when aiming. v0.6.8 adds cosmetic fire visuals (tracer/flash/smoke) and reload-only spent shell extraction — **no per-shot casing ejection** (revolver realism). v0.6.9 keeps third-person as the default exploration camera; first-person aim activates only while RMB firearm aim is held. Reticle/hitscan still follow the active camera via `CCS_WeaponAimResolver`.
+Equipped visual `FitGuides/MuzzlePoint` supplies the gameplay tracer origin when aiming. v0.6.8 adds cosmetic fire visuals (tracer/flash/smoke) and reload-only spent shell extraction — **no per-shot casing ejection** (revolver realism). v0.6.15 keeps third-person as the default exploration camera; RMB firearm aim uses **Aim Over Shoulder** only (first-person aim removed from active Master Test flow). Reticle/hitscan follow the active camera via `CCS_WeaponAimResolver` with hybrid center + clamped muzzle drift.
 
 ### Cleanup
 
@@ -230,3 +277,46 @@ Temporary objects (`CCS_EDITOR_FIT_PREVIEW_PLAYER_DO_NOT_SAVE`, preview item, pr
 Planned asset name: `CCS_Revolver_UpperBody_RightArm.mask` with optional preview/runtime option `RevolverOneHandUpperBody`.
 
 **Not implemented in v0.6.8** — avoids risking the working runtime aim/fire/reload path.
+
+## v0.6.16 Animation Fit Studio (simplified FullDraw workflow)
+
+- **Target:** Runtime Aim Idle — FullDraw
+- **Clip curve mode:** Humanoid Muscle Curves
+- **Save:** Save Runtime FullDraw + Reimport (writes controller-used `CCS_WW_Revolver_AimIdle_FullDraw.anim` in place)
+- Legacy FitTest / AimPitch main-workflow labels removed; axis calibration remains under Advanced / Diagnostics only.
+
+## v0.6.15 Animation Fit Studio (test tool)
+
+Equipment Fit Studio fit is **separate** from animation pose tuning:
+
+- Do **not** adjust weapon fit profiles to fix first-person arm distortion.
+- Runtime equipped visual parents under **runtime equipped attachment root** (zeroed visual child), matching Fit Studio hierarchy.
+- Enable `debugRuntimeFitParity` on `CCS_PlayerEquipmentVisualController` to log one-shot parity while aiming.
+- Visual aim convergence remains **off** by default.
+
+**Animation Fit Studio (editor test only):**
+
+- Menu: `CCS → Character Controller → Animations → Animation Fit Studio`
+- **Pose Target dropdown:** `Final Aim — FullDraw` (default) | `Aimed Walk — RH` — no full clip picker
+- **Pose Frame dropdown:** `Stable Aim Hold` (FullDraw default, 65% clip) | `Start` | `Middle` | `End` | `Custom`
+- **Default on open:** FullDraw + Stable Aim Hold; preview loads into aim pose, not regular idle
+- Window title: `Animation Fit Studio — <SelectedTargetClip>`
+- Layout matches Equipment Fit Studio: left guide, center preview viewport, right pose controls, bottom action bar
+- Preview hierarchy: `CCS_HandSocket_Right → attachment root (profile) → zeroed revolver visual`
+- Uses `CCS_RevolverM1879_RightHandEquipped_Fit.asset` when present
+- FitTest naming: `<SourceClipName>_FitTest.anim` → **`CCS_WW_Revolver_AimIdle_FullDraw_FitTest.anim`** under `WildWest/Edited/`
+- **Create / Load FitTest Clip** creates or loads the FitTest duplicate automatically — no file picker
+- **Runtime target candidate:** Saved FitTest clip is now runtime target candidate: **`CCS_WW_Revolver_AimIdle_FullDraw_FitTest.anim`**
+- **Save FitTest Pose** does **not** directly modify Animator Controller — controller wiring is a separate builder pass
+- **Runtime wiring (v0.6.15):** `Revolver_AimIdle_FullDraw` on `RevolverUpperBody` uses the edited FitTest clip when present; source Wild West clips remain unchanged as fallbacks
+
+**Recommended promotion flow (manual, after approval):**
+
+1. Edit and save `<SourceClipName>_FitTest.anim` in Animation Fit Studio
+2. Run Master Test setup / animation isolation builder (wires FitTest to `Revolver_AimIdle_FullDraw`)
+3. Validate Play Mode on `SCN_CCS_CharacterController_MasterTest`
+4. James approves Play Mode result
+5. Optional: duplicate/promote to production name: `CCS_Revolver_AimIdle_RH_FirstPerson.anim`
+6. Commit only after manual acceptance
+
+**Wild West vendor source:** `Assets/YashMakesGames` is optional. Master Test validates CCS-owned clips under `Content/Animations/Revolver/WildWest/` when the vendor pack is absent.

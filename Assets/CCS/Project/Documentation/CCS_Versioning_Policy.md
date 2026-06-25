@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.6.15`
+**Current version:** `0.6.16`
 
 ## Purpose
 
@@ -41,7 +41,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.12`** | **BodyAware-only first-person aim camera** |
 | **`0.6.14`** | **Local self head layer mask for separated head renderers** |
 | **`0.6.15`** | **Local self headless first-person body fallback (combined CC3 body)** |
-| **`0.6.16`** | **Revolver hand fit correction** (planned) |
+| **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 
 ---
 

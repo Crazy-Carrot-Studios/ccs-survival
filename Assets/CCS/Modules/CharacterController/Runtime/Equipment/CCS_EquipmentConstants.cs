@@ -179,6 +179,12 @@ namespace CCS.Modules.CharacterController
 
         public const string RevolverM1879FitTuningNotesPath =
             RevolverM1879FitProfileFolderPath + "/README.md";
+
+        public const string EquipmentFitStudioAxisTestProfileFolderPath =
+            EquipmentFittingProfileRootPath + "/Test";
+
+        public const string EquipmentFitStudioAxisTestProfilePath =
+            EquipmentFitStudioAxisTestProfileFolderPath + "/CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP.asset";
     }
 
     public static class CCS_EquipmentItemTypes

@@ -145,38 +145,14 @@ namespace CCS.Modules.CharacterController.Editor
             new ClipIsolationEntry(
                 CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Idle/Fulldraw_Idle.fbx",
                 "Fulldraw_Idle",
-                CCS_CharacterControllerConstants.WildWestRevolverAimIdleFullDrawClipPath,
+                CCS_CharacterControllerConstants.RevolverAimIdleFullDrawClipPath,
                 CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
-                loopTimeOverride: true),
-            new ClipIsolationEntry(
-                CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Walk/Walk_wRevolverAimed.fbx",
-                "Walk_wRevolverAimed",
-                CCS_CharacterControllerConstants.WildWestRevolverAimWalkClipPath,
-                CCS_CharacterControllerConstants.AnimatorRevolverAimWalkStateName,
                 loopTimeOverride: true),
             new ClipIsolationEntry(
                 CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Idle/Idle_Fulldraw_Revolver.fbx",
                 "Idle_Fulldraw_Revolver",
-                CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath,
+                CCS_CharacterControllerConstants.RevolverIdleToAimClipPath,
                 CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
-                loopTimeOverride: false),
-            new ClipIsolationEntry(
-                CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Idle/Idle_Full_Holster_Revolver.fbx",
-                "Idle_Full_Holster_Revolver",
-                CCS_CharacterControllerConstants.WildWestRevolverAimToIdleClipPath,
-                CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleStateName,
-                loopTimeOverride: false),
-            new ClipIsolationEntry(
-                CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Walk/Walk_to_WalkWAimedRevolver.fbx",
-                "Walk_to_WalkWAimedRevolver",
-                CCS_CharacterControllerConstants.WildWestRevolverWalkToAimWalkClipPath,
-                CCS_CharacterControllerConstants.AnimatorRevolverWalkToAimWalkStateName,
-                loopTimeOverride: false),
-            new ClipIsolationEntry(
-                CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Walk/WalkWAimedRevolver_to_Walk.fbx",
-                "WalkWAimedRevolver_to_Walk",
-                CCS_CharacterControllerConstants.WildWestRevolverAimWalkToWalkClipPath,
-                CCS_CharacterControllerConstants.AnimatorRevolverAimWalkToWalkStateName,
                 loopTimeOverride: false),
             new ClipIsolationEntry(
                 CCS_CharacterControllerConstants.WildWestAnimationPackRootPath + "/Idle/Fanning.fbx",
@@ -277,34 +253,48 @@ namespace CCS.Modules.CharacterController.Editor
                 aimStrafeClips[entry.DestinationAssetPath] = isolatedClip;
             }
 
+            changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
+            changed |= EnsureRevolverAnimatorParameters();
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimFolders();
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimClipMigration();
+
             Dictionary<string, AnimationClip> revolverClips = new Dictionary<string, AnimationClip>();
             for (int i = 0; i < RevolverUpperBodyIsolationPlan.Length; i++)
             {
                 ClipIsolationEntry entry = RevolverUpperBodyIsolationPlan[i];
-                if (!EnsureIsolatedClip(entry, out AnimationClip isolatedClip, out bool clipChanged))
+                AnimationClip isolatedClip = null;
+                bool clipChanged = false;
+                if (File.Exists(entry.DestinationAssetPath))
                 {
-                    Debug.LogError(
-                        "[Animation Isolation] Failed to isolate revolver clip "
+                    isolatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.DestinationAssetPath);
+                }
+                else if (!EnsureIsolatedClip(entry, out isolatedClip, out clipChanged))
+                {
+                    Debug.LogWarning(
+                        "[Animation Isolation] Could not isolate revolver clip "
                         + entry.SourceClipName
                         + " from "
-                        + entry.SourceAssetPath);
-                    return changed;
+                        + entry.SourceAssetPath
+                        + ". Destination missing at "
+                        + entry.DestinationAssetPath);
+                    continue;
                 }
 
                 changed |= clipChanged;
-                if (!string.IsNullOrEmpty(entry.AnimatorStateName))
+                if (!string.IsNullOrEmpty(entry.AnimatorStateName) && isolatedClip != null)
                 {
                     revolverClips[entry.AnimatorStateName] = isolatedClip;
                 }
             }
 
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimRightArmMask();
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureInteractionReservedLayer();
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureSimplifiedRevolverAimLayer();
+            changed |= CCS_RevolverAimSimplificationBuilder.RemoveRevolverAimPitchFromController();
+            changed |= CCS_RevolverAimSimplificationBuilder.DeleteObsoleteRevolverAimAssets();
             changed |= RewireAnimatorController(clipsByStateName);
             changed |= EnsureAimLocomotionAnimatorParameters();
             changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
-            changed |= EnsureRevolverUpperBodyMask();
-            changed |= EnsureRevolverAnimatorParameters();
-            changed |= EnsureRevolverUpperBodyLayer(revolverClips);
-            changed |= EnsureWildWestRevolverArchiveClips();
             changed |= PurgeLegacyRevolverClipAssignmentsFromController();
             changed |= RemoveRevolverRightHandPreviewLayerFromController();
 
@@ -315,6 +305,67 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return changed;
+        }
+
+        public static bool EnsureRevolverAimPitchBlendWiring(out bool wiringChanged)
+        {
+            wiringChanged = false;
+            AnimationClip downClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchDownFitTestClipPath);
+            AnimationClip centerClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchCenterFitTestClipPath);
+            AnimationClip upClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchUpFitTestClipPath);
+            if (downClip == null || centerClip == null || upClip == null)
+            {
+                return false;
+            }
+
+            AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            if (controller == null)
+            {
+                return false;
+            }
+
+            int layerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
+            if (layerIndex < 0)
+            {
+                return false;
+            }
+
+            AnimatorStateMachine stateMachine = controller.layers[layerIndex].stateMachine;
+            AnimatorState aimPitchBlendState = FindState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimPitchBlendStateName);
+            if (aimPitchBlendState == null)
+            {
+                return false;
+            }
+
+            BlendTree blendTree = aimPitchBlendState.motion as BlendTree;
+            if (blendTree == null)
+            {
+                return false;
+            }
+
+            wiringChanged |= EnsureAimPitchBlendTreeChildren(blendTree, downClip, centerClip, upClip);
+            if (wiringChanged)
+            {
+                EditorUtility.SetDirty(blendTree);
+                EditorUtility.SetDirty(controller);
+                AssetDatabase.SaveAssets();
+            }
+
+            return true;
+        }
+
+        public static bool EnsureRevolverRuntimeEditedAimIdleWiring(out bool wiringChanged)
+        {
+            wiringChanged = false;
+            return EnsureRevolverAimPitchBlendWiring(out wiringChanged);
         }
 
         public static bool EnsureWildWestRevolverArchiveClips()
@@ -471,8 +522,9 @@ namespace CCS.Modules.CharacterController.Editor
             EnsureFolder(CCS_CharacterControllerConstants.InteractionAnimationsPath);
             EnsureFolder(CCS_CharacterControllerConstants.ContentAnimationsRootPath + "/Combat");
             EnsureFolder(CCS_CharacterControllerConstants.AimStrafeAnimationsPath);
+            EnsureFolder(CCS_CharacterControllerConstants.RevolverAimAnimationsPath);
+            EnsureFolder(CCS_CharacterControllerConstants.RevolverAimMasksPath);
             EnsureFolder(CCS_CharacterControllerConstants.CombatRevolverAnimationsPath);
-            EnsureFolder(CCS_CharacterControllerConstants.WildWestRevolverAnimationsPath);
             EnsureFolder(CCS_CharacterControllerConstants.VendorSourceInvectorAnimationsPath);
         }
 
@@ -579,7 +631,8 @@ namespace CCS.Modules.CharacterController.Editor
             AnimationClip sourceClip = LoadClipFromAsset(entry.SourceAssetPath, entry.SourceClipName);
             if (sourceClip == null)
             {
-                return false;
+                isolatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.DestinationAssetPath);
+                return isolatedClip != null;
             }
 
             isolatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.DestinationAssetPath);
@@ -1074,65 +1127,12 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool EnsureRevolverRightArmMask()
         {
-            string maskPath = CCS_CharacterControllerConstants.WildWestRevolverRightArmMaskPath;
-            AvatarMask mask = AssetDatabase.LoadAssetAtPath<AvatarMask>(maskPath);
-            bool changed = false;
-            if (mask == null)
-            {
-                mask = new AvatarMask();
-                AssetDatabase.CreateAsset(mask, maskPath);
-                changed = true;
-            }
-
-            bool maskChanged = ConfigureRevolverRightArmMask(mask);
-            if (maskChanged)
-            {
-                EditorUtility.SetDirty(mask);
-                changed = true;
-            }
-
-            return changed;
+            return CCS_RevolverUpperBodyRightArmAimMaskUtility.EnsureMaskAsset();
         }
 
         private static bool ConfigureRevolverRightArmMask(AvatarMask mask)
         {
-            bool changed = false;
-            AvatarMaskBodyPart[] activeParts =
-            {
-                AvatarMaskBodyPart.Body,
-                AvatarMaskBodyPart.RightArm,
-                AvatarMaskBodyPart.RightFingers
-            };
-
-            AvatarMaskBodyPart[] inactiveParts =
-            {
-                AvatarMaskBodyPart.Root,
-                AvatarMaskBodyPart.Head,
-                AvatarMaskBodyPart.LeftArm,
-                AvatarMaskBodyPart.LeftFingers,
-                AvatarMaskBodyPart.LeftLeg,
-                AvatarMaskBodyPart.RightLeg
-            };
-
-            for (int i = 0; i < activeParts.Length; i++)
-            {
-                if (!mask.GetHumanoidBodyPartActive(activeParts[i]))
-                {
-                    mask.SetHumanoidBodyPartActive(activeParts[i], true);
-                    changed = true;
-                }
-            }
-
-            for (int i = 0; i < inactiveParts.Length; i++)
-            {
-                if (mask.GetHumanoidBodyPartActive(inactiveParts[i]))
-                {
-                    mask.SetHumanoidBodyPartActive(inactiveParts[i], false);
-                    changed = true;
-                }
-            }
-
-            return changed;
+            return CCS_RevolverUpperBodyRightArmAimMaskUtility.ConfigureMask(mask);
         }
 
         private static bool EnsureRevolverRightHandPreviewLayer(Dictionary<string, AnimationClip> previewClips)
@@ -1323,10 +1323,6 @@ namespace CCS.Modules.CharacterController.Editor
                 controller,
                 CCS_CharacterControllerConstants.AnimatorRevolverIsReloadingParameter,
                 AnimatorControllerParameterType.Bool);
-            changed |= EnsureAnimatorParameter(
-                controller,
-                CCS_CharacterControllerConstants.AnimatorRevolverIsMovingParameter,
-                AnimatorControllerParameterType.Bool);
 
             if (changed)
             {
@@ -1432,6 +1428,8 @@ namespace CCS.Modules.CharacterController.Editor
                 revolverClips[CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName],
                 new Vector3(300f, 220f, 0f),
                 ref changed);
+            AnimatorState aimPitchBlendState = EnsureRevolverAimPitchBlendState(stateMachine, controller, ref changed);
+            AnimatorState aimLoopState = aimPitchBlendState != null ? aimPitchBlendState : aimIdleFullDrawState;
             AnimatorState aimToIdleState = EnsureRevolverState(
                 stateMachine,
                 CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleStateName,
@@ -1498,7 +1496,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= EnsureExitTimeTransition(
                 idleToAimState,
-                aimIdleFullDrawState,
+                aimLoopState,
                 duration: RevolverAimInDuration,
                 exitTime: RevolverAimEnterExitTime);
             changed |= EnsureBoolTransition(
@@ -1517,13 +1515,13 @@ namespace CCS.Modules.CharacterController.Editor
                 duration: RevolverAimLoopCrossfadeDuration);
 
             changed |= EnsureBoolTransition(
-                aimIdleFullDrawState,
+                aimLoopState,
                 aimToIdleState,
                 aimHeld,
                 expectedTrue: false,
                 duration: RevolverAimOutDuration);
             changed |= EnsureDualBoolTransition(
-                aimIdleFullDrawState,
+                aimLoopState,
                 aimWalkState,
                 aimHeld,
                 expectedFirstTrue: true,
@@ -1557,7 +1555,7 @@ namespace CCS.Modules.CharacterController.Editor
                 duration: RevolverAimOutDuration);
             changed |= EnsureDualBoolTransition(
                 aimWalkState,
-                aimIdleFullDrawState,
+                aimLoopState,
                 aimHeld,
                 expectedFirstTrue: true,
                 isMoving,
@@ -1570,15 +1568,9 @@ namespace CCS.Modules.CharacterController.Editor
                 duration: RevolverAimOutDuration,
                 exitTime: RevolverAimEnterExitTime);
 
-            changed |= EnsureTriggerTransition(
-                stateMachine,
-                fireState,
-                CCS_CharacterControllerConstants.AnimatorRevolverFireTriggerParameter,
-                duration: RevolverFireInDuration,
-                fromAnyState: true);
             changed |= EnsureDualBoolTransition(
                 fireState,
-                aimIdleFullDrawState,
+                aimLoopState,
                 aimHeld,
                 expectedFirstTrue: true,
                 isMoving,
@@ -1611,7 +1603,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerConstants.AnimatorRevolverReloadTriggerParameter,
                 duration: RevolverReloadInDuration,
                 fromAnyState: false,
-                fromState: aimIdleFullDrawState);
+                fromState: aimLoopState);
             changed |= EnsureTriggerTransition(
                 stateMachine,
                 reloadState,
@@ -1620,7 +1612,7 @@ namespace CCS.Modules.CharacterController.Editor
                 fromAnyState: false,
                 fromState: aimWalkState);
             changed |= EnsureBoolTransition(
-                aimIdleFullDrawState,
+                aimLoopState,
                 reloadState,
                 isReloading,
                 expectedTrue: true,
@@ -1633,7 +1625,7 @@ namespace CCS.Modules.CharacterController.Editor
                 duration: RevolverReloadInDuration);
             changed |= EnsureTripleBoolTransition(
                 reloadState,
-                aimIdleFullDrawState,
+                aimLoopState,
                 aimHeld,
                 expectedFirstTrue: true,
                 isReloading,
@@ -2076,6 +2068,86 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return false;
+        }
+
+        private static AnimatorState EnsureRevolverAimPitchBlendState(
+            AnimatorStateMachine stateMachine,
+            AnimatorController controller,
+            ref bool changed)
+        {
+            AnimatorState aimPitchBlendState = FindState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimPitchBlendStateName);
+            if (aimPitchBlendState == null)
+            {
+                aimPitchBlendState = stateMachine.AddState(
+                    CCS_CharacterControllerConstants.AnimatorRevolverAimPitchBlendStateName,
+                    new Vector3(520f, 220f, 0f));
+                changed = true;
+            }
+
+            BlendTree blendTree = aimPitchBlendState.motion as BlendTree;
+            if (blendTree == null || AssetDatabase.GetAssetPath(blendTree) != AssetDatabase.GetAssetPath(controller))
+            {
+                blendTree = new BlendTree
+                {
+                    name = CCS_CharacterControllerConstants.AnimatorRevolverAimPitchBlendTreeName,
+                    hideFlags = HideFlags.HideInHierarchy,
+                    blendType = BlendTreeType.Simple1D,
+                    blendParameter = CCS_CharacterControllerConstants.AnimatorRevolverAimPitchParameter,
+                    useAutomaticThresholds = false
+                };
+                AssetDatabase.AddObjectToAsset(blendTree, controller);
+                aimPitchBlendState.motion = blendTree;
+                changed = true;
+            }
+
+            if (blendTree.blendType != BlendTreeType.Simple1D)
+            {
+                blendTree.blendType = BlendTreeType.Simple1D;
+                changed = true;
+            }
+
+            if (blendTree.blendParameter != CCS_CharacterControllerConstants.AnimatorRevolverAimPitchParameter)
+            {
+                blendTree.blendParameter = CCS_CharacterControllerConstants.AnimatorRevolverAimPitchParameter;
+                changed = true;
+            }
+
+            AnimationClip downClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchDownFitTestClipPath);
+            AnimationClip centerClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchCenterFitTestClipPath);
+            AnimationClip upClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.RevolverAimPitchUpFitTestClipPath);
+            if (downClip != null && centerClip != null && upClip != null)
+            {
+                changed |= EnsureAimPitchBlendTreeChildren(blendTree, downClip, centerClip, upClip);
+            }
+
+            return aimPitchBlendState;
+        }
+
+        private static bool EnsureAimPitchBlendTreeChildren(
+            BlendTree blendTree,
+            AnimationClip downClip,
+            AnimationClip centerClip,
+            AnimationClip upClip)
+        {
+            ChildMotion[] children =
+            {
+                new ChildMotion { motion = downClip, threshold = -1f, timeScale = 1f },
+                new ChildMotion { motion = centerClip, threshold = 0f, timeScale = 1f },
+                new ChildMotion { motion = upClip, threshold = 1f, timeScale = 1f },
+            };
+
+            if (BlendTreeChildrenMatch(blendTree.children, children))
+            {
+                return false;
+            }
+
+            blendTree.children = children;
+            return true;
         }
 
         #endregion

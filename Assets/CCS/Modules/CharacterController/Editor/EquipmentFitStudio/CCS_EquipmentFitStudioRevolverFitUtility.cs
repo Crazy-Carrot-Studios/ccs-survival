@@ -86,10 +86,66 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 CCS_EquipmentConstants.RevolverM1879RightHandGripPosePath);
         }
 
-        public static bool SaveRevolverAttachmentFitProfile(string socketId, Transform socketTransform)
+        public static bool ApplyRevolverAttachmentFitProfile(
+            string socketId,
+            GameObject playerRoot,
+            CCS_EquipmentFitStudioFitTarget fitTarget)
+        {
+            CCS_WeaponAttachmentFitProfile profile = LoadRevolverAttachmentFitProfile(socketId);
+            if (profile == null || playerRoot == null)
+            {
+                return false;
+            }
+
+            CCS_EquipmentSocketRegistry registry = playerRoot.GetComponent<CCS_EquipmentSocketRegistry>();
+            if (registry == null || !registry.TryGetSocket(socketId, out Transform socketTransform))
+            {
+                return false;
+            }
+
+            string attachmentRootName =
+                CCS_EquipmentFitStudioPreviewAttachmentUtility.GetAttachmentRootObjectName(fitTarget);
+            return CCS_EquipmentFitStudioPreviewAttachmentUtility.TryApplyProfileToPreviewAttachment(
+                playerRoot,
+                socketTransform,
+                socketId,
+                profile,
+                attachmentRootName);
+        }
+
+        public static bool ApplyRevolverAttachmentFitProfile(string socketId, Transform socketTransform)
+        {
+            if (socketTransform == null)
+            {
+                return false;
+            }
+
+            GameObject playerRoot = socketTransform.root != null ? socketTransform.root.gameObject : null;
+            CCS_EquipmentFitStudioFitTarget fitTarget =
+                socketId == CCS_EquipmentConstants.HandSocketRightId
+                    ? CCS_EquipmentFitStudioFitTarget.EquippedItem
+                    : CCS_EquipmentFitStudioFitTarget.HolsteredItem;
+            return ApplyRevolverAttachmentFitProfile(socketId, playerRoot, fitTarget);
+        }
+
+        public static bool SaveRevolverAttachmentFitProfile(
+            string socketId,
+            GameObject playerRoot,
+            Transform attachmentRoot)
         {
             string path = GetRevolverAttachmentFitProfilePath(socketId);
-            if (string.IsNullOrEmpty(path) || socketTransform == null)
+            if (string.IsNullOrEmpty(path) || playerRoot == null || attachmentRoot == null)
+            {
+                return false;
+            }
+
+            if (!CCS_EquipmentFitStudioPreviewAttachmentUtility.TryCaptureProfileFromPreviewAttachment(
+                    playerRoot,
+                    socketId,
+                    attachmentRoot,
+                    out Vector3 profilePosition,
+                    out Vector3 profileEuler,
+                    out Vector3 profileScale))
             {
                 return false;
             }
@@ -108,26 +164,35 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 socketId);
             profile.ApplySocketTransform(
                 profile.ProfileId,
-                socketTransform.localPosition,
-                socketTransform.localEulerAngles,
-                socketTransform.localScale);
+                profilePosition,
+                profileEuler,
+                profileScale);
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
             return true;
         }
 
-        public static bool ApplyRevolverAttachmentFitProfile(string socketId, Transform socketTransform)
+        public static bool SaveRevolverAttachmentFitProfile(string socketId, Transform socketTransform)
         {
-            CCS_WeaponAttachmentFitProfile profile = LoadRevolverAttachmentFitProfile(socketId);
-            if (profile == null || socketTransform == null)
+            if (socketTransform == null)
             {
                 return false;
             }
 
-            socketTransform.localPosition = profile.SocketLocalPosition;
-            socketTransform.localRotation = Quaternion.Euler(profile.SocketLocalEulerAngles);
-            socketTransform.localScale = profile.SocketLocalScale;
-            return true;
+            GameObject playerRoot = socketTransform.root != null ? socketTransform.root.gameObject : null;
+            string attachmentRootName =
+                socketId == CCS_EquipmentConstants.HandSocketRightId
+                    ? CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName
+                    : CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName;
+            Transform attachmentRoot = socketTransform.Find(attachmentRootName);
+            if (attachmentRoot == null)
+            {
+                attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(
+                    socketTransform,
+                    attachmentRootName);
+            }
+
+            return SaveRevolverAttachmentFitProfile(socketId, playerRoot, attachmentRoot);
         }
 
         public static bool SaveRevolverAimIkPoseProfile(Transform ikTargetsRoot)

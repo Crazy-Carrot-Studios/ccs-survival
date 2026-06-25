@@ -18,7 +18,7 @@ namespace CCS.Modules.CharacterController
 
         bool ShouldDriveLocalCamera { get; }
 
-        bool WantsFirstPersonAimCamera { get; }
+        bool WantsAimOverShoulderCamera { get; }
 
         byte CarryStateValue { get; }
     }

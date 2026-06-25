@@ -401,33 +401,22 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             }
             else
             {
-                DrawRevampedTransformFields(socketTransform);
+                Transform attachmentRoot = GetPreviewAttachmentRootTransform();
+                if (attachmentRoot == null)
+                {
+                    string attachmentRootName =
+                        CCS_EquipmentFitStudioPreviewAttachmentUtility.GetAttachmentRootObjectName(state.FitTarget);
+                    attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(
+                        socketTransform,
+                        attachmentRootName);
+                }
+
+                DrawWeaponRotationTransformPanel(attachmentRoot);
                 DrawRevampedProfileInfo(socketTransform);
             }
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
-        }
-
-        private void DrawRevampedTransformFields(Transform socketTransform)
-        {
-            Vector3 position = socketTransform.localPosition;
-            Vector3 euler = socketTransform.localEulerAngles;
-            Vector3 scale = socketTransform.localScale;
-
-            EditorGUI.BeginChangeCheck();
-            position = EditorGUILayout.Vector3Field("Local Position", position);
-            euler = EditorGUILayout.Vector3Field("Local Rotation", euler);
-            scale = EditorGUILayout.Vector3Field("Local Scale", scale);
-            if (EditorGUI.EndChangeCheck())
-            {
-                socketTransform.localPosition = position;
-                socketTransform.localRotation = Quaternion.Euler(euler);
-                socketTransform.localScale = scale;
-                previewItem.EnforceZeroedTransform();
-            }
-
-            DrawRevampedNudgeControls(ref position, ref euler, ref scale, socketTransform);
         }
 
         private void DrawRevampedProfileInfo(Transform socketTransform)
@@ -449,42 +438,6 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             EditorGUILayout.LabelField(
                 "Last Saved",
                 string.IsNullOrEmpty(state.LastSavedDisplay) ? "Not saved" : state.LastSavedDisplay);
-        }
-
-        private void DrawRevampedNudgeControls(
-            ref Vector3 position,
-            ref Vector3 euler,
-            ref Vector3 scale,
-            Transform socketTransform)
-        {
-            state.NudgeStepIndex = EditorGUILayout.Popup(
-                "Step Size",
-                state.NudgeStepIndex,
-                NudgeStepLabels);
-            float step = NudgeStepValues[Mathf.Clamp(state.NudgeStepIndex, 0, NudgeStepValues.Length - 1)];
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+X")) position.x += step;
-            if (GUILayout.Button("-X")) position.x -= step;
-            if (GUILayout.Button("+Y")) position.y += step;
-            if (GUILayout.Button("-Y")) position.y -= step;
-            if (GUILayout.Button("+Z")) position.z += step;
-            if (GUILayout.Button("-Z")) position.z -= step;
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+Rot X")) euler.x += step * 10f;
-            if (GUILayout.Button("-Rot X")) euler.x -= step * 10f;
-            if (GUILayout.Button("+Rot Y")) euler.y += step * 10f;
-            if (GUILayout.Button("-Rot Y")) euler.y -= step * 10f;
-            if (GUILayout.Button("+Rot Z")) euler.z += step * 10f;
-            if (GUILayout.Button("-Rot Z")) euler.z -= step * 10f;
-            EditorGUILayout.EndHorizontal();
-
-            socketTransform.localPosition = position;
-            socketTransform.localRotation = Quaternion.Euler(euler);
-            socketTransform.localScale = scale;
-            previewItem.EnforceZeroedTransform();
         }
 
         private void DrawRevampedBottomActionBar()
@@ -704,6 +657,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             previewCamera.SetFrameContext(state.PlayerRoot, state.SelectedSocketId);
             selectedCameraPresetIndex = 0;
             InitializePendingBaselineFromProfile();
+            SyncPendingFromAttachmentRoot(GetPreviewAttachmentRootTransform());
             SetStatus(
                 "Preview loaded for "
                 + CCS_EquipmentFitStudioFitTargetRoutingUtility.FitTargetLabels[(int)state.FitTarget]
@@ -732,21 +686,18 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private bool IsRevampedProfileDirty()
         {
-            Transform socketTransform = GetSelectedSocketTransform();
+            Transform attachmentRoot = GetPreviewAttachmentRootTransform();
             CCS_WeaponAttachmentFitProfile profile = state.SelectedAttachmentFitProfile;
-            if (socketTransform == null || profile == null)
+            if (attachmentRoot == null || profile == null)
             {
                 return state.HasPendingSaveCapture;
             }
 
-            return !Approximately(socketTransform.localPosition, profile.SocketLocalPosition)
-                || !Approximately(socketTransform.localEulerAngles, profile.SocketLocalEulerAngles)
-                || !Approximately(socketTransform.localScale, profile.SocketLocalScale);
-        }
-
-        private static bool Approximately(Vector3 a, Vector3 b)
-        {
-            return Vector3.Distance(a, b) < 0.0005f;
+            return !CCS_EquipmentFitStudioPreviewAttachmentUtility.AttachmentRootMatchesProfile(
+                state.PlayerRoot,
+                state.SelectedSocketId,
+                attachmentRoot,
+                profile);
         }
 
         private bool CanSaveRevampedProfile()
@@ -807,6 +758,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 + " | Rot " + FormatVector(saveResult.Rotation)
                 + " | Scale " + FormatVector(saveResult.Scale);
             InitializePendingBaselineFromProfile();
+            SyncPendingFromAttachmentRoot(GetPreviewAttachmentRootTransform());
             SetStatus(state.LastSaveConfirmationMessage, MessageType.Info);
         }
 
@@ -818,26 +770,41 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private void ResetProfileOffsetToDefaultSeed()
         {
             Transform socketTransform = GetSelectedSocketTransform();
-            if (socketTransform == null)
+            Transform attachmentRoot = GetPreviewAttachmentRootTransform();
+            if (socketTransform == null || attachmentRoot == null || state.PlayerRoot == null)
             {
                 return;
             }
 
             if (state.FitTarget == CCS_EquipmentFitStudioFitTarget.HolsteredItem)
             {
-                socketTransform.localPosition = CCS_EquipmentFitProfilePersistenceUtility.RightHipHolsterSeedPosition;
-                socketTransform.localRotation = Quaternion.Euler(
-                    CCS_EquipmentFitProfilePersistenceUtility.RightHipHolsterSeedEuler);
-                socketTransform.localScale = Vector3.one;
+                CCS_WeaponAttachmentFitProfile seedProfile = ScriptableObject.CreateInstance<CCS_WeaponAttachmentFitProfile>();
+                seedProfile.ApplySocketTransform(
+                    state.SelectedSocketId,
+                    CCS_EquipmentFitProfilePersistenceUtility.RightHipHolsterSeedPosition,
+                    CCS_EquipmentFitProfilePersistenceUtility.RightHipHolsterSeedEuler,
+                    Vector3.one);
+                CCS_EquipmentFitStudioPreviewAttachmentUtility.TryApplyProfileToPreviewAttachment(
+                    state.PlayerRoot,
+                    socketTransform,
+                    state.SelectedSocketId,
+                    seedProfile,
+                    CCS_EquipmentFitStudioPreviewAttachmentUtility.GetAttachmentRootObjectName(state.FitTarget));
+                Object.DestroyImmediate(seedProfile);
             }
             else
             {
-                socketTransform.localPosition = Vector3.zero;
-                socketTransform.localRotation = Quaternion.identity;
-                socketTransform.localScale = Vector3.one;
+                CCS_EquipmentFitStudioRevolverFitUtility.ApplyRevolverAttachmentFitProfile(
+                    state.SelectedSocketId,
+                    state.PlayerRoot,
+                    state.FitTarget);
+                attachmentRoot.localPosition = Vector3.zero;
+                attachmentRoot.localRotation = Quaternion.identity;
+                attachmentRoot.localScale = Vector3.one;
             }
 
             previewItem.EnforceZeroedTransform();
+            SyncPendingFromAttachmentRoot(attachmentRoot);
             SetStatus("Reset profile offset to default seed. Save Profile to persist.", MessageType.Warning);
         }
 

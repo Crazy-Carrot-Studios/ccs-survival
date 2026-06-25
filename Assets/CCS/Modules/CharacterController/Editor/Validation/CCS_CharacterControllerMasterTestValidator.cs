@@ -114,6 +114,8 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidateMasterTestSpawnSetup(failures);
 
+            ValidateTestingManagerAndRecordingAmbience(failures);
+
             ValidateJoinNotificationFeed(failures);
 
             ValidatePlayerPrefabAssets(failures);
@@ -142,6 +144,10 @@ namespace CCS.Modules.CharacterController.Editor
             AppendValidationResult(
                 failures,
                 CCS.Modules.CharacterController.Editor.EquipmentFitStudio.CCS_EquipmentFitStudioValidationUtility.ValidateEquipmentFitStudioFoundation());
+
+            AppendValidationResult(
+                failures,
+                CCS.Modules.CharacterController.Editor.AnimationFitStudio.CCS_AnimationFitStudioValidationUtility.ValidateAnimationFitStudioCore());
 
             AppendValidationResult(
                 failures,
@@ -1505,6 +1511,223 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateSoloSpawnUsesSharedPrefabContracts(failures);
         }
 
+        private static void ValidateTestingManagerAndRecordingAmbience(List<string> failures)
+        {
+            Transform testingManagerTransform = FindRootTransform(
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName);
+            AppendIfMissing(
+                failures,
+                testingManagerTransform != null,
+                "Scene is missing "
+                + CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName
+                + ".");
+
+            Transform ambientAudioTransform = FindRootTransform(
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName);
+            AppendIfMissing(
+                failures,
+                ambientAudioTransform != null,
+                "Scene is missing "
+                + CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
+                + ".");
+
+            if (testingManagerTransform == null || ambientAudioTransform == null)
+            {
+                return;
+            }
+
+            CCS_MasterTestSceneTestingManager testingManager =
+                testingManagerTransform.GetComponent<CCS_MasterTestSceneTestingManager>();
+            AppendIfMissing(
+                failures,
+                testingManager != null,
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName
+                + " must contain CCS_MasterTestSceneTestingManager.");
+
+            AudioSource audioSource = ambientAudioTransform.GetComponent<AudioSource>();
+            AppendIfMissing(
+                failures,
+                audioSource != null,
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
+                + " must contain AudioSource.");
+
+            CCS_AmbientAudioPlaylist ambientPlaylist =
+                ambientAudioTransform.GetComponent<CCS_AmbientAudioPlaylist>();
+            AppendIfMissing(
+                failures,
+                ambientPlaylist != null,
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
+                + " must contain CCS_AmbientAudioPlaylist.");
+
+            if (testingManager == null || ambientPlaylist == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedManager = new SerializedObject(testingManager);
+            SerializedProperty ambienceEnabledProperty = serializedManager.FindProperty("enableRecordingAmbience");
+            SerializedProperty playlistReferenceProperty = serializedManager.FindProperty("ambientAudioPlaylist");
+            AppendIfMissing(
+                failures,
+                ambienceEnabledProperty != null && ambienceEnabledProperty.boolValue,
+                "CCS_MasterTestSceneTestingManager.enableRecordingAmbience must default to true.");
+            AppendIfMissing(
+                failures,
+                playlistReferenceProperty != null && playlistReferenceProperty.objectReferenceValue == ambientPlaylist,
+                "CCS_MasterTestSceneTestingManager must reference the scene CCS_AmbientAudioPlaylist.");
+
+            SerializedObject serializedPlaylist = new SerializedObject(ambientPlaylist);
+            SerializedProperty playlistClipsProperty = serializedPlaylist.FindProperty("playlist");
+            SerializedProperty volumeProperty = serializedPlaylist.FindProperty("volume");
+            SerializedProperty playOnStartProperty = serializedPlaylist.FindProperty("playOnStart");
+            SerializedProperty repeatProperty = serializedPlaylist.FindProperty("repeatPlaylist");
+
+            if (volumeProperty != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    volumeProperty.floatValue > 0f,
+                    "Recording ambience playlist volume must be > 0.");
+                AppendIfMissing(
+                    failures,
+                    volumeProperty.floatValue <= CCS_ProjectAudioConstants.MasterTestRecordingPlaylistMaxValidatedVolume,
+                    "Recording ambience playlist volume must be <= "
+                    + CCS_ProjectAudioConstants.MasterTestRecordingPlaylistMaxValidatedVolume.ToString("0.##")
+                    + ".");
+            }
+
+            AppendIfMissing(
+                failures,
+                playOnStartProperty == null || !playOnStartProperty.boolValue,
+                "Recording ambience playlist must be controlled by CCS_MasterTestSceneTestingManager (playOnStart false).");
+            AppendIfMissing(
+                failures,
+                repeatProperty == null || repeatProperty.boolValue,
+                "Recording ambience playlist must repeat clip 1 -> clip 2.");
+
+            if (audioSource != null)
+            {
+                AppendIfMissing(
+                    failures,
+                    !audioSource.loop,
+                    "Recording ambience AudioSource.loop must be false.");
+                AppendIfMissing(
+                    failures,
+                    audioSource.spatialBlend <= 0.001f,
+                    "Recording ambience AudioSource must be 2D (spatialBlend 0).");
+            }
+
+            if (playlistClipsProperty != null && playlistClipsProperty.isArray)
+            {
+                AppendIfMissing(
+                    failures,
+                    playlistClipsProperty.arraySize == 2,
+                    "Recording ambience playlist must contain exactly two clips.");
+
+                if (playlistClipsProperty.arraySize >= 2)
+                {
+                    Object firstClip = playlistClipsProperty.GetArrayElementAtIndex(0).objectReferenceValue;
+                    Object secondClip = playlistClipsProperty.GetArrayElementAtIndex(1).objectReferenceValue;
+                    bool firstMissing = firstClip == null;
+                    bool secondMissing = secondClip == null;
+
+                    if (!File.Exists(CCS_ProjectAudioConstants.WesternGame2ClipPath)
+                        || !File.Exists(CCS_ProjectAudioConstants.WesternTheme7ClipPath))
+                    {
+                        Debug.LogWarning(
+                            "[Master Test Validation] Recording ambience clip files are missing under "
+                            + CCS_ProjectAudioConstants.AmbienceRootPath
+                            + ". Copy clips before Play Mode.");
+                    }
+
+                    if (firstMissing || secondMissing)
+                    {
+                        failures.Add(
+                            "Recording ambience playlist references missing clip assets. Re-run Master Test setup after importing ambience clips.");
+                    }
+                }
+            }
+
+            string testingManagerSourcePath =
+                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs";
+            string playlistSourcePath = "Assets/CCS/Project/Runtime/Audio/CCS_AmbientAudioPlaylist.cs";
+            if (File.Exists(testingManagerSourcePath))
+            {
+                string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
+                AppendIfMissing(
+                    failures,
+                    testingManagerSource.Contains("SetRecordingAmbienceEnabled")
+                        && testingManagerSource.Contains("ApplyTestingSettings"),
+                    "CCS_MasterTestSceneTestingManager must expose ambience toggle methods.");
+            }
+
+            if (File.Exists(playlistSourcePath))
+            {
+                string playlistSource = File.ReadAllText(playlistSourcePath);
+                AppendIfMissing(
+                    failures,
+                    playlistSource.Contains("SetPlaylistEnabled")
+                        && playlistSource.Contains("StopPlaylist")
+                        && playlistSource.Contains("audioSource.volume = volume"),
+                    "CCS_AmbientAudioPlaylist must restore AudioSource volume and support manager enable/disable control.");
+            }
+
+            if (testingManager != null)
+            {
+                SerializedProperty armIkProperty = serializedManager.FindProperty("enableArmToReticleIK");
+                SerializedProperty convergenceProperty = serializedManager.FindProperty("enableVisualAimConvergence");
+                SerializedProperty reticleModeProperty = serializedManager.FindProperty("reticleMode");
+                SerializedProperty reticleClampProperty = serializedManager.FindProperty("enableReticleClamp");
+                SerializedProperty maxDriftProperty = serializedManager.FindProperty("maxReticleDriftPixels");
+                SerializedProperty aimDebugRaysProperty = serializedManager.FindProperty("enableAimDebugRays");
+
+                AppendIfMissing(
+                    failures,
+                    armIkProperty == null || !armIkProperty.boolValue,
+                    "CCS_MasterTestSceneTestingManager.enableArmToReticleIK must default to false.");
+                AppendIfMissing(
+                    failures,
+                    convergenceProperty == null || !convergenceProperty.boolValue,
+                    "CCS_MasterTestSceneTestingManager.enableVisualAimConvergence must default to false.");
+                AppendIfMissing(
+                    failures,
+                    reticleModeProperty == null
+                        || reticleModeProperty.enumValueIndex == (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift,
+                    "CCS_MasterTestSceneTestingManager.reticleMode must default to HybridCameraCenterWithMuzzleDrift.");
+                AppendIfMissing(
+                    failures,
+                    reticleClampProperty == null || reticleClampProperty.boolValue,
+                    "CCS_MasterTestSceneTestingManager.enableReticleClamp must default to true.");
+                AppendIfMissing(
+                    failures,
+                    maxDriftProperty == null
+                        || Mathf.Approximately(
+                            maxDriftProperty.floatValue,
+                            CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault),
+                    "CCS_MasterTestSceneTestingManager.maxReticleDriftPixels must default to "
+                    + CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault.ToString("0.##")
+                    + ".");
+                AppendIfMissing(
+                    failures,
+                    aimDebugRaysProperty == null || !aimDebugRaysProperty.boolValue,
+                    "CCS_MasterTestSceneTestingManager.enableAimDebugRays must default to false.");
+            }
+
+            if (File.Exists(testingManagerSourcePath))
+            {
+                string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
+                AppendIfMissing(
+                    failures,
+                    testingManagerSource.Contains("enableArmToReticleIK")
+                        && testingManagerSource.Contains("reticleMode"),
+                    "CCS_MasterTestSceneTestingManager must expose Master Test aim visual toggles.");
+                AppendIfMissing(
+                    failures,
+                    !testingManagerSource.Contains("ConfigureThirdPersonAimPitchBlend"),
+                    "CCS_MasterTestSceneTestingManager must not configure removed RevolverAimPitch flow.");
+            }
+        }
+
 
 
         private static void ValidatePlayerCameraPivotPrefab(List<string> failures, string prefabPath)
@@ -2393,11 +2616,41 @@ namespace CCS.Modules.CharacterController.Editor
                     + ".");
             }
 
-            if (aimProfile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight
-                || aimProfile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.CameraPitchTargetMaximumLocalHeight)
+            if (Mathf.Abs(
+                    aimProfile.ThirdPersonCameraDistance
+                        - CCS_CharacterControllerConstants.AimCameraDistanceLegacyLoose)
+                < 0.05f)
             {
-                failures.Add("Aim camera profile tracking target height must be between 1.40 and 1.60.");
+                failures.Add(
+                    "Aim camera profile distance must not revert to legacy ~2.5 preset; use tightened AimOverShoulder tuning.");
             }
+
+            ValidateTunedCameraFloat(
+                failures,
+                "AimOverShoulder profile",
+                aimProfile.ThirdPersonCameraDistance,
+                CCS_CharacterControllerConstants.AimCameraDistanceTuned,
+                CCS_CharacterControllerConstants.AimCameraDistanceMinimum,
+                CCS_CharacterControllerConstants.AimCameraDistanceMaximum);
+
+            if (aimProfile.TrackingTargetLocalHeight < CCS_CharacterControllerConstants.AimCameraTrackingHeightMinimum
+                || aimProfile.TrackingTargetLocalHeight > CCS_CharacterControllerConstants.AimCameraTrackingHeightMaximum)
+            {
+                failures.Add(
+                    "Aim camera profile tracking target height must be between "
+                    + CCS_CharacterControllerConstants.AimCameraTrackingHeightMinimum
+                    + " and "
+                    + CCS_CharacterControllerConstants.AimCameraTrackingHeightMaximum
+                    + ".");
+            }
+
+            ValidateTunedCameraFloat(
+                failures,
+                "AimOverShoulder profile height",
+                aimProfile.TrackingTargetLocalHeight,
+                CCS_CharacterControllerConstants.AimCameraTrackingHeightTuned,
+                CCS_CharacterControllerConstants.AimCameraTrackingHeightMinimum,
+                CCS_CharacterControllerConstants.AimCameraTrackingHeightMaximum);
 
             if (aimProfile.ThirdPersonVerticalArmLength < CCS_CharacterControllerConstants.AimVerticalArmLengthMinimum
                 || aimProfile.ThirdPersonVerticalArmLength > CCS_CharacterControllerConstants.AimVerticalArmLengthMaximum)
@@ -2442,6 +2695,22 @@ namespace CCS.Modules.CharacterController.Editor
                     + CCS_CharacterControllerConstants.AimCameraFieldOfViewMaximum
                     + ".");
             }
+
+            ValidateTunedCameraFloat(
+                failures,
+                "AimOverShoulder profile FOV",
+                aimProfile.FieldOfView,
+                CCS_CharacterControllerConstants.AimCameraFieldOfViewTuned,
+                CCS_CharacterControllerConstants.AimCameraFieldOfViewMinimum,
+                CCS_CharacterControllerConstants.AimCameraFieldOfViewMaximum);
+
+            ValidateTunedCameraFloat(
+                failures,
+                "AimOverShoulder profile shoulder X",
+                aimProfile.ThirdPersonShoulderOffset.x,
+                CCS_CharacterControllerConstants.AimCameraShoulderOffsetXTuned,
+                CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum,
+                CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum);
 
             if (aimProfile.AimBlendDurationSeconds < CCS_CharacterControllerConstants.AimCameraBlendMinimumSeconds
                 || aimProfile.AimBlendDurationSeconds > CCS_CharacterControllerConstants.AimCameraBlendMaximumSeconds)
@@ -2491,10 +2760,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures.Add("Aim camera profile default pitch must be 0 for neutral spawn framing.");
             }
 
-            if (Mathf.Abs(aimProfile.VerticalOrbitMin - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMin) > 0.01f
-                || Mathf.Abs(aimProfile.VerticalOrbitMax - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedVerticalOrbitMax) > 0.01f)
+            if (Mathf.Abs(aimProfile.VerticalOrbitMin - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedAimVerticalOrbitMin) > 0.01f
+                || Mathf.Abs(aimProfile.VerticalOrbitMax - CCS_CharacterControllerMasterTestLayoutConstants.ExpectedAimVerticalOrbitMax) > 0.01f)
             {
-                failures.Add("Aim camera profile pitch limits must be -45 to 70.");
+                failures.Add("Aim camera profile pitch limits must be -35 to 55.");
             }
         }
 
@@ -3015,10 +3284,24 @@ namespace CCS.Modules.CharacterController.Editor
                         CCS_CharacterControllerConstants.AimCameraDistanceMinimum,
                         CCS_CharacterControllerConstants.AimCameraDistanceMaximum);
 
-                    if (aimThirdPersonFollow.ShoulderOffset.x < 0.50f || aimThirdPersonFollow.ShoulderOffset.x > 0.70f)
+                    if (aimThirdPersonFollow.ShoulderOffset.x < CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum
+                        || aimThirdPersonFollow.ShoulderOffset.x > CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum)
                     {
-                        failures.Add("Aim camera shoulder offset X must be between 0.50 and 0.70 for right-shoulder framing.");
+                        failures.Add(
+                            "Aim camera shoulder offset X must be between "
+                            + CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum
+                            + " and "
+                            + CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum
+                            + " for right-shoulder framing.");
                     }
+
+                    ValidateTunedCameraFloat(
+                        failures,
+                        "CinemachineCamera_Aim shoulder X",
+                        aimThirdPersonFollow.ShoulderOffset.x,
+                        CCS_CharacterControllerConstants.AimCameraShoulderOffsetXTuned,
+                        CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMinimum,
+                        CCS_CharacterControllerConstants.AimCameraShoulderOffsetXMaximum);
 
 #if CINEMACHINE_PHYSICS
                     ValidateCinemachineCollisionFilter(failures, aimThirdPersonFollow, "CinemachineCamera_Aim");

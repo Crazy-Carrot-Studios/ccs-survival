@@ -38,16 +38,16 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         #region Public Methods
 
-        public bool TrySpawnUnderSocket(
-            Transform socketTransform,
+        public bool TrySpawnUnderAttachmentRoot(
+            Transform attachmentRoot,
             GameObject previewSourcePrefab,
             out string errorMessage)
         {
             errorMessage = string.Empty;
             DestroyPreview();
-            if (socketTransform == null)
+            if (attachmentRoot == null)
             {
-                errorMessage = "Preview failed: selected socket transform not found on player.";
+                errorMessage = "Preview failed: preview attachment root not found.";
                 return false;
             }
 
@@ -61,10 +61,30 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             previewRoot = Object.Instantiate(visualSource);
             previewRoot.name = CCS_EquipmentConstants.EditorPreviewItemObjectName;
             previewRoot.hideFlags = HideFlags.DontSave;
-            previewRoot.transform.SetParent(socketTransform, false);
+            previewRoot.transform.SetParent(attachmentRoot, false);
             CCS_EquipmentFitStudioVisualSourceUtility.StripGameplayComponents(previewRoot);
             ResetPreviewItemToZero();
             return true;
+        }
+
+        public bool TrySpawnUnderSocket(
+            Transform socketTransform,
+            GameObject previewSourcePrefab,
+            out string errorMessage)
+        {
+            errorMessage = "Spawn preview under attachment root. Resolve attachment root before calling TrySpawnUnderAttachmentRoot.";
+            if (socketTransform == null)
+            {
+                errorMessage = "Preview failed: socket transform not found.";
+                return false;
+            }
+
+            return false;
+        }
+
+        public bool SpawnUnderAttachmentRoot(Transform attachmentRoot, GameObject previewSourcePrefab)
+        {
+            return TrySpawnUnderAttachmentRoot(attachmentRoot, previewSourcePrefab, out _);
         }
 
         public bool SpawnUnderSocket(Transform socketTransform, GameObject previewSourcePrefab)

@@ -49,7 +49,7 @@ namespace CCS.Modules.Weapons
 
         public bool ShouldDriveLocalCamera => ShouldDriveLocalCameraInternal();
 
-        public bool WantsFirstPersonAimCamera => CanUseFirearmAimCamera;
+        public bool WantsAimOverShoulderCamera => CanUseFirearmAimCamera;
 
         public byte CarryStateValue => (byte)CarryState;
 

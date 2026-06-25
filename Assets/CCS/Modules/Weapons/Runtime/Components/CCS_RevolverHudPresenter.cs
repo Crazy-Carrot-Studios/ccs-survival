@@ -1,3 +1,4 @@
+using CCS.Modules.CharacterController;
 using TMPro;
 
 
@@ -52,6 +53,11 @@ namespace CCS.Modules.Weapons
 
         [SerializeField] private bool showReticleWhileAiming = true;
 
+        [SerializeField] private bool useMuzzleDrivenScreenPosition;
+
+        private Vector2 centerLockedAnchoredPosition;
+        private bool capturedCenterLockedAnchoredPosition;
+
         [SerializeField] private float statusFlashSeconds = 0.75f;
 
         [SerializeField] private int lowAmmoThreshold = CCS_WeaponsConstants.WeaponHudLowAmmoThreshold;
@@ -89,6 +95,8 @@ namespace CCS.Modules.Weapons
                 revolverController = GetComponentInParent<CCS_RevolverController>();
 
             }
+
+            ApplyReticleAppearance();
 
         }
 
@@ -137,6 +145,8 @@ namespace CCS.Modules.Weapons
 
 
             SetReticleVisible(false);
+
+            ApplyReticleAppearance();
 
         }
 
@@ -194,7 +204,76 @@ namespace CCS.Modules.Weapons
 
         public Vector2 GetReticleViewportPoint()
         {
+            if (useMuzzleDrivenScreenPosition)
+            {
+                Camera activeCamera = CCS_CharacterMovementCameraContext.HasActiveCamera
+                    ? CCS_CharacterMovementCameraContext.ActiveCamera
+                    : Camera.main;
+                if (activeCamera != null && reticleImage != null)
+                {
+                    Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(
+                        activeCamera,
+                        reticleImage.rectTransform.position);
+                    return new Vector2(
+                        screenPoint.x / Mathf.Max(1f, activeCamera.pixelWidth),
+                        screenPoint.y / Mathf.Max(1f, activeCamera.pixelHeight));
+                }
+            }
+
             return reticleViewportPoint;
+        }
+
+        public RectTransform ReticleRectTransform => reticleImage != null ? reticleImage.rectTransform : null;
+
+        public void SetMuzzleDrivenReticleActive(bool active)
+        {
+            if (active == useMuzzleDrivenScreenPosition)
+            {
+                return;
+            }
+
+            useMuzzleDrivenScreenPosition = active;
+            if (!active)
+            {
+                ResetReticleToCenterLocked();
+            }
+        }
+
+        public void SetReticleScreenPosition(Vector2 screenPosition, bool visible)
+        {
+            if (reticleImage == null)
+            {
+                return;
+            }
+
+            Canvas canvas = reticleImage.GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                return;
+            }
+
+            CaptureCenterLockedAnchoredPosition();
+            Camera canvasCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvas.transform as RectTransform,
+                    screenPosition,
+                    canvasCamera,
+                    out Vector2 localPoint))
+            {
+                reticleImage.rectTransform.anchoredPosition = localPoint;
+            }
+
+            reticleImage.enabled = visible;
+        }
+
+        public void SetReticleScreenVisible(bool visible)
+        {
+            if (reticleImage != null)
+            {
+                reticleImage.enabled = visible;
+            }
         }
 
 
@@ -329,8 +408,6 @@ namespace CCS.Modules.Weapons
 
 
 
-            SetReticleVisible(showReticleWhileAiming && stateChangedEvent.IsAiming);
-
             PulseReticleOnFireFlash();
 
         }
@@ -365,6 +442,32 @@ namespace CCS.Modules.Weapons
 
             return ammoNormalColor;
 
+        }
+
+
+
+        private void ApplyReticleAppearance()
+
+        {
+
+            if (reticleImage == null)
+
+            {
+
+                return;
+
+            }
+
+            reticleImage.color = CCS_WeaponsConstants.WeaponReticleFillColor;
+
+            Outline reticleOutline = reticleImage.GetComponent<Outline>();
+            if (reticleOutline == null)
+            {
+                reticleOutline = reticleImage.gameObject.AddComponent<Outline>();
+            }
+
+            reticleOutline.effectColor = CCS_WeaponsConstants.WeaponReticleOutlineColor;
+            reticleOutline.effectDistance = new Vector2(1f, -1f);
         }
 
 
@@ -411,7 +514,10 @@ namespace CCS.Modules.Weapons
 
             {
 
-                reticleImage.enabled = visible;
+                if (!useMuzzleDrivenScreenPosition)
+                {
+                    reticleImage.enabled = visible;
+                }
 
                 if (!visible)
 
@@ -423,6 +529,28 @@ namespace CCS.Modules.Weapons
 
             }
 
+        }
+
+        private void CaptureCenterLockedAnchoredPosition()
+        {
+            if (reticleImage == null || capturedCenterLockedAnchoredPosition)
+            {
+                return;
+            }
+
+            centerLockedAnchoredPosition = reticleImage.rectTransform.anchoredPosition;
+            capturedCenterLockedAnchoredPosition = true;
+        }
+
+        public void ResetReticleToCenterLocked()
+        {
+            CaptureCenterLockedAnchoredPosition();
+            if (reticleImage != null)
+            {
+                reticleImage.rectTransform.anchoredPosition = centerLockedAnchoredPosition;
+            }
+
+            useMuzzleDrivenScreenPosition = false;
         }
 
 
@@ -458,5 +586,3 @@ namespace CCS.Modules.Weapons
     }
 
 }
-
-

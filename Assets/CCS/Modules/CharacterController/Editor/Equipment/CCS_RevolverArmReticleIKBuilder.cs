@@ -263,6 +263,8 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
             CCS_PlayerEquipmentVisualController equipmentVisual = prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
             CCS_RevolverHudPresenter hudPresenter = prefabRoot.GetComponentInChildren<CCS_RevolverHudPresenter>(true);
+            CCS_CharacterAimLocomotionController aimLocomotion =
+                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
             CCS_RevolverDefinition revolverDefinition = AssetDatabase.LoadAssetAtPath<CCS_RevolverDefinition>(
                 CCS_WeaponsConstants.RevolverDefinitionProfilePath);
 
@@ -271,6 +273,7 @@ namespace CCS.Modules.CharacterController.Editor
             wiringChanged |= SetObjectReference(serializedIk, "animator", animator);
             wiringChanged |= SetObjectReference(serializedIk, "revolverAnimationStateComponent", revolverController);
             wiringChanged |= SetObjectReference(serializedIk, "equipmentVisualController", equipmentVisual);
+            wiringChanged |= SetObjectReference(serializedIk, "aimLocomotionController", aimLocomotion);
             wiringChanged |= SetObjectReference(serializedIk, "hudPresenter", hudPresenter);
             wiringChanged |= SetObjectReference(serializedIk, "revolverDefinition", revolverDefinition);
             wiringChanged |= SetObjectReference(serializedIk, "reticleAimWorldTarget", reticleTarget);
@@ -280,6 +283,7 @@ namespace CCS.Modules.CharacterController.Editor
             wiringChanged |= SetObjectReference(serializedIk, "rightArmTwoBoneIk", rightArmTwoBoneIk);
             wiringChanged |= SetObjectReference(serializedIk, "chestAimBias", chestAimBias);
             wiringChanged |= SetObjectReference(serializedIk, "rightShoulderAimBias", rightShoulderAimBias);
+            wiringChanged |= SetBool(serializedIk, "enableArmToReticleIK", false);
 
             if (wiringChanged)
             {
@@ -673,6 +677,18 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             property.objectReferenceValue = value;
+            return true;
+        }
+
+        private static bool SetBool(SerializedObject serializedObject, string propertyName, bool value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.propertyType != SerializedPropertyType.Boolean || property.boolValue == value)
+            {
+                return false;
+            }
+
+            property.boolValue = value;
             return true;
         }
 

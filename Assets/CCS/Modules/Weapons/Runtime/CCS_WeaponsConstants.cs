@@ -285,6 +285,10 @@ namespace CCS.Modules.Weapons
 
         public const float WeaponHudOutlineWidth = 0.22f;
 
+        public static readonly Color WeaponReticleFillColor = new Color(0.827f, 0.133f, 0.133f, 1f);
+
+        public static readonly Color WeaponReticleOutlineColor = new Color(0.02f, 0.02f, 0.02f, 1f);
+
         public static readonly Color WeaponHudAmmoNormalColor = new Color(0.08f, 0.52f, 0.12f, 1f);
 
         public static readonly Color WeaponHudAmmoLowColor = new Color(0.85f, 0.12f, 0.08f, 1f);
@@ -323,6 +327,26 @@ namespace CCS.Modules.Weapons
 
         public const string RightShoulderAimBiasConstraintObjectName = "RightShoulderAimBias";
 
+        public const string FirstPersonRevolverRightHandTargetObjectName = "CCS_FP_Revolver_RightHandTarget";
+
+        public const string FirstPersonRevolverRightElbowHintObjectName = "CCS_FP_Revolver_RightElbowHint";
+
+        public static readonly Vector3 FirstPersonRevolverRightHandTargetDefault = new Vector3(0.20f, -0.12f, 0.55f);
+
+        public static readonly Vector3 FirstPersonRevolverRightElbowHintDefault = new Vector3(0.36f, -0.28f, 0.28f);
+
+        public const float FirstPersonRevolverArmIkBlendInSecondsDefault = 0.14f;
+
+        public const float FirstPersonRevolverArmIkBlendInSecondsMinimum = 0.10f;
+
+        public const float FirstPersonRevolverArmIkBlendInSecondsMaximum = 0.18f;
+
+        public const float FirstPersonRevolverArmIkBlendOutSecondsDefault = 0.20f;
+
+        public const float FirstPersonRevolverArmIkBlendOutSecondsMinimum = 0.15f;
+
+        public const float FirstPersonRevolverArmIkBlendOutSecondsMaximum = 0.25f;
+
         public const float RevolverArmReticleIkFallbackDistanceDefault = 45f;
 
         public const float RevolverArmReticleIkFallbackDistanceMinimum = 35f;
@@ -332,5 +356,21 @@ namespace CCS.Modules.Weapons
         public const float RevolverArmReticleIkMaxHorizontalCorrectionDegrees = 10f;
 
         public const float RevolverArmReticleIkMaxVerticalCorrectionDegrees = 6f;
+
+        public const float MasterTestFirstPersonAimFovDefault = 58f;
+
+        public const float MasterTestFirstPersonAimFovMinimum = 45f;
+
+        public const float MasterTestFirstPersonAimFovMaximum = 75f;
+
+        public const float MasterTestFirstPersonAimNearClipDefault = 0.05f;
+
+        public const float MasterTestBodyAimFollowSmoothingDefault = 14f;
+
+        public const float MasterTestMuzzleReticleScreenSmoothingDefault = 18f;
+
+        public const float MasterTestMaxReticleDriftPixelsDefault = 120f;
+
+        public const float MasterTestReticleSafeScreenPaddingPixelsDefault = 32f;
     }
 }

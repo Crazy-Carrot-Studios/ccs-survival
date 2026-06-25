@@ -2,11 +2,16 @@
 
 
 
-**Version:** 0.6.9  
+**Version:** 0.6.16  
 
 **Scope:** Revolver M1879 world pickup, hitscan gameplay, equipment socket foundation, Equipment Fit Studio, revolver fit profile pack, and Master Test integration.
 
+## v0.6.16 — Simplified third-person revolver aim cleanup
 
+- Red reticle (`#D32222`) visible only during **FullDraw** aim phase.
+- Player shots use `CCS_WeaponShotResolver` with **LocalPlayerCameraCenter** default; projectile/tracer travels muzzle → resolved reticle aim point.
+- `enableMuzzleAuthoritativeShots` defaults **off** (debug-only muzzle-forward override).
+- Network-safe weapon fire/damage foundation preserved for future AI integration.
 
 ## Purpose
 
@@ -175,7 +180,9 @@ Enable `debugFireVisuals` on `CCS_RevolverFireFeedback` for one concise log line
 
 Fit profiles live at `Assets/CCS/Modules/CharacterController/Profiles/EquipmentFitting/RevolverM1879/`. Tune via **Equipment Fit Studio** (Editor Mode only).
 
-**v0.6.11 animation note:** default exploration uses third-person survival camera. RMB firearm aim switches the **local owner** to fixed-anchor `FirstPersonAim`. Weapon hand fit profiles are unchanged. Wild West one-handed revolver aim/fire clips drive the `RevolverUpperBody` layer only; legacy two-handed clips and the preview layer are removed from active runtime.
+**v0.6.15 third-person revolver aim:** default exploration uses third-person survival camera. RMB firearm aim switches the **local owner** to `AimOverShoulder` (`CinemachineCamera_Aim`) — first-person aim is removed from the active Master Test flow. `RevolverAimPitch` upper-body blend drives aim up/down from camera pitch. Weapon hand fit profiles are unchanged. Arm-to-reticle IK and visual aim convergence default **off**.
+
+**v0.6.15 Animation Fit Studio (test):** editor-only Animation Fit Studio saves pose edits to `<SourceClipName>_FitTest.anim` under `WildWest/Edited/` without modifying source clips. Aim Pitch — Down/Center/Up pose sources save only the selected FitTest clip. **Save FitTest Pose** does **not** wire the Animator Controller — a separate animation isolation builder pass wires runtime aim pitch blend. Weapon remains parented to hand socket attachment root; fit profiles are not modified.
 
 See [CCS Equipment Fit Studio](../../CharacterController/Documentation/CCS_Equipment_Fit_Studio.md).
 

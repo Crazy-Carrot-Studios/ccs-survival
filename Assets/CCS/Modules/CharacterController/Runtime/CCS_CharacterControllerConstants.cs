@@ -38,6 +38,25 @@ namespace CCS.Modules.CharacterController
 
         public const string CombatRevolverAnimationsPath = ContentAnimationsRootPath + "/Combat/Revolver";
 
+        public const string RevolverAimAnimationsPath = ContentAnimationsRootPath + "/Combat/Aiming/Revolver";
+
+        public const string RevolverAimMasksPath = ContentAnimationsRootPath + "/Masks";
+
+        public const string RevolverAimRightArmMaskLegacyPath =
+            RevolverAimMasksPath + "/AM_CCS_Revolver_RightArm_Aim.mask";
+
+        public const string RevolverAimRightArmMaskPath =
+            RevolverAimMasksPath + "/AM_CCS_Revolver_UpperBodyRightArm_Aim.mask";
+
+        public const string RevolverIdleToAimClipPath =
+            RevolverAimAnimationsPath + "/CCS_WW_Revolver_IdleToAim.anim";
+
+        public const string RevolverAimIdleFullDrawClipPath =
+            RevolverAimAnimationsPath + "/CCS_WW_Revolver_AimIdle_FullDraw.anim";
+
+        public const string RevolverReloadIdleRhFutureClipPath =
+            RevolverAimAnimationsPath + "/CCS_WW_Revolver_Reload_Idle_RH.anim";
+
         public const string AimStrafeAnimationsPath = ContentAnimationsRootPath + "/Combat/AimStrafe";
 
         public const string AimStrafeWalkFwdClipPath = AimStrafeAnimationsPath + "/CCS_AimStrafe_WalkFwd.anim";
@@ -77,14 +96,12 @@ namespace CCS.Modules.CharacterController
         public const string WildWestRevolverRightArmMaskPath =
             WildWestRevolverAnimationsPath + "/CCS_Revolver_RightArm_UpperBody.mask";
 
-        public const string WildWestRevolverAimIdleFullDrawClipPath =
-            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimIdle_FullDraw.anim";
+        public const string WildWestRevolverAimIdleFullDrawClipPath = RevolverAimIdleFullDrawClipPath;
 
         public const string WildWestRevolverAimWalkClipPath =
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimWalk.anim";
 
-        public const string WildWestRevolverIdleToAimClipPath =
-            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_IdleToAim.anim";
+        public const string WildWestRevolverIdleToAimClipPath = RevolverIdleToAimClipPath;
 
         public const string WildWestRevolverAimToIdleClipPath =
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimToIdle.anim";
@@ -96,7 +113,7 @@ namespace CCS.Modules.CharacterController
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimWalkToWalk.anim";
 
         public const string WildWestRevolverFireFanningClipPath =
-            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Fire_Fanning.anim";
+            CombatRevolverAnimationsPath + "/CCS_WW_Revolver_Fire_Fanning.anim";
 
         public const string WildWestRevolverAimIdleClipPath =
             WildWestRevolverAimIdleFullDrawClipPath;
@@ -104,8 +121,14 @@ namespace CCS.Modules.CharacterController
         public const string WildWestRevolverFireFanningLegacyRhClipPath =
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Fire_Fanning_RH.anim";
 
+        public const string WildWestRevolverEditedAnimationsPath =
+            WildWestRevolverAnimationsPath + "/Edited";
+
+        public const string WildWestRevolverWalkAimedRhClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_WalkAimed_RH.anim";
+
         public const string WildWestRevolverWalkAimedClipPath =
-            WildWestRevolverAimWalkClipPath;
+            WildWestRevolverWalkAimedRhClipPath;
 
         public const string WildWestRevolverHipAimedWalkClipPath =
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_HipAimedWalk_RH.anim";
@@ -116,8 +139,7 @@ namespace CCS.Modules.CharacterController
         public const string WildWestRevolverHolsterClipPath =
             WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Holster_RH.anim";
 
-        public const string WildWestRevolverReloadIdleClipPath =
-            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_Reload_Idle_RH.anim";
+        public const string WildWestRevolverReloadIdleClipPath = RevolverReloadIdleRhFutureClipPath;
 
         public const string RevolverAimIdleLegacyClipPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_AimIdle_UpperBody.anim";
@@ -135,9 +157,71 @@ namespace CCS.Modules.CharacterController
         public const string RevolverReloadClipPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_Reload_UpperBody.anim";
 
+        public const string WildWestRevolverAimIdleRhClipPath =
+            WildWestRevolverAnimationsPath + "/CCS_WW_Revolver_AimIdle_RH.anim";
+
+        public const string WildWestRevolverAimIdleFullDrawFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimIdle_FullDraw_FitTest.anim";
+
+        public const string WildWestRevolverRuntimeDefaultAimIdleClipPath = RevolverAimIdleFullDrawClipPath;
+
+        public const string RevolverRuntimeDefaultAimIdleClipPath = RevolverAimIdleFullDrawClipPath;
+
+        public const string AnimationFitStudioDefaultSourceClipPath = RevolverAimIdleFullDrawClipPath;
+
+        public const string AnimationFitStudioControllerFullDrawClipPath = RevolverAimIdleFullDrawClipPath;
+
+        public const string AnimationFitStudioDefaultFitTestClipPath = RevolverAimIdleFullDrawClipPath;
+
+        public const string AnimationFitStudioWalkAimedFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_WalkAimed_RH_FitTest.anim";
+
+        public const string WildWestRevolverAimIdleRhFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimIdle_RH_FitTest.anim";
+
+        public const string RevolverAimPitchDownFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimPitch_Down_FitTest.anim";
+
+        public const string RevolverAimPitchCenterFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimPitch_Center_FitTest.anim";
+
+        public const string RevolverAimPitchUpFitTestClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimPitch_Up_FitTest.anim";
+
+        public const string WildWestRevolverAimIdleRhFirstPersonClipPath =
+            WildWestRevolverEditedAnimationsPath + "/CCS_Revolver_AimIdle_RH_FirstPerson.anim";
+
+        public const string AnimationFitStudioFitTestClipSuffix = "_FitTest";
+
+        public const string AnimationFitStudioMenuPath =
+            "CCS/Character Controller/Animations/Animation Fit Studio";
+
+        public const string AnimationFitStudioEditorFolderPath =
+            ModuleRootPath + "/Editor/AnimationFitStudio";
+
+        public const string AnimationFitStudioWindowSourcePath =
+            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioWindow.cs";
+
+        public const string AnimationFitStudioWindowLayoutSourcePath =
+            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioWindow.Layout.cs";
+
+        public const string AnimationFitStudioPreviewUtilitySourcePath =
+            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioPreviewUtility.cs";
+
+        public const string WildWestRevolverFireFanningRhClipPath =
+            WildWestRevolverFireFanningLegacyRhClipPath;
+
         public const string AnimatorRevolverUpperBodyLayerName = "RevolverUpperBody";
 
-        public const string AnimatorRevolverEmptyStateName = "Revolver_Empty";
+        public const string AnimatorRevolverAimUpperBodyLayerNameObsolete = "Revolver Aim Upper Body";
+
+        public const string AnimatorInteractionReservedLayerName = "Interaction";
+
+        public const string AnimatorRevolverNoAimStateName = "NoAim";
+
+        public const string AnimatorRevolverEmptyStateName = AnimatorRevolverNoAimStateName;
+
+        public const string AnimatorRevolverAimToIdleReturnStateName = "Revolver_AimToIdle_Return";
 
         public const string AnimatorRevolverIdleToAimStateName = "Revolver_IdleToAim";
 
@@ -151,7 +235,13 @@ namespace CCS.Modules.CharacterController
 
         public const string AnimatorRevolverAimWalkToWalkStateName = "Revolver_AimWalkToWalk";
 
-        public const string AnimatorRevolverAimIdleStateName = AnimatorRevolverAimIdleFullDrawStateName;
+        public const string AnimatorRevolverAimIdleStateName = AnimatorRevolverAimPitchBlendStateName;
+
+        public const string AnimatorRevolverAimPitchBlendStateName = "Revolver_AimPitch_Blend";
+
+        public const string AnimatorRevolverAimPitchBlendTreeName = "Revolver_AimPitch_BlendTree";
+
+        public const string AnimatorRevolverAimPitchParameter = "RevolverAimPitch";
 
         public const string AnimatorRevolverFireStateName = "Revolver_Fire";
 
@@ -281,11 +371,11 @@ namespace CCS.Modules.CharacterController
 
         public const float FirstPersonFieldOfViewMaximum = 75f;
 
-        public const float FirstPersonAimFieldOfViewDefault = 66f;
+        public const float FirstPersonAimFieldOfViewDefault = 58f;
 
-        public const float FirstPersonAimFieldOfViewMinimum = 60f;
+        public const float FirstPersonAimFieldOfViewMinimum = 45f;
 
-        public const float FirstPersonAimFieldOfViewMaximum = 70f;
+        public const float FirstPersonAimFieldOfViewMaximum = 75f;
 
         public const float FirstPersonAimForwardEyeOffsetDefault = 0.26f;
 
@@ -329,7 +419,7 @@ namespace CCS.Modules.CharacterController
 
         public static readonly Vector3 FirstPersonAimHeadTrackedLocalOffsetDefault = new Vector3(0f, 0.14f, 0.26f);
 
-        public static readonly Vector3 FirstPersonAimFixedAnchorLocalOffsetDefault = new Vector3(0f, 0.28f, 0.36f);
+        public static readonly Vector3 FirstPersonAimFixedAnchorLocalOffsetDefault = new Vector3(0f, 0.30f, 0.32f);
 
         public const float FirstPersonAimFixedAnchorHorizontalMinimum = -0.04f;
 
@@ -363,23 +453,43 @@ namespace CCS.Modules.CharacterController
 
         public const float ThirdPersonCameraDistanceMaximum = 3.25f;
 
-        public const float AimCameraDistanceTuned = 1.5f;
+        public const float AimCameraDistanceTuned = 1.85f;
 
-        public const float AimCameraDistanceMinimum = 1.35f;
+        public const float AimCameraDistanceMinimum = 1.65f;
 
-        public const float AimCameraDistanceMaximum = 1.65f;
+        public const float AimCameraDistanceMaximum = 2.05f;
 
-        public const float AimCameraShoulderOffsetXMinimum = 0.60f;
+        public const float AimCameraDistanceLegacyLoose = 2.5f;
 
-        public const float AimCameraShoulderOffsetXMaximum = 0.85f;
+        public const float AimCameraShoulderOffsetXTuned = 0.45f;
 
-        public const float AimCameraShoulderOffsetYMinimum = 0.08f;
+        public const float AimCameraShoulderOffsetXMinimum = 0.40f;
 
-        public const float AimCameraShoulderOffsetYMaximum = 0.20f;
+        public const float AimCameraShoulderOffsetXMaximum = 0.55f;
 
-        public const float AimCameraFieldOfViewMinimum = 48f;
+        public const float AimCameraShoulderOffsetYMinimum = 0.10f;
 
-        public const float AimCameraFieldOfViewMaximum = 55f;
+        public const float AimCameraShoulderOffsetYMaximum = 0.25f;
+
+        public const float AimCameraTrackingHeightTuned = 1.48f;
+
+        public const float AimCameraTrackingHeightMinimum = 1.40f;
+
+        public const float AimCameraTrackingHeightMaximum = 1.60f;
+
+        public const float AimCameraFieldOfViewTuned = 58f;
+
+        public const float AimCameraFieldOfViewMinimum = 56f;
+
+        public const float AimCameraFieldOfViewMaximum = 60f;
+
+        public const float ThirdPersonAimPitchDownLimitDegrees = -35f;
+
+        public const float ThirdPersonAimPitchUpLimitDegrees = 55f;
+
+        public const float ThirdPersonAimPitchSmoothingDefault = 14f;
+
+        public const float ThirdPersonAimBodyYawFollowDegreesPerSecondDefault = 540f;
 
         public const float AimCameraBlendMinimumSeconds = 0.35f;
 
@@ -397,7 +507,7 @@ namespace CCS.Modules.CharacterController
 
         public const int FirstPersonCameraActivePriority = 10;
 
-        public const int AimCameraActivePriority = 0;
+        public const int AimCameraActivePriority = 25;
 
         public const int FirstPersonAimCameraActivePriority = 30;
 

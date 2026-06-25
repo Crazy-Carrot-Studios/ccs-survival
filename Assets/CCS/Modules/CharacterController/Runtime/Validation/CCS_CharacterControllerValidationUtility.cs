@@ -402,8 +402,20 @@ namespace CCS.Modules.CharacterController
                     "CCS_CharacterCameraController must default to ThirdPersonSurvival in v0.6.9.");
                 AppendIfMissing(
                     failures,
-                    controllerSource.Contains("SetFirearmAimModeActive"),
-                    "CCS_CharacterCameraController must switch to FirstPersonAim while firearm aiming.");
+                    controllerSource.Contains("AimOverShoulder"),
+                    "CCS_CharacterCameraController must switch to AimOverShoulder while firearm aiming.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("WantsAimOverShoulderCamera"),
+                    "CCS_CharacterCameraController must use WantsAimOverShoulderCamera from carry state.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("AimCameraActivePriority"),
+                    "CCS_CharacterCameraController must raise CinemachineCamera_Aim priority during third-person aim.");
+                AppendIfMissing(
+                    failures,
+                    controllerSource.Contains("DeactivateLegacyFirstPersonAimCamera"),
+                    "CCS_CharacterCameraController must deactivate legacy CinemachineCamera_FP_Aim.");
                 AppendIfMissing(
                     failures,
                     controllerSource.Contains("BindCarryStateSourceFromPlayer"),
@@ -418,48 +430,8 @@ namespace CCS.Modules.CharacterController
                     "CCS_CharacterCameraController must expose debugCameraModeTransitions (default off).");
                 AppendIfMissing(
                     failures,
-                    controllerSource.Contains("DeactivateLegacyFirstPersonAimCamera"),
-                    "CCS_CharacterCameraController must deactivate legacy CinemachineCamera_FP_Aim.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("FirstPersonBodyAwareCameraActivePriority"),
-                    "CCS_CharacterCameraController must raise CinemachineCamera_FP_BodyAware priority during FirstPersonAim.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("ResolveFirstPersonProfile()"),
-                    "CCS_CharacterCameraController must apply FirstPersonBodyAware look profile during firearm aim.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("LegacyFirstPersonAimCameraInactivePriority"),
-                    "CCS_CharacterCameraController must keep legacy CinemachineCamera_FP_Aim at inactive priority.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("SetFirstPersonHeadMask"),
-                    "CCS_CharacterCameraController must drive local self head masking during FirstPersonAim.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("CCS_LocalFirstPersonHeadVisibility"),
-                    "CCS_CharacterCameraController must bind CCS_LocalFirstPersonHeadVisibility from the local player.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("BuildFirstPersonBodyAwareCullingMask"),
-                    "CCS_CharacterCameraController must build BodyAware culling mask excluding local hidden head/body.");
-                AppendIfMissing(
-                    failures,
-                    !controllerSource.Contains("CCS_FirstPersonBodyVisibilityController"),
-                    "CCS_CharacterCameraController must not use global renderer-disable head visibility.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("BodyAware drives FirstPersonAim"),
-                    "CCS_CharacterCameraController debug must report BodyAware routing for FirstPersonAim.");
-                AppendIfMissing(
-                    failures,
                     !controllerSource.Contains("enableRuntimeCameraDebug = true"),
                     "enableRuntimeCameraDebug must default off in source.");
-                AppendIfMissing(
-                    failures,
-                    controllerSource.Contains("ApplyFirstPersonHardLock"),
-                    "CCS_CharacterCameraController must hard-lock first-person Cinemachine follow with zero damping.");
             }
 
             string carryStatePath = CCS_CharacterControllerConstants.ModuleRootPath
@@ -512,7 +484,9 @@ namespace CCS.Modules.CharacterController
                     "CCS_CharacterCameraFollowAnchor must couple body yaw during FirstPersonBodyAware aim.");
                 AppendIfMissing(
                     failures,
-                    followAnchorSource.Contains("bodyRoot.rotation = Quaternion.Euler(0f, yawDegrees, 0f)"),
+                    followAnchorSource.Contains("bodyRoot.rotation = Quaternion.Euler(0f, yawDegrees, 0f)")
+                        || (followAnchorSource.Contains("bodyRoot.rotation = Quaternion.Euler(0f,")
+                            && followAnchorSource.Contains("nextBodyYaw, 0f)")),
                     "First-person yaw must rotate the player body.");
                 AppendIfMissing(
                     failures,

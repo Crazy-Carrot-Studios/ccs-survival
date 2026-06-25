@@ -1,10 +1,21 @@
 ﻿# CCS Wild West Animation Inventory
 
-**Version:** 0.6.9
+**Version:** 0.6.15
 **Source root:** `Assets/YashMakesGames/Wild West Animation Pack`
 **Generated:** 2026-06-24 04:20:19 UTC
 
 Vendor assets remain **source-only**. No production animator wiring in this pass.
+
+## Active right-hand revolver aim roles (v0.6.15)
+
+| Role | CCS clip | Animator state (when wired) |
+|------|----------|----------------------------|
+| **Stationary aim** | `CCS_WW_Revolver_AimIdle_FullDraw` | `Revolver_AimIdle_FullDraw` |
+| **Aimed movement** | `CCS_WW_Revolver_WalkAimed_RH` | `Revolver_AimWalk` (target) |
+
+**Animation Fit Studio v0.6.15** edits one pose target at a time via **Pose Target** dropdown: **`CCS_WW_Revolver_AimIdle_FullDraw`** (default, Stable Aim Hold) or **`CCS_WW_Revolver_WalkAimed_RH`** (Middle frame default). FitTest: `<SourceClipName>_FitTest.anim` under `WildWest/Edited/`.
+
+Legacy / alternate: `CCS_WW_Revolver_AimIdle_RH` remains for preview-toggle testing only.
 
 ## Summary
 

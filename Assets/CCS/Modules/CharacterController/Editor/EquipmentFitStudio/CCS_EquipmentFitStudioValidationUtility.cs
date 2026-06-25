@@ -95,6 +95,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             ValidateEditFitPreviewModeFoundation(failures);
             AppendResult(failures, CCS_EquipmentFitStudioFitTargetRoutingUtility.ValidateFitTargetRoutingFoundation());
             ValidateEditorOnlyRevampFoundation(failures);
+            ValidateWeaponRotationFoundation(failures);
             AppendResult(failures, CCS_EquipmentFitStudioEquippedPoseGuidanceUtility.ValidateEquippedPoseGuidanceFoundation());
             ValidateRuntimeBridgeFoundation(failures);
             ValidateDeferredIkFoundation(failures);
@@ -739,6 +740,138 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                     cameraSource.Contains("WeaponCloseUp"),
                     "Preview camera must expose Weapon Close-Up preset.");
             }
+        }
+
+        private static void ValidateWeaponRotationFoundation(List<string> failures)
+        {
+            string studioRoot =
+                CCS_CharacterControllerConstants.ModuleRootPath + "/Editor/EquipmentFitStudio/";
+            string weaponRotationPath = studioRoot + "CCS_EquipmentFitStudioWindow.WeaponRotation.cs";
+            string rotationUtilityPath = studioRoot + "CCS_EquipmentFitStudioWeaponRotationUtility.cs";
+            string attachmentUtilityPath = studioRoot + "CCS_EquipmentFitStudioPreviewAttachmentUtility.cs";
+            string axisVisualizationPath = studioRoot + "CCS_EquipmentFitStudioAxisVisualizationUtility.cs";
+            string forwardAxisPath = studioRoot + "CCS_EquipmentFitStudioWeaponForwardAxis.cs";
+            string windowPath = studioRoot + "CCS_EquipmentFitStudioWindow.cs";
+            string previewItemPath = studioRoot + "CCS_EquipmentFitStudioPreviewItem.cs";
+
+            AppendIfMissing(failures, File.Exists(weaponRotationPath), "Missing CCS_EquipmentFitStudioWindow.WeaponRotation.cs.");
+            AppendIfMissing(failures, File.Exists(rotationUtilityPath), "Missing CCS_EquipmentFitStudioWeaponRotationUtility.cs.");
+            AppendIfMissing(failures, File.Exists(attachmentUtilityPath), "Missing CCS_EquipmentFitStudioPreviewAttachmentUtility.cs.");
+            AppendIfMissing(failures, File.Exists(axisVisualizationPath), "Missing CCS_EquipmentFitStudioAxisVisualizationUtility.cs.");
+            AppendIfMissing(failures, File.Exists(forwardAxisPath), "Missing CCS_EquipmentFitStudioWeaponForwardAxis.cs.");
+
+            if (File.Exists(weaponRotationPath))
+            {
+                string weaponRotationSource = File.ReadAllText(weaponRotationPath);
+                AppendIfMissing(
+                    failures,
+                    weaponRotationSource.Contains("Weapon Rotation Controls"),
+                    "Fit Studio must expose Weapon Rotation Controls section.");
+                AppendIfMissing(
+                    failures,
+                    weaponRotationSource.Contains("Pitch +"),
+                    "Fit Studio must expose Pitch +/- weapon rotation controls.");
+                AppendIfMissing(
+                    failures,
+                    weaponRotationSource.Contains("Roll / Side Tilt +"),
+                    "Fit Studio must expose Roll / Side Tilt +/- controls.");
+                AppendIfMissing(
+                    failures,
+                    weaponRotationSource.Contains("pendingLocalRotation"),
+                    "Fit Studio must maintain pendingLocalRotation edit state.");
+                AppendIfMissing(
+                    failures,
+                    weaponRotationSource.Contains("Show Weapon Forward / Barrel Axis"),
+                    "Fit Studio must expose weapon forward axis visualization toggle.");
+            }
+
+            if (File.Exists(windowPath))
+            {
+                string windowSource = File.ReadAllText(windowPath);
+                AppendIfMissing(
+                    failures,
+                    windowSource.Contains("DeferredEnsureEquipmentFitStudioAssets"),
+                    "Fit Studio OnEnable must defer EnsureEquipmentFitStudioAssets for safe startup.");
+                AppendIfMissing(
+                    failures,
+                    windowSource.Contains("DrawWeaponRotationSceneGizmos"),
+                    "Fit Studio OnSceneGui must draw weapon rotation axis gizmos.");
+            }
+
+            if (File.Exists(previewItemPath))
+            {
+                string previewItemSource = File.ReadAllText(previewItemPath);
+                AppendIfMissing(
+                    failures,
+                    previewItemSource.Contains("TrySpawnUnderAttachmentRoot"),
+                    "Preview item must spawn under preview attachment root.");
+            }
+
+            CCS_EquipmentFitStudioWeaponForwardAxis defaultForwardAxis =
+                CCS_EquipmentFitStudioWeaponForwardAxis.LocalNegativeZ;
+            AppendIfMissing(
+                failures,
+                CCS_EquipmentFitStudioWeaponRotationUtility.PitchYawRollProduceDistinctRotations(defaultForwardAxis),
+                "Pitch, yaw, and roll must produce distinct quaternions from identity.");
+            AppendIfMissing(
+                failures,
+                CCS_EquipmentFitStudioWeaponRotationUtility.RollAndYawProduceDistinctRotations(defaultForwardAxis),
+                "Yaw and roll must not produce identical rotations for default weapon forward axis.");
+
+            Quaternion identity = Quaternion.identity;
+            Quaternion pitch = CCS_EquipmentFitStudioWeaponRotationUtility.ApplyPitchDelta(identity, 5f);
+            Quaternion yaw = CCS_EquipmentFitStudioWeaponRotationUtility.ApplyYawDelta(identity, 5f);
+            Quaternion roll = CCS_EquipmentFitStudioWeaponRotationUtility.ApplyRollDelta(
+                identity,
+                5f,
+                defaultForwardAxis);
+            AppendIfMissing(
+                failures,
+                !CCS_EquipmentFitStudioWeaponRotationUtility.QuaternionsApproximatelyEqual(pitch, identity),
+                "Pitch nudge must change rotation from identity.");
+            AppendIfMissing(
+                failures,
+                !CCS_EquipmentFitStudioWeaponRotationUtility.QuaternionsApproximatelyEqual(yaw, identity),
+                "Yaw nudge must change rotation from identity.");
+            AppendIfMissing(
+                failures,
+                !CCS_EquipmentFitStudioWeaponRotationUtility.QuaternionsApproximatelyEqual(roll, identity),
+                "Roll nudge must change rotation from identity.");
+            AppendIfMissing(
+                failures,
+                !CCS_EquipmentFitStudioWeaponRotationUtility.QuaternionsApproximatelyEqual(yaw, roll),
+                "Yaw and roll nudges must not produce identical quaternions.");
+
+            AppendIfMissing(
+                failures,
+                Directory.Exists(CCS_EquipmentConstants.EquipmentFitStudioAxisTestProfileFolderPath),
+                "Missing Profiles/EquipmentFitting/Test folder for axis validation.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_EquipmentConstants.EquipmentFitStudioAxisTestProfilePath),
+                "Missing CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP.asset.");
+
+            string holsterFingerprint = ReadFileFingerprint(CCS_EquipmentConstants.RevolverM1879RightHipHolsterFitPath);
+            string equippedFingerprint = ReadFileFingerprint(CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath);
+            AppendIfMissing(
+                failures,
+                holsterFingerprint == ReadFileFingerprint(CCS_EquipmentConstants.RevolverM1879RightHipHolsterFitPath),
+                "Production holster fit profile must not be modified by automated validation.");
+            AppendIfMissing(
+                failures,
+                equippedFingerprint == ReadFileFingerprint(CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath),
+                "Production equipped fit profile must not be modified by automated validation.");
+        }
+
+        private static string ReadFileFingerprint(string assetPath)
+        {
+            if (!File.Exists(assetPath))
+            {
+                return string.Empty;
+            }
+
+            byte[] bytes = File.ReadAllBytes(assetPath);
+            return bytes.Length + ":" + System.Convert.ToBase64String(bytes);
         }
 
         private static void ValidateRuntimeBridgeFoundation(List<string> failures)

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c7b7030d3da3a43a6fc9c254702b61, type: 3}
+  m_Name: CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_WeaponAttachmentFitProfile
+  profileId: CCS_EquipmentFitStudio_AxisTest_DO_NOT_SHIP
+  weaponId: ccs.weapon.revolver.m1879
+  characterRigId: ccs.character.testplayer.cc3_base_plus
+  socketId: CCS_HandSocket_Right
+  socketLocalPosition: {x: 0, y: 0, z: 0}
+  socketLocalEulerAngles: {x: 0, y: 0, z: 0}
+  socketLocalScale: {x: 1, y: 1, z: 1}
+  notes: Editor-only axis test profile for Fit Studio validation. Do not ship or use in production.

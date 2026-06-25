@@ -14,18 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
   profileDisplayName: Aim Over Shoulder
   profileId: ccs.survival.profile.character.camera.aimovershoulder
-  profileDescription: Right-shoulder aim camera tuned for v0.6.8 revolver reticle alignment.
-  profileVersion: 0.6.8-aim-camera-alignment
+  profileDescription: Tight third-person over-the-shoulder aim camera for v0.6.15
+    revolver aim.
+  profileVersion: 0.6.15-aim-over-shoulder-tight
   enableDebugLogs: 0
   cameraMode: 3
   trackingTargetLocalHeight: 1.48
-  thirdPersonShoulderOffset: {x: 0.65, y: 0.12, z: 0}
-  thirdPersonVerticalArmLength: 0.24
+  thirdPersonShoulderOffset: {x: 0.45, y: 0.15, z: 0}
+  thirdPersonVerticalArmLength: 0.28
   thirdPersonCameraSide: 1
-  thirdPersonCameraDistance: 1.5
+  thirdPersonCameraDistance: 1.85
   verticalOrbitDefault: 0
-  verticalOrbitMin: -45
-  verticalOrbitMax: 70
+  verticalOrbitMin: -35
+  verticalOrbitMax: 55
   defaultYawMode: 0
   mouseSensitivityX: 0.095
   mouseSensitivityY: 0.08
@@ -45,5 +46,13 @@ MonoBehaviour:
   collisionDampingFrom: 0.3
   validationDisableObstacleAvoidanceForBaselinePass: 1
   aimBlendDurationSeconds: 0.45
-  fieldOfView: 52
+  fieldOfView: 58
   aimLookSensitivityMultiplier: 0.85
+  firstPersonForwardEyeOffset: 0.22
+  firstPersonVerticalEyeOffset: 0.05
+  nearClipPlane: 0.03
+  useHeadTrackedAnchor: 1
+  headTrackedLocalOffset: {x: 0, y: 0.04, z: 0.18}
+  headTrackingPositionLerpSpeed: 30
+  inheritHeadBoneRotation: 0
+  fixedFirstPersonAimAnchorLocalOffset: {x: 0, y: 0.28, z: 0.36}

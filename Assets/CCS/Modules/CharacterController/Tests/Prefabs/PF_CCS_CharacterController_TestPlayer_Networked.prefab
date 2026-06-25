@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 910060}
   - component: {fileID: 6463843085579182175}
   - component: {fileID: 5204454266406806631}
+  - component: {fileID: 128450741614677891}
   m_Layer: 0
   m_Name: VisualRoot
   m_TagString: Untagged
@@ -87,9 +88,12 @@ MonoBehaviour:
   revolverAnimationStateComponent: {fileID: 4905833786765227334}
   interactionLockSourceComponent: {fileID: 910060}
   characterMotor: {fileID: 0}
-  layerFadeOutSpeed: 10
+  suppressFireUpperBodyAnimation: 1
   aimStateCrossFadeDuration: 0.05
-  enableRevolverAnimationDebug: 1
+  enableRevolverAnimationDebug: 0
+  aimLayerBlendInSpeed: 16
+  aimLayerBlendOutSpeed: 18
+  useWildWestRightHandRevolverAimPreview: 0
   enableMasterTestForceAimDebugHotkey: 1
 --- !u!114 &5204454266406806631
 MonoBehaviour:
@@ -108,6 +112,7 @@ MonoBehaviour:
   equipmentVisualController: {fileID: 5730116116939274085}
   hudPresenter: {fileID: 9158304918560071027}
   revolverDefinition: {fileID: 11400000, guid: d3d4ea6bf7d9c854f8f8c19ba87c9aa9, type: 2}
+  aimLocomotionController: {fileID: 6516404878749442230}
   reticleAimWorldTarget: {fileID: 1892807589381100103}
   rightHandReticleIkTarget: {fileID: 8450151410590038122}
   rightElbowHint: {fileID: 2864879539303664441}
@@ -126,7 +131,37 @@ MonoBehaviour:
   rightShoulderAimWeight: 0.18
   maxHorizontalCorrectionDegrees: 10
   maxVerticalCorrectionDegrees: 6
+  enableArmToReticleIK: 0
   enableRevolverArmIkDebug: 0
+--- !u!114 &128450741614677891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a9687a3a9b2af44b804dcfabfbe02f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Weapons.Runtime::CCS.Modules.Weapons.CCS_RevolverBodyAimFollowController
+  enableBodyAimFollow: 1
+  animator: {fileID: 22796}
+  revolverAnimationStateComponent: {fileID: 4905833786765227334}
+  cameraFollowAnchor: {fileID: 1267658892253411985}
+  followSmoothing: 14
+  chestYawMaxDegrees: 25
+  upperChestYawMaxDegrees: 15
+  chestPitchMaxUpDegrees: 35
+  chestPitchMaxDownDegrees: 25
+  upperChestPitchMaxUpDegrees: 25
+  upperChestPitchMaxDownDegrees: 15
+  spineYawWeight: 0.25
+  spinePitchWeight: 0.2
+  chestYawWeight: 0.55
+  chestPitchWeight: 0.5
+  upperChestYawWeight: 0.75
+  upperChestPitchWeight: 0.65
 --- !u!1 &882010001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1502,6 +1537,7 @@ MonoBehaviour:
   debugVisualConvergence: 0
   debugAimCameraAlignment: 0
   enableVisualAimConvergence: 0
+  enableMuzzleAuthoritativeShots: 0
   convergenceSpeed: 18
   maxYawCorrectionDegrees: 15
   maxPitchCorrectionDegrees: 10
@@ -1569,6 +1605,8 @@ MonoBehaviour:
   rightHandEquippedFitProfile: {fileID: 11400000, guid: 3503dbc5864db0443b4f8456259faaa5, type: 2}
   revolverVisualOnlyPrefab: {fileID: 7014803548061215250, guid: d566a5f4dd97ef94b90ed4cad2597254, type: 3}
   weaponCarryStateController: {fileID: 4076866618874431801}
+  debugRuntimeFitParity: 0
+  debugEquipmentVisualProfileApplication: 0
 --- !u!114 &7223288658663817011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2131,6 +2169,7 @@ GameObject:
   - component: {fileID: 6653464068192584615}
   - component: {fileID: 5507591869903470946}
   - component: {fileID: 9158304918560071027}
+  - component: {fileID: 3379828911743830293}
   m_Layer: 0
   m_Name: WeaponHudRoot
   m_TagString: Untagged
@@ -2240,11 +2279,41 @@ MonoBehaviour:
   reticleImage: {fileID: 1890729974945783195}
   reticleViewportPoint: {x: 0.5, y: 0.5}
   showReticleWhileAiming: 1
+  useMuzzleDrivenScreenPosition: 0
   statusFlashSeconds: 0.75
   lowAmmoThreshold: 2
   ammoNormalColor: {r: 0.08, g: 0.52, b: 0.12, a: 1}
   ammoLowColor: {r: 0.85, g: 0.12, b: 0.08, a: 1}
   reloadColor: {r: 0.95, g: 0.58, b: 0.08, a: 1}
+--- !u!114 &3379828911743830293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3080908715531483992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae0edc01d38708b4cb6b3c24a447379c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Weapons.Runtime::CCS.Modules.Weapons.CCS_MuzzleDrivenReticleController
+  reticleMode: 1
+  enableReticleClamp: 1
+  maxMuzzleReticleOffsetPixels: 120
+  safeScreenPaddingPixels: 32
+  maxDistance: 100
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  reticleTransform: {fileID: 2539833176910020849}
+  reticleCanvas: {fileID: 3408296013872345056}
+  aimCamera: {fileID: 0}
+  revolverController: {fileID: 4905833786765227334}
+  equipmentVisualController: {fileID: 5730116116939274085}
+  hudPresenter: {fileID: 9158304918560071027}
+  revolverUpperBodyAnimator: {fileID: 6463843085579182175}
+  screenSmoothing: 18
+  debugRays: 0
 --- !u!1 &3139427301927228153
 GameObject:
   m_ObjectHideFlags: 0
@@ -3775,6 +3844,7 @@ GameObject:
   - component: {fileID: 2539833176910020849}
   - component: {fileID: 7623522079857294743}
   - component: {fileID: 1890729974945783195}
+  - component: {fileID: 7085577024775069695}
   m_Layer: 0
   m_Name: WeaponReticle
   m_TagString: Untagged
@@ -3822,7 +3892,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.827, g: 0.133, b: 0.133, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3839,6 +3909,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7085577024775069695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5489858478896046869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.02, g: 0.02, b: 0.02, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5603009527271194233
 GameObject:
   m_ObjectHideFlags: 0
@@ -5134,6 +5219,7 @@ MonoBehaviour:
   inputProvider: {fileID: 3066966173724100183}
   activeLookProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
   enableRuntimeCameraDebug: 0
+  rootYawFollowDegreesPerSecond: 450
 --- !u!1 &7119008913551469418
 GameObject:
   m_ObjectHideFlags: 0
@@ -6364,6 +6450,15 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: f8a9b0c1d2e345678901234567890ab0, type: 2}
+    - target: {fileID: 900040, guid: f4a8c2e1b9d3476580a1b2c3d4e5f6a7, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'pinky_03_r'\n\tTransform 'ring_01_r'\n\tTransform
+        'ring_03_r'\n\tTransform 'middle_02_r'\n\tTransform 'ring_02_r'\n\tTransform
+        'middle_03_r'\n\tTransform 'middle_01_r'\n\tTransform 'pinky_02_r'\n\tTransform
+        'pinky_01_r'\n\tFrom animation clip 'CCS_WW_Revolver_AimIdle_FullDraw'"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

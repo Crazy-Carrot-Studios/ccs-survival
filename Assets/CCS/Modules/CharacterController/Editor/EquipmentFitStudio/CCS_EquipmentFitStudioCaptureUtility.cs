@@ -19,9 +19,9 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
     {
         #region Public Methods
 
-        public static bool TryCaptureSocketValues(
+        public static bool TryCaptureAttachmentRootValues(
             GameObject playerRoot,
-            Transform socketTransform,
+            Transform attachmentRoot,
             string socketId,
             bool previewSpawned,
             CCS_EquipmentFitStudioPendingChange pending,
@@ -38,9 +38,9 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 return false;
             }
 
-            if (socketTransform == null || string.IsNullOrEmpty(socketId))
+            if (attachmentRoot == null || string.IsNullOrEmpty(socketId))
             {
-                message = "Select a socket before capturing values.";
+                message = "Preview attachment root not found. Load preview first.";
                 messageType = MessageType.Error;
                 return false;
             }
@@ -61,9 +61,18 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             Vector3 oldEuler = profile != null ? profile.SocketLocalEulerAngles : Vector3.zero;
             Vector3 oldScale = profile != null ? profile.SocketLocalScale : Vector3.one;
 
-            Vector3 newPosition = socketTransform.localPosition;
-            Vector3 newEuler = socketTransform.localEulerAngles;
-            Vector3 newScale = socketTransform.localScale;
+            if (!CCS_EquipmentFitStudioPreviewAttachmentUtility.TryCaptureProfileFromPreviewAttachment(
+                    playerRoot,
+                    socketId,
+                    attachmentRoot,
+                    out Vector3 newPosition,
+                    out Vector3 newEuler,
+                    out Vector3 newScale))
+            {
+                message = "Failed to capture profile values from preview attachment root.";
+                messageType = MessageType.Error;
+                return false;
+            }
 
             pending.CaptureFromBaseline(
                 socketId,
@@ -77,23 +86,61 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
             if (!previewSpawned)
             {
-                message = "Captured socket values without preview. Spawn preview first if you want visual confirmation.";
+                message = "Captured attachment root values without preview. Spawn preview first if you want visual confirmation.";
                 messageType = MessageType.Warning;
                 return true;
             }
 
             if (pending.HasTransformChanges)
             {
-                message = "Captured live socket values. Review the pending diff, then save in Step 7.";
+                message = "Captured preview attachment root values. Review the pending diff, then save.";
                 messageType = MessageType.Info;
             }
             else
             {
-                message = "No transform changes detected. You can still save, but the profile already matches this socket.";
+                message = "No transform changes detected. You can still save, but the profile already matches this attachment root.";
                 messageType = MessageType.Warning;
             }
 
             return true;
+        }
+
+        public static bool TryCaptureSocketValues(
+            GameObject playerRoot,
+            Transform socketTransform,
+            string socketId,
+            bool previewSpawned,
+            CCS_EquipmentFitStudioPendingChange pending,
+            out string message,
+            out MessageType messageType)
+        {
+            if (playerRoot == null || socketTransform == null)
+            {
+                message = "Select a player and socket before capturing values.";
+                messageType = MessageType.Error;
+                return false;
+            }
+
+            string attachmentRootName =
+                socketId == CCS_EquipmentConstants.HandSocketRightId
+                    ? CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName
+                    : CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName;
+            Transform attachmentRoot = socketTransform.Find(attachmentRootName);
+            if (attachmentRoot == null)
+            {
+                attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(
+                    socketTransform,
+                    attachmentRootName);
+            }
+
+            return TryCaptureAttachmentRootValues(
+                playerRoot,
+                attachmentRoot,
+                socketId,
+                previewSpawned,
+                pending,
+                out message,
+                out messageType);
         }
 
         public static bool TrySavePendingSocketCapture(

@@ -30,6 +30,10 @@ namespace CCS.Modules.Weapons
 
         [SerializeField] private CCS_WeaponCarryStateController weaponCarryStateController;
 
+        [Header("Diagnostics")]
+        [SerializeField] private bool debugRuntimeFitParity;
+        [SerializeField] private bool debugEquipmentVisualProfileApplication;
+
         private Transform holsterAttachmentRoot;
         private Transform equippedAttachmentRoot;
         private Transform equippedAimConvergenceRoot;
@@ -38,6 +42,7 @@ namespace CCS.Modules.Weapons
         private GameObject equippedVisualInstance;
         private Transform equippedMuzzlePoint;
         private bool isAiming;
+        private bool loggedEquippedFitParityThisAimSession;
 
 #if UNITY_EDITOR
         private bool editorAimFitOverrideActive;
@@ -315,7 +320,17 @@ namespace CCS.Modules.Weapons
         private void HandleAimMovementActiveChanged(bool active)
         {
             isAiming = active;
+            if (active)
+            {
+                loggedEquippedFitParityThisAimSession = false;
+            }
+
             RefreshVisualState();
+
+            if (active && debugRuntimeFitParity && !loggedEquippedFitParityThisAimSession)
+            {
+                LogEquippedFitParityOnce();
+            }
         }
 
         private void ShowHolsteredVisual()
@@ -347,6 +362,7 @@ namespace CCS.Modules.Weapons
             holsterAttachmentRoot = EnsureAttachmentRoot(
                 socketTransform,
                 CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName);
+            bool wasHolsteredActive = holsteredVisualInstance != null && holsteredVisualInstance.activeSelf;
             CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
                 socketTransform,
                 holsterAttachmentRoot,
@@ -354,7 +370,10 @@ namespace CCS.Modules.Weapons
                 definitionPosition,
                 definitionEuler,
                 definitionScale);
-            LogHolsterProfileApplication(profile);
+            if (debugEquipmentVisualProfileApplication && !wasHolsteredActive)
+            {
+                LogHolsterProfileApplication(profile);
+            }
 
             holsteredVisualInstance = EnsureVisualInstance(
                 holsterAttachmentRoot,
@@ -409,6 +428,7 @@ namespace CCS.Modules.Weapons
             equippedAttachmentRoot = EnsureAttachmentRoot(
                 socketTransform,
                 CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName);
+            bool wasEquippedActive = equippedVisualInstance != null && equippedVisualInstance.activeSelf;
             CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
                 socketTransform,
                 equippedAttachmentRoot,
@@ -416,24 +436,29 @@ namespace CCS.Modules.Weapons
                 definitionPosition,
                 definitionEuler,
                 definitionScale);
-            LogEquippedProfileApplication(profile);
+            if (debugEquipmentVisualProfileApplication && !wasEquippedActive)
+            {
+                LogEquippedProfileApplication(profile);
+            }
 
             equippedAimConvergenceRoot = EnsureEquippedAimConvergenceRoot(equippedAttachmentRoot);
-            DestroyLegacyDirectEquippedVisual(equippedAttachmentRoot, equippedAimConvergenceRoot);
+            CleanupLegacyEquippedVisualLayouts(equippedAttachmentRoot, equippedAimConvergenceRoot);
+            equippedAimConvergence?.SetConvergenceActive(false);
 
             equippedVisualInstance = EnsureVisualInstance(
-                equippedAimConvergenceRoot,
+                equippedAttachmentRoot,
                 CCS_EquipmentConstants.RuntimeEquippedVisualObjectName);
+
             if (equippedVisualInstance != null)
             {
                 equippedVisualInstance.SetActive(true);
-                equippedAimConvergence.BindEquippedVisual(equippedVisualInstance.transform);
-                equippedMuzzlePoint = equippedAimConvergence.MuzzlePoint;
+                equippedMuzzlePoint = ResolveEquippedMuzzlePoint(equippedVisualInstance.transform);
+                equippedAimConvergence?.BindEquippedVisual(equippedVisualInstance.transform);
             }
             else
             {
                 equippedMuzzlePoint = null;
-                equippedAimConvergence.BindEquippedVisual(null);
+                equippedAimConvergence?.BindEquippedVisual(null);
             }
         }
 
@@ -476,17 +501,18 @@ namespace CCS.Modules.Weapons
             return equippedAimConvergenceRoot;
         }
 
-        private static void DestroyLegacyDirectEquippedVisual(Transform attachmentRoot, Transform convergenceRoot)
+        private static void CleanupLegacyEquippedVisualLayouts(Transform attachmentRoot, Transform convergenceRoot)
         {
             if (attachmentRoot == null || convergenceRoot == null)
             {
                 return;
             }
 
-            Transform legacyVisual = attachmentRoot.Find(CCS_EquipmentConstants.RuntimeEquippedVisualObjectName);
-            if (legacyVisual != null && legacyVisual.parent == attachmentRoot)
+            Transform convergenceVisual = convergenceRoot.Find(
+                CCS_EquipmentConstants.RuntimeEquippedVisualObjectName);
+            if (convergenceVisual != null)
             {
-                Destroy(legacyVisual.gameObject);
+                Destroy(convergenceVisual.gameObject);
             }
         }
 
@@ -608,6 +634,97 @@ namespace CCS.Modules.Weapons
                 + "\nScale="
                 + FormatVector3(profile.SocketLocalScale)
                 + "\nProfile=CCS_RevolverM1879_RightHandEquipped_Fit");
+        }
+
+        private void LogEquippedFitParityOnce()
+        {
+            loggedEquippedFitParityThisAimSession = true;
+            CCS_WeaponAttachmentFitProfile profile = rightHandEquippedFitProfile;
+            if (profile == null || equippedAttachmentRoot == null)
+            {
+                Debug.LogWarning("[Equipment Visual] Runtime Equipped Fit Parity skipped: missing profile or attachment root.");
+                return;
+            }
+
+            Transform visualTransform = equippedVisualInstance != null ? equippedVisualInstance.transform : null;
+            bool visualZeroed = visualTransform != null
+                && visualTransform.localPosition == Vector3.zero
+                && visualTransform.localRotation == Quaternion.identity
+                && visualTransform.localScale == Vector3.one;
+
+            bool attachmentMatchesProfile = false;
+            if (TryGetSocketDefinitionBaseline(
+                    CCS_EquipmentConstants.HandSocketRightId,
+                    out Vector3 definitionPosition,
+                    out Vector3 definitionEuler,
+                    out Vector3 definitionScale))
+            {
+                attachmentMatchesProfile = CCS_WeaponAttachmentFitProfileApplicator.AttachmentRootMatchesProfile(
+                    equippedAttachmentRoot,
+                    profile,
+                    definitionPosition,
+                    definitionEuler,
+                    definitionScale);
+            }
+
+            Debug.Log(
+                "[Equipment Visual] Runtime Equipped Fit Parity\n"
+                + "Profile:\n"
+                + "  Position="
+                + FormatVector3(profile.SocketLocalPosition)
+                + "\n  Rotation="
+                + FormatVector3(profile.SocketLocalEulerAngles)
+                + "\n  Scale="
+                + FormatVector3(profile.SocketLocalScale)
+                + "\nRuntime Attachment Root:\n"
+                + "  LocalPosition="
+                + FormatVector3(equippedAttachmentRoot.localPosition)
+                + "\n  LocalEuler="
+                + FormatVector3(equippedAttachmentRoot.localEulerAngles)
+                + "\n  LocalScale="
+                + FormatVector3(equippedAttachmentRoot.localScale)
+                + "\nRuntime Visual Child:\n"
+                + "  LocalPosition="
+                + (visualTransform != null ? FormatVector3(visualTransform.localPosition) : "(missing)")
+                + "\n  LocalRotation="
+                + (visualTransform != null ? FormatVector3(visualTransform.localEulerAngles) : "(missing)")
+                + "\n  LocalScale="
+                + (visualTransform != null ? FormatVector3(visualTransform.localScale) : "(missing)")
+                + "\nParity:\n"
+                + "  AttachmentRootMatchesProfile="
+                + attachmentMatchesProfile
+                + "\n  VisualZeroed="
+                + visualZeroed
+                + "\n  VisualAimConvergenceActive=false");
+        }
+
+        private static Transform ResolveEquippedMuzzlePoint(Transform visualRoot)
+        {
+            if (visualRoot == null)
+            {
+                return null;
+            }
+
+            Transform muzzle = visualRoot.Find("MuzzlePoint");
+            if (muzzle == null)
+            {
+                muzzle = visualRoot.Find("FitGuides/MuzzlePoint");
+            }
+
+            if (muzzle == null)
+            {
+                Transform[] children = visualRoot.GetComponentsInChildren<Transform>(true);
+                for (int i = 0; i < children.Length; i++)
+                {
+                    if (children[i] != null && children[i].name == "MuzzlePoint")
+                    {
+                        muzzle = children[i];
+                        break;
+                    }
+                }
+            }
+
+            return muzzle;
         }
 
         private static string FormatVector3(Vector3 value)

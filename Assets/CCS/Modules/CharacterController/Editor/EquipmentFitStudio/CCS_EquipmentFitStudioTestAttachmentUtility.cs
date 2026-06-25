@@ -146,7 +146,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             return testRoot != null;
         }
 
-        private static Transform EnsureEditorAttachmentRoot(Transform socketTransform, string attachmentRootName)
+        public static Transform EnsureEditorAttachmentRoot(Transform socketTransform, string attachmentRootName)
         {
             Transform existing = socketTransform.Find(attachmentRootName);
             if (existing != null)

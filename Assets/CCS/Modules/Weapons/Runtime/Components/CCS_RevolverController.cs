@@ -49,6 +49,8 @@ namespace CCS.Modules.Weapons
         [Header("Experimental Visual Barrel Convergence")]
         [Tooltip("Default OFF. Rotates the equipped gun after the hand profile is applied and can break hand fit.")]
         [SerializeField] private bool enableVisualAimConvergence;
+        [Tooltip("Debug only. When ON, fire/hitscan uses raw muzzle forward instead of camera-center reticle aim.")]
+        [SerializeField] private bool enableMuzzleAuthoritativeShots;
         [SerializeField] private float convergenceSpeed = 18f;
         [SerializeField] private float maxYawCorrectionDegrees = 15f;
         [SerializeField] private float maxPitchCorrectionDegrees = 10f;
@@ -198,6 +200,34 @@ namespace CCS.Modules.Weapons
             weaponOwnershipActive = active;
             RaiseStateChanged();
         }
+
+        public void ConfigureAimVisualTestSettings(
+            bool armToReticleIkEnabled,
+            bool visualAimConvergenceEnabled,
+            CCS_AimReticleMode reticleMode,
+            bool reticleClampEnabled,
+            float maxReticleDriftPixels,
+            bool muzzleAuthoritativeShotsEnabled,
+            bool aimDebugRaysEnabled)
+        {
+            enableVisualAimConvergence = visualAimConvergenceEnabled;
+            enableMuzzleAuthoritativeShots = muzzleAuthoritativeShotsEnabled;
+            enableAimRayDebug = aimDebugRaysEnabled;
+            enableMuzzleDebug = aimDebugRaysEnabled;
+
+            CCS_RevolverArmReticleIK armReticleIk = GetComponentInChildren<CCS_RevolverArmReticleIK>(true);
+            armReticleIk?.SetArmToReticleIkEnabled(armToReticleIkEnabled);
+
+            CCS_MuzzleDrivenReticleController muzzleReticle =
+                GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
+            muzzleReticle?.ConfigureReticle(
+                reticleMode,
+                reticleClampEnabled,
+                maxReticleDriftPixels,
+                aimDebugRaysEnabled);
+        }
+
+        public bool EnableMuzzleAuthoritativeShots => enableMuzzleAuthoritativeShots;
 
         public void SetMuzzlePoint(Transform nextMuzzlePoint)
         {
@@ -452,30 +482,51 @@ namespace CCS.Modules.Weapons
             bool drawMuzzleDebug = enableRuntimeWeaponDebug || enableMuzzleDebug || debugAimAlignment
                 || debugVisualConvergence || debugAimCameraAlignment;
 
-            CCS_WeaponAimSolution aimSolution = CCS_WeaponAimResolver.Resolve(
-                resolvedCamera,
-                viewportPoint,
-                equippedMuzzle,
-                muzzlePoint,
-                revolverDefinition.MaxRange,
-                revolverDefinition.HitMask,
-                transform.root);
-            lastAimSolution = aimSolution;
-            hasLastAimSolution = true;
-            UpdateAimDebugSummary(aimSolution, equippedMuzzle);
+            CCS_MuzzleDrivenReticleController muzzleReticle =
+                GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
+            if (muzzleReticle != null && muzzleReticle.ReticleMode != CCS_AimReticleMode.CenterLocked)
+            {
+                viewportPoint = muzzleReticle.GetMuzzleReticleViewportPoint(resolvedCamera);
+            }
 
-            CCS_WeaponHitscanResult hitscanResult = CCS_HitscanWeaponRaycaster.CastFromAimResolver(
+            CCS_WeaponShotAimMode aimMode = enableMuzzleAuthoritativeShots
+                ? CCS_WeaponShotAimMode.DebugMuzzleForwardOnly
+                : CCS_WeaponShotAimMode.LocalPlayerCameraCenter;
+            CCS_RevolverShotRequest shotRequest = new CCS_RevolverShotRequest(
+                aimMode,
                 resolvedCamera,
                 viewportPoint,
                 equippedMuzzle,
                 muzzlePoint,
+                Vector3.zero,
                 revolverDefinition.MaxRange,
                 spread,
                 revolverDefinition.HitMask,
                 transform.root,
                 drawCameraDebug,
                 drawMuzzleDebug);
+            CCS_RevolverShotResult shotResult = CCS_WeaponShotResolver.ResolveShot(shotRequest);
+            if (!shotResult.Success)
+            {
+                if (enableRuntimeWeaponDebug)
+                {
+                    Debug.LogWarning("[Weapons] Revolver fire skipped: shot resolver failed.", this);
+                }
 
+                return;
+            }
+
+            lastAimSolution = shotResult.AimSolution;
+            hasLastAimSolution = true;
+            UpdateAimDebugSummary(shotResult.AimSolution, equippedMuzzle, resolvedCamera, viewportPoint);
+            CompleteFireShot(shotResult.HitscanResult, equippedMuzzle, resolvedCamera);
+        }
+
+        private void CompleteFireShot(
+            CCS_WeaponHitscanResult hitscanResult,
+            Transform equippedMuzzle,
+            Camera resolvedCamera)
+        {
             currentAmmo--;
             lastFireTime = Time.time;
             RaiseStateChanged();
@@ -492,7 +543,8 @@ namespace CCS.Modules.Weapons
                         : "missing";
                 Debug.Log(
                     $"[Weapons] Shot fired. Camera={resolvedCamera.name} Muzzle={muzzleLabel} "
-                    + $"MuzzlePos={hitscanResult.RayOrigin} Ammo={currentAmmo}/{MaxAmmo} Hit={hitLabel}",
+                    + $"MuzzlePos={hitscanResult.RayOrigin} Ammo={currentAmmo}/{MaxAmmo} Hit={hitLabel} "
+                    + $"MuzzleAuth={enableMuzzleAuthoritativeShots}",
                     this);
             }
 
@@ -664,9 +716,14 @@ namespace CCS.Modules.Weapons
             Debug.DrawLine(position - Vector3.forward * size, position + Vector3.forward * size, color);
         }
 
-        private void UpdateAimDebugSummary(CCS_WeaponAimSolution aimSolution, Transform equippedMuzzle)
+        private void UpdateAimDebugSummary(
+            CCS_WeaponAimSolution aimSolution,
+            Transform equippedMuzzle,
+            Camera resolvedCamera = null,
+            Vector2? viewportPoint = null)
         {
-            if (!debugAimAlignment && !debugVisualConvergence && !debugAimCameraAlignment)
+            if (!debugAimAlignment && !debugVisualConvergence && !debugAimCameraAlignment
+                && !enableAimRayDebug)
             {
                 lastAimDebugSummary = string.Empty;
                 return;
@@ -682,6 +739,40 @@ namespace CCS.Modules.Weapons
                 ? equipmentVisualController.CurrentAimConvergence.LastVisualBarrelErrorDegrees
                 : barrelToAimError;
             string muzzleSource = aimSolution.UsedVisualMuzzle ? "Visual" : "Fallback";
+            string cameraVsMuzzleSummary = string.Empty;
+            if (resolvedCamera != null && barrelForwardSource != null)
+            {
+                CCS_WeaponAimSolution cameraSolution = CCS_WeaponAimResolver.Resolve(
+                    resolvedCamera,
+                    viewportPoint ?? CCS_WeaponAimResolver.DefaultReticleViewportPoint,
+                    equippedMuzzle,
+                    muzzlePoint,
+                    revolverDefinition != null ? revolverDefinition.MaxRange : 100f,
+                    revolverDefinition != null ? revolverDefinition.HitMask : Physics.DefaultRaycastLayers,
+                    transform.root);
+                CCS_WeaponAimSolution muzzleSolution = CCS_WeaponAimResolver.ResolveMuzzleForward(
+                    equippedMuzzle,
+                    muzzlePoint,
+                    revolverDefinition != null ? revolverDefinition.MaxRange : 100f,
+                    revolverDefinition != null ? revolverDefinition.HitMask : Physics.DefaultRaycastLayers,
+                    transform.root);
+                Vector3 cameraScreen = resolvedCamera.WorldToScreenPoint(cameraSolution.AimPoint);
+                Vector3 muzzleScreen = resolvedCamera.WorldToScreenPoint(muzzleSolution.AimPoint);
+                float screenPixelDelta = new Vector2(
+                    cameraScreen.x - muzzleScreen.x,
+                    cameraScreen.y - muzzleScreen.y).magnitude;
+                float aimDirectionDelta = Vector3.Angle(
+                    cameraSolution.MuzzleToAimDirection,
+                    muzzleSolution.MuzzleToAimDirection);
+                cameraVsMuzzleSummary =
+                    "\nCamera vs Muzzle screen px: "
+                    + screenPixelDelta.ToString("F1")
+                    + "\nCamera vs Muzzle deg: "
+                    + aimDirectionDelta.ToString("F1")
+                    + "\nMuzzleAuthShots: "
+                    + enableMuzzleAuthoritativeShots;
+            }
+
             CCS_CharacterCameraProfile aimProfile = sceneCameraController != null
                 && sceneCameraController.CameraProfileSet != null
                 ? sceneCameraController.CameraProfileSet.AimOverShoulderProfile
@@ -704,6 +795,7 @@ namespace CCS.Modules.Weapons
                 + visualBarrelError.ToString("F1")
                 + " deg\nMuzzle Source: "
                 + muzzleSource
+                + cameraVsMuzzleSummary
                 + "\n"
                 + cameraSummary;
         }

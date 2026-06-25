@@ -189,7 +189,18 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= DestroyAllByName("CCS_TestDetectionCubeSceneBootstrap");
             changed |= CCS_InteractionDetectionTestBuilder.ApplyMasterTestInteractionsToActiveScene();
 
+            if (!scene.isLoaded)
+            {
+                scene = EditorSceneManager.OpenScene(
+                    CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
+                    OpenSceneMode.Single);
+            }
+            else if (SceneManager.GetActiveScene() != scene)
+            {
+                EditorSceneManager.SetActiveScene(scene);
+            }
 
+            changed |= CCS_MasterTestRecordingAmbientAudioBuilder.EnsureMasterTestRecordingAmbience(scene);
 
             if (changed)
 

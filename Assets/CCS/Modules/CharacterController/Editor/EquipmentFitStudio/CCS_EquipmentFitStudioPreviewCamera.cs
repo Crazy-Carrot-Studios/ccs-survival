@@ -47,6 +47,8 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         private int textureHeight = 360;
 
+        private readonly string cameraObjectName;
+
         #endregion
 
         #region Properties
@@ -57,13 +59,24 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
         #endregion
 
+        #region Constructors
+
+        public CCS_EquipmentFitStudioPreviewCamera(string cameraObjectNameOverride = null)
+        {
+            cameraObjectName = string.IsNullOrEmpty(cameraObjectNameOverride)
+                ? CCS_EquipmentConstants.EditorPreviewCameraObjectName
+                : cameraObjectNameOverride;
+        }
+
+        #endregion
+
         #region Public Methods
 
         public void EnsureCamera(CCS_EquipmentFitStudioSettings settings)
         {
             if (cameraRoot == null)
             {
-                cameraRoot = new GameObject(CCS_EquipmentConstants.EditorPreviewCameraObjectName);
+                cameraRoot = new GameObject(cameraObjectName);
                 cameraRoot.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
                 previewCamera = cameraRoot.AddComponent<Camera>();
                 previewCamera.enabled = true;
