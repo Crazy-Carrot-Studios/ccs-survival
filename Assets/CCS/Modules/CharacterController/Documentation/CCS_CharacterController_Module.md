@@ -2,6 +2,12 @@
 
 **Version:** 0.2.4 — Unified Test Player + Master Test Harness
 
+## v0.7.0 — AI bandit combat integration hooks
+
+- Added AI animation bridge support: `CCS_RevolverUpperBodyAnimator.SetRevolverAimHeldExternal(...)` for non-player revolver aim driving.
+- Master Test now supports an AI spawner workflow through AI module editor builders.
+- CharacterController netcode test prefab registration now includes AI bandit network prefab requirements.
+
 ## v0.6.16 — Simplified third-person revolver aim cleanup
 
 - Third-person **Aim Over Shoulder** only for RMB firearm aim (`CinemachineCamera_Aim`).

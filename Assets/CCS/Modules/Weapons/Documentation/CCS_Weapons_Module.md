@@ -6,6 +6,12 @@
 
 **Scope:** Revolver M1879 world pickup, hitscan gameplay, equipment socket foundation, Equipment Fit Studio, revolver fit profile pack, and Master Test integration.
 
+## v0.7.0 — Shared combat damage bridge for AI
+
+- `CCS_RevolverController.ApplyDamageToHitTarget` now resolves `CCS_IDamageable` on hit targets via `GetComponentInParent`.
+- Damage payload uses shared `CCS_DamageInfo` / `CCS_DamageSourceType` in Attributes to avoid AI/Weapons circular dependencies.
+- Legacy `CCS_TestDamageTarget` fallback remains for non-attribute test targets.
+
 ## v0.6.16 — Simplified third-person revolver aim cleanup
 
 - Red reticle (`#D32222`) visible only during **FullDraw** aim phase.

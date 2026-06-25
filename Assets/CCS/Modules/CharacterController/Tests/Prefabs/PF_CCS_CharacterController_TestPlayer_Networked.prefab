@@ -1139,6 +1139,7 @@ GameObject:
   - component: {fileID: 7223288658663817011}
   - component: {fileID: 1981095118740769465}
   - component: {fileID: 4076866618874431801}
+  - component: {fileID: 3624613141273494974}
   m_Layer: 8
   m_Name: PF_CCS_CharacterController_TestPlayer_Networked
   m_TagString: Player
@@ -1660,6 +1661,22 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   inputProvider: {fileID: 3066966173724100183}
   playerWeaponLoadout: {fileID: 7760003227044633541}
+--- !u!114 &3624613141273494974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240448729846996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 766349e9b2dc869449c8f326ba06a00c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Attributes.Runtime::CCS.Modules.Attributes.CCS_NetworkHealth
+  ShowTopMostFoldoutHeaderGroup: 1
+  attributeContainer: {fileID: 7399152414567355896}
+  healthDefinition: {fileID: 11400000, guid: b8c9d0e1f2a3456789012345678abcd0, type: 2}
+  enableHealthDebugLogs: 0
 --- !u!1 &2455953433895996448
 GameObject:
   m_ObjectHideFlags: 0

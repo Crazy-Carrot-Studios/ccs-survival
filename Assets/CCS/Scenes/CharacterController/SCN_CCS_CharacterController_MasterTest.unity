@@ -1792,6 +1792,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1777555532}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1736208591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1736208593}
+  - component: {fileID: 1736208592}
+  m_Layer: 0
+  m_Name: CCS_AIBanditSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1736208592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1736208591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa32a6b5f5a388c469d94d698e0f1678, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.AI.Runtime::CCS.Modules.AI.CCS_AIBanditSpawner
+  aiBanditPrefab: {fileID: 2240448729846996730, guid: 36e7e0f65c5c41f4aa4cac44badeb9ac, type: 3}
+  spawnReference: {fileID: 1846383184}
+  spawnOffset: {x: 0, y: 0, z: 0}
+  enableSpawnerDebugLogs: 0
+--- !u!4 &1736208593
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1736208591}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1752574733
 GameObject:
   m_ObjectHideFlags: 0
@@ -3038,6 +3086,30 @@ PrefabInstance:
     - {fileID: 798340433787861810, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
     - {fileID: 6083255190655658639, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
     - {fileID: 1578356422230107512, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3942013245192722631, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 8392598158493123666, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 6420328605175078002, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 6506476063051729040, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3205039389743030805, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 4683456382715982296, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 7691425196891964256, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 5478950193268292742, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 6004516952856989188, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 8280226770257811318, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 7631033799221045702, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 247308371563883348, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3391195052963180258, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3480289579832132184, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 1612055491096678204, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 5226975054675258649, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 4173013376097166681, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3482368747516259241, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 8611347066617282276, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 8570256950455034302, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 6116786485183269940, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 4082109944133491172, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 5403924276660626080, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
+    - {fileID: 3794149840783134775, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
@@ -3415,3 +3487,4 @@ SceneRoots:
   - {fileID: 1829235896}
   - {fileID: 1439890493}
   - {fileID: 860641416}
+  - {fileID: 1736208593}

@@ -76,6 +76,7 @@ namespace CCS.Modules.Attributes.Editor
                 changed |= EnsureStaminaController(prefabRoot, staminaDefinition);
                 changed |= EnsureHealthRegenController(prefabRoot, healthDefinition);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
+                changed |= EnsureNetworkHealth(prefabRoot, healthDefinition);
                 changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureDebugDamageInput(prefabRoot);
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
@@ -299,6 +300,30 @@ namespace CCS.Modules.Attributes.Editor
             if (changed)
             {
                 serializedReplicator.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureNetworkHealth(
+            GameObject prefabRoot,
+            CCS_AttributeDefinition healthDefinition)
+        {
+            CCS_NetworkHealth networkHealth = prefabRoot.GetComponent<CCS_NetworkHealth>();
+            if (networkHealth == null)
+            {
+                networkHealth = prefabRoot.AddComponent<CCS_NetworkHealth>();
+            }
+
+            CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
+            SerializedObject serializedHealth = new SerializedObject(networkHealth);
+            bool changed = networkHealth == null;
+            changed |= SetObjectReference(serializedHealth, "attributeContainer", container);
+            changed |= SetObjectReference(serializedHealth, "healthDefinition", healthDefinition);
+
+            if (changed)
+            {
+                serializedHealth.ApplyModifiedPropertiesWithoutUndo();
             }
 
             return changed;

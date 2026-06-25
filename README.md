@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.6.16** · Crazy Carrot Studios
+**Version 0.7.0** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -14,10 +14,13 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 | **Weapons** | Revolver M1879 world pickup, hitscan, fit profile pack (v0.6.16 reticle-aligned shots) |
+| **AI** | Network AI bandit combat foundation (v0.7.0) |
 
 ## Current milestone
 
-**0.6.16** — **Simplified third-person revolver aim cleanup:** third-person **Aim Over Shoulder** only (`CinemachineCamera_Aim`). Simplified `RevolverUpperBody` layer with upper-body/right-arm mask excluding left arm. Aim flow: `NoAim → IdleToAim → FullDraw → Return`. Red reticle (`#D32222`) visible only during **FullDraw**. Player shots resolve from **camera-center reticle aim** through `CCS_WeaponShotResolver`; projectile/tracer travels muzzle → resolved aim point. **Animation Fit Studio** edits controller-used `CCS_WW_Revolver_AimIdle_FullDraw.anim` via Humanoid muscle curves. Legacy first-person aim routing, AimPitch blend, FitTest active workflow, arm-to-reticle IK, and visual aim convergence active paths removed.
+**0.7.0** — **Network AI bandit combat foundation:** adds `Assets/CCS/Modules/AI` runtime/editor/documentation/content scaffolding, server-authoritative bandit state machine, target sensing/LOS, simple XZ chase motor, AI revolver firing via `CCS_WeaponShotResolver` `AIAimTarget`, world-space bandit health nameplate, Master Test spawner, prefab builder/batch validation flow, shared `CCS_IDamageable` combat contracts, and `CCS_NetworkHealth` for replicated health/death.
+
+**0.6.16** — Simplified third-person revolver aim cleanup.
 
 **0.6.15** — Local self headless first-person body fallback; Equipment Fit Studio weapon-space rotation; Master Test recording ambience.
 

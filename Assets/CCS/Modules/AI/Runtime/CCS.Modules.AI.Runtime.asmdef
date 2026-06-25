@@ -1,0 +1,23 @@
+{
+    "name": "CCS.Modules.AI.Runtime",
+    "rootNamespace": "CCS.Modules.AI",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Weapons.Runtime",
+        "CCS.Modules.Attributes.Runtime",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

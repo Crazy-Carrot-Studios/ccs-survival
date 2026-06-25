@@ -31,6 +31,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
         public static bool RebuildNetworkPrefabSetup()
         {
+            TryEnsureAIBanditPrefabViaReflection();
+
             if (!CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs())
             {
                 Debug.LogWarning("[Netcode Setup] Player prefab sync reported no changes or could not run.");
@@ -665,6 +667,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryPath,
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath,
                 CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath,
+                CCS_NetcodeTestConstants.AIBanditPrefabPath,
             };
 
             bool importedAny = false;
@@ -1052,6 +1055,26 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
 
             return changed || yamlChanged;
+        }
+
+        private static void TryEnsureAIBanditPrefabViaReflection()
+        {
+            System.Type builderType = System.Type.GetType(
+                "CCS.Modules.AI.Editor.CCS_AIBanditPrefabBuilder, CCS.Modules.AI.Editor");
+            if (builderType == null)
+            {
+                return;
+            }
+
+            System.Reflection.MethodInfo ensureMethod = builderType.GetMethod(
+                "EnsureAIBanditPrefab",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            if (ensureMethod == null)
+            {
+                return;
+            }
+
+            ensureMethod.Invoke(null, null);
         }
 
         private static void WireHostingMenuNetworkReferences(GameObject networkManagerInstance)

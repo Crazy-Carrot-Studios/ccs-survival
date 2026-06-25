@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.6.16`
+**Current version:** `0.7.0`
 
 ## Purpose
 
@@ -42,6 +42,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.14`** | **Local self head layer mask for separated head renderers** |
 | **`0.6.15`** | **Local self headless first-person body fallback (combined CC3 body)** |
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
+| **`0.7.0`** | **Network AI bandit combat foundation** |
 
 ---
 
@@ -104,6 +105,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.0` — Network AI Bandit Combat Foundation
+
+- Added `Assets/CCS/Modules/AI` runtime/editor/documentation/content scaffolding and asmdefs
+- Added AI bandit state machine, sensing, motor, weapon firing, controller, nameplate, and master-test spawner
+- Added shared combat contracts (`CCS_IDamageable`, `CCS_DamageInfo`, `CCS_DamageSourceType`) and replicated `CCS_NetworkHealth`
+- Registered AI prefab path in netcode required prefab list and setup utility flow
 
 ### `0.5.5` — Project Audit and Interaction Cleanup
 

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65daa445c12ad7140975c36e6cb05555, type: 3}
+  m_Name: CCS_AIBanditProfile_Default
+  m_EditorClassIdentifier: CCS.Modules.AI.Runtime::CCS.Modules.AI.CCS_AIBanditProfile
+  profileDisplayName: 
+  profileId: 
+  profileDescription: 
+  profileVersion: 0.0.1
+  enableDebugLogs: 0
+  displayName: AI_Bandit
+  maxHealth: 100
+  detectionRange: 35
+  lineOfSightHeight: 1.45
+  visibilityMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  moveSpeed: 2.6
+  rotationSpeed: 540
+  minimumPreferredRange: 6
+  attackRange: 20
+  aimSettleSeconds: 0.55
+  fireCooldownSeconds: 1.5
+  shotDamage: 20
+  shotMaxRange: 45
+  spawnDistanceFromPlayer: 22
+  spawnSideOffset: 8
+  enableAIDebugLogs: 0

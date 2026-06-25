@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 
+using CCS.Modules.Attributes;
 using CCS.Modules.CharacterController;
 
 using Unity.Netcode;
@@ -589,13 +590,28 @@ namespace CCS.Modules.Weapons
                 return;
             }
 
-            CCS_TestDamageTarget damageTarget = hitscanResult.HitObject.GetComponentInParent<CCS_TestDamageTarget>();
-            if (damageTarget == null)
+            CCS_IDamageable damageable = hitscanResult.HitObject.GetComponentInParent<CCS_IDamageable>();
+            if (damageable != null && !damageable.IsDead)
+            {
+                ulong sourceNetworkObjectId = cachedNetworkObject != null ? cachedNetworkObject.NetworkObjectId : 0ul;
+                CCS_DamageInfo damageInfo = new CCS_DamageInfo(
+                    revolverDefinition.Damage,
+                    hitscanResult.HitPoint,
+                    -hitscanResult.HitNormal,
+                    CCS_DamageSourceType.RevolverShot,
+                    gameObject,
+                    sourceNetworkObjectId);
+                damageable.ApplyDamage(damageInfo);
+                return;
+            }
+
+            CCS_TestDamageTarget testDamageTarget = hitscanResult.HitObject.GetComponentInParent<CCS_TestDamageTarget>();
+            if (testDamageTarget == null)
             {
                 return;
             }
 
-            damageTarget.ApplyWeaponDamage(revolverDefinition.Damage);
+            testDamageTarget.ApplyWeaponDamage(revolverDefinition.Damage);
         }
 
         private void StartReload()

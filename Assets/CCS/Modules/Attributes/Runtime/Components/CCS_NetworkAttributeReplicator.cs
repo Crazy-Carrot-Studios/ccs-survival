@@ -92,6 +92,28 @@ namespace CCS.Modules.Attributes
             }
         }
 
+        public void ApplyDamageFromSource(float amount, CCS_DamageSourceType sourceType, ulong sourceNetworkObjectId = 0ul)
+        {
+            if (amount <= 0f)
+            {
+                return;
+            }
+
+            if (!IsSpawned || NetworkManager == null || !NetworkManager.IsListening)
+            {
+                ApplyDamageLocally(amount, sourceType.ToString());
+                return;
+            }
+
+            if (IsServer)
+            {
+                ApplyDamageOnServer(amount, sourceType.ToString());
+                return;
+            }
+
+            ApplyDamageFromSourceServerRpc(amount, (int)sourceType, sourceNetworkObjectId);
+        }
+
         public float GetReplicatedHealth()
         {
             return replicatedHealth.Value;
@@ -136,6 +158,16 @@ namespace CCS.Modules.Attributes
             }
 
             ApplyDamageOnServer(amount, sourceLabel);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void ApplyDamageFromSourceServerRpc(
+            float amount,
+            int sourceType,
+            ulong sourceNetworkObjectId,
+            ServerRpcParams rpcParams = default)
+        {
+            ApplyDamageOnServer(amount, ((CCS_DamageSourceType)sourceType).ToString());
         }
 
         private void ApplyDamageOnServer(float amount, string sourceLabel)

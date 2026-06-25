@@ -41,10 +41,14 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         public const string TestPickupInteractablePrefabPath =
             CCS_InteractionConstants.TestPickupInteractablePrefabPath;
 
+        public const string AIBanditPrefabPath =
+            "Assets/CCS/Modules/AI/Content/Prefabs/PF_CCS_AI_Bandit_Networked.prefab";
+
         public static readonly string[] RequiredNetworkPrefabPaths =
         {
             NetworkedPlayerPrefabPath,
             TestPickupInteractablePrefabPath,
+            AIBanditPrefabPath,
         };
 
         public const string TestNetworkPrefabsListPath =

@@ -76,6 +76,10 @@ namespace CCS.Modules.CharacterController
             new System.Collections.Generic.HashSet<int>();
         private bool animatorParametersCached;
         private CCS_RevolverAimPhase currentAimPhase = CCS_RevolverAimPhase.NoAim;
+        private bool externalAimOverrideActive;
+        private bool externalRevolverAimHeld;
+        private bool externalRevolverOwned;
+        private bool externalRevolverReloading;
 
         #endregion
 
@@ -134,6 +138,26 @@ namespace CCS.Modules.CharacterController
             }
 
             GUI.Label(new Rect(12f, 280f, 960f, 280f), cachedRuntimeDebugOverlayText);
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void SetRevolverAimHeldExternal(bool aimHeld, bool revolverOwned, bool isReloading)
+        {
+            externalAimOverrideActive = true;
+            externalRevolverAimHeld = aimHeld;
+            externalRevolverOwned = revolverOwned;
+            externalRevolverReloading = isReloading;
+        }
+
+        public void ClearExternalRevolverAimOverride()
+        {
+            externalAimOverrideActive = false;
+            externalRevolverAimHeld = false;
+            externalRevolverOwned = false;
+            externalRevolverReloading = false;
         }
 
         #endregion
@@ -400,6 +424,11 @@ namespace CCS.Modules.CharacterController
 
         private bool ResolveRevolverAimHeld()
         {
+            if (externalAimOverrideActive)
+            {
+                return externalRevolverOwned && externalRevolverAimHeld;
+            }
+
             if (IsControlLocked() || revolverAnimationState == null)
             {
                 return false;
@@ -410,6 +439,11 @@ namespace CCS.Modules.CharacterController
 
         private bool ResolveRevolverOwned()
         {
+            if (externalAimOverrideActive)
+            {
+                return externalRevolverOwned;
+            }
+
             return revolverAnimationState != null && revolverAnimationState.IsRevolverOwned;
         }
 
@@ -435,8 +469,12 @@ namespace CCS.Modules.CharacterController
 
             bool interactionLocked = IsControlLocked();
             bool aimHeld = !interactionLocked && ResolveRevolverAimHeld();
+            bool isReloading = externalAimOverrideActive
+                ? externalRevolverReloading
+                : (revolverAnimationState != null && revolverAnimationState.RevolverIsReloading);
 
             SetAnimatorBoolIfPresent(RevolverAimHeldHash, aimHeld);
+            SetAnimatorBoolIfPresent(RevolverIsReloadingHash, isReloading);
             lastAppliedRevolverAimHeld = aimHeld;
         }
 

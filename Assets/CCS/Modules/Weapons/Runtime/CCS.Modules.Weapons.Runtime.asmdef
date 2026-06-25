@@ -5,6 +5,7 @@
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
         "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Attributes.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "Unity.InputSystem",
         "Unity.Netcode.Runtime",

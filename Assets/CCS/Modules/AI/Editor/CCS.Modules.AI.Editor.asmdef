@@ -1,0 +1,26 @@
+{
+    "name": "CCS.Modules.AI.Editor",
+    "rootNamespace": "CCS.Modules.AI.Editor",
+    "references": [
+        "CCS.Core.Runtime",
+        "CCS.Project.Runtime",
+        "CCS.Modules.AI.Runtime",
+        "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.CharacterController.Editor",
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.Weapons.Editor",
+        "CCS.Modules.Weapons.Runtime",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
