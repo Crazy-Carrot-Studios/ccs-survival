@@ -177,6 +177,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAnimatorMotionPlaybackReadiness());
+
+            AppendValidationResult(
+                failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime());
 
             AppendValidationResult(

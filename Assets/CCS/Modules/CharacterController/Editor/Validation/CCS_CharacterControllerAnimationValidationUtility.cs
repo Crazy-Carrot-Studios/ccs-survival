@@ -380,8 +380,9 @@ namespace CCS.Modules.CharacterController.Editor
                     "CCS_RevolverUpperBodyAnimator must expose CurrentAimPhase for reticle gating.");
                 AppendIfMissing(
                     failures,
-                    runtimeAnimatorSource.Contains("ResolveTargetLayerWeight"),
-                    "CCS_RevolverUpperBodyAnimator must blend aim layer weight by phase.");
+                    runtimeAnimatorSource.Contains("UpdateLayerWeight")
+                    && runtimeAnimatorSource.Contains("SetLayerWeight"),
+                    "CCS_RevolverUpperBodyAnimator must drive RevolverUpperBody layer weight at runtime.");
             }
 
             AppendBaseLayerLocomotionOnlyFailures(failures, controller.layers[0].stateMachine);
@@ -513,6 +514,188 @@ namespace CCS.Modules.CharacterController.Editor
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass("Interaction layer animation isolation validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateAnimatorMotionPlaybackReadiness()
+        {
+            List<string> failures = new List<string>();
+
+            AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            AppendIfMissing(failures, controller != null, "Player Animator Controller is missing.");
+            if (controller == null || controller.layers.Length < 3)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            AppendIfMissing(
+                failures,
+                Mathf.Approximately(controller.layers[0].defaultWeight, 1f),
+                "Base Layer default weight must be 1 so locomotion is visible in editor and at runtime.");
+
+            ValidateStateMotionNotNull(
+                failures,
+                controller.layers[0].stateMachine,
+                "Idle");
+            ValidateStateMotionNotNull(
+                failures,
+                controller.layers[0].stateMachine,
+                "Walk");
+            ValidateStateMotionNotNull(
+                failures,
+                controller.layers[0].stateMachine,
+                "Sprint");
+            ValidateStateMotionNotNull(
+                failures,
+                controller.layers[0].stateMachine,
+                "Jump");
+            ValidateStateMotionNotNull(
+                failures,
+                controller.layers[0].stateMachine,
+                "InAir");
+
+            int revolverLayerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
+            AppendIfMissing(
+                failures,
+                revolverLayerIndex >= 0,
+                "RevolverUpperBody layer must exist for motion playback validation.");
+            if (revolverLayerIndex >= 0)
+            {
+                AnimatorControllerLayer revolverLayer = controller.layers[revolverLayerIndex];
+                AvatarMask expectedMask = AssetDatabase.LoadAssetAtPath<AvatarMask>(
+                    CCS_CharacterControllerConstants.RevolverAimRightArmMaskPath);
+                AppendIfMissing(
+                    failures,
+                    revolverLayer.avatarMask == expectedMask,
+                    "RevolverUpperBody must use AM_CCS_Revolver_UpperBodyRightArm_Aim mask.");
+
+                AnimatorStateMachine revolverStateMachine = revolverLayer.stateMachine;
+                ValidateStateMotionNotNull(
+                    failures,
+                    revolverStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName);
+                ValidateStateMotionNotNull(
+                    failures,
+                    revolverStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName);
+                ValidateStateMotionNotNull(
+                    failures,
+                    revolverStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleReturnStateName);
+
+                AnimatorState aimStrafeState = FindState(
+                    revolverStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName);
+                AppendIfMissing(
+                    failures,
+                    aimStrafeState != null,
+                    "RevolverUpperBody must contain AimStrafe_Locomotion.");
+                if (aimStrafeState != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        aimStrafeState.motion is BlendTree,
+                        "AimStrafe_Locomotion must use a BlendTree motion.");
+                    if (aimStrafeState.motion is BlendTree aimStrafeBlendTree)
+                    {
+                        ValidateBlendTreeChildrenHaveMotion(failures, aimStrafeBlendTree);
+                    }
+                }
+            }
+
+            int interactionLayerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName);
+            AppendIfMissing(
+                failures,
+                interactionLayerIndex >= 0,
+                "Interaction layer must exist for motion playback validation.");
+            if (interactionLayerIndex >= 0)
+            {
+                AnimatorStateMachine interactionStateMachine = controller.layers[interactionLayerIndex].stateMachine;
+                AnimatorState defaultState = FindState(
+                    interactionStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName);
+                AnimatorState pickUpState = FindState(
+                    interactionStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName);
+                AnimatorState walkThroughDoorState = FindState(
+                    interactionStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorInteractWalkThroughDoorStateName);
+
+                AppendIfMissing(
+                    failures,
+                    defaultState != null,
+                    "Interaction layer must define "
+                    + CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName
+                    + ".");
+                AppendIfMissing(
+                    failures,
+                    interactionStateMachine.defaultState == defaultState,
+                    "Interaction default state must be "
+                    + CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName
+                    + ".");
+                ValidateStateMotionNotNull(
+                    failures,
+                    interactionStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName);
+                ValidateStateMotionNotNull(
+                    failures,
+                    interactionStateMachine,
+                    CCS_CharacterControllerConstants.AnimatorInteractWalkThroughDoorStateName);
+
+                if (pickUpState != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        StateHasInteractionExitBehaviour(pickUpState),
+                        "Interact_PickUp_RH must include CCS_InteractionAnimationStateExitBehaviour.");
+                }
+
+                if (walkThroughDoorState != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        StateHasInteractionExitBehaviour(walkThroughDoorState),
+                        "Interact_WalkThroughDoor_RH must include CCS_InteractionAnimationStateExitBehaviour.");
+                }
+            }
+
+            string revolverAnimatorPath =
+                CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
+            string interactionAnimatorPath =
+                CCS_CharacterControllerConstants.ModuleRootPath
+                + "/Runtime/Visuals/CCS_PlayerInteractionAnimator.cs";
+            AppendIfMissing(
+                failures,
+                ValidateRuntimeSourceSetsLayerWeight(
+                    revolverAnimatorPath,
+                    CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName),
+                "CCS_RevolverUpperBodyAnimator must set RevolverUpperBody layer weight at runtime.");
+            AppendIfMissing(
+                failures,
+                ValidateRuntimeSourceSetsLayerWeight(
+                    interactionAnimatorPath,
+                    CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName),
+                "CCS_PlayerInteractionAnimator must set Interaction layer weight to 1f at runtime.");
+
+            bool reconnectSucceeded = CCS_AnimatorClipReconnectBuilder.EnsurePlayerAnimatorClipReconnect(out List<string> reconnectErrors);
+            for (int i = 0; i < reconnectErrors.Count; i++)
+            {
+                failures.Add(reconnectErrors[i]);
+            }
+
+            AppendIfMissing(
+                failures,
+                reconnectSucceeded,
+                "Animator clip reconnect pass reported unresolved clip assignments.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Animator motion playback readiness validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateRuntimeAnimatorControllerAgreement()
@@ -814,6 +997,72 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return false;
+        }
+
+        private static void ValidateStateMotionNotNull(
+            List<string> failures,
+            AnimatorStateMachine stateMachine,
+            string stateName)
+        {
+            AnimatorState state = FindState(stateMachine, stateName);
+            AppendIfMissing(
+                failures,
+                state != null,
+                "Animator state " + stateName + " is missing.");
+            if (state == null)
+            {
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                state.motion != null,
+                "Animator state " + stateName + " must have a non-null motion clip.");
+        }
+
+        private static void ValidateBlendTreeChildrenHaveMotion(List<string> failures, BlendTree blendTree)
+        {
+            ChildMotion[] children = blendTree.children;
+            for (int i = 0; i < children.Length; i++)
+            {
+                AppendIfMissing(
+                    failures,
+                    children[i].motion != null,
+                    "AimStrafe blend tree child "
+                    + i
+                    + " must have a non-null motion clip.");
+            }
+        }
+
+        private static bool StateHasInteractionExitBehaviour(AnimatorState state)
+        {
+            if (state == null)
+            {
+                return false;
+            }
+
+            StateMachineBehaviour[] behaviours = state.behaviours;
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is CCS_InteractionAnimationStateExitBehaviour)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool ValidateRuntimeSourceSetsLayerWeight(string sourcePath, string layerName)
+        {
+            if (!File.Exists(sourcePath))
+            {
+                return false;
+            }
+
+            string source = File.ReadAllText(sourcePath);
+            return source.Contains("SetLayerWeight")
+                && source.Contains(layerName);
         }
 
         private static bool BaseLayerUsesRevolverAimHeldTransitions(AnimatorStateMachine stateMachine)

@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.15 — simplified right-arm masked aim: IdleToAim → FullDraw → IdleToAim reverse.
+// NOTES: v0.7.3 — keeps RevolverUpperBody layer weight at 1 while revolver is equipped so masked states can blend.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -102,6 +102,7 @@ namespace CCS.Modules.CharacterController
         {
             CacheAnimatorParameters();
             EnsureRevolverEventSubscription();
+            ApplyRevolverLayerWeightIfOwned();
         }
 
         private void OnDisable()
@@ -326,7 +327,7 @@ namespace CCS.Modules.CharacterController
             }
 
             currentAimPhase = ResolveCurrentAimPhase();
-            float targetWeight = ResolveTargetLayerWeight(currentAimPhase);
+            float targetWeight = 1f;
             float blendSpeed = targetWeight >= currentLayerWeight
                 ? aimLayerBlendInSpeed
                 : aimLayerBlendOutSpeed;
@@ -337,45 +338,20 @@ namespace CCS.Modules.CharacterController
             ApplyLayerWeight(currentLayerWeight);
         }
 
-        private float ResolveTargetLayerWeight(CCS_RevolverAimPhase phase)
+        private void ApplyRevolverLayerWeightIfOwned()
         {
-            switch (phase)
+            if (revolverLayerIndex < 0 || animator == null)
             {
-                case CCS_RevolverAimPhase.NoAim:
-                    return 0f;
-                case CCS_RevolverAimPhase.Drawing:
-                    return ResolveDrawingLayerWeight();
-                case CCS_RevolverAimPhase.FullDraw:
-                case CCS_RevolverAimPhase.Returning:
-                    return 1f;
-                default:
-                    return 0f;
-            }
-        }
-
-        private float ResolveDrawingLayerWeight()
-        {
-            if (animator == null || revolverLayerIndex < 0)
-            {
-                return ResolveRevolverAimHeld() ? 1f : 0f;
+                return;
             }
 
-            if (animator.IsInTransition(revolverLayerIndex))
+            if (IsControlLocked() || !ResolveRevolverOwned())
             {
-                AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(revolverLayerIndex);
-                if (nextState.IsName(CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName))
-                {
-                    return Mathf.Clamp01(nextState.normalizedTime);
-                }
+                return;
             }
 
-            AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(revolverLayerIndex);
-            if (currentState.IsName(CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName))
-            {
-                return Mathf.Clamp01(currentState.normalizedTime);
-            }
-
-            return ResolveRevolverAimHeld() ? 1f : 0f;
+            currentLayerWeight = 1f;
+            ApplyLayerWeight(1f);
         }
 
         private CCS_RevolverAimPhase ResolveCurrentAimPhase()
@@ -419,6 +395,11 @@ namespace CCS.Modules.CharacterController
             if (stateInfo.IsName(CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleReturnStateName))
             {
                 return CCS_RevolverAimPhase.Returning;
+            }
+
+            if (stateInfo.IsName(CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName))
+            {
+                return CCS_RevolverAimPhase.FullDraw;
             }
 
             return CCS_RevolverAimPhase.NoAim;

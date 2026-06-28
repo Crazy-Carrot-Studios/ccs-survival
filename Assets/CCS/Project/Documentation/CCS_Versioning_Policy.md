@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.2`
+**Current version:** `0.7.3`
 
 ## Purpose
 
@@ -45,6 +45,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
 | **`0.7.2`** | **Player animator layer cleanup** |
+| **`0.7.3`** | **Player animator runtime reconnect** |
 
 ---
 
@@ -107,6 +108,15 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.3` — Player Animator Runtime Reconnect
+
+- Keeps RevolverUpperBody layer weight at 1 while revolver is equipped so masked aim/aim-strafe states can blend over Base Layer locomotion
+- Re-applies Interaction layer weight on Awake/OnEnable/Start and before trigger playback
+- Adds `CCS_AnimatorClipReconnectBuilder` to re-plug state motions by resolved clip name/path
+- Adds optional `CCS_PlayerAnimatorRuntimeDiagnostics` for layer weight/state/parameter tracing in Play Mode
+- Fixes Base Layer default weight to 1 in the Animator Controller asset
+- Extends batch validation for non-null motions, blend-tree children, and runtime layer-weight contracts
 
 ### `0.7.2` — Player Animator Layer Cleanup
 

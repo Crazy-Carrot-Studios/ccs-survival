@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: Ensures Base Layer locomotion-only, RevolverUpperBody aim/strafe, Interaction pickup layer.
+// NOTES: v0.7.3 — clip reconnect, motion validation, and runtime layer-weight verification.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -20,6 +20,18 @@ namespace CCS.Modules.CharacterController.Editor
         {
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
             CCS_RevolverAimSimplificationBuilder.EnsureAnimatorLayerCleanupPass();
+            if (!CCS_AnimatorClipReconnectBuilder.EnsurePlayerAnimatorClipReconnect(out System.Collections.Generic.List<string> reconnectErrors))
+            {
+                for (int errorIndex = 0; errorIndex < reconnectErrors.Count; errorIndex++)
+                {
+                    Debug.LogError(
+                        "[Animator Layer Cleanup Batch] Clip reconnect failed: "
+                        + reconnectErrors[errorIndex]);
+                }
+
+                EditorApplication.Exit(1);
+                return;
+            }
 
             CCS_SurvivalValidationResult[] validations =
             {
@@ -28,6 +40,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateInteractionLayerAnimationIsolation(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateAnimatorMotionPlaybackReadiness(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRuntimeAnimatorControllerAgreement(),
@@ -47,8 +60,8 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             Debug.Log(
-                "[Animator Layer Cleanup Batch] Validation passed: Base Layer locomotion-only, "
-                + "RevolverUpperBody aim/strafe, and Interaction pickup layer validated.");
+                "[Animator Layer Cleanup Batch] Validation passed: layer structure, clip reconnect, "
+                + "motion assignments, and runtime layer-weight contracts validated.");
             EditorApplication.Exit(0);
         }
     }

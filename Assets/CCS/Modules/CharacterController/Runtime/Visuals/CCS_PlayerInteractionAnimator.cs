@@ -76,6 +76,13 @@ namespace CCS.Modules.CharacterController
             {
                 interactionSource.InteractionCompleted += HandleInteractionCompleted;
             }
+
+            EnsureInteractionLayerWeight();
+        }
+
+        private void Start()
+        {
+            EnsureInteractionLayerWeight();
         }
 
         private void OnDisable()
@@ -159,6 +166,8 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
+            EnsureInteractionLayerWeight(resolvedAnimator);
+
             string triggerName = CCS_InteractionAnimationKeyUtility.ToAnimatorTriggerName(animationKey);
             resolvedAnimator.SetTrigger(Animator.StringToHash(triggerName));
         }
@@ -196,6 +205,16 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
+            EnsureInteractionLayerWeight(resolvedAnimator);
+        }
+
+        private void EnsureInteractionLayerWeight(Animator resolvedAnimator)
+        {
+            if (resolvedAnimator == null)
+            {
+                return;
+            }
+
             int interactionLayerIndex = resolvedAnimator.GetLayerIndex(
                 CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName);
             if (interactionLayerIndex < 0)
@@ -213,7 +232,11 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            resolvedAnimator.SetLayerWeight(interactionLayerIndex, 1f);
+            float currentWeight = resolvedAnimator.GetLayerWeight(interactionLayerIndex);
+            if (currentWeight < 0.999f)
+            {
+                resolvedAnimator.SetLayerWeight(interactionLayerIndex, 1f);
+            }
         }
 
         private void HandleInteractionCompleted(CCS_InteractionCompletedEvent completedEvent)

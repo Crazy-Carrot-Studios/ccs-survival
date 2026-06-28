@@ -974,8 +974,9 @@ namespace CCS.Modules.Weapons
                         "CCS_RevolverUpperBodyAnimator must expose CurrentAimPhase.");
                     AppendIfMissing(
                         failures,
-                        animatorSource.Contains("ResolveTargetLayerWeight"),
-                        "CCS_RevolverUpperBodyAnimator must blend aim layer weight by phase.");
+                        animatorSource.Contains("UpdateLayerWeight")
+                        && animatorSource.Contains("SetLayerWeight"),
+                        "CCS_RevolverUpperBodyAnimator must drive RevolverUpperBody layer weight at runtime.");
                 }
             }
 

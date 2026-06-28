@@ -94,10 +94,18 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool EnsureAnimatorLayerCleanupPass()
         {
-            bool changed = EnsureInteractionReservedLayer();
+            AnimatorController controller = LoadPlayerController();
+            bool changed = false;
+            if (controller != null)
+            {
+                changed |= CCS_AnimatorClipReconnectBuilder.EnsureLayerDefaultWeights(controller);
+            }
+
+            changed |= EnsureInteractionReservedLayer();
             changed |= EnsureAimStrafeOnRevolverUpperBodyLayer();
             changed |= EnsureInteractionLayer();
             changed |= RemoveBaseLayerLegacyAimStates();
+            changed |= CCS_AnimatorClipReconnectBuilder.EnsurePlayerAnimatorClipReconnect(out _);
 
             if (changed)
             {
