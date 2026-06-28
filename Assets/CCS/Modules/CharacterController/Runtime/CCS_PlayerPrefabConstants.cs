@@ -31,6 +31,12 @@ namespace CCS.Modules.CharacterController
 
         public const string PlayerLocalUiObjectName = "PlayerLocalUI";
 
+        public const string TestVisualsObjectName = "TestVisuals";
+
+        public const string RealCharacterModelObjectName = "RealCharacterModel";
+
+        public const string PlayerVisualPrefabInstanceName = "PF_CCS_Player_Visual";
+
         public const int ProductionRootComponentHardTarget = 8;
 
         public const int ProductionRootComponentTransitionalTarget = 12;

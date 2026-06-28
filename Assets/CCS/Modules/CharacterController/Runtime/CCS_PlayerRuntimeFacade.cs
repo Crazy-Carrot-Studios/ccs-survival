@@ -197,9 +197,23 @@ namespace CCS.Modules.CharacterController
                 equipmentVisualController = FindComponentByTypeName("CCS_PlayerEquipmentVisualController");
             }
 
-            if (animator == null)
+            if (animator == null || !CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
             {
-                animator = GetComponentInChildren<Animator>(true);
+                if (CCS_PlayerAnimatorResolver.TryResolveAuthoritativeAnimator(
+                        transform,
+                        out Animator resolvedAnimator,
+                        out bool usedFallback))
+                {
+                    animator = resolvedAnimator;
+                    if (usedFallback && logErrors)
+                    {
+                        Debug.LogWarning(
+                            "[CCS_PlayerRuntimeFacade] Used fallback authoritative Animator resolution on "
+                            + name
+                            + ".",
+                            this);
+                    }
+                }
             }
 
             if (playerInteractionAnimator == null)

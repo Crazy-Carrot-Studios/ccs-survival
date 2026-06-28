@@ -202,6 +202,8 @@ namespace CCS.Modules.CharacterController.Editor
                 new(typeof(CCS_TestPlayerOfflineBootstrap), CCS_PlayerPrefabComponentCategory.TestOnly, CCS_PlayerPrefabArchitectureLayer.Root),
                 new(typeof(CCS_TestPlayerAttributeDebugInput), CCS_PlayerPrefabComponentCategory.TestOnly, CCS_PlayerPrefabArchitectureLayer.RuntimeSystems),
                 new(typeof(CCS_PlayerAnimatorRuntimeDiagnostics), CCS_PlayerPrefabComponentCategory.TestOnly, CCS_PlayerPrefabArchitectureLayer.Presentation),
+                new(typeof(CCS_PlayerAnimationPoseDeltaDiagnostic), CCS_PlayerPrefabComponentCategory.TestOnly, CCS_PlayerPrefabArchitectureLayer.Presentation),
+                new(typeof(CCS_PlayerAnimatorSpawnBindingReport), CCS_PlayerPrefabComponentCategory.PresentationAllowed, CCS_PlayerPrefabArchitectureLayer.Presentation),
             };
         }
     }

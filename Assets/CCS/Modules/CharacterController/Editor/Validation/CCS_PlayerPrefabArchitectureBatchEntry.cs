@@ -27,6 +27,9 @@ namespace CCS.Modules.CharacterController.Editor
             Debug.Log("[Player Prefab Architecture Batch] Re-wiring player prefab references...");
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
 
+            Debug.Log("[Player Prefab Architecture Batch] Repairing visual contamination and Animator wiring...");
+            CCS_PlayerVisualAndAnimatorBindingBuilder.EnsurePlayerVisualAndAnimatorBinding();
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 

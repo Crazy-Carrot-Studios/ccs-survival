@@ -3246,12 +3246,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: f8a9b0c1d2e345678901234567890ab0, type: 2}
     - target: {fileID: 900040, guid: f4a8c2e1b9d3476580a1b2c3d4e5f6a7, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'pinky_03_r'\n\tTransform 'ring_01_r'\n\tTransform
-        'ring_03_r'\n\tTransform 'middle_02_r'\n\tTransform 'ring_02_r'\n\tTransform
-        'middle_03_r'\n\tTransform 'middle_01_r'\n\tTransform 'pinky_02_r'\n\tTransform
-        'pinky_01_r'\n\tFrom animation clip 'CCS_WW_Revolver_AimIdle_FullDraw'"
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -18,25 +18,13 @@ namespace CCS.Modules.CharacterController
         #region Variables
 
         private const float JumpVerticalVelocityThreshold = 0.5f;
-
-        private static readonly int SpeedNormalizedHash = Animator.StringToHash("SpeedNormalized");
-        private static readonly int IsGroundedHash = Animator.StringToHash("IsGrounded");
-        private static readonly int IsSprintingHash = Animator.StringToHash("IsSprinting");
-        private static readonly int JumpTriggerHash = Animator.StringToHash("JumpTrigger");
-
-        private static readonly int IsAimingMovementModeHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter);
-        private static readonly int AimMoveXHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorAimMoveXParameter);
-        private static readonly int AimMoveYHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorAimMoveYParameter);
-
         private const float AimMoveParameterSmoothSpeed = 12f;
 
         [SerializeField] private Animator animator;
         [SerializeField] private CCS_CharacterMotor motor;
 
         private bool loggedMissingController;
+        private bool loggedFallbackAnimator;
         private float previousVerticalVelocity;
         private float smoothedAimMoveX;
         private float smoothedAimMoveY;
@@ -70,24 +58,28 @@ namespace CCS.Modules.CharacterController
 
             float verticalVelocity = motor.VerticalVelocity;
 
-            resolvedAnimator.SetFloat(SpeedNormalizedHash, speedNormalized);
-            resolvedAnimator.SetBool(IsGroundedHash, motor.IsGrounded);
-            resolvedAnimator.SetBool(IsSprintingHash, motor.IsSprinting);
+            resolvedAnimator.SetFloat(CCS_PlayerAnimatorParameterIds.SpeedNormalized, speedNormalized);
+            resolvedAnimator.SetBool(CCS_PlayerAnimatorParameterIds.IsGrounded, motor.IsGrounded);
+            resolvedAnimator.SetBool(CCS_PlayerAnimatorParameterIds.IsSprinting, motor.IsSprinting);
 
             bool isAimingMovement = motor.IsAimMovementActive;
-            resolvedAnimator.SetBool(IsAimingMovementModeHash, isAimingMovement);
+            resolvedAnimator.SetBool(CCS_PlayerAnimatorParameterIds.IsAimingMovementMode, isAimingMovement);
 
             Vector2 aimMoveInput = motor.AimMoveInput;
             float smoothFactor = Time.deltaTime * AimMoveParameterSmoothSpeed;
             smoothedAimMoveX = Mathf.Lerp(smoothedAimMoveX, aimMoveInput.x, smoothFactor);
             smoothedAimMoveY = Mathf.Lerp(smoothedAimMoveY, aimMoveInput.y, smoothFactor);
-            resolvedAnimator.SetFloat(AimMoveXHash, isAimingMovement ? smoothedAimMoveX : 0f);
-            resolvedAnimator.SetFloat(AimMoveYHash, isAimingMovement ? smoothedAimMoveY : 0f);
+            resolvedAnimator.SetFloat(
+                CCS_PlayerAnimatorParameterIds.AimMoveX,
+                isAimingMovement ? smoothedAimMoveX : 0f);
+            resolvedAnimator.SetFloat(
+                CCS_PlayerAnimatorParameterIds.AimMoveY,
+                isAimingMovement ? smoothedAimMoveY : 0f);
 
             if (previousVerticalVelocity <= 0f
                 && verticalVelocity > JumpVerticalVelocityThreshold)
             {
-                resolvedAnimator.SetTrigger(JumpTriggerHash);
+                resolvedAnimator.SetTrigger(CCS_PlayerAnimatorParameterIds.JumpTrigger);
             }
 
             previousVerticalVelocity = verticalVelocity;
@@ -101,7 +93,8 @@ namespace CCS.Modules.CharacterController
         {
             if (motor == null)
             {
-                motor = GetComponentInParent<CCS_CharacterMotor>();
+                CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+                motor = facade != null ? facade.Motor : GetComponentInParent<CCS_CharacterMotor>();
             }
 
             TryResolveAnimator(out _);
@@ -109,24 +102,38 @@ namespace CCS.Modules.CharacterController
 
         private bool TryResolveAnimator(out Animator resolvedAnimator)
         {
-            if (animator != null && HasPlayableController(animator))
+            if (animator != null && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
             {
                 resolvedAnimator = animator;
                 return true;
             }
 
-            Animator[] animators = GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
+            CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+            if (facade != null
+                && facade.Animator != null
+                && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(facade.Animator))
             {
-                Animator candidate = animators[i];
-                if (candidate == null || !HasPlayableController(candidate))
+                animator = facade.Animator;
+                resolvedAnimator = animator;
+                loggedMissingController = false;
+                return true;
+            }
+
+            if (CCS_PlayerAnimatorResolver.TryResolveAuthoritativeAnimator(
+                    transform,
+                    out resolvedAnimator,
+                    out bool usedFallback))
+            {
+                animator = resolvedAnimator;
+                loggedMissingController = false;
+                if (usedFallback && !loggedFallbackAnimator)
                 {
-                    continue;
+                    loggedFallbackAnimator = true;
+                    Debug.LogWarning(
+                        "[CCS Player Locomotion Animator] Used fallback authoritative Animator resolution.",
+                        this);
                 }
 
-                animator = candidate;
-                resolvedAnimator = candidate;
-                loggedMissingController = false;
                 return true;
             }
 
@@ -136,18 +143,11 @@ namespace CCS.Modules.CharacterController
             {
                 loggedMissingController = true;
                 Debug.LogWarning(
-                    "[CCS Player Locomotion Animator] No child Animator with a runtime AnimatorController was found. Visual locomotion parameters were skipped.",
+                    "[CCS Player Locomotion Animator] No authoritative humanoid Animator was found. Visual locomotion parameters were skipped.",
                     this);
             }
 
             return false;
-        }
-
-        private static bool HasPlayableController(Animator candidate)
-        {
-            return candidate != null
-                && candidate.isActiveAndEnabled
-                && candidate.runtimeAnimatorController != null;
         }
 
         #endregion

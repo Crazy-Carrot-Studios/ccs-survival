@@ -112,6 +112,7 @@ namespace CCS.Modules.CharacterController.Editor
                 ValidateComponentClassification(failures, warnings, prefabRoot, strictProductionRules, label);
                 ValidateRequiredSystems(failures, prefabRoot, strictProductionRules, label);
                 ValidateFacadeReferences(failures, prefabRoot, label);
+                ValidateVisualAndAnimatorBinding(failures, prefabRoot, strictProductionRules, label);
                 ValidateNetworkComponentsOnRoot(failures, prefabRoot, label);
                 ValidateLocalUiOwnerGate(failures, warnings, prefabRoot, strictProductionRules, label);
                 ValidateAnimatorLayerIsolation(failures, label);
@@ -342,6 +343,81 @@ namespace CCS.Modules.CharacterController.Editor
             if (facade != null && !facade.HasRequiredProductionReferences())
             {
                 failures.Add(label + " CCS_PlayerRuntimeFacade is missing required references.");
+            }
+        }
+
+        private static void ValidateVisualAndAnimatorBinding(
+            List<string> failures,
+            GameObject prefabRoot,
+            bool strictProductionRules,
+            string label)
+        {
+            if (strictProductionRules)
+            {
+                ValidateProductionVisualContamination(failures, prefabRoot, label);
+            }
+
+            if (!CCS_PlayerVisualAndAnimatorBindingBuilder.TryResolveAuthoritativeAnimator(
+                    prefabRoot,
+                    out Animator authoritativeAnimator)
+                || authoritativeAnimator == null)
+            {
+                failures.Add(label + " is missing an authoritative humanoid gameplay Animator.");
+                return;
+            }
+
+            Animator[] animators = prefabRoot.GetComponentsInChildren<Animator>(true);
+            int authoritativeCount = 0;
+            for (int animatorIndex = 0; animatorIndex < animators.Length; animatorIndex++)
+            {
+                Animator candidate = animators[animatorIndex];
+                if (candidate == null
+                    || CCS_PlayerAnimatorResolver.IsUnderTestVisuals(candidate.transform)
+                    || candidate.avatar == null
+                    || !candidate.avatar.isHuman
+                    || candidate.runtimeAnimatorController == null)
+                {
+                    continue;
+                }
+
+                authoritativeCount++;
+            }
+
+            if (authoritativeCount != 1)
+            {
+                failures.Add(
+                    label
+                    + " must contain exactly one authoritative gameplay Animator (found "
+                    + authoritativeCount
+                    + ").");
+            }
+
+            CCS_PlayerRuntimeFacade facade = prefabRoot.GetComponent<CCS_PlayerRuntimeFacade>();
+            if (facade != null && facade.Animator != authoritativeAnimator)
+            {
+                failures.Add(label + " CCS_PlayerRuntimeFacade must reference the authoritative Animator.");
+            }
+        }
+
+        private static void ValidateProductionVisualContamination(
+            List<string> failures,
+            GameObject prefabRoot,
+            string label)
+        {
+            Transform[] transforms = prefabRoot.GetComponentsInChildren<Transform>(true);
+            for (int transformIndex = 0; transformIndex < transforms.Length; transformIndex++)
+            {
+                Transform current = transforms[transformIndex];
+                if (current == null || !CCS_PlayerVisualAndAnimatorBindingBuilder.IsTestVisualObjectName(current.name))
+                {
+                    continue;
+                }
+
+                failures.Add(
+                    label
+                    + " must not contain test visual object '"
+                    + current.name
+                    + "'.");
             }
         }
 

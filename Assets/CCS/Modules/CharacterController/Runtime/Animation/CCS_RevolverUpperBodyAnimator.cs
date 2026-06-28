@@ -69,6 +69,7 @@ namespace CCS.Modules.CharacterController
         private int revolverLayerIndex = -1;
         private float currentLayerWeight;
         private bool loggedMissingLayer;
+        private bool loggedFallbackAnimator;
         private bool subscribedRevolverEvents;
         private bool lastAppliedRevolverAimHeld;
         private string cachedRuntimeDebugOverlayText = string.Empty;
@@ -169,14 +170,15 @@ namespace CCS.Modules.CharacterController
 
         private void ResolveReferences()
         {
-            if (animator == null)
+            if (animator == null || !CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
             {
                 TryResolveAnimator(out animator);
             }
 
             if (characterMotor == null)
             {
-                characterMotor = GetComponentInParent<CCS_CharacterMotor>();
+                CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+                characterMotor = facade != null ? facade.Motor : GetComponentInParent<CCS_CharacterMotor>();
             }
 
             if (revolverAnimationState == null)
@@ -828,19 +830,43 @@ namespace CCS.Modules.CharacterController
 
         private bool TryResolveAnimator(out Animator resolvedAnimator)
         {
-            Animator[] animators = GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
+            CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+            if (facade != null
+                && facade.Animator != null
+                && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(facade.Animator))
             {
-                Animator candidate = animators[i];
-                if (candidate != null && candidate.runtimeAnimatorController != null)
+                animator = facade.Animator;
+                resolvedAnimator = animator;
+                loggedMissingLayer = false;
+                revolverLayerIndex = -1;
+                animatorParametersCached = false;
+                return true;
+            }
+
+            if (animator != null && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
+            {
+                resolvedAnimator = animator;
+                return true;
+            }
+
+            if (CCS_PlayerAnimatorResolver.TryResolveAuthoritativeAnimator(
+                    transform,
+                    out resolvedAnimator,
+                    out bool usedFallback))
+            {
+                animator = resolvedAnimator;
+                loggedMissingLayer = false;
+                revolverLayerIndex = -1;
+                animatorParametersCached = false;
+                if (usedFallback && !loggedFallbackAnimator)
                 {
-                    animator = candidate;
-                    resolvedAnimator = candidate;
-                    loggedMissingLayer = false;
-                    revolverLayerIndex = -1;
-                    animatorParametersCached = false;
-                    return true;
+                    loggedFallbackAnimator = true;
+                    Debug.LogWarning(
+                        "[Revolver Upper Body Animator] Used fallback authoritative Animator resolution.",
+                        this);
                 }
+
+                return true;
             }
 
             resolvedAnimator = null;

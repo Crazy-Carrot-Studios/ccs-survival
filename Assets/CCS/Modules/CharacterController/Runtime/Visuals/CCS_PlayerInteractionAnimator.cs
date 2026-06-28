@@ -41,6 +41,7 @@ namespace CCS.Modules.CharacterController
         private CCS_CharacterMotor cachedCharacterMotor;
         private Coroutine unlockCoroutine;
         private bool loggedMissingController;
+        private bool loggedFallbackAnimator;
         private bool loggedMissingInteractionLayer;
         private bool isInteractionBusy;
         private CCS_InteractionAnimationKey activeInteractionAnimationKey =
@@ -376,24 +377,38 @@ namespace CCS.Modules.CharacterController
 
         private bool TryResolveAnimator(out Animator resolvedAnimator)
         {
-            if (animator != null && HasPlayableController(animator))
+            if (animator != null && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
             {
                 resolvedAnimator = animator;
                 return true;
             }
 
-            Animator[] animators = GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
+            CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+            if (facade != null
+                && facade.Animator != null
+                && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(facade.Animator))
             {
-                Animator candidate = animators[i];
-                if (candidate == null || !HasPlayableController(candidate))
+                animator = facade.Animator;
+                resolvedAnimator = animator;
+                loggedMissingController = false;
+                return true;
+            }
+
+            if (CCS_PlayerAnimatorResolver.TryResolveAuthoritativeAnimator(
+                    transform,
+                    out resolvedAnimator,
+                    out bool usedFallback))
+            {
+                animator = resolvedAnimator;
+                loggedMissingController = false;
+                if (usedFallback && !loggedFallbackAnimator)
                 {
-                    continue;
+                    loggedFallbackAnimator = true;
+                    Debug.LogWarning(
+                        "[CCS Player Interaction Animator] Used fallback authoritative Animator resolution.",
+                        this);
                 }
 
-                animator = candidate;
-                resolvedAnimator = candidate;
-                loggedMissingController = false;
                 return true;
             }
 
@@ -403,7 +418,7 @@ namespace CCS.Modules.CharacterController
             {
                 loggedMissingController = true;
                 Debug.LogWarning(
-                    "[CCS Player Interaction Animator] No child Animator with a runtime AnimatorController was found. Visual interaction triggers were skipped.",
+                    "[CCS Player Interaction Animator] No authoritative humanoid Animator was found. Visual interaction triggers were skipped.",
                     this);
             }
 
@@ -412,9 +427,7 @@ namespace CCS.Modules.CharacterController
 
         private static bool HasPlayableController(Animator candidate)
         {
-            return candidate != null
-                && candidate.isActiveAndEnabled
-                && candidate.runtimeAnimatorController != null;
+            return CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(candidate);
         }
 
         #endregion

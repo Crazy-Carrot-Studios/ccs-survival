@@ -68,11 +68,16 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
+            bool isProductionPrefab = prefabPath == CCS_PlayerPrefabConstants.ProductionPlayerPrefabPath;
             changed |= EnsureNameplateHierarchy(prefabRoot.transform);
-            changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
-            changed |= EnsureGlassesVisual(prefabRoot.transform);
+            if (!isProductionPrefab)
+            {
+                changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
+                changed |= EnsureGlassesVisual(prefabRoot.transform);
+                changed |= ApplyDisplayProfileLayout(prefabRoot);
+            }
+
             changed |= EnsureCameraPivotSetup(prefabRoot.transform);
-            changed |= ApplyDisplayProfileLayout(prefabRoot);
             changed |= EnsureCameraFollowAnchorSetup(prefabRoot.transform);
             changed |= EnsurePlayerCameraCollisionExclusion(prefabRoot);
             changed |= EnsurePlayerCameraPivotReferences(prefabRoot);
@@ -354,7 +359,9 @@ namespace CCS.Modules.CharacterController.Editor
                 return false;
             }
 
-            Transform bodyVisual = playerRoot.Find(CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
+            Transform bodyVisual = FindChildRecursive(
+                playerRoot,
+                CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
             if (bodyVisual == null)
             {
                 return false;
@@ -397,8 +404,10 @@ namespace CCS.Modules.CharacterController.Editor
                 return false;
             }
 
-            Transform glasses = playerRoot.Find(CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
-            Transform legacyGlasses = playerRoot.Find("GlassesVisual");
+            Transform glasses = FindChildRecursive(
+                playerRoot,
+                CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
+            Transform legacyGlasses = FindChildRecursive(playerRoot, "GlassesVisual");
             bool changed = false;
             if (legacyGlasses != null && legacyGlasses != glasses)
             {
@@ -688,7 +697,11 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            Animator animator = playerRoot.GetComponentInChildren<Animator>(true);
+            Animator animator = CCS_PlayerVisualAndAnimatorBindingBuilder.TryResolveAuthoritativeAnimator(
+                playerRoot.gameObject,
+                out Animator authoritativeAnimator)
+                ? authoritativeAnimator
+                : playerRoot.GetComponentInChildren<Animator>(true);
             Transform fpAnchor = pitchTarget != null
                 ? pitchTarget.Find(CCS_CharacterControllerConstants.FirstPersonCameraAnchorObjectName)
                 : null;
@@ -741,8 +754,12 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
-            Animator animator = playerRoot.GetComponentInChildren<Animator>(true);
-            Transform visualRoot = playerRoot.Find("VisualRoot");
+            Animator animator = CCS_PlayerVisualAndAnimatorBindingBuilder.TryResolveAuthoritativeAnimator(
+                playerRoot.gameObject,
+                out Animator authoritativeAnimator)
+                ? authoritativeAnimator
+                : playerRoot.GetComponentInChildren<Animator>(true);
+            Transform visualRoot = FindChildRecursive(playerRoot, "VisualRoot");
             if (visualRoot == null)
             {
                 visualRoot = playerRoot;
@@ -1133,7 +1150,11 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            Animator animator = visualRoot.GetComponentInChildren<Animator>(true);
+            Animator animator = CCS_PlayerVisualAndAnimatorBindingBuilder.TryResolveAuthoritativeAnimator(
+                prefabRoot,
+                out Animator authoritativeAnimator)
+                ? authoritativeAnimator
+                : visualRoot.GetComponentInChildren<Animator>(true);
             CCS_RevolverController revolverController =
                 prefabRoot.GetComponentInChildren<CCS_RevolverController>(true);
             CCS_PlayerInteractionAnimator interactionAnimator =

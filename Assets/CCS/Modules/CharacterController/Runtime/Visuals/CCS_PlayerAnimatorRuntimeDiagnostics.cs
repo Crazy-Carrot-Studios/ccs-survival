@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -8,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot (optional, disabled by default).
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: v0.7.3 — enable in Master Test/hosting scenes to trace layer weight and parameter flow.
+// NOTES: v0.8.1b — console/Markdown only. No on-screen overlay.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -18,14 +20,16 @@ namespace CCS.Modules.CharacterController
     {
         #region Variables
 
+        private const string RuntimeReportRelativePath = "Logs/player-animator-runtime-report.md";
+
         [SerializeField] private Animator animator;
         [SerializeField] private bool enableDiagnostics;
         [SerializeField] private bool logToConsole;
-        [SerializeField] private bool showOnScreenOverlay = true;
+        [SerializeField] private bool writeMarkdownReport;
         [SerializeField] private float logIntervalSeconds = 1f;
 
         private float nextLogTime;
-        private string cachedOverlayText = string.Empty;
+        private bool loggedFallbackAnimator;
 
         #endregion
 
@@ -35,75 +39,123 @@ namespace CCS.Modules.CharacterController
         {
             if (!enableDiagnostics)
             {
-                cachedOverlayText = string.Empty;
                 return;
             }
 
             if (!TryResolveAnimator(out Animator resolvedAnimator))
             {
-                cachedOverlayText = "Animator diagnostics: no playable Animator found.";
+                if (logToConsole && Time.unscaledTime >= nextLogTime)
+                {
+                    nextLogTime = Time.unscaledTime + Mathf.Max(0.25f, logIntervalSeconds);
+                    Debug.Log("[Player Animator Diagnostics] No authoritative Animator found.", this);
+                }
+
                 return;
             }
 
-            cachedOverlayText = BuildDiagnosticsReport(resolvedAnimator);
+            string report = BuildDiagnosticsReport(resolvedAnimator, BuildAnimatorPath(resolvedAnimator));
 
             if (logToConsole && Time.unscaledTime >= nextLogTime)
             {
                 nextLogTime = Time.unscaledTime + Mathf.Max(0.25f, logIntervalSeconds);
-                Debug.Log("[Player Animator Diagnostics]\n" + cachedOverlayText, this);
+                Debug.Log("[Player Animator Diagnostics]\n" + report, this);
             }
-        }
 
-        private void OnGUI()
-        {
-            if (!enableDiagnostics || !showOnScreenOverlay || string.IsNullOrEmpty(cachedOverlayText))
+            if (writeMarkdownReport)
             {
-                return;
+                WriteMarkdownReport(report);
             }
-
-            GUI.Label(new Rect(12f, 12f, 980f, 720f), cachedOverlayText);
         }
 
         #endregion
 
         #region Private Methods
 
+        private void WriteMarkdownReport(string reportBody)
+        {
+            string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            string reportPath = Path.Combine(projectRoot, RuntimeReportRelativePath);
+            string directory = Path.GetDirectoryName(reportPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            StringBuilder builder = new StringBuilder(reportBody.Length + 128);
+            builder.AppendLine("# Player Animator Runtime Report");
+            builder.AppendLine();
+            builder.AppendLine("```");
+            builder.AppendLine(reportBody);
+            builder.AppendLine("```");
+            File.WriteAllText(reportPath, builder.ToString());
+        }
+
         private bool TryResolveAnimator(out Animator resolvedAnimator)
         {
-            if (animator != null && HasPlayableController(animator))
+            if (animator != null && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(animator))
             {
                 resolvedAnimator = animator;
                 return true;
             }
 
-            Animator[] animators = GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
+            CCS_PlayerRuntimeFacade facade = GetComponentInParent<CCS_PlayerRuntimeFacade>(true);
+            if (facade != null
+                && facade.Animator != null
+                && CCS_PlayerAnimatorResolver.IsAuthoritativeGameplayAnimator(facade.Animator))
             {
-                Animator candidate = animators[i];
-                if (candidate != null && HasPlayableController(candidate))
+                animator = facade.Animator;
+                resolvedAnimator = animator;
+                return true;
+            }
+
+            if (CCS_PlayerAnimatorResolver.TryResolveAuthoritativeAnimator(
+                    transform,
+                    out resolvedAnimator,
+                    out bool usedFallback))
+            {
+                animator = resolvedAnimator;
+                if (usedFallback && !loggedFallbackAnimator)
                 {
-                    animator = candidate;
-                    resolvedAnimator = candidate;
-                    return true;
+                    loggedFallbackAnimator = true;
+                    Debug.LogWarning(
+                        "[Player Animator Diagnostics] Used fallback authoritative Animator resolution.",
+                        this);
                 }
+
+                return true;
             }
 
             resolvedAnimator = null;
             return false;
         }
 
-        private static bool HasPlayableController(Animator candidate)
+        private static string BuildAnimatorPath(Animator resolvedAnimator)
         {
-            return candidate != null
-                && candidate.isActiveAndEnabled
-                && candidate.runtimeAnimatorController != null;
+            if (resolvedAnimator == null)
+            {
+                return "Missing";
+            }
+
+            Transform current = resolvedAnimator.transform;
+            Stack<string> segments = new Stack<string>();
+            while (current != null)
+            {
+                segments.Push(current.name);
+                current = current.parent;
+            }
+
+            return string.Join("/", segments);
         }
 
-        private static string BuildDiagnosticsReport(Animator resolvedAnimator)
+        private static string BuildDiagnosticsReport(Animator resolvedAnimator, string animatorPath)
         {
             StringBuilder builder = new StringBuilder(4096);
+            builder.Append("Animator Path: ");
+            builder.Append(animatorPath);
+            builder.Append("\nAvatar: ");
+            builder.Append(resolvedAnimator.avatar != null ? resolvedAnimator.avatar.name : "Missing");
+            builder.Append("\nController: ");
             RuntimeAnimatorController runtimeController = resolvedAnimator.runtimeAnimatorController;
-            builder.Append("Controller: ");
             builder.Append(runtimeController != null ? runtimeController.name : "Missing");
             builder.Append("\nLayer Count: ");
             builder.Append(resolvedAnimator.layerCount);
@@ -140,37 +192,37 @@ namespace CCS.Modules.CharacterController
             }
 
             builder.Append("\n\n[Parameters]");
-            AppendBool(builder, resolvedAnimator, "SpeedNormalized", isFloat: true);
-            AppendBool(builder, resolvedAnimator, "IsGrounded");
-            AppendBool(builder, resolvedAnimator, "IsSprinting");
-            AppendBool(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter);
-            AppendBool(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorAimMoveXParameter, isFloat: true);
-            AppendBool(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorAimMoveYParameter, isFloat: true);
-            AppendBool(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorRevolverAimHeldParameter);
-            AppendBool(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorRevolverIsReloadingParameter);
-            AppendTrigger(builder, resolvedAnimator, "JumpTrigger");
-            AppendTrigger(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter);
-            AppendTrigger(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter);
-            AppendTrigger(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorRevolverFireTriggerParameter);
-            AppendTrigger(builder, resolvedAnimator, CCS_CharacterControllerConstants.AnimatorRevolverReloadTriggerParameter);
+            AppendFloat(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.SpeedNormalizedName);
+            AppendBool(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.IsGroundedName);
+            AppendBool(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.IsSprintingName);
+            AppendBool(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.IsAimingMovementModeName);
+            AppendFloat(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.AimMoveXName);
+            AppendFloat(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.AimMoveYName);
+            AppendBool(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.RevolverAimHeldName);
+            AppendBool(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.RevolverIsReloadingName);
+            AppendTrigger(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.JumpTriggerName);
+            AppendTrigger(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.PickUpRightHandTriggerName);
+            AppendTrigger(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.WalkThroughDoorRightHandTriggerName);
+            AppendTrigger(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.RevolverFireTriggerName);
+            AppendTrigger(builder, resolvedAnimator, CCS_PlayerAnimatorParameterIds.RevolverReloadTriggerName);
 
             return builder.ToString();
         }
 
-        private static void AppendBool(StringBuilder builder, Animator animator, string parameterName, bool isFloat = false)
+        private static void AppendFloat(StringBuilder builder, Animator animator, string parameterName)
         {
-            int hash = Animator.StringToHash(parameterName);
             builder.Append("\n  ");
             builder.Append(parameterName);
             builder.Append(": ");
+            builder.Append(animator.GetFloat(Animator.StringToHash(parameterName)).ToString("0.000"));
+        }
 
-            if (isFloat)
-            {
-                builder.Append(animator.GetFloat(hash).ToString("0.000"));
-                return;
-            }
-
-            builder.Append(animator.GetBool(hash));
+        private static void AppendBool(StringBuilder builder, Animator animator, string parameterName)
+        {
+            builder.Append("\n  ");
+            builder.Append(parameterName);
+            builder.Append(": ");
+            builder.Append(animator.GetBool(Animator.StringToHash(parameterName)));
         }
 
         private static void AppendTrigger(StringBuilder builder, Animator animator, string parameterName)

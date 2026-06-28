@@ -200,8 +200,20 @@ namespace CCS.Modules.CharacterController.Editor
                 ref changed);
 
             changed |= ReparentNamedChild(prefabRoot.transform, presentation, "VisualRoot");
-            changed |= ReparentNamedChild(prefabRoot.transform, presentation, CCS_TestPlayerPrefabConstants.CapsuleVisualName);
-            changed |= ReparentNamedChild(prefabRoot.transform, presentation, CCS_TestPlayerPrefabConstants.GlassesVisualName);
+            if (stripTestOnlyComponents)
+            {
+                changed |= RemoveTestVisualObjects(prefabRoot);
+            }
+            else
+            {
+                Transform testVisuals = EnsureChildTransform(
+                    presentation,
+                    CCS_PlayerPrefabConstants.TestVisualsObjectName,
+                    ref changed);
+                changed |= ReparentAllNamedChildren(prefabRoot.transform, testVisuals, CCS_TestPlayerPrefabConstants.CapsuleVisualName);
+                changed |= ReparentAllNamedChildren(prefabRoot.transform, testVisuals, CCS_TestPlayerPrefabConstants.GlassesVisualName);
+            }
+
             changed |= ReparentNamedChild(prefabRoot.transform, presentation, CCS_TestPlayerPrefabConstants.NameplateRootObjectName);
 
             for (int uiIndex = 0; uiIndex < LocalUiRootNames.Length; uiIndex++)
@@ -253,7 +265,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool ReparentNamedChild(Transform root, Transform newParent, string childName)
         {
-            Transform child = root.Find(childName);
+            Transform child = FindDirectOrDeepChild(root, childName);
             if (child == null || newParent == null || child.parent == newParent)
             {
                 return false;
@@ -261,6 +273,91 @@ namespace CCS.Modules.CharacterController.Editor
 
             child.SetParent(newParent, false);
             return true;
+        }
+
+        private static bool ReparentAllNamedChildren(Transform root, Transform newParent, string childName)
+        {
+            if (root == null || newParent == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            List<Transform> matches = CollectNamedChildren(root, childName);
+            for (int index = 0; index < matches.Count; index++)
+            {
+                Transform child = matches[index];
+                if (child == null || child.parent == newParent)
+                {
+                    continue;
+                }
+
+                child.SetParent(newParent, false);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static List<Transform> CollectNamedChildren(Transform root, string childName)
+        {
+            List<Transform> results = new List<Transform>();
+            CollectNamedChildrenRecursive(root, childName, results);
+            return results;
+        }
+
+        private static void CollectNamedChildrenRecursive(Transform current, string childName, List<Transform> results)
+        {
+            if (current == null)
+            {
+                return;
+            }
+
+            if (current.name == childName)
+            {
+                results.Add(current);
+            }
+
+            for (int childIndex = 0; childIndex < current.childCount; childIndex++)
+            {
+                CollectNamedChildrenRecursive(current.GetChild(childIndex), childName, results);
+            }
+        }
+
+        private static Transform FindDirectOrDeepChild(Transform root, string childName)
+        {
+            Transform direct = root.Find(childName);
+            if (direct != null)
+            {
+                return direct;
+            }
+
+            List<Transform> matches = CollectNamedChildren(root, childName);
+            return matches.Count > 0 ? matches[0] : null;
+        }
+
+        private static bool RemoveTestVisualObjects(GameObject prefabRoot)
+        {
+            return StripTestVisualObjects(prefabRoot);
+        }
+
+        private static bool StripTestVisualObjects(GameObject prefabRoot)
+        {
+            bool changed = false;
+            Transform[] transforms = prefabRoot.GetComponentsInChildren<Transform>(true);
+            for (int index = transforms.Length - 1; index >= 0; index--)
+            {
+                Transform current = transforms[index];
+                if (current == null || !CCS_PlayerVisualAndAnimatorBindingBuilder.IsTestVisualObjectName(current.name))
+                {
+                    continue;
+                }
+
+                UnityEngine.Object.DestroyImmediate(current.gameObject, true);
+                changed = true;
+            }
+
+            return changed;
         }
 
         private static bool MoveRootComponents(GameObject prefabRoot, GameObject destination, Type[] componentTypes)
@@ -405,10 +502,11 @@ namespace CCS.Modules.CharacterController.Editor
                 prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>(true));
 
             Transform presentation = prefabRoot.transform.Find(CCS_PlayerPrefabConstants.PresentationObjectName);
-            Transform visualRoot = presentation != null ? presentation.Find("VisualRoot") : null;
-            Animator animator = visualRoot != null
-                ? visualRoot.GetComponentInChildren<Animator>(true)
-                : prefabRoot.GetComponentInChildren<Animator>(true);
+            Animator animator = CCS_PlayerVisualAndAnimatorBindingBuilder.TryResolveAuthoritativeAnimator(
+                prefabRoot,
+                out Animator authoritativeAnimator)
+                ? authoritativeAnimator
+                : null;
             changed |= SetObjectReference(serializedFacade, "animator", animator);
             changed |= SetObjectReference(
                 serializedFacade,
