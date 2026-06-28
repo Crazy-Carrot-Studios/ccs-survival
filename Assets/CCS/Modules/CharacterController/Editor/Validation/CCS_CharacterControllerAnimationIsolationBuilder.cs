@@ -253,7 +253,6 @@ namespace CCS.Modules.CharacterController.Editor
                 aimStrafeClips[entry.DestinationAssetPath] = isolatedClip;
             }
 
-            changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
             changed |= EnsureRevolverAnimatorParameters();
             changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimFolders();
             changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimClipMigration();
@@ -294,7 +293,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= CCS_RevolverAimSimplificationBuilder.DeleteObsoleteRevolverAimAssets();
             changed |= RewireAnimatorController(clipsByStateName);
             changed |= EnsureAimLocomotionAnimatorParameters();
-            changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
+            changed |= CCS_RevolverAimSimplificationBuilder.EnsureAnimatorLayerCleanupPass();
             changed |= PurgeLegacyRevolverClipAssignmentsFromController();
             changed |= RemoveRevolverRightHandPreviewLayerFromController();
 

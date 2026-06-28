@@ -41,6 +41,7 @@ namespace CCS.Modules.CharacterController
         private CCS_CharacterMotor cachedCharacterMotor;
         private Coroutine unlockCoroutine;
         private bool loggedMissingController;
+        private bool loggedMissingInteractionLayer;
         private bool isInteractionBusy;
         private CCS_InteractionAnimationKey activeInteractionAnimationKey =
             CCS_InteractionAnimationKey.PickUp_RH;
@@ -66,6 +67,7 @@ namespace CCS.Modules.CharacterController
         private void Awake()
         {
             ResolveReferences();
+            EnsureInteractionLayerWeight();
         }
 
         private void OnEnable()
@@ -185,6 +187,33 @@ namespace CCS.Modules.CharacterController
             }
 
             TryResolveAnimator(out _);
+        }
+
+        private void EnsureInteractionLayerWeight()
+        {
+            if (!TryResolveAnimator(out Animator resolvedAnimator))
+            {
+                return;
+            }
+
+            int interactionLayerIndex = resolvedAnimator.GetLayerIndex(
+                CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName);
+            if (interactionLayerIndex < 0)
+            {
+                if (!loggedMissingInteractionLayer)
+                {
+                    loggedMissingInteractionLayer = true;
+                    Debug.LogWarning(
+                        "[CCS Player Interaction Animator] Animator layer "
+                        + CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName
+                        + " was not found. Interaction animations may not play.",
+                        this);
+                }
+
+                return;
+            }
+
+            resolvedAnimator.SetLayerWeight(interactionLayerIndex, 1f);
         }
 
         private void HandleInteractionCompleted(CCS_InteractionCompletedEvent completedEvent)

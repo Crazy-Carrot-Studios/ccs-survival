@@ -263,8 +263,8 @@ namespace CCS.Modules.CharacterController.Editor
                     "RevolverUpperBody default state must be NoAim.");
                 AppendIfMissing(
                     failures,
-                    stateMachine != null && stateMachine.states.Length == 4,
-                    "RevolverUpperBody must contain exactly four states.");
+                    stateMachine != null && stateMachine.states.Length == 5,
+                    "RevolverUpperBody must contain exactly five states (NoAim, IdleToAim, FullDraw, Return, AimStrafe_Locomotion).");
 
                 string[] forbiddenStates =
                 {
@@ -303,6 +303,29 @@ namespace CCS.Modules.CharacterController.Editor
                     stateMachine,
                     CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleReturnStateName,
                     CCS_CharacterControllerConstants.RevolverIdleToAimClipPath);
+
+                AnimatorState aimStrafeState = FindState(
+                    stateMachine,
+                    CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName);
+                AppendIfMissing(
+                    failures,
+                    aimStrafeState != null,
+                    "RevolverUpperBody must contain AimStrafe_Locomotion state.");
+                if (aimStrafeState != null)
+                {
+                    AppendIfMissing(
+                        failures,
+                        aimStrafeState.motion is BlendTree,
+                        "RevolverUpperBody AimStrafe_Locomotion must use AimStrafe_BlendTree.");
+                    AppendIfMissing(
+                        failures,
+                        StateMachineHasAnyStateBoolTransition(
+                            stateMachine,
+                            aimStrafeState,
+                            CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter,
+                            expectedTrue: true),
+                        "RevolverUpperBody must transition to AimStrafe_Locomotion when IsAimingMovementMode is true.");
+                }
 
                 AnimatorState returnState = FindState(
                     stateMachine,
@@ -362,12 +385,134 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             AppendBaseLayerLocomotionOnlyFailures(failures, controller.layers[0].stateMachine);
+            AppendValidationFailures(failures, ValidateInteractionLayerAnimationIsolation());
             AppendValidationFailures(failures, ValidateFullDrawClipPreservedAfterBuilder());
             AppendValidationFailures(failures, ValidateRuntimeAnimatorControllerAgreement());
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass("Simplified revolver aim controller validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateInteractionLayerAnimationIsolation()
+        {
+            List<string> failures = new List<string>();
+
+            AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            AppendIfMissing(failures, controller != null, "Player Animator Controller is missing.");
+            if (controller == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            int interactionLayerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName);
+            AppendIfMissing(
+                failures,
+                interactionLayerIndex >= 0,
+                "Player Animator Controller must define Interaction layer.");
+            AppendIfMissing(
+                failures,
+                interactionLayerIndex == 2,
+                "Interaction must be layer index 2.");
+
+            AppendIfMissing(
+                failures,
+                HasAnimatorParameterOfType(
+                    controller,
+                    CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter,
+                    AnimatorControllerParameterType.Trigger),
+                "Player Animator Controller must define PickUp_RH trigger for interaction pickup.");
+
+            if (interactionLayerIndex < 0)
+            {
+                return failures.Count > 0
+                    ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                    : CCS_SurvivalValidationResult.Pass("Interaction layer validation skipped (layer missing).");
+            }
+
+            AnimatorStateMachine interactionStateMachine = controller.layers[interactionLayerIndex].stateMachine;
+            AppendIfMissing(
+                failures,
+                interactionStateMachine != null,
+                "Interaction layer state machine is missing.");
+
+            if (interactionStateMachine == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            AnimatorState defaultState = FindState(
+                interactionStateMachine,
+                CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName);
+            AnimatorState pickUpState = FindState(
+                interactionStateMachine,
+                CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName);
+            AppendIfMissing(
+                failures,
+                defaultState != null,
+                "Interaction layer must define default empty state "
+                + CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName
+                + ".");
+            AppendIfMissing(
+                failures,
+                pickUpState != null,
+                "Interaction layer must contain "
+                + CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName
+                + ".");
+            AppendIfMissing(
+                failures,
+                interactionStateMachine.defaultState == defaultState,
+                "Interaction layer default state must be "
+                + CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName
+                + ".");
+
+            if (pickUpState != null)
+            {
+                AnimationClip expectedPickUpClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    CCS_CharacterControllerConstants.InteractionPickUpRightHandClipPath);
+                AppendIfMissing(
+                    failures,
+                    expectedPickUpClip != null,
+                    "Missing interaction pickup clip at "
+                    + CCS_CharacterControllerConstants.InteractionPickUpRightHandClipPath
+                    + ".");
+                AppendIfMissing(
+                    failures,
+                    pickUpState.motion == expectedPickUpClip,
+                    "Interaction layer "
+                    + CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName
+                    + " must use CCS_Interaction_PickUp_RH.anim.");
+
+                AppendIfMissing(
+                    failures,
+                    StateMachineHasAnyStateTriggerTransition(
+                        interactionStateMachine,
+                        pickUpState,
+                        CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter),
+                    "Interaction layer must define Any State -> "
+                    + CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName
+                    + " on PickUp_RH trigger.");
+
+                AppendIfMissing(
+                    failures,
+                    StateHasExitTimeTransitionToState(
+                        pickUpState,
+                        defaultState,
+                        expectedExitTime: 0.9f,
+                        expectedDuration: 0.1f),
+                    "Interaction layer must return from "
+                    + CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName
+                    + " to default state near exit time 0.9.");
+            }
+
+            AppendBaseLayerLocomotionOnlyFailures(failures, controller.layers[0].stateMachine);
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Interaction layer animation isolation validated.");
         }
 
         public static CCS_SurvivalValidationResult ValidateRuntimeAnimatorControllerAgreement()
@@ -485,6 +630,8 @@ namespace CCS.Modules.CharacterController.Editor
             {
                 CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName,
                 CCS_CharacterControllerConstants.AnimatorAimStrafeBlendTreeName,
+                CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName,
+                CCS_CharacterControllerConstants.AnimatorInteractWalkThroughDoorStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverWildWestAimIdleStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
@@ -508,6 +655,165 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 !BaseLayerUsesRevolverAimHeldTransitions(baseStateMachine),
                 "Base Layer must not contain transitions driven by RevolverAimHeld.");
+            AppendIfMissing(
+                failures,
+                !BaseLayerUsesInteractionTriggerTransitions(baseStateMachine),
+                "Base Layer must not contain interaction trigger Any State transitions.");
+        }
+
+        private static bool BaseLayerUsesInteractionTriggerTransitions(AnimatorStateMachine stateMachine)
+        {
+            return StateMachineUsesTriggerTransition(
+                       stateMachine,
+                       CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter)
+                   || StateMachineUsesTriggerTransition(
+                       stateMachine,
+                       CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter);
+        }
+
+        private static bool StateMachineUsesTriggerTransition(AnimatorStateMachine stateMachine, string triggerName)
+        {
+            AnimatorStateTransition[] anyStateTransitions = stateMachine.anyStateTransitions;
+            for (int i = 0; i < anyStateTransitions.Length; i++)
+            {
+                if (TransitionUsesParameter(anyStateTransitions[i], triggerName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TransitionUsesParameter(AnimatorStateTransition transition, string parameterName)
+        {
+            if (transition == null)
+            {
+                return false;
+            }
+
+            AnimatorCondition[] conditions = transition.conditions;
+            for (int i = 0; i < conditions.Length; i++)
+            {
+                if (conditions[i].parameter == parameterName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasAnimatorParameterOfType(
+            AnimatorController controller,
+            string parameterName,
+            AnimatorControllerParameterType parameterType)
+        {
+            for (int i = 0; i < controller.parameters.Length; i++)
+            {
+                AnimatorControllerParameter parameter = controller.parameters[i];
+                if (parameter.name == parameterName && parameter.type == parameterType)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool StateMachineHasAnyStateTriggerTransition(
+            AnimatorStateMachine stateMachine,
+            AnimatorState destinationState,
+            string triggerName)
+        {
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = 0; i < transitions.Length; i++)
+            {
+                AnimatorStateTransition transition = transitions[i];
+                if (transition.destinationState != destinationState)
+                {
+                    continue;
+                }
+
+                if (TransitionUsesParameter(transition, triggerName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool StateMachineHasAnyStateBoolTransition(
+            AnimatorStateMachine stateMachine,
+            AnimatorState destinationState,
+            string parameterName,
+            bool expectedTrue)
+        {
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = 0; i < transitions.Length; i++)
+            {
+                AnimatorStateTransition transition = transitions[i];
+                if (transition.destinationState != destinationState)
+                {
+                    continue;
+                }
+
+                AnimatorCondition[] conditions = transition.conditions;
+                if (conditions.Length != 1)
+                {
+                    continue;
+                }
+
+                AnimatorCondition condition = conditions[0];
+                if (condition.parameter != parameterName)
+                {
+                    continue;
+                }
+
+                if (expectedTrue && condition.mode == AnimatorConditionMode.If)
+                {
+                    return true;
+                }
+
+                if (!expectedTrue && condition.mode == AnimatorConditionMode.IfNot)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool StateHasExitTimeTransitionToState(
+            AnimatorState fromState,
+            AnimatorState toState,
+            float expectedExitTime,
+            float expectedDuration)
+        {
+            if (fromState == null || toState == null)
+            {
+                return false;
+            }
+
+            AnimatorStateTransition[] transitions = fromState.transitions;
+            for (int i = 0; i < transitions.Length; i++)
+            {
+                AnimatorStateTransition transition = transitions[i];
+                if (transition.destinationState != toState)
+                {
+                    continue;
+                }
+
+                if (transition.hasExitTime
+                    && Mathf.Approximately(transition.exitTime, expectedExitTime)
+                    && Mathf.Approximately(transition.duration, expectedDuration))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool BaseLayerUsesRevolverAimHeldTransitions(AnimatorStateMachine stateMachine)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using CCS.Modules.Interaction;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -11,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Invoked from animation isolation builder and batch validation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.15 — IdleToAim → FullDraw hold → IdleToAim reverse. Fit Studio overwrites FullDraw in place.
+// NOTES: v0.7.2 — Base Layer locomotion only; RevolverUpperBody owns aim + aim strafe; Interaction owns pickup.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -23,8 +24,35 @@ namespace CCS.Modules.CharacterController.Editor
         private const float AimEnterExitTime = 0.95f;
         private const float AimReturnExitTime = 0.95f;
         private const float ReverseAimReturnStateSpeed = -1f;
+        private const float AimStrafeTransitionDuration = 0.1f;
+        private const float InteractionTransitionDuration = 0.1f;
+        private const float InteractionReturnExitTime = 0.9f;
         private const int CanonicalRevolverUpperBodyLayerIndex = 1;
         private const int CanonicalInteractionLayerIndex = 2;
+
+        private readonly struct AimStrafeBlendPoint
+        {
+            public AimStrafeBlendPoint(string clipAssetPath, Vector2 position)
+            {
+                ClipAssetPath = clipAssetPath;
+                Position = position;
+            }
+
+            public string ClipAssetPath { get; }
+
+            public Vector2 Position { get; }
+        }
+
+        private static readonly AimStrafeBlendPoint[] AimStrafeBlendPoints =
+        {
+            new AimStrafeBlendPoint(
+                CCS_CharacterControllerConstants.LocomotionAnimationsPath + "/CCS_Locomotion_Idle.anim",
+                Vector2.zero),
+            new AimStrafeBlendPoint(CCS_CharacterControllerConstants.AimStrafeWalkFwdClipPath, new Vector2(0f, 1f)),
+            new AimStrafeBlendPoint(CCS_CharacterControllerConstants.AimStrafeWalkBwdClipPath, new Vector2(0f, -1f)),
+            new AimStrafeBlendPoint(CCS_CharacterControllerConstants.AimStrafeStrafeLeftClipPath, new Vector2(-1f, 0f)),
+            new AimStrafeBlendPoint(CCS_CharacterControllerConstants.AimStrafeStrafeRightClipPath, new Vector2(1f, 0f)),
+        };
 
         private static readonly string[] RevolverAimLayerNamesToRemove =
         {
@@ -50,8 +78,26 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureInteractionReservedLayer();
             changed |= EnsureSimplifiedRevolverAimLayer();
             changed |= RemoveRevolverAimPitchFromController();
+            changed |= EnsureAimStrafeOnRevolverUpperBodyLayer();
+            changed |= EnsureInteractionLayer();
             changed |= RemoveBaseLayerLegacyAimStates();
             changed |= DeleteObsoleteRevolverAimAssets();
+
+            if (changed)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+            return changed;
+        }
+
+        public static bool EnsureAnimatorLayerCleanupPass()
+        {
+            bool changed = EnsureInteractionReservedLayer();
+            changed |= EnsureAimStrafeOnRevolverUpperBodyLayer();
+            changed |= EnsureInteractionLayer();
+            changed |= RemoveBaseLayerLegacyAimStates();
 
             if (changed)
             {
@@ -277,11 +323,14 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
             changed |= RemoveRevolverAimHeldTransitionsFromStateMachine(stateMachine);
+            changed |= RemoveInteractionTriggerTransitionsFromStateMachine(stateMachine);
 
             string[] forbiddenStates =
             {
                 CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName,
                 CCS_CharacterControllerConstants.AnimatorAimStrafeBlendTreeName,
+                CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName,
+                CCS_CharacterControllerConstants.AnimatorInteractWalkThroughDoorStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverWildWestAimIdleStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
                 CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
@@ -294,6 +343,271 @@ namespace CCS.Modules.CharacterController.Editor
             {
                 changed |= RemoveStateIfPresent(stateMachine, forbiddenStates[i]);
             }
+
+            if (changed)
+            {
+                EditorUtility.SetDirty(stateMachine);
+                EditorUtility.SetDirty(controller);
+            }
+
+            return changed;
+        }
+
+        public static bool EnsureAimStrafeOnRevolverUpperBodyLayer()
+        {
+            AnimatorController controller = LoadPlayerController();
+            if (controller == null)
+            {
+                return false;
+            }
+
+            int layerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
+            if (layerIndex < 0)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            changed |= EnsureAimLocomotionParameters(controller);
+
+            AnimatorStateMachine stateMachine = controller.layers[layerIndex].stateMachine;
+            if (stateMachine == null)
+            {
+                return changed;
+            }
+
+            AnimatorState noAimState = FindState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorRevolverNoAimStateName);
+
+            AnimatorState aimState = FindState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName);
+            if (aimState == null)
+            {
+                aimState = stateMachine.AddState(
+                    CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName,
+                    new Vector3(600f, 120f, 0f));
+                changed = true;
+            }
+
+            BlendTree blendTree = aimState.motion as BlendTree;
+            if (blendTree == null || AssetDatabase.GetAssetPath(blendTree) != AssetDatabase.GetAssetPath(controller))
+            {
+                blendTree = new BlendTree
+                {
+                    name = CCS_CharacterControllerConstants.AnimatorAimStrafeBlendTreeName,
+                    hideFlags = HideFlags.HideInHierarchy,
+                    blendType = BlendTreeType.FreeformDirectional2D,
+                    blendParameter = CCS_CharacterControllerConstants.AnimatorAimMoveXParameter,
+                    blendParameterY = CCS_CharacterControllerConstants.AnimatorAimMoveYParameter
+                };
+                AssetDatabase.AddObjectToAsset(blendTree, controller);
+                aimState.motion = blendTree;
+                changed = true;
+            }
+
+            if (blendTree.blendType != BlendTreeType.FreeformDirectional2D)
+            {
+                blendTree.blendType = BlendTreeType.FreeformDirectional2D;
+                changed = true;
+            }
+
+            if (blendTree.blendParameter != CCS_CharacterControllerConstants.AnimatorAimMoveXParameter)
+            {
+                blendTree.blendParameter = CCS_CharacterControllerConstants.AnimatorAimMoveXParameter;
+                changed = true;
+            }
+
+            if (blendTree.blendParameterY != CCS_CharacterControllerConstants.AnimatorAimMoveYParameter)
+            {
+                blendTree.blendParameterY = CCS_CharacterControllerConstants.AnimatorAimMoveYParameter;
+                changed = true;
+            }
+
+            ChildMotion[] children = new ChildMotion[AimStrafeBlendPoints.Length];
+            for (int i = 0; i < AimStrafeBlendPoints.Length; i++)
+            {
+                AimStrafeBlendPoint point = AimStrafeBlendPoints[i];
+                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(point.ClipAssetPath);
+                if (clip == null)
+                {
+                    Debug.LogError(
+                        "[Animator Layer Cleanup] Missing aim strafe clip at "
+                        + point.ClipAssetPath);
+                    continue;
+                }
+
+                children[i] = new ChildMotion
+                {
+                    motion = clip,
+                    position = point.Position,
+                    timeScale = 1f,
+                    cycleOffset = 0f,
+                    directBlendParameter = string.Empty,
+                    mirror = false
+                };
+            }
+
+            if (!BlendTreeChildrenMatch(blendTree.children, children))
+            {
+                blendTree.children = children;
+                changed = true;
+            }
+
+            if (aimState.writeDefaultValues)
+            {
+                aimState.writeDefaultValues = false;
+                changed = true;
+            }
+
+            string aimMovementMode = CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter;
+            changed |= EnsureAnyStateBoolTransition(
+                stateMachine,
+                aimState,
+                aimMovementMode,
+                expectedTrue: true,
+                AimStrafeTransitionDuration);
+
+            if (noAimState != null)
+            {
+                changed |= EnsureBoolTransition(
+                    aimState,
+                    noAimState,
+                    aimMovementMode,
+                    expectedTrue: false,
+                    AimStrafeTransitionDuration);
+            }
+
+            if (changed)
+            {
+                EditorUtility.SetDirty(blendTree);
+                EditorUtility.SetDirty(aimState);
+                EditorUtility.SetDirty(stateMachine);
+                EditorUtility.SetDirty(controller);
+            }
+
+            return changed;
+        }
+
+        public static bool EnsureInteractionLayer()
+        {
+            AnimatorController controller = LoadPlayerController();
+            if (controller == null)
+            {
+                return false;
+            }
+
+            bool changed = EnsureInteractionReservedLayer();
+            int layerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorInteractionReservedLayerName);
+            if (layerIndex < 0)
+            {
+                return changed;
+            }
+
+            AnimationClip pickUpClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.InteractionPickUpRightHandClipPath);
+            AnimationClip walkThroughDoorClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                CCS_CharacterControllerConstants.InteractionWalkThroughDoorRightHandClipPath);
+            if (pickUpClip == null || walkThroughDoorClip == null)
+            {
+                Debug.LogError(
+                    "[Animator Layer Cleanup] Missing interaction clips. PickUp="
+                    + (pickUpClip != null)
+                    + " WalkThroughDoor="
+                    + (walkThroughDoorClip != null));
+                return changed;
+            }
+
+            changed |= EnsureAnimatorTriggerParameter(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter);
+            changed |= EnsureAnimatorTriggerParameter(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter);
+
+            AnimatorControllerLayer layer = controller.layers[layerIndex];
+            layer.defaultWeight = 0f;
+            layer.blendingMode = AnimatorLayerBlendingMode.Override;
+            controller.layers[layerIndex] = layer;
+
+            AnimatorStateMachine stateMachine = layer.stateMachine;
+            if (stateMachine == null)
+            {
+                return changed;
+            }
+
+            AnimatorState defaultState = FindState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName);
+            if (defaultState == null)
+            {
+                defaultState = stateMachine.AddState(
+                    CCS_CharacterControllerConstants.AnimatorInteractionDefaultStateName,
+                    new Vector3(300f, 0f, 0f));
+                defaultState.motion = null;
+                changed = true;
+            }
+
+            if (defaultState.writeDefaultValues)
+            {
+                defaultState.writeDefaultValues = false;
+                changed = true;
+            }
+
+            if (stateMachine.defaultState != defaultState)
+            {
+                stateMachine.defaultState = defaultState;
+                changed = true;
+            }
+
+            AnimatorState pickUpState = EnsureInteractionAnimationState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorInteractPickUpStateName,
+                pickUpClip,
+                new Vector3(300f, 120f, 0f),
+                CCS_InteractionAnimationKey.PickUp_RH,
+                ref changed);
+            AnimatorState walkThroughDoorState = EnsureInteractionAnimationState(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorInteractWalkThroughDoorStateName,
+                walkThroughDoorClip,
+                new Vector3(300f, 240f, 0f),
+                CCS_InteractionAnimationKey.WalkThroughDoor_RH,
+                ref changed);
+
+            changed |= RemoveTriggerAnyStateTransitionExcept(
+                stateMachine,
+                pickUpState,
+                CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter);
+            changed |= RemoveTriggerAnyStateTransitionExcept(
+                stateMachine,
+                walkThroughDoorState,
+                CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter);
+            changed |= EnsureAnyStateTriggerTransition(
+                stateMachine,
+                pickUpState,
+                CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter,
+                InteractionTransitionDuration);
+            changed |= EnsureAnyStateTriggerTransition(
+                stateMachine,
+                walkThroughDoorState,
+                CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter,
+                InteractionTransitionDuration);
+            changed |= EnsureExitTimeTransition(
+                pickUpState,
+                defaultState,
+                InteractionTransitionDuration,
+                InteractionReturnExitTime);
+            changed |= EnsureExitTimeTransition(
+                walkThroughDoorState,
+                defaultState,
+                InteractionTransitionDuration,
+                InteractionReturnExitTime);
 
             if (changed)
             {
@@ -769,6 +1083,305 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return changed;
+        }
+
+        private static bool RemoveInteractionTriggerTransitionsFromStateMachine(AnimatorStateMachine stateMachine)
+        {
+            bool changed = false;
+            changed |= RemoveAnyStateTransitionsUsingParameter(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorPickUpRightHandTriggerParameter);
+            changed |= RemoveAnyStateTransitionsUsingParameter(
+                stateMachine,
+                CCS_CharacterControllerConstants.AnimatorWalkThroughDoorRightHandTriggerParameter);
+            return changed;
+        }
+
+        private static bool RemoveAnyStateTransitionsUsingParameter(
+            AnimatorStateMachine stateMachine,
+            string parameterName)
+        {
+            bool changed = false;
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = transitions.Length - 1; i >= 0; i--)
+            {
+                AnimatorStateTransition transition = transitions[i];
+                if (transition != null && TransitionUsesParameter(transition, parameterName))
+                {
+                    stateMachine.RemoveAnyStateTransition(transition);
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureAimLocomotionParameters(AnimatorController controller)
+        {
+            bool changed = false;
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter,
+                AnimatorControllerParameterType.Bool);
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorAimMoveXParameter,
+                AnimatorControllerParameterType.Float);
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterControllerConstants.AnimatorAimMoveYParameter,
+                AnimatorControllerParameterType.Float);
+
+            if (changed)
+            {
+                EditorUtility.SetDirty(controller);
+            }
+
+            return changed;
+        }
+
+        private static bool EnsureAnimatorParameter(
+            AnimatorController controller,
+            string parameterName,
+            AnimatorControllerParameterType parameterType)
+        {
+            for (int i = 0; i < controller.parameters.Length; i++)
+            {
+                if (controller.parameters[i].name == parameterName)
+                {
+                    return false;
+                }
+            }
+
+            controller.AddParameter(parameterName, parameterType);
+            return true;
+        }
+
+        private static bool EnsureAnimatorTriggerParameter(AnimatorController controller, string parameterName)
+        {
+            for (int i = 0; i < controller.parameters.Length; i++)
+            {
+                if (controller.parameters[i].name != parameterName)
+                {
+                    continue;
+                }
+
+                return controller.parameters[i].type == AnimatorControllerParameterType.Trigger;
+            }
+
+            controller.AddParameter(parameterName, AnimatorControllerParameterType.Trigger);
+            EditorUtility.SetDirty(controller);
+            return true;
+        }
+
+        private static AnimatorState EnsureInteractionAnimationState(
+            AnimatorStateMachine stateMachine,
+            string stateName,
+            AnimationClip clip,
+            Vector3 position,
+            CCS_InteractionAnimationKey animationKey,
+            ref bool changed)
+        {
+            AnimatorState state = FindState(stateMachine, stateName);
+            if (state == null)
+            {
+                state = stateMachine.AddState(stateName, position);
+                changed = true;
+            }
+
+            if (state.motion != clip)
+            {
+                state.motion = clip;
+                changed = true;
+            }
+
+            if (state.writeDefaultValues)
+            {
+                state.writeDefaultValues = false;
+                changed = true;
+            }
+
+            changed |= EnsureInteractionExitBehaviour(state, animationKey);
+            return state;
+        }
+
+        private static bool EnsureInteractionExitBehaviour(
+            AnimatorState state,
+            CCS_InteractionAnimationKey animationKey)
+        {
+            StateMachineBehaviour[] behaviours = state.behaviours;
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is CCS_InteractionAnimationStateExitBehaviour existing)
+                {
+                    SerializedObject serializedBehaviour = new SerializedObject(existing);
+                    SerializedProperty animationKeyProperty = serializedBehaviour.FindProperty("animationKey");
+                    if (animationKeyProperty != null
+                        && animationKeyProperty.enumValueIndex != (int)animationKey)
+                    {
+                        animationKeyProperty.enumValueIndex = (int)animationKey;
+                        serializedBehaviour.ApplyModifiedPropertiesWithoutUndo();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            CCS_InteractionAnimationStateExitBehaviour behaviour =
+                state.AddStateMachineBehaviour<CCS_InteractionAnimationStateExitBehaviour>();
+            SerializedObject serializedNewBehaviour = new SerializedObject(behaviour);
+            SerializedProperty newAnimationKeyProperty = serializedNewBehaviour.FindProperty("animationKey");
+            if (newAnimationKeyProperty != null)
+            {
+                newAnimationKeyProperty.enumValueIndex = (int)animationKey;
+                serializedNewBehaviour.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            EditorUtility.SetDirty(state);
+            return true;
+        }
+
+        private static bool EnsureAnyStateBoolTransition(
+            AnimatorStateMachine stateMachine,
+            AnimatorState destinationState,
+            string parameterName,
+            bool expectedTrue,
+            float duration)
+        {
+            if (stateMachine == null || destinationState == null)
+            {
+                return false;
+            }
+
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = 0; i < transitions.Length; i++)
+            {
+                AnimatorStateTransition existing = transitions[i];
+                if (existing.destinationState != destinationState)
+                {
+                    continue;
+                }
+
+                if (HasSingleBoolCondition(existing, parameterName, expectedTrue)
+                    && !existing.hasExitTime
+                    && Mathf.Approximately(existing.duration, duration))
+                {
+                    return false;
+                }
+            }
+
+            AnimatorStateTransition transition = stateMachine.AddAnyStateTransition(destinationState);
+            transition.hasExitTime = false;
+            transition.duration = duration;
+            transition.canTransitionToSelf = false;
+            transition.AddCondition(
+                expectedTrue ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot,
+                0f,
+                parameterName);
+            EditorUtility.SetDirty(transition);
+            EditorUtility.SetDirty(stateMachine);
+            return true;
+        }
+
+        private static bool EnsureAnyStateTriggerTransition(
+            AnimatorStateMachine stateMachine,
+            AnimatorState destinationState,
+            string triggerName,
+            float duration)
+        {
+            if (stateMachine == null || destinationState == null)
+            {
+                return false;
+            }
+
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = 0; i < transitions.Length; i++)
+            {
+                AnimatorStateTransition existing = transitions[i];
+                if (existing.destinationState != destinationState)
+                {
+                    continue;
+                }
+
+                if (HasSingleTriggerCondition(existing, triggerName)
+                    && !existing.hasExitTime
+                    && Mathf.Approximately(existing.duration, duration))
+                {
+                    return false;
+                }
+            }
+
+            AnimatorStateTransition transition = stateMachine.AddAnyStateTransition(destinationState);
+            transition.hasExitTime = false;
+            transition.duration = duration;
+            transition.canTransitionToSelf = false;
+            transition.AddCondition(AnimatorConditionMode.If, 0f, triggerName);
+            EditorUtility.SetDirty(transition);
+            EditorUtility.SetDirty(stateMachine);
+            return true;
+        }
+
+        private static bool RemoveTriggerAnyStateTransitionExcept(
+            AnimatorStateMachine stateMachine,
+            AnimatorState destinationState,
+            string triggerName)
+        {
+            bool changed = false;
+            AnimatorStateTransition[] transitions = stateMachine.anyStateTransitions;
+            for (int i = transitions.Length - 1; i >= 0; i--)
+            {
+                AnimatorStateTransition transition = transitions[i];
+                if (transition == null || !TransitionUsesParameter(transition, triggerName))
+                {
+                    continue;
+                }
+
+                if (transition.destinationState == destinationState)
+                {
+                    continue;
+                }
+
+                stateMachine.RemoveAnyStateTransition(transition);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool HasSingleTriggerCondition(AnimatorStateTransition transition, string triggerName)
+        {
+            AnimatorCondition[] conditions = transition.conditions;
+            if (conditions.Length != 1)
+            {
+                return false;
+            }
+
+            AnimatorCondition condition = conditions[0];
+            return condition.parameter == triggerName && condition.mode == AnimatorConditionMode.If;
+        }
+
+        private static bool BlendTreeChildrenMatch(ChildMotion[] current, ChildMotion[] expected)
+        {
+            if (current == null || current.Length != expected.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < expected.Length; i++)
+            {
+                if (current[i].motion != expected[i].motion)
+                {
+                    return false;
+                }
+
+                if (Vector2.Distance(current[i].position, expected[i].position) > 0.001f)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool TransitionUsesParameter(AnimatorStateTransition transition, string parameterName)

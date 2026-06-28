@@ -3,22 +3,23 @@ using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
-// SCRIPT: CCS_CharacterControllerAnimationIsolationBatchEntry
-// CATEGORY: Modules / CharacterController / Editor
-// PURPOSE: Batch-mode entry for player animation clip isolation and validation.
+// SCRIPT: CCS_AnimatorLayerCleanupBatchEntry
+// CATEGORY: Modules / CharacterController / Editor / Validation
+// PURPOSE: Batch-mode entry for v0.7.2 player animator layer cleanup and validation.
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
-// CREATED: 2026-06-07
-// NOTES: v0.6.4 — validates revolver upper-body isolation and no Invector runtime references.
+// CREATED: 2026-06-25
+// NOTES: Ensures Base Layer locomotion-only, RevolverUpperBody aim/strafe, Interaction pickup layer.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_CharacterControllerAnimationIsolationBatchEntry
+    public static class CCS_AnimatorLayerCleanupBatchEntry
     {
         public static void RunFromBatchMode()
         {
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
+            CCS_RevolverAimSimplificationBuilder.EnsureAnimatorLayerCleanupPass();
 
             CCS_SurvivalValidationResult[] validations =
             {
@@ -29,8 +30,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateInteractionLayerAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences(),
-                CCS.Modules.CharacterController.Editor.AnimationFitStudio
-                    .CCS_AnimationFitStudioValidationUtility.ValidateAnimationFitStudioHumanoidControlCalibration()
+                CCS_CharacterControllerAnimationValidationUtility.ValidateRuntimeAnimatorControllerAgreement(),
             };
 
             for (int i = 0; i < validations.Length; i++)
@@ -41,12 +41,14 @@ namespace CCS.Modules.CharacterController.Editor
                     continue;
                 }
 
-                Debug.LogError("[Animation Isolation Batch] Validation failed: " + result.Message);
+                Debug.LogError("[Animator Layer Cleanup Batch] Validation failed: " + result.Message);
                 EditorApplication.Exit(1);
                 return;
             }
 
-            Debug.Log("[Animation Isolation Batch] Validation passed: player animation isolation, aim strafe, revolver upper-body wiring, and Humanoid control calibration validated.");
+            Debug.Log(
+                "[Animator Layer Cleanup Batch] Validation passed: Base Layer locomotion-only, "
+                + "RevolverUpperBody aim/strafe, and Interaction pickup layer validated.");
             EditorApplication.Exit(0);
         }
     }

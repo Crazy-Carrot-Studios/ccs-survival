@@ -217,6 +217,22 @@ namespace CCS.Modules.CharacterController
 
         public const string AnimatorInteractionReservedLayerName = "Interaction";
 
+        public const string AnimatorInteractionDefaultStateName = "NoInteraction";
+
+        public const string AnimatorInteractPickUpStateName = "Interact_PickUp_RH";
+
+        public const string AnimatorInteractWalkThroughDoorStateName = "Interact_WalkThroughDoor_RH";
+
+        public const string AnimatorPickUpRightHandTriggerParameter = "PickUp_RH";
+
+        public const string AnimatorWalkThroughDoorRightHandTriggerParameter = "WalkThroughDoor_RH";
+
+        public const string InteractionPickUpRightHandClipPath =
+            InteractionAnimationsPath + "/CCS_Interaction_PickUp_RH.anim";
+
+        public const string InteractionWalkThroughDoorRightHandClipPath =
+            InteractionAnimationsPath + "/CCS_Interaction_WalkThroughDoor_RH.anim";
+
         public const string AnimatorRevolverNoAimStateName = "NoAim";
 
         public const string AnimatorRevolverEmptyStateName = AnimatorRevolverNoAimStateName;

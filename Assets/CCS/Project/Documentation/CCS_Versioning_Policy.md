@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1`
+**Current version:** `0.7.2`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
+| **`0.7.2`** | **Player animator layer cleanup** |
 
 ---
 
@@ -106,6 +107,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.2` — Player Animator Layer Cleanup
+
+- Base Layer restricted to locomotion (idle/walk/sprint/jump/in-air) with no revolver aim, aim strafe, or interaction states
+- `RevolverUpperBody` layer owns simplified revolver aim flow plus `AimStrafe_Locomotion` under `AM_CCS_Revolver_UpperBodyRightArm_Aim`
+- `Interaction` layer owns `Interact_PickUp_RH` / `Interact_WalkThroughDoor_RH` with empty `NoInteraction` default state
+- `CCS_PlayerInteractionAnimator` sets Interaction layer weight at runtime; validation guards layer structure in batch mode
 
 ### `0.7.1` — AI Bandit Polish and Hosting Fixes
 
