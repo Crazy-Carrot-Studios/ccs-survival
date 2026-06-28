@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.CharacterController;
-using CCS.Modules.CharacterController.Editor.AnimationFitStudio;
+using CCS.Modules.CharacterController.Editor;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -591,11 +591,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                CCS_AnimationFitStudioClipCurveModeUtility.DetectClipCurveMode(clip)
-                    == CCS_AnimationFitStudioClipCurveMode.HumanoidMuscleCurves,
+                CCS_AnimationClipValidationUtility.ClipUsesHumanoidMuscleCurves(clip),
                 "FullDraw controller clip must use Humanoid muscle curves.");
 
-            string hashBefore = CCS_AnimationFitStudioCurveHashUtility.ComputeCurveHash(clip);
+            string hashBefore = CCS_AnimationClipValidationUtility.ComputeCurveHash(clip);
             CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimSimplificationPass();
             AnimationClip clipAfter = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
             AppendIfMissing(
@@ -604,7 +603,7 @@ namespace CCS.Modules.CharacterController.Editor
                 "Controller FullDraw clip missing after builder pass.");
             if (clipAfter != null)
             {
-                string hashAfter = CCS_AnimationFitStudioCurveHashUtility.ComputeCurveHash(clipAfter);
+                string hashAfter = CCS_AnimationClipValidationUtility.ComputeCurveHash(clipAfter);
                 AppendIfMissing(
                     failures,
                     hashBefore == hashAfter,
@@ -1177,7 +1176,7 @@ namespace CCS.Modules.CharacterController.Editor
                 File.Exists(CCS_CharacterControllerConstants.WildWestRevolverRuntimeDefaultAimIdleClipPath),
                 "Missing controller FullDraw clip at "
                 + CCS_CharacterControllerConstants.WildWestRevolverRuntimeDefaultAimIdleClipPath
-                + ". Open Animation Fit Studio and save Runtime FullDraw first.");
+                + ". Regenerate via animation isolation builder if missing.");
 
             AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
                 CCS_CharacterControllerConstants.WildWestRevolverRuntimeDefaultAimIdleClipPath);

@@ -28,8 +28,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences(),
-                CCS.Modules.CharacterController.Editor.AnimationFitStudio
-                    .CCS_AnimationFitStudioValidationUtility.ValidateAnimationFitStudioHumanoidControlCalibration()
+                CCS_CharacterControllerAnimationValidationUtility.ValidateFullDrawClipPreservedAfterBuilder()
             };
 
             for (int i = 0; i < validations.Length; i++)
@@ -45,7 +44,7 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            Debug.Log("[Animation Isolation Batch] Validation passed: player animation isolation, aim strafe, revolver upper-body wiring, and Humanoid control calibration validated.");
+            Debug.Log("[Animation Isolation Batch] Validation passed: player animation isolation, aim strafe, revolver upper-body wiring, and FullDraw clip preservation validated.");
             EditorApplication.Exit(0);
         }
     }

@@ -122,7 +122,7 @@ namespace CCS.Modules.Weapons.Editor
 
             AppendResult(
                 failures,
-                CCS_WeaponsValidationUtility.ValidateAnimationFitStudioWeaponIntegrationFoundation());
+                CCS_WeaponsValidationUtility.ValidateRevolverProductionAimClipFoundation());
 
             AppendResult(failures, CCS_WeaponsEditorAimValidationUtility.ValidateVisualOnlyMuzzlePointOrientation());
 

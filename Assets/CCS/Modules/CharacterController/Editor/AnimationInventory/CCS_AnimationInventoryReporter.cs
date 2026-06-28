@@ -15,7 +15,7 @@ using UnityEngine;
 // PLACEMENT: Editor utility invoked by Master Test batch inventory pass. No user-facing menu.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-23
-// NOTES: Source-only inventory pass. Does not wire vendor clips into production animators.
+// NOTES: Source-only inventory pass. Writes generated reports under Logs/ (not committed).
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -23,10 +23,18 @@ namespace CCS.Modules.CharacterController.Editor
     public static class CCS_AnimationInventoryReporter
     {
         public const string WildWestPackRoot = "Assets/YashMakesGames/Wild West Animation Pack";
-        public const string ReportDirectory =
-            "Assets/CCS/Modules/CharacterController/Documentation/AnimationReports";
+
+        public const string ReportDirectory = "Logs/CharacterController/AnimationInventory";
+
         public const string MarkdownReportPath = ReportDirectory + "/CCS_WildWestAnimationInventory.md";
+
         public const string CsvReportPath = ReportDirectory + "/CCS_WildWestAnimationInventory.csv";
+
+        private static string ResolveReportPath(string relativePath)
+        {
+            string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            return Path.GetFullPath(Path.Combine(projectRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+        }
 
         private static readonly string[] MovementKeywords = { "walk", "run", "crouch", "dodge", "vault" };
         private static readonly string[] WeaponKeywords =
@@ -47,6 +55,7 @@ namespace CCS.Modules.CharacterController.Editor
                     return ownedClipsResult;
                 }
 
+                WriteVendorAbsentReports(ownedClipsResult.Message);
                 return CCS_SurvivalValidationResult.Pass(
                     "Vendor Wild West pack absent; validated CCS-owned isolated Wild West clips. "
                     + ownedClipsResult.Message);
@@ -63,7 +72,6 @@ namespace CCS.Modules.CharacterController.Editor
             entries.Sort((a, b) => string.CompareOrdinal(a.ClipName, b.ClipName));
             WriteMarkdownReport(entries);
             WriteCsvReport(entries);
-            AssetDatabase.Refresh();
 
             return CCS_SurvivalValidationResult.Pass(
                 "Generated Wild West animation inventory with " + entries.Count + " clips.");
@@ -72,14 +80,16 @@ namespace CCS.Modules.CharacterController.Editor
         public static CCS_SurvivalValidationResult ValidateReportsExist()
         {
             List<string> failures = new List<string>();
-            if (!File.Exists(MarkdownReportPath))
+            string markdownPath = ResolveReportPath(MarkdownReportPath);
+            string csvPath = ResolveReportPath(CsvReportPath);
+            if (!File.Exists(markdownPath))
             {
-                failures.Add("Missing " + MarkdownReportPath);
+                failures.Add("Missing " + markdownPath);
             }
 
-            if (!File.Exists(CsvReportPath))
+            if (!File.Exists(csvPath))
             {
-                failures.Add("Missing " + CsvReportPath);
+                failures.Add("Missing " + csvPath);
             }
 
             return failures.Count > 0
@@ -118,11 +128,31 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void EnsureReportDirectory()
         {
-            if (!AssetDatabase.IsValidFolder(ReportDirectory))
-            {
-                const string parent = "Assets/CCS/Modules/CharacterController/Documentation";
-                AssetDatabase.CreateFolder(parent, "AnimationReports");
-            }
+            Directory.CreateDirectory(ResolveReportPath(ReportDirectory));
+        }
+
+        private static void WriteVendorAbsentReports(string ownedClipSummary)
+        {
+            EnsureReportDirectory();
+            string markdownPath = ResolveReportPath(MarkdownReportPath);
+            string csvPath = ResolveReportPath(CsvReportPath);
+            StringBuilder markdown = new StringBuilder();
+            markdown.AppendLine("# CCS Wild West Animation Inventory");
+            markdown.AppendLine();
+            markdown.AppendLine("**Generated:** " + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC");
+            markdown.AppendLine();
+            markdown.AppendLine("Vendor pack `" + WildWestPackRoot + "` is not present in this workspace.");
+            markdown.AppendLine();
+            markdown.AppendLine("Validated CCS-owned Wild West revolver clips only.");
+            markdown.AppendLine();
+            markdown.AppendLine(ownedClipSummary);
+            File.WriteAllText(markdownPath, markdown.ToString(), Encoding.UTF8);
+
+            StringBuilder csv = new StringBuilder();
+            csv.AppendLine("Status,Detail");
+            csv.AppendLine(string.Join(",", Csv("Vendor pack absent"), Csv(WildWestPackRoot)));
+            csv.AppendLine(string.Join(",", Csv("Owned clip validation"), Csv(ownedClipSummary)));
+            File.WriteAllText(csvPath, csv.ToString(), Encoding.UTF8);
         }
 
         private static List<CCS_AnimationInventoryEntry> CollectEntries(string rootFolder)
@@ -485,7 +515,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendCandidateSection(builder, entries);
             AppendPipelineSection(builder, entries);
-            File.WriteAllText(MarkdownReportPath, builder.ToString(), Encoding.UTF8);
+            File.WriteAllText(ResolveReportPath(MarkdownReportPath), builder.ToString(), Encoding.UTF8);
         }
 
         private static void AppendCandidateSection(StringBuilder builder, List<CCS_AnimationInventoryEntry> entries)
@@ -616,7 +646,7 @@ namespace CCS.Modules.CharacterController.Editor
                     Csv(entry.Notes)));
             }
 
-            File.WriteAllText(CsvReportPath, builder.ToString(), Encoding.UTF8);
+            File.WriteAllText(ResolveReportPath(CsvReportPath), builder.ToString(), Encoding.UTF8);
         }
 
         private static string Csv(string value)

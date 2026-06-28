@@ -3,19 +3,39 @@ using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
-// SCRIPT: CCS_AnimationFitStudioCurveHashUtility
-// CATEGORY: Modules / CharacterController / Editor / AnimationFitStudio
-// PURPOSE: Computes stable curve signatures for controller clip save proof.
-// PLACEMENT: Editor utility used by Animation Fit Studio save workflow and validation.
+// SCRIPT: CCS_AnimationClipValidationUtility
+// CATEGORY: Modules / CharacterController / Editor / Common
+// PURPOSE: Shared animation clip curve checks for production validation.
+// PLACEMENT: Editor validation utilities. Not attached to GameObjects.
 // AUTHOR: James Schilz
-// CREATED: 2026-06-07
-// NOTES: Hashes all curve bindings and sampled key values for before/after save comparison.
+// CREATED: 2026-06-28
+// NOTES: Replaces Animation Fit Studio curve helpers removed in v0.7.1c.
 // =============================================================================
 
-namespace CCS.Modules.CharacterController.Editor.AnimationFitStudio
+namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_AnimationFitStudioCurveHashUtility
+    public static class CCS_AnimationClipValidationUtility
     {
+        public static bool ClipUsesHumanoidMuscleCurves(AnimationClip clip)
+        {
+            if (clip == null)
+            {
+                return false;
+            }
+
+            EditorCurveBinding[] bindings = AnimationUtility.GetCurveBindings(clip);
+            for (int i = 0; i < bindings.Length; i++)
+            {
+                EditorCurveBinding binding = bindings[i];
+                if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static string ComputeCurveHash(AnimationClip clip)
         {
             if (clip == null)

@@ -167,15 +167,6 @@ namespace CCS.Modules.CharacterController
 
         public const string RevolverRuntimeDefaultAimIdleClipPath = RevolverAimIdleFullDrawClipPath;
 
-        public const string AnimationFitStudioDefaultSourceClipPath = RevolverAimIdleFullDrawClipPath;
-
-        public const string AnimationFitStudioControllerFullDrawClipPath = RevolverAimIdleFullDrawClipPath;
-
-        public const string AnimationFitStudioDefaultFitTestClipPath = RevolverAimIdleFullDrawClipPath;
-
-        public const string AnimationFitStudioWalkAimedFitTestClipPath =
-            WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_WalkAimed_RH_FitTest.anim";
-
         public const string WildWestRevolverAimIdleRhFitTestClipPath =
             WildWestRevolverEditedAnimationsPath + "/CCS_WW_Revolver_AimIdle_RH_FitTest.anim";
 
@@ -190,23 +181,6 @@ namespace CCS.Modules.CharacterController
 
         public const string WildWestRevolverAimIdleRhFirstPersonClipPath =
             WildWestRevolverEditedAnimationsPath + "/CCS_Revolver_AimIdle_RH_FirstPerson.anim";
-
-        public const string AnimationFitStudioFitTestClipSuffix = "_FitTest";
-
-        public const string AnimationFitStudioMenuPath =
-            "CCS/Character Controller/Animations/Animation Fit Studio";
-
-        public const string AnimationFitStudioEditorFolderPath =
-            ModuleRootPath + "/Editor/AnimationFitStudio";
-
-        public const string AnimationFitStudioWindowSourcePath =
-            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioWindow.cs";
-
-        public const string AnimationFitStudioWindowLayoutSourcePath =
-            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioWindow.Layout.cs";
-
-        public const string AnimationFitStudioPreviewUtilitySourcePath =
-            AnimationFitStudioEditorFolderPath + "/CCS_AnimationFitStudioPreviewUtility.cs";
 
         public const string WildWestRevolverFireFanningRhClipPath =
             WildWestRevolverFireFanningLegacyRhClipPath;

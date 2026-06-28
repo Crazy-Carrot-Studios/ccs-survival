@@ -4,6 +4,17 @@
 **Type:** Editor-only tuning tool  
 **Menu:** `CCS → Character Controller → Equipment → Equipment Fit Studio`
 
+## Relationship to Animation Fit Studio (removed v0.7.1c)
+
+**Equipment Fit Studio is kept.** It is a separate production workflow from the removed **Animation Fit Studio** tooling.
+
+| Tool | Status | Purpose |
+|------|--------|---------|
+| **Equipment Fit Studio** | **Kept** | Socket and IK target tuning; saves fit profiles for production weapons |
+| **Animation Fit Studio** | **Removed (v0.7.1c)** | Obsolete animation audition / Humanoid pose writeback editor — not part of runtime |
+
+Equipment Fit Studio does **not** replace animation clip editing, AimPitch blend tuning, or controller wiring. It supports production equipment/socket fitting only.
+
 ## What this tool does
 
 Equipment Fit Studio helps you tune equipment sockets and IK targets on the test player **without** changing gameplay code. You can:

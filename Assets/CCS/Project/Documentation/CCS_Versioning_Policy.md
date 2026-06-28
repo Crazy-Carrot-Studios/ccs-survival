@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1b`
+**Current version:** `0.7.1c`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.1c`** | **Remove Animation Fit Studio tooling (Phase 2A, editor/docs only)** |
 | **`0.7.1a`** | **AI health bar fill direction hotfix** |
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
 
@@ -108,6 +109,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1c` — Remove Animation Fit Studio Tooling (Phase 2A)
+
+- Removed entire `Editor/AnimationFitStudio/` stack and obsolete FullDraw nudge menu/batch hook
+- Consolidated Character Controller documentation; removed temporary Phase 01 cleanup plan
+- Redirected `CCS_AnimationInventoryReporter` output to `Logs/CharacterController/AnimationInventory/`
+- Editor/documentation cleanup only — no gameplay behavior changes, no prefab/controller/clip edits
 
 ### `0.7.1b` — Character Controller Cleanup Plan (Phase 1)
 

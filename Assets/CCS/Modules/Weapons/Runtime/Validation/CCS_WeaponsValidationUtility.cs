@@ -1315,197 +1315,29 @@ namespace CCS.Modules.Weapons
                     "Runtime revolver equipped visual hierarchy restored on attachment root with convergence disabled.");
         }
 
-        public static CCS_SurvivalValidationResult ValidateAnimationFitStudioWeaponIntegrationFoundation()
+        public static CCS_SurvivalValidationResult ValidateRevolverProductionAimClipFoundation()
         {
             List<string> failures = new List<string>();
-            string windowPath = CCS_CharacterControllerConstants.AnimationFitStudioWindowSourcePath;
             AppendIfMissing(
                 failures,
-                File.Exists(windowPath),
-                "Missing Animation Fit Studio window at " + windowPath);
-            AppendIfMissing(
-                failures,
-                File.Exists(CCS_CharacterControllerConstants.AnimationFitStudioDefaultSourceClipPath),
+                File.Exists(CCS_CharacterControllerConstants.RevolverAimIdleFullDrawClipPath),
                 "Missing CCS-owned stationary aim clip at "
-                + CCS_CharacterControllerConstants.AnimationFitStudioDefaultSourceClipPath);
+                + CCS_CharacterControllerConstants.RevolverAimIdleFullDrawClipPath);
             AppendIfMissing(
                 failures,
                 File.Exists(CCS_CharacterControllerConstants.WildWestRevolverWalkAimedRhClipPath),
                 "Missing CCS-owned aimed movement clip at "
                 + CCS_CharacterControllerConstants.WildWestRevolverWalkAimedRhClipPath);
-
-            if (File.Exists(windowPath))
-            {
-                string windowSource = File.ReadAllText(windowPath);
-                AppendIfMissing(
-                    failures,
-                    windowSource.Contains(CCS_CharacterControllerConstants.AnimationFitStudioMenuPath),
-                    "Animation Fit Studio menu must be registered.");
-                AppendIfMissing(
-                    failures,
-                    windowSource.Contains("ResolveSourceClipForSelectedPoseSource")
-                        && windowSource.Contains("OnEnable"),
-                    "Animation Fit Studio must auto-resolve selected pose source clip on window open.");
-                AppendIfMissing(
-                    failures,
-                    windowSource.Contains("selectedPoseSource")
-                        || windowSource.Contains("OnPoseSourceChanged"),
-                    "Animation Fit Studio must expose Pose Source dropdown workflow.");
-                AppendIfMissing(
-                    failures,
-                    windowSource.Contains("LoadPreviewOrWeapon"),
-                    "Animation Fit Studio must load preview and fitted weapon.");
-                AppendIfMissing(
-                    failures,
-                    windowSource.Contains("CCS_AnimationFitStudioPoseSourceCatalog.DefaultPoseSourceKind")
-                        && windowSource.Contains("RefreshRuntimeControllerClipInfo"),
-                    "Animation Fit Studio default pose source must be Runtime Aim Idle — FullDraw.");
-            }
-
-            string runtimePolicyPath = CCS_CharacterControllerConstants.AnimationFitStudioEditorFolderPath
-                + "/CCS_AnimationFitStudioRuntimePolicy.cs";
-            if (File.Exists(runtimePolicyPath))
-            {
-                string policySource = File.ReadAllText(runtimePolicyPath);
-                AppendIfMissing(
-                    failures,
-                    policySource.Contains("RuntimeAimIdleFullDrawLabel")
-                        && policySource.Contains("ControllerFullDrawClipAssetPath")
-                        && policySource.Contains("SaveDoesNotWireControllerNotice"),
-                    "Animation Fit Studio must document controller FullDraw overwrite without wiring controller.");
-                AppendIfMissing(
-                    failures,
-                    File.Exists(CCS_CharacterControllerConstants.WildWestRevolverRuntimeDefaultAimIdleClipPath),
-                    "Missing edited aim pose clip: CCS_WW_Revolver_AimIdle_FullDraw.anim.");
-            }
-
-            string layoutPath = CCS_CharacterControllerConstants.AnimationFitStudioWindowLayoutSourcePath;
-            if (File.Exists(layoutPath))
-            {
-                string layoutSource = File.ReadAllText(layoutPath);
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Clip Used By Controller")
-                        || layoutSource.Contains("FitTestRuntimeTargetCandidateStatusLabel")
-                        || layoutSource.Contains("RuntimeCandidateStatusLabel"),
-                    "Animation Fit Studio UI must show runtime FullDraw controller clip status.");
-                AppendIfMissing(
-                    failures,
-                    !layoutSource.Contains("Load Source Aim Clip"),
-                    "Animation Fit Studio main workflow must not expose Load Source Aim Clip.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Pose Source")
-                        && layoutSource.Contains("PoseSourceLabels"),
-                    "Animation Fit Studio UI must expose Pose Source dropdown.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Load Preview / Weapon")
-                        && layoutSource.Contains("Reset Pose")
-                        &&                     layoutSource.Contains("Save Runtime FullDraw"),
-                    "Animation Fit Studio UI must expose simplified final-pose footer workflow.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Edit Part")
-                        || layoutSource.Contains("EditPartDisplayLabels"),
-                    "Animation Fit Studio UI must expose Edit Part dropdown.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Finger Segment")
-                        && layoutSource.Contains("Finger Curl Axis"),
-                    "Animation Fit Studio UI must expose detailed finger controls.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Finger Bones")
-                        && layoutSource.Contains("Quick Grip"),
-                    "Animation Fit Studio UI must expose finger status and secondary quick grip.");
-            }
-
             AppendIfMissing(
                 failures,
-                CCS_CharacterControllerConstants.AnimationFitStudioDefaultFitTestClipPath.EndsWith(
-                    "CCS_WW_Revolver_AimIdle_FullDraw.anim"),
-                "Default FullDraw clip path must be CCS_WW_Revolver_AimIdle_FullDraw.anim under Combat/Aiming/Revolver.");
-            AppendIfMissing(
-                failures,
-                CCS_CharacterControllerConstants.AnimationFitStudioControllerFullDrawClipPath.EndsWith(
-                    "CCS_WW_Revolver_AimIdle_FullDraw.anim"),
-                "Controller FullDraw clip path must be CCS_WW_Revolver_AimIdle_FullDraw.anim under Combat/Aiming/Revolver.");
-
-            string clipResolverPath = CCS_CharacterControllerConstants.AnimationFitStudioEditorFolderPath
-                + "/CCS_AnimationFitStudioClipResolver.cs";
-            string previewUtilityPath = CCS_CharacterControllerConstants.AnimationFitStudioPreviewUtilitySourcePath;
-            if (File.Exists(clipResolverPath))
-            {
-                string resolverSource = File.ReadAllText(clipResolverPath);
-                AppendIfMissing(
-                    failures,
-                    resolverSource.Contains("GetFitTestClipFileName")
-                        || resolverSource.Contains("DefaultControllerFullDrawClipFileName"),
-                    "Animation Fit Studio must resolve controller FullDraw clip names from source clip names.");
-            }
-
-            if (File.Exists(previewUtilityPath))
-            {
-                string previewSource = File.ReadAllText(previewUtilityPath);
-                AppendIfMissing(
-                    failures,
-                    previewSource.Contains("WeaponAttachmentRootObjectName")
-                        || previewSource.Contains("CCS_EDITOR_ANIMATION_FIT_WEAPON_ATTACHMENT_ROOT_DO_NOT_SAVE"),
-                    "Animation Fit Studio visual preview must use attachment root hierarchy.");
-                AppendIfMissing(
-                    failures,
-                    previewSource.Contains("RevolverM1879VisualOnlyPrefabPath"),
-                    "Animation Fit Studio visual preview must resolve visual-only revolver prefab.");
-                AppendIfMissing(
-                    failures,
-                    previewSource.Contains("RefreshWeaponAttachmentAfterPoseSample"),
-                    "Animation Fit Studio must refresh weapon attachment after pose sampling.");
-            }
-
-            string humanoidControlUtilityPath = CCS_CharacterControllerConstants.AnimationFitStudioEditorFolderPath
-                + "/CCS_AnimationFitStudioHumanoidControlUtility.cs";
-            AppendIfMissing(
-                failures,
-                File.Exists(humanoidControlUtilityPath),
-                "Missing Animation Fit Studio Humanoid control utility.");
-            if (File.Exists(humanoidControlUtilityPath))
-            {
-                string humanoidSource = File.ReadAllText(humanoidControlUtilityPath);
-                AppendIfMissing(
-                    failures,
-                    humanoidSource.Contains("ValidateHumanoidControlCalibration"),
-                    "Humanoid control utility must validate upper arm and wrist muscle mapping.");
-                AppendIfMissing(
-                    failures,
-                    File.Exists(CCS_CharacterControllerConstants.RevolverAimRightArmMaskPath)
-                        || File.Exists(CCS_CharacterControllerConstants.RevolverAimRightArmMaskLegacyPath),
-                    "Missing revolver upper-body/right-arm aim Avatar Mask asset.");
-                AppendIfMissing(
-                    failures,
-                    humanoidSource.Contains("ApplyTestAimOffset"),
-                    "Humanoid control utility must expose Apply Test Aim Offset.");
-            }
-
-            if (File.Exists(layoutPath))
-            {
-                string layoutSource = File.ReadAllText(layoutPath);
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Humanoid Muscle Values")
-                        && layoutSource.Contains("DrawHumanoidMuscleReadoutPanel"),
-                    "Animation Fit Studio UI must expose Humanoid muscle readout panel.");
-                AppendIfMissing(
-                    failures,
-                    layoutSource.Contains("Invert Wrist Pitch")
-                        && layoutSource.Contains("Apply Test Aim Offset"),
-                    "Animation Fit Studio must expose Humanoid invert toggles and test aim offset.");
-            }
+                File.Exists(CCS_CharacterControllerConstants.RevolverAimRightArmMaskPath)
+                    || File.Exists(CCS_CharacterControllerConstants.RevolverAimRightArmMaskLegacyPath),
+                "Missing revolver upper-body/right-arm aim Avatar Mask asset.");
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass(
-                    "Animation Fit Studio weapon integration and Humanoid control calibration foundation validated.");
+                    "Production revolver aim clips and upper-body aim mask foundation validated.");
         }
 
         #endregion

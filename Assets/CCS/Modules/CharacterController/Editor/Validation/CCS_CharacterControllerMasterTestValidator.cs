@@ -153,10 +153,6 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
-                CCS.Modules.CharacterController.Editor.AnimationFitStudio.CCS_AnimationFitStudioValidationUtility.ValidateAnimationFitStudioCore());
-
-            AppendValidationResult(
-                failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation());
 
             AppendValidationResult(
