@@ -93,13 +93,15 @@ namespace CCS.Modules.Weapons
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController =
+                prefabRoot.GetComponentInChildren<CCS_RevolverController>(true);
             AppendIfMissing(
                 failures,
                 revolverController != null,
                 $"{CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath} must contain CCS_RevolverController.");
 
-            CCS_CharacterInputActionProvider inputProvider = prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+            CCS_CharacterInputActionProvider inputProvider =
+                prefabRoot.GetComponentInChildren<CCS_CharacterInputActionProvider>(true);
             AppendIfMissing(
                 failures,
                 inputProvider != null,
@@ -143,7 +145,7 @@ namespace CCS.Modules.Weapons
                 hudPresenter != null,
                 $"{CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath} must contain CCS_RevolverHudPresenter.");
 
-            Transform hudRoot = prefabRoot.transform.Find(CCS_WeaponsConstants.WeaponHudRootName);
+            Transform hudRoot = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.WeaponHudRootName);
             if (hudRoot != null && hudRoot.localScale == Vector3.zero)
             {
                 failures.Add("WeaponHudRoot localScale must not be zero.");
@@ -377,22 +379,22 @@ namespace CCS.Modules.Weapons
             }
 
             CCS_PlayerEquipmentVisualController visualController =
-                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+                prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>(true);
             AppendIfMissing(
                 failures,
                 visualController != null,
                 "Test player must contain CCS_PlayerEquipmentVisualController.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>() != null,
+                prefabRoot.GetComponentInChildren<CCS_PlayerWeaponLoadout>(true) != null,
                 "Test player must contain CCS_PlayerWeaponLoadout.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponent<CCS_EquipmentSocketRegistry>() != null,
+                prefabRoot.GetComponentInChildren<CCS_EquipmentSocketRegistry>(true) != null,
                 "Test player must contain CCS_EquipmentSocketRegistry.");
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>() != null,
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>(true) != null,
                 "Test player must contain CCS_CharacterAimLocomotionController.");
 
             if (visualController != null)
@@ -936,7 +938,7 @@ namespace CCS.Modules.Weapons
             }
 
             CCS_FirstPersonAimCameraOverrideController fovOverride =
-                prefabRoot.GetComponent<CCS_FirstPersonAimCameraOverrideController>();
+                prefabRoot.GetComponentInChildren<CCS_FirstPersonAimCameraOverrideController>(true);
             AppendIfMissing(
                 failures,
                 fovOverride == null,
@@ -1006,7 +1008,8 @@ namespace CCS.Modules.Weapons
                     "CCS_RevolverHudPresenter must not show reticle during IdleToAim.");
             }
 
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController =
+                prefabRoot.GetComponentInChildren<CCS_RevolverController>(true);
             if (revolverController != null)
             {
                 AppendIfMissing(
@@ -1101,7 +1104,7 @@ namespace CCS.Modules.Weapons
                 "Animator must not contain legacy " + CCS_WeaponsConstants.RevolverAimRigObjectName + ".");
 
             CCS_PlayerEquipmentVisualController visualController =
-                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+                prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>(true);
             AppendIfMissing(
                 failures,
                 visualController != null,

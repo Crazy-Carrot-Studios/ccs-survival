@@ -43,25 +43,19 @@ namespace CCS.Modules.Weapons.Editor
 
 
         public static bool EnsureTestPlayerWeaponWiring()
-
         {
-
-            bool changed = EnsureTestPlayerWeaponWiring(CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath);
+            bool changed = false;
+            changed |= EnsureTestPlayerWeaponWiring(CCS_WeaponsConstants.NetworkedTestPlayerPrefabPath);
+            changed |= EnsureTestPlayerWeaponWiring(CCS_PlayerPrefabConstants.ProductionPlayerPrefabPath);
+            changed |= EnsureTestPlayerWeaponWiring(CCS_PlayerPrefabConstants.TestHarnessPlayerPrefabPath);
 
             if (changed)
-
             {
-
                 AssetDatabase.SaveAssets();
-
                 AssetDatabase.Refresh();
-
             }
 
-
-
             return changed;
-
         }
 
 
@@ -69,6 +63,16 @@ namespace CCS.Modules.Weapons.Editor
         public static bool EnsureTestPlayerWeaponWiring(string prefabPath)
 
         {
+
+            if (!System.IO.File.Exists(prefabPath))
+
+            {
+
+                return false;
+
+            }
+
+
 
             CCS_WeaponsAssetBuilder.EnsureRevolverDefinitionAsset();
 
@@ -178,7 +182,7 @@ namespace CCS.Modules.Weapons.Editor
             }
 
             CCS_FirstPersonAimCameraOverrideController fovOverride =
-                prefabRoot.GetComponent<CCS_FirstPersonAimCameraOverrideController>();
+                prefabRoot.GetComponentInChildren<CCS_FirstPersonAimCameraOverrideController>();
             if (fovOverride != null)
             {
                 Object.DestroyImmediate(fovOverride, true);
@@ -282,7 +286,7 @@ namespace CCS.Modules.Weapons.Editor
 
         {
 
-            CCS_RevolverController controller = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController controller = prefabRoot.GetComponentInChildren<CCS_RevolverController>();
 
             if (controller == null)
 
@@ -294,7 +298,7 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
-            CCS_CharacterInputActionProvider inputProvider = prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+            CCS_CharacterInputActionProvider inputProvider = prefabRoot.GetComponentInChildren<CCS_CharacterInputActionProvider>();
 
             Transform muzzlePoint = FindDeepChild(prefabRoot.transform, CCS_WeaponsConstants.MuzzlePointObjectName);
 
@@ -312,7 +316,7 @@ namespace CCS.Modules.Weapons.Editor
 
             CCS_CharacterAimLocomotionController aimLocomotion =
 
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>();
 
             changed |= SetObjectReference(serializedController, "aimLocomotionController", aimLocomotion);
 
@@ -350,7 +354,7 @@ namespace CCS.Modules.Weapons.Editor
 
         {
 
-            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>();
+            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponentInChildren<CCS_PlayerWeaponLoadout>();
 
             if (loadout == null)
 
@@ -366,7 +370,7 @@ namespace CCS.Modules.Weapons.Editor
 
                 CCS_WeaponsConstants.RevolverM1879VisualDefinitionPath);
 
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController = prefabRoot.GetComponentInChildren<CCS_RevolverController>();
 
 
 
@@ -410,7 +414,7 @@ namespace CCS.Modules.Weapons.Editor
 
             CCS_PlayerEquipmentVisualController controller =
 
-                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+                prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>();
 
             if (controller == null)
 
@@ -422,13 +426,13 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
-            CCS_EquipmentSocketRegistry socketRegistry = prefabRoot.GetComponent<CCS_EquipmentSocketRegistry>();
+            CCS_EquipmentSocketRegistry socketRegistry = prefabRoot.GetComponentInChildren<CCS_EquipmentSocketRegistry>();
 
-            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponent<CCS_PlayerWeaponLoadout>();
+            CCS_PlayerWeaponLoadout loadout = prefabRoot.GetComponentInChildren<CCS_PlayerWeaponLoadout>();
 
             CCS_CharacterAimLocomotionController aimLocomotion =
 
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>();
 
             CCS_WeaponAttachmentFitProfile hipFit = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
 
@@ -492,11 +496,11 @@ namespace CCS.Modules.Weapons.Editor
 
             CCS_CharacterAimLocomotionController aimLocomotion =
 
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>();
 
             CCS_WeaponCarryStateController carryController =
 
-                prefabRoot.GetComponent<CCS_WeaponCarryStateController>();
+                prefabRoot.GetComponentInChildren<CCS_WeaponCarryStateController>();
 
             if (aimLocomotion == null || carryController == null)
 
@@ -676,7 +680,7 @@ namespace CCS.Modules.Weapons.Editor
 
             Image reticleImage = EnsureReticle(hudRootObject.transform, ref changed);
 
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController = prefabRoot.GetComponentInChildren<CCS_RevolverController>();
 
 
 
@@ -711,14 +715,14 @@ namespace CCS.Modules.Weapons.Editor
             bool changed = false;
             Transform hudRoot = prefabRoot.transform.Find(CCS_WeaponsConstants.WeaponHudRootName);
             Transform visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.VisualRootObjectName);
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController = prefabRoot.GetComponentInChildren<CCS_RevolverController>();
             CCS_RevolverHudPresenter hudPresenter = hudRoot != null
                 ? hudRoot.GetComponent<CCS_RevolverHudPresenter>()
                 : null;
             CCS_PlayerEquipmentVisualController equipmentVisual =
-                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+                prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>();
             CCS_CharacterAimLocomotionController aimLocomotion =
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>();
             Animator animator = visualRoot != null ? visualRoot.GetComponentInChildren<Animator>(true) : null;
             CCS_RevolverUpperBodyAnimator upperBodyAnimator = visualRoot != null
                 ? visualRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true)
@@ -839,7 +843,7 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
-            CCS_RevolverFireFeedback rootFeedback = prefabRoot.GetComponent<CCS_RevolverFireFeedback>();
+            CCS_RevolverFireFeedback rootFeedback = prefabRoot.GetComponentInChildren<CCS_RevolverFireFeedback>();
 
             if (rootFeedback != null)
 
@@ -891,9 +895,9 @@ namespace CCS.Modules.Weapons.Editor
 
 
 
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController = prefabRoot.GetComponentInChildren<CCS_RevolverController>();
             CCS_PlayerEquipmentVisualController equipmentVisualController =
-                prefabRoot.GetComponent<CCS_PlayerEquipmentVisualController>();
+                prefabRoot.GetComponentInChildren<CCS_PlayerEquipmentVisualController>();
 
             SerializedObject serializedFeedback = new SerializedObject(fireFeedback);
             bool changed = SetObjectReference(serializedFeedback, "revolverController", revolverController);

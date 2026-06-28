@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.3** · Crazy Carrot Studios
+**Version 0.8.0** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -10,13 +10,15 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 |--------|-----------|
 | **Framework** | Core platform (gameplay-free) |
 | **Project** | Bootstrap, composition, validation standards |
-| **CharacterController** | Movement, camera, Master Test harness (v0.7.3 animator runtime reconnect) |
+| **CharacterController** | Movement, camera, production player prefab architecture (v0.8.0) |
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 | **Weapons** | Revolver M1879 world pickup, hitscan, fit profile pack (v0.6.16 reticle-aligned shots) |
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.8.0** — **Player production prefab architecture:** splits production (`PF_CCS_Player_Networked_Runtime`) from Master Test harness, adds `CCS_PlayerRuntimeFacade`, owner-gated `PlayerLocalUI`, component classification/validation, and preserves v0.7.2 animator layer isolation.
 
 **0.7.3** — **Player animator runtime reconnect:** fixes RevolverUpperBody/Interaction layer weight at runtime, reconnects AC motion clips by resolved name, adds optional Animator diagnostics, and strengthens motion/playback validation.
 
@@ -41,6 +43,7 @@ Profiles live at `Assets/CCS/Modules/CharacterController/Profiles/EquipmentFitti
 | Interaction module | **CCS → Interaction → Validate Interaction Module** |
 | Weapons module | **CCS → Weapons → Validate Weapons Module** |
 | Character Controller Master Test | **CCS → Character Controller → Scene → Setup And Validate Master Test Scene** |
+| Player production prefab architecture | **CCS → Character Controller → Player Architecture → Build Production + Test Harness Prefabs** |
 | Equipment Fit Studio | **CCS → Character Controller → Equipment → Equipment Fit Studio** |
 | Animation Fit Studio | **CCS → Character Controller → Animations → Animation Fit Studio** |
 | Attributes module | **CCS → Attributes → Validate Attributes Module** |

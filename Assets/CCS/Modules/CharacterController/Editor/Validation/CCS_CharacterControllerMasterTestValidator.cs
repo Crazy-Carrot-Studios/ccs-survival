@@ -1653,7 +1653,8 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_CharacterCameraController cameraController = prefab.GetComponent<CCS_CharacterCameraController>();
+            CCS_CharacterCameraController cameraController =
+                prefab.GetComponentInChildren<CCS_CharacterCameraController>(true);
             AppendIfMissing(
                 failures,
                 cameraController != null,
@@ -2332,7 +2333,8 @@ namespace CCS.Modules.CharacterController.Editor
                 failures.Add($"{prefabPath} CameraLookTarget local position must match the profile-driven chest/head reference.");
             }
 
-            CCS_CharacterCameraController cameraController = prefab.GetComponent<CCS_CharacterCameraController>();
+            CCS_CharacterCameraController cameraController =
+                prefab.GetComponentInChildren<CCS_CharacterCameraController>(true);
             if (cameraController != null && pitchTarget != null && cameraController.CameraPivot != pitchTarget)
             {
                 failures.Add($"{prefabPath} camera controller tracking pivot must reference CameraPitchTarget.");
@@ -2408,7 +2410,14 @@ namespace CCS.Modules.CharacterController.Editor
 
             if (glasses.parent != prefab.transform)
             {
-                failures.Add($"{prefabPath} VisualGlasses must be a direct child of the player root visual hierarchy.");
+                Transform presentation = prefab.transform.Find(CCS_PlayerPrefabConstants.PresentationObjectName);
+                bool underPresentation = presentation != null && glasses.IsChildOf(presentation);
+                if (!underPresentation)
+                {
+                    failures.Add(
+                        $"{prefabPath} VisualGlasses must be a direct child of the player root visual hierarchy "
+                        + "or under Presentation.");
+                }
             }
 
             Transform cinemachineChild = FindChildByName(prefab.transform, "CM_ThirdPersonSurvival");
@@ -3542,7 +3551,8 @@ namespace CCS.Modules.CharacterController.Editor
                 }
             }
 
-            CCS_CharacterCameraController cameraController = prefab.GetComponent<CCS_CharacterCameraController>();
+            CCS_CharacterCameraController cameraController =
+                prefab.GetComponentInChildren<CCS_CharacterCameraController>(true);
             if (cameraController != null && pitchTarget != null && cameraController.CameraPivot != pitchTarget)
             {
                 failures.Add(

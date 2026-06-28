@@ -81,6 +81,8 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_EquipmentSocketProfileBuilder.EnsureDefaultEquipmentSocketProfile();
             CCS_EquipmentFitStudioProfileBuilder.EnsureEquipmentFitStudioAssets();
             CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
+            CCS_PlayerPrefabArchitectureBuilder.EnsurePlayerProductionArchitecture();
+            CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
             CCS_CharacterControllerAnimationIsolationBuilder.EnsurePlayerAnimationIsolation();
             CCS_AttributesTestPlayerPrefabBuilder.EnsureTestPlayerAttributes();
             CCS_InteractionAssetBuilder.EnsureInteractionAssets();

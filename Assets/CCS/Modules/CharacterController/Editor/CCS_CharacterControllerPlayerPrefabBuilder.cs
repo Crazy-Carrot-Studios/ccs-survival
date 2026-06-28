@@ -30,7 +30,15 @@ namespace CCS.Modules.CharacterController.Editor
         public static bool EnsurePlayerPrefabs()
         {
             bool changed = false;
-            changed |= EnsureNetworkedTestPlayerPrefab(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            changed |= EnsureNetworkedTestPlayerPrefab(
+                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath,
+                includeMasterTestBootstrap: true);
+            changed |= EnsureNetworkedTestPlayerPrefab(
+                CCS_PlayerPrefabConstants.TestHarnessPlayerPrefabPath,
+                includeMasterTestBootstrap: true);
+            changed |= EnsureNetworkedTestPlayerPrefab(
+                CCS_PlayerPrefabConstants.ProductionPlayerPrefabPath,
+                includeMasterTestBootstrap: false);
             changed |= EnsureTestNpcPrefab(CCS_CharacterControllerMasterTestLayoutConstants.NpcPrefabPath);
             if (changed)
             {
@@ -45,8 +53,13 @@ namespace CCS.Modules.CharacterController.Editor
 
         #region Private Methods
 
-        private static bool EnsureNetworkedTestPlayerPrefab(string prefabPath)
+        private static bool EnsureNetworkedTestPlayerPrefab(string prefabPath, bool includeMasterTestBootstrap)
         {
+            if (!System.IO.File.Exists(prefabPath))
+            {
+                return false;
+            }
+
             GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
             if (prefabRoot == null)
             {
@@ -73,8 +86,11 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= RemoveCharacterControllerDebugHud(prefabRoot);
             changed |= WireNetworkNameplate(prefabRoot.transform);
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
-            changed |= EnsureOfflineBootstrap(prefabRoot);
-            changed |= WireDisplayProfile(prefabRoot);
+            if (includeMasterTestBootstrap)
+            {
+                changed |= EnsureOfflineBootstrap(prefabRoot);
+                changed |= WireDisplayProfile(prefabRoot);
+            }
 
             RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -1070,7 +1086,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static bool EnsurePlayerLocomotionComponents(GameObject prefabRoot)
         {
             CCS_CharacterInputActionProvider inputProvider =
-                prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterInputActionProvider>(true);
             CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
             if (inputProvider == null || motor == null)
             {
@@ -1118,7 +1134,8 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             Animator animator = visualRoot.GetComponentInChildren<Animator>(true);
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
+            CCS_RevolverController revolverController =
+                prefabRoot.GetComponentInChildren<CCS_RevolverController>(true);
             CCS_PlayerInteractionAnimator interactionAnimator =
                 visualRoot.GetComponent<CCS_PlayerInteractionAnimator>();
 
@@ -1232,7 +1249,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static bool WireNetworkPlayerBehaviour(GameObject networkedRoot)
         {
             CCS_ControllerTestNetworkPlayerBehaviour behaviour =
-                networkedRoot.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+                networkedRoot.GetComponentInChildren<CCS_ControllerTestNetworkPlayerBehaviour>(true);
             if (behaviour == null)
             {
                 return false;
@@ -1242,9 +1259,11 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerMasterTestLayoutConstants.PlayerYellowMaterialPath);
             Material blackMaterial = AssetDatabase.LoadAssetAtPath<Material>(
                 CCS_CharacterControllerMasterTestLayoutConstants.PlayerBlackMaterialPath);
-            Transform bodyVisual = networkedRoot.transform.Find(
+            Transform bodyVisual = FindChildRecursive(
+                networkedRoot.transform,
                 CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
-            Transform glassesVisual = networkedRoot.transform.Find(
+            Transform glassesVisual = FindChildRecursive(
+                networkedRoot.transform,
                 CCS_CharacterControllerMasterTestLayoutConstants.GlassesVisualName);
             Transform followAnchor = FindChildRecursive(
                 networkedRoot.transform,
@@ -1271,7 +1290,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= SetObjectReference(
                 serializedBehaviour,
                 "inputProvider",
-                networkedRoot.GetComponent<CCS_CharacterInputActionProvider>());
+                networkedRoot.GetComponentInChildren<CCS_CharacterInputActionProvider>(true));
             changed |= SetObjectReference(
                 serializedBehaviour,
                 "motor",
@@ -1279,11 +1298,11 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= SetObjectReference(
                 serializedBehaviour,
                 "controllerService",
-                networkedRoot.GetComponent<CCS_CharacterControllerService>());
+                networkedRoot.GetComponentInChildren<CCS_CharacterControllerService>(true));
             changed |= SetObjectReference(
                 serializedBehaviour,
                 "playerCameraController",
-                networkedRoot.GetComponent<CCS_CharacterCameraController>());
+                networkedRoot.GetComponentInChildren<CCS_CharacterCameraController>(true));
             changed |= SetObjectReference(serializedBehaviour, "cameraPivot", cameraPivot);
             changed |= SetObjectReference(serializedBehaviour, "cameraLookTarget", cameraLookTarget);
 
@@ -1509,7 +1528,7 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_CharacterMotor motor)
         {
             CCS_CharacterAimLocomotionController aimLocomotion =
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>(true);
             bool changed = false;
             if (aimLocomotion == null)
             {
@@ -1522,7 +1541,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             SerializedObject serializedAimLocomotion = new SerializedObject(aimLocomotion);
             CCS_WeaponCarryStateController carryController =
-                prefabRoot.GetComponent<CCS_WeaponCarryStateController>();
+                prefabRoot.GetComponentInChildren<CCS_WeaponCarryStateController>(true);
             bool aimChanged = SetObjectReference(serializedAimLocomotion, "inputProvider", inputProvider);
             aimChanged |= SetObjectReference(serializedAimLocomotion, "cameraFollowAnchor", followAnchor);
             aimChanged |= SetObjectReference(serializedAimLocomotion, "weaponAimGateComponent", carryController);

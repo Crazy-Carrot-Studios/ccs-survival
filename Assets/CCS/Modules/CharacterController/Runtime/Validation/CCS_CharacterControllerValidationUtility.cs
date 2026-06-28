@@ -685,7 +685,8 @@ namespace CCS.Modules.CharacterController
                     prefabPath + " must include CCS_WeaponCarryStateController for carry/aim visual sync.");
                 AppendIfMissing(
                     failures,
-                    prefabText.Contains("weaponAimGateComponent: {fileID: 4076866618874431801}"),
+                    prefabText.Contains("weaponAimGateComponent:")
+                        && !prefabText.Contains("weaponAimGateComponent: {fileID: 0}"),
                     prefabPath + " weaponAimGateComponent must reference CCS_WeaponCarryStateController.");
                 AppendIfMissing(
                     failures,
@@ -752,9 +753,12 @@ namespace CCS.Modules.CharacterController
             UnityEngine.CharacterController unityCharacterController =
                 prefabRoot.GetComponent<UnityEngine.CharacterController>();
             CCS_CharacterMotor motor = prefabRoot.GetComponent<CCS_CharacterMotor>();
-            CCS_CharacterInputActionProvider inputProvider = prefabRoot.GetComponent<CCS_CharacterInputActionProvider>();
-            CCS_CharacterCameraController cameraController = prefabRoot.GetComponent<CCS_CharacterCameraController>();
-            CCS_CharacterControllerService service = prefabRoot.GetComponent<CCS_CharacterControllerService>();
+            CCS_CharacterInputActionProvider inputProvider =
+                prefabRoot.GetComponentInChildren<CCS_CharacterInputActionProvider>(true);
+            CCS_CharacterCameraController cameraController =
+                prefabRoot.GetComponentInChildren<CCS_CharacterCameraController>(true);
+            CCS_CharacterControllerService service =
+                prefabRoot.GetComponentInChildren<CCS_CharacterControllerService>(true);
 
             AppendIfMissing(failures, unityCharacterController != null, "Prefab missing CharacterController.");
             AppendIfMissing(failures, motor != null, "Prefab missing CCS_CharacterMotor.");
@@ -976,7 +980,7 @@ namespace CCS.Modules.CharacterController
             List<string> failures = new List<string>();
             AppendIfMissing(
                 failures,
-                prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>() != null,
+                prefabRoot.GetComponentInChildren<CCS_CharacterAimLocomotionController>(true) != null,
                 "Prefab missing CCS_CharacterAimLocomotionController.");
             AppendIfMissing(
                 failures,

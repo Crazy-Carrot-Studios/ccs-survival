@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.3`
+**Current version:** `0.8.0`
 
 ## Purpose
 
@@ -46,6 +46,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
 | **`0.7.2`** | **Player animator layer cleanup** |
 | **`0.7.3`** | **Player animator runtime reconnect** |
+| **`0.8.0`** | **Player production prefab architecture** |
 
 ---
 
