@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1c`
+**Current version:** `0.7.1d`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.1d`** | **Testing Manager foundation + editor menu reduction (Phase 2B)** |
 | **`0.7.1c`** | **Remove Animation Fit Studio tooling (Phase 2A, editor/docs only)** |
 | **`0.7.1a`** | **AI health bar fill direction hotfix** |
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
@@ -109,6 +110,13 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1d` — Testing Manager and Editor Menu Reduction (Phase 2B)
+
+- Added `CCS_CharacterControllerTestingManager` as central Master Test debug switchboard
+- Removed runtime OnGUI overlays from production animation/camera scripts; moved diagnostics to Tests-only reporters
+- Removed obsolete editor menu wrappers (Master Test setup, hosting setup, camera presets); batch entries remain
+- No gameplay behavior changes; player prefab cleanup deferred
 
 ### `0.7.1c` — Remove Animation Fit Studio Tooling (Phase 2A)
 

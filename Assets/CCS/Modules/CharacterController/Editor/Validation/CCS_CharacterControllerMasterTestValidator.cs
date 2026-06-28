@@ -120,6 +120,10 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidateTestingManagerAndRecordingAmbience(failures);
 
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerPhase2BValidationUtility.ValidatePhase2BFoundation());
+
             ValidateJoinNotificationFeed(failures);
 
             ValidatePlayerPrefabAssets(failures);
@@ -1538,13 +1542,13 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_MasterTestSceneTestingManager testingManager =
-                testingManagerTransform.GetComponent<CCS_MasterTestSceneTestingManager>();
+            CCS_CharacterControllerTestingManager testingManager =
+                testingManagerTransform.GetComponent<CCS_CharacterControllerTestingManager>();
             AppendIfMissing(
                 failures,
                 testingManager != null,
                 CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName
-                + " must contain CCS_MasterTestSceneTestingManager.");
+                + " must contain CCS_CharacterControllerTestingManager.");
 
             if (testingManager == null)
             {
@@ -1564,15 +1568,16 @@ namespace CCS.Modules.CharacterController.Editor
                 "CCS_MasterTestSceneTestingManager must not reference a Master Test ambient playlist.");
 
             string testingManagerSourcePath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs";
+                "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_CharacterControllerTestingManager.cs";
             if (File.Exists(testingManagerSourcePath))
             {
                 string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
                 AppendIfMissing(
                     failures,
                     testingManagerSource.Contains("SetRecordingAmbienceEnabled")
-                        && testingManagerSource.Contains("ApplyTestingSettings"),
-                    "CCS_MasterTestSceneTestingManager must expose ambience toggle methods.");
+                        && testingManagerSource.Contains("ApplyTestingSettings")
+                        && testingManagerSource.Contains("WriteOneShotReport"),
+                    "CCS_CharacterControllerTestingManager must expose ambience toggle methods and WriteOneShotReport.");
             }
 
             if (testingManager != null)

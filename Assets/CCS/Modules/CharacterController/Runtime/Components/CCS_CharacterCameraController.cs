@@ -131,19 +131,18 @@ namespace CCS.Modules.CharacterController
             SetFirstPersonHeadMask(false);
         }
 
-        private void OnGUI()
-        {
-            if (!enableRuntimeCameraDebug)
-            {
-                return;
-            }
+        #endregion
 
+        #region Public Methods
+
+        public string BuildCameraDebugReport()
+        {
             CCS_CharacterCameraProfile debugProfile = isFirearmAimModeActive
                 ? ResolveFirstPersonProfile()
                 : activeProfile;
             if (debugProfile == null)
             {
-                return;
+                return string.Empty;
             }
 
             string modeLabel = isFirearmAimModeActive
@@ -177,9 +176,7 @@ namespace CCS.Modules.CharacterController
                     pitchMax,
                     activeCullingMask)
                 : "Head mask component: not bound";
-            GUI.Label(
-                new Rect(12f, 12f, 860f, 560f),
-                "Camera Mode: "
+            return "Camera Mode: "
                 + modeLabel
                 + "\nActive Cinemachine Camera: "
                 + activeCinemachineCameraName
@@ -225,12 +222,8 @@ namespace CCS.Modules.CharacterController
                 + "\nUse Head Tracking: "
                 + (useHeadTracking ? "true" : "false")
                 + "\n"
-                + headMaskDebug);
+                + headMaskDebug;
         }
-
-        #endregion
-
-        #region Public Methods
 
         public void SetCameraProfileSet(CCS_CharacterCameraProfileSet profileSet)
         {

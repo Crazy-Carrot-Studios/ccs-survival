@@ -15,8 +15,7 @@ namespace CCS.Modules.CharacterController.Editor
 {
     public static class CCS_CharacterFirstPersonCameraDefaultsUtility
     {
-        [MenuItem("CCS/Character Controller/Camera/Apply First Person Body Aware Defaults")]
-        public static void ApplyFirstPersonBodyAwareDefaultsMenu()
+        public static void ApplyFirstPersonBodyAwareDefaults()
         {
             bool changed = CCS_CharacterCameraAssetBuilder.ApplyFirstPersonBodyAwareDefaults();
             Debug.Log(

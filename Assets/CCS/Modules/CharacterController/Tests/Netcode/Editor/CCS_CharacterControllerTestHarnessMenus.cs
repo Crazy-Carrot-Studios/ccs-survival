@@ -20,12 +20,6 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
 
         #region Public Methods
 
-        [MenuItem(SceneMenuRoot + "Setup And Validate Multiplayer Hosting Scene")]
-        public static void SetupAndValidateMultiplayerHostingSceneMenu()
-        {
-            RunBatchBuildAndValidate();
-        }
-
         public static void RunBatchBuildAndValidate()
         {
             SetupMultiplayerHostingScene();

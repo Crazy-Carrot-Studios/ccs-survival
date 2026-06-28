@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.1c — living module overview  
+**Version:** 0.7.1d — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -17,6 +17,7 @@ Profile-driven third-person movement, Cinemachine camera control, revolver upper
 | **v0.7.1a** | Gameplay baseline — locomotion, revolver aim/fire, AI combat, weapons pickup, hosting |
 | **v0.7.1a** | AI health bar fill direction hotfix (signed off) |
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
+| **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 
 Working systems that must remain stable unless a dedicated, batch-validated milestone approves changes:
 
@@ -33,7 +34,7 @@ Working systems that must remain stable unless a dedicated, batch-validated mile
 |-------|----------|-------|
 | **Runtime** | `Runtime/` | Production gameplay assemblies. No Editor dependencies. No test harness types. |
 | **Editor** | `Editor/` | Builders, validators, batch entries, Equipment Fit Studio. Not required at runtime. |
-| **Tests** | `Tests/` | Master Test scene harness, hosting menu, spawners, diagnostics switchboard. Not referenced by production Runtime asmdef. |
+| **Tests** | `Tests/` | Master Test scene harness, hosting batch entries, spawners, diagnostics switchboard. Not referenced by production Runtime asmdef. |
 
 **Editor tools are not gameplay dependencies.** Runtime must compile and run without Editor-only tooling.
 
@@ -86,24 +87,49 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 
 Editor menus are optional convenience wrappers. CI and Cursor workflows must not depend on manual menu clicks.
 
-## Editor menu policy
+## Editor menu policy (v0.7.1d)
 
 | Classification | Action |
 |----------------|--------|
-| **KeepProductionMenu** | Equipment Fit Studio, validated asset workflows that save production profiles |
-| **ConvertToBatchOnly** | Master Test setup, hosting setup, camera preset utilities (Phase 2B+) |
+| **KeepProductionMenu** | Equipment Fit Studio only |
+| **Batch-only (menus removed v0.7.1d)** | Master Test setup (`CCS_ProjectMasterTestBatchEntry`), hosting setup (`CCS_MultiplayerHostingSceneBatchEntry`), camera preset utilities (`CCS_CharacterAimCameraProfilePresetUtility`, `CCS_CharacterFirstPersonCameraDefaultsUtility`) |
 | **Removed (v0.7.1c)** | Animation Fit Studio window, Apply Default Revolver FullDraw Nudge |
+| **Removed (v0.7.1d)** | `CCS_CharacterControllerMasterTestMenus`, hosting scene MenuItem wrapper, camera preset MenuItem wrappers |
 
 Do not add new editor menus without classifying them and documenting the batch equivalent.
 
-## Testing Manager policy (future — not implemented in v0.7.1c)
+## Testing Manager policy (v0.7.1d)
 
-Evolve existing `CCS_MasterTestSceneTestingManager` on Master Test scene (`CCS_TestingManager`) into `Tests/Runtime/Managers/CCS_CharacterControllerTestingManager`:
+**Central switchboard:** `Tests/Runtime/Managers/CCS_CharacterControllerTestingManager` on Master Test scene object `CCS_TestingManager`.
 
-- Centralize recording ambience, aim debug, IK toggles, and test-only diagnostics
-- Production player prefab must **not** require the manager
-- Prefer Console logs and Markdown reports in `Logs/` over runtime OnGUI overlays
-- Gate or remove production `OnGUI` debug (e.g. `CCS_RevolverUpperBodyAnimator`) via manager flags
+**Compatibility:** `CCS_MasterTestSceneTestingManager` remains as a thin inherited wrapper so existing scene references stay valid. Remove the wrapper in a later milestone.
+
+**Default toggles (all off unless noted):**
+
+| Toggle | Default |
+|--------|---------|
+| `enableRecordingAmbience` | off |
+| `enableArmToReticleIK` | off |
+| `enableVisualAimConvergence` | off |
+| `enableAimDebugRays` | off |
+| `enableVerboseLogs` | off |
+| `enableCameraDiagnostics` | off |
+| `enableAimDiagnostics` | off |
+| `enableAnimationDiagnostics` | off |
+| `enableInteractionDiagnostics` | off |
+| `enableTestDamage` | off |
+| `enableVisualDebugHelpers` | off |
+| `enableReticleClamp` | on |
+| `enableThirdPersonAimPitchBlend` | on |
+
+**Debug policy:**
+
+- Console logs and Markdown reports in `Logs/CharacterController/TestingReports/` are preferred.
+- Runtime production scripts must not own `OnGUI` overlays.
+- Test-only diagnostics live under `Tests/Runtime/Diagnostics/` and are gated by the Testing Manager.
+- Production player prefab must **not** require the manager.
+
+**Future work (not v0.7.1d):** player prefab script reduction, Runtime folder moves, animation pack import.
 
 ## Animation Fit Studio removal (v0.7.1c)
 

@@ -17,19 +17,16 @@ namespace CCS.Modules.CharacterController.Editor
     {
         private const string MenuRoot = "CCS/Character Controller/Camera/Aim Camera Presets/";
 
-        [MenuItem(MenuRoot + "Apply Right Shoulder Balanced")]
         public static void ApplyRightShoulderBalanced()
         {
             ApplyPreset("Right Shoulder Balanced", 0.65f, 0.12f, 1.50f, 52f);
         }
 
-        [MenuItem(MenuRoot + "Apply Right Shoulder Tight")]
         public static void ApplyRightShoulderTight()
         {
             ApplyPreset("Right Shoulder Tight", 0.75f, 0.10f, 1.35f, 50f);
         }
 
-        [MenuItem(MenuRoot + "Apply Right Shoulder Wide")]
         public static void ApplyRightShoulderWide()
         {
             ApplyPreset("Right Shoulder Wide", 0.60f, 0.16f, 1.65f, 55f);

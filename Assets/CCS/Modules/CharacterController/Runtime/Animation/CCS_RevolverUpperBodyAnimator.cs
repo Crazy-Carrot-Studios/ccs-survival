@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 // =============================================================================
 // SCRIPT: CCS_RevolverUpperBodyAnimator
@@ -18,8 +16,6 @@ namespace CCS.Modules.CharacterController
     public sealed class CCS_RevolverUpperBodyAnimator : MonoBehaviour
     {
         #region Variables
-
-        private const string MasterTestSceneName = "SCN_CCS_CharacterController_MasterTest";
 
         private static readonly int RevolverAimHeldHash =
             Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorRevolverAimHeldParameter);
@@ -60,10 +56,6 @@ namespace CCS.Modules.CharacterController
         [Tooltip("When enabled, crossfades to CCS_WW_Revolver_AimIdle_RH preview states instead of full-draw flow.")]
         [SerializeField] private bool useWildWestRightHandRevolverAimPreview;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        [SerializeField] private bool enableMasterTestForceAimDebugHotkey = true;
-#endif
-
         private CCS_IRevolverAnimationState revolverAnimationState;
         private CCS_ICharacterControlLockSource controlLockSource;
         private int revolverLayerIndex = -1;
@@ -71,7 +63,6 @@ namespace CCS.Modules.CharacterController
         private bool loggedMissingLayer;
         private bool subscribedRevolverEvents;
         private bool lastAppliedRevolverAimHeld;
-        private string cachedRuntimeDebugOverlayText = string.Empty;
         private readonly System.Collections.Generic.HashSet<int> animatorParameterHashes =
             new System.Collections.Generic.HashSet<int>();
         private bool animatorParametersCached;
@@ -110,7 +101,6 @@ namespace CCS.Modules.CharacterController
             currentLayerWeight = 0f;
             currentAimPhase = CCS_RevolverAimPhase.NoAim;
             ApplyLayerWeight(0f);
-            cachedRuntimeDebugOverlayText = string.Empty;
             animatorParametersCached = false;
             animatorParameterHashes.Clear();
         }
@@ -126,25 +116,86 @@ namespace CCS.Modules.CharacterController
             EnsureRevolverEventSubscription();
             UpdateAnimatorParameters();
             UpdateLayerWeight();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            HandleMasterTestForceAimDebugHotkey();
-#endif
-            CacheRuntimeDebugOverlayText();
-        }
-
-        private void OnGUI()
-        {
-            if (!enableRevolverAnimationDebug || string.IsNullOrEmpty(cachedRuntimeDebugOverlayText))
-            {
-                return;
-            }
-
-            GUI.Label(new Rect(12f, 280f, 960f, 280f), cachedRuntimeDebugOverlayText);
         }
 
         #endregion
 
         #region Public Methods
+
+        public string BuildRuntimeDebugSnapshot()
+        {
+            if (animator == null)
+            {
+                return string.Empty;
+            }
+
+            bool aimHeld = ResolveRevolverAimHeld();
+            _ = aimHeld;
+            string controllerPath = ResolveRuntimeAnimatorControllerPath();
+            string layerName = revolverLayerIndex >= 0
+                ? CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName
+                : "Missing";
+            float liveLayerWeight = revolverLayerIndex >= 0
+                ? animator.GetLayerWeight(revolverLayerIndex)
+                : 0f;
+            string stateName = GetActiveLayerStateName();
+            string currentClipName = GetActiveLayerClipName(false);
+            string baseStateName = ResolveBaseLayerStateName();
+            return "Animator Controller: "
+                + controllerPath
+                + "\nAim Layer: "
+                + layerName
+                + "\nAim Layer Index: "
+                + revolverLayerIndex
+                + "\nAim Layer Weight: "
+                + liveLayerWeight.ToString("0.000")
+                + " (tracked "
+                + currentLayerWeight.ToString("0.000")
+                + ")\nAim State: "
+                + stateName
+                + "\nBase State: "
+                + baseStateName
+                + "\nMask: AM_CCS_Revolver_UpperBodyRightArm_Aim"
+                + "\nPhase: "
+                + ResolveAimPhaseDisplayLabel(currentAimPhase)
+                + "\nRevolverAimHeld: "
+                + lastAppliedRevolverAimHeld
+                + "\nClip: "
+                + currentClipName;
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public void ForceDebugPlayWildWestAimStateForTesting()
+        {
+            if (animator == null || revolverLayerIndex < 0)
+            {
+                Debug.LogWarning(
+                    "[Revolver Debug] Cannot force-play aim: missing animator or RevolverUpperBody layer.",
+                    this);
+                return;
+            }
+
+            currentLayerWeight = 1f;
+            ApplyLayerWeight(1f);
+            SetAnimatorBoolIfPresent(RevolverAimHeldHash, true);
+            lastAppliedRevolverAimHeld = true;
+
+            animator.CrossFadeInFixedTime(
+                RevolverIdleToAimStateHash,
+                aimStateCrossFadeDuration,
+                revolverLayerIndex,
+                0f);
+
+            Debug.Log(
+                "[Revolver Debug] F9 force-play: layer="
+                + CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName
+                + " state="
+                + CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName
+                + " clip="
+                + CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath,
+                this);
+        }
+#endif
 
         public void SetRevolverAimHeldExternal(bool aimHeld, bool revolverOwned, bool isReloading)
         {
@@ -553,114 +604,6 @@ namespace CCS.Modules.CharacterController
             }
 
             SetAnimatorBoolIfPresent(RevolverIsReloadingHash, false);
-        }
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        private void HandleMasterTestForceAimDebugHotkey()
-        {
-            if (!enableMasterTestForceAimDebugHotkey || !IsMasterTestSceneActive())
-            {
-                return;
-            }
-
-            if (!ResolveRevolverOwned())
-            {
-                return;
-            }
-
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.f9Key.wasPressedThisFrame)
-            {
-                return;
-            }
-
-            ForceDebugPlayWildWestAimState();
-        }
-
-        private void ForceDebugPlayWildWestAimState()
-        {
-            if (animator == null || revolverLayerIndex < 0)
-            {
-                Debug.LogWarning("[Revolver Debug] Cannot force-play aim: missing animator or RevolverUpperBody layer.", this);
-                return;
-            }
-
-            currentLayerWeight = 1f;
-            ApplyLayerWeight(1f);
-            SetAnimatorBoolIfPresent(RevolverAimHeldHash, true);
-            lastAppliedRevolverAimHeld = true;
-
-            animator.CrossFadeInFixedTime(
-                RevolverIdleToAimStateHash,
-                aimStateCrossFadeDuration,
-                revolverLayerIndex,
-                0f);
-
-            Debug.Log(
-                "[Revolver Debug] F9 force-play: layer="
-                + CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName
-                + " state="
-                + CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName
-                + " clip="
-                + CCS_CharacterControllerConstants.WildWestRevolverIdleToAimClipPath,
-                this);
-        }
-#endif
-
-        private static bool IsMasterTestSceneActive()
-        {
-            Scene activeScene = SceneManager.GetActiveScene();
-            return activeScene.IsValid() && activeScene.name == MasterTestSceneName;
-        }
-
-        private void CacheRuntimeDebugOverlayText()
-        {
-            if (!enableRevolverAnimationDebug)
-            {
-                cachedRuntimeDebugOverlayText = string.Empty;
-                return;
-            }
-
-            if (animator == null)
-            {
-                cachedRuntimeDebugOverlayText = string.Empty;
-                return;
-            }
-
-            bool aimHeld = ResolveRevolverAimHeld();
-            string controllerPath = ResolveRuntimeAnimatorControllerPath();
-            string layerName = revolverLayerIndex >= 0
-                ? CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName
-                : "Missing";
-            float liveLayerWeight = revolverLayerIndex >= 0
-                ? animator.GetLayerWeight(revolverLayerIndex)
-                : 0f;
-            string stateName = GetActiveLayerStateName();
-            string currentClipName = GetActiveLayerClipName(false);
-
-            string baseStateName = ResolveBaseLayerStateName();
-            cachedRuntimeDebugOverlayText =
-                "Animator Controller: "
-                + controllerPath
-                + "\nAim Layer: "
-                + layerName
-                + "\nAim Layer Index: "
-                + revolverLayerIndex
-                + "\nAim Layer Weight: "
-                + liveLayerWeight.ToString("0.000")
-                + " (tracked "
-                + currentLayerWeight.ToString("0.000")
-                + ")\nAim State: "
-                + stateName
-                + "\nBase State: "
-                + baseStateName
-                + "\nMask: AM_CCS_Revolver_UpperBodyRightArm_Aim"
-                + "\nPhase: "
-                + ResolveAimPhaseDisplayLabel(currentAimPhase)
-                + "\nRevolverAimHeld: "
-                + lastAppliedRevolverAimHeld
-                + "\nClip: "
-                + currentClipName;
         }
 
         private static string ResolveAimPhaseDisplayLabel(CCS_RevolverAimPhase phase)
