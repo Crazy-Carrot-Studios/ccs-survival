@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.1** · Crazy Carrot Studios
+**Version 0.7.1a** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.1a** — **AI health bar fill direction hotfix:** AI bandit world-space health bar now drains left-to-right from the player camera view (right-anchored fill with `Image.fillOrigin = Right`).
 
 **0.7.1** — **AI bandit polish and hosting fixes:** fixed `AI_Bandit` nameplate layout/billboard, added Master Test NavMesh pathfinding for bandit pursuit, fixed `CCS_NetworkHealth` offline spawn timing (`IsDamageReady`), extended network prefab guard for AI bandit fallbacks, moved ambient playlist to multiplayer hosting scene only (no Master Test music).
 

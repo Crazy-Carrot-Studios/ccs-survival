@@ -335,9 +335,10 @@ namespace CCS.Modules.AI
 
             percent = Mathf.Clamp01(percent);
 
-            healthFillRect.anchorMin = new Vector2(0f, 0f);
-            healthFillRect.anchorMax = new Vector2(percent, 1f);
-            healthFillRect.pivot = new Vector2(0f, 0.5f);
+            // Right-anchored fill drains camera-left to camera-right on the billboard canvas.
+            healthFillRect.anchorMin = new Vector2(1f - percent, 0f);
+            healthFillRect.anchorMax = new Vector2(1f, 1f);
+            healthFillRect.pivot = new Vector2(1f, 0.5f);
             healthFillRect.offsetMin = Vector2.zero;
             healthFillRect.offsetMax = Vector2.zero;
             healthFillRect.anchoredPosition = Vector2.zero;
@@ -345,8 +346,8 @@ namespace CCS.Modules.AI
             if (healthFillImage != null)
             {
                 healthFillImage.type = Image.Type.Filled;
-                healthFillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
                 healthFillImage.fillMethod = Image.FillMethod.Horizontal;
+                healthFillImage.fillOrigin = (int)Image.OriginHorizontal.Right;
                 healthFillImage.fillAmount = percent;
             }
 

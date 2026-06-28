@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1`
+**Current version:** `0.7.1a`
 
 ## Purpose
 
@@ -43,6 +43,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.15`** | **Local self headless first-person body fallback (combined CC3 body)** |
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
+| **`0.7.1a`** | **AI health bar fill direction hotfix** |
 | **`0.7.1`** | **AI bandit polish and hosting fixes** |
 
 ---
@@ -106,6 +107,12 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1a` — AI Health Bar Fill Direction Hotfix
+
+- Fixed AI bandit world-space health bar to drain left-to-right from the player camera view
+- Switched health fill to right-anchored rect layout with `Image` horizontal fill origin on the right
+- Added validation for fill direction, fill amount clamping, and non-mirrored nameplate scale
 
 ### `0.7.1` — AI Bandit Polish and Hosting Fixes
 

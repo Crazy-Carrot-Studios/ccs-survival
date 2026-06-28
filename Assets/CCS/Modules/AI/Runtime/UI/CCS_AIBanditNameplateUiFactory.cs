@@ -170,7 +170,7 @@ namespace CCS.Modules.AI
             fillRect = fillObject.GetComponent<RectTransform>();
             fillRect.anchorMin = Vector2.zero;
             fillRect.anchorMax = Vector2.one;
-            fillRect.pivot = new Vector2(0f, 0.5f);
+            fillRect.pivot = new Vector2(1f, 0.5f);
             fillRect.offsetMin = Vector2.zero;
             fillRect.offsetMax = Vector2.zero;
             fillRect.anchoredPosition = Vector2.zero;
@@ -229,9 +229,9 @@ namespace CCS.Modules.AI
 
             if (fillRect != null)
             {
-                fillRect.anchorMin = new Vector2(0f, 0f);
-                fillRect.anchorMax = new Vector2(healthPercent, 1f);
-                fillRect.pivot = new Vector2(0f, 0.5f);
+                fillRect.anchorMin = new Vector2(1f - healthPercent, 0f);
+                fillRect.anchorMax = new Vector2(1f, 1f);
+                fillRect.pivot = new Vector2(1f, 0.5f);
                 fillRect.offsetMin = Vector2.zero;
                 fillRect.offsetMax = Vector2.zero;
                 fillRect.anchoredPosition = Vector2.zero;
@@ -241,7 +241,7 @@ namespace CCS.Modules.AI
             {
                 fillImage.type = Image.Type.Filled;
                 fillImage.fillMethod = Image.FillMethod.Horizontal;
-                fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+                fillImage.fillOrigin = (int)Image.OriginHorizontal.Right;
                 fillImage.fillAmount = healthPercent;
             }
         }

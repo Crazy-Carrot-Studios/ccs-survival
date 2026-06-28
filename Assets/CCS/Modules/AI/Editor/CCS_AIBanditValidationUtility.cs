@@ -482,11 +482,11 @@ namespace CCS.Modules.AI.Editor
                 nameplate.EnsureRuntimeNameplate();
                 nameplate.RefreshHealthDisplayFromNetworkHealth();
                 RectTransform fillRect = ResolveHealthFillTransform(instance)?.GetComponent<RectTransform>();
-                if (fillRect == null || fillRect.anchorMax.x < 0.75f || fillRect.anchorMax.x > 0.85f)
+                if (fillRect == null || fillRect.anchorMin.x < 0.15f || fillRect.anchorMin.x > 0.25f)
                 {
                     failures.Add(
-                        "AI health bar fill must decrease to about 80% after player damage (anchorMax.x="
-                        + (fillRect != null ? fillRect.anchorMax.x.ToString("0.00") : "null")
+                        "AI health bar fill must decrease to about 80% after player damage (anchorMin.x="
+                        + (fillRect != null ? fillRect.anchorMin.x.ToString("0.00") : "null")
                         + ").");
                     return;
                 }
@@ -526,11 +526,11 @@ namespace CCS.Modules.AI.Editor
 
                 nameplate.RefreshHealthDisplayFromNetworkHealth();
                 fillRect = ResolveHealthFillTransform(instance)?.GetComponent<RectTransform>();
-                if (fillRect == null || fillRect.anchorMax.x > 0.01f)
+                if (fillRect == null || fillRect.anchorMin.x < 0.99f)
                 {
                     failures.Add(
-                        "AI health bar fill must reach 0% after lethal player damage (anchorMax.x="
-                        + (fillRect != null ? fillRect.anchorMax.x.ToString("0.00") : "null")
+                        "AI health bar fill must reach 0% after lethal player damage (anchorMin.x="
+                        + (fillRect != null ? fillRect.anchorMin.x.ToString("0.00") : "null")
                         + ").");
                 }
             }
@@ -595,37 +595,65 @@ namespace CCS.Modules.AI.Editor
                 }
 
                 nameplate.EnsureRuntimeNameplate();
+                ValidateHealthBarNoNegativeMirroring(instance, failures);
+                if (failures.Count > 0)
+                {
+                    return;
+                }
+
                 float[] percents = { 1f, 0.6f, 0.2f, 0f };
                 for (int i = 0; i < percents.Length; i++)
                 {
                     float percent = percents[i];
                     nameplate.SetHealthPercent(percent);
-                    RectTransform fillRect = ResolveHealthFillTransform(instance)?.GetComponent<RectTransform>();
-                    if (fillRect == null)
+                    if (!TryResolveHealthBarFill(instance, out RectTransform fillRect, out Image fillImage))
                     {
-                        failures.Add("AI health bar fill rect could not be resolved for direction validation.");
+                        failures.Add("AI health bar fill reference must be assigned for direction validation.");
                         return;
                     }
 
-                    if (!Mathf.Approximately(fillRect.anchorMin.x, 0f))
+                    if (!Mathf.Approximately(fillRect.anchorMax.x, 1f))
                     {
-                        failures.Add("AI health bar fill anchorMin.x must stay at 0 for left-anchored drain.");
+                        failures.Add("AI health bar fill anchorMax.x must stay at 1 for right-anchored drain.");
                         return;
                     }
 
-                    if (!Mathf.Approximately(fillRect.pivot.x, 0f))
+                    if (!Mathf.Approximately(fillRect.pivot.x, 1f))
                     {
-                        failures.Add("AI health bar fill pivot.x must stay at 0 for left-anchored drain.");
+                        failures.Add("AI health bar fill pivot.x must stay at 1 for right-anchored drain.");
                         return;
                     }
 
-                    if (Mathf.Abs(fillRect.anchorMax.x - percent) > 0.05f)
+                    float expectedAnchorMinX = 1f - percent;
+                    if (Mathf.Abs(fillRect.anchorMin.x - expectedAnchorMinX) > 0.05f)
                     {
                         failures.Add(
-                            "AI health bar fill anchorMax.x must match health percent "
+                            "AI health bar fill anchorMin.x must match health percent "
+                            + percent.ToString("0.0")
+                            + " (expected "
+                            + expectedAnchorMinX.ToString("0.00")
+                            + ", was "
+                            + fillRect.anchorMin.x.ToString("0.00")
+                            + ").");
+                        return;
+                    }
+
+                    if (fillImage.type != Image.Type.Filled
+                        || fillImage.fillMethod != Image.FillMethod.Horizontal
+                        || fillImage.fillOrigin != (int)Image.OriginHorizontal.Right)
+                    {
+                        failures.Add(
+                            "AI health bar fill must use Image Filled Horizontal with fillOrigin Right.");
+                        return;
+                    }
+
+                    if (Mathf.Abs(fillImage.fillAmount - percent) > 0.05f)
+                    {
+                        failures.Add(
+                            "AI health bar fillAmount must match health percent "
                             + percent.ToString("0.0")
                             + " (was "
-                            + fillRect.anchorMax.x.ToString("0.00")
+                            + fillImage.fillAmount.ToString("0.00")
                             + ").");
                         return;
                     }
@@ -739,15 +767,16 @@ namespace CCS.Modules.AI.Editor
 
                 Transform fillTransform = ResolveHealthFillTransform(instance);
                 RectTransform fillRect = fillTransform != null ? fillTransform.GetComponent<RectTransform>() : null;
-                if (fillRect == null || fillRect.anchorMax.x < 0.99f)
+                Image fillImage = fillTransform != null ? fillTransform.GetComponent<Image>() : null;
+                if (fillRect == null || fillImage == null || fillRect.anchorMin.x > 0.01f || !Mathf.Approximately(fillRect.anchorMax.x, 1f))
                 {
                     failures.Add("AI health bar fill must start at 100% before simulated damage.");
                     return;
                 }
 
-                if (!Mathf.Approximately(fillRect.anchorMin.x, 0f) || !Mathf.Approximately(fillRect.pivot.x, 0f))
+                if (!Mathf.Approximately(fillRect.pivot.x, 1f))
                 {
-                    failures.Add("AI health bar fill must be left-anchored before simulated damage.");
+                    failures.Add("AI health bar fill must be right-anchored before simulated damage.");
                     return;
                 }
 
@@ -775,11 +804,11 @@ namespace CCS.Modules.AI.Editor
                     return;
                 }
 
-                if (fillRect.anchorMax.x < 0.55f || fillRect.anchorMax.x > 0.65f)
+                if (fillRect.anchorMin.x < 0.35f || fillRect.anchorMin.x > 0.45f)
                 {
                     failures.Add(
-                        "AI health bar fill must decrease to about 60% after damage (anchorMax.x="
-                        + fillRect.anchorMax.x.ToString("0.00")
+                        "AI health bar fill must decrease to about 60% after damage (anchorMin.x="
+                        + fillRect.anchorMin.x.ToString("0.00")
                         + ", current="
                         + networkHealth.CurrentHealth.ToString("0.##")
                         + ", max="
@@ -793,12 +822,12 @@ namespace CCS.Modules.AI.Editor
                 nameplate.RefreshHealthDisplayFromNetworkHealth();
                 fillRect = ResolveHealthFillTransform(instance)?.GetComponent<RectTransform>();
                 if (fillRect == null
-                    || fillRect.anchorMax.x < 0.55f
-                    || fillRect.anchorMax.x > 0.65f)
+                    || fillRect.anchorMin.x < 0.35f
+                    || fillRect.anchorMin.x > 0.45f)
                 {
                     failures.Add(
-                        "AI nameplate RefreshHealthDisplayFromNetworkHealth must keep fill at about 60% (anchorMax.x="
-                        + (fillRect != null ? fillRect.anchorMax.x.ToString("0.00") : "null")
+                        "AI nameplate RefreshHealthDisplayFromNetworkHealth must keep fill at about 60% (anchorMin.x="
+                        + (fillRect != null ? fillRect.anchorMin.x.ToString("0.00") : "null")
                         + ").");
                     return;
                 }
@@ -818,11 +847,11 @@ namespace CCS.Modules.AI.Editor
 
                 nameplate.RefreshHealthDisplayFromNetworkHealth();
                 fillRect = ResolveHealthFillTransform(instance)?.GetComponent<RectTransform>();
-                if (fillRect == null || fillRect.anchorMax.x > 0.01f)
+                if (fillRect == null || fillRect.anchorMin.x < 0.99f)
                 {
                     failures.Add(
-                        "AI health bar fill must reach 0% after lethal damage (anchorMax.x="
-                        + fillRect.anchorMax.x.ToString("0.00")
+                        "AI health bar fill must reach 0% after lethal damage (anchorMin.x="
+                        + fillRect.anchorMin.x.ToString("0.00")
                         + ").");
                 }
             }
@@ -847,6 +876,50 @@ namespace CCS.Modules.AI.Editor
             return background != null
                 ? background.Find(CCS_AIConstants.NameplateHealthFillObjectName)
                 : null;
+        }
+
+        private static bool TryResolveHealthBarFill(
+            GameObject instance,
+            out RectTransform fillRect,
+            out Image fillImage)
+        {
+            Transform fillTransform = ResolveHealthFillTransform(instance);
+            fillRect = fillTransform != null ? fillTransform.GetComponent<RectTransform>() : null;
+            fillImage = fillTransform != null ? fillTransform.GetComponent<Image>() : null;
+            return fillRect != null && fillImage != null;
+        }
+
+        private static void ValidateHealthBarNoNegativeMirroring(GameObject instance, List<string> failures)
+        {
+            Transform anchor = instance.transform.Find(CCS_AIConstants.NameplateAnchorObjectName);
+            Transform nameplateRoot = anchor != null
+                ? anchor.Find(CCS_AIConstants.NameplateRootObjectName)
+                : null;
+            Transform canvasRoot = nameplateRoot != null
+                ? nameplateRoot.Find(CCS_AIConstants.NameplateCanvasObjectName)
+                : null;
+            Transform fillTransform = ResolveHealthFillTransform(instance);
+
+            ValidateTransformScaleNotMirrored(anchor, "nameplate anchor", failures);
+            ValidateTransformScaleNotMirrored(nameplateRoot, "nameplate root", failures);
+            ValidateTransformScaleNotMirrored(canvasRoot, "nameplate canvas", failures);
+            ValidateTransformScaleNotMirrored(fillTransform, "health bar fill", failures);
+        }
+
+        private static void ValidateTransformScaleNotMirrored(
+            Transform transformReference,
+            string label,
+            List<string> failures)
+        {
+            if (transformReference == null)
+            {
+                return;
+            }
+
+            if (transformReference.localScale.x < 0f)
+            {
+                failures.Add("AI " + label + " must not use negative localScale.x (mirrors health bar direction).");
+            }
         }
 
         private static void ValidateAIMotorContinuousRepathContract(GameObject prefab, List<string> failures)
