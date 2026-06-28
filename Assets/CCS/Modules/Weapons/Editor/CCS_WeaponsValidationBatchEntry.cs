@@ -19,6 +19,7 @@ namespace CCS.Modules.Weapons.Editor
         public static void RunFromBatchMode()
         {
             CCS_WeaponsAssetBuilder.EnsureWeaponsAssets();
+            TryEnsureRevolverAimSimplificationPassViaReflection();
             CCS_WeaponsTestPlayerPrefabBuilder.EnsureTestPlayerWeaponWiring();
             CCS_WeaponsMasterTestBuilder.EnsureMasterTestWeaponTarget();
 
@@ -32,6 +33,29 @@ namespace CCS.Modules.Weapons.Editor
 
             Debug.LogError("[Weapons Batch] Validation failed: " + result.Message);
             EditorApplication.Exit(1);
+        }
+
+        private static void TryEnsureRevolverAimSimplificationPassViaReflection()
+        {
+            System.Type builderType = System.Type.GetType(
+                "CCS.Modules.CharacterController.Editor.CCS_RevolverAimSimplificationBuilder, CCS.Modules.CharacterController.Editor");
+            if (builderType == null)
+            {
+                return;
+            }
+
+            System.Reflection.MethodInfo method = builderType.GetMethod(
+                "EnsureRevolverAimSimplificationPass",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            if (method == null)
+            {
+                return;
+            }
+
+            if (method.Invoke(null, null) is bool changed && changed)
+            {
+                AssetDatabase.SaveAssets();
+            }
         }
     }
 }

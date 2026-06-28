@@ -178,6 +178,11 @@ namespace CCS.Modules.Attributes
                 failures,
                 HasDebugInputComponent(prefabRoot),
                 "Test player prefab must contain CCS_TestPlayerAttributeDebugInput.");
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponent<CCS_PlayerDeathScreenController>() != null,
+                "Test player prefab must contain CCS_PlayerDeathScreenController.");
+            ValidatePlayerDeathScreenInputContract(failures);
 
             CCS_AttributeContainer container = prefabRoot.GetComponent<CCS_AttributeContainer>();
             if (container != null && container.AttributeDefinitions != null)
@@ -363,6 +368,33 @@ namespace CCS.Modules.Attributes
             }
 
             return false;
+        }
+
+        private static void ValidatePlayerDeathScreenInputContract(List<string> failures)
+        {
+            const string deathScreenSourcePath =
+                "Assets/CCS/Modules/Attributes/Runtime/UI/CCS_PlayerDeathScreenController.cs";
+            if (!File.Exists(deathScreenSourcePath))
+            {
+                failures.Add("Missing CCS_PlayerDeathScreenController source for death UI validation.");
+                return;
+            }
+
+            string source = File.ReadAllText(deathScreenSourcePath);
+            if (source.Contains("StandaloneInputModule") && source.Contains("AddComponent<StandaloneInputModule>"))
+            {
+                failures.Add("Player death screen must not create StandaloneInputModule.");
+            }
+
+            if (!source.Contains("InputSystemUIInputModule"))
+            {
+                failures.Add("Player death screen must use InputSystemUIInputModule.");
+            }
+
+            if (!source.Contains("Time.timeScale = 1f") || !source.Contains("SceneManager.LoadScene"))
+            {
+                failures.Add("Player death restart must restore Time.timeScale and reload the active scene.");
+            }
         }
 
         private static void AppendIfMissing(List<string> failures, bool condition, string message)

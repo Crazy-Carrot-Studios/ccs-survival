@@ -21,6 +21,7 @@ namespace CCS.Project
         [SerializeField] private AudioClip[] playlist;
         [SerializeField, Range(0f, 1f)] private float volume = CCS_ProjectAudioConstants.MasterTestRecordingPlaylistDefaultVolume;
         [SerializeField] private bool playOnStart;
+        [SerializeField] private bool playlistEnabled = true;
         [SerializeField] private bool repeatPlaylist = true;
         [SerializeField] private float fadeInSeconds = 1.5f;
         [SerializeField] private float fadeOutSeconds = 1.5f;
@@ -31,8 +32,8 @@ namespace CCS.Project
         private Coroutine playbackCoroutine;
         private Coroutine fadeCoroutine;
         private int currentClipIndex;
-        private bool playlistEnabled;
         private bool warnedMissingClips;
+        private bool loggedHostingStartup;
         private string lastDebugClipName = string.Empty;
 
         #endregion
@@ -54,12 +55,22 @@ namespace CCS.Project
         private void Awake()
         {
             audioSource = GetComponent<AudioSource>();
+            if (playOnStart)
+            {
+                playlistEnabled = true;
+            }
+
             ConfigureAudioSource();
         }
 
         private void Start()
         {
-            if (playOnStart && playlistEnabled)
+            if (playOnStart)
+            {
+                SetPlaylistEnabled(true);
+                LogHostingStartupOnce();
+            }
+            else if (playlistEnabled)
             {
                 PlayPlaylist();
             }
@@ -288,6 +299,46 @@ namespace CCS.Project
                 + " volume="
                 + volume.ToString("0.##"),
                 this);
+        }
+
+        private void LogHostingStartupOnce()
+        {
+            if (loggedHostingStartup || !playOnStart || !playlistEnabled)
+            {
+                return;
+            }
+
+            string objectName = gameObject.name;
+            if (objectName != CCS_ProjectAudioConstants.HostingAmbientAudioObjectName
+                && objectName != "CCS_AmbientAudio")
+            {
+                return;
+            }
+
+            loggedHostingStartup = true;
+            string firstClipName = ResolvePlaylistClipName(0, "CCS Western Game 2");
+            string secondClipName = ResolvePlaylistClipName(1, "CCS_Western_Theme 7");
+            Debug.Log(
+                "[Hosting Ambient Audio] Playlist started: "
+                + firstClipName
+                + " -> "
+                + secondClipName
+                + ", volume "
+                + volume.ToString("0.00")
+                + ", repeat "
+                + repeatPlaylist
+                + ".",
+                this);
+        }
+
+        private string ResolvePlaylistClipName(int index, string fallbackName)
+        {
+            if (playlist == null || index < 0 || index >= playlist.Length || playlist[index] == null)
+            {
+                return fallbackName;
+            }
+
+            return playlist[index].name;
         }
 
         private AudioClip GetNextPlayableClip()

@@ -53,7 +53,7 @@ namespace CCS.Modules.AI
             float fallbackDamage,
             float cooldownSeconds)
         {
-            if (targetTransform == null || !CanFire)
+            if (targetTransform == null || !CanFire || IsCombatBlocked())
             {
                 return false;
             }
@@ -131,8 +131,10 @@ namespace CCS.Modules.AI
                 return;
             }
 
-            CCS_IDamageable damageable = hitscanResult.HitObject.GetComponentInParent<CCS_IDamageable>();
-            if (damageable == null || damageable.IsDead)
+            if (!CCS_DamageableLookupUtility.TryResolveDamageable(hitscanResult.HitObject, out CCS_IDamageable damageable)
+                || damageable == null
+                || damageable.IsDead
+                || !damageable.IsDamageReady)
             {
                 return;
             }
@@ -146,6 +148,18 @@ namespace CCS.Modules.AI
                 sourceNetworkObjectId: 0ul,
                 attributeId: CCS_AttributesConstants.HealthAttributeId);
             damageable.ApplyDamage(damageInfo);
+        }
+
+        private bool IsCombatBlocked()
+        {
+            CCS_NetworkHealth networkHealth = GetComponent<CCS_NetworkHealth>();
+            if (networkHealth != null && networkHealth.IsDead)
+            {
+                return true;
+            }
+
+            CCS_AIBanditBrain brain = GetComponent<CCS_AIBanditBrain>();
+            return brain != null && brain.CurrentState == CCS_AIBanditState.Dead;
         }
     }
 }

@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.0`
+**Current version:** `0.7.1`
 
 ## Purpose
 
@@ -43,6 +43,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.15`** | **Local self headless first-person body fallback (combined CC3 body)** |
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
+| **`0.7.1`** | **AI bandit polish and hosting fixes** |
 
 ---
 
@@ -105,6 +106,14 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1` — AI Bandit Polish and Hosting Fixes
+
+- Fixed `AI_Bandit` nameplate layout (health bar above name), camera-facing billboard, and legacy player nameplate removal
+- Added Master Test NavMesh surface (`CCS_AINavigationRoot`) and `NavMeshAgent` on AI bandit prefab
+- Fixed `CCS_NetworkHealth` offline initialization and `IsDamageReady` spawn-safe damage gating
+- Extended `CCS_NetworkPrefabReferenceGuard` with AI bandit fallback repair and stale entry removal
+- Moved ambient playlist (`CCS Western Game 2`, `CCS_Western_Theme 7`) to hosting scene only; disabled Master Test gameplay music
 
 ### `0.7.0` — Network AI Bandit Combat Foundation
 

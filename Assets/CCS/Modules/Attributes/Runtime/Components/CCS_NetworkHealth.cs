@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: Networked character root with CCS_AttributeContainer.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: Mirrors CCS_NetworkAttributeReplicator pattern while exposing combat interface.
+// NOTES: Offline health never writes NetworkVariables before spawn.
 // =============================================================================
 
 namespace CCS.Modules.Attributes
@@ -31,6 +31,17 @@ namespace CCS.Modules.Attributes
                 NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
 
+        private float offlineCurrentHealth = -1f;
+        private bool offlineIsDead;
+        private bool offlineInitialized;
+        private Vector3 lastDamageDirection;
+
+        public event System.Action<float, float> HealthChanged;
+
+        public event System.Action<bool> DeadStateChanged;
+
+        public Vector3 LastDamageDirection => lastDamageDirection;
+
         public float MaxHealth
         {
             get
@@ -45,15 +56,63 @@ namespace CCS.Modules.Attributes
             }
         }
 
-        public float CurrentHealth => replicatedHealth.Value;
+        public float CurrentHealth
+        {
+            get
+            {
+                if (IsNetworkHealthActive)
+                {
+                    return replicatedHealth.Value;
+                }
 
-        public bool IsDead => replicatedDead.Value;
+                return offlineInitialized ? offlineCurrentHealth : ResolveInitialHealth();
+            }
+        }
+
+        public bool IsDead
+        {
+            get
+            {
+                if (IsNetworkHealthActive)
+                {
+                    return replicatedDead.Value;
+                }
+
+                return offlineInitialized && offlineIsDead;
+            }
+        }
+
+        public bool IsDamageReady
+        {
+            get
+            {
+                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+                {
+                    return IsSpawned && NetworkObject != null && NetworkObject.IsSpawned;
+                }
+
+                return true;
+            }
+        }
+
+        private bool IsNetworkHealthActive =>
+            NetworkManager.Singleton != null
+            && NetworkManager.Singleton.IsListening
+            && IsSpawned;
 
         private void Awake()
         {
             if (attributeContainer == null)
             {
                 attributeContainer = GetComponent<CCS_AttributeContainer>();
+            }
+        }
+
+        private void Start()
+        {
+            if (!IsNetworkHealthActive)
+            {
+                InitializeOfflineHealth();
             }
         }
 
@@ -85,12 +144,12 @@ namespace CCS.Modules.Attributes
 
         public bool ApplyDamage(CCS_DamageInfo damageInfo)
         {
-            if (damageInfo.Amount <= 0f || IsDead)
+            if (damageInfo.Amount <= 0f || IsDead || !IsDamageReady)
             {
                 return false;
             }
 
-            if (!IsSpawned || NetworkManager == null || !NetworkManager.IsListening)
+            if (!IsNetworkHealthActive)
             {
                 return ApplyDamageLocally(damageInfo);
             }
@@ -120,6 +179,11 @@ namespace CCS.Modules.Attributes
             string attributeId,
             ServerRpcParams rpcParams = default)
         {
+            if (!IsDamageReady)
+            {
+                return;
+            }
+
             CCS_DamageInfo damageInfo = new CCS_DamageInfo(
                 amount,
                 hitPoint,
@@ -133,7 +197,7 @@ namespace CCS.Modules.Attributes
 
         private bool ApplyDamageOnServer(CCS_DamageInfo damageInfo)
         {
-            if (!IsServer || attributeContainer == null || IsDead)
+            if (!IsServer || attributeContainer == null || IsDead || !IsDamageReady)
             {
                 return false;
             }
@@ -152,6 +216,12 @@ namespace CCS.Modules.Attributes
 
             replicatedHealth.Value = damageEvent.ResultingValue.Current;
             replicatedDead.Value = damageEvent.ResultingValue.IsAtMin;
+            lastDamageDirection = ResolveDamageDirection(damageInfo);
+            RaiseHealthChanged(replicatedHealth.Value, MaxHealth);
+            if (replicatedDead.Value)
+            {
+                DeadStateChanged?.Invoke(true);
+            }
 
             if (enableHealthDebugLogs)
             {
@@ -170,6 +240,11 @@ namespace CCS.Modules.Attributes
                 return false;
             }
 
+            if (!offlineInitialized)
+            {
+                InitializeOfflineHealth();
+            }
+
             CCS_DamageRequest request = new CCS_DamageRequest(
                 ResolveHealthAttributeId(),
                 damageInfo.Amount,
@@ -179,9 +254,40 @@ namespace CCS.Modules.Attributes
                 return false;
             }
 
-            replicatedHealth.Value = damageEvent.ResultingValue.Current;
-            replicatedDead.Value = damageEvent.ResultingValue.IsAtMin;
+            offlineCurrentHealth = damageEvent.ResultingValue.Current;
+            offlineIsDead = damageEvent.ResultingValue.IsAtMin;
+            lastDamageDirection = ResolveDamageDirection(damageInfo);
+            RaiseHealthChanged(offlineCurrentHealth, MaxHealth);
+            if (offlineIsDead)
+            {
+                DeadStateChanged?.Invoke(true);
+            }
+
             return damageEvent.AppliedAmount > 0f;
+        }
+
+        private void InitializeOfflineHealth()
+        {
+            offlineCurrentHealth = ResolveInitialHealth();
+            offlineIsDead = offlineCurrentHealth <= 0f;
+            offlineInitialized = true;
+            ApplyHealthToContainer(offlineCurrentHealth, raiseEvents: false);
+            RaiseHealthChanged(offlineCurrentHealth, MaxHealth);
+        }
+
+        private void RaiseHealthChanged(float currentHealth, float maxHealth)
+        {
+            HealthChanged?.Invoke(currentHealth, maxHealth);
+        }
+
+        private static Vector3 ResolveDamageDirection(CCS_DamageInfo damageInfo)
+        {
+            if (damageInfo.HitDirection.sqrMagnitude > 0.0001f)
+            {
+                return damageInfo.HitDirection.normalized;
+            }
+
+            return Vector3.zero;
         }
 
         private void HandleReplicatedHealthChanged(float previousValue, float newValue)
@@ -192,10 +298,19 @@ namespace CCS.Modules.Attributes
             }
 
             ApplyHealthToContainer(newValue, raiseEvents: !Mathf.Approximately(previousValue, newValue));
+            if (!Mathf.Approximately(previousValue, newValue))
+            {
+                RaiseHealthChanged(newValue, MaxHealth);
+            }
         }
 
         private void HandleReplicatedDeadChanged(bool previousValue, bool newValue)
         {
+            if (previousValue != newValue)
+            {
+                DeadStateChanged?.Invoke(newValue);
+            }
+
             if (previousValue == newValue || !enableHealthDebugLogs)
             {
                 return;

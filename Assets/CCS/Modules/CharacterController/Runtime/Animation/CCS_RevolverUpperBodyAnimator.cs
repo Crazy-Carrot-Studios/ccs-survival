@@ -126,7 +126,9 @@ namespace CCS.Modules.CharacterController
             EnsureRevolverEventSubscription();
             UpdateAnimatorParameters();
             UpdateLayerWeight();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             HandleMasterTestForceAimDebugHotkey();
+#endif
             CacheRuntimeDebugOverlayText();
         }
 
@@ -636,22 +638,27 @@ namespace CCS.Modules.CharacterController
             string stateName = GetActiveLayerStateName();
             string currentClipName = GetActiveLayerClipName(false);
 
+            string baseStateName = ResolveBaseLayerStateName();
             cachedRuntimeDebugOverlayText =
-                "Revolver Animation Debug (v0.6.15 Simplified Aim)\n"
-                + "Layer: "
+                "Animator Controller: "
+                + controllerPath
+                + "\nAim Layer: "
                 + layerName
-                + "\nWeight: "
+                + "\nAim Layer Index: "
+                + revolverLayerIndex
+                + "\nAim Layer Weight: "
                 + liveLayerWeight.ToString("0.000")
                 + " (tracked "
                 + currentLayerWeight.ToString("0.000")
-                + ")\nState: "
+                + ")\nAim State: "
                 + stateName
+                + "\nBase State: "
+                + baseStateName
+                + "\nMask: AM_CCS_Revolver_UpperBodyRightArm_Aim"
                 + "\nPhase: "
                 + ResolveAimPhaseDisplayLabel(currentAimPhase)
                 + "\nRevolverAimHeld: "
                 + lastAppliedRevolverAimHeld
-                + "\nController: "
-                + controllerPath
                 + "\nClip: "
                 + currentClipName;
         }
@@ -731,6 +738,22 @@ namespace CCS.Modules.CharacterController
                 + " (runtime name: "
                 + runtimeController.name
                 + ")";
+        }
+
+        private string ResolveBaseLayerStateName()
+        {
+            if (animator == null)
+            {
+                return "Missing";
+            }
+
+            AnimatorClipInfo[] clips = animator.GetCurrentAnimatorClipInfo(0);
+            if (clips.Length > 0 && clips[0].clip != null)
+            {
+                return clips[0].clip.name;
+            }
+
+            return "Layer0";
         }
 
         private string GetActiveLayerStateName()

@@ -133,118 +133,20 @@ namespace CCS.Modules.CharacterController.Editor
         {
             List<string> failures = new List<string>();
 
-            AppendIfMissing(
-                failures,
-                Directory.Exists(CCS_CharacterControllerConstants.AimStrafeAnimationsPath),
-                "Missing AimStrafe animation folder at "
-                + CCS_CharacterControllerConstants.AimStrafeAnimationsPath
-                + ".");
-
-            ValidateRequiredAimStrafeClipAsset(
-                failures,
-                CCS_CharacterControllerConstants.AimStrafeWalkFwdClipPath,
-                requireLoopTime: true);
-            ValidateRequiredAimStrafeClipAsset(
-                failures,
-                CCS_CharacterControllerConstants.AimStrafeWalkBwdClipPath,
-                requireLoopTime: true);
-            ValidateRequiredAimStrafeClipAsset(
-                failures,
-                CCS_CharacterControllerConstants.AimStrafeStrafeLeftClipPath,
-                requireLoopTime: true);
-            ValidateRequiredAimStrafeClipAsset(
-                failures,
-                CCS_CharacterControllerConstants.AimStrafeStrafeRightClipPath,
-                requireLoopTime: true);
-
             AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
                 CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
             AppendIfMissing(failures, controller != null, "Player Animator Controller is missing.");
-            if (controller == null)
+            if (controller == null || controller.layers.Length == 0)
             {
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
-            AnimatorState aimState = FindState(
-                controller.layers[0].stateMachine,
-                CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName);
-            AppendIfMissing(
-                failures,
-                aimState != null,
-                "Player Animator Controller must define AimStrafe_Locomotion state.");
-
-            if (aimState == null)
-            {
-                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
-            }
-
-            BlendTree blendTree = aimState.motion as BlendTree;
-            AppendIfMissing(
-                failures,
-                blendTree != null,
-                "AimStrafe_Locomotion must use a 2D blend tree.");
-            if (blendTree == null)
-            {
-                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
-            }
-
-            AppendIfMissing(
-                failures,
-                blendTree.blendType == BlendTreeType.FreeformDirectional2D
-                    || blendTree.blendType == BlendTreeType.SimpleDirectional2D,
-                "AimStrafe_Locomotion blend tree must be 2D directional.");
-            AppendIfMissing(
-                failures,
-                blendTree.blendParameter == CCS_CharacterControllerConstants.AnimatorAimMoveXParameter,
-                "AimStrafe blend tree must use AimMoveX.");
-            AppendIfMissing(
-                failures,
-                blendTree.blendParameterY == CCS_CharacterControllerConstants.AnimatorAimMoveYParameter,
-                "AimStrafe blend tree must use AimMoveY.");
-
-            ValidateBlendTreeMotionAt(
-                failures,
-                blendTree,
-                new Vector2(0f, 1f),
-                CCS_CharacterControllerConstants.AimStrafeWalkFwdClipPath);
-            ValidateBlendTreeMotionAt(
-                failures,
-                blendTree,
-                new Vector2(0f, -1f),
-                CCS_CharacterControllerConstants.AimStrafeWalkBwdClipPath);
-            ValidateBlendTreeMotionAt(
-                failures,
-                blendTree,
-                new Vector2(-1f, 0f),
-                CCS_CharacterControllerConstants.AimStrafeStrafeLeftClipPath);
-            ValidateBlendTreeMotionAt(
-                failures,
-                blendTree,
-                new Vector2(1f, 0f),
-                CCS_CharacterControllerConstants.AimStrafeStrafeRightClipPath);
-
-            ChildMotion[] children = blendTree.children;
-            bool hasIdleCenter = false;
-            string idlePath = CCS_CharacterControllerConstants.LocomotionAnimationsPath + "/CCS_Locomotion_Idle.anim";
-            for (int i = 0; i < children.Length; i++)
-            {
-                if (children[i].motion is AnimationClip clip
-                    && Vector2.Distance(children[i].position, Vector2.zero) <= 0.001f
-                    && NormalizeAssetPath(AssetDatabase.GetAssetPath(clip)) == NormalizeAssetPath(idlePath))
-                {
-                    hasIdleCenter = true;
-                    break;
-                }
-            }
-
-            AppendIfMissing(
-                failures,
-                hasIdleCenter,
-                "AimStrafe blend tree must include CCS idle at (0,0).");
+            AppendBaseLayerLocomotionOnlyFailures(failures, controller.layers[0].stateMachine);
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Aim strafe animation isolation validated.");
+                : CCS_SurvivalValidationResult.Pass(
+                    "Base Layer locomotion is isolated from legacy revolver aim strafe states.");
         }
 
         public static CCS_SurvivalValidationResult ValidateRevolverUpperBodyAnimationIsolation()
@@ -459,11 +361,200 @@ namespace CCS.Modules.CharacterController.Editor
                     "CCS_RevolverUpperBodyAnimator must blend aim layer weight by phase.");
             }
 
+            AppendBaseLayerLocomotionOnlyFailures(failures, controller.layers[0].stateMachine);
             AppendValidationFailures(failures, ValidateFullDrawClipPreservedAfterBuilder());
+            AppendValidationFailures(failures, ValidateRuntimeAnimatorControllerAgreement());
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass("Simplified revolver aim controller validated.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateRuntimeAnimatorControllerAgreement()
+        {
+            List<string> failures = new List<string>();
+            const string aiBanditPrefabPath =
+                "Assets/CCS/Modules/AI/Content/Prefabs/PF_CCS_AI_Bandit_Networked.prefab";
+
+            GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_CharacterControllerConstants.TestPrefabPath);
+            GameObject aiPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(aiBanditPrefabPath);
+
+            AppendIfMissing(
+                failures,
+                playerPrefab != null,
+                "Missing PF_CCS_CharacterController_TestPlayer_Networked prefab for animator agreement validation.");
+            AppendIfMissing(
+                failures,
+                aiPrefab != null,
+                "Missing PF_CCS_AI_Bandit_Networked prefab for animator agreement validation.");
+
+            if (playerPrefab != null)
+            {
+                AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(playerPrefab));
+            }
+
+            if (aiPrefab != null)
+            {
+                AppendValidationFailures(failures, ValidateAIBanditAnimatorUsesExpectedController(aiPrefab));
+            }
+
+            AppendIfMissing(
+                failures,
+                ValidateAnimatorDriverDoesNotWriteRevolverAimHeldToBaseLayer(
+                    "Assets/CCS/Modules/AI/Runtime/Animation/CCS_AIAnimatorDriver.cs"),
+                "CCS_AIAnimatorDriver must not write RevolverAimHeld to Base Layer locomotion flow.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass(
+                    "Player and AI prefab runtime Animator Controllers match repaired aim controller asset.");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateAIBanditAnimatorUsesExpectedController(GameObject prefabRoot)
+        {
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail("AI bandit prefab reference is null.");
+            }
+
+            List<string> failures = new List<string>();
+            Animator animator = prefabRoot.GetComponentInChildren<Animator>(true);
+            AppendIfMissing(failures, animator != null, "AI bandit prefab must contain an Animator.");
+            if (animator == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            AnimatorController expectedController = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath);
+            AppendIfMissing(
+                failures,
+                expectedController != null,
+                "Expected AI Animator Controller asset is missing at "
+                + CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath
+                + ".");
+
+            RuntimeAnimatorController assignedController = animator.runtimeAnimatorController;
+            AppendIfMissing(
+                failures,
+                assignedController != null,
+                "AI bandit prefab Animator must assign AC_CCS_Player_Locomotion_StarterAssets.");
+
+            if (assignedController != null && expectedController != null)
+            {
+                RuntimeAnimatorController resolvedController = assignedController;
+                if (assignedController is AnimatorOverrideController overrideController)
+                {
+                    resolvedController = overrideController.runtimeAnimatorController;
+                }
+
+                AppendIfMissing(
+                    failures,
+                    resolvedController == expectedController,
+                    "AI bandit prefab Animator must use "
+                    + CCS_CharacterControllerConstants.PlayerLocomotionAnimatorControllerPath
+                    + " (found "
+                    + AssetDatabase.GetAssetPath(resolvedController)
+                    + ").");
+            }
+
+            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
+                prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
+            AppendIfMissing(
+                failures,
+                upperBodyAnimator != null,
+                "AI bandit prefab must contain CCS_RevolverUpperBodyAnimator for masked aim layer driving.");
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("AI bandit prefab Animator Controller assignment validated.");
+        }
+
+        private static void AppendBaseLayerLocomotionOnlyFailures(
+            List<string> failures,
+            AnimatorStateMachine baseStateMachine)
+        {
+            if (baseStateMachine == null)
+            {
+                failures.Add("Base Layer state machine is missing.");
+                return;
+            }
+
+            string[] forbiddenStates =
+            {
+                CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName,
+                CCS_CharacterControllerConstants.AnimatorAimStrafeBlendTreeName,
+                CCS_CharacterControllerConstants.AnimatorRevolverWildWestAimIdleStateName,
+                CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimToIdleStateName,
+                "Revolver_WW_Empty",
+                "Revolver_WW_Reload_RH",
+                "Revolver_WW_Fire_Fanning_RH",
+            };
+
+            for (int i = 0; i < forbiddenStates.Length; i++)
+            {
+                AppendIfMissing(
+                    failures,
+                    FindState(baseStateMachine, forbiddenStates[i]) == null,
+                    "Base Layer must not contain active revolver aim state "
+                    + forbiddenStates[i]
+                    + ".");
+            }
+
+            AppendIfMissing(
+                failures,
+                !BaseLayerUsesRevolverAimHeldTransitions(baseStateMachine),
+                "Base Layer must not contain transitions driven by RevolverAimHeld.");
+        }
+
+        private static bool BaseLayerUsesRevolverAimHeldTransitions(AnimatorStateMachine stateMachine)
+        {
+            string aimHeldParameter = CCS_CharacterControllerConstants.AnimatorRevolverAimHeldParameter;
+            ChildAnimatorState[] states = stateMachine.states;
+            for (int stateIndex = 0; stateIndex < states.Length; stateIndex++)
+            {
+                AnimatorState state = states[stateIndex].state;
+                if (state == null)
+                {
+                    continue;
+                }
+
+                AnimatorStateTransition[] transitions = state.transitions;
+                for (int transitionIndex = 0; transitionIndex < transitions.Length; transitionIndex++)
+                {
+                    AnimatorStateTransition transition = transitions[transitionIndex];
+                    if (transition == null)
+                    {
+                        continue;
+                    }
+
+                    AnimatorCondition[] conditions = transition.conditions;
+                    for (int conditionIndex = 0; conditionIndex < conditions.Length; conditionIndex++)
+                    {
+                        if (conditions[conditionIndex].parameter == aimHeldParameter)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool ValidateAnimatorDriverDoesNotWriteRevolverAimHeldToBaseLayer(string sourcePath)
+        {
+            if (!File.Exists(sourcePath))
+            {
+                return false;
+            }
+
+            string source = File.ReadAllText(sourcePath);
+            return !source.Contains("AnimatorRevolverAimHeldParameter")
+                && !source.Contains("RevolverAimHeld");
         }
 
         public static CCS_SurvivalValidationResult ValidateFullDrawClipPreservedAfterBuilder()

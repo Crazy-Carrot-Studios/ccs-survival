@@ -19,19 +19,19 @@ MonoBehaviour:
   enableDebugLogs: 0
   displayName: AI_Bandit
   maxHealth: 100
-  detectionRange: 35
+  detectionRange: 45
   lineOfSightHeight: 1.45
   visibilityMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  moveSpeed: 2.6
+  moveSpeed: 2.8
   rotationSpeed: 540
   minimumPreferredRange: 6
-  attackRange: 20
+  attackRange: 14
   aimSettleSeconds: 0.55
   fireCooldownSeconds: 1.5
   shotDamage: 20
   shotMaxRange: 45
-  spawnDistanceFromPlayer: 22
+  spawnDistanceFromPlayer: 24
   spawnSideOffset: 8
   enableAIDebugLogs: 0

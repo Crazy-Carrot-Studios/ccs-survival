@@ -1,5 +1,7 @@
+using CCS.Modules.Attributes;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 // =============================================================================
 // SCRIPT: CCS_AIBanditSpawner
@@ -16,6 +18,8 @@ namespace CCS.Modules.AI
     [DefaultExecutionOrder(110)]
     public sealed class CCS_AIBanditSpawner : MonoBehaviour
     {
+        private const float NavMeshSampleRadius = 5f;
+
         [SerializeField] private GameObject aiBanditPrefab;
         [SerializeField] private Transform spawnReference;
         [SerializeField] private Vector3 spawnOffset = default;
@@ -59,10 +63,41 @@ namespace CCS.Modules.AI
                 return;
             }
 
-            Vector3 basePosition = ResolveSpawnPosition();
+            Vector3 intendedPosition = ResolveSpawnPosition() + spawnOffset;
+            Vector3 spawnPosition = SampleNavMeshSpawnPosition(intendedPosition, out bool foundNavMesh);
+            if (!foundNavMesh)
+            {
+                Debug.LogError(
+                    "[AI Bandit Spawner] No NavMesh position found within "
+                    + NavMeshSampleRadius
+                    + "m of intended spawn "
+                    + intendedPosition
+                    + ". Using fallback position for debug.",
+                    this);
+            }
+
             Quaternion spawnRotation = Quaternion.identity;
-            GameObject instance = Instantiate(aiBanditPrefab, basePosition + spawnOffset, spawnRotation);
+            GameObject instance = Instantiate(aiBanditPrefab, spawnPosition, spawnRotation);
             instance.name = aiBanditPrefab.name;
+
+            NavMeshAgent navMeshAgent = instance.GetComponent<NavMeshAgent>();
+            if (navMeshAgent != null)
+            {
+                navMeshAgent.enabled = true;
+                if (navMeshAgent.isOnNavMesh)
+                {
+                    navMeshAgent.Warp(spawnPosition);
+                }
+                else if (NavMesh.SamplePosition(
+                    spawnPosition,
+                    out NavMeshHit warpHit,
+                    NavMeshSampleRadius,
+                    NavMesh.AllAreas))
+                {
+                    navMeshAgent.Warp(warpHit.position);
+                    spawnPosition = warpHit.position;
+                }
+            }
 
             NetworkObject networkObject = instance.GetComponent<NetworkObject>();
             if (networkObject != null
@@ -75,11 +110,28 @@ namespace CCS.Modules.AI
             }
 
             spawned = true;
+            Debug.Log("[AI Bandit Spawner] Spawned AI_Bandit on NavMesh at " + spawnPosition + ".", this);
 
             if (enableSpawnerDebugLogs)
             {
                 Debug.Log("[AI] Spawned AI bandit.", this);
             }
+        }
+
+        private static Vector3 SampleNavMeshSpawnPosition(Vector3 intendedPosition, out bool foundNavMesh)
+        {
+            if (NavMesh.SamplePosition(
+                intendedPosition,
+                out NavMeshHit hit,
+                NavMeshSampleRadius,
+                NavMesh.AllAreas))
+            {
+                foundNavMesh = true;
+                return hit.position;
+            }
+
+            foundNavMesh = false;
+            return intendedPosition;
         }
 
         private Vector3 ResolveSpawnPosition()

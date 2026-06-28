@@ -6,6 +6,11 @@
 
 **Scope:** Revolver M1879 world pickup, hitscan gameplay, equipment socket foundation, Equipment Fit Studio, revolver fit profile pack, and Master Test integration.
 
+## v0.7.1 — Damage readiness gating
+
+- `CCS_RevolverController` requires `CCS_IDamageable.IsDamageReady` before applying player damage.
+- Prevents pre-spawn NetworkVariable writes when AI/player health is not network-ready.
+
 ## v0.7.0 — Shared combat damage bridge for AI
 
 - `CCS_RevolverController.ApplyDamageToHitTarget` now resolves `CCS_IDamageable` on hit targets via `GetComponentInParent`.

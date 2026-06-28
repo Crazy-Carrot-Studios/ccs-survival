@@ -29,6 +29,33 @@ namespace CCS.Modules.AI
 
         public bool TryAcquireTarget(out Transform targetTransform, out CCS_IDamageable damageable)
         {
+            return TryRefreshLivingTarget(out targetTransform, out damageable);
+        }
+
+        public bool TryRefreshLivingTarget(out Transform targetTransform, out CCS_IDamageable damageable)
+        {
+            if (TryAcquireTargetFromOverlap(out targetTransform, out damageable)
+                || TryAcquireTargetFromNetworkHealthScan(out targetTransform, out damageable))
+            {
+                CacheTarget(targetTransform, damageable);
+                return true;
+            }
+
+            cachedBestTarget = null;
+            cachedBestDamageable = null;
+            targetTransform = null;
+            damageable = null;
+            return false;
+        }
+
+        public void Configure(float radius, LayerMask mask)
+        {
+            detectionRadius = Mathf.Max(0.1f, radius);
+            targetMask = mask;
+        }
+
+        private bool TryAcquireTargetFromOverlap(out Transform targetTransform, out CCS_IDamageable damageable)
+        {
             int overlapCount = Physics.OverlapSphereNonAlloc(
                 transform.position,
                 detectionRadius,
@@ -48,52 +75,91 @@ namespace CCS.Modules.AI
                     continue;
                 }
 
-                Transform candidateTransform = candidateCollider.transform;
-                if (candidateTransform == transform || candidateTransform.IsChildOf(transform))
+                if (!TryEvaluateCandidate(candidateCollider.transform, ref bestTarget, ref bestDamageable, ref bestDistanceSqr))
                 {
                     continue;
                 }
-
-                CCS_IDamageable candidateDamageable = candidateCollider.GetComponentInParent<CCS_IDamageable>();
-                if (candidateDamageable == null || candidateDamageable.IsDead)
-                {
-                    continue;
-                }
-
-                Transform damageableTransform = (candidateDamageable as Component)?.transform;
-                if (damageableTransform == null || damageableTransform == transform || damageableTransform.IsChildOf(transform))
-                {
-                    continue;
-                }
-
-                float distanceSqr = (damageableTransform.position - transform.position).sqrMagnitude;
-                if (distanceSqr >= bestDistanceSqr)
-                {
-                    continue;
-                }
-
-                bestDistanceSqr = distanceSqr;
-                bestTarget = damageableTransform;
-                bestDamageable = candidateDamageable;
             }
 
-            cachedBestTarget = bestTarget;
-            cachedBestDamageable = bestDamageable;
             targetTransform = bestTarget;
             damageable = bestDamageable;
-
-            if (enableSensorDebugLogs && bestTarget != null)
-            {
-                Debug.Log($"[AI] Target acquired: {bestTarget.name}", this);
-            }
-
             return bestTarget != null;
         }
 
-        public void Configure(float radius, LayerMask mask)
+        private bool TryAcquireTargetFromNetworkHealthScan(out Transform targetTransform, out CCS_IDamageable damageable)
         {
-            detectionRadius = Mathf.Max(0.1f, radius);
-            targetMask = mask;
+            CCS_NetworkHealth[] healthComponents = FindObjectsByType<CCS_NetworkHealth>(FindObjectsSortMode.None);
+            Transform bestTarget = null;
+            CCS_IDamageable bestDamageable = null;
+            float bestDistanceSqr = float.PositiveInfinity;
+
+            for (int i = 0; i < healthComponents.Length; i++)
+            {
+                CCS_NetworkHealth health = healthComponents[i];
+                if (health == null)
+                {
+                    continue;
+                }
+
+                if (!TryEvaluateCandidate(health.transform, ref bestTarget, ref bestDamageable, ref bestDistanceSqr))
+                {
+                    continue;
+                }
+            }
+
+            targetTransform = bestTarget;
+            damageable = bestDamageable;
+            return bestTarget != null;
+        }
+
+        private bool TryEvaluateCandidate(
+            Transform candidateTransform,
+            ref Transform bestTarget,
+            ref CCS_IDamageable bestDamageable,
+            ref float bestDistanceSqr)
+        {
+            if (candidateTransform == null
+                || candidateTransform == transform
+                || candidateTransform.IsChildOf(transform))
+            {
+                return false;
+            }
+
+            CCS_IDamageable candidateDamageable = candidateTransform.GetComponentInParent<CCS_IDamageable>();
+            if (candidateDamageable == null || candidateDamageable.IsDead || !candidateDamageable.IsDamageReady)
+            {
+                return false;
+            }
+
+            Transform damageableTransform = (candidateDamageable as Component)?.transform;
+            if (damageableTransform == null
+                || damageableTransform == transform
+                || damageableTransform.IsChildOf(transform))
+            {
+                return false;
+            }
+
+            float distanceSqr = (damageableTransform.position - transform.position).sqrMagnitude;
+            if (distanceSqr > detectionRadius * detectionRadius || distanceSqr >= bestDistanceSqr)
+            {
+                return false;
+            }
+
+            bestDistanceSqr = distanceSqr;
+            bestTarget = damageableTransform;
+            bestDamageable = candidateDamageable;
+            return true;
+        }
+
+        private void CacheTarget(Transform targetTransform, CCS_IDamageable damageable)
+        {
+            cachedBestTarget = targetTransform;
+            cachedBestDamageable = damageable;
+
+            if (enableSensorDebugLogs && targetTransform != null)
+            {
+                Debug.Log($"[AI] Target acquired: {targetTransform.name}", this);
+            }
         }
     }
 }

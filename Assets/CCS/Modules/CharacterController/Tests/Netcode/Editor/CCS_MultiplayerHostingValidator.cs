@@ -515,6 +515,87 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 failures,
                 eventSystem == null || eventSystem.GetComponent<StandaloneInputModule>() == null,
                 $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} must not use StandaloneInputModule.");
+            ValidateHostingAmbientAudio(failures);
+        }
+
+        private static void ValidateHostingAmbientAudio(List<string> failures)
+        {
+            GameObject ambientObject = GameObject.Find(CCS_ProjectAudioConstants.HostingAmbientAudioObjectName);
+            if (ambientObject == null)
+            {
+                ambientObject = GameObject.Find("CCS_AmbientAudio");
+            }
+
+            AppendIfMissing(
+                failures,
+                ambientObject != null,
+                $"{CCS_NetcodeTestConstants.MultiplayerHostingScenePath} must contain hosting ambient audio root.");
+
+            if (ambientObject == null)
+            {
+                return;
+            }
+
+            AudioSource audioSource = ambientObject.GetComponent<AudioSource>();
+            CCS_AmbientAudioPlaylist playlist = ambientObject.GetComponent<CCS_AmbientAudioPlaylist>();
+            AppendIfMissing(
+                failures,
+                audioSource != null && playlist != null,
+                "Hosting ambient audio object must contain AudioSource and CCS_AmbientAudioPlaylist.");
+
+            if (audioSource == null || playlist == null)
+            {
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                !audioSource.mute,
+                "Hosting ambient AudioSource mute must be false.");
+            AppendIfMissing(
+                failures,
+                playlist.Volume > 0f || audioSource.volume > 0f,
+                "Hosting ambient AudioSource volume must be greater than 0.");
+
+            SerializedObject serializedPlaylist = new SerializedObject(playlist);
+            SerializedProperty playlistProperty = serializedPlaylist.FindProperty("playlist");
+            SerializedProperty playOnStartProperty = serializedPlaylist.FindProperty("playOnStart");
+            SerializedProperty repeatProperty = serializedPlaylist.FindProperty("repeatPlaylist");
+            SerializedProperty playlistEnabledProperty = serializedPlaylist.FindProperty("playlistEnabled");
+            SerializedProperty volumeProperty = serializedPlaylist.FindProperty("volume");
+
+            AppendIfMissing(
+                failures,
+                playlistProperty != null && playlistProperty.arraySize == 2,
+                "Hosting ambient playlist must contain exactly 2 clips.");
+
+            if (playlistProperty != null)
+            {
+                for (int i = 0; i < playlistProperty.arraySize && i < 2; i++)
+                {
+                    AppendIfMissing(
+                        failures,
+                        playlistProperty.GetArrayElementAtIndex(i).objectReferenceValue != null,
+                        "Hosting ambient playlist clip references must not be null.");
+                }
+            }
+
+            AppendIfMissing(
+                failures,
+                playOnStartProperty != null && playOnStartProperty.boolValue,
+                "Hosting ambient playlist playOnStart must be true.");
+            AppendIfMissing(
+                failures,
+                repeatProperty != null && repeatProperty.boolValue,
+                "Hosting ambient playlist repeatPlaylist must be true.");
+            AppendIfMissing(
+                failures,
+                playlistEnabledProperty != null && playlistEnabledProperty.boolValue,
+                "Hosting ambient playlist must be enabled.");
+            AppendIfMissing(
+                failures,
+                volumeProperty != null && volumeProperty.floatValue > 0f,
+                "Hosting ambient playlist volume must be greater than 0.");
         }
 
         private static void ValidateNetworkPrefabReferences(List<string> failures)

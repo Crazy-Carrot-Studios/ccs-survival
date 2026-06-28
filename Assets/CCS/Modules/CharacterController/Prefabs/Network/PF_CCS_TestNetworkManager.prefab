@@ -134,3 +134,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Netcode.Runtime::CCS.Modules.CharacterController.Tests.Netcode.CCS_NetworkPrefabReferenceGuard
   networkedPlayerPrefabFallback: {fileID: 100100000, guid: 0a66e7585649df743b83083ced94b7be, type: 3}
   toggleInteractablePrefabFallback: {fileID: 100100000, guid: c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1, type: 3}
+  aiBanditPrefabFallback: {fileID: 2240448729846996730, guid: 36e7e0f65c5c41f4aa4cac44badeb9ac, type: 3}

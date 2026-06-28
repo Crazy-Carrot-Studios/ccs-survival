@@ -590,8 +590,20 @@ namespace CCS.Modules.Weapons
                 return;
             }
 
-            CCS_IDamageable damageable = hitscanResult.HitObject.GetComponentInParent<CCS_IDamageable>();
-            if (damageable != null && !damageable.IsDead)
+            CCS_IDamageable damageable = null;
+            if (!CCS_DamageableLookupUtility.TryResolveDamageable(hitscanResult.HitObject, out damageable))
+            {
+                CCS_TestDamageTarget testDamageTarget = hitscanResult.HitObject.GetComponentInParent<CCS_TestDamageTarget>();
+                if (testDamageTarget == null)
+                {
+                    return;
+                }
+
+                testDamageTarget.ApplyWeaponDamage(revolverDefinition.Damage);
+                return;
+            }
+
+            if (damageable != null && !damageable.IsDead && damageable.IsDamageReady)
             {
                 ulong sourceNetworkObjectId = cachedNetworkObject != null ? cachedNetworkObject.NetworkObjectId : 0ul;
                 CCS_DamageInfo damageInfo = new CCS_DamageInfo(
@@ -604,14 +616,6 @@ namespace CCS.Modules.Weapons
                 damageable.ApplyDamage(damageInfo);
                 return;
             }
-
-            CCS_TestDamageTarget testDamageTarget = hitscanResult.HitObject.GetComponentInParent<CCS_TestDamageTarget>();
-            if (testDamageTarget == null)
-            {
-                return;
-            }
-
-            testDamageTarget.ApplyWeaponDamage(revolverDefinition.Damage);
         }
 
         private void StartReload()

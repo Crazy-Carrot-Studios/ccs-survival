@@ -1,6 +1,10 @@
+using CCS.Modules.CharacterController.Editor;
 using CCS.Project;
+using CCS.Project.Editor;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // =============================================================================
 // SCRIPT: CCS_AIBanditBatchEntry
@@ -19,8 +23,20 @@ namespace CCS.Modules.AI.Editor
         public static void RunFromBatchMode()
         {
             CCS_AIBanditPrefabBuilder.EnsureAIBanditPrefab();
+            CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimSimplificationPass();
             TryRebuildNetcodePrefabSetupViaReflection();
+            CCS_AINavigationMasterTestBuilder.EnsureMasterTestNavigation();
             CCS_AIBanditMasterTestBuilder.EnsureMasterTestBanditSpawner();
+            CCS_HostingAmbientAudioBuilder.EnsureHostingSceneAmbientAudio();
+
+            Scene masterTestScene = EditorSceneManager.OpenScene(
+                "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity",
+                OpenSceneMode.Single);
+            if (masterTestScene.IsValid())
+            {
+                CCS_MasterTestRecordingAmbientAudioBuilder.EnsureMasterTestWithoutGameplayAmbience(masterTestScene);
+                EditorSceneManager.SaveScene(masterTestScene);
+            }
 
             CCS_SurvivalValidationResult result = CCS_AIBanditValidationUtility.ValidateMilestoneB13Foundation();
             if (!result.IsSuccess)

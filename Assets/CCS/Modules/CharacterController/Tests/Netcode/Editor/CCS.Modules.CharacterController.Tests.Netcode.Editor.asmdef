@@ -10,6 +10,7 @@
         "CCS.Modules.Attributes.Runtime",
         "CCS.Modules.Interaction.Editor",
         "CCS.Project.Runtime",
+        "CCS.Project.Editor",
         "Unity.InputSystem",
         "Unity.Netcode.Runtime",
         "Unity.Networking.Transport",

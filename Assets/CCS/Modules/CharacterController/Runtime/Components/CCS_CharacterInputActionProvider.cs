@@ -55,12 +55,21 @@ namespace CCS.Modules.CharacterController
 
         public bool InputAccepted => inputAccepted;
 
-        public Vector2 MoveInput =>
-            editorMovementFreezeActive
-                ? Vector2.zero
-                : externalMoveActive
-                ? externalMoveInput
-                : HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        public Vector2 MoveInput
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (editorMovementFreezeActive)
+                {
+                    return Vector2.zero;
+                }
+#endif
+                return externalMoveActive
+                    ? externalMoveInput
+                    : HasAcceptedFocusedInput && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+            }
+        }
 
         public Vector2 LookInput =>
             HasAcceptedFocusedInput && lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;

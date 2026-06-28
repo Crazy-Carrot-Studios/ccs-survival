@@ -1126,6 +1126,65 @@ namespace CCS.Modules.Weapons
                     "Revolver arm reticle IK foundation validated. TwoBoneIK rotation weight=0, fit profile unchanged.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateRevolverUpperBodyAimLayerContract()
+        {
+            List<string> failures = new List<string>();
+            const string playerControllerPath =
+                "Assets/CCS/Modules/CharacterController/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
+            const string upperBodyAnimatorPath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
+            const string aiAnimatorDriverPath =
+                "Assets/CCS/Modules/AI/Runtime/Animation/CCS_AIAnimatorDriver.cs";
+            const string aiWeaponControllerPath =
+                "Assets/CCS/Modules/AI/Runtime/Combat/CCS_AIWeaponController.cs";
+
+            AppendIfMissing(
+                failures,
+                File.Exists(playerControllerPath),
+                "Missing player locomotion Animator Controller for aim layer contract validation.");
+            AppendIfMissing(
+                failures,
+                File.Exists(upperBodyAnimatorPath),
+                "Missing CCS_RevolverUpperBodyAnimator source for aim layer contract validation.");
+
+            if (File.Exists(upperBodyAnimatorPath))
+            {
+                string upperBodySource = File.ReadAllText(upperBodyAnimatorPath);
+                AppendIfMissing(
+                    failures,
+                    upperBodySource.Contains("AnimatorRevolverUpperBodyLayerName"),
+                    "CCS_RevolverUpperBodyAnimator must drive RevolverUpperBody layer only.");
+                AppendIfMissing(
+                    failures,
+                    upperBodySource.Contains("AM_CCS_Revolver_UpperBodyRightArm_Aim"),
+                    "CCS_RevolverUpperBodyAnimator debug overlay must expose upper-body aim mask name.");
+            }
+
+            if (File.Exists(aiAnimatorDriverPath))
+            {
+                string aiDriverSource = File.ReadAllText(aiAnimatorDriverPath);
+                AppendIfMissing(
+                    failures,
+                    !aiDriverSource.Contains("RevolverAimHeld"),
+                    "CCS_AIAnimatorDriver must not write RevolverAimHeld to Base Layer locomotion.");
+            }
+
+            if (File.Exists(aiWeaponControllerPath))
+            {
+                string aiWeaponSource = File.ReadAllText(aiWeaponControllerPath);
+                AppendIfMissing(
+                    failures,
+                    aiWeaponSource.Contains("SetRevolverAimHeldExternal")
+                        || aiWeaponSource.Contains("CCS_RevolverUpperBodyAnimator"),
+                    "CCS_AIWeaponController must route aim through RevolverUpperBody animator layer.");
+            }
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass(
+                    "Revolver aim layer contract validated: upper-body mask layer only, no Base Layer aim driving.");
+        }
+
         public static CCS_SurvivalValidationResult ValidateFirstPersonRevolverArmPresentationRemoved(
             GameObject prefabRoot)
         {

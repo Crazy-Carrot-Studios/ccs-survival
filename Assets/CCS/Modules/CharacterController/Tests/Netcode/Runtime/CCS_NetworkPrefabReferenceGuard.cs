@@ -22,6 +22,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         [SerializeField] private GameObject networkedPlayerPrefabFallback;
         [SerializeField] private GameObject toggleInteractablePrefabFallback;
+        [SerializeField] private GameObject aiBanditPrefabFallback;
 
         #endregion
 
@@ -44,19 +45,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return;
             }
 
-            RepairNetworkConfigReferences(
+            int repairedCount = RepairNetworkConfigReferences(
                 networkManager.NetworkConfig,
                 resolvedPlayerPrefab,
                 networkedPlayerPrefabFallback,
-                toggleInteractablePrefabFallback);
+                toggleInteractablePrefabFallback,
+                aiBanditPrefabFallback);
 
             if (CCS_NetcodeNetworkConfigValidationUtility.TryValidateForStart(networkManager, out _))
             {
                 Debug.Log("[Netcode] Network player prefab references validated.");
             }
-            else
+            else if (repairedCount > 0)
             {
-                Debug.Log("[Netcode] Network prefab references repaired from serialized fallbacks.");
+                Debug.Log($"[Netcode] Repaired {repairedCount} network prefab reference(s) from serialized fallbacks.");
             }
         }
 
@@ -84,20 +86,24 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             return CCS_NetworkTestPrefabsRegistry.TryResolvePrefab(candidate, out validPrefab, out _);
         }
 
-        private static void RepairNetworkConfigReferences(
+        private static int RepairNetworkConfigReferences(
             NetworkConfig networkConfig,
             GameObject playerPrefab,
             GameObject playerFallback,
-            GameObject toggleFallback)
+            GameObject toggleFallback,
+            GameObject banditFallback)
         {
+            int repairedCount = 0;
+
             if (!TryGetValidPrefab(networkConfig.PlayerPrefab, out _))
             {
                 networkConfig.PlayerPrefab = playerPrefab;
+                repairedCount++;
             }
 
             if (networkConfig.Prefabs == null || networkConfig.Prefabs.NetworkPrefabsLists == null)
             {
-                return;
+                return repairedCount;
             }
 
             for (int i = 0; i < networkConfig.Prefabs.NetworkPrefabsLists.Count; i++)
@@ -108,30 +114,39 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                     continue;
                 }
 
-                RepairPrefabsListEntries(prefabsList, playerPrefab, playerFallback, toggleFallback);
+                repairedCount += RepairPrefabsListEntries(
+                    prefabsList,
+                    playerPrefab,
+                    playerFallback,
+                    toggleFallback,
+                    banditFallback);
             }
+
+            return repairedCount;
         }
 
-        private static void RepairPrefabsListEntries(
+        private static int RepairPrefabsListEntries(
             NetworkPrefabsList prefabsList,
             GameObject playerPrefab,
             GameObject playerFallback,
-            GameObject toggleFallback)
+            GameObject toggleFallback,
+            GameObject banditFallback)
         {
             FieldInfo listField = typeof(NetworkPrefabsList).GetField(
                 "List",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             if (listField == null)
             {
-                return;
+                return 0;
             }
 
             if (listField.GetValue(prefabsList) is not List<NetworkPrefab> entries)
             {
-                return;
+                return 0;
             }
 
-            for (int i = 0; i < entries.Count; i++)
+            int repairedCount = 0;
+            for (int i = entries.Count - 1; i >= 0; i--)
             {
                 NetworkPrefab entry = entries[i];
                 if (entry.Override != NetworkPrefabOverride.None)
@@ -148,9 +163,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                     i,
                     playerPrefab,
                     playerFallback,
-                    toggleFallback);
+                    toggleFallback,
+                    banditFallback);
                 if (replacementPrefab == null)
                 {
+                    entries.RemoveAt(i);
+                    repairedCount++;
                     continue;
                 }
 
@@ -159,14 +177,18 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 entry.OverridingTargetPrefab = null;
                 entry.SourceHashToOverride = 0;
                 entries[i] = entry;
+                repairedCount++;
             }
+
+            return repairedCount;
         }
 
         private static GameObject ResolveReplacementPrefab(
             int entryIndex,
             GameObject playerPrefab,
             GameObject playerFallback,
-            GameObject toggleFallback)
+            GameObject toggleFallback,
+            GameObject banditFallback)
         {
             if (entryIndex == 0)
             {
@@ -183,9 +205,36 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
                 return null;
             }
 
-            if (entryIndex == 1 && TryGetValidPrefab(toggleFallback, out GameObject validToggle))
+            if (entryIndex == 1)
             {
-                return validToggle;
+                if (TryGetValidPrefab(toggleFallback, out GameObject validToggle))
+                {
+                    return validToggle;
+                }
+
+                return ResolvePrefabAtRequiredPath(1);
+            }
+
+            if (entryIndex == 2)
+            {
+                if (TryGetValidPrefab(banditFallback, out GameObject validBandit))
+                {
+                    return validBandit;
+                }
+
+                return ResolvePrefabAtRequiredPath(2);
+            }
+
+            return ResolvePrefabAtRequiredPath(entryIndex);
+        }
+
+        private static GameObject ResolvePrefabAtRequiredPath(int entryIndex)
+        {
+            CCS_NetworkTestPrefabsRegistry registry = Resources.Load<CCS_NetworkTestPrefabsRegistry>(
+                CCS_NetcodeTestConstants.NetworkTestPrefabsRegistryResourceName);
+            if (registry != null && registry.TryGetValidPrefabAt(entryIndex, out GameObject prefab))
+            {
+                return prefab;
             }
 
             return null;

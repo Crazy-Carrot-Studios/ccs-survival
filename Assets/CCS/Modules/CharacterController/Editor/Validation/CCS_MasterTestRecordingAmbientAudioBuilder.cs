@@ -14,7 +14,7 @@ using UnityEngine.SceneManagement;
 // PLACEMENT: Editor builder invoked from Master Test scene setup.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Test-scene-only. Creates CCS_AmbientAudio and CCS_TestingManager root objects.
+// NOTES: Master Test recording ambience assets only. Gameplay music lives on hosting scene.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -25,19 +25,20 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool EnsureMasterTestRecordingAmbience(Scene masterTestScene)
         {
+            return EnsureMasterTestWithoutGameplayAmbience(masterTestScene);
+        }
+
+        public static bool EnsureMasterTestWithoutGameplayAmbience(Scene masterTestScene)
+        {
             masterTestScene = EnsureMasterTestSceneLoadedAndActive(masterTestScene);
             if (!masterTestScene.IsValid())
             {
                 return false;
             }
 
-            EnsureAmbienceAssetsReady();
             bool changed = false;
-            changed |= EnsureAmbientAudioObject(
-                masterTestScene,
-                CCS_ProjectAudioConstants.MasterTestAmbientAudioObjectName,
-                playOnStart: false);
-            changed |= EnsureTestingManagerObject(masterTestScene, includeAmbienceReference: true);
+            changed |= RemoveAmbientAudioFromScene(masterTestScene);
+            changed |= EnsureTestingManagerObject(masterTestScene, includeAmbienceReference: false);
             if (changed)
             {
                 EditorSceneManager.MarkSceneDirty(masterTestScene);
@@ -57,7 +58,20 @@ namespace CCS.Modules.CharacterController.Editor
             string objectName,
             bool playOnStart)
         {
-            return EnsureAmbientAudioObject(targetScene, objectName, playOnStart);
+            return EnsureAmbientAudioObject(
+                targetScene,
+                objectName,
+                playOnStart,
+                CCS_ProjectAudioConstants.HostingAmbientPlaylistDefaultVolume);
+        }
+
+        public static bool EnsureAmbientAudioObjectInScene(
+            Scene targetScene,
+            string objectName,
+            bool playOnStart,
+            float targetVolume)
+        {
+            return EnsureAmbientAudioObject(targetScene, objectName, playOnStart, targetVolume);
         }
 
         private static bool RemoveAmbientAudioFromScene(Scene scene)
@@ -184,7 +198,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
         }
 
-        private static bool EnsureAmbientAudioObject(Scene targetScene, string objectName, bool playOnStart)
+        private static bool EnsureAmbientAudioObject(Scene targetScene, string objectName, bool playOnStart, float targetVolume)
         {
             bool changed = false;
             GameObject ambientObject = FindRootObject(targetScene, objectName);
@@ -215,6 +229,18 @@ namespace CCS.Modules.CharacterController.Editor
             if (audioSource.loop)
             {
                 audioSource.loop = false;
+                changed = true;
+            }
+
+            if (audioSource.mute)
+            {
+                audioSource.mute = false;
+                changed = true;
+            }
+
+            if (Mathf.Approximately(audioSource.volume, 0f))
+            {
+                audioSource.volume = targetVolume;
                 changed = true;
             }
 
@@ -260,6 +286,7 @@ namespace CCS.Modules.CharacterController.Editor
             SerializedProperty volumeProperty = serializedPlaylist.FindProperty("volume");
             SerializedProperty playOnStartProperty = serializedPlaylist.FindProperty("playOnStart");
             SerializedProperty repeatProperty = serializedPlaylist.FindProperty("repeatPlaylist");
+            SerializedProperty playlistEnabledProperty = serializedPlaylist.FindProperty("playlistEnabled");
             SerializedProperty debugProperty = serializedPlaylist.FindProperty("debugPlaylist");
 
             if (playlistProperty != null && !SerializedArrayMatches(playlistProperty, expectedPlaylist))
@@ -273,12 +300,9 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            if (volumeProperty != null
-                && !Mathf.Approximately(
-                    volumeProperty.floatValue,
-                    CCS_ProjectAudioConstants.MasterTestRecordingPlaylistDefaultVolume))
+            if (volumeProperty != null && !Mathf.Approximately(volumeProperty.floatValue, targetVolume))
             {
-                volumeProperty.floatValue = CCS_ProjectAudioConstants.MasterTestRecordingPlaylistDefaultVolume;
+                volumeProperty.floatValue = targetVolume;
                 changed = true;
             }
 
@@ -291,6 +315,12 @@ namespace CCS.Modules.CharacterController.Editor
             if (repeatProperty != null && !repeatProperty.boolValue)
             {
                 repeatProperty.boolValue = true;
+                changed = true;
+            }
+
+            if (playlistEnabledProperty != null && !playlistEnabledProperty.boolValue)
+            {
+                playlistEnabledProperty.boolValue = true;
                 changed = true;
             }
 
@@ -350,9 +380,9 @@ namespace CCS.Modules.CharacterController.Editor
             SerializedProperty pitchBlendProperty = serializedManager.FindProperty("enableThirdPersonAimPitchBlend");
             SerializedProperty aimDebugRaysProperty = serializedManager.FindProperty("enableAimDebugRays");
 
-            if (ambienceEnabledProperty != null && !ambienceEnabledProperty.boolValue)
+            if (ambienceEnabledProperty != null && ambienceEnabledProperty.boolValue != includeAmbienceReference)
             {
-                ambienceEnabledProperty.boolValue = true;
+                ambienceEnabledProperty.boolValue = includeAmbienceReference;
                 changed = true;
             }
 

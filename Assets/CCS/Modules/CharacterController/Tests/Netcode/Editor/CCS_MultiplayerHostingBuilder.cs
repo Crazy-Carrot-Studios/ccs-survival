@@ -1,4 +1,6 @@
+using CCS.Modules.CharacterController.Editor;
 using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using Unity.Netcode;
@@ -45,6 +47,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             sceneChanged |= EnsureEventSystem();
             sceneChanged |= EnsureNetworkManagerInstance();
             sceneChanged |= CCS_MultiplayerHostingSceneLayoutEditor.BuildOrRebuildLayout();
+            sceneChanged |= EnsureHostingAmbientAudioInOpenScene(scene);
 
             changed |= sceneChanged;
 
@@ -208,6 +211,20 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             }
 
             return instance != null;
+        }
+
+        private static bool EnsureHostingAmbientAudioInOpenScene(Scene scene)
+        {
+            if (!scene.IsValid())
+            {
+                return false;
+            }
+
+            CCS_MasterTestRecordingAmbientAudioBuilder.EnsureAmbienceAssetsReady();
+            return CCS_MasterTestRecordingAmbientAudioBuilder.EnsureAmbientAudioObjectInScene(
+                scene,
+                CCS_ProjectAudioConstants.HostingAmbientAudioObjectName,
+                playOnStart: true);
         }
 
         #endregion

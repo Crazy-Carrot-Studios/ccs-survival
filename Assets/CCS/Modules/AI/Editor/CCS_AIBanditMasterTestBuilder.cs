@@ -52,6 +52,13 @@ namespace CCS.Modules.AI.Editor
                 AssetDatabase.LoadAssetAtPath<GameObject>(CCS_AIConstants.AIBanditPrefabPath));
             Transform hostSpawn = GameObject.Find("TP_Spawn_Host")?.transform;
             propertiesChanged |= SetObjectReference(serializedSpawner, "spawnReference", hostSpawn);
+            propertiesChanged |= SetVector3(
+                serializedSpawner,
+                "spawnOffset",
+                new Vector3(
+                    CCS_AIConstants.DefaultSpawnSideOffset,
+                    0f,
+                    CCS_AIConstants.DefaultSpawnDistanceFromPlayer));
 
             if (propertiesChanged)
             {
@@ -77,6 +84,18 @@ namespace CCS.Modules.AI.Editor
             }
 
             property.objectReferenceValue = value;
+            return true;
+        }
+
+        private static bool SetVector3(SerializedObject serializedObject, string propertyName, Vector3 value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.vector3Value == value)
+            {
+                return false;
+            }
+
+            property.vector3Value = value;
             return true;
         }
     }

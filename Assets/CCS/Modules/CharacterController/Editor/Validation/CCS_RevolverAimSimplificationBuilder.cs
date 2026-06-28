@@ -50,6 +50,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureInteractionReservedLayer();
             changed |= EnsureSimplifiedRevolverAimLayer();
             changed |= RemoveRevolverAimPitchFromController();
+            changed |= RemoveBaseLayerLegacyAimStates();
             changed |= DeleteObsoleteRevolverAimAssets();
 
             if (changed)
@@ -255,6 +256,49 @@ namespace CCS.Modules.CharacterController.Editor
             if (changed)
             {
                 AssetDatabase.SaveAssets();
+            }
+
+            return changed;
+        }
+
+        public static bool RemoveBaseLayerLegacyAimStates()
+        {
+            AnimatorController controller = LoadPlayerController();
+            if (controller == null || controller.layers.Length == 0)
+            {
+                return false;
+            }
+
+            AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
+            if (stateMachine == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            changed |= RemoveRevolverAimHeldTransitionsFromStateMachine(stateMachine);
+
+            string[] forbiddenStates =
+            {
+                CCS_CharacterControllerConstants.AnimatorAimStrafeLocomotionStateName,
+                CCS_CharacterControllerConstants.AnimatorAimStrafeBlendTreeName,
+                CCS_CharacterControllerConstants.AnimatorRevolverWildWestAimIdleStateName,
+                CCS_CharacterControllerConstants.AnimatorRevolverIdleToAimStateName,
+                CCS_CharacterControllerConstants.AnimatorRevolverAimIdleFullDrawStateName,
+                "Revolver_WW_Empty",
+                "Revolver_WW_Reload_RH",
+                "Revolver_WW_Fire_Fanning_RH",
+            };
+
+            for (int i = 0; i < forbiddenStates.Length; i++)
+            {
+                changed |= RemoveStateIfPresent(stateMachine, forbiddenStates[i]);
+            }
+
+            if (changed)
+            {
+                EditorUtility.SetDirty(stateMachine);
+                EditorUtility.SetDirty(controller);
             }
 
             return changed;
@@ -692,6 +736,53 @@ namespace CCS.Modules.CharacterController.Editor
                 && (expectedTrue
                     ? condition.mode == AnimatorConditionMode.If
                     : condition.mode == AnimatorConditionMode.IfNot);
+        }
+
+        private static bool RemoveRevolverAimHeldTransitionsFromStateMachine(AnimatorStateMachine stateMachine)
+        {
+            bool changed = false;
+            string aimHeldParameter = CCS_CharacterControllerConstants.AnimatorRevolverAimHeldParameter;
+            ChildAnimatorState[] states = stateMachine.states;
+            for (int stateIndex = 0; stateIndex < states.Length; stateIndex++)
+            {
+                AnimatorState state = states[stateIndex].state;
+                if (state == null)
+                {
+                    continue;
+                }
+
+                AnimatorStateTransition[] transitions = state.transitions;
+                for (int transitionIndex = transitions.Length - 1; transitionIndex >= 0; transitionIndex--)
+                {
+                    AnimatorStateTransition transition = transitions[transitionIndex];
+                    if (transition == null)
+                    {
+                        continue;
+                    }
+
+                    if (TransitionUsesParameter(transition, aimHeldParameter))
+                    {
+                        state.RemoveTransition(transition);
+                        changed = true;
+                    }
+                }
+            }
+
+            return changed;
+        }
+
+        private static bool TransitionUsesParameter(AnimatorStateTransition transition, string parameterName)
+        {
+            AnimatorCondition[] conditions = transition.conditions;
+            for (int i = 0; i < conditions.Length; i++)
+            {
+                if (conditions[i].parameter == parameterName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool RemoveStateIfPresent(AnimatorStateMachine stateMachine, string stateName)

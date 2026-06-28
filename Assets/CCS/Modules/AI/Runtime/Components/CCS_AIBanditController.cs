@@ -60,6 +60,11 @@ namespace CCS.Modules.AI
                 return;
             }
 
+            if (networkHealth != null && !networkHealth.IsDamageReady)
+            {
+                return;
+            }
+
             brain?.TickBrain(canThink: true);
         }
 

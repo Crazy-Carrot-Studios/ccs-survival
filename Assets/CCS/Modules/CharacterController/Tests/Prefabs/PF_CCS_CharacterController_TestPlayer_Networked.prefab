@@ -1140,6 +1140,7 @@ GameObject:
   - component: {fileID: 1981095118740769465}
   - component: {fileID: 4076866618874431801}
   - component: {fileID: 3624613141273494974}
+  - component: {fileID: 3165415736871851823}
   m_Layer: 8
   m_Name: PF_CCS_CharacterController_TestPlayer_Networked
   m_TagString: Player
@@ -1677,6 +1678,21 @@ MonoBehaviour:
   attributeContainer: {fileID: 7399152414567355896}
   healthDefinition: {fileID: 11400000, guid: b8c9d0e1f2a3456789012345678abcd0, type: 2}
   enableHealthDebugLogs: 0
+--- !u!114 &3165415736871851823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240448729846996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9fe72bdc25b49548a94724dfd702e5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CCS.Modules.Attributes.Runtime::CCS.Modules.Attributes.CCS_PlayerDeathScreenController
+  ShowTopMostFoldoutHeaderGroup: 1
+  networkHealth: {fileID: 3624613141273494974}
+  enableDeathScreenDebugLogs: 0
 --- !u!1 &2455953433895996448
 GameObject:
   m_ObjectHideFlags: 0
@@ -3781,7 +3797,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

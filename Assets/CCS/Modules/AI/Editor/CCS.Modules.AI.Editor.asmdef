@@ -10,7 +10,11 @@
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Weapons.Editor",
         "CCS.Modules.Weapons.Runtime",
-        "Unity.Netcode.Runtime"
+        "CCS.Project.Editor",
+        "Unity.AI.Navigation",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor"

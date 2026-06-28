@@ -24,6 +24,10 @@ using UnityEngine;
 
 using UnityEngine.SceneManagement;
 
+using UnityEngine.EventSystems;
+
+using UnityEngine.InputSystem.UI;
+
 using TMPro;
 
 
@@ -119,6 +123,8 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateJoinNotificationFeed(failures);
 
             ValidatePlayerPrefabAssets(failures);
+
+            ValidateMasterTestDeathUiInputContracts(failures);
 
             AppendValidationResult(
                 failures,
@@ -1526,12 +1532,12 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName);
             AppendIfMissing(
                 failures,
-                ambientAudioTransform != null,
-                "Scene is missing "
+                ambientAudioTransform == null,
+                "Master Test gameplay scene must not contain "
                 + CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
-                + ".");
+                + " (ambient music belongs on hosting scene only).");
 
-            if (testingManagerTransform == null || ambientAudioTransform == null)
+            if (testingManagerTransform == null)
             {
                 return;
             }
@@ -1544,22 +1550,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName
                 + " must contain CCS_MasterTestSceneTestingManager.");
 
-            AudioSource audioSource = ambientAudioTransform.GetComponent<AudioSource>();
-            AppendIfMissing(
-                failures,
-                audioSource != null,
-                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
-                + " must contain AudioSource.");
-
-            CCS_AmbientAudioPlaylist ambientPlaylist =
-                ambientAudioTransform.GetComponent<CCS_AmbientAudioPlaylist>();
-            AppendIfMissing(
-                failures,
-                ambientPlaylist != null,
-                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestAmbientAudioObjectName
-                + " must contain CCS_AmbientAudioPlaylist.");
-
-            if (testingManager == null || ambientPlaylist == null)
+            if (testingManager == null)
             {
                 return;
             }
@@ -1569,88 +1560,15 @@ namespace CCS.Modules.CharacterController.Editor
             SerializedProperty playlistReferenceProperty = serializedManager.FindProperty("ambientAudioPlaylist");
             AppendIfMissing(
                 failures,
-                ambienceEnabledProperty != null && ambienceEnabledProperty.boolValue,
-                "CCS_MasterTestSceneTestingManager.enableRecordingAmbience must default to true.");
+                ambienceEnabledProperty != null && !ambienceEnabledProperty.boolValue,
+                "CCS_MasterTestSceneTestingManager.enableRecordingAmbience must default to false in gameplay Master Test.");
             AppendIfMissing(
                 failures,
-                playlistReferenceProperty != null && playlistReferenceProperty.objectReferenceValue == ambientPlaylist,
-                "CCS_MasterTestSceneTestingManager must reference the scene CCS_AmbientAudioPlaylist.");
-
-            SerializedObject serializedPlaylist = new SerializedObject(ambientPlaylist);
-            SerializedProperty playlistClipsProperty = serializedPlaylist.FindProperty("playlist");
-            SerializedProperty volumeProperty = serializedPlaylist.FindProperty("volume");
-            SerializedProperty playOnStartProperty = serializedPlaylist.FindProperty("playOnStart");
-            SerializedProperty repeatProperty = serializedPlaylist.FindProperty("repeatPlaylist");
-
-            if (volumeProperty != null)
-            {
-                AppendIfMissing(
-                    failures,
-                    volumeProperty.floatValue > 0f,
-                    "Recording ambience playlist volume must be > 0.");
-                AppendIfMissing(
-                    failures,
-                    volumeProperty.floatValue <= CCS_ProjectAudioConstants.MasterTestRecordingPlaylistMaxValidatedVolume,
-                    "Recording ambience playlist volume must be <= "
-                    + CCS_ProjectAudioConstants.MasterTestRecordingPlaylistMaxValidatedVolume.ToString("0.##")
-                    + ".");
-            }
-
-            AppendIfMissing(
-                failures,
-                playOnStartProperty == null || !playOnStartProperty.boolValue,
-                "Recording ambience playlist must be controlled by CCS_MasterTestSceneTestingManager (playOnStart false).");
-            AppendIfMissing(
-                failures,
-                repeatProperty == null || repeatProperty.boolValue,
-                "Recording ambience playlist must repeat clip 1 -> clip 2.");
-
-            if (audioSource != null)
-            {
-                AppendIfMissing(
-                    failures,
-                    !audioSource.loop,
-                    "Recording ambience AudioSource.loop must be false.");
-                AppendIfMissing(
-                    failures,
-                    audioSource.spatialBlend <= 0.001f,
-                    "Recording ambience AudioSource must be 2D (spatialBlend 0).");
-            }
-
-            if (playlistClipsProperty != null && playlistClipsProperty.isArray)
-            {
-                AppendIfMissing(
-                    failures,
-                    playlistClipsProperty.arraySize == 2,
-                    "Recording ambience playlist must contain exactly two clips.");
-
-                if (playlistClipsProperty.arraySize >= 2)
-                {
-                    Object firstClip = playlistClipsProperty.GetArrayElementAtIndex(0).objectReferenceValue;
-                    Object secondClip = playlistClipsProperty.GetArrayElementAtIndex(1).objectReferenceValue;
-                    bool firstMissing = firstClip == null;
-                    bool secondMissing = secondClip == null;
-
-                    if (!File.Exists(CCS_ProjectAudioConstants.WesternGame2ClipPath)
-                        || !File.Exists(CCS_ProjectAudioConstants.WesternTheme7ClipPath))
-                    {
-                        Debug.LogWarning(
-                            "[Master Test Validation] Recording ambience clip files are missing under "
-                            + CCS_ProjectAudioConstants.AmbienceRootPath
-                            + ". Copy clips before Play Mode.");
-                    }
-
-                    if (firstMissing || secondMissing)
-                    {
-                        failures.Add(
-                            "Recording ambience playlist references missing clip assets. Re-run Master Test setup after importing ambience clips.");
-                    }
-                }
-            }
+                playlistReferenceProperty == null || playlistReferenceProperty.objectReferenceValue == null,
+                "CCS_MasterTestSceneTestingManager must not reference a Master Test ambient playlist.");
 
             string testingManagerSourcePath =
                 "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs";
-            string playlistSourcePath = "Assets/CCS/Project/Runtime/Audio/CCS_AmbientAudioPlaylist.cs";
             if (File.Exists(testingManagerSourcePath))
             {
                 string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
@@ -1659,17 +1577,6 @@ namespace CCS.Modules.CharacterController.Editor
                     testingManagerSource.Contains("SetRecordingAmbienceEnabled")
                         && testingManagerSource.Contains("ApplyTestingSettings"),
                     "CCS_MasterTestSceneTestingManager must expose ambience toggle methods.");
-            }
-
-            if (File.Exists(playlistSourcePath))
-            {
-                string playlistSource = File.ReadAllText(playlistSourcePath);
-                AppendIfMissing(
-                    failures,
-                    playlistSource.Contains("SetPlaylistEnabled")
-                        && playlistSource.Contains("StopPlaylist")
-                        && playlistSource.Contains("audioSource.volume = volume"),
-                    "CCS_AmbientAudioPlaylist must restore AudioSource volume and support manager enable/disable control.");
             }
 
             if (testingManager != null)
@@ -1926,6 +1833,29 @@ namespace CCS.Modules.CharacterController.Editor
                 && pitchTarget.localPosition.y < CCS_CharacterControllerConstants.CameraPitchTargetMinimumLocalHeight)
             {
                 failures.Add("CameraPitchTarget local height must be between 1.40m and 1.60m from player root for third-person framing.");
+            }
+        }
+
+        private static void ValidateMasterTestDeathUiInputContracts(List<string> failures)
+        {
+            EventSystem[] eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
+            for (int i = 0; i < eventSystems.Length; i++)
+            {
+                EventSystem eventSystem = eventSystems[i];
+                if (eventSystem == null)
+                {
+                    continue;
+                }
+
+                if (eventSystem.GetComponent<StandaloneInputModule>() != null)
+                {
+                    failures.Add("Master Test scene EventSystem must not use StandaloneInputModule.");
+                }
+
+                if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                {
+                    failures.Add("Master Test scene EventSystem must use InputSystemUIInputModule when present.");
+                }
             }
         }
 

@@ -18,6 +18,8 @@ namespace CCS.Modules.Attributes
 
         bool IsDead { get; }
 
+        bool IsDamageReady { get; }
+
         bool ApplyDamage(CCS_DamageInfo damageInfo);
     }
 }

@@ -443,8 +443,6 @@ namespace CCS.Modules.CharacterController.Editor
 
             MasterTestTestingManagerObjectName,
 
-            MasterTestAmbientAudioObjectName,
-
             CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName,
 
             CameraRigInstanceName,

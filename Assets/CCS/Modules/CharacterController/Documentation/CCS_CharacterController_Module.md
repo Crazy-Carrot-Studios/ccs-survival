@@ -2,6 +2,12 @@
 
 **Version:** 0.2.4 — Unified Test Player + Master Test Harness
 
+## v0.7.1 — AI navigation + hosting audio migration
+
+- Master Test adds `CCS_AINavigationRoot` / `NavMeshSurface_MasterTest` for AI bandit pathfinding.
+- Master Test gameplay ambience removed; hosting scene owns ambient playlist playback.
+- `CCS_NetworkPrefabReferenceGuard` extended with AI bandit prefab fallback repair.
+
 ## v0.7.0 — AI bandit combat integration hooks
 
 - Added AI animation bridge support: `CCS_RevolverUpperBodyAnimator.SetRevolverAimHeldExternal(...)` for non-player revolver aim driving.

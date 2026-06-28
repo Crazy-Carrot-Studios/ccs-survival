@@ -26,24 +26,32 @@ namespace CCS.Modules.AI
         [SerializeField] private float maxHealth = 100f;
 
         [Header("Sensing")]
-        [SerializeField] private float detectionRange = 35f;
+        [SerializeField] private float detectionRange = 45f;
         [SerializeField] private float lineOfSightHeight = CCS_AIConstants.DefaultAimChestHeight;
         [SerializeField] private LayerMask visibilityMask = ~0;
 
         [Header("Movement")]
-        [SerializeField] private float moveSpeed = 2.6f;
+        [SerializeField] private float moveSpeed = 2.8f;
         [SerializeField] private float rotationSpeed = 540f;
         [SerializeField] private float minimumPreferredRange = 6f;
+        [SerializeField] private float movementStopDistance = 1.5f;
+
+        [Header("Pathfinding")]
+        [SerializeField] private float repathIntervalSeconds = 0.15f;
+        [SerializeField] private float destinationUpdateThreshold = 0.35f;
+        [SerializeField] private float targetSampleRadius = 4f;
+        [SerializeField] private bool pathRefreshWhenStale = true;
+        [SerializeField] private float loseSightRepathGraceSeconds = 0.15f;
 
         [Header("Combat")]
-        [SerializeField] private float attackRange = 20f;
+        [SerializeField] private float attackRange = 14f;
         [SerializeField] private float aimSettleSeconds = 0.55f;
         [SerializeField] private float fireCooldownSeconds = 1.5f;
         [SerializeField] private float shotDamage = 20f;
         [SerializeField] private float shotMaxRange = 45f;
 
         [Header("Spawn")]
-        [SerializeField] private float spawnDistanceFromPlayer = 22f;
+        [SerializeField] private float spawnDistanceFromPlayer = 24f;
         [SerializeField] private float spawnSideOffset = 8f;
 
         [Header("Debug")]
@@ -64,6 +72,18 @@ namespace CCS.Modules.AI
         public float RotationSpeed => rotationSpeed;
 
         public float MinimumPreferredRange => minimumPreferredRange;
+
+        public float MovementStopDistance => movementStopDistance;
+
+        public float RepathIntervalSeconds => repathIntervalSeconds;
+
+        public float DestinationUpdateThreshold => destinationUpdateThreshold;
+
+        public float TargetSampleRadius => targetSampleRadius;
+
+        public bool PathRefreshWhenStale => pathRefreshWhenStale;
+
+        public float LoseSightRepathGraceSeconds => loseSightRepathGraceSeconds;
 
         public float AttackRange => attackRange;
 

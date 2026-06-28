@@ -77,6 +77,7 @@ namespace CCS.Modules.Attributes.Editor
                 changed |= EnsureHealthRegenController(prefabRoot, healthDefinition);
                 changed |= EnsureNetworkAttributeReplicator(prefabRoot, healthDefinition);
                 changed |= EnsureNetworkHealth(prefabRoot, healthDefinition);
+                changed |= EnsurePlayerDeathScreen(prefabRoot);
                 changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition, staminaDefinition);
                 changed |= EnsureDebugDamageInput(prefabRoot);
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
@@ -324,6 +325,25 @@ namespace CCS.Modules.Attributes.Editor
             if (changed)
             {
                 serializedHealth.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return changed;
+        }
+
+        private static bool EnsurePlayerDeathScreen(GameObject prefabRoot)
+        {
+            CCS_PlayerDeathScreenController deathScreen = prefabRoot.GetComponent<CCS_PlayerDeathScreenController>();
+            if (deathScreen == null)
+            {
+                deathScreen = prefabRoot.AddComponent<CCS_PlayerDeathScreenController>();
+            }
+
+            CCS_NetworkHealth networkHealth = prefabRoot.GetComponent<CCS_NetworkHealth>();
+            SerializedObject serializedDeathScreen = new SerializedObject(deathScreen);
+            bool changed = SetObjectReference(serializedDeathScreen, "networkHealth", networkHealth);
+            if (changed)
+            {
+                serializedDeathScreen.ApplyModifiedPropertiesWithoutUndo();
             }
 
             return changed;

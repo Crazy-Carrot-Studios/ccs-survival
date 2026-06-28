@@ -110,6 +110,8 @@ namespace CCS.Modules.Weapons.Editor
 
             AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverArmReticleIKFoundation(testPlayerPrefab));
 
+            AppendResult(failures, CCS_WeaponsValidationUtility.ValidateRevolverUpperBodyAimLayerContract());
+
             AppendResult(
                 failures,
                 CCS_WeaponsValidationUtility.ValidateRuntimeRevolverVisualBehaviorFoundation(testPlayerPrefab));

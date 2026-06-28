@@ -20,6 +20,8 @@ namespace CCS.Project.Editor
         public static void RunFromBatchMode()
         {
             CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
+            CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimSimplificationPass();
+            AssetDatabase.SaveAssets();
 
             CCS_CharacterCameraRigInputBuilder.ApplyValidationBaselineObstacleAvoidance(false);
             CCS_SurvivalValidationResult baselineResult =

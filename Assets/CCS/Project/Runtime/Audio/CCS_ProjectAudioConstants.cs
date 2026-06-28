@@ -5,7 +5,7 @@
 // PLACEMENT: Static constants. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Master Test recording ambience only — not production gameplay audio.
+// NOTES: Plays continuously on hosting/mode-select; Master Test gameplay has no ambient music.
 // =============================================================================
 
 namespace CCS.Project
@@ -21,7 +21,7 @@ namespace CCS.Project
         public const string MultiplayerHostingScenePath =
             "Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity";
 
-        public const string HostingAmbientAudioObjectName = "CCS_AmbientAudio";
+        public const string HostingAmbientAudioObjectName = "CCS_HostingAmbientAudio";
 
         public const string MasterTestAmbientAudioObjectName = "CCS_AmbientAudio";
 

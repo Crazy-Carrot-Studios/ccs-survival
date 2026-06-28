@@ -1022,9 +1022,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
                 CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath);
             GameObject togglePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_NetcodeTestConstants.TestPickupInteractablePrefabPath);
+            GameObject banditPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                CCS_NetcodeTestConstants.AIBanditPrefabPath);
             SerializedObject serializedGuard = new SerializedObject(guard);
             SerializedProperty playerProperty = serializedGuard.FindProperty("networkedPlayerPrefabFallback");
             SerializedProperty toggleProperty = serializedGuard.FindProperty("toggleInteractablePrefabFallback");
+            SerializedProperty banditProperty = serializedGuard.FindProperty("aiBanditPrefabFallback");
             if (playerProperty != null && playerProperty.objectReferenceValue != playerPrefab)
             {
                 playerProperty.objectReferenceValue = playerPrefab;
@@ -1034,6 +1037,12 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             if (toggleProperty != null && toggleProperty.objectReferenceValue != togglePrefab)
             {
                 toggleProperty.objectReferenceValue = togglePrefab;
+                changed = true;
+            }
+
+            if (banditProperty != null && banditProperty.objectReferenceValue != banditPrefab)
+            {
+                banditProperty.objectReferenceValue = banditPrefab;
                 changed = true;
             }
 
