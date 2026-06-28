@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.1a** · Crazy Carrot Studios
+**Version 0.7.1b** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.1b** — **Character Controller cleanup plan (Phase 1):** documentation-only milestone adding `CCS_CharacterController_Phase_01_CleanupPlan.md` — audits Animation Fit Studio removal, editor menu reduction, Testing Manager direction, and runtime classification. No gameplay behavior changes.
 
 **0.7.1a** — **AI health bar fill direction hotfix:** AI bandit world-space health bar now drains left-to-right from the player camera view (right-anchored fill with `Image.fillOrigin = Right`).
 
