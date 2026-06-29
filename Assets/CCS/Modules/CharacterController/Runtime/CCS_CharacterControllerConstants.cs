@@ -314,6 +314,21 @@ namespace CCS.Modules.CharacterController
         public const string PlayerVisualPrefabPath =
             ModuleRootPath + "/Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab";
 
+        public const string PlayerModelKevinPrefabPath =
+            ModuleRootPath + "/Characters/Player/Prefabs/PF_CCS_Player_Model_Kevin.prefab";
+
+        public const string KevinImportPrefabPath =
+            "Assets/Reallusion/DataLink_Imports/Kevin/Prefabs/Kevin.prefab";
+
+        public const string KevinFbxPath =
+            "Assets/Reallusion/DataLink_Imports/Kevin/Kevin.fbx";
+
+        public const string EnemyAiImportRootPath =
+            "Assets/Reallusion/DataLink_Imports/CC3_EnemyAI";
+
+        public const string CamilaImportRootPath =
+            "Assets/Reallusion/DataLink_Imports/Camila";
+
         public const string Cc3BasePlusBodyFbxPath =
             "Assets/Reallusion/DataLink_Imports/CC3_Base_Plus/CC3_Base_Plus.fbx";
 

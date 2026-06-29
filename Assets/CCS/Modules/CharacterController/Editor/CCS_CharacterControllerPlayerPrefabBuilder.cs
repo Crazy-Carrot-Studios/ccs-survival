@@ -58,6 +58,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
+            changed |= CCS_PlayerVisualKevinSwapBuilder.EnsureKevinModelOnPlayerPrefabContents(prefabRoot);
             changed |= EnsureNameplateHierarchy(prefabRoot.transform);
             changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
             changed |= EnsureGlassesVisual(prefabRoot.transform);
@@ -705,7 +706,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
             Animator animator = playerRoot.GetComponentInChildren<Animator>(true);
-            Transform visualRoot = playerRoot.Find("VisualRoot");
+            Transform visualRoot = CCS_PlayerModelRootUtility.FindModelRoot(playerRoot);
             if (visualRoot == null)
             {
                 visualRoot = playerRoot;

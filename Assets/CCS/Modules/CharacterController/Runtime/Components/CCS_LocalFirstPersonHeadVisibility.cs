@@ -113,8 +113,11 @@ namespace CCS.Modules.CharacterController
 
             if (visualRoot == null)
             {
-                Transform visualRootTransform = transform.Find("VisualRoot");
-                visualRoot = visualRootTransform != null ? visualRootTransform : transform;
+                visualRoot = CCS_PlayerModelRootUtility.FindModelRoot(transform);
+                if (visualRoot == null)
+                {
+                    visualRoot = transform;
+                }
             }
 
             if (combinedBodyRenderer == null && visualRoot != null)

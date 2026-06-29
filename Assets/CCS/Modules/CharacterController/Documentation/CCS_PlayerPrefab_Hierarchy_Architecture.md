@@ -315,6 +315,13 @@ v0.7.5 creates this policy only. **No hierarchy enforcement** until v0.7.6 valid
 
 ## Staged implementation roadmap
 
+### v0.7.6 — Kevin player visual (implemented)
+
+- Production Kevin prefab: `PF_CCS_Player_Model_Kevin`
+- Networked player uses `Model` root with nested Kevin visual
+- Legacy `PF_CCS_Player_Visual` retained if other prefabs (e.g. AI bandit) still reference it
+- Locomotion-only Animator preserved; no weapon/interaction layers
+
 ### v0.7.5 — architecture plan only (this milestone)
 
 - Document target hierarchy, root budgets, subsystem ownership, script policy

@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.5`
+**Current version:** `0.7.6`
 
 ## Purpose
 
@@ -44,7 +44,8 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
-| **`0.7.5`** | **Player prefab hierarchy architecture (Phase 3D):** documents target hierarchy, root component budgets, subsystem ownership, Netcode-safe root rules, single Model root plan, owner-only UI separation roadmap; adds `CCS_IPlayerCompositionRoot` interface. No prefab hierarchy changes, no visual prefab changes, no animation import, no CC4 import. |
+| **`0.7.6`** | **Kevin default player visual:** `Model` root + `PF_CCS_Player_Model_Kevin` on networked player; equipment sockets rebuilt for Kevin; EnemyAI/Camila imported not wired; locomotion-only Animator preserved; no animation layer rebuild. |
+| **`0.7.5`** | **Player prefab hierarchy architecture (Phase 3D):** documents target hierarchy, root component budgets, subsystem ownership, Netcode-safe root rules, single Model root plan, owner-only UI separation roadmap; adds `CCS_IPlayerCompositionRoot` interface. Planning only in v0.7.5. |
 | **`0.7.4`** | **Animation rebuild architecture (Phase 3C):** documents future animation layers and presentation boundaries; adds centralized parameter IDs, weapon animation mode enum, and `CCS_ICharacterAnimationPresenter` interface; locomotion animator uses active hash contract. v0.7.3 locomotion-only Animator preserved. No animation import, no CC4 import, no Animator rebuild. |
 | **`0.7.3`** | **Locomotion-only Animator reset (Phase 3B):** player Animator Controller keeps Base Layer locomotion only; removes aim/revolver/interaction animation layers and player `CCS_RevolverUpperBodyAnimator` bridge; gameplay systems unchanged. No animation import. |
 | **`0.7.2`** | **Productionize Character Controller architecture (Phase 3A):** removes `CharacterController/Tests/`; production player prefab path; validation scene under `Scenes/Validation/`; `Prototyping/` blockout assets; Diagnostics Manager naming. No Animator reset. |

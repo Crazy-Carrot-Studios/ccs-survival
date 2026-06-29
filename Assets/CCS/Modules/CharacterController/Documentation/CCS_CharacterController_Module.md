@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.5 — living module overview  
+**Version:** 0.7.6 — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.6** | Kevin default player visual — `Model` root + `PF_CCS_Player_Model_Kevin`; legacy `PF_CCS_Player_Visual` deferred if bandit still references |
 | **v0.7.5** | Player prefab hierarchy architecture (Phase 3D) — target hierarchy, root budgets, subsystem ownership, composition interface; no prefab changes |
 | **v0.7.4** | Animation rebuild architecture (Phase 3C) — documented future layers, parameter IDs, weapon mode enum, presenter interface; locomotion-only Animator preserved; no import |
 | **v0.7.3** | Locomotion-only Animator reset (Phase 3B) — Base Layer locomotion only; aim/revolver/interaction animation layers removed from player controller; gameplay aiming/shooting/interaction retained |
@@ -33,6 +34,16 @@ Working systems that must remain stable unless a dedicated, batch-validated mile
 - Multiplayer hosting scene
 - Locomotion animation clips on Base Layer (idle/walk/sprint/jump/in-air)
 - Revolver/interaction/aim animation clips remain on disk for future rebuild (not wired on player controller in v0.7.3+)
+
+## v0.7.6 — Kevin default player visual
+
+- **Production Kevin prefab:** `Characters/Player/Prefabs/PF_CCS_Player_Model_Kevin.prefab`
+- **Networked player:** single `Model` root with nested Kevin visual (no `VisualRoot` / `PF_CCS_Player_Visual` nesting)
+- **Validation:** `CCS_PlayerVisualModelSwapValidationUtility` + batch `CCS_PlayerVisualModelSwapBatchEntry`
+- **Imports:** Kevin wired; EnemyAI and Camila imported under `Assets/Reallusion/DataLink_Imports/` but **not wired**
+- **Preserved:** locomotion-only Animator Controller; no weapon/interaction animation layers; no clip edits
+- **Equipment Fit Studio:** socket rebuild for Kevin humanoid rig
+- **Legacy:** `PF_CCS_Player_Visual` retained while AI bandit or other prefabs still reference it
 
 ## v0.7.5 Phase 3D — Player prefab hierarchy architecture (planning only)
 
@@ -86,7 +97,8 @@ Working systems that must remain stable unless a dedicated, batch-validated mile
 |-------|------|
 | Network-capable player | `Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab` |
 | Validation scene | `Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
-| Player visual | `Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab` |
+| Player visual (Kevin production) | `Characters/Player/Prefabs/PF_CCS_Player_Model_Kevin.prefab` |
+| Player visual (legacy CC3) | `Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab` (deferred deletion if referenced) |
 | Locomotion controller | `Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller` |
 
 ### Solo validation scene
@@ -132,6 +144,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Hosting | `CCS.Modules.CharacterController.Netcode.Editor.CCS_MultiplayerHostingSceneBatchEntry.RunFromBatchMode` |
 | Phase 3C animation architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3CBatchEntry.RunFromBatchMode` |
 | Phase 3D hierarchy architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3DBatchEntry.RunFromBatchMode` |
+| Player visual Kevin swap | `CCS.Modules.CharacterController.Editor.CCS_PlayerVisualModelSwapBatchEntry.RunFromBatchMode` |
 
 Editor menus are optional convenience wrappers. CI and Cursor workflows must not depend on manual menu clicks.
 

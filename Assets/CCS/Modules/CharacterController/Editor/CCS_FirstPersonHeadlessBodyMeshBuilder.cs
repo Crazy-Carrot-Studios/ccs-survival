@@ -79,6 +79,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             string[] candidateAssetPaths =
             {
+                CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath,
+                CCS_CharacterControllerConstants.KevinImportPrefabPath,
+                CCS_CharacterControllerConstants.KevinFbxPath,
                 CCS_CharacterControllerConstants.Cc3BasePlusPrefabPath,
                 CCS_CharacterControllerConstants.Cc3BasePlusBodyFbxPath,
                 CCS_CharacterControllerConstants.PlayerVisualPrefabPath,
@@ -107,9 +110,13 @@ namespace CCS.Modules.CharacterController.Editor
 
                 bakeRoot.name = "CCS_HeadlessMeshBake_Temp";
                 bakeRoot.hideFlags = HideFlags.HideAndDontSave;
-                UnpackNestedPrefabInstances(bakeRoot);
 
                 SkinnedMeshRenderer renderer = FindCombinedBodyRendererInHierarchy(bakeRoot.transform);
+                if (renderer == null)
+                {
+                    UnpackNestedPrefabInstances(bakeRoot);
+                    renderer = FindCombinedBodyRendererInHierarchy(bakeRoot.transform);
+                }
                 if (renderer != null)
                 {
                     temporaryInstance = bakeRoot;
@@ -150,10 +157,23 @@ namespace CCS.Modules.CharacterController.Editor
 
             for (int i = 0; i < prefabInstanceRoots.Count; i++)
             {
-                PrefabUtility.UnpackPrefabInstance(
-                    prefabInstanceRoots[i],
-                    PrefabUnpackMode.Completely,
-                    InteractionMode.AutomatedAction);
+                GameObject instanceRoot = prefabInstanceRoots[i];
+                if (instanceRoot == null || !PrefabUtility.IsPartOfPrefabInstance(instanceRoot))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    PrefabUtility.UnpackPrefabInstance(
+                        instanceRoot,
+                        PrefabUnpackMode.Completely,
+                        InteractionMode.AutomatedAction);
+                }
+                catch (System.ArgumentException)
+                {
+                    // Some Reallusion import hierarchies cannot be completely unpacked during temp bake instances.
+                }
             }
         }
 

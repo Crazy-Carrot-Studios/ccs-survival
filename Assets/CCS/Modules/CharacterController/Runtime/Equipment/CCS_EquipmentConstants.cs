@@ -25,7 +25,12 @@ namespace CCS.Modules.CharacterController
         public const string EquipmentSocketDefinitionsFolderPath =
             EquipmentSocketsProfileRootPath + "/Sockets";
 
-        public const string VisualRootObjectName = "VisualRoot";
+        public const string ModelRootObjectName = "Model";
+
+        public const string LegacyVisualRootObjectName = "VisualRoot";
+
+        /// <summary>Preferred presentation root object name on the networked player prefab (v0.7.6+).</summary>
+        public const string VisualRootObjectName = ModelRootObjectName;
 
         public const string TestBoneSocketFallbacksObjectName = "CCS_TestBoneSocketFallbacks";
 
@@ -157,6 +162,8 @@ namespace CCS.Modules.CharacterController
         public const string RevolverM1879WeaponId = "ccs.weapon.revolver.m1879";
 
         public const string TestPlayerCc3BasePlusRigId = "ccs.character.testplayer.cc3_base_plus";
+
+        public const string PlayerKevinRigId = "ccs.character.player.kevin";
 
         public const string RevolverM1879AimPoseId = "revolver.aim.basic";
 

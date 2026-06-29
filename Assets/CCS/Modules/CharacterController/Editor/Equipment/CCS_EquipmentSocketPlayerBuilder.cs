@@ -42,10 +42,15 @@ namespace CCS.Modules.CharacterController.Editor
                 return false;
             }
 
-            Transform visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.VisualRootObjectName);
+            Transform visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.ModelRootObjectName);
             if (visualRoot == null)
             {
-                Debug.LogError("[Equipment Socket Player Builder] Missing VisualRoot on player prefab.");
+                visualRoot = FindDeepChild(prefabRoot.transform, CCS_EquipmentConstants.LegacyVisualRootObjectName);
+            }
+
+            if (visualRoot == null)
+            {
+                Debug.LogError("[Equipment Socket Player Builder] Missing Model root on player prefab.");
                 return false;
             }
 

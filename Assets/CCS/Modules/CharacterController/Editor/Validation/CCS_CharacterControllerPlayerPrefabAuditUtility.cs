@@ -108,6 +108,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static readonly string[] AuditedPrefabPaths =
         {
             CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
+            CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath,
             CCS_CharacterControllerConstants.PlayerVisualPrefabPath,
         };
 
@@ -785,8 +786,12 @@ namespace CCS.Modules.CharacterController.Editor
                 "Missing active networked player prefab at " + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             AppendIfMissing(
                 failures,
+                File.Exists(CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath),
+                "Missing Kevin player model prefab at " + CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath);
+            AppendIfMissing(
+                failures,
                 File.Exists(CCS_CharacterControllerConstants.PlayerVisualPrefabPath),
-                "Missing player visual prefab at " + CCS_CharacterControllerConstants.PlayerVisualPrefabPath);
+                "Missing legacy player visual prefab at " + CCS_CharacterControllerConstants.PlayerVisualPrefabPath);
         }
 
         private static void ValidatePlayerPrefabsLoadable(List<string> failures)
