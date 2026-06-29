@@ -513,25 +513,7 @@ namespace CCS.Modules.Weapons
 
         private string ResolveActiveAimClipName()
         {
-            if (animator == null)
-            {
-                return "MissingAnimator";
-            }
-
-            int layerIndex = animator.GetLayerIndex(
-                CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName);
-            if (layerIndex < 0)
-            {
-                return "MissingLayer";
-            }
-
-            AnimatorClipInfo[] clipInfos = animator.GetCurrentAnimatorClipInfo(layerIndex);
-            if (clipInfos == null || clipInfos.Length == 0 || clipInfos[0].clip == null)
-            {
-                return "None";
-            }
-
-            return clipInfos[0].clip.name;
+            return "LocomotionOnly";
         }
 
         private static void DecomposeCorrection(

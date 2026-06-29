@@ -237,15 +237,6 @@ namespace CCS.Modules.CharacterController.Diagnostics {
             builder.AppendLine("- AimDebugRays: " + enableAimDebugRays);
             builder.AppendLine();
 
-            CCS_RevolverUpperBodyAnimatorDebugReporter animationReporter =
-                GetComponent<CCS_RevolverUpperBodyAnimatorDebugReporter>();
-            if (animationReporter != null)
-            {
-                builder.AppendLine("## Animation");
-                builder.AppendLine(animationReporter.BuildReportSection());
-                builder.AppendLine();
-            }
-
             CCS_CharacterCameraDebugReporter cameraReporter = GetComponent<CCS_CharacterCameraDebugReporter>();
             if (cameraReporter != null)
             {
@@ -287,11 +278,6 @@ namespace CCS.Modules.CharacterController.Diagnostics {
 
         private void EnsureDiagnosticComponents()
         {
-            if (GetComponent<CCS_RevolverUpperBodyAnimatorDebugReporter>() == null)
-            {
-                gameObject.AddComponent<CCS_RevolverUpperBodyAnimatorDebugReporter>();
-            }
-
             if (GetComponent<CCS_CharacterCameraDebugReporter>() == null)
             {
                 gameObject.AddComponent<CCS_CharacterCameraDebugReporter>();

@@ -10,13 +10,11 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_PlayerInteractionAnimator
 // CATEGORY: Modules / CharacterController / Runtime / Visuals
-// PURPOSE: Drives interaction Animator triggers and locks movement during interact anims.
+// PURPOSE: Owns gameplay interaction lock/busy state during pickups and door interactions.
 // PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Lock begins on scanner E accept via BeginInteractionLock. Trigger fires on completed.
-//        Normal unlock is driven by CCS_InteractionAnimationStateExitBehaviour OnStateExit.
-//        Fallback timer unlocks only if Animator state exit is missed.
+// NOTES: v0.7.3 locomotion-only reset — gameplay interaction lock only; no Animator triggers.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -29,7 +27,6 @@ namespace CCS.Modules.CharacterController
     {
         #region Variables
 
-        [SerializeField] private Animator animator;
         [SerializeField] private Component interactionSourceComponent;
         [SerializeField] private bool enableInteractionDebugLogs;
         [SerializeField] private float pickUpRightHandLockDuration = CCS_InteractionConstants.PickUpRightHandLockDuration;
@@ -40,7 +37,6 @@ namespace CCS.Modules.CharacterController
         private NetworkObject cachedNetworkObject;
         private CCS_CharacterMotor cachedCharacterMotor;
         private Coroutine unlockCoroutine;
-        private bool loggedMissingController;
         private bool isInteractionBusy;
         private CCS_InteractionAnimationKey activeInteractionAnimationKey =
             CCS_InteractionAnimationKey.PickUp_RH;
@@ -150,17 +146,6 @@ namespace CCS.Modules.CharacterController
             ReleaseInteractionLock(animationKey, logReleased: true);
         }
 
-        public void PlayInteractionAnimation(CCS_InteractionAnimationKey animationKey)
-        {
-            if (!TryResolveAnimator(out Animator resolvedAnimator))
-            {
-                return;
-            }
-
-            string triggerName = CCS_InteractionAnimationKeyUtility.ToAnimatorTriggerName(animationKey);
-            resolvedAnimator.SetTrigger(Animator.StringToHash(triggerName));
-        }
-
         #endregion
 
         #region Private Methods
@@ -183,8 +168,6 @@ namespace CCS.Modules.CharacterController
             {
                 cachedCharacterMotor = GetComponentInParent<CCS_CharacterMotor>();
             }
-
-            TryResolveAnimator(out _);
         }
 
         private void HandleInteractionCompleted(CCS_InteractionCompletedEvent completedEvent)
@@ -200,7 +183,7 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            PlayInteractionAnimation(completedEvent.Result.AnimationKey);
+            ReleaseInteractionLock(completedEvent.Result.AnimationKey, logReleased: true);
         }
 
         private void HardStopMotorPlanarMotion()
@@ -320,49 +303,6 @@ namespace CCS.Modules.CharacterController
             }
 
             return networkObject.IsOwner;
-        }
-
-        private bool TryResolveAnimator(out Animator resolvedAnimator)
-        {
-            if (animator != null && HasPlayableController(animator))
-            {
-                resolvedAnimator = animator;
-                return true;
-            }
-
-            Animator[] animators = GetComponentsInChildren<Animator>(true);
-            for (int i = 0; i < animators.Length; i++)
-            {
-                Animator candidate = animators[i];
-                if (candidate == null || !HasPlayableController(candidate))
-                {
-                    continue;
-                }
-
-                animator = candidate;
-                resolvedAnimator = candidate;
-                loggedMissingController = false;
-                return true;
-            }
-
-            resolvedAnimator = null;
-
-            if (!loggedMissingController)
-            {
-                loggedMissingController = true;
-                Debug.LogWarning(
-                    "[CCS Player Interaction Animator] No child Animator with a runtime AnimatorController was found. Visual interaction triggers were skipped.",
-                    this);
-            }
-
-            return false;
-        }
-
-        private static bool HasPlayableController(Animator candidate)
-        {
-            return candidate != null
-                && candidate.isActiveAndEnabled
-                && candidate.runtimeAnimatorController != null;
         }
 
         #endregion

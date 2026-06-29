@@ -8,6 +8,7 @@
 // NOTES: v0.2.4 active module scope. No gameplay dependencies outside this module.
 // =============================================================================
 
+using CCS.Modules.Interaction;
 using UnityEngine;
 
 namespace CCS.Modules.CharacterController
@@ -570,6 +571,87 @@ namespace CCS.Modules.CharacterController
         public const string AnimatorAimMoveXParameter = "AimMoveX";
 
         public const string AnimatorAimMoveYParameter = "AimMoveY";
+
+        public const string Phase3BAnimatorResetReportDirectory = "Logs/CharacterController/AnimatorReset";
+
+        public const string Phase3BAnimatorResetBeforeReportPath =
+            Phase3BAnimatorResetReportDirectory + "/CCS_AnimatorController_Before_v0.7.3.md";
+
+        public const string Phase3BAnimatorResetAfterReportPath =
+            Phase3BAnimatorResetReportDirectory + "/CCS_AnimatorController_After_v0.7.3.md";
+
+        public static readonly string[] Phase3BAllowedAnimatorLayerNames = { "Base Layer" };
+
+        public static readonly string[] Phase3BAllowedAnimatorParameterNames =
+        {
+            "SpeedNormalized",
+            "IsGrounded",
+            "IsSprinting",
+            "JumpTrigger",
+        };
+
+        public static readonly string[] Phase3BRemovedAnimatorLayerNames =
+        {
+            AnimatorRevolverUpperBodyLayerName,
+            AnimatorRevolverAimUpperBodyLayerNameObsolete,
+            AnimatorInteractionReservedLayerName,
+            AnimatorRevolverRightHandPreviewLayerName,
+        };
+
+        public static readonly string[] Phase3BRemovedAnimatorStateNames =
+        {
+            "Interact_PickUp_RH",
+            "Interact_WalkThroughDoor_RH",
+            AnimatorRevolverNoAimStateName,
+            AnimatorRevolverIdleToAimStateName,
+            AnimatorRevolverAimIdleFullDrawStateName,
+            AnimatorRevolverAimToIdleReturnStateName,
+            AnimatorRevolverAimToIdleStateName,
+            AnimatorRevolverWalkToAimWalkStateName,
+            AnimatorRevolverAimWalkStateName,
+            AnimatorRevolverAimWalkToWalkStateName,
+            AnimatorRevolverAimPitchBlendStateName,
+            AnimatorRevolverFireStateName,
+            AnimatorRevolverReloadStateName,
+            "Revolver_WW_Empty",
+            "Revolver_WW_Reload_RH",
+            "Revolver_WW_Fire_Fanning_RH",
+            "Revolver_WW_AimIdle_RH",
+            AnimatorAimStrafeLocomotionStateName,
+            AnimatorAimStrafeBlendTreeName,
+        };
+
+        public static readonly string[] Phase3BRemovedAnimatorParameterNames =
+        {
+            CCS_InteractionConstants.PlayerPickupRightHandAnimationName,
+            CCS_InteractionConstants.PlayerWalkThroughDoorRightHandAnimationName,
+            AnimatorIsAimingMovementModeParameter,
+            AnimatorAimMoveXParameter,
+            AnimatorAimMoveYParameter,
+            AnimatorRevolverAimHeldParameter,
+            AnimatorRevolverFireTriggerParameter,
+            AnimatorRevolverReloadTriggerParameter,
+            AnimatorRevolverIsReloadingParameter,
+            AnimatorRevolverAimPitchParameter,
+            AnimatorRevolverIsMovingParameter,
+        };
+
+        public static readonly string[] Phase3BRemovedAnimationBridgeComponentTypeNames =
+        {
+            "CCS_RevolverUpperBodyAnimator",
+        };
+
+        public static readonly string[] Phase3BRemovedPlayerAnimationBridgeComponentTypeNames =
+            Phase3BRemovedAnimationBridgeComponentTypeNames;
+
+        public static readonly string[] Phase3BAllowedBaseLayerLocomotionStateNames =
+        {
+            "Idle",
+            "Walk",
+            "Sprint",
+            "Jump",
+            "InAir",
+        };
 
         public const float DefaultAimMovementSpeedMultiplier = 0.55f;
 

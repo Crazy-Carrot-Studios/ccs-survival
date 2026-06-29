@@ -1,5 +1,4 @@
 using CCS.Modules.Attributes;
-using CCS.Modules.CharacterController;
 using CCS.Modules.Weapons;
 using UnityEngine;
 
@@ -20,7 +19,6 @@ namespace CCS.Modules.AI
     {
         [SerializeField] private CCS_RevolverController revolverController;
         [SerializeField] private Transform muzzlePoint;
-        [SerializeField] private CCS_RevolverUpperBodyAnimator upperBodyAnimator;
         [SerializeField] private bool enableWeaponDebugLogs;
 
         private float nextFireTime;
@@ -38,10 +36,7 @@ namespace CCS.Modules.AI
 
         public void SetAimHeld(bool aimHeld)
         {
-            if (upperBodyAnimator != null)
-            {
-                upperBodyAnimator.SetRevolverAimHeldExternal(aimHeld, revolverOwned: true, isReloading: false);
-            }
+            // v0.7.3 Phase 3B: gameplay aim state is handled by AI brain/revolver controller only.
         }
 
         public bool TryFireAtTarget(
@@ -102,11 +97,6 @@ namespace CCS.Modules.AI
             if (revolverController == null)
             {
                 revolverController = GetComponent<CCS_RevolverController>();
-            }
-
-            if (upperBodyAnimator == null)
-            {
-                upperBodyAnimator = GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
             }
 
             if (muzzlePoint == null)

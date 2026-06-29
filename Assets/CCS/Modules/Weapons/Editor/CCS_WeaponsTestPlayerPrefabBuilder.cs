@@ -720,9 +720,6 @@ namespace CCS.Modules.Weapons.Editor
             CCS_CharacterAimLocomotionController aimLocomotion =
                 prefabRoot.GetComponent<CCS_CharacterAimLocomotionController>();
             Animator animator = visualRoot != null ? visualRoot.GetComponentInChildren<Animator>(true) : null;
-            CCS_RevolverUpperBodyAnimator upperBodyAnimator = visualRoot != null
-                ? visualRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true)
-                : null;
             Image reticleImage = hudRoot != null
                 ? hudRoot.Find(CCS_WeaponsConstants.WeaponReticleObjectName)?.GetComponent<Image>()
                 : null;
@@ -755,7 +752,6 @@ namespace CCS.Modules.Weapons.Editor
                 reticleChanged |= SetObjectReference(serializedReticle, "revolverController", revolverController);
                 reticleChanged |= SetObjectReference(serializedReticle, "equipmentVisualController", equipmentVisual);
                 reticleChanged |= SetObjectReference(serializedReticle, "hudPresenter", hudPresenter);
-                reticleChanged |= SetObjectReference(serializedReticle, "revolverUpperBodyAnimator", upperBodyAnimator);
                 reticleChanged |= SetObjectReference(serializedReticle, "reticleTransform", reticleImage != null ? reticleImage.rectTransform : null);
                 reticleChanged |= SetObjectReference(serializedReticle, "reticleCanvas", hudRoot.GetComponent<Canvas>());
                 if (reticleChanged)
@@ -793,18 +789,6 @@ namespace CCS.Modules.Weapons.Editor
 
             if (revolverController != null)
             {
-                if (upperBodyAnimator != null)
-                {
-                    SerializedObject serializedUpperBody = new SerializedObject(upperBodyAnimator);
-                    bool upperBodyChanged = false;
-                    upperBodyChanged |= SetBool(serializedUpperBody, "suppressFireUpperBodyAnimation", true);
-                    if (upperBodyChanged)
-                    {
-                        serializedUpperBody.ApplyModifiedPropertiesWithoutUndo();
-                        changed = true;
-                    }
-                }
-
                 SerializedObject serializedRevolver = new SerializedObject(revolverController);
                 bool revolverChanged = false;
                 revolverChanged |= SetBool(serializedRevolver, "enableVisualAimConvergence", false);

@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.2 — living module overview  
+**Version:** 0.7.3 — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, revolver upper
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.3** | Locomotion-only Animator reset (Phase 3B) — Base Layer locomotion only; aim/revolver/interaction animation layers removed from player controller; gameplay aiming/shooting/interaction retained |
 | **v0.7.2** | Productionize architecture — Tests folder removed; player prefab + validation scene production paths; Prototyping folder; no Animator reset |
 | **v0.7.1f** | Safe test-only component separation; Master Test manager migration; two root test components moved to scene |
 
@@ -28,8 +29,19 @@ Working systems that must remain stable unless a dedicated, batch-validated mile
 - AI bandit combat and health bar
 - Weapons pickup and validation
 - Multiplayer hosting scene
-- `AC_CCS_Player_Locomotion_StarterAssets.controller` wiring
-- Production animation clips (including `_FitTest` AimPitch blend clips)
+- Locomotion animation clips on Base Layer (idle/walk/sprint/jump/in-air)
+- Revolver/interaction/aim animation clips remain on disk for future rebuild (not wired on player controller in v0.7.3)
+
+## v0.7.3 Phase 3B — Locomotion-only Animator reset
+
+- Player Animator Controller (`AC_CCS_Player_Locomotion_StarterAssets.controller`) keeps **Base Layer locomotion only**.
+- Removed from controller: `RevolverUpperBody`, `Interaction`, preview/aim/revolver/interaction states and parameters.
+- Removed obsolete `CCS_RevolverUpperBodyAnimator` animation bridge from production prefabs (player, AI bandit, validation NPC).
+- **Retained gameplay:** `CCS_CharacterAimLocomotionController`, `CCS_RevolverController`, interaction scanner/locks, camera aim, IK/reticle gameplay paths.
+- `CCS_PlayerInteractionAnimator` retains interaction busy/control lock; no Animator triggers.
+- `CCS_PlayerLocomotionAnimator` drives locomotion parameters only.
+- Reports: `Logs/CharacterController/AnimatorReset/CCS_AnimatorController_Before_v0.7.3.md` and `_After_v0.7.3.md`.
+- **Future:** rebuild single-gun / two-gun animation layers after CC4/revolver asset evaluation. No import in v0.7.3.
 
 ## Runtime / editor / validation boundaries (v0.7.2)
 

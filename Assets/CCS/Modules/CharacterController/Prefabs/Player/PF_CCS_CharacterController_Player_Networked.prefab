@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 910010}
   - component: {fileID: 910050}
   - component: {fileID: 910060}
-  - component: {fileID: 6463843085579182175}
   - component: {fileID: 5204454266406806631}
   - component: {fileID: 128450741614677891}
   m_Layer: 0
@@ -67,33 +66,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1d2e3f4a5b647839405060708090a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_PlayerInteractionAnimator
-  animator: {fileID: 22796}
   interactionSourceComponent: {fileID: 882010040}
   enableInteractionDebugLogs: 0
   pickUpRightHandLockDuration: 2
   walkThroughDoorRightHandLockDuration: 1.3
---- !u!114 &6463843085579182175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 910001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 271a7628d5fa4f14dad658a0e691512a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_RevolverUpperBodyAnimator
-  animator: {fileID: 22796}
-  revolverAnimationStateComponent: {fileID: 4905833786765227334}
-  interactionLockSourceComponent: {fileID: 910060}
-  characterMotor: {fileID: 0}
-  suppressFireUpperBodyAnimation: 1
-  aimStateCrossFadeDuration: 0.05
-  enableRevolverAnimationDebug: 0
-  aimLayerBlendInSpeed: 16
-  aimLayerBlendOutSpeed: 18
-  useWildWestRightHandRevolverAimPreview: 0
 --- !u!114 &5204454266406806631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2314,7 +2290,6 @@ MonoBehaviour:
   revolverController: {fileID: 4905833786765227334}
   equipmentVisualController: {fileID: 5730116116939274085}
   hudPresenter: {fileID: 9158304918560071027}
-  revolverUpperBodyAnimator: {fileID: 6463843085579182175}
   screenSmoothing: 18
   debugRays: 0
 --- !u!1 &3139427301927228153
@@ -3767,7 +3742,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6455,12 +6430,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: f8a9b0c1d2e345678901234567890ab0, type: 2}
     - target: {fileID: 900040, guid: f4a8c2e1b9d3476580a1b2c3d4e5f6a7, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'pinky_03_r'\n\tTransform 'ring_01_r'\n\tTransform
-        'ring_03_r'\n\tTransform 'middle_02_r'\n\tTransform 'ring_02_r'\n\tTransform
-        'middle_03_r'\n\tTransform 'middle_01_r'\n\tTransform 'pinky_02_r'\n\tTransform
-        'pinky_01_r'\n\tFrom animation clip 'CCS_WW_Revolver_AimIdle_FullDraw'"
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -221,7 +221,13 @@ namespace CCS.Modules.CharacterController.Editor
             for (int i = 0; i < IsolationPlan.Length; i++)
             {
                 ClipIsolationEntry entry = IsolationPlan[i];
-                if (!EnsureIsolatedClip(entry, out AnimationClip isolatedClip, out bool clipChanged))
+                AnimationClip isolatedClip = null;
+                bool clipChanged = false;
+                if (File.Exists(entry.DestinationAssetPath))
+                {
+                    isolatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.DestinationAssetPath);
+                }
+                else if (!EnsureIsolatedClip(entry, out isolatedClip, out clipChanged))
                 {
                     Debug.LogError(
                         "[Animation Isolation] Failed to isolate clip "
@@ -235,68 +241,8 @@ namespace CCS.Modules.CharacterController.Editor
                 clipsByStateName[entry.AnimatorStateName] = isolatedClip;
             }
 
-            Dictionary<string, AnimationClip> aimStrafeClips = new Dictionary<string, AnimationClip>();
-            for (int i = 0; i < AimStrafeIsolationPlan.Length; i++)
-            {
-                ClipIsolationEntry entry = AimStrafeIsolationPlan[i];
-                if (!EnsureIsolatedClip(entry, out AnimationClip isolatedClip, out bool clipChanged))
-                {
-                    Debug.LogError(
-                        "[Animation Isolation] Failed to isolate aim strafe clip "
-                        + entry.SourceClipName
-                        + " from "
-                        + entry.SourceAssetPath);
-                    return changed;
-                }
-
-                changed |= clipChanged;
-                aimStrafeClips[entry.DestinationAssetPath] = isolatedClip;
-            }
-
-            changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
-            changed |= EnsureRevolverAnimatorParameters();
-            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimFolders();
-            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimClipMigration();
-
-            Dictionary<string, AnimationClip> revolverClips = new Dictionary<string, AnimationClip>();
-            for (int i = 0; i < RevolverUpperBodyIsolationPlan.Length; i++)
-            {
-                ClipIsolationEntry entry = RevolverUpperBodyIsolationPlan[i];
-                AnimationClip isolatedClip = null;
-                bool clipChanged = false;
-                if (File.Exists(entry.DestinationAssetPath))
-                {
-                    isolatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.DestinationAssetPath);
-                }
-                else if (!EnsureIsolatedClip(entry, out isolatedClip, out clipChanged))
-                {
-                    Debug.LogWarning(
-                        "[Animation Isolation] Could not isolate revolver clip "
-                        + entry.SourceClipName
-                        + " from "
-                        + entry.SourceAssetPath
-                        + ". Destination missing at "
-                        + entry.DestinationAssetPath);
-                    continue;
-                }
-
-                changed |= clipChanged;
-                if (!string.IsNullOrEmpty(entry.AnimatorStateName) && isolatedClip != null)
-                {
-                    revolverClips[entry.AnimatorStateName] = isolatedClip;
-                }
-            }
-
-            changed |= CCS_RevolverAimSimplificationBuilder.EnsureRevolverAimRightArmMask();
-            changed |= CCS_RevolverAimSimplificationBuilder.EnsureInteractionReservedLayer();
-            changed |= CCS_RevolverAimSimplificationBuilder.EnsureSimplifiedRevolverAimLayer();
-            changed |= CCS_RevolverAimSimplificationBuilder.RemoveRevolverAimPitchFromController();
-            changed |= CCS_RevolverAimSimplificationBuilder.DeleteObsoleteRevolverAimAssets();
             changed |= RewireAnimatorController(clipsByStateName);
-            changed |= EnsureAimLocomotionAnimatorParameters();
-            changed |= EnsureAimStrafeLocomotionState(aimStrafeClips, clipsByStateName);
-            changed |= PurgeLegacyRevolverClipAssignmentsFromController();
-            changed |= RemoveRevolverRightHandPreviewLayerFromController();
+            changed |= CCS_LocomotionOnlyAnimatorResetBuilder.MaintainLocomotionOnlyController();
 
             if (changed)
             {

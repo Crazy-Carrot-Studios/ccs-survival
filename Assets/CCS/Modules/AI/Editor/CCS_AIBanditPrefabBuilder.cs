@@ -95,6 +95,7 @@ namespace CCS.Modules.AI.Editor
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerInteractionAnimator");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerWeaponLoadout");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerEquipmentVisualController");
+            changed |= DestroyByTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator");
 
             changed |= DestroyChildByName(prefabRoot.transform, "NameplateRoot");
             changed |= DestroyChildByName(prefabRoot.transform, "AIBanditNameplateRoot");
@@ -284,10 +285,6 @@ namespace CCS.Modules.AI.Editor
             {
                 SerializedObject serializedWeapon = new SerializedObject(weaponController);
                 bool weaponChanged = SetObjectReference(serializedWeapon, "revolverController", revolver);
-                weaponChanged |= SetObjectReference(
-                    serializedWeapon,
-                    "upperBodyAnimator",
-                    prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true));
                 if (weaponChanged)
                 {
                     serializedWeapon.ApplyModifiedPropertiesWithoutUndo();

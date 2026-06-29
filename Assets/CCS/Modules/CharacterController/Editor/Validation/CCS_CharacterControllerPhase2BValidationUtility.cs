@@ -43,7 +43,6 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static readonly string[] RuntimeOnGuiSourcePaths =
         {
-            "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs",
             "Assets/CCS/Modules/CharacterController/Runtime/Components/CCS_CharacterCameraController.cs",
         };
 

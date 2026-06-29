@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 910010}
-  - component: {fileID: 6463843085579182175}
   - component: {fileID: 5204454266406806631}
   - component: {fileID: 128450741614677891}
   m_Layer: 0
@@ -39,28 +38,6 @@ Transform:
   - {fileID: 4779862491226701608}
   m_Father: {fileID: 8263640393967947809}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6463843085579182175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 910001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 271a7628d5fa4f14dad658a0e691512a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_RevolverUpperBodyAnimator
-  animator: {fileID: 22796}
-  revolverAnimationStateComponent: {fileID: 4905833786765227334}
-  interactionLockSourceComponent: {fileID: 0}
-  characterMotor: {fileID: 0}
-  suppressFireUpperBodyAnimation: 1
-  aimStateCrossFadeDuration: 0.05
-  enableRevolverAnimationDebug: 0
-  aimLayerBlendInSpeed: 16
-  aimLayerBlendOutSpeed: 18
-  useWildWestRightHandRevolverAimPreview: 0
 --- !u!114 &5204454266406806631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1070,7 +1047,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.AI.Runtime::CCS.Modules.AI.CCS_AIWeaponController
   revolverController: {fileID: 4905833786765227334}
   muzzlePoint: {fileID: 0}
-  upperBodyAnimator: {fileID: 6463843085579182175}
   enableWeaponDebugLogs: 0
 --- !u!114 &3244656101414644064
 MonoBehaviour:
@@ -3245,12 +3221,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: f8a9b0c1d2e345678901234567890ab0, type: 2}
     - target: {fileID: 900040, guid: f4a8c2e1b9d3476580a1b2c3d4e5f6a7, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'pinky_03_r'\n\tTransform 'ring_01_r'\n\tTransform
-        'ring_03_r'\n\tTransform 'middle_02_r'\n\tTransform 'ring_02_r'\n\tTransform
-        'middle_03_r'\n\tTransform 'middle_01_r'\n\tTransform 'pinky_02_r'\n\tTransform
-        'pinky_01_r'\n\tFrom animation clip 'CCS_WW_Revolver_AimIdle_FullDraw'"
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

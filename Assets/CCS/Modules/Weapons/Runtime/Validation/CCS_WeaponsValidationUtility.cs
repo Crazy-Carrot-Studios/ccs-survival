@@ -942,42 +942,10 @@ namespace CCS.Modules.Weapons
                 fovOverride == null,
                 "CCS_FirstPersonAimCameraOverrideController must not be active on test player prefab.");
 
-            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
-                prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
             AppendIfMissing(
                 failures,
-                upperBodyAnimator != null,
-                "Test player must contain CCS_RevolverUpperBodyAnimator on VisualRoot.");
-            if (upperBodyAnimator != null)
-            {
-                string animatorSourcePath =
-                    CCS_CharacterControllerConstants.ModuleRootPath
-                    + "/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
-                if (File.Exists(animatorSourcePath))
-                {
-                    string animatorSource = File.ReadAllText(animatorSourcePath);
-                    AppendIfMissing(
-                        failures,
-                        animatorSource.Contains("suppressFireUpperBodyAnimation = true"),
-                        "CCS_RevolverUpperBodyAnimator.suppressFireUpperBodyAnimation must default on.");
-                    AppendIfMissing(
-                        failures,
-                        animatorSource.Contains("AnimatorRevolverUpperBodyLayerName"),
-                        "CCS_RevolverUpperBodyAnimator must drive AnimatorRevolverUpperBodyLayerName.");
-                    AppendIfMissing(
-                        failures,
-                        animatorSource.Contains("SetAnimatorBoolIfPresent"),
-                        "CCS_RevolverUpperBodyAnimator must guard Animator parameter writes.");
-                    AppendIfMissing(
-                        failures,
-                        animatorSource.Contains("CurrentAimPhase"),
-                        "CCS_RevolverUpperBodyAnimator must expose CurrentAimPhase.");
-                    AppendIfMissing(
-                        failures,
-                        animatorSource.Contains("ResolveTargetLayerWeight"),
-                        "CCS_RevolverUpperBodyAnimator must blend aim layer weight by phase.");
-                }
-            }
+                !PrefabContainsComponentTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator"),
+                "Test player must not contain CCS_RevolverUpperBodyAnimator after Phase 3B locomotion-only reset.");
 
             string muzzleReticleSourcePath = CCS_WeaponsConstants.ModuleRootPath
                 + "/Runtime/Aiming/CCS_MuzzleDrivenReticleController.cs";
@@ -986,8 +954,8 @@ namespace CCS.Modules.Weapons
                 string muzzleReticleSource = File.ReadAllText(muzzleReticleSourcePath);
                 AppendIfMissing(
                     failures,
-                    muzzleReticleSource.Contains("IsReticleAimPhaseActive"),
-                    "CCS_MuzzleDrivenReticleController must gate reticle on FullDraw phase.");
+                    muzzleReticleSource.Contains("revolverController.IsAiming"),
+                    "CCS_MuzzleDrivenReticleController must gate reticle on gameplay aim state.");
             }
 
             string hudSourcePath = CCS_WeaponsConstants.ModuleRootPath
@@ -1129,10 +1097,10 @@ namespace CCS.Modules.Weapons
         public static CCS_SurvivalValidationResult ValidateRevolverUpperBodyAimLayerContract()
         {
             List<string> failures = new List<string>();
+            const string removedUpperBodyAnimatorPath =
+                "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
             const string playerControllerPath =
                 "Assets/CCS/Modules/CharacterController/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
-            const string upperBodyAnimatorPath =
-                "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverUpperBodyAnimator.cs";
             const string aiAnimatorDriverPath =
                 "Assets/CCS/Modules/AI/Runtime/Animation/CCS_AIAnimatorDriver.cs";
             const string aiWeaponControllerPath =
@@ -1140,24 +1108,20 @@ namespace CCS.Modules.Weapons
 
             AppendIfMissing(
                 failures,
-                File.Exists(playerControllerPath),
-                "Missing player locomotion Animator Controller for aim layer contract validation.");
+                !File.Exists(removedUpperBodyAnimatorPath),
+                "CCS_RevolverUpperBodyAnimator must be removed for Phase 3B locomotion-only reset.");
             AppendIfMissing(
                 failures,
-                File.Exists(upperBodyAnimatorPath),
-                "Missing CCS_RevolverUpperBodyAnimator source for aim layer contract validation.");
+                File.Exists(playerControllerPath),
+                "Missing player locomotion Animator Controller for Phase 3B aim layer contract validation.");
 
-            if (File.Exists(upperBodyAnimatorPath))
+            if (File.Exists(playerControllerPath))
             {
-                string upperBodySource = File.ReadAllText(upperBodyAnimatorPath);
+                string controllerSource = File.ReadAllText(playerControllerPath);
                 AppendIfMissing(
                     failures,
-                    upperBodySource.Contains("AnimatorRevolverUpperBodyLayerName"),
-                    "CCS_RevolverUpperBodyAnimator must drive RevolverUpperBody layer only.");
-                AppendIfMissing(
-                    failures,
-                    upperBodySource.Contains("AM_CCS_Revolver_UpperBodyRightArm_Aim"),
-                    "CCS_RevolverUpperBodyAnimator debug overlay must expose upper-body aim mask name.");
+                    !controllerSource.Contains(CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName),
+                    "Player Animator Controller must not contain removed RevolverUpperBody layer.");
             }
 
             if (File.Exists(aiAnimatorDriverPath))
@@ -1174,15 +1138,33 @@ namespace CCS.Modules.Weapons
                 string aiWeaponSource = File.ReadAllText(aiWeaponControllerPath);
                 AppendIfMissing(
                     failures,
-                    aiWeaponSource.Contains("SetRevolverAimHeldExternal")
-                        || aiWeaponSource.Contains("CCS_RevolverUpperBodyAnimator"),
-                    "CCS_AIWeaponController must route aim through RevolverUpperBody animator layer.");
+                    !aiWeaponSource.Contains("SetRevolverAimHeldExternal"),
+                    "CCS_AIWeaponController must not route aim through removed RevolverUpperBody animator layer.");
+                AppendIfMissing(
+                    failures,
+                    !aiWeaponSource.Contains("CCS_RevolverUpperBodyAnimator"),
+                    "CCS_AIWeaponController must not reference CCS_RevolverUpperBodyAnimator.");
             }
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass(
-                    "Revolver aim layer contract validated: upper-body mask layer only, no Base Layer aim driving.");
+                    "Phase 3B aim layer contract validated: locomotion-only Animator Controller, no upper-body bridge.");
+        }
+
+        private static bool PrefabContainsComponentTypeName(GameObject prefabRoot, string typeName)
+        {
+            Component[] components = prefabRoot.GetComponentsInChildren<Component>(true);
+            for (int i = 0; i < components.Length; i++)
+            {
+                Component component = components[i];
+                if (component != null && component.GetType().Name == typeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static CCS_SurvivalValidationResult ValidateFirstPersonRevolverArmPresentationRemoved(

@@ -44,22 +44,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool EnsureRevolverAimSimplificationPass()
         {
-            EnsureRevolverAimFolders();
-            bool changed = EnsureRevolverAimClipMigration();
-            changed |= EnsureRevolverAimRightArmMask();
-            changed |= EnsureInteractionReservedLayer();
-            changed |= EnsureSimplifiedRevolverAimLayer();
-            changed |= RemoveRevolverAimPitchFromController();
-            changed |= RemoveBaseLayerLegacyAimStates();
-            changed |= DeleteObsoleteRevolverAimAssets();
-
-            if (changed)
-            {
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-
-            return changed;
+            return CCS_LocomotionOnlyAnimatorResetBuilder.MaintainLocomotionOnlyController();
         }
 
         public static bool EnsureRevolverAimFolders()

@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.2** · Crazy Carrot Studios
+**Version 0.7.3** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -10,13 +10,15 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 |--------|-----------|
 | **Framework** | Core platform (gameplay-free) |
 | **Project** | Bootstrap, composition, validation standards |
-| **CharacterController** | Movement, camera, diagnostics, hosting/netcode tooling (v0.7.2 productionized architecture) |
+| **CharacterController** | Movement, camera, diagnostics, hosting/netcode tooling (v0.7.3 locomotion-only animator reset) |
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 | **Weapons** | Revolver M1879 world pickup, hitscan, fit profile pack (v0.6.16 reticle-aligned shots) |
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.3** — **Locomotion-only Animator reset (Phase 3B):** resets player Animator Controller to Base Layer locomotion only; removes aim/revolver/interaction animation layers and player animation bridge components; gameplay aiming, shooting, pickup, and interaction locks remain. No animation import, no CC4 import, no new weapon animation set.
 
 **0.7.2** — **Productionize Character Controller architecture (Phase 3A):** removes `CharacterController/Tests/`; moves networked player prefab to `Prefabs/Player/PF_CCS_CharacterController_Player_Networked`; validation scene to `Scenes/Validation/SCN_CCS_CharacterController_Validation`; adds `Prototyping/` for blockout environment assets; renames Testing Manager → Diagnostics Manager (`CCS_DiagnosticsManager`). No Animator reset or animation import.
 

@@ -69,7 +69,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= RemoveEmbeddedCinemachine(prefabRoot);
             changed |= EnsureNetworkComponents(prefabRoot);
             changed |= EnsurePlayerLocomotionComponents(prefabRoot);
-            changed |= EnsureRevolverUpperBodyAnimator(prefabRoot);
+            changed |= RemoveRevolverUpperBodyAnimatorFromPlayerPrefab(prefabRoot);
             changed |= CCS_WeaponsTestPlayerPrefabBuilder.RemovePlayerWeaponVisualArtifacts(prefabRoot);
             changed |= CCS_EquipmentSocketPlayerBuilder.EnsurePlayerEquipmentSocketFoundation(prefabRoot);
             changed |= EnsureNetworkObjectTransformSettings(prefabRoot);
@@ -1079,33 +1079,27 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
-        private static bool EnsureRevolverUpperBodyAnimator(GameObject prefabRoot)
+        private static bool RemoveRevolverUpperBodyAnimatorFromPlayerPrefab(GameObject prefabRoot)
         {
-            Transform visualRoot = FindChildRecursive(prefabRoot.transform, "VisualRoot");
-            if (visualRoot == null)
-            {
-                return false;
-            }
-
             bool changed = false;
-            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
-                visualRoot.GetComponent<CCS_RevolverUpperBodyAnimator>();
-            if (upperBodyAnimator == null)
+            for (int i = 0;
+                 i < CCS_CharacterControllerConstants.Phase3BRemovedAnimationBridgeComponentTypeNames.Length;
+                 i++)
             {
-                upperBodyAnimator = visualRoot.gameObject.AddComponent<CCS_RevolverUpperBodyAnimator>();
-                changed = true;
+                string typeName =
+                    CCS_CharacterControllerConstants.Phase3BRemovedAnimationBridgeComponentTypeNames[i];
+                Component[] components = prefabRoot.GetComponentsInChildren<Component>(true);
+                for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
+                {
+                    Component component = components[componentIndex];
+                    if (component != null && component.GetType().Name == typeName)
+                    {
+                        Object.DestroyImmediate(component, true);
+                        changed = true;
+                    }
+                }
             }
 
-            Animator animator = visualRoot.GetComponentInChildren<Animator>(true);
-            CCS_RevolverController revolverController = prefabRoot.GetComponent<CCS_RevolverController>();
-            CCS_PlayerInteractionAnimator interactionAnimator =
-                visualRoot.GetComponent<CCS_PlayerInteractionAnimator>();
-
-            SerializedObject serializedAnimator = new SerializedObject(upperBodyAnimator);
-            changed |= SetObjectReference(serializedAnimator, "animator", animator);
-            changed |= SetObjectReference(serializedAnimator, "revolverAnimationStateComponent", revolverController);
-            changed |= SetObjectReference(serializedAnimator, "interactionLockSourceComponent", interactionAnimator);
-            serializedAnimator.ApplyModifiedPropertiesWithoutUndo();
             return changed;
         }
 

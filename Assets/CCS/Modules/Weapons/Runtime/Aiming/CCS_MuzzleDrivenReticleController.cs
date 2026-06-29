@@ -33,7 +33,6 @@ namespace CCS.Modules.Weapons
         [SerializeField] private CCS_RevolverController revolverController;
         [SerializeField] private CCS_PlayerEquipmentVisualController equipmentVisualController;
         [SerializeField] private CCS_RevolverHudPresenter hudPresenter;
-        [SerializeField] private CCS_RevolverUpperBodyAnimator revolverUpperBodyAnimator;
         [SerializeField] private float screenSmoothing = CCS_WeaponsConstants.MasterTestMuzzleReticleScreenSmoothingDefault;
         [SerializeField] private bool debugRays;
 
@@ -238,11 +237,6 @@ namespace CCS.Modules.Weapons
                     ?? GetComponentInParent<CCS_RevolverHudPresenter>();
             }
 
-            if (revolverUpperBodyAnimator == null)
-            {
-                revolverUpperBodyAnimator = GetComponentInParent<CCS_RevolverUpperBodyAnimator>();
-            }
-
             if (reticleTransform == null && hudPresenter != null)
             {
                 reticleTransform = hudPresenter.ReticleRectTransform;
@@ -258,19 +252,9 @@ namespace CCS.Modules.Weapons
 
         private bool ShouldDriveReticle()
         {
-            if (revolverController == null
-                || !revolverController.HasWeaponOwnership
-                || !revolverController.IsAiming)
-            {
-                return false;
-            }
-
-            if (revolverUpperBodyAnimator != null)
-            {
-                return revolverUpperBodyAnimator.IsReticleAimPhaseActive;
-            }
-
-            return false;
+            return revolverController != null
+                && revolverController.HasWeaponOwnership
+                && revolverController.IsAiming;
         }
 
         private Camera ResolveAimCamera()

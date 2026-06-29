@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Visual-only bridge. Starter Assets locomotion + jump. No root motion.
+// NOTES: Visual-only bridge. Starter Assets locomotion + jump. No root motion. v0.7.3 locomotion-only.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -24,22 +24,11 @@ namespace CCS.Modules.CharacterController
         private static readonly int IsSprintingHash = Animator.StringToHash("IsSprinting");
         private static readonly int JumpTriggerHash = Animator.StringToHash("JumpTrigger");
 
-        private static readonly int IsAimingMovementModeHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorIsAimingMovementModeParameter);
-        private static readonly int AimMoveXHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorAimMoveXParameter);
-        private static readonly int AimMoveYHash =
-            Animator.StringToHash(CCS_CharacterControllerConstants.AnimatorAimMoveYParameter);
-
-        private const float AimMoveParameterSmoothSpeed = 12f;
-
         [SerializeField] private Animator animator;
         [SerializeField] private CCS_CharacterMotor motor;
 
         private bool loggedMissingController;
         private float previousVerticalVelocity;
-        private float smoothedAimMoveX;
-        private float smoothedAimMoveY;
 
         #endregion
 
@@ -73,16 +62,6 @@ namespace CCS.Modules.CharacterController
             resolvedAnimator.SetFloat(SpeedNormalizedHash, speedNormalized);
             resolvedAnimator.SetBool(IsGroundedHash, motor.IsGrounded);
             resolvedAnimator.SetBool(IsSprintingHash, motor.IsSprinting);
-
-            bool isAimingMovement = motor.IsAimMovementActive;
-            resolvedAnimator.SetBool(IsAimingMovementModeHash, isAimingMovement);
-
-            Vector2 aimMoveInput = motor.AimMoveInput;
-            float smoothFactor = Time.deltaTime * AimMoveParameterSmoothSpeed;
-            smoothedAimMoveX = Mathf.Lerp(smoothedAimMoveX, aimMoveInput.x, smoothFactor);
-            smoothedAimMoveY = Mathf.Lerp(smoothedAimMoveY, aimMoveInput.y, smoothFactor);
-            resolvedAnimator.SetFloat(AimMoveXHash, isAimingMovement ? smoothedAimMoveX : 0f);
-            resolvedAnimator.SetFloat(AimMoveYHash, isAimingMovement ? smoothedAimMoveY : 0f);
 
             if (previousVerticalVelocity <= 0f
                 && verticalVelocity > JumpVerticalVelocityThreshold)

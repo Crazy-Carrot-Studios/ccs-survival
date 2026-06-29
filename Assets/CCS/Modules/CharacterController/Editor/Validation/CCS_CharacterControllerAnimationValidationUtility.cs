@@ -151,10 +151,15 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static CCS_SurvivalValidationResult ValidateRevolverUpperBodyAnimationIsolation()
         {
-            return ValidateSimplifiedRevolverAimController();
+            return CCS_CharacterControllerPhase3BValidationUtility.ValidatePhase3BLocomotionOnlyAnimatorReset();
         }
 
         public static CCS_SurvivalValidationResult ValidateSimplifiedRevolverAimController()
+        {
+            return CCS_CharacterControllerPhase3BValidationUtility.ValidatePhase3BLocomotionOnlyAnimatorReset();
+        }
+
+        public static CCS_SurvivalValidationResult ValidateSimplifiedRevolverAimControllerLegacy()
         {
             List<string> failures = new List<string>();
 
@@ -459,12 +464,10 @@ namespace CCS.Modules.CharacterController.Editor
                     + ").");
             }
 
-            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
-                prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
             AppendIfMissing(
                 failures,
-                upperBodyAnimator != null,
-                "AI bandit prefab must contain CCS_RevolverUpperBodyAnimator for masked aim layer driving.");
+                !PrefabContainsComponentTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator"),
+                "AI bandit prefab must not contain CCS_RevolverUpperBodyAnimator after Phase 3B locomotion-only reset.");
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
@@ -725,24 +728,16 @@ namespace CCS.Modules.CharacterController.Editor
 
             List<string> failures = new List<string>();
 
-            CCS_RevolverUpperBodyAnimator upperBodyAnimator =
-                prefabRoot.GetComponentInChildren<CCS_RevolverUpperBodyAnimator>(true);
             AppendIfMissing(
                 failures,
-                upperBodyAnimator != null,
-                "Player prefab must contain CCS_RevolverUpperBodyAnimator on VisualRoot.");
+                !PrefabContainsComponentTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator"),
+                "Player prefab must not contain CCS_RevolverUpperBodyAnimator after Phase 3B locomotion-only reset.");
 
-            if (upperBodyAnimator == null)
-            {
-                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
-            }
-
-            AppendValidationFailures(failures, ValidateRevolverWildWestHardReplaceAimRuntime(prefabRoot));
             AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(prefabRoot));
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Player prefab revolver upper-body animator validated.");
+                : CCS_SurvivalValidationResult.Pass("Player prefab locomotion-only animator wiring validated.");
         }
 
         private static void AppendValidationFailures(List<string> failures, CCS_SurvivalValidationResult result)
@@ -1422,6 +1417,21 @@ namespace CCS.Modules.CharacterController.Editor
         private static string NormalizeAssetPath(string assetPath)
         {
             return assetPath.Replace('\\', '/');
+        }
+
+        private static bool PrefabContainsComponentTypeName(GameObject prefabRoot, string typeName)
+        {
+            Component[] components = prefabRoot.GetComponentsInChildren<Component>(true);
+            for (int i = 0; i < components.Length; i++)
+            {
+                Component component = components[i];
+                if (component != null && component.GetType().Name == typeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void AppendIfMissing(List<string> failures, bool condition, string message)

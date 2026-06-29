@@ -168,23 +168,11 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
+                CCS_CharacterControllerPhase3BValidationUtility.ValidatePhase3BLocomotionOnlyAnimatorReset());
+
+            AppendValidationResult(
+                failures,
                 CCS_CharacterControllerAnimationValidationUtility.ValidatePlayerAnimatorControllerAnimationIsolation());
-
-            AppendValidationResult(
-                failures,
-                CCS_CharacterControllerAnimationValidationUtility.ValidateAimLocomotionAnimatorParameters());
-
-            AppendValidationResult(
-                failures,
-                CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation());
-
-            AppendValidationResult(
-                failures,
-                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation());
-
-            AppendValidationResult(
-                failures,
-                CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime());
 
             AppendValidationResult(
                 failures,
