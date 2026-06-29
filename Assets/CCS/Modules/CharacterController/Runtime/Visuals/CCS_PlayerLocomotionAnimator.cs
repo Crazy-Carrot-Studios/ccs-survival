@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Visual-only bridge. Starter Assets locomotion + jump. No root motion. v0.7.3 locomotion-only.
+// NOTES: Visual-only bridge. Starter Assets locomotion + jump. No root motion. v0.7.4 uses centralized parameter IDs.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -18,11 +18,6 @@ namespace CCS.Modules.CharacterController
         #region Variables
 
         private const float JumpVerticalVelocityThreshold = 0.5f;
-
-        private static readonly int SpeedNormalizedHash = Animator.StringToHash("SpeedNormalized");
-        private static readonly int IsGroundedHash = Animator.StringToHash("IsGrounded");
-        private static readonly int IsSprintingHash = Animator.StringToHash("IsSprinting");
-        private static readonly int JumpTriggerHash = Animator.StringToHash("JumpTrigger");
 
         [SerializeField] private Animator animator;
         [SerializeField] private CCS_CharacterMotor motor;
@@ -59,14 +54,14 @@ namespace CCS.Modules.CharacterController
 
             float verticalVelocity = motor.VerticalVelocity;
 
-            resolvedAnimator.SetFloat(SpeedNormalizedHash, speedNormalized);
-            resolvedAnimator.SetBool(IsGroundedHash, motor.IsGrounded);
-            resolvedAnimator.SetBool(IsSprintingHash, motor.IsSprinting);
+            resolvedAnimator.SetFloat(CCS_CharacterAnimationParameterIds.Active.SpeedNormalizedHash, speedNormalized);
+            resolvedAnimator.SetBool(CCS_CharacterAnimationParameterIds.Active.IsGroundedHash, motor.IsGrounded);
+            resolvedAnimator.SetBool(CCS_CharacterAnimationParameterIds.Active.IsSprintingHash, motor.IsSprinting);
 
             if (previousVerticalVelocity <= 0f
                 && verticalVelocity > JumpVerticalVelocityThreshold)
             {
-                resolvedAnimator.SetTrigger(JumpTriggerHash);
+                resolvedAnimator.SetTrigger(CCS_CharacterAnimationParameterIds.Active.JumpTriggerHash);
             }
 
             previousVerticalVelocity = verticalVelocity;
