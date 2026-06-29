@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.4** · Crazy Carrot Studios
+**Version 0.7.5** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -10,13 +10,15 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 |--------|-----------|
 | **Framework** | Core platform (gameplay-free) |
 | **Project** | Bootstrap, composition, validation standards |
-| **CharacterController** | Movement, camera, diagnostics, hosting/netcode tooling (v0.7.4 animation rebuild architecture) |
+| **CharacterController** | Movement, camera, diagnostics, hosting/netcode tooling (v0.7.5 player prefab hierarchy architecture) |
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 | **Weapons** | Revolver M1879 world pickup, hitscan, fit profile pack (v0.6.16 reticle-aligned shots) |
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.5** — **Player prefab hierarchy architecture (Phase 3D):** documents target hierarchy, root component budgets, subsystem ownership, Netcode-safe root rules, single Model root plan, and owner-only UI separation roadmap; adds `CCS_IPlayerCompositionRoot` interface contract. No prefab hierarchy changes, no `PF_CCS_Player_Visual` changes, no animation import, no CC4 import.
 
 **0.7.4** — **Animation rebuild architecture (Phase 3C):** documents future locomotion/weapon/interaction/additive layer plan; adds `CCS_CharacterAnimationParameterIds`, `CCS_CharacterWeaponAnimationMode`, and `CCS_ICharacterAnimationPresenter`; centralizes locomotion parameter hashes. v0.7.3 locomotion-only Animator preserved. No animation import, no CC4 import, no Animator Controller rebuild.
 
