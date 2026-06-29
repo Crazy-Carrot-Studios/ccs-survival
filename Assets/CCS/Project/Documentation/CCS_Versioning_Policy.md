@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1e`
+**Current version:** `0.7.1f`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.1f`** | **Safe test-only component separation (Phase 2D)** |
 | **`0.7.1e`** | **Player prefab component audit + test-only separation readiness (Phase 2C, audit/validation only)** |
 | **`0.7.1d`** | **Testing Manager foundation + editor menu reduction (Phase 2B)** |
 | **`0.7.1c`** | **Remove Animation Fit Studio tooling (Phase 2A, editor/docs only)** |
@@ -111,6 +112,14 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1f` — Safe Test-Only Component Separation (Phase 2D)
+
+- Migrated Master Test scene from `CCS_MasterTestSceneTestingManager` wrapper to `CCS_CharacterControllerTestingManager`
+- Removed prefab-root `CCS_TestPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene-level replacements
+- Added `CCS_MasterTestPlayerOfflineBootstrapper` and `CCS_TestPlayerAttributeDebugInputRouter` on Master Test `CCS_TestingManager`
+- Test damage gated by Testing Manager `EnableTestDamage`; audit false-positive matching tightened
+- No intended gameplay behavior changes; animation import deferred
 
 ### `0.7.1e` — Player Prefab Component Audit (Phase 2C)
 

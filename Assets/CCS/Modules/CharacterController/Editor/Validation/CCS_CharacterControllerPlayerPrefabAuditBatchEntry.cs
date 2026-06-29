@@ -1,6 +1,8 @@
 using CCS.Project;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // =============================================================================
 // SCRIPT: CCS_CharacterControllerPlayerPrefabAuditBatchEntry
@@ -18,6 +20,8 @@ namespace CCS.Modules.CharacterController.Editor
     {
         public static void RunFromBatchMode()
         {
+            PrepareMasterTestSceneForAudit();
+
             PlayerPrefabAuditSummary summary =
                 CCS_CharacterControllerPlayerPrefabAuditUtility.RunAuditAndWriteReport(
                     out CCS_SurvivalValidationResult validationResult);
@@ -35,6 +39,29 @@ namespace CCS.Modules.CharacterController.Editor
                 + ". "
                 + validationResult.Message);
             EditorApplication.Exit(0);
+        }
+
+        private static void PrepareMasterTestSceneForAudit()
+        {
+            if (!System.IO.File.Exists(CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath))
+            {
+                return;
+            }
+
+            Scene scene = EditorSceneManager.OpenScene(
+                CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
+                OpenSceneMode.Single);
+            if (!scene.IsValid())
+            {
+                return;
+            }
+
+            CCS_MasterTestRecordingAmbientAudioBuilder.EnsureMasterTestWithoutGameplayAmbience(scene);
+            bool changed = CCS_CharacterControllerPhase2DMigrationUtility.ApplyPhase2DSeparation(scene);
+            if (changed)
+            {
+                EditorSceneManager.SaveScene(scene);
+            }
         }
     }
 }

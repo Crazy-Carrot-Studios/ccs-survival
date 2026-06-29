@@ -94,7 +94,6 @@ MonoBehaviour:
   aimLayerBlendInSpeed: 16
   aimLayerBlendOutSpeed: 18
   useWildWestRightHandRevolverAimPreview: 0
-  enableMasterTestForceAimDebugHotkey: 1
 --- !u!114 &5204454266406806631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1123,12 +1122,10 @@ GameObject:
   - component: {fileID: 4814031486652726485}
   - component: {fileID: 7590133174349939936}
   - component: {fileID: 882010020}
-  - component: {fileID: 882010030}
   - component: {fileID: 882010040}
   - component: {fileID: 7399152414567355896}
   - component: {fileID: 8105541452704013325}
   - component: {fileID: 476861198324256389}
-  - component: {fileID: 2952494997685088168}
   - component: {fileID: 4522364921838576145}
   - component: {fileID: 8234567890123456789}
   - component: {fileID: 4905833786765227334}
@@ -1357,6 +1354,7 @@ MonoBehaviour:
   blackGlassesMaterial: {fileID: 2100000, guid: c1d2e3f4a5b6478990abcdef12345602, type: 2}
   bodyRenderer: {fileID: 3523431684415866824}
   glassesRenderer: {fileID: 3078773120510934968}
+  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcde, type: 2}
   inputProvider: {fileID: 3066966173724100183}
   motor: {fileID: 2994450901270807121}
   controllerService: {fileID: 3984767143395715816}
@@ -1379,19 +1377,6 @@ MonoBehaviour:
   nameplateText: {fileID: 6969670387223657699}
   nameplateRoot: {fileID: 882010002}
   nameplateBillboard: {fileID: 7254407726958310912}
---- !u!114 &882010030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2240448729846996730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb10207f4d9ecbf4bbb14eda583503b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Runtime::CCS.Modules.CharacterController.Tests.CCS_TestPlayerOfflineBootstrap
-  displayProfile: {fileID: 11400000, guid: b7c3e9f12a4d5e6789012345678abcde, type: 2}
 --- !u!114 &882010040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1460,21 +1445,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   attributeContainer: {fileID: 7399152414567355896}
   healthDefinition: {fileID: 11400000, guid: b8c9d0e1f2a3456789012345678abcd0, type: 2}
---- !u!114 &2952494997685088168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2240448729846996730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3fce3288fb095840837be121c21d609, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.Attributes.Tests.Runtime::CCS.Modules.Attributes.Tests.CCS_TestPlayerAttributeDebugInput
-  attributeReplicator: {fileID: 476861198324256389}
-  damageKey: 25
-  damageAmount: 10
 --- !u!114 &4522364921838576145
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,6 +2,8 @@
     "name": "CCS.Modules.CharacterController.Tests.Runtime",
     "rootNamespace": "CCS.Modules.CharacterController.Tests",
     "references": [
+        "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.Attributes.Tests.Runtime",
         "CCS.Modules.CharacterController.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Weapons.Runtime",

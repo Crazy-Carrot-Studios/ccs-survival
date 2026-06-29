@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.1e — living module overview  
+**Version:** 0.7.1f — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, revolver upper
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.1f** | Safe test-only component separation; Master Test manager migration; two root test components moved to scene |
 
 Working systems that must remain stable unless a dedicated, batch-validated milestone approves changes:
 
@@ -104,7 +105,16 @@ Do not add new editor menus without classifying them and documenting the batch e
 
 **Central switchboard:** `Tests/Runtime/Managers/CCS_CharacterControllerTestingManager` on Master Test scene object `CCS_TestingManager`.
 
-**Compatibility:** `CCS_MasterTestSceneTestingManager` remains as a thin inherited wrapper so existing scene references stay valid. Remove the wrapper in a later milestone.
+**Compatibility:** Master Test scene uses `CCS_CharacterControllerTestingManager` directly (v0.7.1f). The `CCS_MasterTestSceneTestingManager` wrapper was removed after serialized migration.
+
+**Scene-level test replacements (v0.7.1f):**
+
+| Removed from player root | Scene replacement |
+|--------------------------|-------------------|
+| `CCS_TestPlayerOfflineBootstrap` | `CCS_MasterTestPlayerOfflineBootstrapper` on `CCS_TestingManager` |
+| `CCS_TestPlayerAttributeDebugInput` | `CCS_TestPlayerAttributeDebugInputRouter` on `CCS_TestingManager` (gated by `EnableTestDamage`) |
+
+Solo Master Test still configures offline players through `CCS_MasterTestSpawnController` plus the scene bootstrapper safety net. Hosting/network spawn does not depend on prefab-root offline bootstrap.
 
 **Default toggles (all off unless noted):**
 
@@ -161,9 +171,15 @@ Do not add new editor menus without classifying them and documenting the batch e
 2. Do **not** delete components until Master Test + Hosting batches and manual smoke test prove a replacement path.
 3. Prefer moving debug toggles to `CCS_CharacterControllerTestingManager` before moving components off the prefab.
 4. Future production-style root target (~6 MonoBehaviours + Transform + CharacterController) is documented in the audit report; **not enforced in v0.7.1e**.
-5. `CCS_MasterTestSceneTestingManager` compatibility wrapper remains until Phase 2D scene migration is validated.
+5. `CCS_MasterTestSceneTestingManager` compatibility wrapper removed in v0.7.1f after scene migration.
 
-### v0.7.1e scope guardrails
+### v0.7.1f scope (Phase 2D)
+
+- Master Test scene migrated to `CCS_CharacterControllerTestingManager` directly.
+- Removed prefab-root `CCS_TestPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene replacements validated.
+- Test damage input is gated by `EnableTestDamage` on the Testing Manager.
+- Player prefab reduction remains incremental; no big-bang rewrite.
+- Animation import remains future work.
 
 - No player prefab hierarchy rewrite.
 - No animator controller, production clip, or `PF_CCS_Player_Visual` changes.

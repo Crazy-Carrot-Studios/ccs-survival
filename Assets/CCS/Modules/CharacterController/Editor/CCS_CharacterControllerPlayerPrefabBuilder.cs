@@ -1,4 +1,5 @@
 using System.IO;
+using CCS.Modules.Attributes.Tests;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Weapons;
 using CCS.Modules.Weapons.Editor;
@@ -73,8 +74,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= RemoveCharacterControllerDebugHud(prefabRoot);
             changed |= WireNetworkNameplate(prefabRoot.transform);
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
-            changed |= EnsureOfflineBootstrap(prefabRoot);
-            changed |= WireDisplayProfile(prefabRoot);
+            changed |= StripTestOnlyRootComponents(prefabRoot);
 
             RemoveMissingScriptsRecursive(prefabRoot.transform);
 
@@ -136,34 +136,11 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
-        private static bool EnsureOfflineBootstrap(GameObject prefabRoot)
+        private static bool StripTestOnlyRootComponents(GameObject prefabRoot)
         {
-            if (prefabRoot.GetComponent<CCS_TestPlayerOfflineBootstrap>() != null)
-            {
-                return false;
-            }
-
-            prefabRoot.AddComponent<CCS_TestPlayerOfflineBootstrap>();
-            return true;
-        }
-
-        private static bool WireDisplayProfile(GameObject prefabRoot)
-        {
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
-            if (displayProfile == null)
-            {
-                return false;
-            }
-
             bool changed = false;
-            CCS_TestPlayerOfflineBootstrap bootstrap = prefabRoot.GetComponent<CCS_TestPlayerOfflineBootstrap>();
-            if (bootstrap != null)
-            {
-                SerializedObject serializedBootstrap = new SerializedObject(bootstrap);
-                changed |= SetObjectReference(serializedBootstrap, "displayProfile", displayProfile);
-            }
-
+            changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_TestPlayerAttributeDebugInput>(prefabRoot);
             return changed;
         }
 
@@ -1286,6 +1263,9 @@ namespace CCS.Modules.CharacterController.Editor
                 networkedRoot.GetComponent<CCS_CharacterCameraController>());
             changed |= SetObjectReference(serializedBehaviour, "cameraPivot", cameraPivot);
             changed |= SetObjectReference(serializedBehaviour, "cameraLookTarget", cameraLookTarget);
+            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
+                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            changed |= SetObjectReference(serializedBehaviour, "displayProfile", displayProfile);
 
             if (changed)
             {

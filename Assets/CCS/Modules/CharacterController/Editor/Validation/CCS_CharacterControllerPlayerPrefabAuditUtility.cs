@@ -98,7 +98,7 @@ namespace CCS.Modules.CharacterController.Editor
     public static class CCS_CharacterControllerPlayerPrefabAuditUtility
     {
         public const string ReportRelativePath =
-            "Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.1e.md";
+            "Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.1f.md";
 
         public const int FutureProductionRootMonoBehaviourTarget = 6;
 
@@ -183,7 +183,6 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static readonly HashSet<string> MasterTestBatchRequiredTypes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "CCS_TestPlayerOfflineBootstrap",
             "CCS_ControllerTestNetworkPlayerBehaviour",
             "CCS_ClientOwnerNetworkTransform",
             "NetworkObject",
@@ -203,7 +202,6 @@ namespace CCS.Modules.CharacterController.Editor
             "CCS_ClientOwnerNetworkTransform",
             "CCS_ControllerTestNetworkPlayerBehaviour",
             "CCS_NetworkPlayerNameplate",
-            "CCS_TestPlayerOfflineBootstrap",
             "CCS_CharacterInputActionProvider",
             "CCS_CharacterMotor",
         };
@@ -597,17 +595,53 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool HasDebugTestNaming(string typeName, string hierarchyPath, string namespaceName)
         {
-            for (int i = 0; i < TestOnlyNameTokens.Length; i++)
+            if (MatchesTestOnlyToken(typeName))
             {
-                string token = TestOnlyNameTokens[i];
-                if (typeName.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0
-                    || hierarchyPath.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+            }
+
+            if (namespaceName.IndexOf(".Tests", StringComparison.Ordinal) >= 0
+                && (typeName.IndexOf("Test", StringComparison.OrdinalIgnoreCase) >= 0
+                    || typeName.IndexOf("Debug", StringComparison.OrdinalIgnoreCase) >= 0
+                    || typeName.IndexOf("Diagnostic", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(hierarchyPath))
+            {
+                return false;
+            }
+
+            string[] segments = hierarchyPath.Split('/');
+            for (int segmentIndex = 1; segmentIndex < segments.Length; segmentIndex++)
+            {
+                if (MatchesTestOnlyToken(segments[segmentIndex]))
                 {
                     return true;
                 }
             }
 
-            return namespaceName.IndexOf(".Tests", StringComparison.Ordinal) >= 0;
+            return false;
+        }
+
+        private static bool MatchesTestOnlyToken(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < TestOnlyNameTokens.Length; i++)
+            {
+                string token = TestOnlyNameTokens[i];
+                if (value.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string InferSerializedRole(string typeName)
@@ -716,7 +750,7 @@ namespace CCS.Modules.CharacterController.Editor
             ValidatePrefabPathsExist(failures);
             ValidateNoMissingScriptsOnActivePrefabs(failures);
             ValidateNoEditorScriptsOnRuntimePrefabs(failures);
-            CCS_CharacterControllerPhase2BValidationUtility.ValidatePhase2BFoundation().AppendFailuresIfAny(failures);
+            CCS_CharacterControllerPhase2DValidationUtility.ValidatePhase2DSeparation().AppendFailuresIfAny(failures);
             ValidateNetworkManagerPlayerPrefabReference(failures);
 
             if (summary.TotalMissingScripts > 0)
@@ -877,7 +911,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("# CCS Player Prefab Component Audit — v0.7.1e");
+            builder.AppendLine("# CCS Player Prefab Component Audit — v0.7.1f");
             builder.AppendLine();
             builder.AppendLine("**Generated:** " + summary.GeneratedUtc);
             builder.AppendLine("**Validation:** " + (validationResult.IsSuccess ? "PASS" : "FAIL")
@@ -887,8 +921,8 @@ namespace CCS.Modules.CharacterController.Editor
             builder.AppendLine();
             builder.AppendLine("- Active networked test player prefab is the canonical spawn target for Master Test and Hosting.");
             builder.AppendLine("- This milestone classifies components only. No prefab hierarchy rewrite was performed.");
-            builder.AppendLine("- `CCS_MasterTestSceneTestingManager` compatibility wrapper remains for Phase 2D removal.");
-            builder.AppendLine("- Master Test scene manager migration to `CCS_CharacterControllerTestingManager` was **skipped** (Phase 2D).");
+            builder.AppendLine("- `CCS_MasterTestSceneTestingManager` compatibility wrapper removed in v0.7.1f Phase 2D.");
+            builder.AppendLine("- Master Test scene uses `CCS_CharacterControllerTestingManager` directly.");
             builder.AppendLine();
             builder.AppendLine("| Metric | Value |");
             builder.AppendLine("|--------|-------|");
@@ -1003,11 +1037,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             builder.AppendLine("## 13. Recommended Phase 2D actions");
             builder.AppendLine();
-            builder.AppendLine("1. Migrate Master Test scene from `CCS_MasterTestSceneTestingManager` to `CCS_CharacterControllerTestingManager` after Play Mode smoke test.");
-            builder.AppendLine("2. Move `CCS_TestPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` off root only after scene/bootstrap replacements exist.");
-            builder.AppendLine("3. Route remaining per-component debug booleans through `CCS_CharacterControllerTestingManager` toggles.");
-            builder.AppendLine("4. Reduce root MonoBehaviour count toward future production target (" + FutureProductionRootMonoBehaviourTarget + ") without a big-bang prefab rewrite.");
-            builder.AppendLine("5. Remove compatibility wrapper once no scene/prefab references remain.");
+            builder.AppendLine("1. Route remaining per-component debug booleans through `CCS_CharacterControllerTestingManager` toggles.");
+            builder.AppendLine("2. Reduce root MonoBehaviour count toward future production target (" + FutureProductionRootMonoBehaviourTarget + ") without a big-bang prefab rewrite.");
+            builder.AppendLine("3. Evaluate moving external module bridges off root in Phase 2E after batch + Play Mode validation.");
             builder.AppendLine();
 
             builder.AppendLine("## 14. Guardrails for future component removal");

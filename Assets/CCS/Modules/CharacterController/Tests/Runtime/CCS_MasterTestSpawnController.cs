@@ -40,6 +40,12 @@ namespace CCS.Modules.CharacterController.Tests
 
         #endregion
 
+        #region Properties
+
+        public CCS_TestPlayerDisplayProfile DisplayProfile => displayProfile;
+
+        #endregion
+
         #region Unity Callbacks
 
         private void Start()

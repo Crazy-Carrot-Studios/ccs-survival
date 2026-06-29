@@ -79,7 +79,7 @@ namespace CCS.Modules.Attributes.Editor
                 changed |= EnsureNetworkHealth(prefabRoot, healthDefinition);
                 changed |= EnsurePlayerDeathScreen(prefabRoot);
                 changed |= EnsureAttributeBarsHud(prefabRoot, healthDefinition, staminaDefinition);
-                changed |= EnsureDebugDamageInput(prefabRoot);
+                changed |= StripDebugDamageInput(prefabRoot);
                 RemoveMissingScriptsRecursive(prefabRoot.transform);
 
                 if (changed)
@@ -1002,34 +1002,17 @@ namespace CCS.Modules.Attributes.Editor
             return null;
         }
 
-        private static bool EnsureDebugDamageInput(GameObject prefabRoot)
+        private static bool StripDebugDamageInput(GameObject prefabRoot)
         {
             CCS_TestPlayerAttributeDebugInput debugInput =
                 prefabRoot.GetComponent<CCS_TestPlayerAttributeDebugInput>();
             if (debugInput == null)
             {
-                debugInput = prefabRoot.AddComponent<CCS_TestPlayerAttributeDebugInput>();
+                return false;
             }
 
-            CCS_NetworkAttributeReplicator replicator = prefabRoot.GetComponent<CCS_NetworkAttributeReplicator>();
-            SerializedObject serializedDebug = new SerializedObject(debugInput);
-            bool changed = debugInput == null;
-            changed |= SetObjectReference(serializedDebug, "attributeReplicator", replicator);
-
-            SerializedProperty damageAmountProperty = serializedDebug.FindProperty("damageAmount");
-            if (damageAmountProperty != null
-                && !Mathf.Approximately(damageAmountProperty.floatValue, CCS_AttributesTestConstants.TestDamageAmount))
-            {
-                damageAmountProperty.floatValue = CCS_AttributesTestConstants.TestDamageAmount;
-                changed = true;
-            }
-
-            if (changed)
-            {
-                serializedDebug.ApplyModifiedPropertiesWithoutUndo();
-            }
-
-            return changed;
+            Object.DestroyImmediate(debugInput, true);
+            return true;
         }
 
         private static bool SetObjectReference(

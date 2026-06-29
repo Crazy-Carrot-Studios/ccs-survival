@@ -8,7 +8,7 @@ using UnityEngine;
 // PLACEMENT: CCS_AmbientAudio on SCN_CCS_CharacterController_MasterTest.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Plays clips in order and loops. Controlled by CCS_MasterTestSceneTestingManager.
+// NOTES: Plays clips in order and loops. Controlled by CCS_CharacterControllerTestingManager.
 // =============================================================================
 
 namespace CCS.Project

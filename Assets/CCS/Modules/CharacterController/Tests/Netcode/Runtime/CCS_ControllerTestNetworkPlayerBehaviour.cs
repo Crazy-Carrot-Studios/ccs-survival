@@ -29,6 +29,7 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
         [SerializeField] private Renderer glassesRenderer;
 
         [Header("References")]
+        [SerializeField] private CCS_TestPlayerDisplayProfile displayProfile;
         [SerializeField] private CCS_CharacterInputActionProvider inputProvider;
         [SerializeField] private CCS_CharacterMotor motor;
         [SerializeField] private CCS_CharacterControllerService controllerService;
@@ -367,10 +368,10 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
             }
             else
             {
-                CCS_TestPlayerOfflineBootstrap bootstrap = GetComponent<CCS_TestPlayerOfflineBootstrap>();
-                if (bootstrap != null && bootstrap.DisplayProfile != null)
+                CCS_TestPlayerDisplayProfile profile = ResolveDisplayProfile();
+                if (profile != null)
                 {
-                    lookProfile = bootstrap.DisplayProfile.CameraProfile;
+                    lookProfile = profile.CameraProfile;
                 }
             }
 
@@ -394,17 +395,28 @@ namespace CCS.Modules.CharacterController.Tests.Netcode
 
         private void ApplyDisplayProfileLayout()
         {
-            CCS_TestPlayerOfflineBootstrap bootstrap = GetComponent<CCS_TestPlayerOfflineBootstrap>();
-            if (bootstrap == null || bootstrap.DisplayProfile == null)
+            CCS_TestPlayerDisplayProfile profile = ResolveDisplayProfile();
+            if (profile == null)
             {
                 return;
             }
 
-            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(gameObject, bootstrap.DisplayProfile);
+            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(gameObject, profile);
             if (IsOwner)
             {
-                CCS_TestPlayerDisplayProfileApplicator.ApplyGameplayProfiles(gameObject, bootstrap.DisplayProfile);
+                CCS_TestPlayerDisplayProfileApplicator.ApplyGameplayProfiles(gameObject, profile);
             }
+        }
+
+        private CCS_TestPlayerDisplayProfile ResolveDisplayProfile()
+        {
+            if (displayProfile != null)
+            {
+                return displayProfile;
+            }
+
+            CCS_TestPlayerOfflineBootstrap legacyBootstrap = GetComponent<CCS_TestPlayerOfflineBootstrap>();
+            return legacyBootstrap != null ? legacyBootstrap.DisplayProfile : null;
         }
 
         private void ApplyBodyMaterial()

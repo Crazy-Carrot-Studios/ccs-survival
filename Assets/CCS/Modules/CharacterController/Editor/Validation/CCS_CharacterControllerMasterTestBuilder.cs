@@ -201,6 +201,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             changed |= CCS_MasterTestRecordingAmbientAudioBuilder.EnsureMasterTestRecordingAmbience(scene);
+            changed |= CCS_CharacterControllerPhase2DMigrationUtility.ApplyPhase2DSeparation(scene);
 
             if (changed)
 

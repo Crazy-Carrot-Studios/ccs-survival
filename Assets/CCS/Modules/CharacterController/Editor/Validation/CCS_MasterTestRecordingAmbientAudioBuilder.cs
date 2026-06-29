@@ -351,11 +351,11 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            CCS_MasterTestSceneTestingManager testingManager =
-                testingManagerObject.GetComponent<CCS_MasterTestSceneTestingManager>();
+            CCS_CharacterControllerTestingManager testingManager =
+                testingManagerObject.GetComponent<CCS_CharacterControllerTestingManager>();
             if (testingManager == null)
             {
-                testingManager = testingManagerObject.AddComponent<CCS_MasterTestSceneTestingManager>();
+                testingManager = testingManagerObject.AddComponent<CCS_CharacterControllerTestingManager>();
                 changed = true;
             }
 

@@ -26,8 +26,11 @@ namespace CCS.Modules.CharacterController.Editor
         private const string TestingManagerPath =
             "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_CharacterControllerTestingManager.cs";
 
-        private const string CompatibilityWrapperPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs";
+        private const string OfflineBootstrapperPath =
+            "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_MasterTestPlayerOfflineBootstrapper.cs";
+
+        private const string TestDamageRouterPath =
+            "Assets/CCS/Modules/CharacterController/Tests/Runtime/Diagnostics/CCS_TestPlayerAttributeDebugInputRouter.cs";
 
         private const string EquipmentFitStudioWindowPath =
             "Assets/CCS/Modules/CharacterController/Editor/EquipmentFitStudio/CCS_EquipmentFitStudioWindow.cs";
@@ -75,8 +78,8 @@ namespace CCS.Modules.CharacterController.Editor
                 "Missing CCS_CharacterControllerTestingManager at " + TestingManagerPath);
             AppendIfMissing(
                 failures,
-                File.Exists(CompatibilityWrapperPath),
-                "Missing compatibility wrapper at " + CompatibilityWrapperPath);
+                !File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs"),
+                "CCS_MasterTestSceneTestingManager compatibility wrapper must be removed after Phase 2D migration.");
 
             if (!File.Exists(TestingManagerPath))
             {
@@ -95,15 +98,6 @@ namespace CCS.Modules.CharacterController.Editor
                         && source.Contains("SetVisualDebugHelpersEnabled")
                         && source.Contains("WriteOneShotReport"),
                     "CCS_CharacterControllerTestingManager must expose central debug toggle API.");
-
-            if (File.Exists(CompatibilityWrapperPath))
-            {
-                string wrapperSource = File.ReadAllText(CompatibilityWrapperPath);
-                AppendIfMissing(
-                    failures,
-                    wrapperSource.Contains(": CCS_CharacterControllerTestingManager"),
-                    "CCS_MasterTestSceneTestingManager must inherit CCS_CharacterControllerTestingManager.");
-            }
         }
 
         private static void ValidateRuntimeOnGuiPolicy(List<string> failures)

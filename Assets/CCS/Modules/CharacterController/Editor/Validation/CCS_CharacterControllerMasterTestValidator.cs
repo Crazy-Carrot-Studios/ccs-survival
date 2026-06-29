@@ -4,6 +4,7 @@ using System.Globalization;
 
 using System.IO;
 
+using CCS.Modules.Attributes.Tests;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Tests;
 using CCS.Modules.CharacterController.Tests.Netcode;
@@ -126,7 +127,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
-                CCS_CharacterControllerPhase2CValidationUtility.ValidatePhase2CAuditFoundation());
+                CCS_CharacterControllerPhase2DValidationUtility.ValidatePhase2DSeparation());
 
             ValidateJoinNotificationFeed(failures);
 
@@ -1788,7 +1789,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidateNetworkPlayerUsesSharedYellowVisuals(failures);
             ValidateNetworkPlayerMovementAuthority(failures);
-            ValidateOfflineBootstrapOnNetworkedPrefab(failures);
+            ValidateTestOnlyRootComponentsRemovedFromNetworkedPrefab(failures);
             ValidateTestPlayerDisplayProfileAsset(failures);
             ValidateNetworkedPrefabDisplayProfileAssignment(failures);
             ValidatePlayerJumpConfiguration(failures);
@@ -1915,15 +1916,20 @@ namespace CCS.Modules.CharacterController.Editor
             return false;
         }
 
-        private static void ValidateOfflineBootstrapOnNetworkedPrefab(List<string> failures)
+        private static void ValidateTestOnlyRootComponentsRemovedFromNetworkedPrefab(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
             AppendIfMissing(
                 failures,
                 networkedPrefab != null
-                && networkedPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() != null,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CCS_TestPlayerOfflineBootstrap for solo compatibility.");
+                && networkedPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() == null,
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerOfflineBootstrap after Phase 2D separation.");
+            AppendIfMissing(
+                failures,
+                networkedPrefab != null
+                && networkedPrefab.GetComponent<CCS_TestPlayerAttributeDebugInput>() == null,
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerAttributeDebugInput after Phase 2D separation.");
         }
 
         private static void ValidateTestPlayerDisplayProfileAsset(List<string> failures)
@@ -1959,21 +1965,27 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_TestPlayerOfflineBootstrap bootstrap = networkedPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>();
-            if (bootstrap == null)
+            CCS_ControllerTestNetworkPlayerBehaviour networkBehaviour =
+                networkedPrefab.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+            AppendIfMissing(
+                failures,
+                networkBehaviour != null,
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CCS_ControllerTestNetworkPlayerBehaviour.");
+
+            if (networkBehaviour == null)
             {
                 return;
             }
 
             CCS_TestPlayerDisplayProfile expectedProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
                 CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
-            SerializedObject serializedBootstrap = new SerializedObject(bootstrap);
-            SerializedProperty displayProfileProperty = serializedBootstrap.FindProperty("displayProfile");
+            SerializedObject serializedBehaviour = new SerializedObject(networkBehaviour);
+            SerializedProperty displayProfileProperty = serializedBehaviour.FindProperty("displayProfile");
             AppendIfMissing(
                 failures,
                 displayProfileProperty != null
                 && displayProfileProperty.objectReferenceValue == expectedProfile,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must assign CCS_TestPlayerDisplayProfile_Default on CCS_TestPlayerOfflineBootstrap.");
+                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must assign CCS_TestPlayerDisplayProfile_Default on CCS_ControllerTestNetworkPlayerBehaviour.");
 
             Transform followAnchor = FindChildByName(networkedPrefab.transform, "CameraFollowAnchor");
             AppendIfMissing(

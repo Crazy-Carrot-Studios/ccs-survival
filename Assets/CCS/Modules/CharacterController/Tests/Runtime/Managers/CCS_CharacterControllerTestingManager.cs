@@ -293,6 +293,16 @@ namespace CCS.Modules.CharacterController.Tests
             {
                 gameObject.AddComponent<CCS_CharacterCameraDebugReporter>();
             }
+
+            if (GetComponent<CCS_MasterTestPlayerOfflineBootstrapper>() == null)
+            {
+                gameObject.AddComponent<CCS_MasterTestPlayerOfflineBootstrapper>();
+            }
+
+            if (GetComponent<CCS_TestPlayerAttributeDebugInputRouter>() == null)
+            {
+                gameObject.AddComponent<CCS_TestPlayerAttributeDebugInputRouter>();
+            }
         }
 
         private void ApplyRecordingAmbienceSettings()

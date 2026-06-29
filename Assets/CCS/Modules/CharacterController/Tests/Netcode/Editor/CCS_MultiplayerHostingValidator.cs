@@ -294,8 +294,8 @@ namespace CCS.Modules.CharacterController.Tests.Netcode.Editor
             AppendIfMissing(
                 failures,
                 registeredPlayerPrefab != null
-                && registeredPlayerPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() != null,
-                $"{CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath} must contain CCS_TestPlayerOfflineBootstrap.");
+                && registeredPlayerPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() == null,
+                $"{CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerOfflineBootstrap after Phase 2D separation.");
 
             if (registeredPlayerPrefab != null)
             {
