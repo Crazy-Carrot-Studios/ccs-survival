@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1f`
+**Current version:** `0.7.2`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.2`** | **Productionize Character Controller architecture (Phase 3A):** removes `CharacterController/Tests/`; production player prefab path; validation scene under `Scenes/Validation/`; `Prototyping/` blockout assets; Diagnostics Manager naming. No Animator reset. |
 | **`0.7.1f`** | **Safe test-only component separation (Phase 2D)** |
 | **`0.7.1e`** | **Player prefab component audit + test-only separation readiness (Phase 2C, audit/validation only)** |
 | **`0.7.1d`** | **Testing Manager foundation + editor menu reduction (Phase 2B)** |
@@ -115,10 +116,10 @@ Do not tag `v1.0.0` until all of the following are true:
 
 ### `0.7.1f` — Safe Test-Only Component Separation (Phase 2D)
 
-- Migrated Master Test scene from `CCS_MasterTestSceneTestingManager` wrapper to `CCS_CharacterControllerTestingManager`
-- Removed prefab-root `CCS_TestPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene-level replacements
-- Added `CCS_MasterTestPlayerOfflineBootstrapper` and `CCS_TestPlayerAttributeDebugInputRouter` on Master Test `CCS_TestingManager`
-- Test damage gated by Testing Manager `EnableTestDamage`; audit false-positive matching tightened
+- Migrated Master Test scene from `CCS_CharacterControllerDiagnosticsManager` wrapper to `CCS_CharacterControllerDiagnosticsManager`
+- Removed prefab-root `CCS_LocalPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene-level replacements
+- Added `CCS_LocalPlayerOfflineBootstrapper` and `CCS_PlayerDiagnosticsInputRouter` on Master Test `CCS_DiagnosticsManager`
+- Test damage gated by Testing Manager `EnableDamageDiagnostics`; audit false-positive matching tightened
 - No intended gameplay behavior changes; animation import deferred
 
 ### `0.7.1e` — Player Prefab Component Audit (Phase 2C)
@@ -126,12 +127,12 @@ Do not tag `v1.0.0` until all of the following are true:
 - Added `CCS_CharacterControllerPlayerPrefabAuditUtility` and batch entry to inventory/classify player prefab components
 - Documented classification categories, future root component budget, and Phase 2D separation actions in module docs
 - Extended Master Test validation with Phase 2C audit checks; no prefab hierarchy rewrite
-- `CCS_MasterTestSceneTestingManager` compatibility wrapper retained; scene migration deferred to Phase 2D
+- `CCS_CharacterControllerDiagnosticsManager` compatibility wrapper retained; scene migration deferred to Phase 2D
 - Audit/validation milestone only — no gameplay behavior changes
 
 ### `0.7.1d` — Testing Manager and Editor Menu Reduction (Phase 2B)
 
-- Added `CCS_CharacterControllerTestingManager` as central Master Test debug switchboard
+- Added `CCS_CharacterControllerDiagnosticsManager` as central Master Test debug switchboard
 - Removed runtime OnGUI overlays from production animation/camera scripts; moved diagnostics to Tests-only reporters
 - Removed obsolete editor menu wrappers (Master Test setup, hosting setup, camera presets); batch entries remain
 - No gameplay behavior changes; player prefab cleanup deferred

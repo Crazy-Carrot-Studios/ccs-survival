@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_RevolverFireFeedback
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Cosmetic revolver fire visuals — tracer, muzzle flash, smoke; reload shell extraction.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked (MuzzlePoint or root).
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked (MuzzlePoint or root).
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Uses HitscanResult.RayOrigin toward hit/aim point. Revolvers do not eject shells per shot.

@@ -43,7 +43,7 @@ To avoid circular dependencies between Weapons and AI:
 
 ## Netcode Registration
 
-`Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetcodeTestConstants.cs` includes:
+`Assets/CCS/Modules/CharacterController/Runtime/Netcode/CCS_NetcodeConstants.cs` includes:
 
 - `Assets/CCS/Modules/AI/Content/Prefabs/PF_CCS_AI_Bandit_Networked.prefab`
 

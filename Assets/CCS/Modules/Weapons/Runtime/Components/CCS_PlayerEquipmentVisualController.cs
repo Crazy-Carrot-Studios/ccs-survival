@@ -7,7 +7,7 @@ using UnityEngine;
 // SCRIPT: CCS_PlayerEquipmentVisualController
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Runtime visual bridge — shows holstered/equipped revolver from saved fit profiles.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.8 profile-driven visuals only. Gameplay muzzle/hitscan unchanged.

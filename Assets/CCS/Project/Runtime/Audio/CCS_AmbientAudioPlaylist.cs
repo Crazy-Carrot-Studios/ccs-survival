@@ -5,10 +5,10 @@ using UnityEngine;
 // SCRIPT: CCS_AmbientAudioPlaylist
 // CATEGORY: Project / Runtime / Audio
 // PURPOSE: Sequential 2D ambience playlist with fade in/out for recording scenes.
-// PLACEMENT: CCS_AmbientAudio on SCN_CCS_CharacterController_MasterTest.
+// PLACEMENT: CCS_AmbientAudio on SCN_CCS_CharacterController_Validation.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Plays clips in order and loops. Controlled by CCS_CharacterControllerTestingManager.
+// NOTES: Plays clips in order and loops. Controlled by CCS_CharacterControllerDiagnosticsManager.
 // =============================================================================
 
 namespace CCS.Project

@@ -50,7 +50,7 @@ namespace CCS.Project.Editor
         private static readonly string[] RequiredScenes =
         {
             "Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity",
-            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity",
+            "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity",
         };
 
         public static CCS_SurvivalValidationResult RunProjectAudit(bool includeModuleValidators)

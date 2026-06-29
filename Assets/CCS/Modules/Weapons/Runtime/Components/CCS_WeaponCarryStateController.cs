@@ -7,7 +7,7 @@ using UnityEngine;
 // SCRIPT: CCS_WeaponCarryStateController
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Owns weapon carry state for locomotion, visuals, and local firearm aim camera routing.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-23
 // NOTES: Local owner drives state. NetworkVariable replicates carry state for remote visuals.

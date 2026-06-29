@@ -10,8 +10,7 @@ using UnityEngine;
 // NOTES: Skips networked objects; netcode test layer logs those with ownership context.
 // =============================================================================
 
-namespace CCS.Modules.CharacterController
-{
+namespace CCS.Modules.CharacterController.Diagnostics {
     public static class CCS_CharacterJumpAuditHookRegistrar
     {
         private const string NetworkObjectTypeName = "Unity.Netcode.NetworkObject";

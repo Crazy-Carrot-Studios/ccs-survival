@@ -6,7 +6,7 @@ using UnityEngine;
 // SCRIPT: CCS_InteractionPromptPresenter
 // CATEGORY: Modules / Interaction / Runtime / UI
 // PURPOSE: Presents the local-owner interaction prompt when pickup is ready.
-// PLACEMENT: InteractionPromptHudRoot on PF_CCS_CharacterController_TestPlayer_Networked.
+// PLACEMENT: InteractionPromptHudRoot on PF_CCS_CharacterController_Player_Networked.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Hidden by default. Shows CurrentPromptText only when pickup is ready.

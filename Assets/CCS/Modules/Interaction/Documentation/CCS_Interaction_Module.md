@@ -78,11 +78,11 @@ Assets/CCS/Modules/Interaction/
 | `CCS_TestDetectionCube` | Near spawn | Pickup |
 | Building door interactable | Test building (~30, 30) | WalkThroughDoor |
 
-Scene: `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity`
+Scene: `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity`
 
 ## Test player integration
 
-Canonical prefab: `Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+Canonical prefab: `Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab`
 
 Wired by `CCS_InteractionTestPlayerPrefabBuilder`:
 

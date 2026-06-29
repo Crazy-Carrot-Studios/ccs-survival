@@ -45,6 +45,14 @@ MonoBehaviour:
   collisionDampingInto: 0.08
   collisionDampingFrom: 0.35
   validationDisableObstacleAvoidanceForBaselinePass: 1
-  aimBlendDurationSeconds: 0.5
+  aimBlendDurationSeconds: 0.45
   fieldOfView: 62
   aimLookSensitivityMultiplier: 0.85
+  firstPersonForwardEyeOffset: 0.22
+  firstPersonVerticalEyeOffset: 0.05
+  nearClipPlane: 0.03
+  useHeadTrackedAnchor: 1
+  headTrackedLocalOffset: {x: 0, y: 0.04, z: 0.18}
+  headTrackingPositionLerpSpeed: 30
+  inheritHeadBoneRotation: 0
+  fixedFirstPersonAimAnchorLocalOffset: {x: 0, y: 0.28, z: 0.36}

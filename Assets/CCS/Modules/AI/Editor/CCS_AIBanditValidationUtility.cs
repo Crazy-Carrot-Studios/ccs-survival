@@ -90,14 +90,14 @@ namespace CCS.Modules.AI.Editor
                 "Missing PF_CCS_AI_Bandit_Networked prefab.");
 
             string netcodeConstantsPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetcodeTestConstants.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/Netcode/CCS_NetcodeConstants.cs";
             bool netcodePathRegistered = File.Exists(netcodeConstantsPath)
                 && File.ReadAllText(netcodeConstantsPath).Contains(CCS_AIConstants.AIBanditPrefabPath);
 
             AppendIfMissing(
                 failures,
                 netcodePathRegistered,
-                "AI bandit prefab must be registered in CCS_NetcodeTestConstants.RequiredNetworkPrefabPaths.");
+                "AI bandit prefab must be registered in CCS_NetcodeConstants.RequiredNetworkPrefabPaths.");
 
             failures.AddRange(ValidateV071PolishPrefabAndScenes());
 
@@ -1008,7 +1008,7 @@ namespace CCS.Modules.AI.Editor
             }
 
             Scene scene = EditorSceneManager.OpenScene(
-                "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity",
+                "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity",
                 OpenSceneMode.Single);
             if (!scene.IsValid())
             {
@@ -1192,7 +1192,7 @@ namespace CCS.Modules.AI.Editor
         private static void ValidateMasterTestNavigationScene(List<string> failures)
         {
             Scene scene = EditorSceneManager.OpenScene(
-                "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity",
+                "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity",
                 OpenSceneMode.Additive);
             if (!scene.IsValid())
             {
@@ -1325,7 +1325,7 @@ namespace CCS.Modules.AI.Editor
 
         private static void ValidateMasterTestHasNoAmbientAudio(List<string> failures)
         {
-            string scenePath = "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
+            string scenePath = "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity";
             if (!File.Exists(scenePath))
             {
                 return;

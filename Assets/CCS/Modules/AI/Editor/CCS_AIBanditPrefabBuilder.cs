@@ -85,12 +85,12 @@ namespace CCS.Modules.AI.Editor
             bool changed = false;
             changed |= DestroyIfPresent<CCS_CharacterInputActionProvider>(prefabRoot);
             changed |= DestroyIfPresent<CCS_RevolverHudPresenter>(prefabRoot);
-            changed |= DestroyByTypeName(prefabRoot, "CCS_ControllerTestNetworkPlayerBehaviour");
+            changed |= DestroyByTypeName(prefabRoot, "CCS_NetworkPlayerController");
             changed |= DestroyByTypeName(prefabRoot, "CCS_NetworkPlayerNameplate");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerNameplateBillboard");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerAttributeBarsHud");
             changed |= DestroyByTypeName(prefabRoot, "CCS_TestPlayerAttributeDebugInput");
-            changed |= DestroyByTypeName(prefabRoot, "CCS_TestPlayerOfflineBootstrap");
+            changed |= DestroyByTypeName(prefabRoot, "CCS_LocalPlayerOfflineBootstrap");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerLocomotionAnimator");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerInteractionAnimator");
             changed |= DestroyByTypeName(prefabRoot, "CCS_PlayerWeaponLoadout");

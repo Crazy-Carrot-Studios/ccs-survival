@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_PlayerLocomotionAnimator
 // CATEGORY: Modules / CharacterController / Runtime / Visuals
 // PURPOSE: Drives CC4 locomotion Animator parameters from CCS_CharacterMotor state.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Visual-only bridge. Starter Assets locomotion + jump. No root motion.

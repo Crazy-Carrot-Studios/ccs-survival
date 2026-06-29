@@ -6,7 +6,7 @@ using UnityEngine;
 // SCRIPT: CCS_PlayerWeaponLoadout
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Owns revolver pickup ownership until Inventory/Equipment module exists.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.5 world-pickup-only scope. Holster/equipped visuals deferred.

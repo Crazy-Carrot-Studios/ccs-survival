@@ -25,9 +25,7 @@ namespace CCS.Modules.Weapons.Editor
             changed |= CCS_WeaponsAssetBuilder.EnsureWeaponsAssets();
             changed |= CCS_WeaponsTestPlayerPrefabBuilder.EnsureTestPlayerWeaponWiring();
 
-            Scene scene = EditorSceneManager.OpenScene(
-                CCS_WeaponsConstants.MasterTestScenePath,
-                OpenSceneMode.Single);
+            Scene scene = EnsureMasterTestSceneLoaded();
             if (!scene.IsValid())
             {
                 Debug.LogError(
@@ -52,6 +50,19 @@ namespace CCS.Modules.Weapons.Editor
         #endregion
 
         #region Private Methods
+
+        private static Scene EnsureMasterTestSceneLoaded()
+        {
+            string scenePath = CCS_WeaponsConstants.MasterTestScenePath;
+            Scene scene = SceneManager.GetSceneByPath(scenePath);
+            if (scene.IsValid() && scene.isLoaded)
+            {
+                EditorSceneManager.SetActiveScene(scene);
+                return scene;
+            }
+
+            return EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+        }
 
         private static bool EnsureDamageTargetInScene()
         {

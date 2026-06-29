@@ -24,7 +24,7 @@ namespace CCS.Modules.AI
             ModuleRootPath + "/Content/Prefabs/PF_CCS_AI_Bandit_Networked.prefab";
 
         public const string SourceNetworkedPlayerPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";
 
         public const string AIBanditPrefabName = "PF_CCS_AI_Bandit_Networked";
 

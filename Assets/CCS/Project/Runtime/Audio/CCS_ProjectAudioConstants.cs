@@ -25,7 +25,7 @@ namespace CCS.Project
 
         public const string MasterTestAmbientAudioObjectName = "CCS_AmbientAudio";
 
-        public const string MasterTestTestingManagerObjectName = "CCS_TestingManager";
+        public const string MasterTestTestingManagerObjectName = "CCS_DiagnosticsManager";
 
         public const float MasterTestRecordingPlaylistDefaultVolume = 0.10f;
 

@@ -50,9 +50,9 @@ The Character Controller module now centers on **two test scenes** with **focuse
 | `Assets/CCS/Modules/Attributes/` | Health attributes and test HUD |
 | `Assets/CCS/Modules/Interaction/` | Pickup/door interaction, prompt, scanner |
 | `Tests/Netcode/` | Local multiplayer test harness (Netcode for GameObjects) |
-| `SCN_CCS_CharacterController_MasterTest` | Primary traversal / controller test scene |
+| `SCN_CCS_CharacterController_Validation` | Primary traversal / controller test scene |
 | `SCN_CCS_MultiplayerHosting` | Host/join UI and NetworkManager scene |
-| `Assets/DefaultNetworkPrefabs.asset` | Netcode default list (kept **empty**; test prefabs register via `CCS_TestNetworkPrefabsList`) |
+| `Assets/DefaultNetworkPrefabs.asset` | Netcode default list (kept **empty**; test prefabs register via `CCS_NetworkPrefabsList`) |
 
 **Policy going forward:** Do not recreate unused module folders ahead of implementation. Test scenes are source of truth; editor tooling verifies/repairs hierarchy and reports problems — it does not regenerate scenes.
 
@@ -105,7 +105,7 @@ flowchart TD
     Attr["Modules/Attributes\nCCS.Modules.Attributes.*"]
     IX["Modules/Interaction\nCCS.Modules.Interaction.*"]
     CC["Modules/CharacterController\nCCS.Modules.CharacterController.*"]
-    Netcode["Tests/Netcode\nCCS.Modules.CharacterController.Tests.Netcode.*"]
+    Netcode["Tests/Netcode\nCCS.Modules.CharacterController.Netcode.*"]
 
     Attr --> Project
     Attr --> Core
@@ -214,7 +214,7 @@ Assets/CCS/Modules/<Feature>/
 
 **Canonical assets:**
 - `Tests/Profiles/CCS_AttributeDefinition_Health.asset`
-- Test player wiring on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+- Networked player wiring on `CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab`
 
 **Doc:** [CCS_Attributes_Module.md](Modules/Attributes/Documentation/CCS_Attributes_Module.md)
 
@@ -233,7 +233,7 @@ Assets/CCS/Modules/<Feature>/
 - `Tests/Profiles/CCS_InteractionScannerProfile_Default.asset`
 - `Tests/Prefabs/PF_CCS_TestInteractable_PickupItem.prefab`
 - Master Test scene objects: `CCS_TestDetectionCube`, building door interactable
-- Test player scanner on `CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+- Networked player scanner on `CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab`
 
 **Doc:** [CCS_Interaction_Module.md](Modules/Interaction/Documentation/CCS_Interaction_Module.md)
 
@@ -243,9 +243,9 @@ Assets/CCS/Modules/<Feature>/
 
 **Assemblies:**
 - `CCS.Modules.CharacterController.Runtime` / `.Editor`
-- `CCS.Modules.CharacterController.Tests.Netcode.Runtime` / `.Editor`
+- `CCS.Modules.CharacterController.Netcode.Runtime` / `.Editor`
 
-**Namespace:** `CCS.Modules.CharacterController` (netcode test types under `CCS.Modules.CharacterController.Tests.Netcode`)
+**Namespace:** `CCS.Modules.CharacterController` (netcode test types under `CCS.Modules.CharacterController.Netcode`)
 
 #### Runtime/
 
@@ -279,7 +279,7 @@ Hosting and netcode asset wiring. Assigns **project prefab assets only**.
 
 | Script | Purpose |
 |--------|---------|
-| `CCS_CharacterControllerTestHarnessMenus.cs` | Setup + validate menu registration |
+| `CCS_CharacterControllerHostingMenus.cs` | Setup + validate menu registration |
 | `CCS_NetcodeNetworkPrefabSetupUtility.cs` | Clears/rebuilds NetworkManager + prefab list assets |
 | `CCS_MultiplayerHostingBuilder.cs` | Hosting scene hierarchy verify/repair |
 | `CCS_MultiplayerHostingValidator.cs` | Report-only hosting + prefab validation |
@@ -296,12 +296,12 @@ Hosting and netcode asset wiring. Assigns **project prefab assets only**.
 | Script | Purpose |
 |--------|---------|
 | `CCS_MultiplayerHostingMenu.cs` | Host/join UI; validates config before StartHost/StartClient |
-| `CCS_LocalMultiplayerTestLauncher.cs` | Connection approval, offline actor disable, spawn placement |
-| `CCS_ControllerTestNetworkPlayerBehaviour.cs` | Owner/remote visuals, camera rig wiring |
+| `CCS_LocalMultiplayerLauncher.cs` | Connection approval, offline actor disable, spawn placement |
+| `CCS_NetworkPlayerController.cs` | Owner/remote visuals, camera rig wiring |
 | `CCS_NetworkPlayerNameplate.cs` | NetworkVariable display name |
-| `CCS_MultiplayerTestSpawnUtility.cs` | Dedicated spawn points in master test scene |
+| `CCS_MultiplayerSpawnUtility.cs` | Dedicated spawn points in master test scene |
 | `CCS_NetcodeNetworkConfigValidationUtility.cs` | Runtime prefab reference guard |
-| `CCS_NetcodeTestConstants.cs` | Shared paths and test constants |
+| `CCS_NetcodeConstants.cs` | Shared paths and test constants |
 
 #### Content/Input/
 
@@ -316,21 +316,21 @@ Hosting and netcode asset wiring. Assigns **project prefab assets only**.
 | `Movement/CCS_CharacterMovementProfile_Default.asset` | Default movement tuning |
 | `Camera/CCS_CharacterCameraProfile_ThirdPersonSurvival.asset` | Third-person camera profile |
 | `Camera/CCS_DefaultCharacterCameraProfileSet.asset` | Active camera profile set |
-| `TestPlayer/CCS_TestPlayerDisplayProfile_Default.asset` | Test player visual layout + profile references |
+| `TestPlayer/CCS_PlayerDisplayProfile_Default.asset` | Test player visual layout + profile references |
 
 #### Prefabs/
 
 | Path | Asset | Purpose |
 |------|-------|---------|
-| `Player/` | `PF_CCS_CharacterController_TestNPC.prefab` | Offline NPC route runner |
+| `Player/` | `PF_CCS_CharacterController_ValidationNpc.prefab` | Offline NPC route runner |
 | `Camera/` | `PF_CCS_CharacterCameraRig.prefab` | Scene camera rig for master test |
 | `Environment/` | `PF_CCS_TestGround_OneMeterGrid.prefab` | 200m × 200m grid ground |
 | `Environment/` | `PF_CCS_TestBuilding_RoofPlatform.prefab` | 8m × 10m building with roof at Y=3 |
 | `Environment/` | `PF_CCS_TestStairs_RoofAccess.prefab` | Rear stairs (12 steps) |
 | `Environment/` | `PF_CCS_TestRamp_RoofAccess.prefab` | Front ramp (3m rise / 6m run) |
 | `Environment/` | `PF_CCS_TestDoor_Single.prefab` | Door prop (nested in building) |
-| `Network/` | `PF_CCS_TestNetworkManager.prefab` | NetworkManager + transport + launcher |
-| `Network/` | `CCS_TestNetworkPrefabsList.asset` | One entry: networked player prefab |
+| `Network/` | `PF_CCS_NetworkManager.prefab` | NetworkManager + transport + launcher |
+| `Network/` | `CCS_NetworkPrefabsList.asset` | One entry: networked player prefab |
 
 #### Materials/
 
@@ -346,9 +346,9 @@ Hosting and netcode asset wiring. Assigns **project prefab assets only**.
 | Path | Scene | Purpose |
 |------|-------|---------|
 | `Assets/CCS/Scenes/Bootstrap/` | `SCN_CCS_Survival_Bootstrap.unity` | Project bootstrap entry |
-| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_MasterTest.unity` | **Primary** controller + traversal test scene |
+| `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_Validation.unity` | **Primary** controller + traversal test scene |
 | `Assets/CCS/Scenes/CharacterController/` | `SCN_CCS_CharacterController_Test.unity` | Legacy ground-only preview scene |
-| `Assets/CCS/Scenes/Network/` | `SCN_CCS_MultiplayerHosting.unity` | Host/join UI; contains `PF_CCS_TestNetworkManager` instance |
+| `Assets/CCS/Scenes/Network/` | `SCN_CCS_MultiplayerHosting.unity` | Host/join UI; contains `PF_CCS_NetworkManager` instance |
 
 **Master test scene layout (source of truth):**
 
@@ -365,9 +365,9 @@ TestPoints/
 ├── TP_Spawn_Host / TP_Spawn_Client_01 / TP_Spawn_Client_02
 ├── Traversal markers (stairs, roof, ramp, door, cover, loop complete)
 
-Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked
+Prefabs/Player/PF_CCS_CharacterController_Player_Networked
 PF_CCS_CharacterCameraRig
-PF_CCS_CharacterController_TestNPC
+PF_CCS_CharacterController_ValidationNpc
 Directional Light
 ```
 
@@ -379,7 +379,7 @@ Test **scripts** only — scenes and prefabs live under `Assets/CCS/Scenes/` and
 
 | Path | Purpose |
 |------|---------|
-| `Tests/Prefabs/` | Canonical network-capable test player prefab |
+| `Prefabs/Player/` | Canonical network-capable player prefab |
 | `Tests/Runtime/` | Solo spawn, offline bootstrap, session events, join feed UI |
 | `Tests/Editor/` | Offline test editor helpers |
 | `Tests/Netcode/Runtime/` | Hosting menu, netcode player behaviour |
@@ -414,8 +414,8 @@ Project-wide scenes live under **`Assets/CCS/Scenes/`** (not under `Project/`):
 | Scene | Path |
 |-------|------|
 | Bootstrap entry | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
-| Master Test (primary) | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
-| Legacy ground preview | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity` |
+| Master Test (primary) | `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
+| Legacy ground preview | `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
 | Multiplayer hosting | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` |
 
 ### Runtime/ — `CCS.Project.Runtime.asmdef`
@@ -508,7 +508,7 @@ Repo-level direction docs. Active architecture lives in `Assets/CCS/Project/Docu
 | `CCS.Modules.Interaction.Runtime` | Core, Project | CharacterController, Attributes |
 | `CCS.Modules.Attributes.Runtime` | Core, Project | Other gameplay modules |
 | `CCS.Modules.CharacterController.Runtime` | Core, Project, **Attributes.Runtime**, **Interaction.Runtime** | Unrelated module internals |
-| `CCS.Modules.CharacterController.Tests.Netcode.Runtime` | Core, Project, CharacterController.Runtime, Netcode | Production lobby/account services |
+| `CCS.Modules.CharacterController.Netcode.Runtime` | Core, Project, CharacterController.Runtime, Netcode | Production lobby/account services |
 
 **Intentional exception:** CharacterController.Runtime references Interaction and Attributes for the **canonical test player** (scanner, motor lock, health HUD). Interaction remains independent at runtime. Consider a bridge assembly if this coupling expands.
 
@@ -529,11 +529,11 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 | Task | Path |
 |------|------|
 | Develop from bootstrap | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
-| Open master controller test | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
+| Open master controller test | `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
 | Open multiplayer hosting | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` |
-| Canonical test player | `Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab` |
-| Network manager prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Network/PF_CCS_TestNetworkManager.prefab` |
-| Test ground prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab` |
+| Canonical test player | `Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab` |
+| Network manager prefab | `Assets/CCS/Modules/CharacterController/Prefabs/Network/PF_CCS_NetworkManager.prefab` |
+| Test ground prefab | `Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab` |
 | Setup + validate master test | Menu: `CCS/Character Controller/Scene/Setup And Validate Master Test Scene` |
 | Validate interaction module | Menu: `CCS/Interaction/Validate Interaction Module` |
 | Validate attributes module | Menu: `CCS/Attributes/Validate Attributes Module` |
@@ -565,4 +565,4 @@ Centralized validation: `CCS_SurvivalIdentityUtility` in Project.
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup/door flow, prompt, forward volume, LOS |
 
-Legacy preview scene: `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity` (ground-only; Master Test is source of truth).
+Legacy preview scene: `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` (ground-only; Master Test is source of truth).

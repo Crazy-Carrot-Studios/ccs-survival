@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_CharacterControllerService
 // CATEGORY: Modules / CharacterController / Runtime / Services
 // PURPOSE: Owns character controller state and exposes read-only snapshots.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: No inventory, interaction, stats, equipment, save, or combat dependencies.

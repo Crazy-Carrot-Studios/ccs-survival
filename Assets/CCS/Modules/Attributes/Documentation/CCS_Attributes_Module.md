@@ -91,7 +91,7 @@ When `NetworkManager` is not listening:
 
 Canonical prefab:
 
-`Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+`Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab`
 
 Wired by `CCS_AttributesTestPlayerPrefabBuilder`:
 

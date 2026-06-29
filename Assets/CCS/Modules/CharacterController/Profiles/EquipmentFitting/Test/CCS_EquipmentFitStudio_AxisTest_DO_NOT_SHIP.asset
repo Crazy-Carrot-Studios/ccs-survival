@@ -19,4 +19,5 @@ MonoBehaviour:
   socketLocalPosition: {x: 0, y: 0, z: 0}
   socketLocalEulerAngles: {x: 0, y: 0, z: 0}
   socketLocalScale: {x: 1, y: 1, z: 1}
-  notes: Editor-only axis test profile for Fit Studio validation. Do not ship or use in production.
+  notes: Editor-only axis test profile for Fit Studio validation. Do not ship or
+    use in production.

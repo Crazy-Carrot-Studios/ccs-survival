@@ -17,7 +17,7 @@ using UnityEngine.UI;
 
 // PURPOSE: Test-only HUD text for revolver ammo, aim state, and reload status.
 
-// PLACEMENT: WeaponHudRoot on PF_CCS_CharacterController_TestPlayer_Networked.
+// PLACEMENT: WeaponHudRoot on PF_CCS_CharacterController_Player_Networked.
 
 // AUTHOR: James Schilz
 

@@ -1,6 +1,7 @@
 using System.IO;
 using CCS.Modules.Attributes.Tests;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -21,7 +22,11 @@ namespace CCS.Modules.CharacterController.Editor
 {
     public static class CCS_CharacterControllerPhase2DMigrationUtility
     {
-        private const string LegacyTestingManagerTypeName = "CCS_MasterTestSceneTestingManager";
+        private static readonly string[] LegacyTestingManagerTypeNames =
+        {
+            "CCS_MasterTestSceneTestingManager",
+            "CCS_CharacterControllerTestingManager",
+        };
 
         public static bool ApplyPhase2DSeparation(Scene masterTestScene)
         {
@@ -56,11 +61,11 @@ namespace CCS.Modules.CharacterController.Editor
             MonoBehaviour legacyWrapper = FindLegacyTestingManagerWrapper(testingManagerObject);
             if (legacyWrapper != null)
             {
-                CCS_CharacterControllerTestingManager manager =
-                    testingManagerObject.GetComponent<CCS_CharacterControllerTestingManager>();
+                CCS_CharacterControllerDiagnosticsManager manager =
+                    testingManagerObject.GetComponent<CCS_CharacterControllerDiagnosticsManager>();
                 if (manager == null)
                 {
-                    manager = testingManagerObject.AddComponent<CCS_CharacterControllerTestingManager>();
+                    manager = testingManagerObject.AddComponent<CCS_CharacterControllerDiagnosticsManager>();
                 }
 
                 EditorUtility.CopySerialized(legacyWrapper, manager);
@@ -89,22 +94,22 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
-            if (testingManagerObject.GetComponent<CCS_MasterTestPlayerOfflineBootstrapper>() == null)
+            if (testingManagerObject.GetComponent<CCS_LocalPlayerOfflineBootstrapper>() == null)
             {
-                testingManagerObject.AddComponent<CCS_MasterTestPlayerOfflineBootstrapper>();
+                testingManagerObject.AddComponent<CCS_LocalPlayerOfflineBootstrapper>();
                 changed = true;
             }
 
-            if (testingManagerObject.GetComponent<CCS_TestPlayerAttributeDebugInputRouter>() == null)
+            if (testingManagerObject.GetComponent<CCS_PlayerDiagnosticsInputRouter>() == null)
             {
-                testingManagerObject.AddComponent<CCS_TestPlayerAttributeDebugInputRouter>();
+                testingManagerObject.AddComponent<CCS_PlayerDiagnosticsInputRouter>();
                 changed = true;
             }
 
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
-            CCS_MasterTestPlayerOfflineBootstrapper bootstrapper =
-                testingManagerObject.GetComponent<CCS_MasterTestPlayerOfflineBootstrapper>();
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_LocalPlayerOfflineBootstrapper bootstrapper =
+                testingManagerObject.GetComponent<CCS_LocalPlayerOfflineBootstrapper>();
             if (bootstrapper != null && displayProfile != null)
             {
                 SerializedObject serializedBootstrapper = new SerializedObject(bootstrapper);
@@ -122,7 +127,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool RemoveTestOnlyRootComponentsFromNetworkedPlayerPrefab()
         {
-            string prefabPath = CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
+            string prefabPath = CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath;
             if (!File.Exists(prefabPath))
             {
                 return false;
@@ -135,7 +140,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
-            changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_LocalPlayerOfflineBootstrap>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_TestPlayerAttributeDebugInput>(prefabRoot);
 
             if (changed)
@@ -149,12 +154,12 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool EnsureDirectTestingManagerComponent(GameObject testingManagerObject)
         {
-            if (testingManagerObject.GetComponent<CCS_CharacterControllerTestingManager>() != null)
+            if (testingManagerObject.GetComponent<CCS_CharacterControllerDiagnosticsManager>() != null)
             {
                 return false;
             }
 
-            testingManagerObject.AddComponent<CCS_CharacterControllerTestingManager>();
+            testingManagerObject.AddComponent<CCS_CharacterControllerDiagnosticsManager>();
             return true;
         }
 
@@ -196,7 +201,7 @@ namespace CCS.Modules.CharacterController.Editor
                     continue;
                 }
 
-                if (behaviour.GetType().Name == LegacyTestingManagerTypeName)
+                if (IsLegacyTestingManagerTypeName(behaviour.GetType().Name))
                 {
                     return behaviour;
                 }
@@ -224,7 +229,7 @@ namespace CCS.Modules.CharacterController.Editor
             for (int i = 0; i < behaviours.Length; i++)
             {
                 MonoBehaviour behaviour = behaviours[i];
-                if (behaviour != null && behaviour.GetType().Name == LegacyTestingManagerTypeName)
+                if (behaviour != null && IsLegacyTestingManagerTypeName(behaviour.GetType().Name))
                 {
                     count++;
                 }
@@ -236,6 +241,19 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             return count;
+        }
+
+        private static bool IsLegacyTestingManagerTypeName(string typeName)
+        {
+            for (int i = 0; i < LegacyTestingManagerTypeNames.Length; i++)
+            {
+                if (typeName == LegacyTestingManagerTypeNames[i])
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

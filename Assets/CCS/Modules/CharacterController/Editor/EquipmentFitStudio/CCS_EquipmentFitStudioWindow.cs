@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.CharacterController.Editor;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Local;
 using CCS.Modules.Weapons.Editor;
 using CCS.Project;
 using UnityEditor;

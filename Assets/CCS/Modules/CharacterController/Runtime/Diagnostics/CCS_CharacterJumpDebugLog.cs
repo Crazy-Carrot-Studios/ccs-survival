@@ -10,8 +10,7 @@ using UnityEngine;
 // NOTES: Toggle via CCS_CharacterControllerConstants.EnableJumpDebugLogs.
 // =============================================================================
 
-namespace CCS.Modules.CharacterController
-{
+namespace CCS.Modules.CharacterController.Diagnostics {
     public static class CCS_CharacterJumpDebugLog
     {
         private const string LogPrefix = "[CCS Jump Debug]";

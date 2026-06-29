@@ -21,6 +21,7 @@ namespace CCS.Modules.CharacterController.Editor
         public static void RunFromBatchMode()
         {
             PrepareMasterTestSceneForAudit();
+            CCS_CharacterControllerPlayerPrefabBuilder.EnsurePlayerPrefabs();
 
             PlayerPrefabAuditSummary summary =
                 CCS_CharacterControllerPlayerPrefabAuditUtility.RunAuditAndWriteReport(

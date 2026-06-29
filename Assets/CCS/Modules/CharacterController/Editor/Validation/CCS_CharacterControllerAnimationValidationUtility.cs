@@ -383,7 +383,7 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 playerPrefab != null,
-                "Missing PF_CCS_CharacterController_TestPlayer_Networked prefab for animator agreement validation.");
+                "Missing PF_CCS_CharacterController_Player_Networked prefab for animator agreement validation.");
             AppendIfMissing(
                 failures,
                 aiPrefab != null,

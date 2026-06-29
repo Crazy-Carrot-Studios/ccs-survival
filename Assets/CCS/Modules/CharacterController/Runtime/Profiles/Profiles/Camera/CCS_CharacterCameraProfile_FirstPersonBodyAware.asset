@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd685fc2c9f48a648b57b14924384d29, type: 3}
+  m_Name: CCS_CharacterCameraProfile_FirstPersonBodyAware
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
+  profileDisplayName: First Person Body Aware
+  profileId: ccs.survival.profile.character.camera.firstpersonbodyaware
+  profileDescription: Body-aware first-person survival camera. Eye-forward offset
+    keeps the view out of the skull while preserving torso/limb visibility.
+  profileVersion: 0.6.14-local-self-head-mask
+  enableDebugLogs: 0
+  cameraMode: 6
+  trackingTargetLocalHeight: 1.48
+  thirdPersonShoulderOffset: {x: 0.2, y: 0.2, z: 0}
+  thirdPersonVerticalArmLength: 0.45
+  thirdPersonCameraSide: 0
+  thirdPersonCameraDistance: 3
+  verticalOrbitDefault: 0
+  verticalOrbitMin: -53
+  verticalOrbitMax: 75
+  defaultYawMode: 0
+  mouseSensitivityX: 0.12
+  mouseSensitivityY: 0.1
+  gamepadSensitivityX: 90
+  gamepadSensitivityY: 70
+  lookSmoothing: 0
+  followDampingX: 0
+  followDampingY: 0
+  followDampingZ: 0
+  obstacleAvoidanceEnabled: 0
+  collisionLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  collisionIgnoreTag: Player
+  obstacleAvoidanceRadius: 0.25
+  collisionDampingInto: 0.08
+  collisionDampingFrom: 0.35
+  validationDisableObstacleAvoidanceForBaselinePass: 1
+  aimBlendDurationSeconds: 0.1
+  fieldOfView: 70
+  aimLookSensitivityMultiplier: 0.85
+  firstPersonForwardEyeOffset: 0.22
+  firstPersonVerticalEyeOffset: 0.05
+  nearClipPlane: 0.03
+  useHeadTrackedAnchor: 1
+  headTrackedLocalOffset: {x: 0, y: 0.06, z: 0.1}
+  headTrackingPositionLerpSpeed: 30
+  inheritHeadBoneRotation: 0
+  fixedFirstPersonAimAnchorLocalOffset: {x: 0, y: 0.28, z: 0.36}

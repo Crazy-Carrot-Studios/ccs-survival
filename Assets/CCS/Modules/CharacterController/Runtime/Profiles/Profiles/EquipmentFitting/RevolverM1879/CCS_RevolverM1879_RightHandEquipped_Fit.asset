@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c7b7030d3da3a43a6fc9c254702b61, type: 3}
+  m_Name: CCS_RevolverM1879_RightHandEquipped_Fit
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_WeaponAttachmentFitProfile
+  profileId: CCS_RevolverM1879_RightHandEquipped_Fit
+  weaponId: ccs.weapon.revolver.m1879
+  characterRigId: ccs.character.testplayer.cc3_base_plus
+  socketId: CCS_HandSocket_Right
+  socketLocalPosition: {x: 0.07699998, y: 0.17999998, z: 0.012000008}
+  socketLocalEulerAngles: {x: 294.2471, y: 89.72298, z: 83.12238}
+  socketLocalScale: {x: 1.0000001, y: 1, z: 1.0000001}
+  notes: Right hand equipped preview fit. Grip in palm, barrel forward, trigger guard
+    near index finger.

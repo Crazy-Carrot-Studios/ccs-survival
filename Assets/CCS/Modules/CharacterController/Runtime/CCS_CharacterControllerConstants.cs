@@ -492,22 +492,22 @@ namespace CCS.Modules.CharacterController
         public const int LegacyFirstPersonAimCameraInactivePriority = -10;
 
         public const string TestPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";
 
         public const string MasterTestScenePath =
-            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
+            "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity";
 
         public const string TestScenePath =
             "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity";
 
         public const string TestGroundPrefabPath =
-            ModuleRootPath + "/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab";
+            ModuleRootPath + "/Prototyping/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab";
 
         public const string TestGroundGridTexturePath =
-            ModuleRootPath + "/Materials/Environment/T_CCS_TestGround_1mGrid.png";
+            ModuleRootPath + "/Prototyping/Materials/T_CCS_TestGround_1mGrid.png";
 
         public const string TestGroundGridMaterialPath =
-            ModuleRootPath + "/Materials/Environment/M_CCS_TestGround_1mGrid.mat";
+            ModuleRootPath + "/Prototyping/Materials/M_CCS_TestGround_1mGrid.mat";
 
         public const string TestGroundObjectName = "CCS_TestGround_OneMeterGrid";
 

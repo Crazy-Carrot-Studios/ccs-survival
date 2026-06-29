@@ -30,7 +30,7 @@ namespace CCS.Modules.AI.Editor
             CCS_HostingAmbientAudioBuilder.EnsureHostingSceneAmbientAudio();
 
             Scene masterTestScene = EditorSceneManager.OpenScene(
-                "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity",
+                "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity",
                 OpenSceneMode.Single);
             if (masterTestScene.IsValid())
             {
@@ -53,7 +53,7 @@ namespace CCS.Modules.AI.Editor
         private static void TryRebuildNetcodePrefabSetupViaReflection()
         {
             System.Type utilityType = System.Type.GetType(
-                "CCS.Modules.CharacterController.Tests.Netcode.Editor.CCS_NetcodeNetworkPrefabSetupUtility, CCS.Modules.CharacterController.Tests.Netcode.Editor");
+                "CCS.Modules.CharacterController.Netcode.Editor.CCS_NetcodeNetworkPrefabSetupUtility, CCS.Modules.CharacterController.Netcode.Editor");
             if (utilityType == null)
             {
                 return;

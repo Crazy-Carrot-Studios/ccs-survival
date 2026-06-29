@@ -6,7 +6,7 @@ using UnityEngine.Animations.Rigging;
 // SCRIPT: CCS_RevolverArmReticleIK
 // CATEGORY: Modules / Weapons / Runtime / Aiming
 // PURPOSE: Arm-only Animation Rigging reticle IK — nudges arm/chest toward reticle without weapon fit changes.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.14 — Rig_RevolverArmReticleIK layers TwoBoneIK + chest/shoulder MultiAim. Never writes weapon/socket.

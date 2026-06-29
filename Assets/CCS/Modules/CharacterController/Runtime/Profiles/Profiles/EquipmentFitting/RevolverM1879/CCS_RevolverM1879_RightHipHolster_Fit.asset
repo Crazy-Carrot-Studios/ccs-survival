@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c7b7030d3da3a43a6fc9c254702b61, type: 3}
+  m_Name: CCS_RevolverM1879_RightHipHolster_Fit
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_WeaponAttachmentFitProfile
+  profileId: CCS_RevolverM1879_RightHipHolster_Fit
+  weaponId: ccs.weapon.revolver.m1879
+  characterRigId: ccs.character.testplayer.cc3_base_plus
+  socketId: CCS_HolsterSocket_RightHip
+  socketLocalPosition: {x: 0.19, y: -0.08999999, z: 0}
+  socketLocalEulerAngles: {x: 73.001114, y: 349.9999, z: 348.99997}
+  socketLocalScale: {x: 1, y: 1, z: 1}
+  notes: Right hip holster preview fit. Sidearm outside hip/thigh, barrel downward,
+    grip reachable.

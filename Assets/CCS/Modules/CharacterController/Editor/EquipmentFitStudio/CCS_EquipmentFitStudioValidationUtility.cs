@@ -73,7 +73,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             AppendResult(failures, CCS_EquipmentSocketValidationUtility.ValidateDefaultEquipmentSocketProfile());
 
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (playerPrefab != null)
             {
                 AppendResult(
@@ -204,7 +204,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 "Right hand equipped fit profile could not be loaded from disk.");
 
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (playerPrefab == null)
             {
                 return;
@@ -391,7 +391,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private static void ValidateNoPreviewItemsUnderPlayerSockets(List<string> failures)
         {
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (playerPrefab == null)
             {
                 return;
@@ -420,7 +420,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         private static void ValidateNoProductionWeaponVisualArtifacts(List<string> failures)
         {
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (playerPrefab == null)
             {
                 return;
@@ -454,7 +454,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             AppendIfMissing(
                 failures,
                 !PrefabContainsEditorTemporaryObjects(
-                    CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath),
+                    CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath),
                 "Networked test player prefab must not contain editor temporary objects.");
             AppendIfMissing(
                 failures,
@@ -898,7 +898,7 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             AppendIfMissing(failures, File.Exists(ikDiagnosticsPath), "Missing CCS_EquipmentFitStudioIkDiagnosticsUtility.");
 
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS.Modules.CharacterController.Tests.CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS.Modules.CharacterController.Local.CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (playerPrefab == null)
             {
                 return;

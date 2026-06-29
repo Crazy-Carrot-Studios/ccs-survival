@@ -15,8 +15,7 @@ using UnityEngine.InputSystem;
 // NOTES: No test scene required for v0.2.0.
 // =============================================================================
 
-namespace CCS.Modules.CharacterController
-{
+namespace CCS.Modules.CharacterController.Validation {
     public static class CCS_CharacterControllerValidationUtility
     {
         #region Public Methods
@@ -585,7 +584,7 @@ namespace CCS.Modules.CharacterController
                 string profileSetText = File.ReadAllText(CCS_CharacterControllerConstants.DefaultCameraProfileSetPath);
                 AppendIfMissing(
                     failures,
-                    profileSetText.Contains("guid: 95981624f2ea5294b9a7edcdc78671d4"),
+                    profileSetText.Contains("guid: 007dc032c141ed74293f8742e2b02f63"),
                     "Default camera profile set must reference ThirdPersonSurvival as defaultProfile.");
             }
 

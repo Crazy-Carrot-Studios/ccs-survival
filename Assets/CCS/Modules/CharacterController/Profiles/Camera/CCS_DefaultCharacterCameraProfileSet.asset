@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 326f051a4e3e65941a688cae8c866654, type: 3}
   m_Name: CCS_DefaultCharacterCameraProfileSet
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfileSet
-  defaultProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
-  thirdPersonSurvivalProfile: {fileID: 11400000, guid: 95981624f2ea5294b9a7edcdc78671d4, type: 2}
-  firstPersonProfile: {fileID: 11400000, guid: 8cbf3ba88e834d141866f3b58f32274b, type: 2}
-  firstPersonAimProfile: {fileID: 11400000, guid: 22f3bd3b76aeab846b4bca65664c2f55, type: 2}
-  aimOverShoulderProfile: {fileID: 11400000, guid: 6a177b1952465b84c980557398ed4793, type: 2}
+  defaultProfile: {fileID: 11400000, guid: 007dc032c141ed74293f8742e2b02f63, type: 2}
+  thirdPersonSurvivalProfile: {fileID: 11400000, guid: 007dc032c141ed74293f8742e2b02f63, type: 2}
+  firstPersonProfile: {fileID: 11400000, guid: f5b7c80b7054e4c459a18d4b8c93fbb9, type: 2}
+  firstPersonAimProfile: {fileID: 11400000, guid: e44577433ffbc03418d57e8f56451574, type: 2}
+  aimOverShoulderProfile: {fileID: 11400000, guid: 49d0eb7225dd4974ea2bf557885496d5, type: 2}
   topDownProfile: {fileID: 0}
   horseProfile: {fileID: 0}
   vehicleProfile: {fileID: 0}

@@ -1,5 +1,5 @@
 using System.IO;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Diagnostics;
 using CCS.Modules.Weapons;
 using CCS.Project;
 using UnityEditor;
@@ -94,9 +94,18 @@ namespace CCS.Modules.CharacterController.Editor
         {
             if (!masterTestScene.IsValid() || !masterTestScene.isLoaded)
             {
-                masterTestScene = EditorSceneManager.OpenScene(
-                    CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
-                    OpenSceneMode.Single);
+                Scene loadedScene = SceneManager.GetSceneByPath(
+                    CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath);
+                if (loadedScene.IsValid() && loadedScene.isLoaded)
+                {
+                    masterTestScene = loadedScene;
+                }
+                else
+                {
+                    masterTestScene = EditorSceneManager.OpenScene(
+                        CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
+                        OpenSceneMode.Single);
+                }
             }
 
             if (!masterTestScene.IsValid())
@@ -351,11 +360,11 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            CCS_CharacterControllerTestingManager testingManager =
-                testingManagerObject.GetComponent<CCS_CharacterControllerTestingManager>();
+            CCS_CharacterControllerDiagnosticsManager testingManager =
+                testingManagerObject.GetComponent<CCS_CharacterControllerDiagnosticsManager>();
             if (testingManager == null)
             {
-                testingManager = testingManagerObject.AddComponent<CCS_CharacterControllerTestingManager>();
+                testingManager = testingManagerObject.AddComponent<CCS_CharacterControllerDiagnosticsManager>();
                 changed = true;
             }
 

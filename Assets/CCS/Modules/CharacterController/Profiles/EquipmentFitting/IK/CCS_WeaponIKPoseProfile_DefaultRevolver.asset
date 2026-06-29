@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CCS_WeaponIKPoseProfile_DefaultRevolver
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_WeaponIKPoseProfile
   profileId: fit.revolver.default
-  weaponId: weapon.revolver
-  characterRigId: ccs.testplayer.humanoid
+  weaponId: ccs.weapon.revolver.m1879
+  characterRigId: ccs.character.testplayer.cc3_base_plus
   poseId: pose.default
   rightHandTargetLocalPosition: {x: 0, y: 0, z: 0}
   rightHandTargetLocalEulerAngles: {x: 0, y: 0, z: 0}

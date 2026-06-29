@@ -7,7 +7,7 @@ using UnityEngine;
 // SCRIPT: CCS_CharacterMotor
 // CATEGORY: Modules / CharacterController / Runtime / Components
 // PURPOSE: Camera-relative CharacterController movement with profile-driven tuning.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Uses bound scene camera from CCS_CharacterMovementCameraContext when set.

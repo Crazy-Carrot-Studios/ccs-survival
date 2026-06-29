@@ -13,7 +13,7 @@ namespace CCS.Modules.Attributes.Tests
     public static class CCS_AttributesTestConstants
     {
         public const string NetworkedTestPlayerPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";
 
         public const string AttributeHudRootObjectName = "AttributeHudRoot";
 

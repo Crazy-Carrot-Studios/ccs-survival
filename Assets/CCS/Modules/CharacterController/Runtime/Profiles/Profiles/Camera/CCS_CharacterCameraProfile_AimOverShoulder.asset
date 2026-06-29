@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd685fc2c9f48a648b57b14924384d29, type: 3}
+  m_Name: CCS_CharacterCameraProfile_AimOverShoulder
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
+  profileDisplayName: Aim Over Shoulder
+  profileId: ccs.survival.profile.character.camera.aimovershoulder
+  profileDescription: Tight third-person over-the-shoulder aim camera for v0.6.15
+    revolver aim.
+  profileVersion: 0.6.15-aim-over-shoulder-tight
+  enableDebugLogs: 0
+  cameraMode: 3
+  trackingTargetLocalHeight: 1.48
+  thirdPersonShoulderOffset: {x: 0.45, y: 0.15, z: 0}
+  thirdPersonVerticalArmLength: 0.28
+  thirdPersonCameraSide: 1
+  thirdPersonCameraDistance: 1.85
+  verticalOrbitDefault: 0
+  verticalOrbitMin: -35
+  verticalOrbitMax: 55
+  defaultYawMode: 0
+  mouseSensitivityX: 0.095
+  mouseSensitivityY: 0.08
+  gamepadSensitivityX: 72
+  gamepadSensitivityY: 55
+  lookSmoothing: 12
+  followDampingX: 0.06
+  followDampingY: 0.08
+  followDampingZ: 0.06
+  obstacleAvoidanceEnabled: 1
+  collisionLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  collisionIgnoreTag: Player
+  obstacleAvoidanceRadius: 0.22
+  collisionDampingInto: 0.06
+  collisionDampingFrom: 0.3
+  validationDisableObstacleAvoidanceForBaselinePass: 1
+  aimBlendDurationSeconds: 0.45
+  fieldOfView: 58
+  aimLookSensitivityMultiplier: 0.85
+  firstPersonForwardEyeOffset: 0.22
+  firstPersonVerticalEyeOffset: 0.05
+  nearClipPlane: 0.03
+  useHeadTrackedAnchor: 1
+  headTrackedLocalOffset: {x: 0, y: 0.04, z: 0.18}
+  headTrackingPositionLerpSpeed: 30
+  inheritHeadBoneRotation: 0
+  fixedFirstPersonAimAnchorLocalOffset: {x: 0, y: 0.28, z: 0.36}

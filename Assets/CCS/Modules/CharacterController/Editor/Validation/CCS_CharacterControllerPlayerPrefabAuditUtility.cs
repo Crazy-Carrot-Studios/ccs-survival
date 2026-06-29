@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using CCS.Modules.CharacterController.Tests;
-using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
+using CCS.Modules.CharacterController.Netcode;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -98,7 +99,7 @@ namespace CCS.Modules.CharacterController.Editor
     public static class CCS_CharacterControllerPlayerPrefabAuditUtility
     {
         public const string ReportRelativePath =
-            "Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.1f.md";
+            "Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.2.md";
 
         public const int FutureProductionRootMonoBehaviourTarget = 6;
 
@@ -106,14 +107,15 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static readonly string[] AuditedPrefabPaths =
         {
-            CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath,
+            CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
             CCS_CharacterControllerConstants.PlayerVisualPrefabPath,
         };
 
         private static readonly string[] DeprecatedPlayerPrefabPaths =
         {
-            CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath,
-            CCS_TestPlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath,
+            CCS_PlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath,
+            CCS_PlayerPrefabConstants.DeprecatedTestsNetworkedPlayerPrefabPath,
+            CCS_PlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath,
         };
 
         private static readonly string[] TestOnlyNameTokens =
@@ -148,12 +150,12 @@ namespace CCS.Modules.CharacterController.Editor
                 { "NetworkObject", PlayerPrefabComponentClassification.RequiredNetwork },
                 { "CCS_ClientOwnerNetworkTransform", PlayerPrefabComponentClassification.RequiredNetwork },
                 { "NetworkTransform", PlayerPrefabComponentClassification.RequiredNetwork },
-                { "CCS_ControllerTestNetworkPlayerBehaviour", PlayerPrefabComponentClassification.RequiredNetwork },
+                { "CCS_NetworkPlayerController", PlayerPrefabComponentClassification.RequiredNetwork },
                 { "CCS_NetworkPlayerNameplate", PlayerPrefabComponentClassification.RequiredNetwork },
-                { "CCS_TestPlayerOfflineBootstrap", PlayerPrefabComponentClassification.TestOnly },
+                { "CCS_LocalPlayerOfflineBootstrap", PlayerPrefabComponentClassification.TestOnly },
                 { "CCS_TestPlayerAttributeDebugInput", PlayerPrefabComponentClassification.TestOnly },
                 { "CCS_PlayerNameplateBillboard", PlayerPrefabComponentClassification.TestOnly },
-                { "CCS_TestPlayerDisplayProfileApplicator", PlayerPrefabComponentClassification.TestOnly },
+                { "CCS_PlayerDisplayProfileApplicator", PlayerPrefabComponentClassification.TestOnly },
                 { "CCS_CharacterCameraController", PlayerPrefabComponentClassification.RequiredCamera },
                 { "CCS_CharacterCameraFollowAnchor", PlayerPrefabComponentClassification.RequiredCamera },
                 { "CCS_FirstPersonBodyCameraAnchor", PlayerPrefabComponentClassification.RequiredCamera },
@@ -183,7 +185,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static readonly HashSet<string> MasterTestBatchRequiredTypes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "CCS_ControllerTestNetworkPlayerBehaviour",
+            "CCS_NetworkPlayerController",
             "CCS_ClientOwnerNetworkTransform",
             "NetworkObject",
             "CCS_CharacterInputActionProvider",
@@ -200,7 +202,7 @@ namespace CCS.Modules.CharacterController.Editor
         {
             "NetworkObject",
             "CCS_ClientOwnerNetworkTransform",
-            "CCS_ControllerTestNetworkPlayerBehaviour",
+            "CCS_NetworkPlayerController",
             "CCS_NetworkPlayerNameplate",
             "CCS_CharacterInputActionProvider",
             "CCS_CharacterMotor",
@@ -542,7 +544,7 @@ namespace CCS.Modules.CharacterController.Editor
             if (entry.Classification == PlayerPrefabComponentClassification.TestingManagerCandidate
                 || entry.Classification == PlayerPrefabComponentClassification.DebugOnly)
             {
-                entry.DependencyNotes.Add("Replacement path: gate debug toggles through CCS_CharacterControllerTestingManager.");
+                entry.DependencyNotes.Add("Replacement path: gate debug toggles through CCS_CharacterControllerDiagnosticsManager.");
             }
 
             if (entry.Classification == PlayerPrefabComponentClassification.TestOnly && entry.IsOnRoot)
@@ -781,8 +783,8 @@ namespace CCS.Modules.CharacterController.Editor
         {
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath),
-                "Missing active networked player prefab at " + CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                File.Exists(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath),
+                "Missing active networked player prefab at " + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             AppendIfMissing(
                 failures,
                 File.Exists(CCS_CharacterControllerConstants.PlayerVisualPrefabPath),
@@ -808,37 +810,49 @@ namespace CCS.Modules.CharacterController.Editor
         {
             AppendIfMissing(
                 failures,
-                !PrefabHasMissingScripts(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath),
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath + " contains missing scripts.");
+                !PrefabHasMissingScripts(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath),
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath + " contains missing scripts.");
         }
 
         private static void ValidateNoEditorScriptsOnRuntimePrefabs(List<string> failures)
         {
-            if (!File.Exists(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath))
+            if (!File.Exists(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath))
             {
                 return;
             }
 
             PlayerPrefabAuditSummary summary = BuildAuditSummary();
             bool hasEditorOnly = summary.Entries.Any(entry =>
-                entry.PrefabPath == CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath
+                entry.PrefabPath == CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath
                 && entry.Layer == PlayerPrefabComponentLayer.EditorOnlyInvalid);
             AppendIfMissing(
                 failures,
                 !hasEditorOnly,
-                "Editor-only scripts are attached to " + CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath + ".");
+                "Editor-only scripts are attached to " + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath + ".");
+        }
+
+        public static CCS_SurvivalValidationResult ValidateNetworkManagerPlayerPrefabReference()
+        {
+            List<string> failures = new List<string>();
+            ValidateNetworkManagerPlayerPrefabReference(failures);
+            if (failures.Count > 0)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            return CCS_SurvivalValidationResult.Pass("NetworkManager player prefab reference validated.");
         }
 
         private static void ValidateNetworkManagerPlayerPrefabReference(List<string> failures)
         {
-            if (!File.Exists(CCS_NetcodeTestConstants.NetworkManagerPrefabPath))
+            if (!File.Exists(CCS_NetcodeConstants.NetworkManagerPrefabPath))
             {
-                failures.Add("Missing NetworkManager prefab at " + CCS_NetcodeTestConstants.NetworkManagerPrefabPath);
+                failures.Add("Missing NetworkManager prefab at " + CCS_NetcodeConstants.NetworkManagerPrefabPath);
                 return;
             }
 
             GameObject networkManagerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_NetcodeTestConstants.NetworkManagerPrefabPath);
+                CCS_NetcodeConstants.NetworkManagerPrefabPath);
             if (networkManagerPrefab == null)
             {
                 failures.Add("Could not load NetworkManager prefab asset.");
@@ -862,8 +876,8 @@ namespace CCS.Modules.CharacterController.Editor
             string playerPath = AssetDatabase.GetAssetPath(playerPrefab);
             AppendIfMissing(
                 failures,
-                playerPath == CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath,
-                "NetworkManager PlayerPrefab must reference " + CCS_NetcodeTestConstants.NetworkedPlayerPrefabPath
+                playerPath == CCS_NetcodeConstants.NetworkedPlayerPrefabPath,
+                "NetworkManager PlayerPrefab must reference " + CCS_NetcodeConstants.NetworkedPlayerPrefabPath
                 + " (found " + playerPath + ").");
         }
 
@@ -911,7 +925,7 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("# CCS Player Prefab Component Audit — v0.7.1f");
+            builder.AppendLine("# CCS Player Prefab Component Audit — v0.7.2");
             builder.AppendLine();
             builder.AppendLine("**Generated:** " + summary.GeneratedUtc);
             builder.AppendLine("**Validation:** " + (validationResult.IsSuccess ? "PASS" : "FAIL")
@@ -919,10 +933,10 @@ namespace CCS.Modules.CharacterController.Editor
             builder.AppendLine();
             builder.AppendLine("## 1. Summary");
             builder.AppendLine();
-            builder.AppendLine("- Active networked test player prefab is the canonical spawn target for Master Test and Hosting.");
+            builder.AppendLine("- Active networked player prefab is the canonical spawn target for validation and hosting.");
+            builder.AppendLine("- Production prefab path: `" + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath + "`.");
             builder.AppendLine("- This milestone classifies components only. No prefab hierarchy rewrite was performed.");
-            builder.AppendLine("- `CCS_MasterTestSceneTestingManager` compatibility wrapper removed in v0.7.1f Phase 2D.");
-            builder.AppendLine("- Master Test scene uses `CCS_CharacterControllerTestingManager` directly.");
+            builder.AppendLine("- Validation scene uses `CCS_CharacterControllerDiagnosticsManager` on `CCS_DiagnosticsManager`.");
             builder.AppendLine();
             builder.AppendLine("| Metric | Value |");
             builder.AppendLine("|--------|-------|");
@@ -1037,7 +1051,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             builder.AppendLine("## 13. Recommended Phase 2D actions");
             builder.AppendLine();
-            builder.AppendLine("1. Route remaining per-component debug booleans through `CCS_CharacterControllerTestingManager` toggles.");
+            builder.AppendLine("1. Route remaining per-component debug booleans through `CCS_CharacterControllerDiagnosticsManager` toggles.");
             builder.AppendLine("2. Reduce root MonoBehaviour count toward future production target (" + FutureProductionRootMonoBehaviourTarget + ") without a big-bang prefab rewrite.");
             builder.AppendLine("3. Evaluate moving external module bridges off root in Phase 2E after batch + Play Mode validation.");
             builder.AppendLine();

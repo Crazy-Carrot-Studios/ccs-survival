@@ -5,7 +5,7 @@ using UnityEngine;
 // SCRIPT: CCS_MuzzleDrivenReticleController
 // CATEGORY: Modules / Weapons / Runtime / Aiming
 // PURPOSE: Screen-safe aim reticle — hybrid camera center with clamped muzzle drift.
-// PLACEMENT: WeaponHudRoot on PF_CCS_CharacterController_TestPlayer_Networked.
+// PLACEMENT: WeaponHudRoot on PF_CCS_CharacterController_Player_Networked.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Default hybrid mode. Gun is not pulled to reticle. Raw muzzle mode is debug-only.

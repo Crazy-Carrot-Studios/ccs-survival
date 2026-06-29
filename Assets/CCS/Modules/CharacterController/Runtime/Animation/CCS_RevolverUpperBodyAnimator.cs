@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_RevolverUpperBodyAnimator
 // CATEGORY: Modules / CharacterController / Runtime / Animation
 // PURPOSE: Drives RevolverUpperBody animator layer from aim and weapon animation state.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.15 — simplified right-arm masked aim: IdleToAim → FullDraw → IdleToAim reverse.

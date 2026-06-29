@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2d2a13a07a30c14eae95a8ba4835169, type: 3}
   m_Name: CCS_EquipmentFitStudioSettings
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_EquipmentFitStudioSettings
-  defaultSocketProfile: {fileID: 11400000, guid: e4181b9c1968f04489310bc04920b45f, type: 2}
+  defaultSocketProfile: {fileID: 11400000, guid: 6d0a86462a73bd94794c16e2536dcfd1, type: 2}
   defaultPreviewWeaponPrefab: {fileID: 7384546915950577294, guid: ab97801d8cbb4284a8fc8ae9bc8bd761, type: 3}
   defaultWeaponId: ccs.weapon.revolver.m1879
   defaultCharacterRigId: ccs.character.testplayer.cc3_base_plus

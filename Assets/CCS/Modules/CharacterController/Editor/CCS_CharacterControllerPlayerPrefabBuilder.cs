@@ -3,8 +3,10 @@ using CCS.Modules.Attributes.Tests;
 using CCS.Modules.CharacterController;
 using CCS.Modules.Weapons;
 using CCS.Modules.Weapons.Editor;
-using CCS.Modules.CharacterController.Tests;
-using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
+using CCS.Modules.CharacterController.Validation;
+using CCS.Modules.CharacterController.Netcode;
 using TMPro;
 using Unity.Cinemachine;
 using UnityEditor;
@@ -31,7 +33,7 @@ namespace CCS.Modules.CharacterController.Editor
         public static bool EnsurePlayerPrefabs()
         {
             bool changed = false;
-            changed |= EnsureNetworkedTestPlayerPrefab(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            changed |= EnsureNetworkedTestPlayerPrefab(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             changed |= EnsureTestNpcPrefab(CCS_CharacterControllerMasterTestLayoutConstants.NpcPrefabPath);
             if (changed)
             {
@@ -76,7 +78,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= WireNetworkPlayerBehaviour(prefabRoot);
             changed |= StripTestOnlyRootComponents(prefabRoot);
 
-            RemoveMissingScriptsRecursive(prefabRoot.transform);
+            changed |= RemoveMissingScriptsRecursive(prefabRoot.transform);
 
             if (changed)
             {
@@ -125,7 +127,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureGlassesVisual(prefabRoot.transform);
             changed |= EnsureNpcRunner(prefabRoot);
             changed |= StripNpcPlayerOnlyComponents(prefabRoot);
-            RemoveMissingScriptsRecursive(prefabRoot.transform);
+            changed |= RemoveMissingScriptsRecursive(prefabRoot.transform);
 
             if (changed)
             {
@@ -139,21 +141,21 @@ namespace CCS.Modules.CharacterController.Editor
         private static bool StripTestOnlyRootComponents(GameObject prefabRoot)
         {
             bool changed = false;
-            changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_LocalPlayerOfflineBootstrap>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_TestPlayerAttributeDebugInput>(prefabRoot);
             return changed;
         }
 
         private static bool ApplyDisplayProfileLayout(GameObject prefabRoot)
         {
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
             if (displayProfile == null)
             {
                 return false;
             }
 
-            CCS_TestPlayerDisplayProfileApplicator.ApplyVisualLayout(prefabRoot, displayProfile);
+            CCS_PlayerDisplayProfileApplicator.ApplyVisualLayout(prefabRoot, displayProfile);
             return true;
         }
 
@@ -196,7 +198,7 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            Transform legacyText = nameplateRoot.Find(CCS_NetcodeTestConstants.LegacyNameplateTextObjectName);
+            Transform legacyText = nameplateRoot.Find(CCS_NetcodeConstants.LegacyNameplateTextObjectName);
             Transform existingPlayerNameText = nameplateRoot.Find(
                 CCS_CharacterControllerMasterTestLayoutConstants.PlayerNameTextObjectName);
             if (legacyText != null)
@@ -1129,9 +1131,9 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            if (networkedRoot.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>() == null)
+            if (networkedRoot.GetComponent<CCS_NetworkPlayerController>() == null)
             {
-                networkedRoot.AddComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+                networkedRoot.AddComponent<CCS_NetworkPlayerController>();
                 changed = true;
             }
 
@@ -1208,8 +1210,8 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool WireNetworkPlayerBehaviour(GameObject networkedRoot)
         {
-            CCS_ControllerTestNetworkPlayerBehaviour behaviour =
-                networkedRoot.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+            CCS_NetworkPlayerController behaviour =
+                networkedRoot.GetComponent<CCS_NetworkPlayerController>();
             if (behaviour == null)
             {
                 return false;
@@ -1263,8 +1265,8 @@ namespace CCS.Modules.CharacterController.Editor
                 networkedRoot.GetComponent<CCS_CharacterCameraController>());
             changed |= SetObjectReference(serializedBehaviour, "cameraPivot", cameraPivot);
             changed |= SetObjectReference(serializedBehaviour, "cameraLookTarget", cameraLookTarget);
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
             changed |= SetObjectReference(serializedBehaviour, "displayProfile", displayProfile);
 
             if (changed)
@@ -1351,18 +1353,20 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
-        private static void RemoveMissingScriptsRecursive(Transform root)
+        private static bool RemoveMissingScriptsRecursive(Transform root)
         {
             if (root == null)
             {
-                return;
+                return false;
             }
 
-            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(root.gameObject);
+            bool changed = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(root.gameObject) > 0;
             for (int i = 0; i < root.childCount; i++)
             {
-                RemoveMissingScriptsRecursive(root.GetChild(i));
+                changed |= RemoveMissingScriptsRecursive(root.GetChild(i));
             }
+
+            return changed;
         }
 
         private static Transform FindChildRecursive(Transform parent, string childName)
@@ -1573,11 +1577,11 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool EnsureNpcRunner(GameObject prefabRoot)
         {
-            CCS_ControllerTestNpcRunner runner = prefabRoot.GetComponent<CCS_ControllerTestNpcRunner>();
+            CCS_ValidationNpcRunner runner = prefabRoot.GetComponent<CCS_ValidationNpcRunner>();
             bool changed = false;
             if (runner == null)
             {
-                runner = prefabRoot.AddComponent<CCS_ControllerTestNpcRunner>();
+                runner = prefabRoot.AddComponent<CCS_ValidationNpcRunner>();
                 changed = true;
             }
 
@@ -1649,10 +1653,10 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= DestroyComponentIfPresent<CCS_CharacterCameraController>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_CharacterControllerService>(prefabRoot);
             changed |= DestroyComponentByTypeName(prefabRoot, "CCS_CharacterControllerDebugHud");
-            changed |= DestroyComponentIfPresent<CCS_TestPlayerOfflineBootstrap>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_LocalPlayerOfflineBootstrap>(prefabRoot);
             changed |= DestroyComponentIfPresent<NetworkObject>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_ClientOwnerNetworkTransform>(prefabRoot);
-            changed |= DestroyComponentIfPresent<CCS_ControllerTestNetworkPlayerBehaviour>(prefabRoot);
+            changed |= DestroyComponentIfPresent<CCS_NetworkPlayerController>(prefabRoot);
             changed |= DestroyComponentIfPresent<CCS_NetworkPlayerNameplate>(prefabRoot);
 
             Transform cameraPivot = prefabRoot.transform.Find("CameraPivot");

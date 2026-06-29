@@ -97,10 +97,10 @@ namespace CCS.Modules.Interaction
         public const string BuildingDoorDisplayName = "Door";
 
         public const string TestDoorSinglePrefabPath =
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestDoor_Single.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestDoor_Single.prefab";
 
         public const string TestBuildingRoofPlatformPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestBuilding_RoofPlatform.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestBuilding_RoofPlatform.prefab";
 
         public const string TestDoorSingleRootObjectName = "PF_CCS_TestDoor_Single";
 
@@ -109,10 +109,10 @@ namespace CCS.Modules.Interaction
         public const string TestDoorHingePivotObjectName = "DoorHingePivot";
 
         public const string NetworkedTestPlayerPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";
 
         public const string MasterTestScenePath =
-            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
+            "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity";
 
         public const string InteractionPromptHudRootName = "InteractionPromptHudRoot";
 

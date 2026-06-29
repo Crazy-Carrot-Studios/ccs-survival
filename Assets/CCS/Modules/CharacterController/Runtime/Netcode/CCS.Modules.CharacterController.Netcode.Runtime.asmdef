@@ -1,0 +1,27 @@
+{
+    "name": "CCS.Modules.CharacterController.Netcode.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController.Netcode",
+    "references": [
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.CharacterController.Local.Runtime",
+        "CCS.Modules.CharacterController.Diagnostics.Runtime",
+        "CCS.Modules.CharacterController.Validation.Runtime",
+        "CCS.Modules.CharacterController.UI.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "Unity.InputSystem",
+        "Unity.Collections",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

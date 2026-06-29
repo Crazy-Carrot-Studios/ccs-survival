@@ -40,7 +40,7 @@ The preview item is **editor-only**. It is never saved to scenes or prefabs.
 ## How to open it
 
 1. Open Unity.
-2. Open `SCN_CCS_CharacterController_MasterTest` (or a scene with the test player).
+2. Open `SCN_CCS_CharacterController_Validation` (or a scene with the test player).
 3. Use menu: **CCS → Character Controller → Equipment → Equipment Fit Studio**.
 
 ## How to select a player
@@ -325,7 +325,7 @@ Equipment Fit Studio fit is **separate** from animation pose tuning:
 
 1. Edit and save `<SourceClipName>_FitTest.anim` in Animation Fit Studio
 2. Run Master Test setup / animation isolation builder (wires FitTest to `Revolver_AimIdle_FullDraw`)
-3. Validate Play Mode on `SCN_CCS_CharacterController_MasterTest`
+3. Validate Play Mode on `SCN_CCS_CharacterController_Validation`
 4. James approves Play Mode result
 5. Optional: duplicate/promote to production name: `CCS_Revolver_AimIdle_RH_FirstPerson.anim`
 6. Commit only after manual acceptance

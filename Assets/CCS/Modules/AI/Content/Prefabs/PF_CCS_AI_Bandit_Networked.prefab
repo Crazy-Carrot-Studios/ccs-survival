@@ -61,7 +61,6 @@ MonoBehaviour:
   aimLayerBlendInSpeed: 16
   aimLayerBlendOutSpeed: 18
   useWildWestRightHandRevolverAimPreview: 0
-  enableMasterTestForceAimDebugHotkey: 1
 --- !u!114 &5204454266406806631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,7 +732,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7c4d2e1f9a8436590abcdef12345601, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CCS.Modules.CharacterController.Tests.Netcode.Runtime::CCS.Modules.CharacterController.Tests.Netcode.CCS_ClientOwnerNetworkTransform
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Netcode.Runtime::CCS.Modules.CharacterController.Netcode.CCS_ClientOwnerNetworkTransform
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkTransformExpanded: 0
   AutoOwnerAuthorityTickOffset: 1

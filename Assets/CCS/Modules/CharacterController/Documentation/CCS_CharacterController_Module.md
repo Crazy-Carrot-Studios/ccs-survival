@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.1f — living module overview  
+**Version:** 0.7.2 — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, revolver upper
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.2** | Productionize architecture — Tests folder removed; player prefab + validation scene production paths; Prototyping folder; no Animator reset |
 | **v0.7.1f** | Safe test-only component separation; Master Test manager migration; two root test components moved to scene |
 
 Working systems that must remain stable unless a dedicated, batch-validated milestone approves changes:
@@ -30,34 +31,41 @@ Working systems that must remain stable unless a dedicated, batch-validated mile
 - `AC_CCS_Player_Locomotion_StarterAssets.controller` wiring
 - Production animation clips (including `_FitTest` AimPitch blend clips)
 
-## Runtime / editor / test boundaries
+## Runtime / editor / validation boundaries (v0.7.2)
 
 | Layer | Location | Rules |
 |-------|----------|-------|
-| **Runtime** | `Runtime/` | Production gameplay assemblies. No Editor dependencies. No test harness types. |
-| **Editor** | `Editor/` | Builders, validators, batch entries, Equipment Fit Studio. Not required at runtime. |
-| **Tests** | `Tests/` | Master Test scene harness, hosting batch entries, spawners, diagnostics switchboard. Not referenced by production Runtime asmdef. |
+| **Runtime** | `Runtime/` | Production gameplay + diagnostics + local player + validation scene helpers. No Editor dependencies. |
+| **Netcode** | `Runtime/Netcode/`, `Runtime/Netcode/Hosting/` | Multiplayer hosting runtime and network player controller. |
+| **Editor** | `Editor/`, `Editor/Netcode/` | Builders, validators, batch entries, Equipment Fit Studio. |
+| **Validation** | `Scenes/Validation/` | Primary validation scene and scene-local wiring |
+| **Prototyping** | `Prototyping/` | Reusable blockout environment prefabs and materials for validation scenes |
+| **Editor** | `Editor/`, `Editor/Netcode/` | Builders, validators, batch entries, Equipment Fit Studio |
 
 **Editor tools are not gameplay dependencies.** Runtime must compile and run without Editor-only tooling.
 
-## Canonical test player
+`CCS_CharacterControllerDiagnosticsManager` is production-ready development tooling (default toggles off), not a test harness script.
+
+## Canonical player prefab (v0.7.2)
 
 | Asset | Path |
 |-------|------|
-| Network-capable test player | `Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab` |
+| Network-capable player | `Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab` |
+| Validation scene | `Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
 | Player visual | `Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab` |
 | Locomotion controller | `Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller` |
 
-### Solo Master Test
+### Solo validation scene
 
-- `CCS_MasterTestSpawnController` instantiates the networked prefab when no Netcode session is active.
-- `CCS_TestPlayerOfflineBootstrap` + `CCS_TestPlayerLocalSessionConfigurator` enable local input/motor/camera.
-- Master Test has **no scene-placed player** and **no scene NetworkManager**.
+- `CCS_ValidationSpawnController` instantiates the networked prefab when no Netcode session is active.
+- `CCS_LocalPlayerOfflineBootstrapper` + `CCS_LocalPlayerSessionConfigurator` enable local input/motor/camera.
+- Validation scene has **no scene-placed player** and **no scene NetworkManager**.
+- Scene object `CCS_DiagnosticsManager` hosts `CCS_CharacterControllerDiagnosticsManager` (exactly one).
 
 ### Multiplayer
 
-- `PF_CCS_TestNetworkManager` in `SCN_CCS_MultiplayerHosting` registers the same prefab as `NetworkConfig.PlayerPrefab`.
-- `CCS_ControllerTestNetworkPlayerBehaviour` enforces owner-only input/camera.
+- `PF_CCS_NetworkManager` in `SCN_CCS_MultiplayerHosting` registers the same prefab as `NetworkConfig.PlayerPrefab`.
+- `CCS_NetworkPlayerController` enforces owner-only input/camera.
 
 ## Target folder structure
 
@@ -65,16 +73,17 @@ Incremental migration target (do not big-bang move assets):
 
 ```text
 Assets/CCS/Modules/CharacterController/
-├── Content/              # Input, animations, controllers, materials
+├── Content/              # Input, animations, controllers
 ├── Documentation/        # Permanent living docs only (this file + Equipment Fit Studio)
-├── Prefabs/              # Camera, player, test-only environment
+├── Prefabs/              # Camera, player, network manager
 ├── Profiles/             # Movement, camera, equipment fit
-├── Runtime/              # Core, input, movement, camera, animation, equipment, validation
-├── Editor/               # Builders, validation, Equipment Fit Studio, batch entries
-└── Tests/                # Runtime, Netcode, prefabs, scenes, managers
+├── Prototyping/          # Blockout environment prefabs, materials, textures for validation scenes
+├── Runtime/              # Core, input, movement, camera, diagnostics, local, netcode, validation helpers
+├── Scenes/Validation/    # Primary Character Controller validation scene
+├── Editor/               # Builders, validation, Equipment Fit Studio, Netcode/hosting batch entries
 ```
 
-Low-risk future moves: test environment props → `Prefabs/TestOnly/`; runtime script subdomains under `Runtime/*`; Testing Manager → `Tests/Runtime/Managers/`.
+The `Tests/` folder was removed in v0.7.2. Prototyping assets retain `Test` prefixes where they denote blockout props (for example `PF_CCS_TestGround_OneMeterGrid`).
 
 ## Batch-first validation policy
 
@@ -86,7 +95,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Player prefab audit | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPlayerPrefabAuditBatchEntry.RunFromBatchMode` |
 | AI | `CCS.Modules.AI.Editor.CCS_AIBanditBatchEntry.RunFromBatchMode` |
 | Weapons | `CCS.Modules.Weapons.Editor.CCS_WeaponsValidationBatchEntry.RunFromBatchMode` |
-| Hosting | `CCS.Modules.CharacterController.Tests.Netcode.Editor.CCS_MultiplayerHostingSceneBatchEntry.RunFromBatchMode` |
+| Hosting | `CCS.Modules.CharacterController.Netcode.Editor.CCS_MultiplayerHostingSceneBatchEntry.RunFromBatchMode` |
 
 Editor menus are optional convenience wrappers. CI and Cursor workflows must not depend on manual menu clicks.
 
@@ -101,20 +110,20 @@ Editor menus are optional convenience wrappers. CI and Cursor workflows must not
 
 Do not add new editor menus without classifying them and documenting the batch equivalent.
 
-## Testing Manager policy (v0.7.1d)
+## Diagnostics Manager policy (v0.7.2)
 
-**Central switchboard:** `Tests/Runtime/Managers/CCS_CharacterControllerTestingManager` on Master Test scene object `CCS_TestingManager`.
+**Central switchboard:** `Runtime/Diagnostics/CCS_CharacterControllerDiagnosticsManager` on validation scene object `CCS_DiagnosticsManager`.
 
-**Compatibility:** Master Test scene uses `CCS_CharacterControllerTestingManager` directly (v0.7.1f). The `CCS_MasterTestSceneTestingManager` wrapper was removed after serialized migration.
+**Compatibility:** Master Test scene uses `CCS_CharacterControllerDiagnosticsManager` directly (v0.7.1f). The `CCS_CharacterControllerDiagnosticsManager` wrapper was removed after serialized migration.
 
 **Scene-level test replacements (v0.7.1f):**
 
 | Removed from player root | Scene replacement |
 |--------------------------|-------------------|
-| `CCS_TestPlayerOfflineBootstrap` | `CCS_MasterTestPlayerOfflineBootstrapper` on `CCS_TestingManager` |
-| `CCS_TestPlayerAttributeDebugInput` | `CCS_TestPlayerAttributeDebugInputRouter` on `CCS_TestingManager` (gated by `EnableTestDamage`) |
+| `CCS_LocalPlayerOfflineBootstrap` | `CCS_LocalPlayerOfflineBootstrapper` on `CCS_DiagnosticsManager` |
+| `CCS_TestPlayerAttributeDebugInput` | `CCS_PlayerDiagnosticsInputRouter` on `CCS_DiagnosticsManager` (gated by `EnableDamageDiagnostics`) |
 
-Solo Master Test still configures offline players through `CCS_MasterTestSpawnController` plus the scene bootstrapper safety net. Hosting/network spawn does not depend on prefab-root offline bootstrap.
+Solo Master Test still configures offline players through `CCS_ValidationSpawnController` plus the scene bootstrapper safety net. Hosting/network spawn does not depend on prefab-root offline bootstrap.
 
 **Default toggles (all off unless noted):**
 
@@ -138,7 +147,7 @@ Solo Master Test still configures offline players through `CCS_MasterTestSpawnCo
 
 - Console logs and Markdown reports in `Logs/CharacterController/TestingReports/` are preferred.
 - Runtime production scripts must not own `OnGUI` overlays.
-- Test-only diagnostics live under `Tests/Runtime/Diagnostics/` and are gated by the Testing Manager.
+- Diagnostics reporters live under `Runtime/Diagnostics/` and are gated by the Diagnostics Manager.
 - Production player prefab must **not** require the manager.
 
 **Future work (not v0.7.1e):** player prefab script reduction, Runtime folder moves, animation pack import, Master Test manager wrapper removal.
@@ -150,7 +159,7 @@ Solo Master Test still configures offline players through `CCS_MasterTestSpawnCo
 **Audit utility:** `Editor/Validation/CCS_CharacterControllerPlayerPrefabAuditUtility.cs`  
 **Batch entry:** `CCS_CharacterControllerPlayerPrefabAuditBatchEntry.RunFromBatchMode`
 
-**Generated report (not committed):** `Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.1e.md`
+**Generated report (not committed):** `Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.2.md`
 
 ### Classification categories
 
@@ -169,15 +178,15 @@ Solo Master Test still configures offline players through `CCS_MasterTestSpawnCo
 
 1. Run the player prefab audit batch and read the Markdown report.
 2. Do **not** delete components until Master Test + Hosting batches and manual smoke test prove a replacement path.
-3. Prefer moving debug toggles to `CCS_CharacterControllerTestingManager` before moving components off the prefab.
+3. Prefer moving debug toggles to `CCS_CharacterControllerDiagnosticsManager` before moving components off the prefab.
 4. Future production-style root target (~6 MonoBehaviours + Transform + CharacterController) is documented in the audit report; **not enforced in v0.7.1e**.
-5. `CCS_MasterTestSceneTestingManager` compatibility wrapper removed in v0.7.1f after scene migration.
+5. `CCS_CharacterControllerDiagnosticsManager` compatibility wrapper removed in v0.7.1f after scene migration.
 
 ### v0.7.1f scope (Phase 2D)
 
-- Master Test scene migrated to `CCS_CharacterControllerTestingManager` directly.
-- Removed prefab-root `CCS_TestPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene replacements validated.
-- Test damage input is gated by `EnableTestDamage` on the Testing Manager.
+- Master Test scene migrated to `CCS_CharacterControllerDiagnosticsManager` directly.
+- Removed prefab-root `CCS_LocalPlayerOfflineBootstrap` and `CCS_TestPlayerAttributeDebugInput` after scene replacements validated.
+- Test damage input is gated by `EnableDamageDiagnostics` on the Testing Manager.
 - Player prefab reduction remains incremental; no big-bang rewrite.
 - Animation import remains future work.
 
@@ -202,7 +211,7 @@ Solo Master Test still configures offline players through `CCS_MasterTestSpawnCo
 Do **not** alter without an explicit, batch-validated milestone:
 
 - `AC_CCS_Player_Locomotion_StarterAssets.controller`
-- `PF_CCS_CharacterController_TestPlayer_Networked.prefab`
+- `PF_CCS_CharacterController_Player_Networked.prefab`
 - `PF_CCS_Player_Visual.prefab`
 - Production animation clips wired to the active controller
 - AI combat, weapons combat, health bar behavior, hosting scene behavior

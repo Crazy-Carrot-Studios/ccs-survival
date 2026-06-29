@@ -6,8 +6,10 @@ using System.IO;
 
 using CCS.Modules.Attributes.Tests;
 using CCS.Modules.CharacterController;
-using CCS.Modules.CharacterController.Tests;
-using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
+using CCS.Modules.CharacterController.Validation;
+using CCS.Modules.CharacterController.Netcode;
 using CCS.Modules.Interaction;
 using CCS.Modules.Weapons;
 using CCS.Project;
@@ -39,7 +41,7 @@ using TMPro;
 
 // CATEGORY: Modules / CharacterController / Editor / Validation
 
-// PURPOSE: Reports layout problems in SCN_CCS_CharacterController_MasterTest.
+// PURPOSE: Reports layout problems in SCN_CCS_CharacterController_Validation.
 
 // PLACEMENT: Editor validation utility. Not attached to GameObjects.
 
@@ -129,6 +131,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 CCS_CharacterControllerPhase2DValidationUtility.ValidatePhase2DSeparation());
 
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerPhase3AValidationUtility.ValidatePhase3AProductionization());
+
             ValidateJoinNotificationFeed(failures);
 
             ValidatePlayerPrefabAssets(failures);
@@ -143,7 +149,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_EquipmentSocketValidationUtility.ValidateDefaultEquipmentSocketProfile());
 
             GameObject networkedPrefabForEquipment = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefabForEquipment != null)
             {
                 AppendValidationResult(
@@ -185,7 +191,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences());
 
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab != null)
             {
                 AppendValidationResult(
@@ -280,19 +286,19 @@ namespace CCS.Modules.CharacterController.Editor
 
                 failures,
 
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidatePlayerCameraCollisionExclusion(
 
                 failures,
 
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidateCameraFollowAnchorRotationChain(
 
                 failures,
 
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidateCameraRigPrefabAsset(failures, baselinePass: true);
 
@@ -747,11 +753,11 @@ namespace CCS.Modules.CharacterController.Editor
                 failures.Add($"{CCS_CharacterControllerMasterTestLayoutConstants.DoorInstanceName} has missing script references.");
             }
 
-            CCS_TestDoorMarker doorMarker = door.GetComponent<CCS_TestDoorMarker>();
+            CCS_ValidationDoorMarker doorMarker = door.GetComponent<CCS_ValidationDoorMarker>();
             AppendIfMissing(
                 failures,
                 doorMarker != null,
-                $"{CCS_CharacterControllerMasterTestLayoutConstants.DoorInstanceName} is missing CCS_TestDoorMarker.");
+                $"{CCS_CharacterControllerMasterTestLayoutConstants.DoorInstanceName} is missing CCS_ValidationDoorMarker.");
             if (doorMarker != null && doorMarker.DoorHingePivot == null)
             {
                 failures.Add($"{CCS_CharacterControllerMasterTestLayoutConstants.DoorInstanceName} marker DoorHingePivot is not assigned.");
@@ -771,14 +777,14 @@ namespace CCS.Modules.CharacterController.Editor
 
             if (doorMarker != null && doorHingePivot != null && doorMarker.DoorHingePivot != doorHingePivot)
             {
-                failures.Add("CCS_TestDoorMarker must reference the DoorHingePivot transform for hinge rotation.");
+                failures.Add("CCS_ValidationDoorMarker must reference the DoorHingePivot transform for hinge rotation.");
             }
 
             Transform doorSlab = FindChildByName(door, "DoorSlab");
             bool usesInteractionDoor = FindChildByName(door, CCS_InteractionConstants.BuildingDoorInteractableObjectName) != null;
             if (doorMarker != null && doorSlab != null && doorMarker.DoorHingePivot == doorSlab)
             {
-                failures.Add("CCS_TestDoorMarker must not reference DoorSlab. It must reference DoorHingePivot.");
+                failures.Add("CCS_ValidationDoorMarker must not reference DoorSlab. It must reference DoorHingePivot.");
             }
 
             if (!door.IsChildOf(building))
@@ -938,7 +944,7 @@ namespace CCS.Modules.CharacterController.Editor
             List<string> failures,
             Transform doorRoot,
             Transform doorHingePivot,
-            CCS_TestDoorMarker doorMarker)
+            CCS_ValidationDoorMarker doorMarker)
         {
             Transform interactionTarget = FindChildByName(doorRoot, CCS_InteractionConstants.BuildingDoorInteractableObjectName);
             if (interactionTarget == null)
@@ -955,7 +961,7 @@ namespace CCS.Modules.CharacterController.Editor
             List<string> failures,
             Transform doorHingePivot,
             Transform doorSlab,
-            CCS_TestDoorMarker doorMarker)
+            CCS_ValidationDoorMarker doorMarker)
         {
             float halfWidth = CCS_CharacterControllerMasterTestLayoutConstants.DoorSlabHalfWidthMeters;
             Vector3 freeEdgeOffsetFromHinge = doorSlab.localPosition + new Vector3(0f, 0f, halfWidth);
@@ -1459,12 +1465,12 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_MasterTestSpawnController spawnController =
-                spawnControllerTransform.GetComponent<CCS_MasterTestSpawnController>();
+            CCS_ValidationSpawnController spawnController =
+                spawnControllerTransform.GetComponent<CCS_ValidationSpawnController>();
             AppendIfMissing(
                 failures,
                 spawnController != null,
-                $"{CCS_CharacterControllerMasterTestLayoutConstants.MasterTestSpawnControllerObjectName} is missing CCS_MasterTestSpawnController.");
+                $"{CCS_CharacterControllerMasterTestLayoutConstants.MasterTestSpawnControllerObjectName} is missing CCS_ValidationSpawnController.");
 
             if (spawnController == null)
             {
@@ -1488,37 +1494,37 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 assignedPrefab != null,
-                "CCS_MasterTestSpawnController must reference PF_CCS_CharacterController_TestPlayer_Networked.");
+                "CCS_ValidationSpawnController must reference PF_CCS_CharacterController_Player_Networked.");
 
             if (assignedPrefab != null)
             {
                 string prefabPath = AssetDatabase.GetAssetPath(assignedPrefab);
                 AppendIfMissing(
                     failures,
-                    prefabPath == CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath,
-                    "CCS_MasterTestSpawnController testPlayerPrefab must use the shared network-capable test player prefab.");
+                    prefabPath == CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
+                    "CCS_ValidationSpawnController testPlayerPrefab must use the shared network-capable test player prefab.");
             }
 
             AppendIfMissing(
                 failures,
                 assignedSpawn != null && assignedSpawn.name == CCS_CharacterControllerMasterTestLayoutConstants.SpawnPointNames[0],
-                "CCS_MasterTestSpawnController must reference TP_Spawn_Host.");
+                "CCS_ValidationSpawnController must reference TP_Spawn_Host.");
 
             AppendIfMissing(
                 failures,
                 assignedCamera != null,
-                "CCS_MasterTestSpawnController must reference PF_CCS_CharacterCameraRig camera controller.");
+                "CCS_ValidationSpawnController must reference PF_CCS_CharacterCameraRig camera controller.");
 
             SerializedProperty assignedBodyMaterial = serializedSpawn.FindProperty("defaultBodyMaterial");
             AppendIfMissing(
                 failures,
                 assignedBodyMaterial != null && assignedBodyMaterial.objectReferenceValue != null,
-                "CCS_MasterTestSpawnController must reference the default yellow body material.");
+                "CCS_ValidationSpawnController must reference the default yellow body material.");
 
             ValidateSceneCameraRigRuntimeBinding(failures, assignedCamera);
             ValidatePlayerCameraPivotPrefab(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             ValidateSoloSpawnUsesSharedPrefabContracts(failures);
         }
 
@@ -1547,13 +1553,13 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_CharacterControllerTestingManager testingManager =
-                testingManagerTransform.GetComponent<CCS_CharacterControllerTestingManager>();
+            CCS_CharacterControllerDiagnosticsManager testingManager =
+                testingManagerTransform.GetComponent<CCS_CharacterControllerDiagnosticsManager>();
             AppendIfMissing(
                 failures,
                 testingManager != null,
                 CCS_CharacterControllerMasterTestLayoutConstants.MasterTestTestingManagerObjectName
-                + " must contain CCS_CharacterControllerTestingManager.");
+                + " must contain CCS_CharacterControllerDiagnosticsManager.");
 
             if (testingManager == null)
             {
@@ -1566,14 +1572,14 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 ambienceEnabledProperty != null && !ambienceEnabledProperty.boolValue,
-                "CCS_MasterTestSceneTestingManager.enableRecordingAmbience must default to false in gameplay Master Test.");
+                "CCS_CharacterControllerDiagnosticsManager.enableRecordingAmbience must default to false in gameplay Master Test.");
             AppendIfMissing(
                 failures,
                 playlistReferenceProperty == null || playlistReferenceProperty.objectReferenceValue == null,
-                "CCS_MasterTestSceneTestingManager must not reference a Master Test ambient playlist.");
+                "CCS_CharacterControllerDiagnosticsManager must not reference a Master Test ambient playlist.");
 
             string testingManagerSourcePath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_CharacterControllerTestingManager.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_CharacterControllerDiagnosticsManager.cs";
             if (File.Exists(testingManagerSourcePath))
             {
                 string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
@@ -1582,7 +1588,7 @@ namespace CCS.Modules.CharacterController.Editor
                     testingManagerSource.Contains("SetRecordingAmbienceEnabled")
                         && testingManagerSource.Contains("ApplyTestingSettings")
                         && testingManagerSource.Contains("WriteOneShotReport"),
-                    "CCS_CharacterControllerTestingManager must expose ambience toggle methods and WriteOneShotReport.");
+                    "CCS_CharacterControllerDiagnosticsManager must expose ambience toggle methods and WriteOneShotReport.");
             }
 
             if (testingManager != null)
@@ -1597,33 +1603,33 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     armIkProperty == null || !armIkProperty.boolValue,
-                    "CCS_MasterTestSceneTestingManager.enableArmToReticleIK must default to false.");
+                    "CCS_CharacterControllerDiagnosticsManager.enableArmToReticleIK must default to false.");
                 AppendIfMissing(
                     failures,
                     convergenceProperty == null || !convergenceProperty.boolValue,
-                    "CCS_MasterTestSceneTestingManager.enableVisualAimConvergence must default to false.");
+                    "CCS_CharacterControllerDiagnosticsManager.enableVisualAimConvergence must default to false.");
                 AppendIfMissing(
                     failures,
                     reticleModeProperty == null
                         || reticleModeProperty.enumValueIndex == (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift,
-                    "CCS_MasterTestSceneTestingManager.reticleMode must default to HybridCameraCenterWithMuzzleDrift.");
+                    "CCS_CharacterControllerDiagnosticsManager.reticleMode must default to HybridCameraCenterWithMuzzleDrift.");
                 AppendIfMissing(
                     failures,
                     reticleClampProperty == null || reticleClampProperty.boolValue,
-                    "CCS_MasterTestSceneTestingManager.enableReticleClamp must default to true.");
+                    "CCS_CharacterControllerDiagnosticsManager.enableReticleClamp must default to true.");
                 AppendIfMissing(
                     failures,
                     maxDriftProperty == null
                         || Mathf.Approximately(
                             maxDriftProperty.floatValue,
                             CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault),
-                    "CCS_MasterTestSceneTestingManager.maxReticleDriftPixels must default to "
+                    "CCS_CharacterControllerDiagnosticsManager.maxReticleDriftPixels must default to "
                     + CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault.ToString("0.##")
                     + ".");
                 AppendIfMissing(
                     failures,
                     aimDebugRaysProperty == null || !aimDebugRaysProperty.boolValue,
-                    "CCS_MasterTestSceneTestingManager.enableAimDebugRays must default to false.");
+                    "CCS_CharacterControllerDiagnosticsManager.enableAimDebugRays must default to false.");
             }
 
             if (File.Exists(testingManagerSourcePath))
@@ -1633,11 +1639,11 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     testingManagerSource.Contains("enableArmToReticleIK")
                         && testingManagerSource.Contains("reticleMode"),
-                    "CCS_MasterTestSceneTestingManager must expose Master Test aim visual toggles.");
+                    "CCS_CharacterControllerDiagnosticsManager must expose Master Test aim visual toggles.");
                 AppendIfMissing(
                     failures,
                     !testingManagerSource.Contains("ConfigureThirdPersonAimPitchBlend"),
-                    "CCS_MasterTestSceneTestingManager must not configure removed RevolverAimPitch flow.");
+                    "CCS_CharacterControllerDiagnosticsManager must not configure removed RevolverAimPitch flow.");
             }
         }
 
@@ -1747,13 +1753,13 @@ namespace CCS.Modules.CharacterController.Editor
         {
             AppendIfMissing(
                 failures,
-                !File.Exists(CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath),
-                $"Deprecated solo test player prefab must be removed: {CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath}");
+                !File.Exists(CCS_PlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath),
+                $"Deprecated solo test player prefab must be removed: {CCS_PlayerPrefabConstants.DeprecatedOfflinePlayerPrefabPath}");
 
             AppendIfMissing(
                 failures,
-                !File.Exists(CCS_TestPlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath),
-                $"Duplicate networked test player prefab must be removed: {CCS_TestPlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath}");
+                !File.Exists(CCS_PlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath),
+                $"Duplicate networked test player prefab must be removed: {CCS_PlayerPrefabConstants.DeprecatedNetworkedPlayerDuplicatePrefabPath}");
         }
 
         private static void ValidatePlayerPrefabAssets(List<string> failures)
@@ -1762,30 +1768,30 @@ namespace CCS.Modules.CharacterController.Editor
 
             ValidatePlayerNameplatePrefab(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath,
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
                 requireNetworkNameplate: true);
 
             ValidatePlayerGlassesPrefab(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidatePlayerBodyMaterialPrefab(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
-            ValidatePlayerCapsuleVisualLayout(failures, CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            ValidatePlayerCapsuleVisualLayout(failures, CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidatePlayerCameraTargetsOnPrefab(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidatePlayerCameraCollisionExclusion(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidateCameraFollowAnchorRotationChain(
                 failures,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidateNetworkPlayerUsesSharedYellowVisuals(failures);
             ValidateNetworkPlayerMovementAuthority(failures);
@@ -1803,7 +1809,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidatePlayerWeaponAimAlignment(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab == null)
             {
                 return;
@@ -1868,7 +1874,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateAttributeBarsHudOnPlayerPrefab(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab == null)
             {
                 return;
@@ -1885,7 +1891,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateNoCharacterDebugHudOnPlayerPrefab(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab == null)
             {
                 return;
@@ -1919,28 +1925,28 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateTestOnlyRootComponentsRemovedFromNetworkedPrefab(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             AppendIfMissing(
                 failures,
                 networkedPrefab != null
-                && networkedPrefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() == null,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerOfflineBootstrap after Phase 2D separation.");
+                && networkedPrefab.GetComponent<CCS_LocalPlayerOfflineBootstrap>() == null,
+                $"{CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_LocalPlayerOfflineBootstrap after Phase 2D separation.");
             AppendIfMissing(
                 failures,
                 networkedPrefab != null
                 && networkedPrefab.GetComponent<CCS_TestPlayerAttributeDebugInput>() == null,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerAttributeDebugInput after Phase 2D separation.");
+                $"{CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath} must not contain CCS_TestPlayerAttributeDebugInput after Phase 2D separation.");
         }
 
         private static void ValidateTestPlayerDisplayProfileAsset(List<string> failures)
         {
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath),
-                $"Missing test player display profile: {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+                File.Exists(CCS_PlayerPrefabConstants.DefaultDisplayProfilePath),
+                $"Missing test player display profile: {CCS_PlayerPrefabConstants.DefaultDisplayProfilePath}.");
 
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
             if (displayProfile == null)
             {
                 return;
@@ -1949,49 +1955,49 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 displayProfile.GlassesLocalScale == new Vector3(0.3f, 0.3f, 0.3f),
-                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses scale must be (0.3, 0.3, 0.3).");
+                $"{CCS_PlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses scale must be (0.3, 0.3, 0.3).");
             AppendIfMissing(
                 failures,
                 displayProfile.GlassesLocalEuler == new Vector3(180f, 180f, 90f),
-                $"{CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses rotation must be (180, 180, 90).");
+                $"{CCS_PlayerPrefabConstants.DefaultDisplayProfilePath} VisualGlasses rotation must be (180, 180, 90).");
         }
 
         private static void ValidateNetworkedPrefabDisplayProfileAssignment(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab == null)
             {
                 return;
             }
 
-            CCS_ControllerTestNetworkPlayerBehaviour networkBehaviour =
-                networkedPrefab.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+            CCS_NetworkPlayerController networkBehaviour =
+                networkedPrefab.GetComponent<CCS_NetworkPlayerController>();
             AppendIfMissing(
                 failures,
                 networkBehaviour != null,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CCS_ControllerTestNetworkPlayerBehaviour.");
+                $"{CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CCS_NetworkPlayerController.");
 
             if (networkBehaviour == null)
             {
                 return;
             }
 
-            CCS_TestPlayerDisplayProfile expectedProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_PlayerDisplayProfile expectedProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
             SerializedObject serializedBehaviour = new SerializedObject(networkBehaviour);
             SerializedProperty displayProfileProperty = serializedBehaviour.FindProperty("displayProfile");
             AppendIfMissing(
                 failures,
                 displayProfileProperty != null
                 && displayProfileProperty.objectReferenceValue == expectedProfile,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must assign CCS_TestPlayerDisplayProfile_Default on CCS_ControllerTestNetworkPlayerBehaviour.");
+                $"{CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath} must assign CCS_PlayerDisplayProfile_Default on CCS_NetworkPlayerController.");
 
             Transform followAnchor = FindChildByName(networkedPrefab.transform, "CameraFollowAnchor");
             AppendIfMissing(
                 failures,
                 followAnchor != null && followAnchor.GetComponent<CCS_CharacterCameraFollowAnchor>() != null,
-                $"{CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CameraFollowAnchor with CCS_CharacterCameraFollowAnchor.");
+                $"{CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath} must contain CameraFollowAnchor with CCS_CharacterCameraFollowAnchor.");
         }
 
         private static void ValidatePlayerCapsuleVisualLayout(List<string> failures, string prefabPath)
@@ -2028,23 +2034,23 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateSoloSpawnUsesSharedPrefabContracts(List<string> failures)
         {
             const string spawnControllerPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSpawnController.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/ValidationSpawnController.cs";
             const string sessionEventsPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_TestPlayerSessionEvents.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/PlayerSessionEvents.cs";
             const string localConfiguratorPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_TestPlayerLocalSessionConfigurator.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/LocalPlayerSessionConfigurator.cs";
 
             if (File.Exists(spawnControllerPath))
             {
                 string spawnSource = File.ReadAllText(spawnControllerPath);
                 AppendIfMissing(
                     failures,
-                    spawnSource.Contains("CCS_TestPlayerLocalSessionConfigurator.TryConfigureOfflinePlayer"),
-                    "CCS_MasterTestSpawnController must configure offline players through CCS_TestPlayerLocalSessionConfigurator.");
+                    spawnSource.Contains("CCS_LocalPlayerSessionConfigurator.TryConfigureOfflinePlayer"),
+                    "CCS_ValidationSpawnController must configure offline players through CCS_LocalPlayerSessionConfigurator.");
                 AppendIfMissing(
                     failures,
-                    spawnSource.Contains("CCS_MasterTestNetworkSessionUtility.IsNetworkSessionActive"),
-                    "CCS_MasterTestSpawnController must skip solo spawn during active Netcode sessions.");
+                    spawnSource.Contains("CCS_NetworkSessionUtility.IsNetworkSessionActive"),
+                    "CCS_ValidationSpawnController must skip solo spawn during active Netcode sessions.");
             }
 
             if (File.Exists(sessionEventsPath))
@@ -2053,19 +2059,19 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     eventsSource.Contains("PlayerSpawned"),
-                    "CCS_TestPlayerSessionEvents must expose PlayerSpawned.");
+                    "CCS_PlayerSessionEvents must expose PlayerSpawned.");
                 AppendIfMissing(
                     failures,
                     eventsSource.Contains("LocalPlayerReady"),
-                    "CCS_TestPlayerSessionEvents must expose LocalPlayerReady.");
+                    "CCS_PlayerSessionEvents must expose LocalPlayerReady.");
                 AppendIfMissing(
                     failures,
                     eventsSource.Contains("PlayerNameChanged"),
-                    "CCS_TestPlayerSessionEvents must expose PlayerNameChanged.");
+                    "CCS_PlayerSessionEvents must expose PlayerNameChanged.");
                 AppendIfMissing(
                     failures,
                     eventsSource.Contains("JoinNotificationQueued"),
-                    "CCS_TestPlayerSessionEvents must expose JoinNotificationQueued.");
+                    "CCS_PlayerSessionEvents must expose JoinNotificationQueued.");
             }
 
             if (File.Exists(localConfiguratorPath))
@@ -2073,12 +2079,12 @@ namespace CCS.Modules.CharacterController.Editor
                 string configuratorSource = File.ReadAllText(localConfiguratorPath);
                 AppendIfMissing(
                     failures,
-                    configuratorSource.Contains("CCS_TestPlayerDisplayProfileApplicator"),
-                    "CCS_TestPlayerLocalSessionConfigurator must apply layout through CCS_TestPlayerDisplayProfileApplicator.");
+                    configuratorSource.Contains("CCS_PlayerDisplayProfileApplicator"),
+                    "CCS_LocalPlayerSessionConfigurator must apply layout through CCS_PlayerDisplayProfileApplicator.");
                 AppendIfMissing(
                     failures,
                     configuratorSource.Contains("networkTransform.enabled = false"),
-                    "CCS_TestPlayerLocalSessionConfigurator must disable NetworkTransform during offline solo play.");
+                    "CCS_LocalPlayerSessionConfigurator must disable NetworkTransform during offline solo play.");
             }
         }
 
@@ -2091,17 +2097,17 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_ControllerTestNetworkPlayerBehaviour behaviour =
-                networkedPrefab.GetComponent<CCS_ControllerTestNetworkPlayerBehaviour>();
+            CCS_NetworkPlayerController behaviour =
+                networkedPrefab.GetComponent<CCS_NetworkPlayerController>();
             AppendIfMissing(
                 failures,
                 behaviour != null,
-                $"{CCS_CharacterControllerMasterTestLayoutConstants.NetworkedPlayerPrefabPath} must contain CCS_ControllerTestNetworkPlayerBehaviour.");
+                $"{CCS_CharacterControllerMasterTestLayoutConstants.NetworkedPlayerPrefabPath} must contain CCS_NetworkPlayerController.");
 
             Material yellowMaterial = AssetDatabase.LoadAssetAtPath<Material>(
                 CCS_CharacterControllerMasterTestLayoutConstants.PlayerYellowMaterialPath);
             Material greenMaterial = AssetDatabase.LoadAssetAtPath<Material>(
-                "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerGreen.mat");
+                "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerGreen.mat");
             if (behaviour == null || yellowMaterial == null)
             {
                 return;
@@ -2183,7 +2189,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidatePlayerJumpConfiguration(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             if (networkedPrefab != null)
             {
@@ -2191,7 +2197,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_SurvivalValidationResult networkedValidation =
                     CCS_CharacterControllerValidationUtility.ValidatePlayerJumpConfiguration(
                         networkedMotor,
-                        CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                        CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
                 if (!networkedValidation.IsSuccess)
                 {
                     failures.Add(networkedValidation.Message);
@@ -2202,7 +2208,7 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateAimLocomotionSetup(List<string> failures)
         {
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (networkedPrefab == null)
             {
                 return;
@@ -2358,8 +2364,8 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
 
             Transform glasses = FindChildByName(
                 prefab.transform,
@@ -2405,13 +2411,13 @@ namespace CCS.Modules.CharacterController.Editor
                         Quaternion.Euler(displayProfile.GlassesLocalEuler)) > 1f)
                 {
                     failures.Add(
-                        $"{prefabPath} VisualGlasses rotation must match {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+                        $"{prefabPath} VisualGlasses rotation must match {CCS_PlayerPrefabConstants.DefaultDisplayProfilePath}.");
                 }
 
                 if (Vector3.Distance(glasses.localScale, displayProfile.GlassesLocalScale) > 0.01f)
                 {
                     failures.Add(
-                        $"{prefabPath} VisualGlasses scale must match {CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath}.");
+                        $"{prefabPath} VisualGlasses scale must match {CCS_PlayerPrefabConstants.DefaultDisplayProfilePath}.");
                 }
             }
 
@@ -2817,22 +2823,22 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void ValidateJoinNotificationFeed(List<string> failures)
         {
-            Transform canvasTransform = FindRootTransform(CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName);
+            Transform canvasTransform = FindRootTransform(CCS_ValidationUiConstants.MasterTestUiCanvasObjectName);
             AppendIfMissing(
                 failures,
                 canvasTransform != null,
-                $"Scene is missing {CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName}.");
+                $"Scene is missing {CCS_ValidationUiConstants.MasterTestUiCanvasObjectName}.");
 
             if (canvasTransform == null)
             {
                 return;
             }
 
-            Transform feedTransform = canvasTransform.Find(CCS_MasterTestUiConstants.JoinNotificationFeedObjectName);
+            Transform feedTransform = canvasTransform.Find(CCS_ValidationUiConstants.JoinNotificationFeedObjectName);
             AppendIfMissing(
                 failures,
                 feedTransform != null,
-                $"Scene is missing {CCS_MasterTestUiConstants.JoinNotificationFeedObjectName} under MasterTestUiCanvas.");
+                $"Scene is missing {CCS_ValidationUiConstants.JoinNotificationFeedObjectName} under MasterTestUiCanvas.");
 
             if (feedTransform == null)
             {
@@ -2843,7 +2849,7 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 feed != null,
-                $"{CCS_MasterTestUiConstants.JoinNotificationFeedObjectName} must include CCS_PlayerJoinNotificationFeed.");
+                $"{CCS_ValidationUiConstants.JoinNotificationFeedObjectName} must include CCS_PlayerJoinNotificationFeed.");
 
             if (feed == null)
             {
@@ -2860,15 +2866,15 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                feed.MaxEntries == CCS_MasterTestUiConstants.JoinNotificationMaxEntries,
-                $"Join notification feed maxEntries must be {CCS_MasterTestUiConstants.JoinNotificationMaxEntries}.");
+                feed.MaxEntries == CCS_ValidationUiConstants.JoinNotificationMaxEntries,
+                $"Join notification feed maxEntries must be {CCS_ValidationUiConstants.JoinNotificationMaxEntries}.");
 
             AppendIfMissing(
                 failures,
                 Mathf.Approximately(
                     feed.EntryLifetimeSeconds,
-                    CCS_MasterTestUiConstants.JoinNotificationEntryLifetimeSeconds),
-                $"Join notification feed entryLifetimeSeconds must be {CCS_MasterTestUiConstants.JoinNotificationEntryLifetimeSeconds:0.#}.");
+                    CCS_ValidationUiConstants.JoinNotificationEntryLifetimeSeconds),
+                $"Join notification feed entryLifetimeSeconds must be {CCS_ValidationUiConstants.JoinNotificationEntryLifetimeSeconds:0.#}.");
 
             SerializedObject serializedFeed = new SerializedObject(feed);
             AppendIfMissing(
@@ -2881,7 +2887,7 @@ namespace CCS.Modules.CharacterController.Editor
                 serializedFeed.FindProperty("panelRoot")?.objectReferenceValue != null,
                 "Join notification feed must reference JoinNotificationPanel.");
 
-            Transform panelTransform = feedTransform.Find(CCS_MasterTestUiConstants.JoinNotificationPanelObjectName);
+            Transform panelTransform = feedTransform.Find(CCS_ValidationUiConstants.JoinNotificationPanelObjectName);
             if (panelTransform != null)
             {
                 AppendIfMissing(
@@ -2901,23 +2907,23 @@ namespace CCS.Modules.CharacterController.Editor
                         failures,
                         Mathf.Approximately(
                             panelRect.sizeDelta.x,
-                            CCS_MasterTestUiConstants.JoinNotificationPanelWidth),
-                        $"Join notification panel width must be {CCS_MasterTestUiConstants.JoinNotificationPanelWidth:0.#}.");
+                            CCS_ValidationUiConstants.JoinNotificationPanelWidth),
+                        $"Join notification panel width must be {CCS_ValidationUiConstants.JoinNotificationPanelWidth:0.#}.");
 
                     AppendIfMissing(
                         failures,
                         Mathf.Approximately(
                             -panelRect.anchoredPosition.x,
-                            CCS_MasterTestUiConstants.JoinNotificationPanelMargin),
-                        $"Join notification panel right margin must be {CCS_MasterTestUiConstants.JoinNotificationPanelMargin:0.#}.");
+                            CCS_ValidationUiConstants.JoinNotificationPanelMargin),
+                        $"Join notification panel right margin must be {CCS_ValidationUiConstants.JoinNotificationPanelMargin:0.#}.");
                 }
 
-                Transform titleTransform = panelTransform.Find(CCS_MasterTestUiConstants.JoinNotificationTitleObjectName);
+                Transform titleTransform = panelTransform.Find(CCS_ValidationUiConstants.JoinNotificationTitleObjectName);
                 TMP_Text titleText = titleTransform != null ? titleTransform.GetComponent<TMP_Text>() : null;
                 AppendIfMissing(
                     failures,
-                    titleText != null && titleText.text == CCS_MasterTestUiConstants.JoinNotificationHeaderText,
-                    $"Join notification header must read \"{CCS_MasterTestUiConstants.JoinNotificationHeaderText}\".");
+                    titleText != null && titleText.text == CCS_ValidationUiConstants.JoinNotificationHeaderText,
+                    $"Join notification header must read \"{CCS_ValidationUiConstants.JoinNotificationHeaderText}\".");
             }
 
             RectTransform feedRect = feedTransform as RectTransform;
@@ -2935,13 +2941,13 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateJoinNotificationSourceContracts(List<string> failures)
         {
             const string spawnControllerPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSpawnController.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/ValidationSpawnController.cs";
             const string feedPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_PlayerJoinNotificationFeed.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/PlayerJoinNotificationFeed.cs";
             const string networkNameplatePath =
-                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetworkPlayerNameplate.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/Netcode/CCS_NetworkPlayerNameplate.cs";
             const string joinAnnouncerPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetworkPlayerJoinAnnouncer.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/Netcode/CCS_NetworkPlayerJoinAnnouncer.cs";
 
             if (File.Exists(spawnControllerPath))
             {
@@ -2949,7 +2955,7 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     !spawnSource.Contains("CCS_PlayerJoinNotificationFeedRegistry.ShowPlayerJoined"),
-                    "CCS_MasterTestSpawnController must not notify the join feed during solo spawn.");
+                    "CCS_ValidationSpawnController must not notify the join feed during solo spawn.");
             }
 
             if (File.Exists(feedPath))
@@ -2957,7 +2963,7 @@ namespace CCS.Modules.CharacterController.Editor
                 string feedSource = File.ReadAllText(feedPath);
                 AppendIfMissing(
                     failures,
-                    feedSource.Contains("CCS_MasterTestNetworkSessionUtility.IsNetworkSessionActive"),
+                    feedSource.Contains("CCS_NetworkSessionUtility.IsNetworkSessionActive"),
                     "CCS_PlayerJoinNotificationFeed must gate notifications on active Netcode sessions.");
                 AppendIfMissing(
                     failures,
@@ -2974,11 +2980,11 @@ namespace CCS.Modules.CharacterController.Editor
                     "CCS_NetworkPlayerNameplate must broadcast join notifications through ClientRpc.");
                 AppendIfMissing(
                     failures,
-                    networkSource.Contains("CCS_TestPlayerSessionEvents.RaisePlayerNameChanged"),
+                    networkSource.Contains("CCS_PlayerSessionEvents.RaisePlayerNameChanged"),
                     "CCS_NetworkPlayerNameplate must raise PlayerNameChanged session events.");
                 AppendIfMissing(
                     failures,
-                    networkSource.Contains("CCS_TestPlayerSessionEvents.RaisePlayerSpawned"),
+                    networkSource.Contains("CCS_PlayerSessionEvents.RaisePlayerSpawned"),
                     "CCS_NetworkPlayerNameplate must raise PlayerSpawned session events.");
             }
 
@@ -3007,11 +3013,11 @@ namespace CCS.Modules.CharacterController.Editor
                     "CCS_NetworkPlayerJoinAnnouncer must announce persisted players when Master Test becomes ready.");
                 AppendIfMissing(
                     failures,
-                    announcerSource.Contains("CCS_TestPlayerSessionEvents.PlayerSpawned"),
+                    announcerSource.Contains("CCS_PlayerSessionEvents.PlayerSpawned"),
                     "CCS_NetworkPlayerJoinAnnouncer must subscribe to PlayerSpawned session events.");
                 AppendIfMissing(
                     failures,
-                    announcerSource.Contains("CCS_TestPlayerSessionEvents.PlayerNameChanged"),
+                    announcerSource.Contains("CCS_PlayerSessionEvents.PlayerNameChanged"),
                     "CCS_NetworkPlayerJoinAnnouncer must subscribe to PlayerNameChanged session events.");
             }
         }
@@ -3021,13 +3027,13 @@ namespace CCS.Modules.CharacterController.Editor
         private static void ValidateNameplateOwnershipVisibility(List<string> failures)
         {
             const string spawnControllerPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSpawnController.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/ValidationSpawnController.cs";
             const string localConfiguratorPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_TestPlayerLocalSessionConfigurator.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/LocalPlayerSessionConfigurator.cs";
             const string networkNameplatePath =
-                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Runtime/CCS_NetworkPlayerNameplate.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/Netcode/CCS_NetworkPlayerNameplate.cs";
             const string nameplateBillboardPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_PlayerNameplateBillboard.cs";
+                "Assets/CCS/Modules/CharacterController/Runtime/PlayerNameplateBillboard.cs";
 
             if (File.Exists(spawnControllerPath))
             {
@@ -3035,7 +3041,7 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     spawnSource.Contains("TryConfigureOfflinePlayer"),
-                    "CCS_MasterTestSpawnController must configure solo players through CCS_TestPlayerLocalSessionConfigurator.");
+                    "CCS_ValidationSpawnController must configure solo players through CCS_LocalPlayerSessionConfigurator.");
             }
 
             if (File.Exists(localConfiguratorPath))
@@ -3044,7 +3050,7 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     configuratorSource.Contains("ApplyNameplateVisibility(isLocalOwner: true)"),
-                    "CCS_TestPlayerLocalSessionConfigurator must hide the solo/local owner nameplate.");
+                    "CCS_LocalPlayerSessionConfigurator must hide the solo/local owner nameplate.");
             }
 
             if (File.Exists(networkNameplatePath))
@@ -3791,9 +3797,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             Scene masterScene = SceneManager.GetActiveScene();
 
-            CCS_ControllerTestNetworkPlayerBehaviour[] networkedPlayers =
+            CCS_NetworkPlayerController[] networkedPlayers =
 
-                Object.FindObjectsByType<CCS_ControllerTestNetworkPlayerBehaviour>(
+                Object.FindObjectsByType<CCS_NetworkPlayerController>(
 
                     FindObjectsInactive.Include, FindObjectsSortMode.None);
 
@@ -3801,7 +3807,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             {
 
-                CCS_ControllerTestNetworkPlayerBehaviour networkedPlayer = networkedPlayers[i];
+                CCS_NetworkPlayerController networkedPlayer = networkedPlayers[i];
 
                 if (networkedPlayer != null && networkedPlayer.gameObject.scene == masterScene)
 

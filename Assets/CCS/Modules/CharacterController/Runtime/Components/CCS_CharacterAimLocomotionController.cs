@@ -5,7 +5,7 @@ using UnityEngine;
 // SCRIPT: CCS_CharacterAimLocomotionController
 // CATEGORY: Modules / CharacterController / Runtime / Components
 // PURPOSE: Owns combat locomotion and local firearm first-person aim camera activation.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.9 — third-person default; first-person aim camera only while firearm aiming (local owner).

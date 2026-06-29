@@ -11,7 +11,7 @@ using UnityEngine;
 // SCRIPT: CCS_PlayerInteractionAnimator
 // CATEGORY: Modules / CharacterController / Runtime / Visuals
 // PURPOSE: Drives interaction Animator triggers and locks movement during interact anims.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Lock begins on scanner E accept via BeginInteractionLock. Trigger fires on completed.

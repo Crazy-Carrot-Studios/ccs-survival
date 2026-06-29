@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterCameraProfile
   profileDisplayName: First Person Aim
   profileId: ccs.survival.profile.character.camera.firstpersonaim
-  profileDescription: First-person aim profile with fixed FirstPersonAimCameraAnchor above
-    the gun hand while retaining zero damping and tightened pitch clamp.
+  profileDescription: First-person aim profile with fixed FirstPersonAimCameraAnchor
+    above the gun hand while retaining zero damping and tightened pitch clamp.
   profileVersion: 0.6.9-fixed-first-person-aim-anchor
   enableDebugLogs: 0
   cameraMode: 7
@@ -52,7 +52,7 @@ MonoBehaviour:
   firstPersonVerticalEyeOffset: 0.14
   nearClipPlane: 0.03
   useHeadTrackedAnchor: 0
-  headTrackedLocalOffset: {x: 0, y: 0.14, z: 0.26}
+  headTrackedLocalOffset: {x: 0, y: 0.04, z: 0.18}
   headTrackingPositionLerpSpeed: 30
   inheritHeadBoneRotation: 0
   fixedFirstPersonAimAnchorLocalOffset: {x: 0, y: 0.3, z: 0.32}

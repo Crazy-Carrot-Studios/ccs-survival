@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbd0c3c3b3234a6449c103bd7bea1592, type: 3}
+  m_Name: CCS_CharacterMovementProfile_Default
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_CharacterMovementProfile
+  profileDisplayName: Default Movement
+  profileId: ccs.survival.profile.character.movement.default
+  profileDescription: Polished third-person grounded movement tuning for v0.2.3.
+  profileVersion: 0.6.3-aim-strafe-movement
+  enableDebugLogs: 0
+  walkSpeed: 4.25
+  sprintSpeed: 6.5
+  acceleration: 14
+  deceleration: 18
+  gravity: -20
+  jumpEnabled: 1
+  jumpHeight: 1.25
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  rotationSmoothing: 720
+  airControl: 0.4
+  aimMovementSpeedMultiplier: 0.55
+  aimRotationSpeedDegrees: 720
+  aimDisableSprint: 1
+  aimStrafeDeadZone: 0.05
+  aimBackpedalMultiplier: 0.8
+  aimSideStrafeMultiplier: 0.9

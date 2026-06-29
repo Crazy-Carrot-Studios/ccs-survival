@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddb1bf07f49450d44ae6b623ab244ef9, type: 3}
+  m_Name: CCS_WeaponIKPoseProfile_DefaultRevolver
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_WeaponIKPoseProfile
+  profileId: fit.revolver.default
+  weaponId: weapon.revolver
+  characterRigId: ccs.testplayer.humanoid
+  poseId: pose.default
+  rightHandTargetLocalPosition: {x: 0, y: 0, z: 0}
+  rightHandTargetLocalEulerAngles: {x: 0, y: 0, z: 0}
+  rightElbowHintLocalPosition: {x: 0, y: 0, z: 0}
+  leftHandTargetLocalPosition: {x: 0, y: 0, z: 0}
+  leftHandTargetLocalEulerAngles: {x: 0, y: 0, z: 0}
+  leftElbowHintLocalPosition: {x: 0, y: 0, z: 0}
+  weaponAimTargetLocalPosition: {x: 0, y: 0, z: 0}
+  weaponAimTargetLocalEulerAngles: {x: 0, y: 0, z: 0}
+  rigWeight: 0
+  rightHandIKWeight: 0
+  leftHandIKWeight: 0
+  aimWeight: 0
+  notes: 

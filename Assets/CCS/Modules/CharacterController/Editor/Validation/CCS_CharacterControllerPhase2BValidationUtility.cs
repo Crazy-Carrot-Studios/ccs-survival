@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Diagnostics;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -24,13 +24,13 @@ namespace CCS.Modules.CharacterController.Editor
     public static class CCS_CharacterControllerPhase2BValidationUtility
     {
         private const string TestingManagerPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_CharacterControllerTestingManager.cs";
+            "Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_CharacterControllerDiagnosticsManager.cs";
 
         private const string OfflineBootstrapperPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_MasterTestPlayerOfflineBootstrapper.cs";
+            "Assets/CCS/Modules/CharacterController/Runtime/Local/CCS_LocalPlayerOfflineBootstrapper.cs";
 
         private const string TestDamageRouterPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Runtime/Diagnostics/CCS_TestPlayerAttributeDebugInputRouter.cs";
+            "Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_PlayerDiagnosticsInputRouter.cs";
 
         private const string EquipmentFitStudioWindowPath =
             "Assets/CCS/Modules/CharacterController/Editor/EquipmentFitStudio/CCS_EquipmentFitStudioWindow.cs";
@@ -39,7 +39,7 @@ namespace CCS.Modules.CharacterController.Editor
             "Assets/CCS/Project/Editor/CCS_ProjectMasterTestBatchEntry.cs";
 
         private const string HostingBatchEntryPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Netcode/Editor/CCS_MultiplayerHostingSceneBatchEntry.cs";
+            "Assets/CCS/Modules/CharacterController/Editor/Netcode/Hosting/CCS_MultiplayerHostingSceneBatchEntry.cs";
 
         private static readonly string[] RuntimeOnGuiSourcePaths =
         {
@@ -75,11 +75,11 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 File.Exists(TestingManagerPath),
-                "Missing CCS_CharacterControllerTestingManager at " + TestingManagerPath);
+                "Missing CCS_CharacterControllerDiagnosticsManager at " + TestingManagerPath);
             AppendIfMissing(
                 failures,
-                !File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs"),
-                "CCS_MasterTestSceneTestingManager compatibility wrapper must be removed after Phase 2D migration.");
+                !File.Exists("Assets/CCS/Modules/CharacterController/Runtime/CharacterControllerDiagnosticsManager.cs"),
+                "CCS_CharacterControllerDiagnosticsManager compatibility wrapper must be removed after Phase 2D migration.");
 
             if (!File.Exists(TestingManagerPath))
             {
@@ -94,10 +94,10 @@ namespace CCS.Modules.CharacterController.Editor
                         && source.Contains("SetAimDiagnosticsEnabled")
                         && source.Contains("SetAnimationDiagnosticsEnabled")
                         && source.Contains("SetInteractionDiagnosticsEnabled")
-                        && source.Contains("SetTestDamageEnabled")
+                        && source.Contains("SetDamageDiagnosticsEnabled")
                         && source.Contains("SetVisualDebugHelpersEnabled")
                         && source.Contains("WriteOneShotReport"),
-                    "CCS_CharacterControllerTestingManager must expose central debug toggle API.");
+                    "CCS_CharacterControllerDiagnosticsManager must expose central debug toggle API.");
         }
 
         private static void ValidateRuntimeOnGuiPolicy(List<string> failures)
@@ -135,12 +135,12 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_CharacterControllerTestingManager[] managers =
-                Object.FindObjectsByType<CCS_CharacterControllerTestingManager>(FindObjectsSortMode.None);
+            CCS_CharacterControllerDiagnosticsManager[] managers =
+                Object.FindObjectsByType<CCS_CharacterControllerDiagnosticsManager>(FindObjectsSortMode.None);
             AppendIfMissing(
                 failures,
                 managers.Length == 1,
-                "Master Test scene must contain exactly one CCS_CharacterControllerTestingManager (found "
+                "Master Test scene must contain exactly one CCS_CharacterControllerDiagnosticsManager (found "
                 + managers.Length
                 + ").");
         }
@@ -173,14 +173,14 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             string harnessMenuPath =
-                "Assets/CCS/Modules/CharacterController/Tests/Netcode/Editor/CCS_CharacterControllerTestHarnessMenus.cs";
+                "Assets/CCS/Modules/CharacterController/Editor/Netcode/Hosting/CCS_CharacterControllerHostingMenus.cs";
             if (File.Exists(harnessMenuPath))
             {
                 string harnessSource = File.ReadAllText(harnessMenuPath);
                 AppendIfMissing(
                     failures,
                     !harnessSource.Contains("[MenuItem("),
-                    "CCS_CharacterControllerTestHarnessMenus must not register MenuItem wrappers.");
+                    "CCS_CharacterControllerHostingMenus must not register MenuItem wrappers.");
             }
 
             string aimPresetPath =

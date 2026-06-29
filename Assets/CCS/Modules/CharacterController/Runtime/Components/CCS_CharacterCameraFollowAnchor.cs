@@ -10,7 +10,7 @@ using UnityEngine;
 
 // PURPOSE: Shared third-person camera rig target with decoupled yaw/pitch look control.
 
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / CameraFollowAnchor.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / CameraFollowAnchor.
 
 // AUTHOR: James Schilz
 

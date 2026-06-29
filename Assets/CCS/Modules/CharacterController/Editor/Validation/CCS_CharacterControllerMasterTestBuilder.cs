@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using CCS.Modules.Attributes.Editor;
 using CCS.Modules.CharacterController;
 using CCS.Modules.CharacterController.Editor.EquipmentFitStudio;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
 using CCS.Modules.Interaction.Editor;
 using CCS.Modules.Weapons.Editor;
 using Unity.Cinemachine;
@@ -22,7 +23,7 @@ using UnityEngine.SceneManagement;
 
 // CATEGORY: Modules / CharacterController / Editor / Validation
 
-// PURPOSE: Sets up SCN_CCS_CharacterController_MasterTest from layout constants.
+// PURPOSE: Sets up SCN_CCS_CharacterController_Validation from layout constants.
 
 // PLACEMENT: Editor builder utility. Not attached to GameObjects.
 
@@ -72,6 +73,8 @@ namespace CCS.Modules.CharacterController.Editor
 
             }
 
+            EditorSceneManager.SetActiveScene(scene);
+
 
 
             CCS_CharacterCameraLayerUtility.EnsurePlayerLayerAndTag();
@@ -91,6 +94,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             EnsurePrefabAssetMaterials();
 
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+
 
 
             bool changed = false;
@@ -101,75 +107,32 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
-            Transform environment = EnsureParent(CCS_CharacterControllerMasterTestLayoutConstants.EnvironmentParentName, ref changed);
+            Transform environment = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.EnvironmentParentName, ref changed);
 
-            Transform testPoints = EnsureParent(CCS_CharacterControllerMasterTestLayoutConstants.TestPointsParentName, ref changed);
+            Transform testPoints = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.TestPointsParentName, ref changed);
 
 
 
             changed |= RevertEnvironmentPrefabInstances(environment);
 
-            changed |= EnsureEnvironmentPrefab(
-
-                environment,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.GroundPrefabPath,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.GroundInstanceName,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.GroundPosition,
-
-                Quaternion.identity);
-
-            changed |= EnsureEnvironmentPrefab(
-
-                environment,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.BuildingPrefabPath,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.BuildingInstanceName,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.BuildingPosition,
-
-                Quaternion.identity);
-
-            changed |= EnsureEnvironmentPrefab(
-
-                environment,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.StairsPrefabPath,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.StairsInstanceName,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.StairsPosition,
-
-                Quaternion.identity);
-
-            changed |= EnsureEnvironmentPrefab(
-
-                environment,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.RampPrefabPath,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.RampInstanceName,
-
-                CCS_CharacterControllerMasterTestLayoutConstants.RampPosition,
-
-                Quaternion.Euler(CCS_CharacterControllerMasterTestLayoutConstants.RampRotationEuler));
-
-
+            changed |= EnsureValidationSceneEnvironmentAndPoints(environment, testPoints);
 
             changed |= RemoveLooseDoorInstances(environment);
 
-            changed |= EnsureSpawnPoints(testPoints);
-
-            changed |= EnsureTraversalPoints(testPoints);
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
 
             changed |= CCS_WeaponsMasterTestBuilder.EnsureMasterTestWeaponTarget();
 
-            changed |= EnsureBootstrapRoot();
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+            environment = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.EnvironmentParentName, ref changed);
+            testPoints = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.TestPointsParentName, ref changed);
+            changed |= EnsureValidationSceneEnvironmentAndPoints(environment, testPoints);
 
-            changed |= EnsureMasterTestSpawnController(testPoints);
+            changed |= EnsureBootstrapRoot();
 
             changed |= CCS_MasterTestJoinNotificationUiBuilder.EnsureJoinNotificationFeed();
 
@@ -179,6 +142,8 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= EnsureCameraRig();
 
+            changed |= EnsureMasterTestSpawnController(testPoints);
+
             changed |= EnsureDirectionalLight();
 
             changed |= EnsureSingleAudioListener();
@@ -187,26 +152,40 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= DestroyAllByName("CCS_TestPickupItemSpawner");
             changed |= DestroyAllByName("PF_CCS_TestInteractable_PickupItem");
             changed |= DestroyAllByName("CCS_TestDetectionCubeSceneBootstrap");
+
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+
             changed |= CCS_InteractionDetectionTestBuilder.ApplyMasterTestInteractionsToActiveScene();
 
-            if (!scene.isLoaded)
-            {
-                scene = EditorSceneManager.OpenScene(
-                    CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath,
-                    OpenSceneMode.Single);
-            }
-            else if (SceneManager.GetActiveScene() != scene)
-            {
-                EditorSceneManager.SetActiveScene(scene);
-            }
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+            environment = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.EnvironmentParentName, ref changed);
+            testPoints = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.TestPointsParentName, ref changed);
+            changed |= EnsureValidationSceneEnvironmentAndPoints(environment, testPoints);
+
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
 
             changed |= CCS_MasterTestRecordingAmbientAudioBuilder.EnsureMasterTestRecordingAmbience(scene);
             changed |= CCS_CharacterControllerPhase2DMigrationUtility.ApplyPhase2DSeparation(scene);
+
+            scene = EnsureMasterTestSceneReference(scene);
+            EditorSceneManager.SetActiveScene(scene);
+            Transform finalEnvironment = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.EnvironmentParentName, ref changed);
+            Transform finalTestPoints = EnsureSceneRootParent(scene, CCS_CharacterControllerMasterTestLayoutConstants.TestPointsParentName, ref changed);
+            changed |= EnsureValidationSceneEnvironmentAndPoints(finalEnvironment, finalTestPoints);
+            changed |= EnsureMasterTestSpawnController(finalTestPoints);
+            changed |= CCS_MissingScriptScanUtility.RepairOpenScene(scene, out _) > 0;
 
             if (changed)
 
             {
 
+                scene = EnsureMasterTestSceneReference(scene);
+                EditorSceneManager.SetActiveScene(scene);
                 EditorSceneManager.MarkSceneDirty(scene);
 
                 EditorSceneManager.SaveScene(scene);
@@ -458,6 +437,68 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
+        private static Scene EnsureMasterTestSceneReference(Scene scene)
+        {
+            string scenePath = CCS_CharacterControllerMasterTestLayoutConstants.MasterTestScenePath;
+            Scene sceneByPath = SceneManager.GetSceneByPath(scenePath);
+            if (sceneByPath.IsValid() && sceneByPath.isLoaded)
+            {
+                return sceneByPath;
+            }
+
+            if (scene.IsValid() && scene.isLoaded && scene.path == scenePath)
+            {
+                return scene;
+            }
+
+            return EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+        }
+
+
+
+        private static Transform EnsureSceneRootParent(Scene scene, string parentName, ref bool changed)
+
+        {
+
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int i = 0; i < roots.Length; i++)
+
+            {
+
+                if (roots[i] != null && roots[i].name == parentName)
+
+                {
+
+                    return roots[i].transform;
+
+                }
+
+            }
+
+
+
+            GameObject parentObject = new GameObject(parentName);
+
+            EditorSceneManager.MoveGameObjectToScene(parentObject, scene);
+
+            if (!parentObject.scene.IsValid() || parentObject.scene != scene)
+            {
+                Debug.LogError(
+                    "[Master Test Builder] Failed to create scene root parent '"
+                    + parentName
+                    + "' in "
+                    + scene.path);
+            }
+
+            changed = true;
+
+            return parentObject.transform;
+
+        }
+
+
+
         private static Transform EnsureParent(string parentName, ref bool changed)
 
         {
@@ -503,6 +544,40 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
+            return changed;
+        }
+
+
+
+        private static bool EnsureValidationSceneEnvironmentAndPoints(Transform environment, Transform testPoints)
+        {
+            bool changed = false;
+            changed |= EnsureEnvironmentPrefab(
+                environment,
+                CCS_CharacterControllerMasterTestLayoutConstants.GroundPrefabPath,
+                CCS_CharacterControllerMasterTestLayoutConstants.GroundInstanceName,
+                CCS_CharacterControllerMasterTestLayoutConstants.GroundPosition,
+                Quaternion.identity);
+            changed |= EnsureEnvironmentPrefab(
+                environment,
+                CCS_CharacterControllerMasterTestLayoutConstants.BuildingPrefabPath,
+                CCS_CharacterControllerMasterTestLayoutConstants.BuildingInstanceName,
+                CCS_CharacterControllerMasterTestLayoutConstants.BuildingPosition,
+                Quaternion.identity);
+            changed |= EnsureEnvironmentPrefab(
+                environment,
+                CCS_CharacterControllerMasterTestLayoutConstants.StairsPrefabPath,
+                CCS_CharacterControllerMasterTestLayoutConstants.StairsInstanceName,
+                CCS_CharacterControllerMasterTestLayoutConstants.StairsPosition,
+                Quaternion.identity);
+            changed |= EnsureEnvironmentPrefab(
+                environment,
+                CCS_CharacterControllerMasterTestLayoutConstants.RampPrefabPath,
+                CCS_CharacterControllerMasterTestLayoutConstants.RampInstanceName,
+                CCS_CharacterControllerMasterTestLayoutConstants.RampPosition,
+                Quaternion.Euler(CCS_CharacterControllerMasterTestLayoutConstants.RampRotationEuler));
+            changed |= EnsureSpawnPoints(testPoints);
+            changed |= EnsureTraversalPoints(testPoints);
             return changed;
         }
 
@@ -885,29 +960,28 @@ namespace CCS.Modules.CharacterController.Editor
 
             Transform existing = FindLooseSceneObject(
                 CCS_CharacterControllerMasterTestLayoutConstants.MasterTestSpawnControllerObjectName);
-            GameObject spawnObject;
+            GameObject spawnObject = existing == null
+                ? new GameObject(CCS_CharacterControllerMasterTestLayoutConstants.MasterTestSpawnControllerObjectName)
+                : existing.gameObject;
             if (existing == null)
             {
-                spawnObject = new GameObject(
-                    CCS_CharacterControllerMasterTestLayoutConstants.MasterTestSpawnControllerObjectName);
+                EditorSceneManager.MoveGameObjectToScene(
+                    spawnObject,
+                    testPointsParent != null ? testPointsParent.gameObject.scene : SceneManager.GetActiveScene());
                 changed = true;
             }
-            else
-            {
-                spawnObject = existing.gameObject;
-            }
 
-            CCS_MasterTestSpawnController spawnController = spawnObject.GetComponent<CCS_MasterTestSpawnController>();
+            CCS_ValidationSpawnController spawnController = spawnObject.GetComponent<CCS_ValidationSpawnController>();
             if (spawnController == null)
             {
-                spawnController = spawnObject.AddComponent<CCS_MasterTestSpawnController>();
+                spawnController = spawnObject.AddComponent<CCS_ValidationSpawnController>();
                 changed = true;
             }
 
             GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
-            CCS_TestPlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_TestPlayerDisplayProfile>(
-                CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            CCS_PlayerDisplayProfile displayProfile = AssetDatabase.LoadAssetAtPath<CCS_PlayerDisplayProfile>(
+                CCS_PlayerPrefabConstants.DefaultDisplayProfilePath);
             Transform spawnHost = testPointsParent != null
                 ? testPointsParent.Find(CCS_CharacterControllerMasterTestLayoutConstants.SpawnPointNames[0])
                 : null;

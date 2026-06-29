@@ -1,0 +1,25 @@
+{
+    "name": "CCS.Modules.CharacterController.Local.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController.Local",
+    "references": [
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.CharacterController.Validation.Runtime",
+        "CCS.Modules.Interaction.Runtime",
+        "CCS.Modules.Weapons.Runtime",
+        "CCS.Project.Runtime",
+        "Unity.InputSystem",
+        "Unity.Cinemachine",
+        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

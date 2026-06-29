@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: CCS_DefaultEquipmentSocketProfile
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_EquipmentSocketProfile
   socketDefinitions:
-  - {fileID: 11400000, guid: 61a4185447eacf34eb49cf20ef4e020d, type: 2}
-  - {fileID: 11400000, guid: 67c914e0246e80a46bb93d9724e79f49, type: 2}
-  - {fileID: 11400000, guid: ab446eb1e2e90fb4aa41629443e0084c, type: 2}
-  - {fileID: 11400000, guid: b298f8319e233fb43b8565ede139da6e, type: 2}
-  - {fileID: 11400000, guid: b05fd61d797f16b4fb942d2cb3aa3cbe, type: 2}
-  - {fileID: 11400000, guid: 569312e4583a55d43a8cabb89ff148de, type: 2}
+  - {fileID: 11400000, guid: ab9705557624f7048bff1fcfcd3cf2cd, type: 2}
+  - {fileID: 11400000, guid: 0134d04426075e34a86bfd92b83efb83, type: 2}
+  - {fileID: 11400000, guid: 3fa93eccd7956414ca0cda3a8dc0e783, type: 2}
+  - {fileID: 11400000, guid: 0a78536ab4838a84aa3d38b95c5dde7d, type: 2}
+  - {fileID: 11400000, guid: 9c645ba1f956cd74e9e9d04167c10c05, type: 2}
+  - {fileID: 11400000, guid: 2baecb8f36c22de40b552bd6997053e2, type: 2}

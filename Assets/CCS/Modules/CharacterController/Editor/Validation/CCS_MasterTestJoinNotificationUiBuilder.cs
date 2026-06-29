@@ -1,4 +1,5 @@
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController;
+using CCS.Modules.CharacterController.Validation;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -31,12 +32,12 @@ namespace CCS.Modules.CharacterController.Editor
 
             bool changed = false;
             Canvas canvas = FindOrCreateCanvas(ref changed);
-            Transform existingFeed = canvas.transform.Find(CCS_MasterTestUiConstants.JoinNotificationFeedObjectName);
+            Transform existingFeed = canvas.transform.Find(CCS_ValidationUiConstants.JoinNotificationFeedObjectName);
             GameObject feedObject;
             if (existingFeed == null)
             {
                 feedObject = new GameObject(
-                    CCS_MasterTestUiConstants.JoinNotificationFeedObjectName,
+                    CCS_ValidationUiConstants.JoinNotificationFeedObjectName,
                     typeof(RectTransform));
                 feedObject.transform.SetParent(canvas.transform, false);
                 changed = true;
@@ -83,9 +84,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             SerializedProperty maxEntriesProperty = serializedFeed.FindProperty("maxEntries");
             if (maxEntriesProperty != null
-                && maxEntriesProperty.intValue != CCS_MasterTestUiConstants.JoinNotificationMaxEntries)
+                && maxEntriesProperty.intValue != CCS_ValidationUiConstants.JoinNotificationMaxEntries)
             {
-                maxEntriesProperty.intValue = CCS_MasterTestUiConstants.JoinNotificationMaxEntries;
+                maxEntriesProperty.intValue = CCS_ValidationUiConstants.JoinNotificationMaxEntries;
                 changed = true;
             }
 
@@ -93,9 +94,9 @@ namespace CCS.Modules.CharacterController.Editor
             if (lifetimeProperty != null
                 && !Mathf.Approximately(
                     lifetimeProperty.floatValue,
-                    CCS_MasterTestUiConstants.JoinNotificationEntryLifetimeSeconds))
+                    CCS_ValidationUiConstants.JoinNotificationEntryLifetimeSeconds))
             {
-                lifetimeProperty.floatValue = CCS_MasterTestUiConstants.JoinNotificationEntryLifetimeSeconds;
+                lifetimeProperty.floatValue = CCS_ValidationUiConstants.JoinNotificationEntryLifetimeSeconds;
                 changed = true;
             }
 
@@ -103,9 +104,9 @@ namespace CCS.Modules.CharacterController.Editor
             if (panelVisibleProperty != null
                 && !Mathf.Approximately(
                     panelVisibleProperty.floatValue,
-                    CCS_MasterTestUiConstants.JoinNotificationPanelVisibleSeconds))
+                    CCS_ValidationUiConstants.JoinNotificationPanelVisibleSeconds))
             {
-                panelVisibleProperty.floatValue = CCS_MasterTestUiConstants.JoinNotificationPanelVisibleSeconds;
+                panelVisibleProperty.floatValue = CCS_ValidationUiConstants.JoinNotificationPanelVisibleSeconds;
                 changed = true;
             }
 
@@ -114,9 +115,9 @@ namespace CCS.Modules.CharacterController.Editor
                 serializedFeed.ApplyModifiedPropertiesWithoutUndo();
             }
 
-            if (titleText != null && titleText.text != CCS_MasterTestUiConstants.JoinNotificationHeaderText)
+            if (titleText != null && titleText.text != CCS_ValidationUiConstants.JoinNotificationHeaderText)
             {
-                titleText.text = CCS_MasterTestUiConstants.JoinNotificationHeaderText;
+                titleText.text = CCS_ValidationUiConstants.JoinNotificationHeaderText;
                 changed = true;
             }
 
@@ -135,11 +136,11 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static Canvas FindOrCreateCanvas(ref bool changed)
         {
-            GameObject canvasObject = GameObject.Find(CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName);
+            GameObject canvasObject = GameObject.Find(CCS_ValidationUiConstants.MasterTestUiCanvasObjectName);
             if (canvasObject == null)
             {
                 canvasObject = new GameObject(
-                    CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName,
+                    CCS_ValidationUiConstants.MasterTestUiCanvasObjectName,
                     typeof(RectTransform),
                     typeof(Canvas),
                     typeof(CanvasScaler),
@@ -199,12 +200,12 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static RectTransform EnsurePanel(Transform feedRoot, ref bool changed)
         {
-            Transform panelTransform = feedRoot.Find(CCS_MasterTestUiConstants.JoinNotificationPanelObjectName);
+            Transform panelTransform = feedRoot.Find(CCS_ValidationUiConstants.JoinNotificationPanelObjectName);
             GameObject panelObject;
             if (panelTransform == null)
             {
                 panelObject = new GameObject(
-                    CCS_MasterTestUiConstants.JoinNotificationPanelObjectName,
+                    CCS_ValidationUiConstants.JoinNotificationPanelObjectName,
                     typeof(RectTransform),
                     typeof(CanvasRenderer),
                     typeof(Image),
@@ -223,16 +224,16 @@ namespace CCS.Modules.CharacterController.Editor
             panelRect.anchorMax = new Vector2(1f, 1f);
             panelRect.pivot = new Vector2(1f, 1f);
             panelRect.anchoredPosition = new Vector2(
-                -CCS_MasterTestUiConstants.JoinNotificationPanelMargin,
-                -CCS_MasterTestUiConstants.JoinNotificationPanelMargin);
+                -CCS_ValidationUiConstants.JoinNotificationPanelMargin,
+                -CCS_ValidationUiConstants.JoinNotificationPanelMargin);
             panelRect.sizeDelta = new Vector2(
-                CCS_MasterTestUiConstants.JoinNotificationPanelWidth,
-                CCS_MasterTestUiConstants.JoinNotificationPanelMinHeight);
+                CCS_ValidationUiConstants.JoinNotificationPanelWidth,
+                CCS_ValidationUiConstants.JoinNotificationPanelMinHeight);
 
             Image panelImage = panelObject.GetComponent<Image>();
-            if (panelImage.color != CCS_MasterTestUiConstants.JoinPanelColor)
+            if (panelImage.color != CCS_ValidationUiConstants.JoinPanelColor)
             {
-                panelImage.color = CCS_MasterTestUiConstants.JoinPanelColor;
+                panelImage.color = CCS_ValidationUiConstants.JoinPanelColor;
                 changed = true;
             }
 
@@ -256,12 +257,12 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static TMP_Text EnsureTitle(RectTransform panel, ref bool changed)
         {
-            Transform titleTransform = panel.Find(CCS_MasterTestUiConstants.JoinNotificationTitleObjectName);
+            Transform titleTransform = panel.Find(CCS_ValidationUiConstants.JoinNotificationTitleObjectName);
             GameObject titleObject;
             if (titleTransform == null)
             {
                 titleObject = new GameObject(
-                    CCS_MasterTestUiConstants.JoinNotificationTitleObjectName,
+                    CCS_ValidationUiConstants.JoinNotificationTitleObjectName,
                     typeof(RectTransform),
                     typeof(CanvasRenderer),
                     typeof(TextMeshProUGUI),
@@ -279,10 +280,10 @@ namespace CCS.Modules.CharacterController.Editor
             layoutElement.minHeight = 24f;
 
             TMP_Text titleText = titleObject.GetComponent<TextMeshProUGUI>();
-            titleText.text = CCS_MasterTestUiConstants.JoinNotificationHeaderText;
+            titleText.text = CCS_ValidationUiConstants.JoinNotificationHeaderText;
             titleText.fontSize = 18f;
             titleText.fontStyle = FontStyles.Bold;
-            titleText.color = CCS_MasterTestUiConstants.JoinTitleTextColor;
+            titleText.color = CCS_ValidationUiConstants.JoinTitleTextColor;
             titleText.alignment = TextAlignmentOptions.MidlineLeft;
             titleText.raycastTarget = false;
             return titleText;
@@ -290,12 +291,12 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static RectTransform EnsureEntriesContainer(RectTransform panel, ref bool changed)
         {
-            Transform entriesTransform = panel.Find(CCS_MasterTestUiConstants.JoinNotificationEntriesObjectName);
+            Transform entriesTransform = panel.Find(CCS_ValidationUiConstants.JoinNotificationEntriesObjectName);
             GameObject entriesObject;
             if (entriesTransform == null)
             {
                 entriesObject = new GameObject(
-                    CCS_MasterTestUiConstants.JoinNotificationEntriesObjectName,
+                    CCS_ValidationUiConstants.JoinNotificationEntriesObjectName,
                     typeof(RectTransform),
                     typeof(VerticalLayoutGroup),
                     typeof(ContentSizeFitter));
@@ -325,12 +326,12 @@ namespace CCS.Modules.CharacterController.Editor
         private static TMP_Text EnsureEntryTemplate(RectTransform entriesContainer, ref bool changed)
         {
             Transform templateTransform = entriesContainer.Find(
-                CCS_MasterTestUiConstants.JoinNotificationEntryTemplateObjectName);
+                CCS_ValidationUiConstants.JoinNotificationEntryTemplateObjectName);
             GameObject templateObject;
             if (templateTransform == null)
             {
                 templateObject = new GameObject(
-                    CCS_MasterTestUiConstants.JoinNotificationEntryTemplateObjectName,
+                    CCS_ValidationUiConstants.JoinNotificationEntryTemplateObjectName,
                     typeof(RectTransform),
                     typeof(CanvasRenderer),
                     typeof(CanvasGroup),
@@ -353,7 +354,7 @@ namespace CCS.Modules.CharacterController.Editor
             TMP_Text entryText = templateObject.GetComponent<TextMeshProUGUI>();
             entryText.text = "Player joined";
             entryText.fontSize = 16f;
-            entryText.color = CCS_MasterTestUiConstants.JoinEntryTextColor;
+            entryText.color = CCS_ValidationUiConstants.JoinEntryTextColor;
             entryText.alignment = TextAlignmentOptions.MidlineLeft;
             entryText.raycastTarget = false;
             return entryText;

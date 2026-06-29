@@ -114,10 +114,10 @@ namespace CCS.Modules.Weapons
             ModuleRootPath + "/Tests/Prefabs/PF_CCS_TestWeaponDamageTarget.prefab";
 
         public const string NetworkedTestPlayerPrefabPath =
-            "Assets/CCS/Modules/CharacterController/Tests/Prefabs/PF_CCS_CharacterController_TestPlayer_Networked.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";
 
         public const string MasterTestScenePath =
-            "Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
+            "Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity";
 
         public const string MasterTestSpawnOriginObjectPath = "TestPoints/TP_Spawn_Host";
 
@@ -128,10 +128,10 @@ namespace CCS.Modules.Weapons
         public const string GlassesVisualName = "VisualGlasses";
 
         public const string TestPlayerRedMaterialPath =
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerRed.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerRed.mat";
 
         public const string TestPlayerBlackMaterialPath =
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerBlack.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerBlack.mat";
 
         public static readonly Vector3 GlassesVisualLocalPosition = new Vector3(0f, 1.6f, 0.222f);
 

@@ -5,7 +5,7 @@ using UnityEngine;
 // SCRIPT: CCS_RevolverBodyAimFollowController
 // CATEGORY: Modules / Weapons / Runtime / Aiming
 // PURPOSE: Limited additive spine/chest rotation toward camera aim while revolver aiming.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked / VisualRoot.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked / VisualRoot.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Body follows aim direction; arm stays on FitTest pose. No hand IK stretching.

@@ -5,7 +5,7 @@ using UnityEngine;
 // SCRIPT: CCS_FirstPersonAimCameraOverrideController
 // CATEGORY: Modules / Weapons / Runtime / Aiming
 // PURPOSE: Master Test first-person aim FOV and near-clip tuning to reduce stretched-arm look.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: Camera/FOV tuning only — does not scale skeleton. Controlled by Testing Manager.

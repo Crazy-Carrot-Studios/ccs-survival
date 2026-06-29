@@ -1,4 +1,5 @@
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Local;
+using CCS.Modules.CharacterController.Validation;
 using CCS.Project;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ using UnityEngine;
 
 // CATEGORY: Modules / CharacterController / Editor / Validation
 
-// PURPOSE: Expected layout for SCN_CCS_CharacterController_MasterTest.
+// PURPOSE: Expected layout for SCN_CCS_CharacterController_Validation.
 
 // PLACEMENT: Editor layout constants. Not attached to GameObjects.
 
@@ -28,13 +29,13 @@ namespace CCS.Modules.CharacterController.Editor
 
     {
 
-        public const string ScenesRootPath = "Assets/CCS/Scenes";
+        public const string ScenesRootPath = "Assets/CCS/Modules/CharacterController/Scenes";
 
 
 
         public const string MasterTestScenePath =
 
-            ScenesRootPath + "/CharacterController/SCN_CCS_CharacterController_MasterTest.unity";
+            ScenesRootPath + "/Validation/SCN_CCS_CharacterController_Validation.unity";
 
 
 
@@ -54,45 +55,45 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const string GroundPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestGround_OneMeterGrid.prefab";
 
 
 
         public const string BuildingPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestBuilding_RoofPlatform.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestBuilding_RoofPlatform.prefab";
 
 
 
         public const string StairsPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestStairs_RoofAccess.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestStairs_RoofAccess.prefab";
 
 
 
         public const string RampPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestRamp_RoofAccess.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestRamp_RoofAccess.prefab";
 
 
 
         public const string DoorPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Environment/PF_CCS_TestDoor_Single.prefab";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Environment/PF_CCS_TestDoor_Single.prefab";
 
 
 
         public const string NetworkedPlayerPrefabPath =
-            CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
+            CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath;
 
         public const string TestPlayerDisplayProfilePath =
-            CCS_TestPlayerPrefabConstants.DefaultDisplayProfilePath;
+            CCS_PlayerPrefabConstants.DefaultDisplayProfilePath;
 
         public const string NameplateRootObjectName = "NameplateRoot";
 
         public const string PlayerNameTextObjectName = "PlayerNameText";
 
-        public const string MasterTestSpawnControllerObjectName = "CCS_MasterTestSpawnController";
+        public const string MasterTestSpawnControllerObjectName = "CCS_ValidationSpawnController";
 
         public const string MasterTestTestingManagerObjectName = CCS_ProjectAudioConstants.MasterTestTestingManagerObjectName;
 
@@ -104,7 +105,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const string NpcPrefabPath =
 
-            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_TestNPC.prefab";
+            "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_ValidationNpc.prefab";
 
 
 
@@ -199,49 +200,49 @@ namespace CCS.Modules.CharacterController.Editor
 
         public const string GroundGridMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Environment/M_CCS_TestGround_1mGrid.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/M_CCS_TestGround_1mGrid.mat";
 
 
 
         public const string BrickMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Environment/M_CCS_TestBrick.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/M_CCS_TestBrick.mat";
 
 
 
         public const string ConcreteMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Environment/M_CCS_TestConcrete.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/M_CCS_TestConcrete.mat";
 
 
 
         public const string DoorWoodMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Environment/M_CCS_TestDoorWood.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/M_CCS_TestDoorWood.mat";
 
 
 
         public const string PlayerYellowMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerYellow.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerYellow.mat";
 
 
 
         public const string PlayerGreenMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerGreen.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerGreen.mat";
 
 
 
         public const string PlayerRedMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerRed.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerRed.mat";
 
 
 
         public const string PlayerBlackMaterialPath =
 
-            "Assets/CCS/Modules/CharacterController/Materials/Player/M_CCS_TestPlayerBlack.mat";
+            "Assets/CCS/Modules/CharacterController/Prototyping/Materials/Player/M_CCS_TestPlayerBlack.mat";
 
 
 
@@ -269,13 +270,13 @@ namespace CCS.Modules.CharacterController.Editor
 
 
 
-        public const string PlayerInstanceName = CCS_TestPlayerPrefabConstants.DeprecatedOfflinePlayerInstanceName;
+        public const string PlayerInstanceName = CCS_PlayerPrefabConstants.DeprecatedOfflinePlayerInstanceName;
 
-        public const string NetworkedPlayerInstanceName = CCS_TestPlayerPrefabConstants.NetworkedPlayerInstanceName;
+        public const string NetworkedPlayerInstanceName = CCS_PlayerPrefabConstants.NetworkedPlayerInstanceName;
 
 
 
-        public const string NpcInstanceName = "PF_CCS_CharacterController_TestNPC";
+        public const string NpcInstanceName = "PF_CCS_CharacterController_ValidationNpc";
 
 
 
@@ -443,7 +444,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             MasterTestTestingManagerObjectName,
 
-            CCS_MasterTestUiConstants.MasterTestUiCanvasObjectName,
+            CCS_ValidationUiConstants.MasterTestUiCanvasObjectName,
 
             CameraRigInstanceName,
 

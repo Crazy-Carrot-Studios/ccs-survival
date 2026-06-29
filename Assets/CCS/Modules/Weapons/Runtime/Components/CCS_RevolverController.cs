@@ -13,7 +13,7 @@ using UnityEngine.Serialization;
 // SCRIPT: CCS_RevolverController
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Test revolver hitscan controller with aim, fire, reload, and ammo state.
-// PLACEMENT: PF_CCS_CharacterController_TestPlayer_Networked root or WeaponRoot child.
+// PLACEMENT: PF_CCS_CharacterController_Player_Networked root or WeaponRoot child.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.1 local-owner solo path with scene aim camera integration.

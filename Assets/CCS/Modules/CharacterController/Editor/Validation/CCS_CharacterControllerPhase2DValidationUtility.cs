@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using CCS.Modules.Attributes.Tests;
-using CCS.Modules.CharacterController.Tests;
-using CCS.Modules.CharacterController.Tests.Netcode;
+using CCS.Modules.CharacterController.Diagnostics;
+using CCS.Modules.CharacterController.Local;
+using CCS.Modules.CharacterController.Netcode;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -61,33 +62,33 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_CharacterControllerTestingManager[] managers =
-                Object.FindObjectsByType<CCS_CharacterControllerTestingManager>(FindObjectsSortMode.None);
+            CCS_CharacterControllerDiagnosticsManager[] managers =
+                Object.FindObjectsByType<CCS_CharacterControllerDiagnosticsManager>(FindObjectsSortMode.None);
             AppendIfMissing(
                 failures,
                 managers.Length == 1,
-                "Master Test scene must contain exactly one CCS_CharacterControllerTestingManager (found "
+                "Master Test scene must contain exactly one CCS_CharacterControllerDiagnosticsManager (found "
                 + managers.Length
                 + ").");
 
             AppendIfMissing(
                 failures,
                 CCS_CharacterControllerPhase2DMigrationUtility.CountLegacyTestingManagerWrappersInScene(scene) == 0,
-                "Master Test scene must not contain CCS_MasterTestSceneTestingManager after Phase 2D migration.");
+                "Master Test scene must not contain legacy Testing Manager wrappers after Phase 2D migration.");
         }
 
         private static void ValidateCompatibilityWrapperRemoved(List<string> failures)
         {
             AppendIfMissing(
                 failures,
-                !File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/CCS_MasterTestSceneTestingManager.cs"),
-                "CCS_MasterTestSceneTestingManager compatibility wrapper must be removed after migration.");
+                !File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_CharacterControllerTestingManager.cs"),
+                "CCS_CharacterControllerDiagnosticsManager compatibility wrapper must be removed after migration.");
         }
 
         private static void ValidateTestOnlyRootComponentsRemovedFromPrefab(List<string> failures)
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (prefab == null)
             {
                 failures.Add("Missing networked test player prefab for Phase 2D validation.");
@@ -96,13 +97,13 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                prefab.GetComponent<CCS_TestPlayerOfflineBootstrap>() == null,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath
-                + " must not contain CCS_TestPlayerOfflineBootstrap after Phase 2D separation.");
+                prefab.GetComponent<CCS_LocalPlayerOfflineBootstrap>() == null,
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath
+                + " must not contain CCS_LocalPlayerOfflineBootstrap after Phase 2D separation.");
             AppendIfMissing(
                 failures,
                 prefab.GetComponent<CCS_TestPlayerAttributeDebugInput>() == null,
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath
                 + " must not contain CCS_TestPlayerAttributeDebugInput after Phase 2D separation.");
         }
 
@@ -144,21 +145,21 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                testingManagerObject.GetComponent<CCS_MasterTestPlayerOfflineBootstrapper>() != null,
-                "Master Test scene must contain CCS_MasterTestPlayerOfflineBootstrapper on CCS_TestingManager.");
+                testingManagerObject.GetComponent<CCS_LocalPlayerOfflineBootstrapper>() != null,
+                "Master Test scene must contain CCS_LocalPlayerOfflineBootstrapper on CCS_DiagnosticsManager.");
             AppendIfMissing(
                 failures,
-                testingManagerObject.GetComponent<CCS_TestPlayerAttributeDebugInputRouter>() != null,
-                "Master Test scene must contain CCS_TestPlayerAttributeDebugInputRouter on CCS_TestingManager.");
+                testingManagerObject.GetComponent<CCS_PlayerDiagnosticsInputRouter>() != null,
+                "Master Test scene must contain CCS_PlayerDiagnosticsInputRouter on CCS_DiagnosticsManager.");
 
             AppendIfMissing(
                 failures,
-                File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/Managers/CCS_MasterTestPlayerOfflineBootstrapper.cs"),
-                "Missing CCS_MasterTestPlayerOfflineBootstrapper source.");
+                File.Exists("Assets/CCS/Modules/CharacterController/Runtime/Local/CCS_LocalPlayerOfflineBootstrapper.cs"),
+                "Missing CCS_LocalPlayerOfflineBootstrapper source.");
             AppendIfMissing(
                 failures,
-                File.Exists("Assets/CCS/Modules/CharacterController/Tests/Runtime/Diagnostics/CCS_TestPlayerAttributeDebugInputRouter.cs"),
-                "Missing CCS_TestPlayerAttributeDebugInputRouter source.");
+                File.Exists("Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_PlayerDiagnosticsInputRouter.cs"),
+                "Missing CCS_PlayerDiagnosticsInputRouter source.");
         }
 
         private static void ValidateNetworkManagerPlayerPrefabReference(List<string> failures)

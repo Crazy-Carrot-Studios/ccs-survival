@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.1f** · Crazy Carrot Studios
+**Version 0.7.2** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -10,7 +10,7 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 |--------|-----------|
 | **Framework** | Core platform (gameplay-free) |
 | **Project** | Bootstrap, composition, validation standards |
-| **CharacterController** | Movement, camera, Master Test harness (v0.6.16 simplified third-person revolver aim) |
+| **CharacterController** | Movement, camera, diagnostics, hosting/netcode tooling (v0.7.2 productionized architecture) |
 | **Attributes** | Health model, replication, test HUD |
 | **Interaction** | Pickup and walk-through-door flow (v0.5.4) |
 | **Weapons** | Revolver M1879 world pickup, hitscan, fit profile pack (v0.6.16 reticle-aligned shots) |
@@ -18,7 +18,9 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 
 ## Current milestone
 
-**0.7.1f** — **Safe Test-Only Component Separation (Phase 2D):** migrates Master Test to `CCS_CharacterControllerTestingManager` directly; moves offline bootstrap and test-damage input off the player prefab root into scene-level Tests replacements. No intended gameplay behavior changes; no animation import yet.
+**0.7.2** — **Productionize Character Controller architecture (Phase 3A):** removes `CharacterController/Tests/`; moves networked player prefab to `Prefabs/Player/PF_CCS_CharacterController_Player_Networked`; validation scene to `Scenes/Validation/SCN_CCS_CharacterController_Validation`; adds `Prototyping/` for blockout environment assets; renames Testing Manager → Diagnostics Manager (`CCS_DiagnosticsManager`). No Animator reset or animation import.
+
+**0.7.1f** — **Safe Test-Only Component Separation (Phase 2D):** migrates Master Test to `CCS_CharacterControllerDiagnosticsManager` directly; moves offline bootstrap and damage diagnostics input off the player prefab root into scene-level replacements. No intended gameplay behavior changes; no animation import yet.
 
 **0.7.1e** — **Player Prefab Component Audit (Phase 2C):** adds editor audit utility + batch entry to inventory/classify test player prefab components; documents future component reduction without prefab rewrite. No gameplay behavior changes; no player prefab cleanup yet.
 
@@ -45,16 +47,16 @@ Profiles live at `Assets/CCS/Modules/CharacterController/Profiles/EquipmentFitti
 | Action | Entry point |
 |--------|-------------|
 | Project audit (docs, asmdefs, legacy leftovers) | **CCS → Project → Run Project Audit** |
-| Master Test (primary) | `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` |
+| Master Test (primary) | `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` |
 | Interaction module | **CCS → Interaction → Validate Interaction Module** |
 | Weapons module | **CCS → Weapons → Validate Weapons Module** |
 | Character Controller Master Test | **CCS → Character Controller → Scene → Setup And Validate Master Test Scene** |
 | Equipment Fit Studio | **CCS → Character Controller → Equipment → Equipment Fit Studio** |
-| Animation Fit Studio | **CCS → Character Controller → Animations → Animation Fit Studio** |
+| Animation Fit Studio | Removed in v0.7.1c — use Equipment Fit Studio |
 | Attributes module | **CCS → Attributes → Validate Attributes Module** |
 | Bootstrap smoke | `Assets/CCS/Scenes/Bootstrap/SCN_CCS_Survival_Bootstrap.unity` |
 
-Legacy ground-only preview (retained, not primary): `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_Test.unity`
+Legacy ground-only preview removed in v0.7.2. Primary validation scene: `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity`
 
 ## Requirements
 

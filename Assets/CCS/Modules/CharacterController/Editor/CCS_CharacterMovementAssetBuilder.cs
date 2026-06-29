@@ -47,7 +47,19 @@ namespace CCS.Modules.CharacterController.Editor
 
             SerializedObject serializedProfile = new SerializedObject(profile);
             bool changed = false;
+            changed |= ForceSetString(
+                serializedProfile,
+                "profileId",
+                CCS_CharacterControllerConstants.MovementProfileId);
+            changed |= ForceSetString(
+                serializedProfile,
+                "profileDisplayName",
+                "Default Movement");
             changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.3-aim-strafe-movement");
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "airControl",
+                CCS_CharacterControllerConstants.DefaultAirControl);
             changed |= ForceSetFloat(
                 serializedProfile,
                 "aimMovementSpeedMultiplier",

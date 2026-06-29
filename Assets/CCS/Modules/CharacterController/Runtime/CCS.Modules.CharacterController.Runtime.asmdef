@@ -5,11 +5,14 @@
         "CCS.Core.Runtime",
         "CCS.Project.Runtime",
         "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.Attributes.Tests.Runtime",
         "CCS.Modules.Interaction.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine",
         "Unity.Netcode.Runtime",
-        "Unity.Animation.Rigging"
+        "Unity.Animation.Rigging",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

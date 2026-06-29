@@ -1,6 +1,6 @@
 using System.IO;
 using CCS.Modules.CharacterController;
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Local;
 using CCS.Project;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -86,11 +86,11 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
             }
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (prefab == null)
             {
                 errorMessage = "Missing test player prefab at "
-                    + CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath;
+                    + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath;
                 return false;
             }
 
@@ -212,14 +212,14 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
                 return CCS_SurvivalValidationResult.Fail("Missing CCS_EquipmentFitStudioPreviewPlayerUtility.");
             }
 
-            if (!File.Exists(CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath))
+            if (!File.Exists(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath))
             {
                 return CCS_SurvivalValidationResult.Fail(
                     "Missing networked test player prefab for editor preview player.");
             }
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_TestPlayerPrefabConstants.NetworkedPlayerPrefabPath);
+                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             if (prefab == null)
             {
                 return CCS_SurvivalValidationResult.Fail("Could not load networked test player prefab.");

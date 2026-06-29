@@ -1,0 +1,24 @@
+{
+    "name": "CCS.Modules.CharacterController.Diagnostics.Runtime",
+    "rootNamespace": "CCS.Modules.CharacterController.Diagnostics",
+    "references": [
+        "CCS.Modules.CharacterController.Runtime",
+        "CCS.Modules.CharacterController.Local.Runtime",
+        "CCS.Modules.CharacterController.Validation.Runtime",
+        "CCS.Modules.Attributes.Runtime",
+        "CCS.Modules.Attributes.Tests.Runtime",
+        "CCS.Modules.Weapons.Runtime",
+        "CCS.Project.Runtime",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

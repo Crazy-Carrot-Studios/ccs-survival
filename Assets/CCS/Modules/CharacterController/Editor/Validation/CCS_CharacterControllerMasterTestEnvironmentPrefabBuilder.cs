@@ -1,4 +1,4 @@
-using CCS.Modules.CharacterController.Tests;
+using CCS.Modules.CharacterController.Validation;
 using UnityEditor;
 using UnityEngine;
 
@@ -51,7 +51,7 @@ namespace CCS.Modules.CharacterController.Editor
             pivotObject.transform.SetParent(root.transform, false);
             pivotObject.transform.localPosition =
                 CCS_CharacterControllerMasterTestLayoutConstants.DoorHingePivotLocalPosition;
-            pivotObject.AddComponent<CCS_TestDoorHingeGizmo>();
+            pivotObject.AddComponent<CCS_ValidationDoorHingeGizmo>();
 
             CreateBox(
                 pivotObject.transform,
@@ -64,7 +64,7 @@ namespace CCS.Modules.CharacterController.Editor
                 wood,
                 includeCollider: true);
 
-            CCS_TestDoorMarker marker = root.AddComponent<CCS_TestDoorMarker>();
+            CCS_ValidationDoorMarker marker = root.AddComponent<CCS_ValidationDoorMarker>();
             SerializedObject serializedMarker = new SerializedObject(marker);
             serializedMarker.FindProperty("doorHingePivot").objectReferenceValue = pivotObject.transform;
             serializedMarker.FindProperty("closedAngle").floatValue = 0f;

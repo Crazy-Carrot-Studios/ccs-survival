@@ -30,7 +30,7 @@ Broader planning and contributor guides live in the repo [`Documentation/`](../.
 
 | Scene | Role |
 |-------|------|
-| `Assets/CCS/Scenes/CharacterController/SCN_CCS_CharacterController_MasterTest.unity` | **Source of truth** — controller, attributes HUD, interaction |
+| `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity` | **Source of truth** — controller, attributes HUD, interaction |
 | `Assets/CCS/Scenes/Network/SCN_CCS_MultiplayerHosting.unity` | Host/join Netcode harness |
 | `Assets/CCS/Modules/CharacterController/Tests/Scenes/SCN_CCS_CharacterController_Test.unity` | Legacy ground-only preview (retained) |
 
