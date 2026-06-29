@@ -1,6 +1,6 @@
 # CCS Character Controller Module
 
-**Version:** 0.7.1d — living module overview  
+**Version:** 0.7.1e — living module overview  
 **Author:** James Schilz  
 **Last updated:** 2026-06-25
 
@@ -18,6 +18,7 @@ Profile-driven third-person movement, Cinemachine camera control, revolver upper
 | **v0.7.1a** | AI health bar fill direction hotfix (signed off) |
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
+| **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
 
 Working systems that must remain stable unless a dedicated, batch-validated milestone approves changes:
 
@@ -81,6 +82,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Batch | Entry |
 |-------|-------|
 | Master Test (+ project audit) | `CCS.Project.Editor.CCS_ProjectMasterTestBatchEntry.RunFromBatchMode` |
+| Player prefab audit | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPlayerPrefabAuditBatchEntry.RunFromBatchMode` |
 | AI | `CCS.Modules.AI.Editor.CCS_AIBanditBatchEntry.RunFromBatchMode` |
 | Weapons | `CCS.Modules.Weapons.Editor.CCS_WeaponsValidationBatchEntry.RunFromBatchMode` |
 | Hosting | `CCS.Modules.CharacterController.Tests.Netcode.Editor.CCS_MultiplayerHostingSceneBatchEntry.RunFromBatchMode` |
@@ -129,7 +131,44 @@ Do not add new editor menus without classifying them and documenting the batch e
 - Test-only diagnostics live under `Tests/Runtime/Diagnostics/` and are gated by the Testing Manager.
 - Production player prefab must **not** require the manager.
 
-**Future work (not v0.7.1d):** player prefab script reduction, Runtime folder moves, animation pack import.
+**Future work (not v0.7.1e):** player prefab script reduction, Runtime folder moves, animation pack import, Master Test manager wrapper removal.
+
+## Player prefab component audit policy (v0.7.1e)
+
+**Purpose:** inventory and classify every component on the active test player prefab without a big-bang prefab rewrite.
+
+**Audit utility:** `Editor/Validation/CCS_CharacterControllerPlayerPrefabAuditUtility.cs`  
+**Batch entry:** `CCS_CharacterControllerPlayerPrefabAuditBatchEntry.RunFromBatchMode`
+
+**Generated report (not committed):** `Logs/CharacterController/PlayerPrefabAudit/CCS_PlayerPrefab_ComponentAudit_v0.7.1e.md`
+
+### Classification categories
+
+| Category | Meaning |
+|----------|---------|
+| `RequiredRoot` | Must stay on prefab root for now (motor, input, network core) |
+| `RequiredRuntime` / `RequiredLocalOnly` | Production Character Controller runtime behaviour |
+| `RequiredNetwork` | Netcode spawn/ownership/nameplate requirements |
+| `RequiredCamera` / `RequiredAnimation` / `RequiredInteraction` | Domain-specific runtime bridges |
+| `RequiredWeaponsBridge` / `RequiredEquipmentVisual` / `RequiredAttributes` / `RequiredUIBridge` | External module bridges wired on the test player |
+| `TestOnly` / `DebugOnly` / `DiagnosticsOnly` | Test harness or debug behaviour — move only after replacement exists |
+| `TestingManagerCandidate` / `SceneManagerCandidate` | Should eventually move to Testing Manager or scene-level managers |
+| `DeprecatedCandidate` / `UnknownReview` | Needs explicit review before any removal |
+
+### Future component reduction process
+
+1. Run the player prefab audit batch and read the Markdown report.
+2. Do **not** delete components until Master Test + Hosting batches and manual smoke test prove a replacement path.
+3. Prefer moving debug toggles to `CCS_CharacterControllerTestingManager` before moving components off the prefab.
+4. Future production-style root target (~6 MonoBehaviours + Transform + CharacterController) is documented in the audit report; **not enforced in v0.7.1e**.
+5. `CCS_MasterTestSceneTestingManager` compatibility wrapper remains until Phase 2D scene migration is validated.
+
+### v0.7.1e scope guardrails
+
+- No player prefab hierarchy rewrite.
+- No animator controller, production clip, or `PF_CCS_Player_Visual` changes.
+- Test-only components are classified only — not removed in this milestone.
+- Equipment Fit Studio remains the production equipment fit workflow.
 
 ## Animation Fit Studio removal (v0.7.1c)
 
@@ -178,6 +217,7 @@ Do **not** alter without an explicit, batch-validated milestone:
 | Output | Path |
 |--------|------|
 | Wild West animation inventory (MD/CSV) | `Logs/CharacterController/AnimationInventory/` |
+| Player prefab component audit | `Logs/CharacterController/PlayerPrefabAudit/` |
 | Batch validation logs | `Logs/*-batch.log` |
 
 ## Revolver animation summary

@@ -124,6 +124,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 CCS_CharacterControllerPhase2BValidationUtility.ValidatePhase2BFoundation());
 
+            AppendValidationResult(
+                failures,
+                CCS_CharacterControllerPhase2CValidationUtility.ValidatePhase2CAuditFoundation());
+
             ValidateJoinNotificationFeed(failures);
 
             ValidatePlayerPrefabAssets(failures);

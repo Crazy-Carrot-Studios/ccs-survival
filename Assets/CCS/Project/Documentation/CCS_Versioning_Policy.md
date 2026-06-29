@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.1d`
+**Current version:** `0.7.1e`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.1e`** | **Player prefab component audit + test-only separation readiness (Phase 2C, audit/validation only)** |
 | **`0.7.1d`** | **Testing Manager foundation + editor menu reduction (Phase 2B)** |
 | **`0.7.1c`** | **Remove Animation Fit Studio tooling (Phase 2A, editor/docs only)** |
 | **`0.7.1a`** | **AI health bar fill direction hotfix** |
@@ -110,6 +111,14 @@ Do not tag `v1.0.0` until all of the following are true:
 ---
 
 ## Release history
+
+### `0.7.1e` — Player Prefab Component Audit (Phase 2C)
+
+- Added `CCS_CharacterControllerPlayerPrefabAuditUtility` and batch entry to inventory/classify player prefab components
+- Documented classification categories, future root component budget, and Phase 2D separation actions in module docs
+- Extended Master Test validation with Phase 2C audit checks; no prefab hierarchy rewrite
+- `CCS_MasterTestSceneTestingManager` compatibility wrapper retained; scene migration deferred to Phase 2D
+- Audit/validation milestone only — no gameplay behavior changes
 
 ### `0.7.1d` — Testing Manager and Editor Menu Reduction (Phase 2B)
 

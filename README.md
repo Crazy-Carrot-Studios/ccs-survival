@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.1d** · Crazy Carrot Studios
+**Version 0.7.1e** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.1e** — **Player Prefab Component Audit (Phase 2C):** adds editor audit utility + batch entry to inventory/classify test player prefab components; documents future component reduction without prefab rewrite. No gameplay behavior changes; no player prefab cleanup yet.
 
 **0.7.1d** — **Testing Manager and editor menu reduction (Phase 2B):** centralizes Master Test debug toggles in `CCS_CharacterControllerTestingManager`; removes runtime OnGUI overlays; converts setup/camera editor menus to batch-only. No gameplay behavior changes; no player prefab cleanup yet.
 
