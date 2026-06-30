@@ -1619,11 +1619,11 @@ namespace CCS.Modules.CharacterController.Editor
                     aimDebugRaysProperty == null || !aimDebugRaysProperty.boolValue,
                     "CCS_CharacterControllerDiagnosticsManager.enableAimDebugRays must default to false.");
 
-                SerializedProperty forceAimPresentationProperty = serializedManager.FindProperty("forceAimPresentation");
+                SerializedProperty forceRevolverAimSetupPoseProperty = serializedManager.FindProperty("forceRevolverAimSetupPose");
                 AppendIfMissing(
                     failures,
-                    forceAimPresentationProperty == null || !forceAimPresentationProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.forceAimPresentation must default to false.");
+                    forceRevolverAimSetupPoseProperty == null || !forceRevolverAimSetupPoseProperty.boolValue,
+                    "CCS_CharacterControllerDiagnosticsManager.forceRevolverAimSetupPose must default to false.");
             }
 
             if (File.Exists(testingManagerSourcePath))
@@ -1633,7 +1633,7 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     testingManagerSource.Contains("enableArmToReticleIK")
                         && testingManagerSource.Contains("reticleMode")
-                        && testingManagerSource.Contains("ForceAimPresentation"),
+                        && testingManagerSource.Contains("ForceRevolverAimSetupPose"),
                     "CCS_CharacterControllerDiagnosticsManager must expose Master Test aim visual toggles.");
                 AppendIfMissing(
                     failures,
@@ -1766,15 +1766,9 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
                 requireNetworkNameplate: true);
 
-            ValidatePlayerGlassesPrefab(
+            ValidateProductionPlayerHasNoPrototypeVisuals(
                 failures,
                 CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
-
-            ValidatePlayerBodyMaterialPrefab(
-                failures,
-                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
-
-            ValidatePlayerCapsuleVisualLayout(failures, CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
 
             ValidatePlayerCameraTargetsOnPrefab(
                 failures,
@@ -2126,11 +2120,30 @@ namespace CCS.Modules.CharacterController.Editor
                 Transform bodyVisual = FindChildByName(
                     networkedPrefab.transform,
                     CCS_CharacterControllerMasterTestLayoutConstants.CapsuleVisualName);
-                Renderer bodyRenderer = bodyVisual != null ? bodyVisual.GetComponent<Renderer>() : null;
                 AppendIfMissing(
                     failures,
-                    bodyRenderer != null && bodyRenderer.sharedMaterial == yellowMaterial,
-                    $"{CCS_CharacterControllerMasterTestLayoutConstants.NetworkedPlayerPrefabPath} CapsuleVisual must use M_CCS_TestPlayerYellow.");
+                    bodyVisual == null,
+                    $"{CCS_CharacterControllerMasterTestLayoutConstants.NetworkedPlayerPrefabPath} must not contain CapsuleVisual.");
+            }
+        }
+
+        private static void ValidateProductionPlayerHasNoPrototypeVisuals(List<string> failures, string prefabPath)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null)
+            {
+                failures.Add("Missing player prefab at " + prefabPath + " for prototype visual validation.");
+                return;
+            }
+
+            for (int i = 0; i < CCS_CharacterControllerConstants.ProductionPlayerForbiddenPrototypeVisualObjectNames.Length; i++)
+            {
+                string forbiddenName = CCS_CharacterControllerConstants.ProductionPlayerForbiddenPrototypeVisualObjectNames[i];
+                Transform forbiddenTransform = FindChildByName(prefab.transform, forbiddenName);
+                AppendIfMissing(
+                    failures,
+                    forbiddenTransform == null,
+                    prefabPath + " must not contain prototype visual object " + forbiddenName + ".");
             }
         }
 

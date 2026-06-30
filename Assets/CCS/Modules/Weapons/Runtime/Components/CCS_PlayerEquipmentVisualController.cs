@@ -42,6 +42,7 @@ namespace CCS.Modules.Weapons
         private GameObject equippedVisualInstance;
         private Transform equippedMuzzlePoint;
         private bool isAiming;
+        private bool diagnosticsRevolverAimSetupPoseActive;
         private bool loggedEquippedFitParityThisAimSession;
 
 #if UNITY_EDITOR
@@ -121,6 +122,7 @@ namespace CCS.Modules.Weapons
         private void OnDisable()
         {
             Unsubscribe();
+            diagnosticsRevolverAimSetupPoseActive = false;
             DestroyRuntimeVisuals();
 #if UNITY_EDITOR
             editorAimFitOverrideActive = false;
@@ -163,6 +165,13 @@ namespace CCS.Modules.Weapons
                 return;
             }
 #endif
+
+            if (diagnosticsRevolverAimSetupPoseActive)
+            {
+                HideHolsteredVisual();
+                ShowEquippedVisual();
+                return;
+            }
 
             if (!PlayerOwnsRevolverForVisuals())
             {
@@ -216,6 +225,19 @@ namespace CCS.Modules.Weapons
 
             return ResolveCarryState() != CCS_WeaponCarryState.None;
         }
+
+        public void SetDiagnosticsRevolverAimSetupPoseActive(bool active)
+        {
+            if (diagnosticsRevolverAimSetupPoseActive == active)
+            {
+                return;
+            }
+
+            diagnosticsRevolverAimSetupPoseActive = active;
+            RefreshVisualState();
+        }
+
+        public bool IsDiagnosticsRevolverAimSetupPoseActive => diagnosticsRevolverAimSetupPoseActive;
 
         public void SetVisualAimConvergenceActive(bool active)
         {

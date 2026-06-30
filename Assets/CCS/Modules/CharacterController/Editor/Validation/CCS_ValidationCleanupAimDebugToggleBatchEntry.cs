@@ -1,7 +1,9 @@
 using CCS.Modules.Interaction.Editor;
 using CCS.Modules.Weapons.Editor;
+using CCS.Modules.CharacterController.Diagnostics;
 using CCS.Project;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 // =============================================================================
@@ -22,6 +24,7 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
             CCS_InteractionDetectionTestBuilder.BuildMasterTestInteractions();
             CCS_WeaponsAssetBuilder.EnsureTestDamageTargetPrefab();
+            EnsureDiagnosticsRevolverAimSetupPoseDefault();
             AssetDatabase.SaveAssets();
 
             CCS_SurvivalValidationResult validationResult =
@@ -40,6 +43,27 @@ namespace CCS.Modules.CharacterController.Editor
                 + ". "
                 + validationResult.Message);
             EditorApplication.Exit(0);
+        }
+
+        private static void EnsureDiagnosticsRevolverAimSetupPoseDefault()
+        {
+            CCS_CharacterControllerDiagnosticsManager manager =
+                Object.FindAnyObjectByType<CCS_CharacterControllerDiagnosticsManager>();
+            if (manager == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedManager = new SerializedObject(manager);
+            SerializedProperty setupPoseProperty = serializedManager.FindProperty("forceRevolverAimSetupPose");
+            if (setupPoseProperty != null && setupPoseProperty.boolValue)
+            {
+                setupPoseProperty.boolValue = false;
+                serializedManager.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(manager);
+                EditorSceneManager.MarkSceneDirty(manager.gameObject.scene);
+                EditorSceneManager.SaveScene(manager.gameObject.scene);
+            }
         }
     }
 }

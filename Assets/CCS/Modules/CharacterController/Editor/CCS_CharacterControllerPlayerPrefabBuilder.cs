@@ -60,8 +60,7 @@ namespace CCS.Modules.CharacterController.Editor
             bool changed = false;
             changed |= CCS_PlayerVisualKevinSwapBuilder.EnsureKevinModelOnPlayerPrefabContents(prefabRoot);
             changed |= EnsureNameplateHierarchy(prefabRoot.transform);
-            changed |= EnsureCapsuleBodyVisual(prefabRoot.transform);
-            changed |= EnsureGlassesVisual(prefabRoot.transform);
+            changed |= CCS_PlayerVisualKevinSwapBuilder.RemovePrototypeCapsuleAndGlassesVisuals(prefabRoot.transform);
             changed |= EnsureCameraPivotSetup(prefabRoot.transform);
             changed |= ApplyDisplayProfileLayout(prefabRoot);
             changed |= EnsureCameraFollowAnchorSetup(prefabRoot.transform);

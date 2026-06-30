@@ -19,7 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
-| **v0.7.9** | Validation cleanup — weapon damage target moved to Prototyping; legacy TestDetectionCube removed; diagnostics `Force Aim Presentation` toggle (presentation-only); no gameplay aim/fire changes |
+| **v0.7.9** | Validation cleanup — weapon damage target moved to Prototyping; legacy TestDetectionCube removed; diagnostics Force Revolver Aim Setup Pose (animation + right-hand visual preview); CapsuleVisual/VisualGlasses removed from production player prefab |
 | **v0.7.8** | Single revolver aim upper-body layer — `SingleRevolverUpperBody` masked draw/hold/holster; Wild West clips; presentation-only `CCS_SingleRevolverAimAnimator`; gameplay aim/fire unchanged |
 | **v0.7.7** | EnemyAI default AI bandit visual — `Model` root + `PF_CCS_AI_Bandit_Model_EnemyAI`; legacy `PF_CCS_Player_Visual` deleted when unreferenced; Unity 6 CS0618 editor warning cleanup |
 | **v0.7.6** | Kevin default player visual — `Model` root + `PF_CCS_Player_Model_Kevin`; legacy `PF_CCS_Player_Visual` deferred if bandit still references |
@@ -192,7 +192,7 @@ Solo Master Test still configures offline players through `CCS_ValidationSpawnCo
 | `enableInteractionDiagnostics` | off |
 | `enableTestDamage` | off |
 | `enableVisualDebugHelpers` | off |
-| `forceAimPresentation` | off (validation scene only; presentation-only) |
+| `forceRevolverAimSetupPose` | off (validation scene only; presentation-only setup pose + right-hand visual preview) |
 | `enableReticleClamp` | on |
 | `enableThirdPersonAimPitchBlend` | on |
 

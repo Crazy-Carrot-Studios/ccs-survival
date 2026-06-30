@@ -19,12 +19,12 @@ namespace CCS.Modules.CharacterController
 
         [SerializeField] private Animator animator;
         [SerializeField] private Component revolverAnimationStateComponent;
-        [SerializeField] private Component aimPresentationDebugSourceComponent;
+        [SerializeField] private Component revolverAimSetupPoseDebugSourceComponent;
         [SerializeField] private string upperBodyLayerName = CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName;
 
         private CCS_IRevolverAnimationState revolverAnimationState;
-        private CCS_ICharacterAimPresentationDebugSource aimPresentationDebugSource;
-        private bool resolvedAimPresentationDebugSource;
+        private CCS_IRevolverAimSetupPoseDebugSource revolverAimSetupPoseDebugSource;
+        private bool resolvedRevolverAimSetupPoseDebugSource;
         private int upperBodyLayerIndex = -1;
         private int isAimingHash;
         private int revolverDrawTriggerHash;
@@ -64,7 +64,8 @@ namespace CCS.Modules.CharacterController
                 return;
             }
 
-            if (!revolverAnimationState.IsRevolverOwned)
+            bool debugSetupPoseActive = IsDebugRevolverAimSetupPoseActive();
+            if (!revolverAnimationState.IsRevolverOwned && !debugSetupPoseActive)
             {
                 if (previousDesiredPresentationAiming || holsterPresentationActive || animator.GetLayerWeight(upperBodyLayerIndex) > HolsterLayerWeightFadeThreshold)
                 {
@@ -149,33 +150,34 @@ namespace CCS.Modules.CharacterController
         private bool ResolveDesiredPresentationAiming()
         {
             bool gameplayAiming = revolverAnimationState.IsAiming;
-            if (!TryResolveAimPresentationDebugSource(out CCS_ICharacterAimPresentationDebugSource debugSource))
-            {
-                return gameplayAiming;
-            }
-
-            return gameplayAiming || debugSource.ForceAimPresentation;
+            return gameplayAiming || IsDebugRevolverAimSetupPoseActive();
         }
 
-        private bool TryResolveAimPresentationDebugSource(out CCS_ICharacterAimPresentationDebugSource debugSource)
+        private bool IsDebugRevolverAimSetupPoseActive()
         {
-            if (resolvedAimPresentationDebugSource)
+            return TryResolveRevolverAimSetupPoseDebugSource(out CCS_IRevolverAimSetupPoseDebugSource debugSource)
+                && debugSource.ForceRevolverAimSetupPose;
+        }
+
+        private bool TryResolveRevolverAimSetupPoseDebugSource(out CCS_IRevolverAimSetupPoseDebugSource debugSource)
+        {
+            if (resolvedRevolverAimSetupPoseDebugSource)
             {
-                debugSource = aimPresentationDebugSource;
+                debugSource = revolverAimSetupPoseDebugSource;
                 return debugSource != null;
             }
 
-            resolvedAimPresentationDebugSource = true;
-            if (aimPresentationDebugSourceComponent is CCS_ICharacterAimPresentationDebugSource fromComponent)
+            resolvedRevolverAimSetupPoseDebugSource = true;
+            if (revolverAimSetupPoseDebugSourceComponent is CCS_IRevolverAimSetupPoseDebugSource fromComponent)
             {
-                aimPresentationDebugSource = fromComponent;
+                revolverAimSetupPoseDebugSource = fromComponent;
             }
             else
             {
-                aimPresentationDebugSource = CCS_CharacterAimPresentationDebugRegistry.ActiveSource;
+                revolverAimSetupPoseDebugSource = CCS_RevolverAimSetupPoseDebugRegistry.ActiveSource;
             }
 
-            debugSource = aimPresentationDebugSource;
+            debugSource = revolverAimSetupPoseDebugSource;
             return debugSource != null;
         }
 

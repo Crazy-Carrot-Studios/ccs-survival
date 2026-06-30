@@ -18,7 +18,7 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 
 ## Current milestone
 
-**0.7.9** — **Validation cleanup and aim debug toggle:** moves `CCS_TestWeaponDamageTarget` to CharacterController Prototyping; removes legacy `CCS_TestDetectionCube` validation path; adds diagnostics `Force Aim Presentation` toggle (presentation-only). No gameplay aim/fire changes. Animator Controller remains v0.7.8.
+**0.7.9** — **Validation cleanup and aim setup pose toggle:** moves `CCS_TestWeaponDamageTarget` to CharacterController Prototyping; removes legacy `CCS_TestDetectionCube`; adds diagnostics **Force Revolver Aim Setup Pose** (animation + right-hand visual preview, presentation-only); removes `CapsuleVisual`/`VisualGlasses` from production player prefab. No gameplay aim/fire changes.
 
 **0.7.8** — **Single revolver aim upper-body layer:** adds masked `SingleRevolverUpperBody` draw/hold/holster presentation using Wild West clips; gameplay aim/fire remains on `CCS_RevolverController`. No fire/reload/interaction/dual revolver animations.
 

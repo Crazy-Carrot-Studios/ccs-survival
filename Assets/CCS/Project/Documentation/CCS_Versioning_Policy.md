@@ -44,7 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
-| **`0.7.9`** | **Validation cleanup and aim debug toggle:** prototyping weapon damage target move; legacy TestDetectionCube removal; diagnostics Force Aim Presentation (presentation-only); no gameplay aim/fire changes. |
+| **`0.7.9`** | **Validation cleanup and aim setup pose toggle:** prototyping weapon damage target move; legacy TestDetectionCube removal; diagnostics Force Revolver Aim Setup Pose (animation + right-hand visual preview, presentation-only); CapsuleVisual/VisualGlasses removed from production player prefab. |
 | **`0.7.8`** | **Single revolver aim upper-body layer:** masked `SingleRevolverUpperBody` draw/hold/holster presentation; Wild West clips; gameplay aim/fire unchanged; no fire/reload/interaction/dual revolver animations. |
 | **`0.7.7`** | **EnemyAI default AI bandit visual:** `Model` root + `PF_CCS_AI_Bandit_Model_EnemyAI`; legacy `PF_CCS_Player_Visual` deleted when unreferenced; Unity 6 CS0618 editor warning cleanup; Kevin player visual unchanged; Camila not wired; locomotion-only Animator preserved. |
 | **`0.7.6`** | **Kevin default player visual:** `Model` root + `PF_CCS_Player_Model_Kevin` on networked player; equipment sockets rebuilt for Kevin; EnemyAI/Camila imported not wired; locomotion-only Animator preserved; no animation layer rebuild. |

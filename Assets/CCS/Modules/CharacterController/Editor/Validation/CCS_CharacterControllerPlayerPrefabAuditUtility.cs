@@ -130,8 +130,6 @@ namespace CCS.Modules.CharacterController.Editor
             "AttributeDebugInput",
             "DisplayProfile",
             "Placeholder",
-            "CapsuleVisual",
-            "VisualGlasses",
             "Harness",
             "MasterTest",
             "Demo",

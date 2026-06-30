@@ -296,6 +296,12 @@ namespace CCS.Modules.CharacterController
         public const string LegacyTestDetectionCubeUtilityScriptPath =
             "Assets/CCS/Modules/Interaction/Runtime/Components/CCS_TestDetectionCubeUtility.cs";
 
+        public static readonly string[] ProductionPlayerForbiddenPrototypeVisualObjectNames =
+        {
+            "CapsuleVisual",
+            "VisualGlasses",
+        };
+
         public static readonly string[] RemovedTestDetectionCubeReferenceTokens =
         {
             "CCS_TestDetectionCube",

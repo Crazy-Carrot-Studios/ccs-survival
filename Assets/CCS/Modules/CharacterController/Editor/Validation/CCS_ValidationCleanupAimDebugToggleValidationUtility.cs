@@ -42,7 +42,10 @@ namespace CCS.Modules.CharacterController.Editor
             "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_SingleRevolverAimAnimator.cs";
 
         private const string AimDebugSourceInterfacePath =
-            "Assets/CCS/Modules/CharacterController/Runtime/Data/CCS_ICharacterAimPresentationDebugSource.cs";
+            "Assets/CCS/Modules/CharacterController/Runtime/Data/CCS_IRevolverAimSetupPoseDebugSource.cs";
+
+        private const string EquipmentVisualSourcePath =
+            "Assets/CCS/Modules/Weapons/Runtime/Components/CCS_PlayerEquipmentVisualController.cs";
 
         private static readonly string[] ActiveSourceScanRoots =
         {
@@ -66,8 +69,10 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateRemovedDetectionCubeAssets(failures);
             ValidateRemovedDetectionCubeActiveReferences(failures);
             ValidateWeaponDamageTargetLocation(failures, warnings);
+            ValidateProductionPlayerPrototypeVisualsRemoved(failures);
             ValidateValidationSceneDiagnostics(failures);
             ValidateAimAnimatorDebugOverride(failures);
+            ValidateEquipmentVisualSetupPosePath(failures);
             ValidateSingleRevolverAimLayerPreserved(failures);
             ValidateMissingScripts(failures);
             ValidateTestsFolderRemoved(failures);
@@ -268,29 +273,89 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             SerializedObject serializedManager = new SerializedObject(manager);
-            SerializedProperty forceAimProperty = serializedManager.FindProperty("forceAimPresentation");
+            SerializedProperty forceSetupPoseProperty = serializedManager.FindProperty("forceRevolverAimSetupPose");
             AppendIfMissing(
                 failures,
-                forceAimProperty != null,
-                "Diagnostics manager must expose Force Aim Presentation bool (forceAimPresentation).");
+                forceSetupPoseProperty != null,
+                "Diagnostics manager must expose Force Revolver Aim Setup Pose bool (forceRevolverAimSetupPose).");
 
             AppendIfMissing(
                 failures,
-                forceAimProperty == null || !forceAimProperty.boolValue,
-                "Force Aim Presentation must default to false.");
+                forceSetupPoseProperty == null || !forceSetupPoseProperty.boolValue,
+                "Force Revolver Aim Setup Pose must default to false.");
 
             AppendIfMissing(
                 failures,
-                manager is CCS_ICharacterAimPresentationDebugSource,
-                "Diagnostics manager must implement CCS_ICharacterAimPresentationDebugSource.");
+                manager is CCS_IRevolverAimSetupPoseDebugSource,
+                "Diagnostics manager must implement CCS_IRevolverAimSetupPoseDebugSource.");
 
             string source = File.Exists(DiagnosticsManagerSourcePath)
                 ? File.ReadAllText(DiagnosticsManagerSourcePath)
                 : string.Empty;
             AppendIfMissing(
                 failures,
-                source.Contains("ForceAimPresentation"),
-                "Diagnostics manager must expose ForceAimPresentation read-only property.");
+                source.Contains("ForceRevolverAimSetupPose"),
+                "Diagnostics manager must expose ForceRevolverAimSetupPose read-only property.");
+            AppendIfMissing(
+                failures,
+                source.Contains("SetDiagnosticsRevolverAimSetupPoseActive"),
+                "Diagnostics manager must drive visual-only revolver setup pose on CCS_PlayerEquipmentVisualController.");
+        }
+
+        private static void ValidateProductionPlayerPrototypeVisualsRemoved(List<string> failures)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            AppendIfMissing(failures, prefab != null, "Missing networked player prefab for prototype visual validation.");
+            if (prefab == null)
+            {
+                return;
+            }
+
+            Transform[] transforms = prefab.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < CCS_CharacterControllerConstants.ProductionPlayerForbiddenPrototypeVisualObjectNames.Length; i++)
+            {
+                string forbiddenName = CCS_CharacterControllerConstants.ProductionPlayerForbiddenPrototypeVisualObjectNames[i];
+                for (int j = 0; j < transforms.Length; j++)
+                {
+                    Transform candidate = transforms[j];
+                    if (candidate != null && candidate.name == forbiddenName)
+                    {
+                        failures.Add(
+                            "Production player prefab must not contain prototype visual object "
+                            + forbiddenName
+                            + ".");
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static void ValidateEquipmentVisualSetupPosePath(List<string> failures)
+        {
+            AppendIfMissing(
+                failures,
+                File.Exists(EquipmentVisualSourcePath),
+                "Missing CCS_PlayerEquipmentVisualController at " + EquipmentVisualSourcePath + ".");
+
+            if (!File.Exists(EquipmentVisualSourcePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(EquipmentVisualSourcePath);
+            AppendIfMissing(
+                failures,
+                source.Contains("SetDiagnosticsRevolverAimSetupPoseActive")
+                    && source.Contains("diagnosticsRevolverAimSetupPoseActive")
+                    && source.Contains("ShowEquippedVisual"),
+                "CCS_PlayerEquipmentVisualController must support diagnostics right-hand visual-only revolver preview.");
+
+            AppendIfMissing(
+                failures,
+                !source.Contains("ApplyWeaponDamage")
+                    && !source.Contains("GrantRevolver")
+                    && !source.Contains("playerWeaponLoadout.Grant"),
+                "Diagnostics revolver setup pose visual path must not alter gameplay ownership, ammo, or damage.");
         }
 
         private static void ValidateAimAnimatorDebugOverride(List<string> failures)
@@ -303,7 +368,7 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 File.Exists(AimDebugSourceInterfacePath),
-                "Missing CCS_ICharacterAimPresentationDebugSource interface.");
+                "Missing CCS_IRevolverAimSetupPoseDebugSource interface.");
 
             if (!File.Exists(AimAnimatorSourcePath))
             {
@@ -319,14 +384,14 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                source.Contains("CCS_ICharacterAimPresentationDebugSource")
-                    && source.Contains("ForceAimPresentation"),
-                "CCS_SingleRevolverAimAnimator must honor diagnostics ForceAimPresentation override.");
+                source.Contains("CCS_IRevolverAimSetupPoseDebugSource")
+                    && source.Contains("ForceRevolverAimSetupPose"),
+                "CCS_SingleRevolverAimAnimator must honor diagnostics ForceRevolverAimSetupPose override.");
 
             AppendIfMissing(
                 failures,
-                source.Contains("CCS_CharacterAimPresentationDebugRegistry"),
-                "CCS_SingleRevolverAimAnimator must resolve diagnostics override through CCS_CharacterAimPresentationDebugRegistry.");
+                source.Contains("CCS_RevolverAimSetupPoseDebugRegistry"),
+                "CCS_SingleRevolverAimAnimator must resolve diagnostics override through CCS_RevolverAimSetupPoseDebugRegistry.");
 
             AppendIfMissing(
                 failures,
@@ -394,7 +459,7 @@ namespace CCS.Modules.CharacterController.Editor
                 }
             }
 
-            warnings.Add("Force Aim Presentation is available on validation scene diagnostics only.");
+            warnings.Add("Force Revolver Aim Setup Pose is available on validation scene diagnostics only.");
         }
 
         private static GameObject FindSceneObjectByName(Scene scene, string objectName)

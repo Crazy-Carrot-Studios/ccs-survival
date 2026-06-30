@@ -86,7 +86,36 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= RemoveLegacyPlayerVisualChildren(modelRoot);
             changed |= EnsureKevinVisualInstance(modelRoot, kevinVisualPrefab);
             changed |= EnsureModelPresentationComponents(modelRoot);
+            changed |= RemovePrototypeCapsuleAndGlassesVisuals(prefabRoot.transform);
             changed |= RemoveNestedLegacyVisualPattern(modelRoot);
+            return changed;
+        }
+
+        public static bool RemovePrototypeCapsuleAndGlassesVisuals(Transform playerRoot)
+        {
+            if (playerRoot == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            Transform[] transforms = playerRoot.GetComponentsInChildren<Transform>(true);
+            for (int i = transforms.Length - 1; i >= 0; i--)
+            {
+                Transform candidate = transforms[i];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                if (candidate.name == CCS_WeaponsConstants.CapsuleVisualName
+                    || candidate.name == CCS_WeaponsConstants.GlassesVisualName)
+                {
+                    Object.DestroyImmediate(candidate.gameObject);
+                    changed = true;
+                }
+            }
+
             return changed;
         }
 

@@ -15,12 +15,13 @@
 - Gameplay aim/fire remains owned by `CCS_RevolverController`
 - Not in v0.7.8: fire, reload, interaction, dual revolver layers; remote player aim presentation
 
-## v0.7.9 — Validation cleanup and aim debug toggle (implemented)
+## v0.7.9 — Validation cleanup and aim setup pose toggle (implemented)
 
 - Moved `PF_CCS_TestWeaponDamageTarget` to `CharacterController/Prototyping/Prefabs/Targets/`
 - Removed legacy `CCS_TestDetectionCube` validation path and bootstrap scripts
-- Added diagnostics `Force Aim Presentation` toggle on `CCS_DiagnosticsManager` (presentation-only)
-- `CCS_SingleRevolverAimAnimator` honors diagnostics override via `CCS_ICharacterAimPresentationDebugSource` + `CCS_CharacterAimPresentationDebugRegistry`
+- Added diagnostics **Force Revolver Aim Setup Pose** on `CCS_DiagnosticsManager` (presentation-only)
+- `CCS_SingleRevolverAimAnimator` + `CCS_PlayerEquipmentVisualController` honor setup pose via `CCS_IRevolverAimSetupPoseDebugSource` / `CCS_RevolverAimSetupPoseDebugRegistry`
+- Removed `CapsuleVisual` and `VisualGlasses` from production player prefab
 - Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
 
 ## Purpose
