@@ -123,9 +123,14 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
 
             string attachmentRootName =
                 socketId == CCS_EquipmentConstants.HandSocketRightId
-                    ? CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName
+                    ? CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName
                     : CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName;
             Transform attachmentRoot = socketTransform.Find(attachmentRootName);
+            if (attachmentRoot == null && socketId == CCS_EquipmentConstants.HandSocketRightId)
+            {
+                attachmentRoot = socketTransform.Find(
+                    CCS_EquipmentConstants.LegacyRuntimeEquippedAttachmentRootObjectName);
+            }
             if (attachmentRoot == null)
             {
                 attachmentRoot = CCS_EquipmentFitStudioPreviewAttachmentUtility.EnsurePreviewAttachmentRoot(

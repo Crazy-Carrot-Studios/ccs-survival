@@ -360,6 +360,14 @@ v0.7.5 creates this policy only. **No hierarchy enforcement** until v0.7.6 valid
 - Move owner-only HUD/reticle/interaction prompt to owner-spawned prefab or owner-enabled `LocalOnly` child
 - World-space nameplate remains under `WorldPresentation`
 
+### v0.7.10b — right-hand revolver fit profile refinement
+
+- **Offset parent:** `CCS_RightHandRevolverAttachmentOffset` under `CCS_HandSocket_Right`
+- **Fit profile:** `CCS_RevolverM1879_RightHandEquipped_Fit` (ScriptableObject source of truth)
+- **Visual child:** identity local transform under offset parent
+- **Tuning:** Equipment Fit Studio + editor menus under `CCS/Character Controller/Equipment/Right Hand Revolver Fit/`
+- Audit report: `Logs/CharacterController/ValidationCleanup/CCS_RevolverRightHandFitAudit_v0.7.10b.md`
+
 ### v0.7.10a — equipment socket vs IK clarity
 
 - **Attach equipped revolver visuals to:** `CCS_HandSocket_Right` (equipment socket anchor on Kevin rig)

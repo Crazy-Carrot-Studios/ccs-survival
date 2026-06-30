@@ -19,8 +19,25 @@ namespace CCS.Modules.CharacterController.Editor.EquipmentFitStudio
         public static string GetAttachmentRootObjectName(CCS_EquipmentFitStudioFitTarget fitTarget)
         {
             return fitTarget == CCS_EquipmentFitStudioFitTarget.EquippedItem
-                ? CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName
+                ? CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName
                 : CCS_EquipmentConstants.RuntimeHolsterAttachmentRootObjectName;
+        }
+
+        public static Transform FindRightHandAttachmentOffsetRoot(Transform socketTransform)
+        {
+            if (socketTransform == null)
+            {
+                return null;
+            }
+
+            Transform attachmentRoot = socketTransform.Find(
+                CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName);
+            if (attachmentRoot != null)
+            {
+                return attachmentRoot;
+            }
+
+            return socketTransform.Find(CCS_EquipmentConstants.LegacyRuntimeEquippedAttachmentRootObjectName);
         }
 
         public static Transform EnsurePreviewAttachmentRoot(Transform socketTransform, string attachmentRootName)

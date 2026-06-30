@@ -48,8 +48,6 @@ namespace CCS.Modules.Weapons
         private GameObject diagnosticsEquippedVisualInstance;
         private bool loggedEquippedFitParityThisAimSession;
 
-        private const string DiagnosticsEquippedAttachmentRootObjectName =
-            "CCS_DiagnosticsEquippedAttachmentRoot";
         private const string DiagnosticsEquippedVisualObjectName =
             "CCS_DiagnosticsEquippedVisual";
 
@@ -394,10 +392,8 @@ namespace CCS.Modules.Weapons
                 return false;
             }
 
-            diagnosticsEquippedAttachmentRoot = EnsureAttachmentRoot(
-                socketTransform,
-                DiagnosticsEquippedAttachmentRootObjectName);
-            CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
+            diagnosticsEquippedAttachmentRoot = EnsureRightHandAttachmentOffsetRoot(socketTransform);
+            ApplyRightHandEquippedFitProfile(
                 socketTransform,
                 diagnosticsEquippedAttachmentRoot,
                 profile,
@@ -429,13 +425,21 @@ namespace CCS.Modules.Weapons
                 + "\n- Visual source prefab: "
                 + revolverVisualOnlyPrefab.name
                 + "\n- Fit profile: CCS_RevolverM1879_RightHandEquipped_Fit\n"
-                + "- Final parent path: "
-                + BuildTransformPath(diagnosticsEquippedVisualInstance.transform.parent)
-                + "\n- Final local position: "
+                + "- Offset parent path: "
+                + BuildTransformPath(diagnosticsEquippedAttachmentRoot)
+                + "\n- Offset parent local position: "
+                + FormatVector3(diagnosticsEquippedAttachmentRoot.localPosition)
+                + "\n- Offset parent local rotation: "
+                + FormatVector3(diagnosticsEquippedAttachmentRoot.localEulerAngles)
+                + "\n- Offset parent local scale: "
+                + FormatVector3(diagnosticsEquippedAttachmentRoot.localScale)
+                + "\n- Visual child path: "
+                + BuildTransformPath(diagnosticsEquippedVisualInstance.transform)
+                + "\n- Visual child local position: "
                 + FormatVector3(diagnosticsEquippedVisualInstance.transform.localPosition)
-                + "\n- Final local rotation: "
+                + "\n- Visual child local rotation: "
                 + FormatVector3(diagnosticsEquippedVisualInstance.transform.localEulerAngles)
-                + "\n- Final local scale: "
+                + "\n- Visual child local scale: "
                 + FormatVector3(diagnosticsEquippedVisualInstance.transform.localScale));
             return true;
         }
@@ -481,6 +485,7 @@ namespace CCS.Modules.Weapons
             if (existing != null)
             {
                 ZeroLocalTransform(existing);
+                CCS_WeaponAttachmentFitProfileApplicator.ResetDirectVisualChildToIdentity(attachmentRoot);
                 return existing.gameObject;
             }
 
@@ -488,7 +493,47 @@ namespace CCS.Modules.Weapons
             instance.name = DiagnosticsEquippedVisualObjectName;
             ZeroLocalTransform(instance.transform);
             StripRuntimeGameplayComponents(instance);
+            CCS_WeaponAttachmentFitProfileApplicator.ResetDirectVisualChildToIdentity(attachmentRoot);
             return instance;
+        }
+
+        private Transform EnsureRightHandAttachmentOffsetRoot(Transform socketTransform)
+        {
+            Transform existing = socketTransform.Find(CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName);
+            if (existing == null)
+            {
+                existing = socketTransform.Find(CCS_EquipmentConstants.LegacyRuntimeEquippedAttachmentRootObjectName);
+                if (existing != null)
+                {
+                    existing.name = CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName;
+                }
+            }
+
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            return EnsureAttachmentRoot(
+                socketTransform,
+                CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName);
+        }
+
+        private void ApplyRightHandEquippedFitProfile(
+            Transform socketTransform,
+            Transform attachmentRoot,
+            CCS_WeaponAttachmentFitProfile profile,
+            Vector3 definitionPosition,
+            Vector3 definitionEuler,
+            Vector3 definitionScale)
+        {
+            CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
+                socketTransform,
+                attachmentRoot,
+                profile,
+                definitionPosition,
+                definitionEuler,
+                definitionScale);
         }
 
         private static bool IsIkOnlyAttachmentTransform(Transform transform)
@@ -711,11 +756,9 @@ namespace CCS.Modules.Weapons
                 return;
             }
 
-            equippedAttachmentRoot = EnsureAttachmentRoot(
-                socketTransform,
-                CCS_EquipmentConstants.RuntimeEquippedAttachmentRootObjectName);
+            equippedAttachmentRoot = EnsureRightHandAttachmentOffsetRoot(socketTransform);
             bool wasEquippedActive = equippedVisualInstance != null && equippedVisualInstance.activeSelf;
-            CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
+            ApplyRightHandEquippedFitProfile(
                 socketTransform,
                 equippedAttachmentRoot,
                 profile,
@@ -734,6 +777,8 @@ namespace CCS.Modules.Weapons
             equippedVisualInstance = EnsureVisualInstance(
                 equippedAttachmentRoot,
                 CCS_EquipmentConstants.RuntimeEquippedVisualObjectName);
+
+            CCS_WeaponAttachmentFitProfileApplicator.ResetDirectVisualChildToIdentity(equippedAttachmentRoot);
 
             if (equippedVisualInstance != null)
             {

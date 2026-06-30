@@ -125,7 +125,11 @@ namespace CCS.Modules.CharacterController
 
         public const string RuntimeHolsteredVisualObjectName = "CCS_RUNTIME_Revolver_HolsteredVisual";
 
-        public const string RuntimeEquippedAttachmentRootObjectName = "CCS_RUNTIME_Revolver_EquippedAttachmentRoot";
+        public const string RightHandRevolverAttachmentOffsetObjectName = "CCS_RightHandRevolverAttachmentOffset";
+
+        public const string LegacyRuntimeEquippedAttachmentRootObjectName = "CCS_RUNTIME_Revolver_EquippedAttachmentRoot";
+
+        public const string RuntimeEquippedAttachmentRootObjectName = RightHandRevolverAttachmentOffsetObjectName;
 
         public const string RuntimeEquippedAimConvergenceRootObjectName = "CCS_RUNTIME_Revolver_AimConvergenceRoot";
 
@@ -145,7 +149,8 @@ namespace CCS.Modules.CharacterController
         {
             RuntimeHolsterAttachmentRootObjectName,
             RuntimeHolsteredVisualObjectName,
-            RuntimeEquippedAttachmentRootObjectName,
+            RightHandRevolverAttachmentOffsetObjectName,
+            LegacyRuntimeEquippedAttachmentRootObjectName,
             RuntimeEquippedAimConvergenceRootObjectName,
             RuntimeEquippedVisualObjectName,
         };

@@ -205,9 +205,9 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 source.Contains("diagnosticsEquippedVisualInstance")
-                    && source.Contains("DiagnosticsEquippedVisualObjectName")
+                    && source.Contains("RightHandRevolverAttachmentOffsetObjectName")
                     && source.Contains(CCS_EquipmentConstants.HandSocketRightId),
-                "Diagnostics preview must create a dedicated visual on CCS_HandSocket_Right.");
+                "Diagnostics preview must create a dedicated visual on CCS_HandSocket_Right via CCS_RightHandRevolverAttachmentOffset.");
 
             AppendIfMissing(
                 failures,

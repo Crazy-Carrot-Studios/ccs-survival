@@ -142,6 +142,57 @@ namespace CCS.Modules.CharacterController
             attachmentRoot.localScale = Vector3.one;
         }
 
+        public static void ResetDirectVisualChildToIdentity(Transform attachmentRoot)
+        {
+            if (attachmentRoot == null || attachmentRoot.childCount == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < attachmentRoot.childCount; i++)
+            {
+                Transform child = attachmentRoot.GetChild(i);
+                if (child == null)
+                {
+                    continue;
+                }
+
+                child.localPosition = Vector3.zero;
+                child.localRotation = Quaternion.identity;
+                child.localScale = Vector3.one;
+            }
+        }
+
+        public static bool HasDuplicateProfileApplicationInSource(string source)
+        {
+            if (string.IsNullOrEmpty(source))
+            {
+                return false;
+            }
+
+            int applyCount = 0;
+            int searchIndex = 0;
+            const string token = "ApplyProfileToAttachmentRoot(";
+            while (true)
+            {
+                int foundIndex = source.IndexOf(token, searchIndex, System.StringComparison.Ordinal);
+                if (foundIndex < 0)
+                {
+                    break;
+                }
+
+                applyCount++;
+                if (applyCount > 1)
+                {
+                    return true;
+                }
+
+                searchIndex = foundIndex + token.Length;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Private Methods

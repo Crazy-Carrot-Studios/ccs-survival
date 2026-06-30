@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.10a`
+**Current version:** `0.7.10b`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.10b`** | **Revolver right-hand fit profile refinement:** `CCS_RightHandRevolverAttachmentOffset` under `CCS_HandSocket_Right`; `CCS_RevolverM1879_RightHandEquipped_Fit` source of truth; Equipment Fit Studio tuning workflow. No gameplay changes. |
 | **`0.7.10a`** | **Revolver hand socket preview hotfix:** fixes diagnostics preview attachment to `CCS_HandSocket_Right`; clarifies socket vs IK hierarchy; diagnostics manager resolves player equipment visual directly. No gameplay ownership/ammo/damage/fire changes. |
 | **`0.7.10`** | **Revolver hand socket preview toggle:** diagnostics Force Revolver Hand Socket Preview (visual-only right-hand socket attachment); Force Revolver Aim Setup Pose remains separate; no gameplay ownership/ammo/damage/fire changes; no new animation layers or fire/reload/interaction/dual-revolver animation work. |
 | **`0.7.9`** | **Validation cleanup and aim setup pose toggle:** prototyping weapon damage target move; legacy TestDetectionCube removal; diagnostics Force Revolver Aim Setup Pose (animation + right-hand visual preview, presentation-only); CapsuleVisual/VisualGlasses removed from production player prefab. |

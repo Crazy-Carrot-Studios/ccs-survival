@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.10b** | Revolver right-hand fit profile refinement — `CCS_RightHandRevolverAttachmentOffset`; fit profile source of truth; Equipment Fit Studio tuning; no gameplay changes |
 | **v0.7.10a** | Revolver hand socket preview hotfix — fixes diagnostics preview attach to `CCS_HandSocket_Right`; socket vs IK audit; player equipment visual lookup fix; no gameplay changes |
 | **v0.7.10** | Revolver hand socket preview toggle — diagnostics Force Revolver Hand Socket Preview (visual-only right-hand socket); Force Revolver Aim Setup Pose remains separate; no gameplay ownership/ammo/damage changes; no new animation layers |
 | **v0.7.9** | Validation cleanup — weapon damage target moved to Prototyping; legacy TestDetectionCube removed; diagnostics Force Revolver Aim Setup Pose (animation + right-hand visual preview); CapsuleVisual/VisualGlasses removed from production player prefab |
@@ -150,6 +151,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Phase 3C animation architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3CBatchEntry.RunFromBatchMode` |
 | Phase 3D hierarchy architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3DBatchEntry.RunFromBatchMode` |
 | Player visual Kevin swap | `CCS.Modules.CharacterController.Editor.CCS_PlayerVisualModelSwapBatchEntry.RunFromBatchMode` |
+| Revolver right-hand fit profile (v0.7.10b) | `CCS.Modules.CharacterController.Editor.CCS_RevolverRightHandFitProfileBatchEntry.RunFromBatchMode` |
 | Revolver hand socket preview (v0.7.10) | `CCS.Modules.CharacterController.Editor.CCS_RevolverHandSocketPreviewBatchEntry.RunFromBatchMode` |
 | Validation cleanup / aim debug toggle | `CCS.Modules.CharacterController.Editor.CCS_ValidationCleanupAimDebugToggleBatchEntry.RunFromBatchMode` |
 | Single revolver aim layer | `CCS.Modules.CharacterController.Editor.CCS_SingleRevolverAimLayerBatchEntry.RunFromBatchMode` |

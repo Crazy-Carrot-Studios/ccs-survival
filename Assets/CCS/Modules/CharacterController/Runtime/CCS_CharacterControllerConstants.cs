@@ -287,6 +287,12 @@ namespace CCS.Modules.CharacterController
         public const string RevolverHandSocketPreviewReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverHandSocketPreview_v0.7.10a.md";
 
+        public const string RevolverRightHandFitAuditReportPath =
+            ValidationCleanupReportDirectory + "/CCS_RevolverRightHandFitAudit_v0.7.10b.md";
+
+        public const string RevolverRightHandFitProfileReportPath =
+            ValidationCleanupReportDirectory + "/CCS_RevolverRightHandFitProfile_v0.7.10b.md";
+
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
 

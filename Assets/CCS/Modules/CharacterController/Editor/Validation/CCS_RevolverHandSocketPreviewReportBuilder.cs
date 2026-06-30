@@ -56,7 +56,7 @@ namespace CCS.Modules.CharacterController.Editor
             builder.AppendLine();
             builder.AppendLine("## Fixed preview attachment parent");
             builder.AppendLine("- Socket id: " + CCS_EquipmentConstants.HandSocketRightId);
-            builder.AppendLine("- Final parent path: " + rightHandSocketPath + "/CCS_DiagnosticsEquippedAttachmentRoot");
+            builder.AppendLine("- Final parent path: " + rightHandSocketPath + "/" + CCS_EquipmentConstants.RightHandRevolverAttachmentOffsetObjectName);
             builder.AppendLine("- Visual child: CCS_DiagnosticsEquippedVisual");
             builder.AppendLine();
             builder.AppendLine("## Visual source / fit profile");
