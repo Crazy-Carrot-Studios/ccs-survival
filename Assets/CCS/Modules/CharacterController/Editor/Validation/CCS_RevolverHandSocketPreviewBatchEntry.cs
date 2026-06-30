@@ -7,9 +7,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 // =============================================================================
-// SCRIPT: CCS_ValidationCleanupAimDebugToggleBatchEntry
+// SCRIPT: CCS_RevolverHandSocketPreviewBatchEntry
 // CATEGORY: Modules / CharacterController / Editor / Validation
-// PURPOSE: Batch-mode entry for v0.7.9 validation cleanup and aim debug toggle validation.
+// PURPOSE: Batch-mode entry for v0.7.10 revolver hand socket preview validation.
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
@@ -17,28 +17,29 @@ using UnityEngine;
 
 namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_ValidationCleanupAimDebugToggleBatchEntry
+    public static class CCS_RevolverHandSocketPreviewBatchEntry
     {
         public static void RunFromBatchMode()
         {
             CCS_CharacterControllerMasterTestBuilder.SetupMasterTestScene();
             CCS_InteractionDetectionTestBuilder.BuildMasterTestInteractions();
             CCS_WeaponsAssetBuilder.EnsureTestDamageTargetPrefab();
+            CCS_PlayerVisualKevinSwapBuilder.EnsureKevinModelOnNetworkedPlayerPrefab();
             EnsureDiagnosticsRevolverDebugDefaults();
             AssetDatabase.SaveAssets();
 
             CCS_SurvivalValidationResult validationResult =
-                CCS_ValidationCleanupAimDebugToggleValidationUtility.ValidateValidationCleanupAimDebugToggle();
+                CCS_RevolverHandSocketPreviewValidationUtility.ValidateRevolverHandSocketPreview();
             if (!validationResult.IsSuccess)
             {
-                Debug.LogError("[Validation Cleanup Aim Debug Batch] Validation failed: " + validationResult.Message);
+                Debug.LogError("[Revolver Hand Socket Preview Batch] Validation failed: " + validationResult.Message);
                 EditorApplication.Exit(1);
                 return;
             }
 
-            string reportPath = CCS_ValidationCleanupAimDebugToggleReportBuilder.WriteReport();
+            string reportPath = CCS_RevolverHandSocketPreviewReportBuilder.WriteReport();
             Debug.Log(
-                "[Validation Cleanup Aim Debug Batch] Validation passed. Report: "
+                "[Revolver Hand Socket Preview Batch] Validation passed. Report: "
                 + reportPath
                 + ". "
                 + validationResult.Message);

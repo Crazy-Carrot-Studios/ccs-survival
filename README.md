@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.9** · Crazy Carrot Studios
+**Version 0.7.10** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.10** — **Revolver hand socket preview toggle:** adds diagnostics **Force Revolver Hand Socket Preview** (visual-only right-hand socket attachment for offset testing); **Force Revolver Aim Setup Pose** remains separate (animation + visual). No gameplay weapon ownership, ammo, damage, or fire changes. No new animation layers or fire/reload/interaction/dual-revolver animation work.
 
 **0.7.9** — **Validation cleanup and aim setup pose toggle:** moves `CCS_TestWeaponDamageTarget` to CharacterController Prototyping; removes legacy `CCS_TestDetectionCube`; adds diagnostics **Force Revolver Aim Setup Pose** (animation + right-hand visual preview, presentation-only); removes `CapsuleVisual`/`VisualGlasses` from production player prefab. No gameplay aim/fire changes.
 

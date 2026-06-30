@@ -1624,6 +1624,13 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     forceRevolverAimSetupPoseProperty == null || !forceRevolverAimSetupPoseProperty.boolValue,
                     "CCS_CharacterControllerDiagnosticsManager.forceRevolverAimSetupPose must default to false.");
+
+                SerializedProperty forceRevolverHandSocketPreviewProperty =
+                    serializedManager.FindProperty("forceRevolverHandSocketPreview");
+                AppendIfMissing(
+                    failures,
+                    forceRevolverHandSocketPreviewProperty == null || !forceRevolverHandSocketPreviewProperty.boolValue,
+                    "CCS_CharacterControllerDiagnosticsManager.forceRevolverHandSocketPreview must default to false.");
             }
 
             if (File.Exists(testingManagerSourcePath))
@@ -1633,7 +1640,8 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     testingManagerSource.Contains("enableArmToReticleIK")
                         && testingManagerSource.Contains("reticleMode")
-                        && testingManagerSource.Contains("ForceRevolverAimSetupPose"),
+                        && testingManagerSource.Contains("ForceRevolverAimSetupPose")
+                        && testingManagerSource.Contains("ForceRevolverHandSocketPreview"),
                     "CCS_CharacterControllerDiagnosticsManager must expose Master Test aim visual toggles.");
                 AppendIfMissing(
                     failures,

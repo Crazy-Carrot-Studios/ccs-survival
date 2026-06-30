@@ -24,7 +24,7 @@ using UnityEngine.Serialization;
 namespace CCS.Modules.CharacterController.Diagnostics {
     [MovedFrom(true, "CCS.Modules.CharacterController.Tests", "CCS.Modules.CharacterController.Tests.Runtime", "CCS_CharacterControllerTestingManager")]
     [DefaultExecutionOrder(-10)]
-    public class CCS_CharacterControllerDiagnosticsManager : MonoBehaviour, CCS_IRevolverAimSetupPoseDebugSource
+    public class CCS_CharacterControllerDiagnosticsManager : MonoBehaviour, CCS_IRevolverAimSetupPoseDebugSource, CCS_IRevolverHandSocketPreviewDebugSource
     {
         #region Variables
 
@@ -43,6 +43,9 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         [Tooltip("For validation only. Holds revolver aim setup pose and right-hand visual preview without RMB. Does not fire, damage, change ammo, or grant weapon ownership.")]
         [FormerlySerializedAs("forceAimPresentation")]
         [SerializeField] private bool forceRevolverAimSetupPose;
+
+        [Tooltip("For validation only. Shows the revolver visual on the right-hand socket without forcing aim animation, firing, ammo, damage, or gameplay ownership.")]
+        [SerializeField] private bool forceRevolverHandSocketPreview;
 
         [Tooltip("Pulls arm/hand toward reticle via Animation Rigging. Default OFF for stable FitTest pose.")]
         [SerializeField] private bool enableArmToReticleIK;
@@ -123,6 +126,8 @@ namespace CCS.Modules.CharacterController.Diagnostics {
 
         public bool ForceRevolverAimSetupPose => forceRevolverAimSetupPose;
 
+        public bool ForceRevolverHandSocketPreview => forceRevolverHandSocketPreview;
+
         #endregion
 
         #region Unity Callbacks
@@ -131,12 +136,14 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         {
             ActiveInstance = this;
             CCS_RevolverAimSetupPoseDebugRegistry.Register(this);
+            CCS_RevolverHandSocketPreviewDebugRegistry.Register(this);
             EnsureDiagnosticComponents();
         }
 
         protected virtual void OnDestroy()
         {
             CCS_RevolverAimSetupPoseDebugRegistry.Unregister(this);
+            CCS_RevolverHandSocketPreviewDebugRegistry.Unregister(this);
             if (ActiveInstance == this)
             {
                 ActiveInstance = null;
@@ -246,6 +253,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
             builder.AppendLine("- RecordingAmbience: " + enableRecordingAmbience);
             builder.AppendLine("- AimDebugRays: " + enableAimDebugRays);
             builder.AppendLine("- ForceRevolverAimSetupPose: " + forceRevolverAimSetupPose);
+            builder.AppendLine("- ForceRevolverHandSocketPreview: " + forceRevolverHandSocketPreview);
             builder.AppendLine();
 
             CCS_CharacterCameraDebugReporter cameraReporter = GetComponent<CCS_CharacterCameraDebugReporter>();
@@ -372,6 +380,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
             CCS_PlayerEquipmentVisualController equipmentVisualController =
                 revolverController.GetComponent<CCS_PlayerEquipmentVisualController>();
             equipmentVisualController?.SetDiagnosticsRevolverAimSetupPoseActive(forceRevolverAimSetupPose);
+            equipmentVisualController?.SetDiagnosticsRevolverHandSocketPreviewActive(forceRevolverHandSocketPreview);
 
             if (!appliedAimVisualSettingsToPlayer)
             {

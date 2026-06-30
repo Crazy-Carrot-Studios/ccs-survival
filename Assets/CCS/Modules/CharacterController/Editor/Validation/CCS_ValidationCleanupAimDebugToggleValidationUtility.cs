@@ -174,6 +174,8 @@ namespace CCS.Modules.CharacterController.Editor
 
             return normalizedPath.EndsWith("CCS_ValidationCleanupAimDebugToggleValidationUtility.cs")
                 || normalizedPath.EndsWith("CCS_ValidationCleanupAimDebugToggleReportBuilder.cs")
+                || normalizedPath.EndsWith("CCS_RevolverHandSocketPreviewValidationUtility.cs")
+                || normalizedPath.EndsWith("CCS_RevolverHandSocketPreviewReportBuilder.cs")
                 || normalizedPath.EndsWith("CCS_CharacterControllerConstants.cs")
                 || normalizedPath.EndsWith("CCS_InteractionModuleValidator.cs")
                 || normalizedPath.EndsWith("CCS_InteractionDetectionTestBuilder.cs")

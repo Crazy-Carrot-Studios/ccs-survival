@@ -43,6 +43,7 @@ namespace CCS.Modules.Weapons
         private Transform equippedMuzzlePoint;
         private bool isAiming;
         private bool diagnosticsRevolverAimSetupPoseActive;
+        private bool diagnosticsRevolverHandSocketPreviewActive;
         private bool loggedEquippedFitParityThisAimSession;
 
 #if UNITY_EDITOR
@@ -123,6 +124,7 @@ namespace CCS.Modules.Weapons
         {
             Unsubscribe();
             diagnosticsRevolverAimSetupPoseActive = false;
+            diagnosticsRevolverHandSocketPreviewActive = false;
             DestroyRuntimeVisuals();
 #if UNITY_EDITOR
             editorAimFitOverrideActive = false;
@@ -166,7 +168,7 @@ namespace CCS.Modules.Weapons
             }
 #endif
 
-            if (diagnosticsRevolverAimSetupPoseActive)
+            if (ShouldShowDiagnosticsEquippedVisualPreview())
             {
                 HideHolsteredVisual();
                 ShowEquippedVisual();
@@ -237,7 +239,25 @@ namespace CCS.Modules.Weapons
             RefreshVisualState();
         }
 
+        public void SetDiagnosticsRevolverHandSocketPreviewActive(bool active)
+        {
+            if (diagnosticsRevolverHandSocketPreviewActive == active)
+            {
+                return;
+            }
+
+            diagnosticsRevolverHandSocketPreviewActive = active;
+            RefreshVisualState();
+        }
+
         public bool IsDiagnosticsRevolverAimSetupPoseActive => diagnosticsRevolverAimSetupPoseActive;
+
+        public bool IsDiagnosticsRevolverHandSocketPreviewActive => diagnosticsRevolverHandSocketPreviewActive;
+
+        private bool ShouldShowDiagnosticsEquippedVisualPreview()
+        {
+            return diagnosticsRevolverAimSetupPoseActive || diagnosticsRevolverHandSocketPreviewActive;
+        }
 
         public void SetVisualAimConvergenceActive(bool active)
         {

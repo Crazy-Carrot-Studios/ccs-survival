@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.10** | Revolver hand socket preview toggle — diagnostics Force Revolver Hand Socket Preview (visual-only right-hand socket); Force Revolver Aim Setup Pose remains separate; no gameplay ownership/ammo/damage changes; no new animation layers |
 | **v0.7.9** | Validation cleanup — weapon damage target moved to Prototyping; legacy TestDetectionCube removed; diagnostics Force Revolver Aim Setup Pose (animation + right-hand visual preview); CapsuleVisual/VisualGlasses removed from production player prefab |
 | **v0.7.8** | Single revolver aim upper-body layer — `SingleRevolverUpperBody` masked draw/hold/holster; Wild West clips; presentation-only `CCS_SingleRevolverAimAnimator`; gameplay aim/fire unchanged |
 | **v0.7.7** | EnemyAI default AI bandit visual — `Model` root + `PF_CCS_AI_Bandit_Model_EnemyAI`; legacy `PF_CCS_Player_Visual` deleted when unreferenced; Unity 6 CS0618 editor warning cleanup |
@@ -148,6 +149,9 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Phase 3C animation architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3CBatchEntry.RunFromBatchMode` |
 | Phase 3D hierarchy architecture | `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerPhase3DBatchEntry.RunFromBatchMode` |
 | Player visual Kevin swap | `CCS.Modules.CharacterController.Editor.CCS_PlayerVisualModelSwapBatchEntry.RunFromBatchMode` |
+| Revolver hand socket preview (v0.7.10) | `CCS.Modules.CharacterController.Editor.CCS_RevolverHandSocketPreviewBatchEntry.RunFromBatchMode` |
+| Validation cleanup / aim debug toggle | `CCS.Modules.CharacterController.Editor.CCS_ValidationCleanupAimDebugToggleBatchEntry.RunFromBatchMode` |
+| Single revolver aim layer | `CCS.Modules.CharacterController.Editor.CCS_SingleRevolverAimLayerBatchEntry.RunFromBatchMode` |
 
 Editor menus are optional convenience wrappers. CI and Cursor workflows must not depend on manual menu clicks.
 
@@ -193,6 +197,7 @@ Solo Master Test still configures offline players through `CCS_ValidationSpawnCo
 | `enableTestDamage` | off |
 | `enableVisualDebugHelpers` | off |
 | `forceRevolverAimSetupPose` | off (validation scene only; presentation-only setup pose + right-hand visual preview) |
+| `forceRevolverHandSocketPreview` | off (validation scene only; visual-only right-hand socket preview without aim animation) |
 | `enableReticleClamp` | on |
 | `enableThirdPersonAimPitchBlend` | on |
 
