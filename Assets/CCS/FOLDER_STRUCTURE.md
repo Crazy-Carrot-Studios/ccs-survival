@@ -232,7 +232,7 @@ Assets/CCS/Modules/<Feature>/
 **Canonical assets:**
 - `Tests/Profiles/CCS_InteractionScannerProfile_Default.asset`
 - `Tests/Prefabs/PF_CCS_TestInteractable_PickupItem.prefab`
-- Master Test scene objects: `CCS_TestDetectionCube`, building door interactable
+- Master Test scene objects: revolver world pickup, building door interactable
 - Networked player scanner on `CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab`
 
 **Doc:** [CCS_Interaction_Module.md](Modules/Interaction/Documentation/CCS_Interaction_Module.md)

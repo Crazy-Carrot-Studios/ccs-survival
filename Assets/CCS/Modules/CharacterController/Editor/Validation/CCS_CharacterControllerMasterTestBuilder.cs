@@ -151,6 +151,7 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= CCS_InteractionDetectionTestBuilder.EnsureMasterTestInteractionPrerequisites();
             changed |= DestroyAllByName("CCS_TestPickupItemSpawner");
             changed |= DestroyAllByName("PF_CCS_TestInteractable_PickupItem");
+            changed |= DestroyAllByName("CCS_TestDetectionCube");
             changed |= DestroyAllByName("CCS_TestDetectionCubeSceneBootstrap");
 
             scene = EnsureMasterTestSceneReference(scene);

@@ -1618,6 +1618,12 @@ namespace CCS.Modules.CharacterController.Editor
                     failures,
                     aimDebugRaysProperty == null || !aimDebugRaysProperty.boolValue,
                     "CCS_CharacterControllerDiagnosticsManager.enableAimDebugRays must default to false.");
+
+                SerializedProperty forceAimPresentationProperty = serializedManager.FindProperty("forceAimPresentation");
+                AppendIfMissing(
+                    failures,
+                    forceAimPresentationProperty == null || !forceAimPresentationProperty.boolValue,
+                    "CCS_CharacterControllerDiagnosticsManager.forceAimPresentation must default to false.");
             }
 
             if (File.Exists(testingManagerSourcePath))
@@ -1626,7 +1632,8 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     testingManagerSource.Contains("enableArmToReticleIK")
-                        && testingManagerSource.Contains("reticleMode"),
+                        && testingManagerSource.Contains("reticleMode")
+                        && testingManagerSource.Contains("ForceAimPresentation"),
                     "CCS_CharacterControllerDiagnosticsManager must expose Master Test aim visual toggles.");
                 AppendIfMissing(
                     failures,

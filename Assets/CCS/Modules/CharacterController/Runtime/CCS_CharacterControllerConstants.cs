@@ -278,6 +278,31 @@ namespace CCS.Modules.CharacterController
         public const string SingleRevolverAimLayerReportPath =
             SingleRevolverAimLayerReportDirectory + "/CCS_SingleRevolverAimLayer_v0.7.8.md";
 
+        public const string ValidationCleanupReportDirectory =
+            "Logs/CharacterController/ValidationCleanup";
+
+        public const string ValidationCleanupAimDebugToggleReportPath =
+            ValidationCleanupReportDirectory + "/CCS_ValidationCleanup_AimDebugToggle_v0.7.9.md";
+
+        public const string PrototypingWeaponDamageTargetPrefabPath =
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Targets/PF_CCS_TestWeaponDamageTarget.prefab";
+
+        public const string LegacyWeaponsTestDamageTargetPrefabPath =
+            "Assets/CCS/Modules/Weapons/Tests/Prefabs/PF_CCS_TestWeaponDamageTarget.prefab";
+
+        public const string LegacyTestDetectionCubeBootstrapScriptPath =
+            "Assets/CCS/Modules/Interaction/Runtime/Components/CCS_TestDetectionCubeSceneBootstrap.cs";
+
+        public const string LegacyTestDetectionCubeUtilityScriptPath =
+            "Assets/CCS/Modules/Interaction/Runtime/Components/CCS_TestDetectionCubeUtility.cs";
+
+        public static readonly string[] RemovedTestDetectionCubeReferenceTokens =
+        {
+            "CCS_TestDetectionCube",
+            "CCS_TestDetectionCubeSceneBootstrap",
+            "TestDetectionCube",
+        };
+
         public static readonly string[] SingleRevolverUpperBodyAllowedStateNames =
         {
             SingleRevolverUpperBodyEmptyStateName,

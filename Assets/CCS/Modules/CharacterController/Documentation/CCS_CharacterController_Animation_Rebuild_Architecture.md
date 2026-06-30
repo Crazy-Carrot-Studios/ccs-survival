@@ -15,6 +15,14 @@
 - Gameplay aim/fire remains owned by `CCS_RevolverController`
 - Not in v0.7.8: fire, reload, interaction, dual revolver layers; remote player aim presentation
 
+## v0.7.9 — Validation cleanup and aim debug toggle (implemented)
+
+- Moved `PF_CCS_TestWeaponDamageTarget` to `CharacterController/Prototyping/Prefabs/Targets/`
+- Removed legacy `CCS_TestDetectionCube` validation path and bootstrap scripts
+- Added diagnostics `Force Aim Presentation` toggle on `CCS_DiagnosticsManager` (presentation-only)
+- `CCS_SingleRevolverAimAnimator` honors diagnostics override via `CCS_ICharacterAimPresentationDebugSource` + `CCS_CharacterAimPresentationDebugRegistry`
+- Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
+
 ## Purpose
 
 Document the production-ready target for a future Character Controller animation system. This milestone defines layers, parameter contracts, presentation boundaries, and implementation order. **No animation import, no CC4 import, and no Animator Controller rebuild occurs in v0.7.4.**

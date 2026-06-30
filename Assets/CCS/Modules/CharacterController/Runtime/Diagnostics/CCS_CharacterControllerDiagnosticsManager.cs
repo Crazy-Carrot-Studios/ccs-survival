@@ -22,7 +22,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace CCS.Modules.CharacterController.Diagnostics {
     [MovedFrom(true, "CCS.Modules.CharacterController.Tests", "CCS.Modules.CharacterController.Tests.Runtime", "CCS_CharacterControllerTestingManager")]
     [DefaultExecutionOrder(-10)]
-    public class CCS_CharacterControllerDiagnosticsManager : MonoBehaviour
+    public class CCS_CharacterControllerDiagnosticsManager : MonoBehaviour, CCS_ICharacterAimPresentationDebugSource
     {
         #region Variables
 
@@ -38,6 +38,9 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         [SerializeField] private bool applyInEditorWhenChanged = true;
 
         [Header("Aiming Visual Tests")]
+        [Tooltip("For validation only. Holds the single-revolver aim presentation without requiring RMB input. Does not fire, damage, or change ammo.")]
+        [SerializeField] private bool forceAimPresentation;
+
         [Tooltip("Pulls arm/hand toward reticle via Animation Rigging. Default OFF for stable FitTest pose.")]
         [SerializeField] private bool enableArmToReticleIK;
 
@@ -115,6 +118,8 @@ namespace CCS.Modules.CharacterController.Diagnostics {
 
         public bool EnableVisualDebugHelpers => enableVisualDebugHelpers;
 
+        public bool ForceAimPresentation => forceAimPresentation;
+
         #endregion
 
         #region Unity Callbacks
@@ -122,11 +127,13 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         protected virtual void Awake()
         {
             ActiveInstance = this;
+            CCS_CharacterAimPresentationDebugRegistry.Register(this);
             EnsureDiagnosticComponents();
         }
 
         protected virtual void OnDestroy()
         {
+            CCS_CharacterAimPresentationDebugRegistry.Unregister(this);
             if (ActiveInstance == this)
             {
                 ActiveInstance = null;
@@ -235,6 +242,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
             builder.AppendLine("- VisualDebugHelpers: " + enableVisualDebugHelpers);
             builder.AppendLine("- RecordingAmbience: " + enableRecordingAmbience);
             builder.AppendLine("- AimDebugRays: " + enableAimDebugRays);
+            builder.AppendLine("- ForceAimPresentation: " + forceAimPresentation);
             builder.AppendLine();
 
             CCS_CharacterCameraDebugReporter cameraReporter = GetComponent<CCS_CharacterCameraDebugReporter>();

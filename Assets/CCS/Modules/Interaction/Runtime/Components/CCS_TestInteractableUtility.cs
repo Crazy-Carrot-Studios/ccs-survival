@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Runtime static utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: Configures pickup cube and walk-through door test objects.
+// NOTES: Configures walk-through door test objects. Pickup validation uses revolver world pickup.
 // =============================================================================
 
 namespace CCS.Modules.Interaction
@@ -27,37 +27,15 @@ namespace CCS.Modules.Interaction
             return testPoints.transform.Find("TP_Spawn_Host");
         }
 
-        public static Vector3 GetDetectionCubeWorldPosition(Transform spawnOrigin)
-        {
-            Vector3 position = spawnOrigin.position
-                + spawnOrigin.forward * CCS_InteractionConstants.TestDetectionCubeForwardDistance;
-            position.y = Mathf.Max(
-                CCS_InteractionConstants.TestDetectionCubeHeightAboveGround,
-                spawnOrigin.position.y + 0.75f);
-            return position;
-        }
-
         public static Vector3 GetWalkThroughDoorWorldPosition(Transform spawnOrigin)
         {
             Vector3 position = spawnOrigin.position
                 + spawnOrigin.forward * CCS_InteractionConstants.TestWalkThroughDoorForwardDistance
                 + spawnOrigin.right * CCS_InteractionConstants.TestWalkThroughDoorLateralOffset;
             position.y = Mathf.Max(
-                CCS_InteractionConstants.TestDetectionCubeHeightAboveGround,
+                CCS_InteractionConstants.TestInteractablePlacementMinHeight,
                 spawnOrigin.position.y + 1f);
             return position;
-        }
-
-        public static bool TryConfigurePickupCube(GameObject cubeObject, int interactableLayer)
-        {
-            return TryConfigureInteractable(
-                cubeObject,
-                interactableLayer,
-                CCS_InteractionConstants.TestDetectionCubeObjectName,
-                CCS_InteractionKind.Pickup,
-                CCS_InteractionConstants.TestDetectionCubeDisplayName,
-                new Vector3(1f, 1f, 1f),
-                new Color(0.2f, 0.55f, 0.95f, 1f));
         }
 
         public static bool TryConfigureWalkThroughDoor(GameObject doorObject, int interactableLayer)

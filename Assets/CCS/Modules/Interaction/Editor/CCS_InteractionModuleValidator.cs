@@ -59,7 +59,7 @@ namespace CCS.Modules.Interaction.Editor
                 failures,
                 CCS_InteractionValidationUtility.ValidateTestPickupInteractablePrefab(pickupPrefab));
 
-            ValidateMasterTestSceneDetectionCube(failures);
+            ValidateMasterTestSceneInteractionCleanup(failures);
             ValidateSourceContracts(failures);
 
             return failures.Count > 0
@@ -72,7 +72,7 @@ namespace CCS.Modules.Interaction.Editor
 
         #region Private Methods
 
-        private static void ValidateMasterTestSceneDetectionCube(List<string> failures)
+        private static void ValidateMasterTestSceneInteractionCleanup(List<string> failures)
         {
             Scene scene = EditorSceneManager.OpenScene(
                 CCS_InteractionConstants.MasterTestScenePath,
@@ -97,49 +97,20 @@ namespace CCS.Modules.Interaction.Editor
             AppendIfMissing(
                 failures,
                 spawnerCount == 0,
-                $"Master test scene must not contain {nameof(CCS_TestPickupItemSpawner)} when using the baked detection cube.");
+                $"Master test scene must not contain {nameof(CCS_TestPickupItemSpawner)} when using revolver pickup validation.");
 
-            GameObject detectionCube = FindDetectionCubeInScene(scene);
             AppendIfMissing(
                 failures,
-                detectionCube != null,
-                $"Master test scene must contain {CCS_InteractionConstants.TestDetectionCubeObjectName}.");
+                FindSceneObjectByName(scene, "CCS_TestDetectionCube") == null,
+                "Master test scene must not contain CCS_TestDetectionCube.");
 
-            if (detectionCube == null)
-            {
-                return;
-            }
-
-            int interactableLayer = LayerMask.NameToLayer(CCS_InteractionConstants.InteractableLayerName);
             AppendIfMissing(
                 failures,
-                detectionCube.activeInHierarchy,
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must be active.");
-            AppendIfMissing(
-                failures,
-                detectionCube.layer == interactableLayer,
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must use the Interactable layer.");
-            AppendIfMissing(
-                failures,
-                detectionCube.CompareTag(CCS_InteractionConstants.InteractableTagName),
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must use the Interactable tag.");
-
-            CCS_InteractableLabelTarget labelTarget = detectionCube.GetComponent<CCS_InteractableLabelTarget>();
-            AppendIfMissing(
-                failures,
-                labelTarget != null,
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include {nameof(CCS_InteractableLabelTarget)}.");
-            AppendIfMissing(
-                failures,
-                detectionCube.GetComponent<CCS_InteractableExecutor>() != null,
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include {nameof(CCS_InteractableExecutor)}.");
-            AppendIfMissing(
-                failures,
-                detectionCube.GetComponent<BoxCollider>() != null,
-                $"{CCS_InteractionConstants.TestDetectionCubeObjectName} must include a BoxCollider.");
+                FindSceneObjectByName(scene, "CCS_TestDetectionCubeSceneBootstrap") == null,
+                "Master test scene must not contain CCS_TestDetectionCubeSceneBootstrap.");
         }
 
-        private static GameObject FindDetectionCubeInScene(Scene scene)
+        private static GameObject FindSceneObjectByName(Scene scene, string objectName)
         {
             GameObject[] roots = scene.GetRootGameObjects();
             for (int i = 0; i < roots.Length; i++)
@@ -149,7 +120,7 @@ namespace CCS.Modules.Interaction.Editor
                 {
                     Transform candidate = transforms[j];
                     if (candidate != null
-                        && candidate.name == CCS_InteractionConstants.TestDetectionCubeObjectName
+                        && candidate.name == objectName
                         && candidate.gameObject.scene == scene)
                     {
                         return candidate.gameObject;

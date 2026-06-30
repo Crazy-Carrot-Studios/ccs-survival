@@ -110,8 +110,11 @@ namespace CCS.Modules.Weapons
         public const string RevolverDefinitionProfilePath =
             ModuleRootPath + "/Tests/Profiles/CCS_RevolverDefinition_Test.asset";
 
-        public const string TestDamageTargetPrefabPath =
+        public const string LegacyTestDamageTargetPrefabPath =
             ModuleRootPath + "/Tests/Prefabs/PF_CCS_TestWeaponDamageTarget.prefab";
+
+        public const string TestDamageTargetPrefabPath =
+            "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Targets/PF_CCS_TestWeaponDamageTarget.prefab";
 
         public const string NetworkedTestPlayerPrefabPath =
             "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";

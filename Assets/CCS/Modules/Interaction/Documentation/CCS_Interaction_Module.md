@@ -75,7 +75,7 @@ Assets/CCS/Modules/Interaction/
 
 | Object | Scene placement | Kind |
 |--------|-----------------|------|
-| `CCS_TestDetectionCube` | Near spawn | Pickup |
+| Revolver world pickup | Validation scene weapons layout | Pickup |
 | Building door interactable | Test building (~30, 30) | WalkThroughDoor |
 
 Scene: `Assets/CCS/Modules/CharacterController/Scenes/Validation/SCN_CCS_CharacterController_Validation.unity`

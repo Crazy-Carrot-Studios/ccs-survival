@@ -32,17 +32,11 @@ namespace CCS.Modules.Interaction
 
         public const string TestPickupInteractableInstanceName = "PF_CCS_TestInteractable_PickupItem";
 
-        public const string TestDetectionCubeObjectName = "CCS_TestDetectionCube";
-
-        public const string TestDetectionCubeBootstrapObjectName = "CCS_TestDetectionCubeSceneBootstrap";
-
         public const string PickupItemSpawnerObjectName = "CCS_TestPickupItemSpawner";
 
         public const string MasterTestSpawnOriginObjectPath = "TestPoints/TP_Spawn_Host";
 
-        public const float TestDetectionCubeForwardDistance = 3f;
-
-        public const float TestDetectionCubeHeightAboveGround = 1f;
+        public const float TestInteractablePlacementMinHeight = 1f;
 
         public const float TestPickupSpawnForwardDistance = 2.5f;
 
@@ -128,6 +122,5 @@ namespace CCS.Modules.Interaction
 
         public const float WalkThroughDoorRightHandLockDuration = 1.3f;
 
-        public const string TestDetectionCubeDisplayName = "Test Cube";
     }
 }

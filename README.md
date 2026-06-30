@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.8** · Crazy Carrot Studios
+**Version 0.7.9** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.9** — **Validation cleanup and aim debug toggle:** moves `CCS_TestWeaponDamageTarget` to CharacterController Prototyping; removes legacy `CCS_TestDetectionCube` validation path; adds diagnostics `Force Aim Presentation` toggle (presentation-only). No gameplay aim/fire changes. Animator Controller remains v0.7.8.
 
 **0.7.8** — **Single revolver aim upper-body layer:** adds masked `SingleRevolverUpperBody` draw/hold/holster presentation using Wild West clips; gameplay aim/fire remains on `CCS_RevolverController`. No fire/reload/interaction/dual revolver animations.
 

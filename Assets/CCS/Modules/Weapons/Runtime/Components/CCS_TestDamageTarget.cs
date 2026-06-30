@@ -4,7 +4,7 @@ using UnityEngine;
 // SCRIPT: CCS_TestDamageTarget
 // CATEGORY: Modules / Weapons / Runtime / Components
 // PURPOSE: Simple Master Test damage target for revolver hitscan validation.
-// PLACEMENT: PF_CCS_TestWeaponDamageTarget prefab in Master Test scene.
+// PLACEMENT: PF_CCS_TestWeaponDamageTarget prefab under CharacterController Prototyping/Targets.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
 // NOTES: v0.6.0 test-only. Future combat can bridge into Attributes damage pipeline.
