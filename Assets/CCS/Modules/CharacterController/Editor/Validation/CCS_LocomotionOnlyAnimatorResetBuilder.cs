@@ -138,6 +138,11 @@ namespace CCS.Modules.CharacterController.Editor
             for (int layerIndex = controller.layers.Length - 1; layerIndex >= 1; layerIndex--)
             {
                 string layerName = controller.layers[layerIndex].name;
+                if (layerName == CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName)
+                {
+                    continue;
+                }
+
                 result.RemovedLayers.Add(layerName);
                 controller.RemoveLayer(layerIndex);
                 changed = true;

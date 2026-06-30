@@ -18,6 +18,8 @@ namespace CCS.Modules.CharacterController
 
         bool RevolverAimHeld { get; }
 
+        bool IsAiming { get; }
+
         bool RevolverIsReloading { get; }
 
         event Action RevolverFired;

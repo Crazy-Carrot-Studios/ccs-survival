@@ -2,8 +2,18 @@
 
 **Version:** 0.7.4 (Phase 3C — planning only)  
 **Author:** James Schilz  
-**Last updated:** 2026-06-25  
-**Baseline:** v0.7.3 locomotion-only Animator Controller (`f3f0e6c`)
+**Last updated:** 2026-06-29  
+**Baseline:** v0.7.7 Kevin/EnemyAI visuals + locomotion-only Base Layer (`b980f09`)
+
+## v0.7.8 — Single revolver aim upper-body layer (implemented)
+
+- Added masked `SingleRevolverUpperBody` layer on `AC_CCS_Player_Locomotion_StarterAssets.controller`
+- Presentation parameters: `IsAiming`, `RevolverDrawTrigger`, `RevolverHolsterTrigger`
+- Clips (read-only Wild West FBX sub-assets): `Idle_Fulldraw_Revolver`, `Fulldraw_Idle`, `Idle_Full_Holster_Revolver`
+- Mask: `AM_CCS_Revolver_UpperBodyRightArm_Aim`
+- Presentation driver: `CCS_SingleRevolverAimAnimator` on player `Model` root
+- Gameplay aim/fire remains owned by `CCS_RevolverController`
+- Not in v0.7.8: fire, reload, interaction, dual revolver layers; remote player aim presentation
 
 ## Purpose
 

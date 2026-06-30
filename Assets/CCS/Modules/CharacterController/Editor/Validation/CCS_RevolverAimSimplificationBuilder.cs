@@ -44,7 +44,10 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool EnsureRevolverAimSimplificationPass()
         {
-            return CCS_LocomotionOnlyAnimatorResetBuilder.MaintainLocomotionOnlyController();
+            bool changed = CCS_LocomotionOnlyAnimatorResetBuilder.MaintainLocomotionOnlyController();
+            changed |= CCS_SingleRevolverAimLayerBuilder.EnsureSingleRevolverAimLayer();
+            changed |= CCS_SingleRevolverAimLayerBuilder.EnsureSingleRevolverAimAnimatorOnNetworkedPlayerPrefab();
+            return changed;
         }
 
         public static bool EnsureRevolverAimFolders()

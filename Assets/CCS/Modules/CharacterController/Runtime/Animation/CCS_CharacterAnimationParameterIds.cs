@@ -7,7 +7,7 @@ using UnityEngine;
 // PLACEMENT: Referenced by locomotion and future presentation bridges. Not on GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: v0.7.4 Phase 3C — active locomotion hashes only; future names are design-only.
+// NOTES: v0.7.8 adds single-revolver aim presentation parameters on SingleRevolverUpperBody layer.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController
@@ -19,7 +19,7 @@ namespace CCS.Modules.CharacterController
     public static class CCS_CharacterAnimationParameterIds
     {
         /// <summary>
-        /// Parameters currently wired on the locomotion-only Animator Controller (v0.7.3+).
+        /// Parameters currently wired on the player Animator Controller (locomotion + single-revolver aim presentation).
         /// </summary>
         public static class Active
         {
@@ -31,6 +31,12 @@ namespace CCS.Modules.CharacterController
 
             public const string JumpTrigger = "JumpTrigger";
 
+            public const string IsAiming = "IsAiming";
+
+            public const string RevolverDrawTrigger = "RevolverDrawTrigger";
+
+            public const string RevolverHolsterTrigger = "RevolverHolsterTrigger";
+
             public static readonly int SpeedNormalizedHash = Animator.StringToHash(SpeedNormalized);
 
             public static readonly int IsGroundedHash = Animator.StringToHash(IsGrounded);
@@ -38,6 +44,12 @@ namespace CCS.Modules.CharacterController
             public static readonly int IsSprintingHash = Animator.StringToHash(IsSprinting);
 
             public static readonly int JumpTriggerHash = Animator.StringToHash(JumpTrigger);
+
+            public static readonly int IsAimingHash = Animator.StringToHash(IsAiming);
+
+            public static readonly int RevolverDrawTriggerHash = Animator.StringToHash(RevolverDrawTrigger);
+
+            public static readonly int RevolverHolsterTriggerHash = Animator.StringToHash(RevolverHolsterTrigger);
         }
 
         /// <summary>
@@ -48,8 +60,6 @@ namespace CCS.Modules.CharacterController
         {
             // Weapon / aim presentation
             public const string WeaponMode = "WeaponMode";
-
-            public const string IsAiming = "IsAiming";
 
             public const string AimPitch = "AimPitch";
 

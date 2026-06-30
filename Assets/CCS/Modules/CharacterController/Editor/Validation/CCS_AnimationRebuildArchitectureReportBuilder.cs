@@ -123,7 +123,6 @@ namespace CCS.Modules.CharacterController.Editor
             string[] futureNames =
             {
                 CCS_CharacterAnimationParameterIds.FutureDesignOnly.WeaponMode,
-                CCS_CharacterAnimationParameterIds.FutureDesignOnly.IsAiming,
                 CCS_CharacterAnimationParameterIds.FutureDesignOnly.AimPitch,
                 CCS_CharacterAnimationParameterIds.FutureDesignOnly.AimYaw,
                 CCS_CharacterAnimationParameterIds.FutureDesignOnly.FireTrigger,

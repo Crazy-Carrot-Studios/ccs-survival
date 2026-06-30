@@ -244,6 +244,55 @@ namespace CCS.Modules.CharacterController
 
         public const string AnimatorRevolverWildWestReloadStateName = "Revolver_WW_Reload_RH";
 
+        public const string WildWestIdleFulldrawRevolverClipPath =
+            WildWestAnimationPackRootPath + "/Idle/Idle_Fulldraw_Revolver.fbx";
+
+        public const string WildWestFulldrawIdleClipPath =
+            WildWestAnimationPackRootPath + "/Idle/Fulldraw_Idle.fbx";
+
+        public const string WildWestIdleFullHolsterRevolverClipPath =
+            WildWestAnimationPackRootPath + "/Idle/Idle_Full_Holster_Revolver.fbx";
+
+        public const string WildWestIdleFulldrawRevolverClipName = "Idle_Fulldraw_Revolver";
+
+        public const string WildWestFulldrawIdleClipName = "Fulldraw_Idle";
+
+        public const string WildWestIdleFullHolsterRevolverClipName = "Idle_Full_Holster_Revolver";
+
+        public const string SingleRevolverUpperBodyLayerName = "SingleRevolverUpperBody";
+
+        public const string SingleRevolverUpperBodyEmptyStateName = "UpperBody_Empty";
+
+        public const string SingleRevolverDrawStateName = "Revolver_Draw";
+
+        public const string SingleRevolverAimHoldStateName = "Revolver_Aim_Hold";
+
+        public const string SingleRevolverHolsterStateName = "Revolver_Holster";
+
+        public const string SingleRevolverAimLayerReportDirectory =
+            "Logs/CharacterController/RevolverAimLayer";
+
+        public const string SingleRevolverAimLayerAssetAuditReportPath =
+            SingleRevolverAimLayerReportDirectory + "/CCS_RevolverAimLayer_AssetAudit_v0.7.8.md";
+
+        public const string SingleRevolverAimLayerReportPath =
+            SingleRevolverAimLayerReportDirectory + "/CCS_SingleRevolverAimLayer_v0.7.8.md";
+
+        public static readonly string[] SingleRevolverUpperBodyAllowedStateNames =
+        {
+            SingleRevolverUpperBodyEmptyStateName,
+            SingleRevolverDrawStateName,
+            SingleRevolverAimHoldStateName,
+            SingleRevolverHolsterStateName,
+        };
+
+        public static readonly string[] SingleRevolverAimPresentationParameterNames =
+        {
+            CCS_CharacterAnimationParameterIds.Active.IsAiming,
+            CCS_CharacterAnimationParameterIds.Active.RevolverDrawTrigger,
+            CCS_CharacterAnimationParameterIds.Active.RevolverHolsterTrigger,
+        };
+
         public const string PlayerLocomotionAnimatorControllerPath =
             ModuleRootPath + "/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
 
@@ -595,7 +644,11 @@ namespace CCS.Modules.CharacterController
         public const string Phase3BAnimatorResetAfterReportPath =
             Phase3BAnimatorResetReportDirectory + "/CCS_AnimatorController_After_v0.7.3.md";
 
-        public static readonly string[] Phase3BAllowedAnimatorLayerNames = { "Base Layer" };
+        public static readonly string[] Phase3BAllowedAnimatorLayerNames =
+        {
+            "Base Layer",
+            SingleRevolverUpperBodyLayerName,
+        };
 
         public static readonly string[] Phase3BAllowedAnimatorParameterNames =
         {
@@ -603,6 +656,9 @@ namespace CCS.Modules.CharacterController
             "IsGrounded",
             "IsSprinting",
             "JumpTrigger",
+            CCS_CharacterAnimationParameterIds.Active.IsAiming,
+            CCS_CharacterAnimationParameterIds.Active.RevolverDrawTrigger,
+            CCS_CharacterAnimationParameterIds.Active.RevolverHolsterTrigger,
         };
 
         public static readonly string[] Phase3BRemovedAnimatorLayerNames =

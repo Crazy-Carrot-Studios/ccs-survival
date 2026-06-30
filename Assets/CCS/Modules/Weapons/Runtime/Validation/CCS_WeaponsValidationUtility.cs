@@ -1120,8 +1120,16 @@ namespace CCS.Modules.Weapons
                 string controllerSource = File.ReadAllText(playerControllerPath);
                 AppendIfMissing(
                     failures,
-                    !controllerSource.Contains(CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName),
+                    !ContainsExactAnimatorLayerName(
+                        controllerSource,
+                        CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName),
                     "Player Animator Controller must not contain removed RevolverUpperBody layer.");
+                AppendIfMissing(
+                    failures,
+                    ContainsExactAnimatorLayerName(
+                        controllerSource,
+                        CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName),
+                    "Player Animator Controller must contain SingleRevolverUpperBody layer.");
             }
 
             if (File.Exists(aiAnimatorDriverPath))
@@ -1302,14 +1310,19 @@ namespace CCS.Modules.Weapons
             List<string> failures = new List<string>();
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_CharacterControllerConstants.RevolverAimIdleFullDrawClipPath),
-                "Missing CCS-owned stationary aim clip at "
-                + CCS_CharacterControllerConstants.RevolverAimIdleFullDrawClipPath);
+                File.Exists(CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath),
+                "Missing Wild West aim hold clip at "
+                + CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath);
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_CharacterControllerConstants.WildWestRevolverWalkAimedRhClipPath),
-                "Missing CCS-owned aimed movement clip at "
-                + CCS_CharacterControllerConstants.WildWestRevolverWalkAimedRhClipPath);
+                File.Exists(CCS_CharacterControllerConstants.WildWestIdleFulldrawRevolverClipPath),
+                "Missing Wild West draw clip at "
+                + CCS_CharacterControllerConstants.WildWestIdleFulldrawRevolverClipPath);
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_CharacterControllerConstants.WildWestIdleFullHolsterRevolverClipPath),
+                "Missing Wild West holster clip at "
+                + CCS_CharacterControllerConstants.WildWestIdleFullHolsterRevolverClipPath);
             AppendIfMissing(
                 failures,
                 File.Exists(CCS_CharacterControllerConstants.RevolverAimRightArmMaskPath)
@@ -1793,6 +1806,12 @@ namespace CCS.Modules.Weapons
             }
 
             return null;
+        }
+
+        private static bool ContainsExactAnimatorLayerName(string source, string layerName)
+        {
+            return source.Contains("m_Name: " + layerName + "\r\n")
+                || source.Contains("m_Name: " + layerName + "\n");
         }
 
         private static void AppendIfMissing(List<string> failures, bool condition, string message)

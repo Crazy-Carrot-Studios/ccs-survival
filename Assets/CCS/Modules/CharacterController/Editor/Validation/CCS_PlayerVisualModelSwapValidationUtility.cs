@@ -195,7 +195,11 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     actualPath == expectedPath,
-                    "Kevin Animator Controller must be locomotion-only at " + expectedPath + " (found " + actualPath + ").");
+                    "Kevin Animator Controller must use shared locomotion controller at "
+                    + expectedPath
+                    + " (found "
+                    + actualPath
+                    + ").");
 
                 AnimatorController controller = animator.runtimeAnimatorController as AnimatorController;
                 if (controller == null)
@@ -203,21 +207,21 @@ namespace CCS.Modules.CharacterController.Editor
                     return;
                 }
 
-                AppendIfMissing(failures, controller.layers.Length == 1, "Kevin Animator must remain locomotion-only (one layer).");
-                if (controller.layers.Length > 0)
-                {
-                    AppendIfMissing(
-                        failures,
-                        controller.layers[0].name == "Base Layer",
-                        "Kevin Animator base layer must remain Base Layer only.");
-                }
+                AppendIfMissing(
+                    failures,
+                    controller.layers.Length == 2
+                    && controller.layers[0].name == "Base Layer"
+                    && controller.layers[1].name == CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName,
+                    "Kevin Animator must use Base Layer + SingleRevolverUpperBody.");
 
+                HashSet<string> allowedParameters = new HashSet<string>(
+                    CCS_CharacterControllerConstants.Phase3BAllowedAnimatorParameterNames);
                 for (int i = 0; i < controller.parameters.Length; i++)
                 {
                     string parameterName = controller.parameters[i].name;
-                    if (parameterName.Contains("Revolver") || parameterName.Contains("Interaction"))
+                    if (!allowedParameters.Contains(parameterName))
                     {
-                        failures.Add("Kevin Animator must not contain weapon/interaction parameters: " + parameterName);
+                        failures.Add("Kevin Animator contains unauthorized parameter: " + parameterName);
                     }
                 }
             }

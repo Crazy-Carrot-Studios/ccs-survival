@@ -60,7 +60,6 @@ namespace CCS.Modules.CharacterController.Editor
                 clips.Count > 0,
                 "Player Animator Controller resolved zero animation clips.");
 
-            string allowedRoot = NormalizeAssetPath(CCS_CharacterControllerConstants.ContentAnimationsRootPath);
             for (int i = 0; i < clips.Count; i++)
             {
                 AnimationClip clip = clips[i];
@@ -77,17 +76,10 @@ namespace CCS.Modules.CharacterController.Editor
                 }
 
                 string normalizedClipPath = NormalizeAssetPath(clipPath);
-                if (!normalizedClipPath.StartsWith(allowedRoot))
+                if (!IsAllowedPlayerAnimatorClipPath(normalizedClipPath))
                 {
                     failures.Add(
-                        "Player Animator Controller references non-CCS animation clip: "
-                        + normalizedClipPath);
-                }
-
-                if (IsVendorFbxSubAssetPath(normalizedClipPath))
-                {
-                    failures.Add(
-                        "Player Animator Controller references vendor FBX sub-asset: "
+                        "Player Animator Controller references non-allowed animation clip: "
                         + normalizedClipPath);
                 }
             }
@@ -95,7 +87,31 @@ namespace CCS.Modules.CharacterController.Editor
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
                 : CCS_SurvivalValidationResult.Pass(
-                    "Player Animator Controller uses CCS-owned animation clips only.");
+                    "Player Animator Controller uses allowed animation clip sources.");
+        }
+
+        private static bool IsAllowedPlayerAnimatorClipPath(string normalizedClipPath)
+        {
+            if (string.IsNullOrEmpty(normalizedClipPath))
+            {
+                return false;
+            }
+
+            string allowedRoot = NormalizeAssetPath(CCS_CharacterControllerConstants.ContentAnimationsRootPath);
+            if (normalizedClipPath.StartsWith(allowedRoot))
+            {
+                return !IsVendorFbxSubAssetPath(normalizedClipPath);
+            }
+
+            string wildWestRoot = NormalizeAssetPath(CCS_CharacterControllerConstants.WildWestAnimationPackRootPath);
+            if (!normalizedClipPath.StartsWith(wildWestRoot))
+            {
+                return false;
+            }
+
+            return normalizedClipPath == NormalizeAssetPath(CCS_CharacterControllerConstants.WildWestIdleFulldrawRevolverClipPath)
+                || normalizedClipPath == NormalizeAssetPath(CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath)
+                || normalizedClipPath == NormalizeAssetPath(CCS_CharacterControllerConstants.WildWestIdleFullHolsterRevolverClipPath);
         }
 
         public static CCS_SurvivalValidationResult ValidateAimLocomotionAnimatorParameters()
@@ -733,11 +749,26 @@ namespace CCS.Modules.CharacterController.Editor
                 !PrefabContainsComponentTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator"),
                 "Player prefab must not contain CCS_RevolverUpperBodyAnimator after Phase 3B locomotion-only reset.");
 
+            CCS_SingleRevolverAimAnimator aimAnimator = prefabRoot.GetComponentInChildren<CCS_SingleRevolverAimAnimator>(true);
+            AppendIfMissing(
+                failures,
+                aimAnimator != null,
+                "Player prefab must contain CCS_SingleRevolverAimAnimator on the Model presentation branch.");
+
+            if (aimAnimator != null)
+            {
+                Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(prefabRoot.transform);
+                AppendIfMissing(
+                    failures,
+                    modelRoot != null && aimAnimator.transform == modelRoot,
+                    "CCS_SingleRevolverAimAnimator must be attached to the Model root, not the player root.");
+            }
+
             AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(prefabRoot));
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("Player prefab locomotion-only animator wiring validated.");
+                : CCS_SurvivalValidationResult.Pass("Player prefab single-revolver aim presentation wiring validated.");
         }
 
         private static void AppendValidationFailures(List<string> failures, CCS_SurvivalValidationResult result)

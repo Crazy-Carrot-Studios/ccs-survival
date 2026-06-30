@@ -248,9 +248,11 @@ namespace CCS.Modules.CharacterController.Editor
 
                 failures,
 
-                controller.layers.Length == 1 && controller.layers[0].name == "Base Layer",
+                controller.layers.Length == 2
+                && controller.layers[0].name == "Base Layer"
+                && controller.layers[1].name == CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName,
 
-                "Animator Controller must contain exactly one Base Layer.");
+                "Animator Controller must contain Base Layer and SingleRevolverUpperBody only.");
 
 
 
@@ -409,11 +411,11 @@ namespace CCS.Modules.CharacterController.Editor
 
 
                     if (source.Contains("GetLayerIndex")
-
-                        && source.Contains(CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName))
-
+                        && (source.Contains("\"" + CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName + "\"")
+                            || source.Contains(
+                                "CCS_CharacterControllerConstants."
+                                + nameof(CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName))))
                     {
-
                         failures.Add(
 
                             scriptPath
@@ -423,7 +425,6 @@ namespace CCS.Modules.CharacterController.Editor
                             + CCS_CharacterControllerConstants.AnimatorRevolverUpperBodyLayerName
 
                             + ".");
-
                     }
 
 

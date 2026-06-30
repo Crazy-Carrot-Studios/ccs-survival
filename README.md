@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.7** · Crazy Carrot Studios
+**Version 0.7.8** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.8** — **Single revolver aim upper-body layer:** adds masked `SingleRevolverUpperBody` draw/hold/holster presentation using Wild West clips; gameplay aim/fire remains on `CCS_RevolverController`. No fire/reload/interaction/dual revolver animations.
 
 **0.7.7** — **EnemyAI default AI bandit visual:** replaces bandit `VisualRoot`/`PF_CCS_Player_Visual` with single `Model` root and `PF_CCS_AI_Bandit_Model_EnemyAI`; deletes legacy player visual when unreferenced; cleans Unity 6 CS0618 editor warnings. Kevin remains player visual. Camila not wired. Locomotion-only Animator preserved.
 
