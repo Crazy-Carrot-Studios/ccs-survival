@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.7** | EnemyAI default AI bandit visual — `Model` root + `PF_CCS_AI_Bandit_Model_EnemyAI`; legacy `PF_CCS_Player_Visual` deleted when unreferenced; Unity 6 CS0618 editor warning cleanup |
 | **v0.7.6** | Kevin default player visual — `Model` root + `PF_CCS_Player_Model_Kevin`; legacy `PF_CCS_Player_Visual` deferred if bandit still references |
 | **v0.7.5** | Player prefab hierarchy architecture (Phase 3D) — target hierarchy, root budgets, subsystem ownership, composition interface; no prefab changes |
 | **v0.7.4** | Animation rebuild architecture (Phase 3C) — documented future layers, parameter IDs, weapon mode enum, presenter interface; locomotion-only Animator preserved; no import |

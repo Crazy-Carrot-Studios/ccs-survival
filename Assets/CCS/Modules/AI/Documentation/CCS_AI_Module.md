@@ -1,10 +1,19 @@
 # CCS AI Module
 
-**Version:** 0.7.1
+**Version:** 0.7.7
 
 ## Purpose
 
 Introduces the first network-aware hostile AI foundation for `ccs-survival`: a simple server-authoritative bandit that senses targets, pathfinds, fires revolver hitscan shots, and takes replicated damage through shared `CCS_IDamageable` contracts.
+
+## v0.7.7 — EnemyAI default bandit visual
+
+- Production model: `Characters/Bandit/Prefabs/PF_CCS_AI_Bandit_Model_EnemyAI.prefab`
+- `PF_CCS_AI_Bandit_Networked` uses single `Model` root with nested EnemyAI visual
+- Legacy `PF_CCS_Player_Visual` removed when zero references remain
+- Locomotion-only Animator preserved (`AC_CCS_Player_Locomotion_StarterAssets.controller`)
+- Unity 6 CS0618 editor deprecation warnings cleaned in AI navigation and Netcode editor utilities
+- Camila imported, not wired
 
 ## v0.7.1 — AI bandit polish and hosting fixes
 

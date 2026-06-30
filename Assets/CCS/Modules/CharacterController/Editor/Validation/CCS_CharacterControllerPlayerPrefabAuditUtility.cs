@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CCS.Modules.AI;
 using CCS.Modules.CharacterController.Diagnostics;
 using CCS.Modules.CharacterController.Local;
 using CCS.Modules.CharacterController.Netcode;
@@ -109,7 +110,8 @@ namespace CCS.Modules.CharacterController.Editor
         {
             CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath,
             CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath,
-            CCS_CharacterControllerConstants.PlayerVisualPrefabPath,
+            CCS_AIConstants.AIBanditPrefabPath,
+            CCS_AIConstants.AIBanditModelEnemyAIPrefabPath,
         };
 
         private static readonly string[] DeprecatedPlayerPrefabPaths =
@@ -790,8 +792,8 @@ namespace CCS.Modules.CharacterController.Editor
                 "Missing Kevin player model prefab at " + CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath);
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_CharacterControllerConstants.PlayerVisualPrefabPath),
-                "Missing legacy player visual prefab at " + CCS_CharacterControllerConstants.PlayerVisualPrefabPath);
+                File.Exists(CCS_AIConstants.AIBanditModelEnemyAIPrefabPath),
+                "Missing EnemyAI bandit model prefab at " + CCS_AIConstants.AIBanditModelEnemyAIPrefabPath);
         }
 
         private static void ValidatePlayerPrefabsLoadable(List<string> failures)

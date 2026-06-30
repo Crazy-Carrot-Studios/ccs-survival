@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CCS.Modules.CharacterController;
 using UnityEngine;
 
 // =============================================================================
@@ -223,8 +224,8 @@ namespace CCS.Modules.AI
 
             if (ragdollRoot == null)
             {
-                Transform visualRoot = transform.Find("VisualRoot");
-                ragdollRoot = visualRoot != null ? visualRoot : transform;
+                Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(transform);
+                ragdollRoot = modelRoot != null ? modelRoot : transform;
             }
         }
     }

@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.6`
+**Current version:** `0.7.7`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.7`** | **EnemyAI default AI bandit visual:** `Model` root + `PF_CCS_AI_Bandit_Model_EnemyAI`; legacy `PF_CCS_Player_Visual` deleted when unreferenced; Unity 6 CS0618 editor warning cleanup; Kevin player visual unchanged; Camila not wired; locomotion-only Animator preserved. |
 | **`0.7.6`** | **Kevin default player visual:** `Model` root + `PF_CCS_Player_Model_Kevin` on networked player; equipment sockets rebuilt for Kevin; EnemyAI/Camila imported not wired; locomotion-only Animator preserved; no animation layer rebuild. |
 | **`0.7.5`** | **Player prefab hierarchy architecture (Phase 3D):** documents target hierarchy, root component budgets, subsystem ownership, Netcode-safe root rules, single Model root plan, owner-only UI separation roadmap; adds `CCS_IPlayerCompositionRoot` interface. Planning only in v0.7.5. |
 | **`0.7.4`** | **Animation rebuild architecture (Phase 3C):** documents future animation layers and presentation boundaries; adds centralized parameter IDs, weapon animation mode enum, and `CCS_ICharacterAnimationPresenter` interface; locomotion animator uses active hash contract. v0.7.3 locomotion-only Animator preserved. No animation import, no CC4 import, no Animator rebuild. |

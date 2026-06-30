@@ -47,6 +47,7 @@ namespace CCS.Modules.AI.Editor
             bool changed = false;
             prefabRoot.name = CCS_AIConstants.AIBanditPrefabName;
             prefabRoot.tag = "Untagged";
+            changed |= CCS_AIBanditVisualEnemyAISwapBuilder.ApplyEnemyAiModelSwap(prefabRoot);
             changed |= StripPlayerOnlyComponents(prefabRoot);
             changed |= EnsureBanditNameplateHierarchy(prefabRoot);
             changed |= EnsureCombatAndAiComponents(prefabRoot);
@@ -254,8 +255,8 @@ namespace CCS.Modules.AI.Editor
                 SerializedObject serializedRagdoll = new SerializedObject(ragdollController);
                 Animator visualAnimator = prefabRoot.GetComponentInChildren<Animator>(true);
                 bool ragdollChanged = SetObjectReference(serializedRagdoll, "animator", visualAnimator);
-                Transform visualRoot = prefabRoot.transform.Find("VisualRoot");
-                ragdollChanged |= SetObjectReference(serializedRagdoll, "ragdollRoot", visualRoot);
+                Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(prefabRoot.transform);
+                ragdollChanged |= SetObjectReference(serializedRagdoll, "ragdollRoot", modelRoot);
                 if (ragdollChanged)
                 {
                     serializedRagdoll.ApplyModifiedPropertiesWithoutUndo();

@@ -120,7 +120,7 @@ namespace CCS.Modules.CharacterController.Netcode.Editor
 
         private static bool EnsureDirectionalLight()
         {
-            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude);
             for (int i = 0; i < lights.Length; i++)
             {
                 if (lights[i] != null && lights[i].type == LightType.Directional)
@@ -138,7 +138,7 @@ namespace CCS.Modules.CharacterController.Netcode.Editor
 
         private static bool EnsureMainCamera()
         {
-            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
+            Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude);
             for (int i = 0; i < cameras.Length; i++)
             {
                 if (cameras[i] != null && cameras[i].CompareTag("MainCamera"))

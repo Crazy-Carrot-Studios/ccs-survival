@@ -315,6 +315,13 @@ v0.7.5 creates this policy only. **No hierarchy enforcement** until v0.7.6 valid
 
 ## Staged implementation roadmap
 
+### v0.7.7 — EnemyAI bandit visual (implemented)
+
+- Production EnemyAI prefab: `PF_CCS_AI_Bandit_Model_EnemyAI`
+- AI bandit uses `Model` root with nested EnemyAI visual
+- Legacy `PF_CCS_Player_Visual` deleted when zero references remain
+- Unity 6 CS0618 editor warnings cleaned (NavigationStatic, FindObjectsSortMode)
+
 ### v0.7.6 — Kevin player visual (implemented)
 
 - Production Kevin prefab: `PF_CCS_Player_Model_Kevin`

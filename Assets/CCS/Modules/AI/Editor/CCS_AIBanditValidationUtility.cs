@@ -174,10 +174,11 @@ namespace CCS.Modules.AI.Editor
                 return;
             }
 
-            if (IsTransformUnderNamedAncestor(nameplateAnchor, "VisualRoot")
+            if (IsTransformUnderNamedAncestor(nameplateAnchor, "Model")
+                || IsTransformUnderNamedAncestor(nameplateAnchor, "VisualRoot")
                 || IsTransformUnderNamedAncestor(nameplateAnchor, "Armature"))
             {
-                failures.Add("AI bandit nameplate anchor must not be parented under VisualRoot or Armature.");
+                failures.Add("AI bandit nameplate anchor must not be parented under Model, VisualRoot, or Armature.");
             }
 
             Transform nameplateRoot = nameplateAnchor.Find(CCS_AIConstants.NameplateRootObjectName);
@@ -1124,10 +1125,11 @@ namespace CCS.Modules.AI.Editor
                     return;
                 }
 
-                if (IsTransformUnderNamedAncestor(nameplateRoot, "VisualRoot")
+                if (IsTransformUnderNamedAncestor(nameplateRoot, "Model")
+                    || IsTransformUnderNamedAncestor(nameplateRoot, "VisualRoot")
                     || IsTransformUnderNamedAncestor(nameplateRoot, "Armature"))
                 {
-                    failures.Add("Runtime nameplate must not be parented under VisualRoot or Armature.");
+                    failures.Add("Runtime nameplate must not be parented under Model, VisualRoot, or Armature.");
                 }
 
                 Canvas canvas = canvasRoot.GetComponent<Canvas>();

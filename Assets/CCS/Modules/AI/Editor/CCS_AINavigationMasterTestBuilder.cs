@@ -70,7 +70,7 @@ namespace CCS.Modules.AI.Editor
             }
 
             StaticEditorFlags flags = GameObjectUtility.GetStaticEditorFlags(root.gameObject);
-            StaticEditorFlags desiredFlags = flags | StaticEditorFlags.NavigationStatic | StaticEditorFlags.ContributeGI;
+            StaticEditorFlags desiredFlags = flags | StaticEditorFlags.ContributeGI;
             if (flags != desiredFlags)
             {
                 GameObjectUtility.SetStaticEditorFlags(root.gameObject, desiredFlags);

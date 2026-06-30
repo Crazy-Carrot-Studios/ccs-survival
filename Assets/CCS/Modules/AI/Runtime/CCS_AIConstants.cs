@@ -14,7 +14,7 @@ namespace CCS.Modules.AI
 {
     public static class CCS_AIConstants
     {
-        public const string ModuleVersion = "0.7.1";
+        public const string ModuleVersion = "0.7.7";
 
         public const string ModuleLogCategory = "AI";
 
@@ -22,6 +22,24 @@ namespace CCS.Modules.AI
 
         public const string AIBanditPrefabPath =
             ModuleRootPath + "/Content/Prefabs/PF_CCS_AI_Bandit_Networked.prefab";
+
+        public const string AIBanditModelEnemyAIPrefabPath =
+            ModuleRootPath + "/Characters/Bandit/Prefabs/PF_CCS_AI_Bandit_Model_EnemyAI.prefab";
+
+        public const string EnemyAiImportRootPath =
+            "Assets/Reallusion/DataLink_Imports/CC3_EnemyAI";
+
+        public const string EnemyAiImportPrefabPath =
+            EnemyAiImportRootPath + "/Prefabs/CC3_Base_Plus _enemy.prefab";
+
+        public const string EnemyAiFbxPath =
+            EnemyAiImportRootPath + "/CC3_Base_Plus.fbx";
+
+        public const string LegacyPlayerVisualPrefabPath =
+            "Assets/CCS/Modules/CharacterController/Characters/Player/Prefabs/PF_CCS_Player_Visual.prefab";
+
+        public const string LocomotionAnimatorControllerPath =
+            "Assets/CCS/Modules/CharacterController/Characters/Player/Animations/Controllers/AC_CCS_Player_Locomotion_StarterAssets.controller";
 
         public const string SourceNetworkedPlayerPrefabPath =
             "Assets/CCS/Modules/CharacterController/Prefabs/Player/PF_CCS_CharacterController_Player_Networked.prefab";

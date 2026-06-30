@@ -506,7 +506,7 @@ namespace CCS.Modules.AI
             while (current != null)
             {
                 string objectName = current.name;
-                if (objectName == "VisualRoot" || objectName == "Armature")
+                if (objectName == "Model" || objectName == "VisualRoot" || objectName == "Armature")
                 {
                     return true;
                 }

@@ -82,9 +82,6 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerConstants.PlayerModelKevinPrefabPath,
                 CCS_CharacterControllerConstants.KevinImportPrefabPath,
                 CCS_CharacterControllerConstants.KevinFbxPath,
-                CCS_CharacterControllerConstants.Cc3BasePlusPrefabPath,
-                CCS_CharacterControllerConstants.Cc3BasePlusBodyFbxPath,
-                CCS_CharacterControllerConstants.PlayerVisualPrefabPath,
                 CCS_CharacterControllerConstants.TestPrefabPath,
             };
 

@@ -18,6 +18,7 @@
         "CCS.Modules.Interaction.Runtime",
         "CCS.Modules.Weapons.Editor",
         "CCS.Modules.Weapons.Runtime",
+        "CCS.Modules.AI.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine",
         "Unity.Netcode.Runtime",
