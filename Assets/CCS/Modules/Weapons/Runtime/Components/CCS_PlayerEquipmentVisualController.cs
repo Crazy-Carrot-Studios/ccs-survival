@@ -44,7 +44,14 @@ namespace CCS.Modules.Weapons
         private bool isAiming;
         private bool diagnosticsRevolverAimSetupPoseActive;
         private bool diagnosticsRevolverHandSocketPreviewActive;
+        private Transform diagnosticsEquippedAttachmentRoot;
+        private GameObject diagnosticsEquippedVisualInstance;
         private bool loggedEquippedFitParityThisAimSession;
+
+        private const string DiagnosticsEquippedAttachmentRootObjectName =
+            "CCS_DiagnosticsEquippedAttachmentRoot";
+        private const string DiagnosticsEquippedVisualObjectName =
+            "CCS_DiagnosticsEquippedVisual";
 
 #if UNITY_EDITOR
         private bool editorAimFitOverrideActive;
@@ -125,6 +132,7 @@ namespace CCS.Modules.Weapons
             Unsubscribe();
             diagnosticsRevolverAimSetupPoseActive = false;
             diagnosticsRevolverHandSocketPreviewActive = false;
+            HideDiagnosticsEquippedPreview();
             DestroyRuntimeVisuals();
 #if UNITY_EDITOR
             editorAimFitOverrideActive = false;
@@ -171,9 +179,17 @@ namespace CCS.Modules.Weapons
             if (ShouldShowDiagnosticsEquippedVisualPreview())
             {
                 HideHolsteredVisual();
-                ShowEquippedVisual();
+                SuppressGameplayEquippedVisualForDiagnostics();
+                bool previewShown = ShowDiagnosticsEquippedPreview();
+                if (!previewShown)
+                {
+                    RestoreGameplayEquippedVisualAfterDiagnostics();
+                }
+
                 return;
             }
+
+            HideDiagnosticsEquippedPreview();
 
             if (!PlayerOwnsRevolverForVisuals())
             {
@@ -237,6 +253,7 @@ namespace CCS.Modules.Weapons
 
             diagnosticsRevolverAimSetupPoseActive = active;
             RefreshVisualState();
+            LogDiagnosticsPreviewToggle("Force Revolver Aim Setup Pose", active);
         }
 
         public void SetDiagnosticsRevolverHandSocketPreviewActive(bool active)
@@ -248,6 +265,7 @@ namespace CCS.Modules.Weapons
 
             diagnosticsRevolverHandSocketPreviewActive = active;
             RefreshVisualState();
+            LogDiagnosticsPreviewToggle("Force Revolver Hand Socket Preview", active);
         }
 
         public bool IsDiagnosticsRevolverAimSetupPoseActive => diagnosticsRevolverAimSetupPoseActive;
@@ -303,6 +321,232 @@ namespace CCS.Modules.Weapons
             rightHandEquippedFitProfile = UnityEditor.AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
                 CCS_RevolverFitProfilePaths.RightHandEquippedFitPath);
 #endif
+        }
+
+        private void EnsureFitProfilesResolved()
+        {
+            ReloadFitProfilesFromDisk();
+        }
+
+        private bool ShowDiagnosticsEquippedPreview()
+        {
+            if (equipmentSocketRegistry == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: missing CCS_PlayerEquipmentVisualController equipment socket registry.");
+                return false;
+            }
+
+            equipmentSocketRegistry.RefreshSocketRegistry();
+
+            if (!equipmentSocketRegistry.TryGetSocketAnchor(
+                    CCS_EquipmentConstants.HandSocketRightId,
+                    out CCS_EquipmentSocketAnchor socketAnchor)
+                || socketAnchor == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: missing equipment socket anchor for CCS_HandSocket_Right.");
+                return false;
+            }
+
+            Transform socketTransform = socketAnchor.SocketTransform;
+            if (socketTransform == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: CCS_HandSocket_Right transform is missing.");
+                return false;
+            }
+
+            if (IsIkOnlyAttachmentTransform(socketTransform))
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: resolved parent '"
+                    + BuildTransformPath(socketTransform)
+                    + "' is an IK target. Weapon preview must attach to CCS_HandSocket_Right.");
+                return false;
+            }
+
+            EnsureFitProfilesResolved();
+            CCS_WeaponAttachmentFitProfile profile = rightHandEquippedFitProfile;
+            if (profile == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: missing right-hand equipped fit profile "
+                    + "(CCS_RevolverM1879_RightHandEquipped_Fit).");
+                return false;
+            }
+
+            if (revolverVisualOnlyPrefab == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: missing revolver visual-only prefab reference.");
+                return false;
+            }
+
+            if (!TryGetSocketDefinitionBaseline(
+                    CCS_EquipmentConstants.HandSocketRightId,
+                    out Vector3 definitionPosition,
+                    out Vector3 definitionEuler,
+                    out Vector3 definitionScale))
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: missing right hand socket definition baseline.");
+                return false;
+            }
+
+            diagnosticsEquippedAttachmentRoot = EnsureAttachmentRoot(
+                socketTransform,
+                DiagnosticsEquippedAttachmentRootObjectName);
+            CCS_WeaponAttachmentFitProfileApplicator.ApplyProfileToAttachmentRoot(
+                socketTransform,
+                diagnosticsEquippedAttachmentRoot,
+                profile,
+                definitionPosition,
+                definitionEuler,
+                definitionScale);
+
+            diagnosticsEquippedVisualInstance = EnsureDiagnosticsVisualInstance(diagnosticsEquippedAttachmentRoot);
+            if (diagnosticsEquippedVisualInstance == null)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: could not instantiate diagnostics revolver visual.");
+                return false;
+            }
+
+            diagnosticsEquippedVisualInstance.SetActive(true);
+            if (!diagnosticsEquippedVisualInstance.activeInHierarchy)
+            {
+                Debug.LogWarning(
+                    "[Equipment Visual] Diagnostics preview failed: diagnostics revolver visual instance is inactive in hierarchy.");
+                return false;
+            }
+
+            Debug.Log(
+                "[Equipment Visual] Diagnostics equipped preview shown.\n"
+                + "- Preview type: diagnostics-only (no gameplay ownership)\n"
+                + "- Right-hand socket path: "
+                + BuildTransformPath(socketTransform)
+                + "\n- Visual source prefab: "
+                + revolverVisualOnlyPrefab.name
+                + "\n- Fit profile: CCS_RevolverM1879_RightHandEquipped_Fit\n"
+                + "- Final parent path: "
+                + BuildTransformPath(diagnosticsEquippedVisualInstance.transform.parent)
+                + "\n- Final local position: "
+                + FormatVector3(diagnosticsEquippedVisualInstance.transform.localPosition)
+                + "\n- Final local rotation: "
+                + FormatVector3(diagnosticsEquippedVisualInstance.transform.localEulerAngles)
+                + "\n- Final local scale: "
+                + FormatVector3(diagnosticsEquippedVisualInstance.transform.localScale));
+            return true;
+        }
+
+        private void HideDiagnosticsEquippedPreview()
+        {
+            if (diagnosticsEquippedVisualInstance != null)
+            {
+                diagnosticsEquippedVisualInstance.SetActive(false);
+            }
+
+            DestroyVisualInstance(ref diagnosticsEquippedVisualInstance);
+            DestroyAttachmentRoot(ref diagnosticsEquippedAttachmentRoot);
+            RestoreSocketDefinition(CCS_EquipmentConstants.HandSocketRightId);
+        }
+
+        private void SuppressGameplayEquippedVisualForDiagnostics()
+        {
+            if (equippedVisualInstance != null)
+            {
+                equippedVisualInstance.SetActive(false);
+            }
+        }
+
+        private void RestoreGameplayEquippedVisualAfterDiagnostics()
+        {
+            if (!PlayerOwnsRevolverForVisuals())
+            {
+                return;
+            }
+
+            CCS_WeaponCarryState carryState = ResolveCarryState();
+            if (carryState == CCS_WeaponCarryState.Aiming
+                || carryState == CCS_WeaponCarryState.EquippedInHands)
+            {
+                ShowEquippedVisual();
+            }
+        }
+
+        private GameObject EnsureDiagnosticsVisualInstance(Transform attachmentRoot)
+        {
+            Transform existing = attachmentRoot.Find(DiagnosticsEquippedVisualObjectName);
+            if (existing != null)
+            {
+                ZeroLocalTransform(existing);
+                return existing.gameObject;
+            }
+
+            GameObject instance = Instantiate(revolverVisualOnlyPrefab, attachmentRoot);
+            instance.name = DiagnosticsEquippedVisualObjectName;
+            ZeroLocalTransform(instance.transform);
+            StripRuntimeGameplayComponents(instance);
+            return instance;
+        }
+
+        private static bool IsIkOnlyAttachmentTransform(Transform transform)
+        {
+            if (transform == null)
+            {
+                return false;
+            }
+
+            string objectName = transform.name;
+            if (objectName.Contains("HandSocket"))
+            {
+                return false;
+            }
+
+            return objectName.Contains("IKTarget")
+                || objectName == CCS_EquipmentConstants.WeaponAimTargetObjectName
+                || objectName == CCS_EquipmentConstants.WeaponIkTargetsObjectName
+                || objectName == CCS_EquipmentConstants.RightHandIkTargetObjectName
+                || objectName == "MuzzlePoint"
+                || objectName == "RightHandReticleIKTarget";
+        }
+
+        private static string BuildTransformPath(Transform transform)
+        {
+            if (transform == null)
+            {
+                return "(null)";
+            }
+
+            string path = transform.name;
+            Transform current = transform.parent;
+            while (current != null)
+            {
+                path = current.name + "/" + path;
+                current = current.parent;
+            }
+
+            return path;
+        }
+
+        private void LogDiagnosticsPreviewToggle(string toggleLabel, bool active)
+        {
+            if (!active)
+            {
+                Debug.Log("[Equipment Visual] " + toggleLabel + " deactivated. Diagnostics preview cleared.");
+                return;
+            }
+
+            if (diagnosticsEquippedVisualInstance != null && diagnosticsEquippedVisualInstance.activeInHierarchy)
+            {
+                return;
+            }
+
+            Debug.LogWarning(
+                "[Equipment Visual] "
+                + toggleLabel
+                + " activated but diagnostics preview is not visible. See prior preview failure warnings.");
         }
 
         private void Subscribe()
@@ -845,9 +1089,11 @@ namespace CCS.Modules.Weapons
         {
             HideHolsteredVisual();
             HideEquippedVisual();
+            HideDiagnosticsEquippedPreview();
 
             DestroyVisualInstance(ref holsteredVisualInstance);
             DestroyVisualInstance(ref equippedVisualInstance);
+            DestroyVisualInstance(ref diagnosticsEquippedVisualInstance);
             DestroyAttachmentRoot(ref equippedAimConvergenceRoot);
             equippedAimConvergence = null;
             DestroyAttachmentRoot(ref holsterAttachmentRoot);

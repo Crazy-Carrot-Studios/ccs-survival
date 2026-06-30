@@ -285,7 +285,10 @@ namespace CCS.Modules.CharacterController
             ValidationCleanupReportDirectory + "/CCS_ValidationCleanup_AimDebugToggle_v0.7.9.md";
 
         public const string RevolverHandSocketPreviewReportPath =
-            ValidationCleanupReportDirectory + "/CCS_RevolverHandSocketPreview_v0.7.10.md";
+            ValidationCleanupReportDirectory + "/CCS_RevolverHandSocketPreview_v0.7.10a.md";
+
+        public const string RevolverSocketAndIKAuditReportPath =
+            ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
 
         public const string PrototypingWeaponDamageTargetPrefabPath =
             "Assets/CCS/Modules/CharacterController/Prototyping/Prefabs/Targets/PF_CCS_TestWeaponDamageTarget.prefab";

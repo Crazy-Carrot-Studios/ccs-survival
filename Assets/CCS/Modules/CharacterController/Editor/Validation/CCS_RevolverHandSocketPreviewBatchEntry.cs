@@ -28,6 +28,8 @@ namespace CCS.Modules.CharacterController.Editor
             EnsureDiagnosticsRevolverDebugDefaults();
             AssetDatabase.SaveAssets();
 
+            string auditReportPath = CCS_RevolverSocketAndIKAuditReportBuilder.WriteReport();
+
             CCS_SurvivalValidationResult validationResult =
                 CCS_RevolverHandSocketPreviewValidationUtility.ValidateRevolverHandSocketPreview();
             if (!validationResult.IsSuccess)
@@ -39,7 +41,9 @@ namespace CCS.Modules.CharacterController.Editor
 
             string reportPath = CCS_RevolverHandSocketPreviewReportBuilder.WriteReport();
             Debug.Log(
-                "[Revolver Hand Socket Preview Batch] Validation passed. Report: "
+                "[Revolver Hand Socket Preview Batch] Validation passed. Audit: "
+                + auditReportPath
+                + " report: "
                 + reportPath
                 + ". "
                 + validationResult.Message);

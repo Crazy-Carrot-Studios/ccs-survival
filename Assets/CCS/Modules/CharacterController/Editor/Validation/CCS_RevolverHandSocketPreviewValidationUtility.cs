@@ -35,6 +35,12 @@ namespace CCS.Modules.CharacterController.Editor
         private const string DiagnosticsManagerSourcePath =
             "Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_CharacterControllerDiagnosticsManager.cs";
 
+        private const string RevolverVisualOnlyPrefabPath =
+            "Assets/CCS/Modules/Weapons/Content/RevolverM1879/Prefabs/PF_CCS_RevolverM1879_VisualOnly.prefab";
+
+        private const string RightHandEquippedFitProfilePath =
+            "Assets/CCS/Modules/CharacterController/Profiles/EquipmentFitting/RevolverM1879/CCS_RevolverM1879_RightHandEquipped_Fit.asset";
+
         private const string EquipmentVisualSourcePath =
             "Assets/CCS/Modules/Weapons/Runtime/Components/CCS_PlayerEquipmentVisualController.cs";
 
@@ -54,6 +60,8 @@ namespace CCS.Modules.CharacterController.Editor
             ValidateAimAnimatorDoesNotUseHandSocketPreview(failures);
             ValidatePlayerPrefabPrototypeVisualsRemoved(failures);
             ValidateRightHandSocketOnPlayerPrefab(failures);
+            ValidateRightHandSocketIsEquipmentAnchor(failures);
+            ValidateRevolverVisualAndFitProfileAssets(failures);
             ValidateMissingScripts(failures);
             ValidateTestsFolderRemoved(failures);
             ValidateAnimationFitStudioNotPresent(failures);
@@ -162,6 +170,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 source.Contains("SetDiagnosticsRevolverHandSocketPreviewActive"),
                 "Diagnostics manager must drive hand socket preview on CCS_PlayerEquipmentVisualController.");
+            AppendIfMissing(
+                failures,
+                source.Contains("FindFirstObjectByType<CCS_PlayerEquipmentVisualController>"),
+                "Diagnostics manager must resolve player equipment visual controller directly (not AI revolver controller).");
         }
 
         private static void ValidateEquipmentVisualHandSocketPreview(List<string> failures)
@@ -186,15 +198,29 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 source.Contains("SetDiagnosticsRevolverHandSocketPreviewActive")
                     && source.Contains("diagnosticsRevolverHandSocketPreviewActive")
-                    && source.Contains("ShouldShowDiagnosticsEquippedVisualPreview"),
+                    && source.Contains("ShouldShowDiagnosticsEquippedVisualPreview")
+                    && source.Contains("ShowDiagnosticsEquippedPreview"),
                 "CCS_PlayerEquipmentVisualController must support diagnostics hand socket preview.");
+
+            AppendIfMissing(
+                failures,
+                source.Contains("diagnosticsEquippedVisualInstance")
+                    && source.Contains("DiagnosticsEquippedVisualObjectName")
+                    && source.Contains(CCS_EquipmentConstants.HandSocketRightId),
+                "Diagnostics preview must create a dedicated visual on CCS_HandSocket_Right.");
+
+            AppendIfMissing(
+                failures,
+                source.Contains("IsIkOnlyAttachmentTransform")
+                    && source.Contains("RightHandIkTargetObjectName"),
+                "Diagnostics preview must reject IK-only attachment parents.");
 
             AppendIfMissing(
                 failures,
                 source.Contains("diagnosticsRevolverAimSetupPoseActive")
                     && source.Contains("diagnosticsRevolverHandSocketPreviewActive")
-                    && source.Contains("ShowEquippedVisual"),
-                "Equipment visual controller must share one equipped visual path for debug previews.");
+                    && source.Contains("diagnosticsEquippedVisualInstance"),
+                "Equipment visual controller must share one diagnostics equipped visual for debug previews.");
 
             AppendIfMissing(
                 failures,
@@ -274,6 +300,66 @@ namespace CCS.Modules.CharacterController.Editor
                 "Player prefab must expose right-hand equipment socket for hand socket preview.");
         }
 
+        private static void ValidateRightHandSocketIsEquipmentAnchor(List<string> failures)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
+            if (prefab == null)
+            {
+                return;
+            }
+
+            CCS_EquipmentSocketAnchor[] anchors = prefab.GetComponentsInChildren<CCS_EquipmentSocketAnchor>(true);
+            bool foundRightHandSocket = false;
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                CCS_EquipmentSocketAnchor anchor = anchors[i];
+                if (anchor == null || anchor.SocketId != CCS_EquipmentConstants.HandSocketRightId)
+                {
+                    continue;
+                }
+
+                foundRightHandSocket = true;
+                AppendIfMissing(
+                    failures,
+                    anchor.name == "CCS_HandSocket_Right",
+                    "Right-hand equipment socket anchor must be named CCS_HandSocket_Right.");
+                AppendIfMissing(
+                    failures,
+                    anchor.name != CCS_EquipmentConstants.RightHandIkTargetObjectName,
+                    "Right-hand equipment socket must not use the IK target object name.");
+            }
+
+            AppendIfMissing(
+                failures,
+                foundRightHandSocket,
+                "Player prefab must contain a CCS_EquipmentSocketAnchor for CCS_HandSocket_Right.");
+        }
+
+        private static void ValidateRevolverVisualAndFitProfileAssets(List<string> failures)
+        {
+            AppendIfMissing(
+                failures,
+                File.Exists(RevolverVisualOnlyPrefabPath),
+                "Missing revolver visual-only prefab for diagnostics preview.");
+
+            AppendIfMissing(
+                failures,
+                File.Exists(RightHandEquippedFitProfilePath),
+                "Missing CCS_RevolverM1879_RightHandEquipped_Fit profile for right-hand preview.");
+
+            if (!File.Exists(EquipmentVisualSourcePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(EquipmentVisualSourcePath);
+            AppendIfMissing(
+                failures,
+                source.Contains("revolverVisualOnlyPrefab")
+                    && source.Contains("EnsureDiagnosticsVisualInstance"),
+                "Diagnostics preview must instantiate a visible revolver when no gameplay weapon is owned.");
+        }
+
         private static void ValidateMissingScripts(List<string> failures)
         {
             CCS_SurvivalValidationResult missingScriptResult =
@@ -329,6 +415,8 @@ namespace CCS.Modules.CharacterController.Editor
             warnings.Add("Force Revolver Hand Socket Preview is validation-scene only.");
             warnings.Add("Socket offset may still require manual tuning.");
             warnings.Add("Socket pose may require future animation/IK refinement.");
+            warnings.Add("Setup pose and socket preview share one diagnostics visual instance.");
+            warnings.Add("IK target gizmo labels require Enable Visual Debug Helpers while playing.");
         }
 
         private static GameObject FindSceneObjectByName(Scene scene, string objectName)

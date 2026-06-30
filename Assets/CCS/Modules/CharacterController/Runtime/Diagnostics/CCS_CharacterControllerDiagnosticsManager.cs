@@ -358,7 +358,15 @@ namespace CCS.Modules.CharacterController.Diagnostics {
 
         private bool ApplyAimVisualSettingsToSpawnedPlayer()
         {
-            CCS_RevolverController revolverController = FindFirstObjectByType<CCS_RevolverController>();
+            CCS_PlayerEquipmentVisualController equipmentVisualController =
+                FindFirstObjectByType<CCS_PlayerEquipmentVisualController>();
+            if (equipmentVisualController == null)
+            {
+                return false;
+            }
+
+            CCS_RevolverController revolverController =
+                equipmentVisualController.GetComponent<CCS_RevolverController>();
             if (revolverController == null)
             {
                 return false;
@@ -377,10 +385,8 @@ namespace CCS.Modules.CharacterController.Diagnostics {
                 revolverController.GetComponentInChildren<CCS_RevolverBodyAimFollowController>(true);
             bodyAimFollow?.SetBodyAimFollowEnabled(true);
 
-            CCS_PlayerEquipmentVisualController equipmentVisualController =
-                revolverController.GetComponent<CCS_PlayerEquipmentVisualController>();
-            equipmentVisualController?.SetDiagnosticsRevolverAimSetupPoseActive(forceRevolverAimSetupPose);
-            equipmentVisualController?.SetDiagnosticsRevolverHandSocketPreviewActive(forceRevolverHandSocketPreview);
+            equipmentVisualController.SetDiagnosticsRevolverAimSetupPoseActive(forceRevolverAimSetupPose);
+            equipmentVisualController.SetDiagnosticsRevolverHandSocketPreviewActive(forceRevolverHandSocketPreview);
 
             if (!appliedAimVisualSettingsToPlayer)
             {
