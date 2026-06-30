@@ -10,7 +10,7 @@ using UnityEngine;
 // =============================================================================
 // SCRIPT: CCS_RevolverRightHandFitProfileReportBuilder
 // CATEGORY: Modules / CharacterController / Editor / Validation
-// PURPOSE: Writes v0.7.10b right-hand revolver fit profile report.
+// PURPOSE: Writes v0.7.10c right-hand revolver fit profile report.
 // PLACEMENT: Editor report builder. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-30
@@ -35,9 +35,19 @@ namespace CCS.Modules.CharacterController.Editor
             string handSocketPath = ResolveNamedTransformPath(prefab, "CCS_HandSocket_Right");
 
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("# CCS Revolver Right-Hand Fit Profile (v0.7.10b)");
+            builder.AppendLine("# CCS Revolver Right-Hand Fit Profile (v0.7.10c)");
             builder.AppendLine();
             builder.AppendLine("Generated: " + System.DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC");
+            builder.AppendLine();
+            builder.AppendLine("## Previous v0.7.10b fit values");
+            builder.AppendLine("- Local position: (0.0909511, 0.125923, 0.07095162)");
+            builder.AppendLine("- Local Euler: (-49.556, 32.577, 49.983)");
+            builder.AppendLine("- Local scale: (1, 1, 1)");
+            builder.AppendLine();
+            builder.AppendLine("## New v0.7.10c fit values");
+            builder.AppendLine("- Local position: (0.099, 0.176, 0.014)");
+            builder.AppendLine("- Local Euler: (-48.275, 103.374, 64.828)");
+            builder.AppendLine("- Local scale: (1, 1, 1)");
             builder.AppendLine();
             builder.AppendLine("## Right-hand socket path");
             builder.AppendLine(handSocketPath);
@@ -46,10 +56,10 @@ namespace CCS.Modules.CharacterController.Editor
             builder.AppendLine("- Path: " + CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath);
             if (profile != null)
             {
-                builder.AppendLine("- Local position: " + FormatVector3(profile.SocketLocalPosition));
-                builder.AppendLine("- Local Euler: " + FormatVector3(profile.SocketLocalEulerAngles));
-                builder.AppendLine("- Local scale: " + FormatVector3(profile.SocketLocalScale));
-                builder.AppendLine("- Captured from v0.7.10a smoke screenshot alignment: yes");
+                builder.AppendLine("- Current local position: " + FormatVector3(profile.SocketLocalPosition));
+                builder.AppendLine("- Current local Euler: " + FormatVector3(profile.SocketLocalEulerAngles));
+                builder.AppendLine("- Current local scale: " + FormatVector3(profile.SocketLocalScale));
+                builder.AppendLine("- Source: manual scene alignment on CCS_RightHandRevolverAttachmentOffset");
             }
             builder.AppendLine();
             builder.AppendLine("## Offset parent");

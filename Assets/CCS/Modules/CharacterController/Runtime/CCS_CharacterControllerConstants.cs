@@ -291,7 +291,7 @@ namespace CCS.Modules.CharacterController
             ValidationCleanupReportDirectory + "/CCS_RevolverRightHandFitAudit_v0.7.10b.md";
 
         public const string RevolverRightHandFitProfileReportPath =
-            ValidationCleanupReportDirectory + "/CCS_RevolverRightHandFitProfile_v0.7.10b.md";
+            ValidationCleanupReportDirectory + "/CCS_RevolverRightHandFitProfile_v0.7.10c.md";
 
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";

@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.10b** · Crazy Carrot Studios
+**Version 0.7.10c** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.10c** — **Revolver right-hand fit offset tuning:** updates `CCS_RevolverM1879_RightHandEquipped_Fit` from improved manual alignment on `CCS_RightHandRevolverAttachmentOffset`. Fit profile only; no gameplay changes.
 
 **0.7.10b** — **Revolver right-hand fit profile refinement:** standardizes `CCS_RightHandRevolverAttachmentOffset` under `CCS_HandSocket_Right`; fit profile `CCS_RevolverM1879_RightHandEquipped_Fit` is the source of truth; Equipment Fit Studio + editor capture/apply helpers for tuning. No gameplay changes.
 

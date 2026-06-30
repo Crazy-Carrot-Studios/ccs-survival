@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.10c** | Revolver right-hand fit offset tuning — updates `CCS_RevolverM1879_RightHandEquipped_Fit` from manual alignment; fit profile only; no gameplay changes |
 | **v0.7.10b** | Revolver right-hand fit profile refinement — `CCS_RightHandRevolverAttachmentOffset`; fit profile source of truth; Equipment Fit Studio tuning; no gameplay changes |
 | **v0.7.10a** | Revolver hand socket preview hotfix — fixes diagnostics preview attach to `CCS_HandSocket_Right`; socket vs IK audit; player equipment visual lookup fix; no gameplay changes |
 | **v0.7.10** | Revolver hand socket preview toggle — diagnostics Force Revolver Hand Socket Preview (visual-only right-hand socket); Force Revolver Aim Setup Pose remains separate; no gameplay ownership/ammo/damage changes; no new animation layers |
