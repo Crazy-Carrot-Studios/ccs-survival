@@ -13,7 +13,9 @@ using UnityEngine;
 namespace CCS.Modules.CharacterController
 {
     [DefaultExecutionOrder(210)]
-    public sealed class CCS_SingleRevolverAimAnimator : MonoBehaviour, CCS_ICharacterAnimationPresenter
+    public sealed class CCS_SingleRevolverAimAnimator : MonoBehaviour,
+        CCS_ICharacterAnimationPresenter,
+        CCS_IRevolverAimPresentationReadinessSource
     {
         private const float HolsterLayerWeightFadeThreshold = 0.001f;
 
@@ -30,11 +32,19 @@ namespace CCS.Modules.CharacterController
         private int revolverDrawTriggerHash;
         private int revolverHolsterTriggerHash;
         private int upperBodyEmptyStateHash;
+        private int revolverDrawStateHash;
+        private int revolverAimHoldStateHash;
         private int revolverHolsterStateHash;
         private bool presentationEnabled;
+        private bool aimPresentationActive;
+        private bool aimPresentationReadyForReticle;
         private bool loggedMissingSetup;
         private bool previousDesiredPresentationAiming;
         private bool holsterPresentationActive;
+
+        public bool IsAimPresentationActive => aimPresentationActive;
+
+        public bool IsAimPresentationReadyForReticle => aimPresentationReadyForReticle;
 
         private void Awake()
         {
@@ -55,12 +65,16 @@ namespace CCS.Modules.CharacterController
             animator.SetLayerWeight(upperBodyLayerIndex, 0f);
             previousDesiredPresentationAiming = false;
             holsterPresentationActive = false;
+            aimPresentationActive = false;
+            aimPresentationReadyForReticle = false;
         }
 
         private void LateUpdate()
         {
             if (!presentationEnabled || revolverAnimationState == null || animator == null || upperBodyLayerIndex < 0)
             {
+                aimPresentationActive = false;
+                aimPresentationReadyForReticle = false;
                 return;
             }
 
@@ -72,6 +86,8 @@ namespace CCS.Modules.CharacterController
                     ResetPresentationImmediate();
                 }
 
+                aimPresentationActive = false;
+                aimPresentationReadyForReticle = false;
                 return;
             }
 
@@ -95,6 +111,7 @@ namespace CCS.Modules.CharacterController
             }
 
             UpdateHolsterLayerWeight();
+            UpdateAimPresentationReadiness();
         }
 
         public void SetLocomotion(float speedNormalized, bool isGrounded, bool isSprinting)
@@ -187,6 +204,8 @@ namespace CCS.Modules.CharacterController
             revolverDrawTriggerHash = CCS_CharacterAnimationParameterIds.Active.RevolverDrawTriggerHash;
             revolverHolsterTriggerHash = CCS_CharacterAnimationParameterIds.Active.RevolverHolsterTriggerHash;
             upperBodyEmptyStateHash = Animator.StringToHash(CCS_CharacterControllerConstants.SingleRevolverUpperBodyEmptyStateName);
+            revolverDrawStateHash = Animator.StringToHash(CCS_CharacterControllerConstants.SingleRevolverDrawStateName);
+            revolverAimHoldStateHash = Animator.StringToHash(CCS_CharacterControllerConstants.SingleRevolverAimHoldStateName);
             revolverHolsterStateHash = Animator.StringToHash(CCS_CharacterControllerConstants.SingleRevolverHolsterStateName);
 
             if (animator == null || animator.runtimeAnimatorController == null)
@@ -293,6 +312,36 @@ namespace CCS.Modules.CharacterController
             animator.SetLayerWeight(upperBodyLayerIndex, 0f);
             previousDesiredPresentationAiming = false;
             holsterPresentationActive = false;
+            aimPresentationActive = false;
+            aimPresentationReadyForReticle = false;
+        }
+
+        private void UpdateAimPresentationReadiness()
+        {
+            bool desiredPresentationAiming = ResolveDesiredPresentationAiming();
+            aimPresentationActive = desiredPresentationAiming || holsterPresentationActive;
+
+            if (!desiredPresentationAiming || holsterPresentationActive)
+            {
+                aimPresentationReadyForReticle = false;
+                return;
+            }
+
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(upperBodyLayerIndex);
+            if (animator.IsInTransition(upperBodyLayerIndex))
+            {
+                aimPresentationReadyForReticle = false;
+                return;
+            }
+
+            int stateHash = stateInfo.shortNameHash;
+            if (stateHash == revolverDrawStateHash || stateHash == revolverHolsterStateHash)
+            {
+                aimPresentationReadyForReticle = false;
+                return;
+            }
+
+            aimPresentationReadyForReticle = stateHash == revolverAimHoldStateHash;
         }
 
         private void DisablePresentation(string warningMessage)

@@ -12,6 +12,7 @@
 - Clips (read-only Wild West FBX sub-assets): `Idle_Fulldraw_Revolver`, `Fulldraw_Idle`, `Idle_Full_Holster_Revolver`
 - Mask: `AM_CCS_Revolver_UpperBodyRightArm_Aim`
 - Presentation driver: `CCS_SingleRevolverAimAnimator` on player `Model` root
+- Readiness contract: `CCS_IRevolverAimPresentationReadinessSource` gates reticle visibility until `Revolver_Aim_Hold` / `Fulldraw_Idle` (v0.7.10d)
 - Gameplay aim/fire remains owned by `CCS_RevolverController`
 - Not in v0.7.8: fire, reload, interaction, dual revolver layers; remote player aim presentation
 
@@ -23,6 +24,14 @@
 - `CCS_SingleRevolverAimAnimator` + `CCS_PlayerEquipmentVisualController` honor setup pose via `CCS_IRevolverAimSetupPoseDebugSource` / `CCS_RevolverAimSetupPoseDebugRegistry`
 - Removed `CapsuleVisual` and `VisualGlasses` from production player prefab
 - Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
+
+## v0.7.10d — Reticle aim readiness gate (implemented)
+
+- Added `CCS_IRevolverAimPresentationReadinessSource` implemented by `CCS_SingleRevolverAimAnimator`
+- `CCS_MuzzleDrivenReticleController` hides reticle by default and shows it only after `Revolver_Aim_Hold` / `Fulldraw_Idle`
+- Force Revolver Hand Socket Preview never shows reticle; setup pose shows reticle only after hold readiness
+- Right-hand fit profile unchanged; barrel line-of-sight reticle plan documented only (`CCS_Revolver_Reticle_Barrel_LineOfSight_Plan.md`)
+- No gameplay ownership/ammo/damage/fire changes; no new Animator layers/states or clip edits
 
 ## Purpose
 

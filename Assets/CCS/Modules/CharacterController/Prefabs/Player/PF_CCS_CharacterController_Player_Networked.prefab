@@ -2125,6 +2125,7 @@ MonoBehaviour:
   revolverController: {fileID: 4905833786765227334}
   equipmentVisualController: {fileID: 5730116116939274085}
   hudPresenter: {fileID: 9158304918560071027}
+  aimPresentationReadinessSourceComponent: {fileID: 3033120692709944028}
   screenSmoothing: 18
   debugRays: 0
 --- !u!1 &3139427301927228153

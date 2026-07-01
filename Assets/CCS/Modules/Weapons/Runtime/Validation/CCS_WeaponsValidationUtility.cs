@@ -954,8 +954,21 @@ namespace CCS.Modules.Weapons
                 string muzzleReticleSource = File.ReadAllText(muzzleReticleSourcePath);
                 AppendIfMissing(
                     failures,
-                    muzzleReticleSource.Contains("revolverController.IsAiming"),
+                    muzzleReticleSource.Contains("revolverController.IsAiming")
+                        || muzzleReticleSource.Contains("IsAiming"),
                     "CCS_MuzzleDrivenReticleController must gate reticle on gameplay aim state.");
+                AppendIfMissing(
+                    failures,
+                    muzzleReticleSource.Contains("IsAimPresentationReadyForReticle"),
+                    "CCS_MuzzleDrivenReticleController must gate reticle on aim presentation readiness.");
+                AppendIfMissing(
+                    failures,
+                    muzzleReticleSource.Contains("EnsureReticleHiddenAtStartup"),
+                    "CCS_MuzzleDrivenReticleController must hide reticle at startup.");
+                AppendIfMissing(
+                    failures,
+                    muzzleReticleSource.Contains("ForceRevolverHandSocketPreview"),
+                    "CCS_MuzzleDrivenReticleController must block reticle during hand socket preview.");
             }
 
             string hudSourcePath = CCS_WeaponsConstants.ModuleRootPath

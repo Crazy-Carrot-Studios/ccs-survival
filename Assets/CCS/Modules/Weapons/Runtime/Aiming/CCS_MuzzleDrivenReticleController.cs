@@ -1,4 +1,5 @@
 using CCS.Modules.CharacterController;
+using Unity.Netcode;
 using UnityEngine;
 
 // =============================================================================
@@ -33,9 +34,13 @@ namespace CCS.Modules.Weapons
         [SerializeField] private CCS_RevolverController revolverController;
         [SerializeField] private CCS_PlayerEquipmentVisualController equipmentVisualController;
         [SerializeField] private CCS_RevolverHudPresenter hudPresenter;
+        [SerializeField] private Component aimPresentationReadinessSourceComponent;
         [SerializeField] private float screenSmoothing = CCS_WeaponsConstants.MasterTestMuzzleReticleScreenSmoothingDefault;
         [SerializeField] private bool debugRays;
 
+        private CCS_IRevolverAimPresentationReadinessSource aimPresentationReadinessSource;
+        private bool resolvedAimPresentationReadinessSource;
+        private NetworkObject cachedNetworkObject;
         private Vector2 smoothedScreenPosition;
         private bool hasValidReticlePosition;
         private bool wasAiming;
@@ -65,6 +70,12 @@ namespace CCS.Modules.Weapons
         private void Awake()
         {
             ResolveReferences();
+            EnsureReticleHiddenAtStartup();
+        }
+
+        private void Start()
+        {
+            EnsureReticleHiddenAtStartup();
         }
 
         private void LateUpdate()
@@ -74,18 +85,18 @@ namespace CCS.Modules.Weapons
                 return;
             }
 
-            bool isAiming = ShouldDriveReticle();
-            if (isAiming && !wasAiming)
+            bool shouldShowReticle = ShouldShowReticle();
+            if (shouldShowReticle && !wasAiming)
             {
                 HandleAimStarted();
             }
-            else if (!isAiming && wasAiming)
+            else if (!shouldShowReticle && wasAiming)
             {
                 HandleAimEnded();
             }
 
-            wasAiming = isAiming;
-            if (!isAiming)
+            wasAiming = shouldShowReticle;
+            if (!shouldShowReticle)
             {
                 return;
             }
@@ -191,8 +202,6 @@ namespace CCS.Modules.Weapons
             Vector2 centerScreen = GetCenterScreenPosition(resolvedCamera);
             smoothedScreenPosition = centerScreen;
             hasValidReticlePosition = true;
-            ApplyReticleScreenPosition(centerScreen, visible: true);
-            hudPresenter?.SetMuzzleDrivenReticleActive(true);
         }
 
         public void HandleAimEnded()
@@ -248,13 +257,111 @@ namespace CCS.Modules.Weapons
                     ? reticleTransform.GetComponentInParent<Canvas>()
                     : GetComponentInParent<Canvas>();
             }
+
+            ResolveAimPresentationReadinessSource();
+        }
+
+        private void ResolveAimPresentationReadinessSource()
+        {
+            if (resolvedAimPresentationReadinessSource)
+            {
+                return;
+            }
+
+            resolvedAimPresentationReadinessSource = true;
+            if (aimPresentationReadinessSourceComponent is CCS_IRevolverAimPresentationReadinessSource fromComponent)
+            {
+                aimPresentationReadinessSource = fromComponent;
+                return;
+            }
+
+            Transform playerRoot = transform.root;
+            MonoBehaviour[] behaviours = playerRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is CCS_IRevolverAimPresentationReadinessSource readinessSource)
+                {
+                    aimPresentationReadinessSource = readinessSource;
+                    return;
+                }
+            }
+        }
+
+        private bool ShouldShowReticle()
+        {
+            if (!IsLocalPresentationOwner())
+            {
+                return false;
+            }
+
+            if (IsHandSocketPreviewActive())
+            {
+                return false;
+            }
+
+            Camera resolvedCamera = ResolveAimCamera();
+            if (resolvedCamera == null)
+            {
+                return false;
+            }
+
+            if (aimPresentationReadinessSource == null
+                || !aimPresentationReadinessSource.IsAimPresentationReadyForReticle)
+            {
+                return false;
+            }
+
+            if (IsDebugAimSetupPoseActive())
+            {
+                return true;
+            }
+
+            return revolverController != null
+                && revolverController.HasWeaponOwnership
+                && revolverController.IsAiming;
+        }
+
+        private bool IsLocalPresentationOwner()
+        {
+            if (cachedNetworkObject == null)
+            {
+                cachedNetworkObject = GetComponentInParent<NetworkObject>();
+            }
+
+            NetworkObject networkObject = cachedNetworkObject;
+            if (networkObject == null || !networkObject.IsSpawned)
+            {
+                return true;
+            }
+
+            return networkObject.IsOwner;
+        }
+
+        private static bool IsHandSocketPreviewActive()
+        {
+            CCS_IRevolverHandSocketPreviewDebugSource source = CCS_RevolverHandSocketPreviewDebugRegistry.ActiveSource;
+            return source != null && source.ForceRevolverHandSocketPreview;
+        }
+
+        private static bool IsDebugAimSetupPoseActive()
+        {
+            CCS_IRevolverAimSetupPoseDebugSource source = CCS_RevolverAimSetupPoseDebugRegistry.ActiveSource;
+            return source != null && source.ForceRevolverAimSetupPose;
+        }
+
+        private void EnsureReticleHiddenAtStartup()
+        {
+            wasAiming = false;
+            hasValidReticlePosition = false;
+            hasLastMuzzleHitPoint = false;
+            hudPresenter?.SetMuzzleDrivenReticleActive(false);
+            hudPresenter?.SetReticleScreenVisible(false);
+            ResetReticleToCenter();
         }
 
         private bool ShouldDriveReticle()
         {
-            return revolverController != null
-                && revolverController.HasWeaponOwnership
-                && revolverController.IsAiming;
+            return ShouldShowReticle();
         }
 
         private Camera ResolveAimCamera()

@@ -754,6 +754,15 @@ namespace CCS.Modules.Weapons.Editor
                 reticleChanged |= SetObjectReference(serializedReticle, "hudPresenter", hudPresenter);
                 reticleChanged |= SetObjectReference(serializedReticle, "reticleTransform", reticleImage != null ? reticleImage.rectTransform : null);
                 reticleChanged |= SetObjectReference(serializedReticle, "reticleCanvas", hudRoot.GetComponent<Canvas>());
+
+                Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(prefabRoot.transform);
+                CCS_SingleRevolverAimAnimator aimAnimator = modelRoot != null
+                    ? modelRoot.GetComponent<CCS_SingleRevolverAimAnimator>()
+                    : null;
+                reticleChanged |= SetObjectReference(
+                    serializedReticle,
+                    "aimPresentationReadinessSourceComponent",
+                    aimAnimator);
                 if (reticleChanged)
                 {
                     serializedReticle.ApplyModifiedPropertiesWithoutUndo();
