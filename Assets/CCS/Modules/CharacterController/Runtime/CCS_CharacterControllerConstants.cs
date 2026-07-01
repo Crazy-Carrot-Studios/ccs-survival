@@ -299,6 +299,12 @@ namespace CCS.Modules.CharacterController
         public const string ReticleAimReadinessGateReportPath =
             ReticleReportDirectory + "/CCS_ReticleAimReadinessGate_v0.7.10d.md";
 
+        public const string RevolverReticlePresentationProfilePath =
+            "Assets/CCS/Modules/CharacterController/Profiles/Reticle/CCS_RevolverReticlePresentationProfile.asset";
+
+        public const string ReticleTimingStabilityReportPath =
+            ReticleReportDirectory + "/CCS_ReticleTimingStability_v0.7.10e.md";
+
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
 

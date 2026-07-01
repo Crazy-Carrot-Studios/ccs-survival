@@ -5,9 +5,9 @@ using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
-// SCRIPT: CCS_ReticleAimReadinessBatchEntry
+// SCRIPT: CCS_ReticleTimingStabilityBatchEntry
 // CATEGORY: Modules / CharacterController / Editor / Validation
-// PURPOSE: Batch-mode entry for v0.7.10d reticle aim readiness validation.
+// PURPOSE: Batch-mode entry for v0.7.10e reticle timing/stability validation.
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-30
@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_ReticleAimReadinessBatchEntry
+    public static class CCS_ReticleTimingStabilityBatchEntry
     {
         public static void RunFromBatchMode()
         {
@@ -30,17 +30,17 @@ namespace CCS.Modules.CharacterController.Editor
             AssetDatabase.SaveAssets();
 
             CCS_SurvivalValidationResult validationResult =
-                CCS_ReticleAimReadinessValidationUtility.ValidateReticleAimReadiness();
+                CCS_ReticleTimingStabilityValidationUtility.ValidateReticleTimingStability();
             if (!validationResult.IsSuccess)
             {
-                Debug.LogError("[Reticle Aim Readiness Batch] Validation failed: " + validationResult.Message);
+                Debug.LogError("[Reticle Timing Stability Batch] Validation failed: " + validationResult.Message);
                 EditorApplication.Exit(1);
                 return;
             }
 
-            string reportPath = CCS_ReticleAimReadinessReportBuilder.WriteReport();
+            string reportPath = CCS_ReticleTimingStabilityReportBuilder.WriteReport();
             Debug.Log(
-                "[Reticle Aim Readiness Batch] Validation passed. report: "
+                "[Reticle Timing Stability Batch] Validation passed. report: "
                 + reportPath
                 + ". "
                 + validationResult.Message);

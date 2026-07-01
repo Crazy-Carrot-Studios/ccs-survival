@@ -153,6 +153,7 @@ MonoBehaviour:
   animator: {fileID: 3587177253574651920}
   revolverAnimationStateComponent: {fileID: 4905833786765227334}
   revolverAimSetupPoseDebugSourceComponent: {fileID: 0}
+  reticlePresentationProfile: {fileID: 11400000, guid: cc2bd9b8372d7ae479b6c1ff6777ca7a, type: 2}
   upperBodyLayerName: SingleRevolverUpperBody
 --- !u!1 &882010001
 GameObject:
@@ -2126,6 +2127,7 @@ MonoBehaviour:
   equipmentVisualController: {fileID: 5730116116939274085}
   hudPresenter: {fileID: 9158304918560071027}
   aimPresentationReadinessSourceComponent: {fileID: 3033120692709944028}
+  reticlePresentationProfile: {fileID: 11400000, guid: cc2bd9b8372d7ae479b6c1ff6777ca7a, type: 2}
   screenSmoothing: 18
   debugRays: 0
 --- !u!1 &3139427301927228153

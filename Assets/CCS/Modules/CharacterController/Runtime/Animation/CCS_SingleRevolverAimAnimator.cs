@@ -22,6 +22,7 @@ namespace CCS.Modules.CharacterController
         [SerializeField] private Animator animator;
         [SerializeField] private Component revolverAnimationStateComponent;
         [SerializeField] private Component revolverAimSetupPoseDebugSourceComponent;
+        [SerializeField] private CCS_RevolverReticlePresentationProfile reticlePresentationProfile;
         [SerializeField] private string upperBodyLayerName = CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName;
 
         private CCS_IRevolverAnimationState revolverAnimationState;
@@ -38,13 +39,18 @@ namespace CCS.Modules.CharacterController
         private bool presentationEnabled;
         private bool aimPresentationActive;
         private bool aimPresentationReadyForReticle;
+        private bool aimPresentationInReticleRevealWindow;
         private bool loggedMissingSetup;
         private bool previousDesiredPresentationAiming;
         private bool holsterPresentationActive;
+        private bool previousRevealWindow;
+        private bool previousReadyForReticle;
 
         public bool IsAimPresentationActive => aimPresentationActive;
 
         public bool IsAimPresentationReadyForReticle => aimPresentationReadyForReticle;
+
+        public bool IsAimPresentationInReticleRevealWindow => aimPresentationInReticleRevealWindow;
 
         private void Awake()
         {
@@ -67,6 +73,9 @@ namespace CCS.Modules.CharacterController
             holsterPresentationActive = false;
             aimPresentationActive = false;
             aimPresentationReadyForReticle = false;
+            aimPresentationInReticleRevealWindow = false;
+            previousRevealWindow = false;
+            previousReadyForReticle = false;
         }
 
         private void LateUpdate()
@@ -75,6 +84,7 @@ namespace CCS.Modules.CharacterController
             {
                 aimPresentationActive = false;
                 aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = false;
                 return;
             }
 
@@ -88,6 +98,7 @@ namespace CCS.Modules.CharacterController
 
                 aimPresentationActive = false;
                 aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = false;
                 return;
             }
 
@@ -314,6 +325,9 @@ namespace CCS.Modules.CharacterController
             holsterPresentationActive = false;
             aimPresentationActive = false;
             aimPresentationReadyForReticle = false;
+            aimPresentationInReticleRevealWindow = false;
+            previousRevealWindow = false;
+            previousReadyForReticle = false;
         }
 
         private void UpdateAimPresentationReadiness()
@@ -324,6 +338,8 @@ namespace CCS.Modules.CharacterController
             if (!desiredPresentationAiming || holsterPresentationActive)
             {
                 aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = false;
+                LogReadinessTransitions();
                 return;
             }
 
@@ -331,17 +347,84 @@ namespace CCS.Modules.CharacterController
             if (animator.IsInTransition(upperBodyLayerIndex))
             {
                 aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = false;
+                LogReadinessTransitions();
                 return;
             }
 
             int stateHash = stateInfo.shortNameHash;
-            if (stateHash == revolverDrawStateHash || stateHash == revolverHolsterStateHash)
+            if (stateHash == revolverHolsterStateHash)
             {
                 aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = false;
+                LogReadinessTransitions();
                 return;
             }
 
-            aimPresentationReadyForReticle = stateHash == revolverAimHoldStateHash;
+            if (stateHash == revolverAimHoldStateHash)
+            {
+                aimPresentationReadyForReticle = true;
+                aimPresentationInReticleRevealWindow = true;
+                LogReadinessTransitions();
+                return;
+            }
+
+            if (stateHash == revolverDrawStateHash && IsRevealDuringDrawEnabled())
+            {
+                float drawNormalizedTime = stateInfo.normalizedTime % 1f;
+                float revealThreshold = ResolveDrawRevealNormalizedThreshold(stateInfo.length);
+                bool inRevealWindow = drawNormalizedTime >= revealThreshold;
+                aimPresentationReadyForReticle = false;
+                aimPresentationInReticleRevealWindow = inRevealWindow;
+                LogReadinessTransitions(inRevealWindow && !previousRevealWindow);
+                return;
+            }
+
+            aimPresentationReadyForReticle = false;
+            aimPresentationInReticleRevealWindow = false;
+            LogReadinessTransitions();
+        }
+
+        private bool IsRevealDuringDrawEnabled()
+        {
+            return reticlePresentationProfile == null || reticlePresentationProfile.RevealDuringDraw;
+        }
+
+        private float ResolveDrawRevealNormalizedThreshold(float drawClipLengthSeconds)
+        {
+            if (reticlePresentationProfile != null)
+            {
+                return reticlePresentationProfile.ComputeDrawRevealNormalizedThreshold(drawClipLengthSeconds);
+            }
+
+            return 0.55f;
+        }
+
+        private void LogReadinessTransitions(bool forceRevealLog = false)
+        {
+            if (!CCS_AimPresentationDiagnosticsRegistry.EnableReticleTransitionLogging)
+            {
+                previousRevealWindow = aimPresentationInReticleRevealWindow;
+                previousReadyForReticle = aimPresentationReadyForReticle;
+                return;
+            }
+
+            if (forceRevealLog
+                || (aimPresentationInReticleRevealWindow && !previousRevealWindow))
+            {
+                Debug.Log("[Reticle Presentation] Reveal window reached during draw.", this);
+            }
+            else if (aimPresentationReadyForReticle && !previousReadyForReticle)
+            {
+                Debug.Log("[Reticle Presentation] Hold state reached (Revolver_Aim_Hold).", this);
+            }
+            else if (!aimPresentationInReticleRevealWindow && previousRevealWindow && holsterPresentationActive)
+            {
+                Debug.Log("[Reticle Presentation] Holster started — reticle hidden.", this);
+            }
+
+            previousRevealWindow = aimPresentationInReticleRevealWindow;
+            previousReadyForReticle = aimPresentationReadyForReticle;
         }
 
         private void DisablePresentation(string warningMessage)

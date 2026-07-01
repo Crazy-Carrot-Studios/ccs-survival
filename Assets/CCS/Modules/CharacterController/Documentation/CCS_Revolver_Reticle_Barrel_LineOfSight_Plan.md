@@ -1,21 +1,29 @@
 # CCS Revolver Reticle — Barrel Line-of-Sight Plan
 
-**Version:** planning document for post-v0.7.10d work  
+**Version:** planning document — barrel LOS still deferred after v0.7.10e  
 **Author:** James Schilz  
 **Created:** 2026-06-30  
-**Status:** Plan only — not implemented in v0.7.10d
+**Status:** Plan only — not implemented
 
 ## Purpose
 
 Define the future presentation goal: the reticle should visually align with the end of the revolver barrel / muzzle direction instead of feeling like it originates from the shoulder or generic camera center.
 
-v0.7.10d gates reticle visibility on aim presentation readiness only. This document covers the next milestone for **where** the reticle appears once visible.
+v0.7.10d gated reticle visibility on aim presentation readiness. v0.7.10e added late-draw reveal timing and camera/current-mode pitch stabilization. This document covers the **next** milestone for barrel/muzzle visual convergence once visible.
 
-## Current baseline (v0.7.10d)
+## Smoke video observations (v0.7.10e inputs)
 
-- Reticle hidden by default.
-- Reticle appears only after `Revolver_Aim_Hold` / `Fulldraw_Idle`.
-- Reticle uses `CCS_MuzzleDrivenReticleController` hybrid camera-center with clamped muzzle drift.
+- Reticle timing needed to appear roughly half a second earlier than full-hold-only readiness.
+- Reticle snapped when camera pitch crossed the horizon.
+- v0.7.10e addresses timing via `CCS_RevolverReticlePresentationProfile` reveal window and addresses snap via screen smoothing/clamp — **not** full barrel line-of-sight.
+- Future barrel/muzzle convergence must use a dedicated convergence profile and must not blindly replace the v0.7.10e timing profile.
+
+## Current baseline (v0.7.10e)
+
+- Reticle hidden by default and during early draw.
+- Reticle appears during late draw (`IsAimPresentationInReticleRevealWindow`) and remains visible in hold.
+- Reticle uses `CCS_MuzzleDrivenReticleController` with profile-driven smoothing/clamp on camera/current-mode target.
+- Hybrid muzzle drift offset may still apply, but muzzle/barrel is not authoritative yet.
 - Gameplay aim/fire still uses existing camera/player aim rules.
 - Firing damage, ammo, ownership, and hitscan authority are unchanged.
 
@@ -78,8 +86,8 @@ Future implementation must consider:
 ## Dependencies
 
 - v0.7.10c right-hand fit profile remains source of truth for equipped revolver offset.
-- v0.7.10d readiness gate must remain in place before line-of-sight convergence is layered on top.
-- Equipment Fit Studio may later capture convergence preview values into `CCS_ReticleConvergenceProfile`.
+- v0.7.10d readiness gate and v0.7.10e timing/stability profiles must remain in place before line-of-sight convergence is layered on top.
+- Equipment Fit Studio may later capture convergence preview values into `CCS_ReticleConvergenceProfile` (separate from `CCS_RevolverReticlePresentationProfile`).
 
 ## Validation expectations (future)
 
@@ -91,4 +99,4 @@ Future implementation must consider:
 
 ## Next step
 
-Wait for user confirmation after v0.7.10d manual smoke before implementing barrel line-of-sight reticle behavior.
+Wait for user confirmation after v0.7.10e manual smoke before implementing barrel line-of-sight reticle behavior. Do not replace `CCS_RevolverReticlePresentationProfile` timing values with convergence tuning in the same pass.

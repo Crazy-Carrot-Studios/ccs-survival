@@ -138,6 +138,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
             CCS_RevolverAimSetupPoseDebugRegistry.Register(this);
             CCS_RevolverHandSocketPreviewDebugRegistry.Register(this);
             EnsureDiagnosticComponents();
+            SyncAimPresentationDiagnosticsRegistry();
         }
 
         protected virtual void OnDestroy()
@@ -178,6 +179,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
 
         public void ApplyTestingSettings()
         {
+            SyncAimPresentationDiagnosticsRegistry();
             ApplyRecordingAmbienceSettings();
             ApplyAimVisualSettingsToSpawnedPlayer();
         }
@@ -213,6 +215,7 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         public void SetAimDiagnosticsEnabled(bool enabled)
         {
             enableAimDiagnostics = enabled;
+            SyncAimPresentationDiagnosticsRegistry();
         }
 
         public void SetAnimationDiagnosticsEnabled(bool enabled)
@@ -293,6 +296,11 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         {
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
             return Path.Combine(projectRoot, "Logs", "CharacterController", "TestingReports");
+        }
+
+        private void SyncAimPresentationDiagnosticsRegistry()
+        {
+            CCS_AimPresentationDiagnosticsRegistry.EnableReticleTransitionLogging = enableAimDiagnostics;
         }
 
         private void EnsureDiagnosticComponents()

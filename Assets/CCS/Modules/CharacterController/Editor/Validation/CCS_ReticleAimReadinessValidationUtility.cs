@@ -109,6 +109,10 @@ namespace CCS.Modules.CharacterController.Editor
                 failures,
                 source.Contains("bool IsAimPresentationReadyForReticle { get; }"),
                 "Readiness interface must expose IsAimPresentationReadyForReticle.");
+            AppendIfMissing(
+                failures,
+                source.Contains("bool IsAimPresentationInReticleRevealWindow { get; }"),
+                "Readiness interface must expose IsAimPresentationInReticleRevealWindow.");
         }
 
         private static void ValidateAimAnimatorReadiness(List<string> failures)
@@ -162,8 +166,12 @@ namespace CCS.Modules.CharacterController.Editor
                 "CCS_MuzzleDrivenReticleController must serialize an aim presentation readiness source.");
             AppendIfMissing(
                 failures,
-                source.Contains("IsAimPresentationReadyForReticle"),
-                "Reticle controller must gate on IsAimPresentationReadyForReticle.");
+                source.Contains("IsAimPresentationInReticleRevealWindow"),
+                "Readiness interface must expose IsAimPresentationInReticleRevealWindow.");
+            AppendIfMissing(
+                failures,
+                source.Contains("IsReticlePresentationVisible") || source.Contains("IsAimPresentationInReticleRevealWindow"),
+                "Reticle controller must gate on reveal window or hold readiness.");
             AppendIfMissing(
                 failures,
                 source.Contains("EnsureReticleHiddenAtStartup"),

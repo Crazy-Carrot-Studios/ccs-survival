@@ -241,6 +241,11 @@ namespace CCS.Modules.Weapons
 
         public void SetReticleScreenPosition(Vector2 screenPosition, bool visible)
         {
+            SetReticleScreenPosition(screenPosition, visible, visible ? 1f : 0f);
+        }
+
+        public void SetReticleScreenPosition(Vector2 screenPosition, bool visible, float alpha)
+        {
             if (reticleImage == null)
             {
                 return;
@@ -265,7 +270,10 @@ namespace CCS.Modules.Weapons
                 reticleImage.rectTransform.anchoredPosition = localPoint;
             }
 
-            reticleImage.enabled = visible;
+            Color color = reticleImage.color;
+            color.a = Mathf.Clamp01(alpha);
+            reticleImage.color = color;
+            reticleImage.enabled = visible && color.a > 0.01f;
         }
 
         public void SetReticleScreenVisible(bool visible)

@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.10d** · Crazy Carrot Studios
+**Version 0.7.10e** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.10e** — **Reticle reveal timing and pitch stability:** reticle appears during late draw via `CCS_RevolverReticlePresentationProfile`; hidden at Play start and during early draw; screen target smoothed/clamped to reduce horizon pitch snapping; barrel line-of-sight still deferred; no gameplay changes.
 
 **0.7.10d** — **Reticle aim readiness gate:** reticle hidden by default; appears only after `Revolver_Aim_Hold` / `Fulldraw_Idle`; hidden during draw/holster; Force Revolver Hand Socket Preview never shows reticle; right-hand fit profile unchanged; barrel line-of-sight reticle planned but not implemented.
 

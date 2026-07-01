@@ -15,5 +15,7 @@ namespace CCS.Modules.CharacterController
         bool IsAimPresentationActive { get; }
 
         bool IsAimPresentationReadyForReticle { get; }
+
+        bool IsAimPresentationInReticleRevealWindow { get; }
     }
 }

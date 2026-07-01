@@ -35,6 +35,7 @@ namespace CCS.Modules.Weapons
         [SerializeField] private CCS_PlayerEquipmentVisualController equipmentVisualController;
         [SerializeField] private CCS_RevolverHudPresenter hudPresenter;
         [SerializeField] private Component aimPresentationReadinessSourceComponent;
+        [SerializeField] private CCS_RevolverReticlePresentationProfile reticlePresentationProfile;
         [SerializeField] private float screenSmoothing = CCS_WeaponsConstants.MasterTestMuzzleReticleScreenSmoothingDefault;
         [SerializeField] private bool debugRays;
 
@@ -42,8 +43,17 @@ namespace CCS.Modules.Weapons
         private bool resolvedAimPresentationReadinessSource;
         private NetworkObject cachedNetworkObject;
         private Vector2 smoothedScreenPosition;
+        private Vector2 screenSmoothVelocity;
+        private Vector2 lastValidScreenTarget;
+        private float lastValidTargetTimestamp;
+        private bool hasLastValidScreenTarget;
         private bool hasValidReticlePosition;
         private bool wasAiming;
+        private float reticleVisibilityAlpha;
+        private bool loggedHiddenAtStartup;
+        private bool loggedSnapClampApplied;
+        private bool loggedNoHitFallback;
+        private bool loggedLastValidTargetHold;
         private Vector3 lastMuzzleHitPoint;
         private bool hasLastMuzzleHitPoint;
 
@@ -114,25 +124,38 @@ namespace CCS.Modules.Weapons
 
             if (!hasValidReticlePosition)
             {
-                smoothedScreenPosition = centerScreen;
+                smoothedScreenPosition = targetScreen;
+                screenSmoothVelocity = Vector2.zero;
                 hasValidReticlePosition = true;
             }
             else
             {
-                float delta = Vector2.Distance(smoothedScreenPosition, targetScreen);
-                if (delta > Screen.width * 0.5f)
+                Vector2 previousSmoothed = smoothedScreenPosition;
+                float smoothTime = ResolveScreenSmoothTime();
+                smoothedScreenPosition = Vector2.SmoothDamp(
+                    smoothedScreenPosition,
+                    targetScreen,
+                    ref screenSmoothVelocity,
+                    smoothTime);
+
+                float maxSnap = ResolveMaxScreenSnapPixelsPerFrame();
+                Vector2 frameDelta = smoothedScreenPosition - previousSmoothed;
+                if (frameDelta.magnitude > maxSnap)
                 {
-                    smoothedScreenPosition = centerScreen;
-                }
-                else
-                {
-                    float smoothFactor = 1f - Mathf.Exp(-screenSmoothing * Time.deltaTime);
-                    smoothedScreenPosition = Vector2.Lerp(smoothedScreenPosition, targetScreen, smoothFactor);
+                    smoothedScreenPosition = previousSmoothed + frameDelta.normalized * maxSnap;
+                    screenSmoothVelocity = Vector2.zero;
+                    LogReticleTransition("Snap clamp applied.");
+                    loggedSnapClampApplied = true;
                 }
             }
 
             smoothedScreenPosition = ClampToSafeScreen(smoothedScreenPosition, resolvedCamera);
-            ApplyReticleScreenPosition(smoothedScreenPosition, visible: true);
+            float targetAlpha = 1f;
+            reticleVisibilityAlpha = Mathf.MoveTowards(
+                reticleVisibilityAlpha,
+                targetAlpha,
+                Time.unscaledDeltaTime / Mathf.Max(0.001f, ResolveReticleFadeInSeconds()));
+            ApplyReticleScreenPosition(smoothedScreenPosition, reticleVisibilityAlpha > 0.01f, reticleVisibilityAlpha);
 
             if (debugRays && muzzle != null)
             {
@@ -208,8 +231,15 @@ namespace CCS.Modules.Weapons
         {
             hasValidReticlePosition = false;
             hasLastMuzzleHitPoint = false;
+            hasLastValidScreenTarget = false;
+            screenSmoothVelocity = Vector2.zero;
+            reticleVisibilityAlpha = 0f;
+            loggedSnapClampApplied = false;
+            loggedNoHitFallback = false;
+            loggedLastValidTargetHold = false;
             ResetReticleToCenter();
             hudPresenter?.SetMuzzleDrivenReticleActive(false);
+            LogReticleTransition("Holster started — reticle hidden.");
         }
 
         public Vector2 GetMuzzleReticleViewportPoint(Camera camera)
@@ -305,12 +335,28 @@ namespace CCS.Modules.Weapons
                 return false;
             }
 
-            if (aimPresentationReadinessSource == null
-                || !aimPresentationReadinessSource.IsAimPresentationReadyForReticle)
+            if (!HasAimIntentActive())
             {
                 return false;
             }
 
+            if (aimPresentationReadinessSource == null
+                || !IsReticlePresentationVisible(aimPresentationReadinessSource))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsReticlePresentationVisible(CCS_IRevolverAimPresentationReadinessSource source)
+        {
+            return source.IsAimPresentationInReticleRevealWindow
+                || source.IsAimPresentationReadyForReticle;
+        }
+
+        private bool HasAimIntentActive()
+        {
             if (IsDebugAimSetupPoseActive())
             {
                 return true;
@@ -354,9 +400,17 @@ namespace CCS.Modules.Weapons
             wasAiming = false;
             hasValidReticlePosition = false;
             hasLastMuzzleHitPoint = false;
+            hasLastValidScreenTarget = false;
+            screenSmoothVelocity = Vector2.zero;
+            reticleVisibilityAlpha = 0f;
             hudPresenter?.SetMuzzleDrivenReticleActive(false);
             hudPresenter?.SetReticleScreenVisible(false);
             ResetReticleToCenter();
+            if (!loggedHiddenAtStartup)
+            {
+                loggedHiddenAtStartup = true;
+                LogReticleTransition("Reticle hidden at startup.");
+            }
         }
 
         private bool ShouldDriveReticle()
@@ -388,14 +442,16 @@ namespace CCS.Modules.Weapons
 
         private Vector2 ResolveTargetScreenPosition(Camera camera, Transform muzzle, Vector2 centerScreen)
         {
+            Vector2 stableCameraScreen = ResolveStableCameraTargetScreen(camera, centerScreen);
+
             if (reticleMode == CCS_AimReticleMode.CenterLocked)
             {
-                return centerScreen;
+                return stableCameraScreen;
             }
 
             if (muzzle == null)
             {
-                return centerScreen;
+                return stableCameraScreen;
             }
 
             Vector3 muzzleHitPoint = ResolveMuzzleHitPoint(muzzle);
@@ -405,7 +461,7 @@ namespace CCS.Modules.Weapons
             Vector3 muzzleScreen3 = camera.WorldToScreenPoint(muzzleHitPoint);
             if (!IsValidScreenProjection(muzzleScreen3))
             {
-                return centerScreen;
+                return stableCameraScreen;
             }
 
             Vector2 muzzleScreen = new Vector2(muzzleScreen3.x, muzzleScreen3.y);
@@ -420,7 +476,150 @@ namespace CCS.Modules.Weapons
                 offset = Vector2.ClampMagnitude(offset, maxMuzzleReticleOffsetPixels);
             }
 
-            return centerScreen + offset;
+            return stableCameraScreen + offset;
+        }
+
+        private Vector2 ResolveStableCameraTargetScreen(Camera camera, Vector2 centerScreen)
+        {
+            if (IsCameraPitchNearHorizon(camera)
+                && ResolveHoldLastValidTargetOnNoHit()
+                && TryGetRecentValidScreenTarget(out Vector2 recentValidTarget))
+            {
+                LogReticleTransitionOnce(ref loggedLastValidTargetHold, "Reticle target invalid — using last valid target.");
+                return recentValidTarget;
+            }
+
+            float fallbackDistance = ResolveNoHitFallbackDistance();
+            Ray cameraRay = camera.ViewportPointToRay(CCS_WeaponAimResolver.DefaultReticleViewportPoint);
+            Vector3 worldTarget;
+            if (TryRaycast(cameraRay, fallbackDistance, aimMask, transform.root, out RaycastHit hit))
+            {
+                worldTarget = hit.point;
+            }
+            else
+            {
+                worldTarget = cameraRay.origin + (cameraRay.direction * fallbackDistance);
+                LogReticleTransitionOnce(ref loggedNoHitFallback, "No hit fallback used.");
+            }
+
+            Vector3 screen3 = camera.WorldToScreenPoint(worldTarget);
+            if (!IsValidScreenProjection(screen3))
+            {
+                if (ResolveHoldLastValidTargetOnNoHit() && TryGetRecentValidScreenTarget(out Vector2 heldTarget))
+                {
+                    LogReticleTransitionOnce(ref loggedLastValidTargetHold, "Reticle target invalid — using last valid target.");
+                    return heldTarget;
+                }
+
+                return centerScreen;
+            }
+
+            Vector2 screenTarget = new Vector2(screen3.x, screen3.y);
+            RememberValidScreenTarget(screenTarget);
+            return screenTarget;
+        }
+
+        private bool IsCameraPitchNearHorizon(Camera camera)
+        {
+            float pitch = camera.transform.eulerAngles.x;
+            if (pitch > 180f)
+            {
+                pitch -= 360f;
+            }
+
+            return Mathf.Abs(pitch) < ResolvePitchSnapDeadZoneDegrees();
+        }
+
+        private void RememberValidScreenTarget(Vector2 screenTarget)
+        {
+            lastValidScreenTarget = screenTarget;
+            lastValidTargetTimestamp = Time.unscaledTime;
+            hasLastValidScreenTarget = true;
+        }
+
+        private bool TryGetRecentValidScreenTarget(out Vector2 screenTarget)
+        {
+            screenTarget = lastValidScreenTarget;
+            if (!hasLastValidScreenTarget)
+            {
+                return false;
+            }
+
+            float holdSeconds = ResolveLastValidTargetHoldSeconds();
+            return Time.unscaledTime - lastValidTargetTimestamp <= holdSeconds;
+        }
+
+        private float ResolveNoHitFallbackDistance()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.NoHitFallbackDistance
+                : maxDistance;
+        }
+
+        private float ResolveScreenSmoothTime()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.ScreenSmoothTime
+                : 1f / Mathf.Max(1f, screenSmoothing);
+        }
+
+        private float ResolveMaxScreenSnapPixelsPerFrame()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.MaxScreenSnapPixelsPerFrame
+                : 120f;
+        }
+
+        private float ResolvePitchSnapDeadZoneDegrees()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.PitchSnapDeadZoneDegrees
+                : 2f;
+        }
+
+        private bool ResolveHoldLastValidTargetOnNoHit()
+        {
+            return reticlePresentationProfile == null || reticlePresentationProfile.HoldLastValidTargetOnNoHit;
+        }
+
+        private float ResolveLastValidTargetHoldSeconds()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.LastValidTargetHoldSeconds
+                : 0.2f;
+        }
+
+        private float ResolveReticleFadeInSeconds()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.ReticleFadeInSeconds
+                : 0.08f;
+        }
+
+        private float ResolveReticleFadeOutSeconds()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.ReticleFadeOutSeconds
+                : 0.05f;
+        }
+
+        private static void LogReticleTransition(string message)
+        {
+            if (CCS_AimPresentationDiagnosticsRegistry.EnableReticleTransitionLogging)
+            {
+                Debug.Log("[Reticle Presentation] " + message);
+            }
+        }
+
+        private static void LogReticleTransitionOnce(ref bool loggedFlag, string message)
+        {
+            if (loggedFlag || !CCS_AimPresentationDiagnosticsRegistry.EnableReticleTransitionLogging)
+            {
+                return;
+            }
+
+            loggedFlag = true;
+            Debug.Log("[Reticle Presentation] " + message);
         }
 
         private Vector3 ResolveMuzzleHitPoint(Transform muzzle)
@@ -472,7 +671,7 @@ namespace CCS.Modules.Weapons
             return Mathf.Abs(screenPoint.x) <= bound && Mathf.Abs(screenPoint.y) <= bound;
         }
 
-        private void ApplyReticleScreenPosition(Vector2 screenPosition, bool visible)
+        private void ApplyReticleScreenPosition(Vector2 screenPosition, bool visible, float alpha)
         {
             if (reticleTransform == null)
             {
@@ -503,13 +702,16 @@ namespace CCS.Modules.Weapons
                 if (hudPresenter != null)
                 {
                     hudPresenter.SetMuzzleDrivenReticleActive(true);
-                    hudPresenter.SetReticleScreenPosition(screenPosition, visible);
+                    hudPresenter.SetReticleScreenPosition(screenPosition, visible, alpha);
                 }
                 else
                 {
                     reticleTransform.anchoredPosition = localPoint;
                     if (reticleTransform.TryGetComponent(out UnityEngine.UI.Image reticleImage))
                     {
+                        Color color = reticleImage.color;
+                        color.a = alpha;
+                        reticleImage.color = color;
                         reticleImage.enabled = visible;
                     }
                 }

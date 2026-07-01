@@ -763,6 +763,26 @@ namespace CCS.Modules.Weapons.Editor
                     serializedReticle,
                     "aimPresentationReadinessSourceComponent",
                     aimAnimator);
+
+                CCS_RevolverReticlePresentationProfile presentationProfile =
+                    AssetDatabase.LoadAssetAtPath<CCS_RevolverReticlePresentationProfile>(
+                        CCS_CharacterControllerConstants.RevolverReticlePresentationProfilePath);
+                if (presentationProfile != null)
+                {
+                    reticleChanged |= SetObjectReference(
+                        serializedReticle,
+                        "reticlePresentationProfile",
+                        presentationProfile);
+                }
+
+                if (aimAnimator != null && presentationProfile != null)
+                {
+                    SerializedObject serializedAimAnimator = new SerializedObject(aimAnimator);
+                    reticleChanged |= SetObjectReference(
+                        serializedAimAnimator,
+                        "reticlePresentationProfile",
+                        presentationProfile);
+                }
                 if (reticleChanged)
                 {
                     serializedReticle.ApplyModifiedPropertiesWithoutUndo();

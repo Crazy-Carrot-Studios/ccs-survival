@@ -25,6 +25,14 @@
 - Removed `CapsuleVisual` and `VisualGlasses` from production player prefab
 - Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
 
+## v0.7.10e — Reticle reveal timing and pitch stability (implemented)
+
+- Added `CCS_RevolverReticlePresentationProfile` for late-draw reveal timing and screen smoothing/clamp tuning
+- Extended `CCS_IRevolverAimPresentationReadinessSource` with `IsAimPresentationInReticleRevealWindow`
+- Reticle appears during late `Revolver_Draw` before full `Revolver_Aim_Hold`; still hidden at Play start and during early draw
+- `CCS_MuzzleDrivenReticleController` stabilizes camera/current-mode target (no-hit fallback, last-valid hold, pitch dead zone, SmoothDamp, snap clamp)
+- Barrel/muzzle line-of-sight remains deferred; no gameplay fire/damage changes
+
 ## v0.7.10d — Reticle aim readiness gate (implemented)
 
 - Added `CCS_IRevolverAimPresentationReadinessSource` implemented by `CCS_SingleRevolverAimAnimator`
