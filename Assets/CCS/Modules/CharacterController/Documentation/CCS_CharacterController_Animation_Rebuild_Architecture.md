@@ -32,7 +32,8 @@
 - Planned profiles: `CCS_RevolverAimTargetProfile`, `CCS_RevolverBodyAimProfile`, `CCS_RevolverArmIKProfile`, `CCS_RevolverReticleConvergenceProfile`
 - Reticle must not drive arm IK; aim resolver owns world target; reticle presents convergence result
 - RMB release must hide reticle immediately on holster start (preserved contract from v0.7.10f)
-- No runtime implementation; no Animator/clip changes; gameplay fire/damage unchanged
+- Added interface contracts: `CCS_IRevolverAimTargetSource`, `CCS_IRevolverMuzzleAimSource`, `CCS_IRevolverAimPresentationStateSource`, `CCS_RevolverReticleMode`
+- Added `CCS_MouseDriven_RevolverAim_ValidationPlan.md` and staged roadmap v0.7.12–v0.7.16
 
 ## v0.7.10f — Reticle reveal animation event (implemented)
 

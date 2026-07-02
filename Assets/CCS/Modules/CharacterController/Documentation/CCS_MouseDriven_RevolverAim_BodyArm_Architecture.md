@@ -11,30 +11,15 @@ Define how Kevin's body, upper body, right arm, revolver muzzle, and reticle sho
 
 This milestone documents data flow, component contracts, profile specs, validation rules, and implementation order. **No runtime solver, no Animator changes, and no gameplay fire/damage changes in v0.7.11.**
 
-## Problem observed (v0.7.10f baseline)
+## 1. Current issue
 
-- `SingleRevolverUpperBody` draw/hold/holster gives a right-arm aim pose, but the arm/gun visual does not fully track mouse/camera line of sight.
-- Reticle and arm can feel disconnected, especially at pitch extremes and near the horizon.
-- Reticle reveal is correctly gated by `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle`, but reticle position still follows camera/hybrid drift rather than a unified aim target chain.
-- Releasing RMB (stopping aim) must **immediately hide** the reticle when holster presentation starts. v0.7.10f clears readiness on holster start; future convergence work must preserve instant hide on aim intent release.
+- Camera/mouse aim, reticle screen position, upper-body animation, and muzzle direction are **not fully unified**.
+- Player can aim with the mouse, but arm/gun presentation can feel disconnected from reticle and camera line.
+- Reticle reveal is correctly gated by `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle` (v0.7.10f).
+- Releasing RMB must **immediately hide** the reticle when holster starts (preserved contract).
+- Shooting can still feel shoulder-origin because reticle follows camera/hybrid drift while arm follows animation + partial IK.
 
-## Desired feel
-
-| Input | Result |
-|-------|--------|
-| Mouse moves camera | Camera defines aim intent |
-| Camera aim ray | Stable world-space aim target |
-| Body / upper body | Reacts to aim direction within limits |
-| Right arm + hand IK | Follows aim target, not independent reticle UI |
-| Revolver muzzle | Points toward same target |
-| Reticle | Presents converged screen result of aim + muzzle |
-| RMB release | Reticle hides immediately; IK/body bias blends out |
-
-**Non-goals for this architecture milestone:** dual revolvers, Camila wiring, new animation clips/layers/states, gameplay hitscan authority changes.
-
----
-
-## Target data flow
+## 2. Target data flow
 
 ```
 Mouse / input look delta
@@ -46,19 +31,45 @@ Mouse / input look delta
   → CCS_RevolverArmAimIKPresenter            [planned; may evolve CCS_RevolverArmReticleIK]
   → muzzle direction (MuzzlePoint on equipped visual)
   → CCS_RevolverMuzzleLineOfSightResolver  [planned]
-  → reticle convergence presenter            [planned; evolves CCS_MuzzleDrivenReticleController]
-  → optional fire ray validation             [future; separate approval required]
+  → CCS_RevolverMuzzleLineOfSightResolver  [planned]
+  → CCS_RevolverReticleConvergencePresenter [planned; evolves CCS_MuzzleDrivenReticleController]
+  → optional future fire validation             [separate approval required]
 ```
 
-### Core principle
+## 3. Single revolver aim behavior (planned)
 
-**Camera/mouse owns aim intent.** The arm animation must not invent its own target. The reticle must not drive the arm directly. The reticle displays the **result** of aim/muzzle convergence.
+- One camera aim intent target from `CCS_IRevolverAimTargetSource`.
+- One muzzle (`MuzzlePoint`), one convergence point, one reticle (mode from profile).
+- Body + upper body bias toward target within profile limits; full-body yaw when threshold exceeded.
+- Right arm IK moves `CCS_RightHandIKTarget` toward target during aim hold (after animation event readiness).
+- Weapon remains on `CCS_HandSocket_Right` → `CCS_RightHandRevolverAttachmentOffset`.
+- Reticle displays resolved convergence screen point — **not** the IK driver.
+- Hidden during draw; visible after `Fulldraw_Idle` event; **hidden immediately on RMB release**.
 
-Gameplay firing may continue using the current safe gameplay path until a later milestone explicitly changes combat authority.
+## 4. Future dual revolver behavior (planned)
+
+- Right and left muzzle resolvers with shoulder-width separation.
+- Each arm/gun may solve toward its own target line or shared intent with lateral offset.
+- Reticle mode (`CCS_RevolverReticleMode`) selects presentation:
+  - `SingleCameraIntent` — center camera intent only
+  - `SingleMuzzleConvergence` — one muzzle-converged reticle
+  - `HybridIntentAndMuzzle` — center intent + muzzle marker
+  - `DualMuzzleReticles` — left/right muzzle indicators
+- Dual modes **must not** activate for single revolver without explicit profile.
+- Dual weapon animation layers remain a later milestone (not v0.7.12–v0.7.16).
+
+## 5. Camera aim intent
+
+Mouse look input drives `CCS_CharacterCameraController`. The active camera defines aim intent via viewport-center ray (or configured aim origin). **No presentation system may invent a competing world target.**
+
+**Core principle:** Reticle must not drive the arm. Mouse/camera creates the world aim target; body, arm, muzzle, and reticle all resolve from that same target. Gameplay firing may continue on the current path until a later approved milestone.
 
 ---
 
 ## Planned component: `CCS_RevolverAimTargetResolver`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetResolver.cs`  
+**Contract (v0.7.11):** `CCS_IRevolverAimTargetSource` — interface-only; no runtime behavior in v0.7.11.
 
 **Category:** presentation aim (local owner)  
 **Placement:** player Model root or WeaponHudRoot sibling under local owner branch
@@ -80,7 +91,8 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 | `AimDistance` | Distance to target |
 | `HasValidAimTarget` | Target is usable this frame |
 | `IsObstructed` | Muzzle or camera path blocked (future cooperation with muzzle resolver) |
-| `CurrentFallbackMode` | Enum: RaycastHit / FallbackDistance / LastValidHold / Invalid |
+
+Planned profile path: `Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverAimTargetProfile.asset`
 
 ### Rules
 
@@ -91,10 +103,10 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 
 ---
 
-## Planned component: `CCS_RevolverBodyAimPresenter`
+## 6. Body / upper-body response — `CCS_RevolverBodyAimPresenter`
 
-**Category:** upper-body / full-body aim presentation  
-**May evolve:** existing `CCS_RevolverBodyAimFollowController` (additive spine/chest bias today)
+**Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverBodyAimPresenter.cs`  
+**May evolve:** `CCS_RevolverBodyAimFollowController`
 
 ### Responsibilities
 
@@ -104,7 +116,9 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 - Apply smoothing to avoid snapping at horizon crossings.
 - When yaw offset exceeds threshold, blend character root/body yaw turn (presentation-only; must not fight gameplay motor authority without explicit design).
 
-### Profile: `CCS_RevolverBodyAimProfile` (planned ScriptableObject)
+### Profile: `CCS_RevolverBodyAimProfile`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverBodyAimProfile.asset`
 
 | Field | Purpose |
 |-------|---------|
@@ -131,10 +145,10 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 
 ---
 
-## Planned component: `CCS_RevolverArmAimIKPresenter`
+## 7. Right arm / hand IK response — `CCS_RevolverArmAimIKPresenter`
 
-**Category:** right-arm IK presentation  
-**May evolve:** existing `CCS_RevolverArmReticleIK` (currently arm-to-reticle; should become arm-to-aim-target)
+**Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverArmAimIKPresenter.cs`  
+**May evolve:** `CCS_RevolverArmReticleIK`
 
 ### Responsibilities
 
@@ -164,7 +178,9 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 - IK follows **aim resolver world target**, not reticle screen position directly.
 - Reticle displays convergence result after muzzle/aim solve.
 
-### Profile: `CCS_RevolverArmIKProfile` (planned ScriptableObject)
+### Profile: `CCS_RevolverArmIKProfile`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverArmIKProfile.asset`
 
 | Field | Purpose |
 |-------|---------|
@@ -176,13 +192,16 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 | `closeRangeAimOffset` | Offset when target is very close |
 | `maxHandReachOffset` | Clamp hand IK reach |
 | `maxPitchCompensation` | Extra pitch correction cap |
+| `aimBlendInSeconds` | IK blend in after hold readiness |
+| `aimBlendOutSeconds` | IK blend out on holster start |
+| `holsterIKDisableDelay` | Optional delay before IK fully off |
 
 ---
 
-## Planned component: `CCS_RevolverMuzzleLineOfSightResolver`
+## 8. Muzzle line-of-sight relationship — `CCS_RevolverMuzzleLineOfSightResolver`
 
-**Category:** muzzle/barrel presentation validation  
-**Related doc:** `CCS_Revolver_Reticle_Barrel_LineOfSight_Plan.md`
+**Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverMuzzleLineOfSightResolver.cs`  
+**Contract (v0.7.11):** `CCS_IRevolverMuzzleAimSource`
 
 ### Responsibilities
 
@@ -210,95 +229,59 @@ Gameplay firing may continue using the current safe gameplay path until a later 
 
 Dual mode must not activate for single revolver without explicit profile.
 
+Dual mode must not activate for single revolver without explicit profile.
+
+### Profile: `CCS_RevolverMuzzleLineOfSightProfile`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverMuzzleLineOfSightProfile.asset`
+
+| Field | Purpose |
+|-------|---------|
+| `muzzleRayDistance` | Max muzzle ray length |
+| `obstructionLayerMask` | Obstruction test layers |
+| `nearWallCorrectionDistance` | Near-wall handling distance |
+| `minValidMuzzleDistance` | Minimum valid muzzle-to-target distance |
+| `maxMuzzleTargetAngleDegrees` | Max angle off bore before fallback |
+| `closeRangeConvergenceStrength` | Close-range muzzle influence |
+| `farRangeConvergenceStrength` | Far-range muzzle influence |
+| `lastValidMuzzleTargetHoldSeconds` | Hold last valid convergence |
+
+---
+
+## 9. Reticle convergence relationship — `CCS_RevolverReticleConvergencePresenter`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Visuals/CCS_RevolverReticleConvergencePresenter.cs`  
+**May evolve:** `CCS_MuzzleDrivenReticleController`
+
+### Responsibilities
+
+- Display reticle at resolved aim/convergence screen point.
+- Smooth screen movement and clamp snap (reuse v0.7.10e stability patterns where appropriate).
+- Keep v0.7.10f Animation Event reveal timing via `CCS_RevolverReticlePresentationProfile`.
+- Local-owner-only; block hand socket preview.
+- Support future muzzle convergence and dual reticle modes via `CCS_RevolverReticleMode`.
+
+### Profile: `CCS_RevolverReticleConvergenceProfile`
+
+**Planned path:** `Assets/CCS/Modules/CharacterController/Profiles/Reticle/CCS_RevolverReticleConvergenceProfile.asset`
+
+| Field | Purpose |
+|-------|---------|
+| `reticleScreenSmoothTime` | Screen smoothing |
+| `maxScreenSnapPixelsPerFrame` | Per-frame snap clamp |
+| `maxReticleDriftPixels` | Max drift from intent |
+| `convergenceBlendSpeed` | Blend toward muzzle convergence |
+| `muzzleInfluenceAtCloseRange` | Close-range muzzle weight |
+| `muzzleInfluenceAtFarRange` | Far-range muzzle weight |
+| `fallbackToCameraCenterWhenInvalid` | Safe fallback |
+| `dualReticleSeparationScale` | Dual mode spacing |
+| `dualReticleMode` | `CCS_RevolverReticleMode` |
+
 ---
 
 ## Planned aggregate: `CCS_RevolverAimPresentationState`
 
-Read-only snapshot consumed by body presenter, arm IK, muzzle resolver, and reticle. Updated once per frame for local owner during aim.
-
-Suggested fields:
-
-- Resolver output (world point, direction, distance, validity)
-- Body bias angles applied this frame
-- IK weights active
-- Muzzle convergence screen point
-- `IsAimIntentActive` (gameplay RMB or approved debug setup pose)
-- `IsReticleVisible` (readiness + intent + not hand-socket preview)
-- `ShouldHideReticleImmediately` (true on holster start / RMB release)
-
----
-
-## Reticle relationship (summary)
-
-The reticle must **not** drive the arm.
-
-```
-Aim resolver → world target
-     ├→ Body presenter → upper-body bias
-     ├→ Arm IK presenter → hand/barrel alignment
-     ├→ Muzzle LOS resolver → convergence validity
-     └→ Reticle presenter → final screen position
-```
-
-### Future reticle modes (profile-driven)
-
-| Mode | Description |
-|------|-------------|
-| **Camera Intent Reticle** | Camera center / camera ray screen result |
-| **Muzzle Convergence Reticle** | Screen point from muzzle-to-target convergence |
-| **Hybrid Reticle** | Center intent dot + muzzle convergence marker |
-| **Future Dual Reticle** | Left/right muzzle-specific indicators |
-
-Existing `CCS_RevolverReticlePresentationProfile` (v0.7.10e/f) retains **reveal timing, fade, and pitch stability**. Future `CCS_RevolverReticleConvergenceProfile` owns convergence/drift/dual-mode tuning.
-
-### Aim lifecycle (including RMB release)
-
-| Phase | Reticle | IK / body |
-|-------|---------|-----------|
-| Play start | Hidden | Off |
-| Draw | Hidden | Off or minimal |
-| Hold (`Fulldraw_Idle` event) | Visible | Blend in |
-| Aim adjust | Visible | Track resolver target |
-| RMB release / holster start | **Hidden immediately** | Blend out |
-| Holster complete | Hidden | Off |
-
----
-
-## Profile contracts (documentation-only specs)
-
-### 1. `CCS_RevolverAimTargetProfile`
-
-| Field | Purpose |
-|-------|---------|
-| `cameraRayDistance` | Max camera ray distance |
-| `fallbackDistance` | No-hit fallback |
-| `aimLayerMask` | Raycast layers for aim target |
-| `obstructionLayerMask` | Layers for obstruction tests |
-| `targetSmoothingTime` | World target smoothing |
-| `maxTargetSnapDistance` | Max world snap per frame |
-| `lastValidTargetHoldSeconds` | Hold on invalid projection |
-| `nearWallCorrectionDistance` | Near geometry correction |
-
-### 2. `CCS_RevolverBodyAimProfile`
-
-See body presenter section above.
-
-### 3. `CCS_RevolverArmIKProfile`
-
-See arm IK section above.
-
-### 4. `CCS_RevolverReticleConvergenceProfile`
-
-| Field | Purpose |
-|-------|---------|
-| `reticleScreenSmoothTime` | Screen smoothing (may mirror v0.7.10e values initially) |
-| `maxScreenSnapPixelsPerFrame` | Per-frame snap clamp |
-| `maxReticleDriftPixels` | Max drift from center/intent |
-| `convergenceBlendSpeed` | Blend toward muzzle convergence |
-| `muzzleInfluenceAtCloseRange` | Close target muzzle weight |
-| `muzzleInfluenceAtFarRange` | Far target muzzle weight |
-| `dualReticleSeparationScale` | Dual mode spacing |
-| `fallbackToCenterWhenInvalid` | Safe fallback |
+**Contract (v0.7.11):** `CCS_IRevolverAimPresentationStateSource`
 
 ---
 
@@ -315,6 +298,58 @@ See arm IK section above.
 
 Fit profile path: `Assets/CCS/Modules/CharacterController/Profiles/EquipmentFitting/RevolverM1879/CCS_RevolverM1879_RightHandEquipped_Fit.asset`  
 Offset parent: `CCS_HandSocket_Right/CCS_RightHandRevolverAttachmentOffset`
+
+---
+
+## 10. ScriptableObject profile contracts (summary)
+
+| Profile | Planned asset path |
+|---------|-------------------|
+| `CCS_RevolverAimTargetProfile` | `Profiles/Aiming/CCS_RevolverAimTargetProfile.asset` |
+| `CCS_RevolverBodyAimProfile` | `Profiles/Aiming/CCS_RevolverBodyAimProfile.asset` |
+| `CCS_RevolverArmIKProfile` | `Profiles/Aiming/CCS_RevolverArmIKProfile.asset` |
+| `CCS_RevolverMuzzleLineOfSightProfile` | `Profiles/Aiming/CCS_RevolverMuzzleLineOfSightProfile.asset` |
+| `CCS_RevolverReticleConvergenceProfile` | `Profiles/Reticle/CCS_RevolverReticleConvergenceProfile.asset` |
+
+Existing (unchanged): `CCS_RevolverReticlePresentationProfile` — reveal timing, fade, pitch stability (v0.7.10e/f).
+
+## 11. Runtime implementation risks
+
+| Risk | Mitigation |
+|------|------------|
+| IK fights Wild West draw/hold animation | Blend weights; holster disable; event readiness gate |
+| Shoulder-origin feel returns | Body yaw threshold + muzzle convergence profile |
+| Reticle/arm mismatch at pitch extremes | Shared aim resolver; separate convergence profile |
+| Near-wall reticle jump | Muzzle LOS + last-valid hold + snap clamp |
+| Non-owner presentation leak | Local owner gates on all presenters |
+| Gameplay authority drift | Explicit milestone approval for fire ray changes |
+| Profile duplication | Keep reveal (`CCS_RevolverReticlePresentationProfile`) separate from convergence |
+| Root MonoBehaviour / hierarchy creep | No prefab migration in v0.7.12–v0.7.16 without audit |
+
+## 12. Validation rules
+
+See `CCS_MouseDriven_RevolverAim_ValidationPlan.md`.
+
+## 13. Staged implementation roadmap
+
+| Milestone | Scope |
+|-----------|--------|
+| **v0.7.11** | Architecture + interface contracts only (this document) |
+| **v0.7.12** | Aim Target Resolver prototype — camera world target; reticle unchanged or debug viz only |
+| **v0.7.13** | Body Aim Presenter prototype — upper-body/body yaw/pitch; no fire change |
+| **v0.7.14** | Right Arm IK / Muzzle Alignment prototype — IK follows aim target; weapon on hand socket |
+| **v0.7.15** | Muzzle Reticle Convergence prototype — reticle uses convergence; no damage ray change |
+| **v0.7.16** | Near-wall / obstruction handling — visual only unless damage approved separately |
+| **Later** | Dual revolver lines, dual reticle modes, dual weapon animation layers |
+
+### Interface contracts (v0.7.11)
+
+| File | Role |
+|------|------|
+| `Runtime/Aiming/CCS_IRevolverAimTargetSource.cs` | Camera aim target read model |
+| `Runtime/Aiming/CCS_IRevolverMuzzleAimSource.cs` | Muzzle LOS / convergence read model |
+| `Runtime/Aiming/CCS_IRevolverAimPresentationStateSource.cs` | Aggregate presentation state |
+| `Runtime/Visuals/CCS_RevolverReticleMode.cs` | Future reticle mode enum |
 
 ---
 
@@ -343,16 +378,13 @@ Validation should **warn** if:
 
 ---
 
-## Recommended implementation order
+## Related documentation
 
-1. **`CCS_RevolverAimTargetResolver` + `CCS_RevolverAimTargetProfile`** — single world target from camera; local owner only.
-2. **`CCS_RevolverAimPresentationState`** — aggregate read model; wire diagnostics.
-3. **`CCS_RevolverBodyAimPresenter`** — migrate/evolve body follow; profile-driven limits.
-4. **`CCS_RevolverArmAimIKPresenter`** — arm/hand to world target; holster blend-out; preserve socket hierarchy.
-5. **`CCS_RevolverMuzzleLineOfSightResolver`** — obstruction + convergence validity.
-6. **Reticle convergence presenter update** — consume convergence profile; keep v0.7.10f reveal event gate.
-7. **Validation utilities + batch entries** — hierarchy, non-owner, dual-mode guards.
-8. **Manual smoke + optional gameplay authority review** — separate milestone for fire ray changes.
+- `CCS_MouseDriven_RevolverAim_ValidationPlan.md` — future validation rules
+- `CCS_Revolver_Reticle_Barrel_LineOfSight_Plan.md` — muzzle convergence and reticle modes
+- `CCS_CharacterController_Animation_Rebuild_Architecture.md` — animation layer baseline
+- `CCS_PlayerPrefab_Hierarchy_Architecture.md` — socket vs IK hierarchy rules
+- `CCS_Equipment_Fit_Studio.md` — fit profile tuning workflow
 
 ---
 
@@ -368,9 +400,4 @@ Validation should **warn** if:
 
 ---
 
-## Related documentation
-
-- `CCS_Revolver_Reticle_Barrel_LineOfSight_Plan.md` — muzzle convergence and reticle modes
-- `CCS_CharacterController_Animation_Rebuild_Architecture.md` — animation layer baseline
-- `CCS_PlayerPrefab_Hierarchy_Architecture.md` — socket vs IK hierarchy rules
-- `CCS_Equipment_Fit_Studio.md` — fit profile tuning workflow
+## Explicit non-goals until user confirms v0.7.12+

@@ -122,3 +122,10 @@ Releasing RMB must hide the reticle immediately when holster starts; arm IK and 
 | **Future Dual Reticle** | Left/right muzzle-specific indicators |
 
 Profile owner: planned `CCS_RevolverReticleConvergenceProfile` (separate from `CCS_RevolverReticlePresentationProfile` reveal/stability fields).
+
+### Dual revolver reticle policy (v0.7.11)
+
+- Future dual revolvers use shoulder-width left/right muzzle lines.
+- Dual reticles must **not** be forced into one center point unless profile selects `SingleCameraIntent` or hybrid mode.
+- Each muzzle may have its own convergence indicator in `DualMuzzleReticles` mode.
+- Gameplay firing remains unchanged until explicitly approved.
