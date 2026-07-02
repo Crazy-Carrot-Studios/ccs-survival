@@ -4,10 +4,10 @@ using UnityEngine;
 // SCRIPT: CCS_IRevolverAimTargetSource
 // CATEGORY: Modules / CharacterController / Runtime / Aiming
 // PURPOSE: Read-only camera/mouse aim target contract for presentation systems.
-// PLACEMENT: Implemented by CCS_RevolverAimTargetResolver (planned v0.7.12+).
+// PLACEMENT: Implemented by CCS_RevolverAimTargetResolver (v0.7.12+).
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: Interface-only in v0.7.11. Does not drive gameplay fire, damage, ammo, or ownership.
+// NOTES: Does not drive gameplay fire, damage, ammo, or ownership.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController

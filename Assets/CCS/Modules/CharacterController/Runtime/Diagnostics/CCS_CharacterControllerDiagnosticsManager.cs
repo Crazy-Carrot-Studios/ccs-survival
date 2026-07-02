@@ -301,6 +301,8 @@ namespace CCS.Modules.CharacterController.Diagnostics {
         private void SyncAimPresentationDiagnosticsRegistry()
         {
             CCS_AimPresentationDiagnosticsRegistry.EnableReticleTransitionLogging = enableAimDiagnostics;
+            CCS_AimPresentationDiagnosticsRegistry.EnableAimTargetDebugRays =
+                (enableAimDiagnostics || enableVisualDebugHelpers) && enableAimDebugRays;
         }
 
         private void EnsureDiagnosticComponents()

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e5eeddb72df18499bc713d01ec06ce, type: 3}
+  m_Name: CCS_RevolverAimTargetProfile
+  m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_RevolverAimTargetProfile
+  aimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  obstructionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  cameraRayDistance: 120
+  fallbackDistance: 80
+  targetSmoothingTime: 0.045
+  maxTargetSnapDistance: 8
+  lastValidTargetHoldSeconds: 0.2
+  minimumValidDistance: 1
+  nearCameraRejectDistance: 0.35
+  holdLastValidTargetWhenInvalid: 1
+  smoothTarget: 1
+  drawDebugRayWhenDiagnosticsEnabled: 1

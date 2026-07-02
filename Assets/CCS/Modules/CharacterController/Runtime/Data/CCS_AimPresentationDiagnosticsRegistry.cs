@@ -13,5 +13,7 @@ namespace CCS.Modules.CharacterController
     public static class CCS_AimPresentationDiagnosticsRegistry
     {
         public static bool EnableReticleTransitionLogging { get; set; }
+
+        public static bool EnableAimTargetDebugRays { get; set; }
     }
 }

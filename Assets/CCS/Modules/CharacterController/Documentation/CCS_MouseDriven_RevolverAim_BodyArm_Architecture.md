@@ -1,9 +1,9 @@
 # CCS Mouse-Driven Revolver Aim — Body/Arm Architecture
 
-**Version:** 0.7.11 — planning document only  
+**Version:** 0.7.12 — architecture + v0.7.12 aim target resolver prototype  
 **Author:** James Schilz  
 **Created:** 2026-06-25  
-**Status:** Architecture and contracts — **not implemented**
+**Status:** v0.7.12 implements aim target resolver prototype; body/arm/muzzle/reticle convergence remain planned
 
 ## Purpose
 
@@ -25,7 +25,7 @@ This milestone documents data flow, component contracts, profile specs, validati
 Mouse / input look delta
   → CCS_CharacterCameraController
   → camera aim ray (viewport center or configured origin)
-  → CCS_RevolverAimTargetResolver          [planned]
+  → CCS_RevolverAimTargetResolver          [v0.7.12 prototype — diagnostics/future only]
   → CCS_RevolverAimPresentationState         [planned aggregate/read model]
   → CCS_RevolverBodyAimPresenter             [planned; may evolve CCS_RevolverBodyAimFollowController]
   → CCS_RevolverArmAimIKPresenter            [planned; may evolve CCS_RevolverArmReticleIK]
@@ -66,7 +66,50 @@ Mouse look input drives `CCS_CharacterCameraController`. The active camera defin
 
 ---
 
-## Planned component: `CCS_RevolverAimTargetResolver`
+## Implemented component: `CCS_RevolverAimTargetResolver` (v0.7.12)
+
+**Path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetResolver.cs`  
+**Contract:** `CCS_IRevolverAimTargetSource`  
+**Placement:** `PF_CCS_CharacterController_Player_Networked` → `Model` → `Aiming` (non-root)
+
+### v0.7.12 scope
+
+- Resolves stable world-space aim target from local owner camera viewport-center ray.
+- Profile-driven tuning via `CCS_RevolverAimTargetProfile`.
+- Diagnostics/future-system only — does **not** drive body aim, arm IK, muzzle LOS, reticle convergence, or gameplay fire/damage.
+- Local-owner gating via `NetworkObject.IsOwner` (solo/offline treats local player as owner).
+- Optional debug rays when Aim Diagnostics / Visual Debug Helpers are enabled.
+
+### Responsibilities
+
+- Read local owner camera aim from active camera (`aimCamera` → `CCS_CharacterMovementCameraContext` → `Camera.main`).
+- Produce a stable **world-space aim target** from camera center ray.
+- Raycast with configurable layer masks.
+- If no hit, use fallback distance from profile.
+- Hold last valid target briefly during invalid projection.
+- Clamp sudden target jumps in world space.
+- Expose read-only presentation state:
+
+| Property | Meaning |
+|----------|---------|
+| `AimWorldPoint` | Current resolved world target |
+| `AimDirection` | Normalized direction from aim origin to target |
+| `AimDistance` | Distance to target |
+| `HasValidAimTarget` | Target is usable this frame |
+| `IsObstructed` | Diagnostic obstruction between camera and target |
+
+Profile path: `Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverAimTargetProfile.asset`
+
+### Rules
+
+- Camera/mouse owns aim intent.
+- Muzzle/barrel validates or visually converges to this target; it does not replace intent.
+- Do not let upper-body animation invent an independent aim point.
+- Do not make reticle UI the source of world aim.
+
+---
+
+## Planned component: `CCS_RevolverAimTargetResolver` (superseded by v0.7.12 implementation above)
 
 **Planned path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetResolver.cs`  
 **Contract (v0.7.11):** `CCS_IRevolverAimTargetSource` — interface-only; no runtime behavior in v0.7.11.
@@ -74,7 +117,7 @@ Mouse look input drives `CCS_CharacterCameraController`. The active camera defin
 **Category:** presentation aim (local owner)  
 **Placement:** player Model root or WeaponHudRoot sibling under local owner branch
 
-### Responsibilities
+### Responsibilities (reference — implemented in v0.7.12)
 
 - Read local owner camera aim from `CCS_CharacterCameraController` / active camera.
 - Produce a stable **world-space aim target** from camera center ray (or configured aim origin).

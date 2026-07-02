@@ -320,6 +320,20 @@ namespace CCS.Modules.CharacterController
         public const string ReticleRevealAnimationEventReportPath =
             ReticleReportDirectory + "/CCS_ReticleRevealAnimationEvent_v0.7.10f.md";
 
+        public const string AimingReportDirectory =
+            "Logs/CharacterController/Aiming";
+
+        public const string RevolverAimTargetProfilePath =
+            "Assets/CCS/Modules/CharacterController/Profiles/Aiming/CCS_RevolverAimTargetProfile.asset";
+
+        public const string RevolverAimTargetResolverObjectName = "Aiming";
+
+        public const string RevolverAimTargetResolverReportPath =
+            AimingReportDirectory + "/CCS_RevolverAimTargetResolver_v0.7.12.md";
+
+        public const string AimTargetResolverRuntimeSnapshotReportPath =
+            AimingReportDirectory + "/CCS_AimTargetResolver_RuntimeSnapshot.md";
+
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
 

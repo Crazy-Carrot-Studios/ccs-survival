@@ -1,9 +1,9 @@
 # CCS Mouse-Driven Revolver Aim — Validation Plan
 
-**Version:** 0.7.11 — planning document only  
+**Version:** 0.7.12 — v0.7.12 aim target resolver validation enforced  
 **Author:** James Schilz  
 **Created:** 2026-06-25  
-**Status:** Future validation rules — **not enforced until implementation milestones**
+**Status:** `CCS_RevolverAimTargetResolverValidationUtility` enforced in v0.7.12; body/arm/muzzle/convergence validations remain future
 
 ## Purpose
 
@@ -51,15 +51,17 @@ Continue running until implementation milestones add new utilities:
 - Hosting scene validation
 - Missing script scan
 
-## Planned validation utilities (future)
+## Planned validation utilities
 
-| Utility | Milestone |
-|---------|-----------|
-| `CCS_RevolverAimTargetResolverValidationUtility` | v0.7.12 |
-| `CCS_RevolverBodyAimPresenterValidationUtility` | v0.7.13 |
-| `CCS_RevolverArmAimIKValidationUtility` | v0.7.14 |
-| `CCS_RevolverMuzzleLineOfSightValidationUtility` | v0.7.15 |
-| `CCS_RevolverReticleConvergenceValidationUtility` | v0.7.15 |
+| Utility | Milestone | Status |
+|---------|-----------|--------|
+| `CCS_RevolverAimTargetResolverValidationUtility` | v0.7.12 | **Implemented** |
+| `CCS_RevolverBodyAimPresenterValidationUtility` | v0.7.13 | Planned |
+| `CCS_RevolverArmAimIKValidationUtility` | v0.7.14 | Planned |
+| `CCS_RevolverMuzzleLineOfSightValidationUtility` | v0.7.15 | Planned |
+| `CCS_RevolverReticleConvergenceValidationUtility` | v0.7.15 | Planned |
+
+Batch entry: `CCS.Modules.CharacterController.Editor.CCS_RevolverAimTargetResolverBatchEntry.RunFromBatchMode`
 
 ## Related documentation
 
