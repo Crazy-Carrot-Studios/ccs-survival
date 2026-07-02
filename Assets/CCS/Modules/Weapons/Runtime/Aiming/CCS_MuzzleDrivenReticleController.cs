@@ -351,8 +351,7 @@ namespace CCS.Modules.Weapons
 
         private static bool IsReticlePresentationVisible(CCS_IRevolverAimPresentationReadinessSource source)
         {
-            return source.IsAimPresentationInReticleRevealWindow
-                || source.IsAimPresentationReadyForReticle;
+            return source.IsAimPresentationReadyForReticle;
         }
 
         private bool HasAimIntentActive()

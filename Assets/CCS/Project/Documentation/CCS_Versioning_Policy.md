@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.10e`
+**Current version:** `0.7.10f`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.10f`** | **Reticle reveal animation event:** `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle` unlocks reticle visibility; v0.7.10e smoothing/pitch stability retained; normalized draw reveal no longer primary; barrel line-of-sight still deferred. No gameplay changes. |
 | **`0.7.10e`** | **Reticle reveal timing and pitch stability:** `CCS_RevolverReticlePresentationProfile`; late-draw reveal window; screen smoothing/clamp for horizon pitch snap; barrel line-of-sight still deferred. No gameplay changes. |
 | **`0.7.10d`** | **Reticle aim readiness gate:** reticle hidden by default; visible only after full-draw hold presentation; hidden during draw/holster; hand socket preview never shows reticle; fit profile unchanged; barrel line-of-sight reticle plan only. No gameplay changes. |
 | **`0.7.10c`** | **Revolver right-hand fit offset tuning:** updates `CCS_RevolverM1879_RightHandEquipped_Fit` from manual alignment on `CCS_RightHandRevolverAttachmentOffset`. Fit profile only; no gameplay changes. |

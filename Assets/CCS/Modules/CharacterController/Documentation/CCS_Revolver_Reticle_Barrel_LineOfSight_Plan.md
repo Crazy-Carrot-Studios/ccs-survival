@@ -1,6 +1,6 @@
 # CCS Revolver Reticle — Barrel Line-of-Sight Plan
 
-**Version:** planning document — barrel LOS still deferred after v0.7.10e  
+**Version:** planning document — barrel LOS still deferred after v0.7.10f  
 **Author:** James Schilz  
 **Created:** 2026-06-30  
 **Status:** Plan only — not implemented
@@ -9,7 +9,7 @@
 
 Define the future presentation goal: the reticle should visually align with the end of the revolver barrel / muzzle direction instead of feeling like it originates from the shoulder or generic camera center.
 
-v0.7.10d gated reticle visibility on aim presentation readiness. v0.7.10e added late-draw reveal timing and camera/current-mode pitch stabilization. This document covers the **next** milestone for barrel/muzzle visual convergence once visible.
+v0.7.10d gated reticle visibility on aim presentation readiness. v0.7.10e added screen/current-mode pitch stabilization. v0.7.10f moved primary reveal timing to the `Fulldraw_Idle` animation event. This document covers the **next** milestone for barrel/muzzle visual convergence once visible.
 
 ## Smoke video observations (v0.7.10e inputs)
 
@@ -18,10 +18,10 @@ v0.7.10d gated reticle visibility on aim presentation readiness. v0.7.10e added 
 - v0.7.10e addresses timing via `CCS_RevolverReticlePresentationProfile` reveal window and addresses snap via screen smoothing/clamp — **not** full barrel line-of-sight.
 - Future barrel/muzzle convergence must use a dedicated convergence profile and must not blindly replace the v0.7.10e timing profile.
 
-## Current baseline (v0.7.10e)
+## Current baseline (v0.7.10f)
 
-- Reticle hidden by default and during early draw.
-- Reticle appears during late draw (`IsAimPresentationInReticleRevealWindow`) and remains visible in hold.
+- Reticle hidden by default and during draw.
+- Reticle appears when `Fulldraw_Idle` fires `CCS_OnRevolverAimHoldStarted` (Animation Event).
 - Reticle uses `CCS_MuzzleDrivenReticleController` with profile-driven smoothing/clamp on camera/current-mode target.
 - Hybrid muzzle drift offset may still apply, but muzzle/barrel is not authoritative yet.
 - Gameplay aim/fire still uses existing camera/player aim rules.

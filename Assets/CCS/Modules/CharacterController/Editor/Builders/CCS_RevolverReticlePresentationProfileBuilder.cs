@@ -20,6 +20,7 @@ namespace CCS.Modules.CharacterController.Editor
         public static bool EnsureRevolverReticlePresentationProfile()
         {
             bool changed = EnsureProfileAsset();
+            changed |= EnsureProfileDefaults();
             changed |= EnsurePlayerPrefabWiring();
             if (changed)
             {
@@ -48,6 +49,29 @@ namespace CCS.Modules.CharacterController.Editor
             profile = ScriptableObject.CreateInstance<CCS_RevolverReticlePresentationProfile>();
             AssetDatabase.CreateAsset(profile, profilePath);
             return true;
+        }
+
+        public static bool EnsureProfileDefaults()
+        {
+            CCS_RevolverReticlePresentationProfile profile =
+                AssetDatabase.LoadAssetAtPath<CCS_RevolverReticlePresentationProfile>(
+                    CCS_CharacterControllerConstants.RevolverReticlePresentationProfilePath);
+            if (profile == null)
+            {
+                return false;
+            }
+
+            SerializedObject serializedProfile = new SerializedObject(profile);
+            bool changed = false;
+            changed |= SetEnum(serializedProfile, "reticleRevealSource", (int)CCS_RevolverReticleRevealSource.AnimationEvent);
+            changed |= SetBool(serializedProfile, "revealDuringDraw", false);
+            if (changed)
+            {
+                serializedProfile.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(profile);
+            }
+
+            return changed;
         }
 
         public static bool EnsurePlayerPrefabWiring()
@@ -126,6 +150,30 @@ namespace CCS.Modules.CharacterController.Editor
 
             property.objectReferenceValue = value;
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            return true;
+        }
+
+        private static bool SetEnum(SerializedObject serializedObject, string propertyName, int value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.intValue == value)
+            {
+                return false;
+            }
+
+            property.intValue = value;
+            return true;
+        }
+
+        private static bool SetBool(SerializedObject serializedObject, string propertyName, bool value)
+        {
+            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            if (property == null || property.boolValue == value)
+            {
+                return false;
+            }
+
+            property.boolValue = value;
             return true;
         }
     }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e896be2be97217b4f95dd99a8634a991, type: 3}
   m_Name: CCS_RevolverReticlePresentationProfile
   m_EditorClassIdentifier: CCS.Modules.CharacterController.Runtime::CCS.Modules.CharacterController.CCS_RevolverReticlePresentationProfile
-  revealDuringDraw: 1
+  revealDuringDraw: 0
   drawRevealNormalizedTime: 0.55
   drawRevealLeadSeconds: 0.5
   reticleFadeInSeconds: 0.08
@@ -23,3 +23,4 @@ MonoBehaviour:
   pitchSnapDeadZoneDegrees: 2
   holdLastValidTargetOnNoHit: 1
   lastValidTargetHoldSeconds: 0.2
+  reticleRevealSource: 1

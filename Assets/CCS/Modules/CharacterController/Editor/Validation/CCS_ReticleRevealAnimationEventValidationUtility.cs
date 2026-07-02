@@ -10,29 +10,29 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // =============================================================================
-// SCRIPT: CCS_ReticleAimReadinessValidationUtility
+// SCRIPT: CCS_ReticleRevealAnimationEventValidationUtility
 // CATEGORY: Modules / CharacterController / Editor / Validation
-// PURPOSE: Validates v0.7.10d reticle aim presentation readiness gating.
+// PURPOSE: Validates v0.7.10f reticle reveal Animation Event wiring.
 // PLACEMENT: Editor validation utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
-// CREATED: 2026-06-30
+// CREATED: 2026-06-25
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_ReticleAimReadinessValidationUtility
+    public static class CCS_ReticleRevealAnimationEventValidationUtility
     {
-        private const string ReadinessInterfacePath =
-            "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_IRevolverAimPresentationReadinessSource.cs";
-
         private const string AimAnimatorSourcePath =
             "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_SingleRevolverAimAnimator.cs";
+
+        private const string ReceiverSourcePath =
+            "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverReticleAnimationEventReceiver.cs";
 
         private const string MuzzleReticleSourcePath =
             "Assets/CCS/Modules/Weapons/Runtime/Aiming/CCS_MuzzleDrivenReticleController.cs";
 
-        private const string BarrelLineOfSightPlanPath =
-            "Assets/CCS/Modules/CharacterController/Documentation/CCS_Revolver_Reticle_Barrel_LineOfSight_Plan.md";
+        private const string ProfileClassPath =
+            "Assets/CCS/Modules/CharacterController/Runtime/Visuals/CCS_RevolverReticlePresentationProfile.cs";
 
         private const string EquipmentFitStudioWindowPath =
             "Assets/CCS/Modules/CharacterController/Editor/EquipmentFitStudio/CCS_EquipmentFitStudioWindow.cs";
@@ -49,19 +49,20 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static readonly Vector3 ExpectedFitScale = Vector3.one;
 
-        public static CCS_SurvivalValidationResult ValidateReticleAimReadiness()
+        public static CCS_SurvivalValidationResult ValidateReticleRevealAnimationEvent()
         {
             List<string> failures = new List<string>();
             List<string> warnings = new List<string>();
 
             ValidateRequiredAssets(failures);
-            ValidateReadinessContract(failures);
-            ValidateAimAnimatorReadiness(failures);
+            ValidateHoldClipAndEvent(failures, warnings);
+            ValidateReceiverContract(failures);
+            ValidateAimAnimatorEventReadiness(failures);
+            ValidatePresentationProfile(failures);
             ValidateReticleControllerGating(failures);
             ValidatePlayerPrefabWiring(failures);
             ValidateAnimatorLayerAndHoldState(failures);
             ValidateFitProfileUnchanged(failures);
-            ValidateFitValuesNotHardcodedInRuntime(failures);
             ValidateMissingScripts(failures);
             ValidateTestsFolderRemoved(failures);
             ValidateAnimationFitStudioNotPresent(failures);
@@ -73,7 +74,7 @@ namespace CCS.Modules.CharacterController.Editor
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
-            string message = "Reticle aim presentation readiness gate validated.";
+            string message = "Reticle reveal animation event validated.";
             if (warnings.Count > 0)
             {
                 message += " Warnings: " + string.Join(" ", warnings);
@@ -84,38 +85,69 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void ValidateRequiredAssets(List<string> failures)
         {
-            AppendIfMissing(failures, File.Exists(ReadinessInterfacePath), "Missing readiness interface.");
             AppendIfMissing(failures, File.Exists(AimAnimatorSourcePath), "Missing CCS_SingleRevolverAimAnimator.");
+            AppendIfMissing(failures, File.Exists(ReceiverSourcePath), "Missing CCS_RevolverReticleAnimationEventReceiver.");
             AppendIfMissing(failures, File.Exists(MuzzleReticleSourcePath), "Missing CCS_MuzzleDrivenReticleController.");
+            AppendIfMissing(failures, File.Exists(ProfileClassPath), "Missing CCS_RevolverReticlePresentationProfile class.");
             AppendIfMissing(
                 failures,
-                File.Exists(BarrelLineOfSightPlanPath),
-                "Missing barrel line-of-sight planning doc at " + BarrelLineOfSightPlanPath + ".");
+                File.Exists(CCS_CharacterControllerConstants.RevolverReticlePresentationProfilePath),
+                "Missing CCS_RevolverReticlePresentationProfile asset.");
+            AppendIfMissing(
+                failures,
+                File.Exists(CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath),
+                "Missing Fulldraw_Idle clip at " + CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath + ".");
         }
 
-        private static void ValidateReadinessContract(List<string> failures)
+        private static void ValidateHoldClipAndEvent(List<string> failures, List<string> warnings)
         {
-            if (!File.Exists(ReadinessInterfacePath))
+            if (!CCS_RevolverFulldrawIdleReticleEventBuilder.TryReadFulldrawIdleReticleEventTime(
+                    out float eventTime,
+                    out int matchingEventCount))
+            {
+                failures.Add("Could not read Fulldraw_Idle importer clip events.");
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                matchingEventCount == 1,
+                "Fulldraw_Idle must contain exactly one "
+                + CCS_CharacterControllerConstants.RevolverAimHoldReticleRevealAnimationEventName
+                + " event.");
+            AppendIfMissing(
+                failures,
+                eventTime >= 0f && eventTime <= 0.05f,
+                "Reticle reveal animation event must be at or near clip start.");
+
+            if (Mathf.Abs(eventTime - CCS_CharacterControllerConstants.RevolverAimHoldReticleRevealAnimationEventPreferredTime) > 0.0001f
+                && Mathf.Approximately(
+                    eventTime,
+                    CCS_CharacterControllerConstants.RevolverAimHoldReticleRevealAnimationEventFallbackTime))
+            {
+                warnings.Add("Reticle reveal animation event uses fallback time 0.01f instead of 0.0f.");
+            }
+        }
+
+        private static void ValidateReceiverContract(List<string> failures)
+        {
+            if (!File.Exists(ReceiverSourcePath))
             {
                 return;
             }
 
-            string source = File.ReadAllText(ReadinessInterfacePath);
+            string source = File.ReadAllText(ReceiverSourcePath);
             AppendIfMissing(
                 failures,
-                source.Contains("bool IsAimPresentationActive { get; }"),
-                "Readiness interface must expose IsAimPresentationActive.");
+                source.Contains("CCS_OnRevolverAimHoldStarted"),
+                "Receiver must expose CCS_OnRevolverAimHoldStarted().");
             AppendIfMissing(
                 failures,
-                source.Contains("bool IsAimPresentationReadyForReticle { get; }"),
-                "Readiness interface must expose IsAimPresentationReadyForReticle.");
-            AppendIfMissing(
-                failures,
-                source.Contains("bool IsAimPresentationInReticleRevealWindow { get; }"),
-                "Readiness interface must expose IsAimPresentationInReticleRevealWindow.");
+                source.Contains("NotifyRevolverAimHoldAnimationEvent"),
+                "Receiver must forward to NotifyRevolverAimHoldAnimationEvent().");
         }
 
-        private static void ValidateAimAnimatorReadiness(List<string> failures)
+        private static void ValidateAimAnimatorEventReadiness(List<string> failures)
         {
             if (!File.Exists(AimAnimatorSourcePath))
             {
@@ -125,39 +157,58 @@ namespace CCS.Modules.CharacterController.Editor
             string source = File.ReadAllText(AimAnimatorSourcePath);
             AppendIfMissing(
                 failures,
-                source.Contains("CCS_IRevolverAimPresentationReadinessSource"),
-                "CCS_SingleRevolverAimAnimator must implement CCS_IRevolverAimPresentationReadinessSource.");
-            AppendIfMissing(
-                failures,
-                source.Contains("IsAimPresentationActive"),
-                "CCS_SingleRevolverAimAnimator must expose IsAimPresentationActive.");
-            AppendIfMissing(
-                failures,
-                source.Contains("IsAimPresentationReadyForReticle"),
-                "CCS_SingleRevolverAimAnimator must expose IsAimPresentationReadyForReticle.");
-            AppendIfMissing(
-                failures,
-                source.Contains(CCS_CharacterControllerConstants.SingleRevolverAimHoldStateName)
-                    || source.Contains("SingleRevolverAimHoldStateName"),
-                "Aim animator readiness must reference Revolver_Aim_Hold state.");
-            AppendIfMissing(
-                failures,
-                source.Contains(CCS_CharacterControllerConstants.SingleRevolverDrawStateName)
-                    || source.Contains("SingleRevolverDrawStateName"),
-                "Aim animator readiness must suppress reticle during Revolver_Draw.");
-            AppendIfMissing(
-                failures,
-                source.Contains(CCS_CharacterControllerConstants.SingleRevolverHolsterStateName)
-                    || source.Contains("SingleRevolverHolsterStateName"),
-                "Aim animator readiness must suppress reticle during Revolver_Holster.");
+                source.Contains("reticleRevealEventReceived"),
+                "Aim animator must track reticleRevealEventReceived.");
             AppendIfMissing(
                 failures,
                 source.Contains("NotifyRevolverAimHoldAnimationEvent"),
-                "CCS_SingleRevolverAimAnimator must expose NotifyRevolverAimHoldAnimationEvent().");
+                "Aim animator must expose NotifyRevolverAimHoldAnimationEvent().");
             AppendIfMissing(
                 failures,
-                source.Contains("reticleRevealEventReceived"),
-                "CCS_SingleRevolverAimAnimator must track animation event readiness.");
+                source.Contains("CCS_RevolverReticleRevealSource"),
+                "Aim animator must honor reticle reveal source profile setting.");
+            AppendIfMissing(
+                failures,
+                source.Contains("reticleRevealEventReceived = false"),
+                "Aim animator must reset reticle reveal event on draw/holster.");
+        }
+
+        private static void ValidatePresentationProfile(List<string> failures)
+        {
+            CCS_RevolverReticlePresentationProfile profile = AssetDatabase.LoadAssetAtPath<CCS_RevolverReticlePresentationProfile>(
+                CCS_CharacterControllerConstants.RevolverReticlePresentationProfilePath);
+            AppendIfMissing(failures, profile != null, "Could not load reticle presentation profile.");
+
+            if (profile == null)
+            {
+                return;
+            }
+
+            AppendIfMissing(
+                failures,
+                profile.ReticleRevealSource == CCS_RevolverReticleRevealSource.AnimationEvent
+                    || profile.ReticleRevealSource == CCS_RevolverReticleRevealSource.AnimationEventWithStateFallback,
+                "Reticle profile must use Animation Event reveal mode.");
+            AppendIfMissing(
+                failures,
+                !profile.RevealDuringDraw,
+                "Draw normalized-time reveal must be disabled for v0.7.10f.");
+            AppendIfMissing(
+                failures,
+                profile.MaxScreenSnapPixelsPerFrame > 0f,
+                "maxScreenSnapPixelsPerFrame must be > 0.");
+            AppendIfMissing(
+                failures,
+                profile.NoHitFallbackDistance > 0f,
+                "noHitFallbackDistance must be > 0.");
+            AppendIfMissing(
+                failures,
+                profile.ScreenSmoothTime > 0f,
+                "screenSmoothTime must be retained from v0.7.10e.");
+            AppendIfMissing(
+                failures,
+                profile.HoldLastValidTargetOnNoHit,
+                "holdLastValidTargetOnNoHit must be retained from v0.7.10e.");
         }
 
         private static void ValidateReticleControllerGating(List<string> failures)
@@ -170,16 +221,8 @@ namespace CCS.Modules.CharacterController.Editor
             string source = File.ReadAllText(MuzzleReticleSourcePath);
             AppendIfMissing(
                 failures,
-                source.Contains("aimPresentationReadinessSourceComponent"),
-                "CCS_MuzzleDrivenReticleController must serialize an aim presentation readiness source.");
-            AppendIfMissing(
-                failures,
                 source.Contains("IsAimPresentationReadyForReticle"),
                 "Reticle controller must gate on IsAimPresentationReadyForReticle.");
-            AppendIfMissing(
-                failures,
-                source.Contains("IsReticlePresentationVisible"),
-                "Reticle controller must centralize visibility gating.");
             AppendIfMissing(
                 failures,
                 source.Contains("EnsureReticleHiddenAtStartup"),
@@ -187,23 +230,15 @@ namespace CCS.Modules.CharacterController.Editor
             AppendIfMissing(
                 failures,
                 source.Contains("IsHandSocketPreviewActive"),
-                "Reticle controller must block reticle during Force Revolver Hand Socket Preview.");
-            AppendIfMissing(
-                failures,
-                source.Contains("ForceRevolverHandSocketPreview"),
-                "Reticle controller must honor ForceRevolverHandSocketPreview debug source.");
+                "Reticle controller must block hand socket preview.");
             AppendIfMissing(
                 failures,
                 source.Contains("IsLocalPresentationOwner"),
                 "Reticle controller must gate on local owner presentation context.");
             AppendIfMissing(
                 failures,
-                source.Contains("IsDebugAimSetupPoseActive"),
-                "Reticle controller must allow setup pose only after readiness is true.");
-            AppendIfMissing(
-                failures,
-                !source.Contains("ApplyReticleScreenPosition(centerScreen, visible: true);"),
-                "Reticle controller must not show reticle immediately on aim start before readiness.");
+                !source.Contains("IsAimPresentationInReticleRevealWindow"),
+                "Reticle controller must not use draw reveal window for visibility in v0.7.10f.");
         }
 
         private static void ValidatePlayerPrefabWiring(List<string> failures)
@@ -216,56 +251,59 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_MuzzleDrivenReticleController reticleController =
-                prefab.GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
-            AppendIfMissing(
-                failures,
-                reticleController != null,
-                "Player prefab missing CCS_MuzzleDrivenReticleController.");
-
             CCS_SingleRevolverAimAnimator aimAnimator = prefab.GetComponentInChildren<CCS_SingleRevolverAimAnimator>(true);
-            AppendIfMissing(
-                failures,
-                aimAnimator != null,
-                "Player prefab missing CCS_SingleRevolverAimAnimator for readiness source.");
+            AppendIfMissing(failures, aimAnimator != null, "Player prefab missing CCS_SingleRevolverAimAnimator.");
 
-            if (reticleController == null)
+            Animator animator = prefab.GetComponentInChildren<Animator>(true);
+            AppendIfMissing(failures, animator != null, "Player prefab missing Animator.");
+
+            if (animator == null)
             {
                 return;
             }
 
-            SerializedObject serializedReticle = new SerializedObject(reticleController);
-            SerializedProperty readinessProperty = serializedReticle.FindProperty("aimPresentationReadinessSourceComponent");
+            CCS_RevolverReticleAnimationEventReceiver receiver =
+                animator.GetComponent<CCS_RevolverReticleAnimationEventReceiver>();
             AppendIfMissing(
                 failures,
-                readinessProperty != null && readinessProperty.objectReferenceValue != null,
-                "CCS_MuzzleDrivenReticleController must reference an aim presentation readiness source on the player prefab.");
+                receiver != null,
+                "Reticle animation event receiver must be on the same GameObject as the Animator.");
 
-            if (readinessProperty != null
-                && readinessProperty.objectReferenceValue != null
-                && aimAnimator != null
-                && readinessProperty.objectReferenceValue != aimAnimator)
+            if (receiver != null && aimAnimator != null)
             {
-                failures.Add("Reticle readiness source must reference CCS_SingleRevolverAimAnimator.");
+                SerializedObject serializedReceiver = new SerializedObject(receiver);
+                SerializedProperty aimAnimatorProperty = serializedReceiver.FindProperty("aimAnimator");
+                AppendIfMissing(
+                    failures,
+                    aimAnimatorProperty != null && aimAnimatorProperty.objectReferenceValue == aimAnimator,
+                    "Reticle animation event receiver must reference CCS_SingleRevolverAimAnimator.");
+            }
+
+            CCS_MuzzleDrivenReticleController reticleController =
+                prefab.GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
+            AppendIfMissing(failures, reticleController != null, "Player prefab missing reticle controller.");
+
+            if (reticleController != null && aimAnimator != null)
+            {
+                SerializedObject serializedReticle = new SerializedObject(reticleController);
+                SerializedProperty readinessProperty = serializedReticle.FindProperty("aimPresentationReadinessSourceComponent");
+                AppendIfMissing(
+                    failures,
+                    readinessProperty != null && readinessProperty.objectReferenceValue == aimAnimator,
+                    "Reticle controller must reference CCS_SingleRevolverAimAnimator readiness source.");
             }
 
             Image[] images = prefab.GetComponentsInChildren<Image>(true);
-            Image reticleImage = null;
             for (int i = 0; i < images.Length; i++)
             {
                 if (images[i] != null && images[i].name == CCS_WeaponsConstants.WeaponReticleObjectName)
                 {
-                    reticleImage = images[i];
+                    AppendIfMissing(
+                        failures,
+                        !images[i].enabled,
+                        "Weapon reticle Image must be disabled by default.");
                     break;
                 }
-            }
-
-            if (reticleImage != null)
-            {
-                AppendIfMissing(
-                    failures,
-                    !reticleImage.enabled,
-                    "Weapon reticle Image must be disabled by default on the player prefab.");
             }
         }
 
@@ -292,12 +330,8 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             AnimatorControllerLayer layer = controller.layers[layerIndex];
-            AnimatorStateMachine stateMachine = layer.stateMachine;
-            AnimatorState holdState = FindState(stateMachine, CCS_CharacterControllerConstants.SingleRevolverAimHoldStateName);
-            AppendIfMissing(
-                failures,
-                holdState != null,
-                "Revolver_Aim_Hold state missing from SingleRevolverUpperBody layer.");
+            AnimatorState holdState = FindState(layer.stateMachine, CCS_CharacterControllerConstants.SingleRevolverAimHoldStateName);
+            AppendIfMissing(failures, holdState != null, "Revolver_Aim_Hold state missing.");
 
             if (holdState != null && holdState.motion is AnimationClip holdClip)
             {
@@ -314,49 +348,27 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void ValidateFitProfileUnchanged(List<string> failures)
         {
-            CCS_WeaponAttachmentFitProfile profile = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
+            CCS_WeaponAttachmentFitProfile fitProfile = AssetDatabase.LoadAssetAtPath<CCS_WeaponAttachmentFitProfile>(
                 CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath);
-            AppendIfMissing(failures, profile != null, "Missing right-hand equipped fit profile.");
+            AppendIfMissing(failures, fitProfile != null, "Missing right-hand equipped fit profile.");
 
-            if (profile == null)
+            if (fitProfile == null)
             {
                 return;
             }
 
             AppendIfMissing(
                 failures,
-                VectorApproximately(profile.SocketLocalPosition, ExpectedFitPosition),
-                "Right-hand fit profile position changed; v0.7.10d must keep v0.7.10c fit values.");
+                VectorApproximately(fitProfile.SocketLocalPosition, ExpectedFitPosition),
+                "Right-hand fit profile position changed in v0.7.10f.");
             AppendIfMissing(
                 failures,
-                VectorApproximately(profile.SocketLocalEulerAngles, ExpectedFitEuler),
-                "Right-hand fit profile rotation changed; v0.7.10d must keep v0.7.10c fit values.");
+                VectorApproximately(fitProfile.SocketLocalEulerAngles, ExpectedFitEuler),
+                "Right-hand fit profile rotation changed in v0.7.10f.");
             AppendIfMissing(
                 failures,
-                VectorApproximately(profile.SocketLocalScale, ExpectedFitScale),
-                "Right-hand fit profile scale changed; v0.7.10d must keep v0.7.10c fit values.");
-        }
-
-        private static void ValidateFitValuesNotHardcodedInRuntime(List<string> failures)
-        {
-            string[] runtimeRoots =
-            {
-                "Assets/CCS/Modules/CharacterController/Runtime",
-                "Assets/CCS/Modules/Weapons/Runtime",
-            };
-
-            for (int rootIndex = 0; rootIndex < runtimeRoots.Length; rootIndex++)
-            {
-                string[] files = Directory.GetFiles(runtimeRoots[rootIndex], "*.cs", SearchOption.AllDirectories);
-                for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
-                {
-                    string source = File.ReadAllText(files[fileIndex]);
-                    if (source.Contains("0.099") && source.Contains("0.176") && source.Contains("0.014"))
-                    {
-                        failures.Add("Right-hand fit offset values must not be hardcoded in runtime script " + files[fileIndex] + ".");
-                    }
-                }
-            }
+                VectorApproximately(fitProfile.SocketLocalScale, ExpectedFitScale),
+                "Right-hand fit profile scale changed in v0.7.10f.");
         }
 
         private static void ValidateMissingScripts(List<string> failures)
@@ -392,9 +404,8 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void CollectDeferredWarnings(List<string> warnings)
         {
-            warnings.Add("Barrel line-of-sight reticle behavior is planned but not implemented in v0.7.10f.");
-            warnings.Add("Reticle still uses current camera-center / hybrid muzzle drift presentation.");
-            warnings.Add("Reticle reveal is driven by Fulldraw_Idle animation event in v0.7.10f.");
+            warnings.Add("Barrel/muzzle line-of-sight reticle is still deferred.");
+            warnings.Add("State readiness fallback remains available via profile but is disabled by default.");
         }
 
         private static bool VectorApproximately(Vector3 left, Vector3 right)

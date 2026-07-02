@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.10f** | Reticle reveal animation event — `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle`; v0.7.10e smoothing retained; draw normalized reveal no longer primary; barrel LOS deferred; no gameplay changes |
 | **v0.7.10e** | Reticle reveal timing and pitch stability — `CCS_RevolverReticlePresentationProfile`; late-draw reveal window; screen smoothing/clamp; barrel LOS deferred; fit profile unchanged; no gameplay changes |
 | **v0.7.10d** | Reticle aim readiness gate — `CCS_IRevolverAimPresentationReadinessSource`; reticle hidden until `Revolver_Aim_Hold`; hand socket preview never shows reticle; barrel line-of-sight plan only; fit profile unchanged; no gameplay changes |
 | **v0.7.10c** | Revolver right-hand fit offset tuning — updates `CCS_RevolverM1879_RightHandEquipped_Fit` from manual alignment; fit profile only; no gameplay changes |
@@ -158,6 +159,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Revolver hand socket preview (v0.7.10) | `CCS.Modules.CharacterController.Editor.CCS_RevolverHandSocketPreviewBatchEntry.RunFromBatchMode` |
 | Validation cleanup / aim debug toggle | `CCS.Modules.CharacterController.Editor.CCS_ValidationCleanupAimDebugToggleBatchEntry.RunFromBatchMode` |
 | Single revolver aim layer | `CCS.Modules.CharacterController.Editor.CCS_SingleRevolverAimLayerBatchEntry.RunFromBatchMode` |
+| Reticle reveal animation event (v0.7.10f) | `CCS.Modules.CharacterController.Editor.CCS_ReticleRevealAnimationEventBatchEntry.RunFromBatchMode` |
 
 Editor menus are optional convenience wrappers. CI and Cursor workflows must not depend on manual menu clicks.
 

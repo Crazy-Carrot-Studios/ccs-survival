@@ -25,6 +25,14 @@
 - Removed `CapsuleVisual` and `VisualGlasses` from production player prefab
 - Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
 
+## v0.7.10f — Reticle reveal animation event (implemented)
+
+- Added `CCS_OnRevolverAimHoldStarted` Animation Event at the start of `Fulldraw_Idle` (FBX importer clip metadata only)
+- Added `CCS_RevolverReticleAnimationEventReceiver` on Kevin's Animator GameObject; forwards to `CCS_SingleRevolverAimAnimator.NotifyRevolverAimHoldAnimationEvent()`
+- `CCS_RevolverReticlePresentationProfile.ReticleRevealSource` defaults to `AnimationEvent`; draw normalized-time reveal disabled
+- Reticle hidden at Play start and during draw; revealed by hold animation event; hidden immediately on holster
+- v0.7.10e screen smoothing/clamp and pitch stability retained; barrel/muzzle line-of-sight still deferred
+
 ## v0.7.10e — Reticle reveal timing and pitch stability (implemented)
 
 - Added `CCS_RevolverReticlePresentationProfile` for late-draw reveal timing and screen smoothing/clamp tuning

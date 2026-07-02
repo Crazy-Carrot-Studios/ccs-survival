@@ -40,6 +40,7 @@ namespace CCS.Modules.CharacterController
         private bool aimPresentationActive;
         private bool aimPresentationReadyForReticle;
         private bool aimPresentationInReticleRevealWindow;
+        private bool reticleRevealEventReceived;
         private bool loggedMissingSetup;
         private bool previousDesiredPresentationAiming;
         private bool holsterPresentationActive;
@@ -51,6 +52,16 @@ namespace CCS.Modules.CharacterController
         public bool IsAimPresentationReadyForReticle => aimPresentationReadyForReticle;
 
         public bool IsAimPresentationInReticleRevealWindow => aimPresentationInReticleRevealWindow;
+
+        public void NotifyRevolverAimHoldAnimationEvent()
+        {
+            if (!presentationEnabled || holsterPresentationActive || !ResolveDesiredPresentationAiming())
+            {
+                return;
+            }
+
+            reticleRevealEventReceived = true;
+        }
 
         private void Awake()
         {
@@ -74,6 +85,7 @@ namespace CCS.Modules.CharacterController
             aimPresentationActive = false;
             aimPresentationReadyForReticle = false;
             aimPresentationInReticleRevealWindow = false;
+            reticleRevealEventReceived = false;
             previousRevealWindow = false;
             previousReadyForReticle = false;
         }
@@ -99,6 +111,7 @@ namespace CCS.Modules.CharacterController
                 aimPresentationActive = false;
                 aimPresentationReadyForReticle = false;
                 aimPresentationInReticleRevealWindow = false;
+                reticleRevealEventReceived = false;
                 return;
             }
 
@@ -276,6 +289,7 @@ namespace CCS.Modules.CharacterController
         private void BeginAimPresentation()
         {
             holsterPresentationActive = false;
+            reticleRevealEventReceived = false;
             animator.SetLayerWeight(upperBodyLayerIndex, 1f);
             animator.SetBool(isAimingHash, true);
             animator.ResetTrigger(revolverHolsterTriggerHash);
@@ -285,6 +299,8 @@ namespace CCS.Modules.CharacterController
         private void BeginHolsterPresentation()
         {
             holsterPresentationActive = true;
+            reticleRevealEventReceived = false;
+            aimPresentationReadyForReticle = false;
             animator.SetBool(isAimingHash, false);
             animator.ResetTrigger(revolverDrawTriggerHash);
             animator.SetTrigger(revolverHolsterTriggerHash);
@@ -326,6 +342,7 @@ namespace CCS.Modules.CharacterController
             aimPresentationActive = false;
             aimPresentationReadyForReticle = false;
             aimPresentationInReticleRevealWindow = false;
+            reticleRevealEventReceived = false;
             previousRevealWindow = false;
             previousReadyForReticle = false;
         }
@@ -339,6 +356,7 @@ namespace CCS.Modules.CharacterController
             {
                 aimPresentationReadyForReticle = false;
                 aimPresentationInReticleRevealWindow = false;
+                reticleRevealEventReceived = false;
                 LogReadinessTransitions();
                 return;
             }
@@ -357,15 +375,40 @@ namespace CCS.Modules.CharacterController
             {
                 aimPresentationReadyForReticle = false;
                 aimPresentationInReticleRevealWindow = false;
+                reticleRevealEventReceived = false;
                 LogReadinessTransitions();
                 return;
             }
 
-            if (stateHash == revolverAimHoldStateHash)
+            bool inHoldState = stateHash == revolverAimHoldStateHash;
+            CCS_RevolverReticleRevealSource revealSource = ResolveReticleRevealSource();
+            switch (revealSource)
+            {
+                case CCS_RevolverReticleRevealSource.StateReadiness:
+                    UpdateStateReadinessReveal(stateInfo, inHoldState);
+                    break;
+
+                case CCS_RevolverReticleRevealSource.AnimationEventWithStateFallback:
+                    aimPresentationReadyForReticle = reticleRevealEventReceived || inHoldState;
+                    aimPresentationInReticleRevealWindow = false;
+                    break;
+
+                default:
+                    aimPresentationReadyForReticle = reticleRevealEventReceived;
+                    aimPresentationInReticleRevealWindow = false;
+                    break;
+            }
+
+            LogReadinessTransitions();
+        }
+
+        private void UpdateStateReadinessReveal(AnimatorStateInfo stateInfo, bool inHoldState)
+        {
+            int stateHash = stateInfo.shortNameHash;
+            if (inHoldState)
             {
                 aimPresentationReadyForReticle = true;
                 aimPresentationInReticleRevealWindow = true;
-                LogReadinessTransitions();
                 return;
             }
 
@@ -382,12 +425,24 @@ namespace CCS.Modules.CharacterController
 
             aimPresentationReadyForReticle = false;
             aimPresentationInReticleRevealWindow = false;
-            LogReadinessTransitions();
+        }
+
+        private CCS_RevolverReticleRevealSource ResolveReticleRevealSource()
+        {
+            return reticlePresentationProfile != null
+                ? reticlePresentationProfile.ReticleRevealSource
+                : CCS_RevolverReticleRevealSource.AnimationEvent;
         }
 
         private bool IsRevealDuringDrawEnabled()
         {
-            return reticlePresentationProfile == null || reticlePresentationProfile.RevealDuringDraw;
+            if (reticlePresentationProfile == null)
+            {
+                return false;
+            }
+
+            return reticlePresentationProfile.ReticleRevealSource == CCS_RevolverReticleRevealSource.StateReadiness
+                && reticlePresentationProfile.RevealDuringDraw;
         }
 
         private float ResolveDrawRevealNormalizedThreshold(float drawClipLengthSeconds)
@@ -416,7 +471,7 @@ namespace CCS.Modules.CharacterController
             }
             else if (aimPresentationReadyForReticle && !previousReadyForReticle)
             {
-                Debug.Log("[Reticle Presentation] Hold state reached (Revolver_Aim_Hold).", this);
+                Debug.Log("[Reticle Presentation] Aim hold animation event received.", this);
             }
             else if (!aimPresentationInReticleRevealWindow && previousRevealWindow && holsterPresentationActive)
             {

@@ -65,6 +65,7 @@ namespace CCS.Modules.CharacterController.Editor
             bool changed = false;
             changed |= EnsurePresentationParameters(controller);
             changed |= EnsureSingleRevolverUpperBodyLayer(controller, mask, drawClip, holdClip, holsterClip);
+            changed |= CCS_RevolverFulldrawIdleReticleEventBuilder.EnsureFulldrawIdleReticleRevealAnimationEvent(out _);
 
             if (changed)
             {
@@ -109,6 +110,7 @@ namespace CCS.Modules.CharacterController.Editor
                 }
 
                 changed |= WireSingleRevolverAimAnimator(modelRoot, aimAnimator);
+                changed |= EnsureRevolverReticleAnimationEventReceiver(modelRoot, aimAnimator);
                 if (changed)
                 {
                     PrefabUtility.SaveAsPrefabAsset(instance, CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
@@ -117,6 +119,44 @@ namespace CCS.Modules.CharacterController.Editor
             finally
             {
                 Object.DestroyImmediate(instance);
+            }
+
+            return changed;
+        }
+
+        public static bool EnsureRevolverReticleAnimationEventReceiver(
+            Transform modelRoot,
+            CCS_SingleRevolverAimAnimator aimAnimator)
+        {
+            if (modelRoot == null || aimAnimator == null)
+            {
+                return false;
+            }
+
+            Animator resolvedAnimator = modelRoot.GetComponentInChildren<Animator>(true);
+            if (resolvedAnimator == null)
+            {
+                Debug.LogError("[Single Revolver Aim Layer Builder] Missing Animator for reticle event receiver.");
+                return false;
+            }
+
+            GameObject animatorObject = resolvedAnimator.gameObject;
+            CCS_RevolverReticleAnimationEventReceiver receiver =
+                animatorObject.GetComponent<CCS_RevolverReticleAnimationEventReceiver>();
+            bool changed = false;
+            if (receiver == null)
+            {
+                receiver = animatorObject.AddComponent<CCS_RevolverReticleAnimationEventReceiver>();
+                changed = true;
+            }
+
+            SerializedObject serializedReceiver = new SerializedObject(receiver);
+            SerializedProperty aimAnimatorProperty = serializedReceiver.FindProperty("aimAnimator");
+            if (aimAnimatorProperty != null && aimAnimatorProperty.objectReferenceValue != aimAnimator)
+            {
+                aimAnimatorProperty.objectReferenceValue = aimAnimator;
+                serializedReceiver.ApplyModifiedPropertiesWithoutUndo();
+                changed = true;
             }
 
             return changed;

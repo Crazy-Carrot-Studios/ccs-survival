@@ -257,6 +257,15 @@ namespace CCS.Modules.CharacterController
 
         public const string WildWestFulldrawIdleClipName = "Fulldraw_Idle";
 
+        public const string RevolverAimHoldReticleRevealAnimationEventName = "CCS_OnRevolverAimHoldStarted";
+
+        public const float RevolverAimHoldReticleRevealAnimationEventPreferredTime = 0f;
+
+        public const float RevolverAimHoldReticleRevealAnimationEventFallbackTime = 0.01f;
+
+        public const string RevolverReticleAnimationEventReceiverScriptPath =
+            "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverReticleAnimationEventReceiver.cs";
+
         public const string WildWestIdleFullHolsterRevolverClipName = "Idle_Full_Holster_Revolver";
 
         public const string SingleRevolverUpperBodyLayerName = "SingleRevolverUpperBody";
@@ -304,6 +313,12 @@ namespace CCS.Modules.CharacterController
 
         public const string ReticleTimingStabilityReportPath =
             ReticleReportDirectory + "/CCS_ReticleTimingStability_v0.7.10e.md";
+
+        public const string ReticleRevealAnimationEventAuditReportPath =
+            ReticleReportDirectory + "/CCS_ReticleRevealAnimationEvent_Audit_v0.7.10f.md";
+
+        public const string ReticleRevealAnimationEventReportPath =
+            ReticleReportDirectory + "/CCS_ReticleRevealAnimationEvent_v0.7.10f.md";
 
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";

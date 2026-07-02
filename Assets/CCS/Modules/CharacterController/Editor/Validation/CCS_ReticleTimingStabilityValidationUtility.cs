@@ -102,8 +102,13 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendIfMissing(
                 failures,
-                profile.DrawRevealNormalizedTime >= 0.1f && profile.DrawRevealNormalizedTime <= 0.95f,
-                "drawRevealNormalizedTime must stay within 0.1–0.95.");
+                profile.RevealDuringDraw == false || profile.ReticleRevealSource == CCS_RevolverReticleRevealSource.StateReadiness,
+                "Draw normalized-time reveal must be disabled unless StateReadiness mode is selected.");
+            AppendIfMissing(
+                failures,
+                profile.ReticleRevealSource == CCS_RevolverReticleRevealSource.AnimationEvent
+                    || profile.ReticleRevealSource == CCS_RevolverReticleRevealSource.AnimationEventWithStateFallback,
+                "Reticle profile must use Animation Event reveal mode.");
             AppendIfMissing(
                 failures,
                 profile.MaxScreenSnapPixelsPerFrame > 0f,
@@ -146,9 +151,12 @@ namespace CCS.Modules.CharacterController.Editor
                 "CCS_SingleRevolverAimAnimator must reference reticle presentation profile.");
             AppendIfMissing(
                 failures,
-                source.Contains("ComputeDrawRevealNormalizedThreshold")
-                    || source.Contains("ResolveDrawRevealNormalizedThreshold"),
-                "Aim animator must compute draw reveal threshold from profile.");
+                source.Contains("NotifyRevolverAimHoldAnimationEvent"),
+                "CCS_SingleRevolverAimAnimator must expose animation event readiness notification.");
+            AppendIfMissing(
+                failures,
+                source.Contains("CCS_RevolverReticleRevealSource"),
+                "CCS_SingleRevolverAimAnimator must honor reticle reveal source profile.");
             AppendIfMissing(
                 failures,
                 source.Contains("SingleRevolverDrawStateName") || source.Contains("revolverDrawStateHash"),
@@ -169,8 +177,12 @@ namespace CCS.Modules.CharacterController.Editor
                 "CCS_MuzzleDrivenReticleController must serialize reticle presentation profile.");
             AppendIfMissing(
                 failures,
-                source.Contains("IsAimPresentationInReticleRevealWindow"),
-                "Reticle controller must honor reveal window property.");
+                source.Contains("IsAimPresentationReadyForReticle"),
+                "Reticle controller must gate on event-based readiness.");
+            AppendIfMissing(
+                failures,
+                source.Contains("IsReticlePresentationVisible"),
+                "Reticle controller must centralize visibility gating.");
             AppendIfMissing(
                 failures,
                 source.Contains("EnsureReticleHiddenAtStartup"),

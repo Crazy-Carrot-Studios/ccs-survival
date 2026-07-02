@@ -12,13 +12,23 @@ using UnityEngine;
 
 namespace CCS.Modules.CharacterController
 {
+    public enum CCS_RevolverReticleRevealSource
+    {
+        StateReadiness = 0,
+        AnimationEvent = 1,
+        AnimationEventWithStateFallback = 2,
+    }
+
     [CreateAssetMenu(
         fileName = "CCS_RevolverReticlePresentationProfile",
         menuName = "CCS/Character Controller/Revolver Reticle Presentation Profile",
         order = 21)]
     public sealed class CCS_RevolverReticlePresentationProfile : ScriptableObject
     {
-        [SerializeField] private bool revealDuringDraw = true;
+        [SerializeField] private CCS_RevolverReticleRevealSource reticleRevealSource =
+            CCS_RevolverReticleRevealSource.AnimationEvent;
+
+        [SerializeField] private bool revealDuringDraw = false;
 
         [SerializeField] [Range(0.1f, 0.95f)] private float drawRevealNormalizedTime = 0.55f;
 
@@ -39,6 +49,8 @@ namespace CCS.Modules.CharacterController
         [SerializeField] private bool holdLastValidTargetOnNoHit = true;
 
         [SerializeField] private float lastValidTargetHoldSeconds = 0.2f;
+
+        public CCS_RevolverReticleRevealSource ReticleRevealSource => reticleRevealSource;
 
         public bool RevealDuringDraw => revealDuringDraw;
 

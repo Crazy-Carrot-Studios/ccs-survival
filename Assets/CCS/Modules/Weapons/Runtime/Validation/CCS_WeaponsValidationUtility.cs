@@ -959,8 +959,12 @@ namespace CCS.Modules.Weapons
                     "CCS_MuzzleDrivenReticleController must gate reticle on gameplay aim state.");
                 AppendIfMissing(
                     failures,
-                    muzzleReticleSource.Contains("IsAimPresentationInReticleRevealWindow"),
-                    "CCS_MuzzleDrivenReticleController must gate on reveal window.");
+                    muzzleReticleSource.Contains("IsAimPresentationReadyForReticle"),
+                    "CCS_MuzzleDrivenReticleController must gate on animation event readiness.");
+                AppendIfMissing(
+                    failures,
+                    muzzleReticleSource.Contains("IsReticlePresentationVisible"),
+                    "CCS_MuzzleDrivenReticleController must centralize reticle visibility gating.");
                 AppendIfMissing(
                     failures,
                     muzzleReticleSource.Contains("reticlePresentationProfile"),
