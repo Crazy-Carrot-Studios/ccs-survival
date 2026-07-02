@@ -1,6 +1,6 @@
 # CCS Revolver Reticle — Barrel Line-of-Sight Plan
 
-**Version:** planning document — barrel LOS still deferred after v0.7.10f  
+**Version:** planning document — barrel LOS still deferred after v0.7.11  
 **Author:** James Schilz  
 **Created:** 2026-06-30  
 **Status:** Plan only — not implemented
@@ -99,4 +99,26 @@ Future implementation must consider:
 
 ## Next step
 
-Wait for user confirmation after v0.7.10e manual smoke before implementing barrel line-of-sight reticle behavior. Do not replace `CCS_RevolverReticlePresentationProfile` timing values with convergence tuning in the same pass.
+Wait for user confirmation after v0.7.10f manual smoke before implementing barrel line-of-sight reticle behavior. v0.7.11 documents the broader mouse-driven aim architecture in `CCS_MouseDriven_RevolverAim_BodyArm_Architecture.md`. Do not replace `CCS_RevolverReticlePresentationProfile` timing values with convergence tuning in the same pass.
+
+## Reticle must not drive the arm (v0.7.11)
+
+The reticle must **not** directly drive arm IK. Target chain:
+
+1. **Aim resolver** produces world target from camera/mouse intent.
+2. **Body presenter** and **arm IK presenter** solve toward that world target.
+3. **Muzzle LOS resolver** validates barrel convergence.
+4. **Reticle presenter** displays the final resolved/converged screen position.
+
+Releasing RMB must hide the reticle immediately when holster starts; arm IK and body bias blend out on the same aim-intent edge.
+
+## Future reticle modes
+
+| Mode | Description |
+|------|-------------|
+| **Camera Intent Reticle** | Camera center / camera ray screen result |
+| **Muzzle Convergence Reticle** | Screen-space point from muzzle-to-target convergence |
+| **Hybrid Reticle** | Center intent dot plus muzzle convergence marker |
+| **Future Dual Reticle** | Left/right muzzle-specific indicators |
+
+Profile owner: planned `CCS_RevolverReticleConvergenceProfile` (separate from `CCS_RevolverReticlePresentationProfile` reveal/stability fields).

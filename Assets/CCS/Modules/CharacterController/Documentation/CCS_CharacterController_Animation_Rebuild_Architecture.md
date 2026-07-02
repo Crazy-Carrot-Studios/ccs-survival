@@ -25,6 +25,15 @@
 - Removed `CapsuleVisual` and `VisualGlasses` from production player prefab
 - Animator Controller unchanged from v0.7.8 (still Base Layer + `SingleRevolverUpperBody`)
 
+## v0.7.11 — Mouse-driven revolver aim body/arm architecture (planning only)
+
+- Added `CCS_MouseDriven_RevolverAim_BodyArm_Architecture.md` — full aim data flow from mouse/camera to body, arm IK, muzzle, and reticle
+- Planned components: `CCS_RevolverAimTargetResolver`, `CCS_RevolverBodyAimPresenter`, `CCS_RevolverArmAimIKPresenter`, `CCS_RevolverMuzzleLineOfSightResolver`
+- Planned profiles: `CCS_RevolverAimTargetProfile`, `CCS_RevolverBodyAimProfile`, `CCS_RevolverArmIKProfile`, `CCS_RevolverReticleConvergenceProfile`
+- Reticle must not drive arm IK; aim resolver owns world target; reticle presents convergence result
+- RMB release must hide reticle immediately on holster start (preserved contract from v0.7.10f)
+- No runtime implementation; no Animator/clip changes; gameplay fire/damage unchanged
+
 ## v0.7.10f — Reticle reveal animation event (implemented)
 
 - Added `CCS_OnRevolverAimHoldStarted` Animation Event at the start of `Fulldraw_Idle` (FBX importer clip metadata only)
