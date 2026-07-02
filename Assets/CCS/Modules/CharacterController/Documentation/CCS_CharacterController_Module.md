@@ -19,6 +19,7 @@ Profile-driven third-person movement, Cinemachine camera control, equipment sock
 | **v0.7.1c** | Editor/documentation cleanup — Animation Fit Studio removed; no gameplay behavior changes |
 | **v0.7.1d** | Testing Manager foundation + editor menu reduction; no gameplay behavior changes |
 | **v0.7.1e** | Player prefab component audit + test-only separation readiness; no prefab rewrite |
+| **v0.7.12a** | Reticle consumes `CCS_RevolverAimTargetResolver` — shared stable world aim target fixes horizon pitch snap; reveal still Animation Event driven; no body/arm IK, muzzle LOS, or gameplay changes |
 | **v0.7.12** | Revolver aim target resolver prototype — `CCS_RevolverAimTargetResolver` + `CCS_RevolverAimTargetProfile`; stable world-space aim target from camera/mouse; diagnostics/future-system only; no body/arm IK, muzzle LOS, reticle convergence, or gameplay fire/damage changes |
 | **v0.7.11** | Mouse-driven revolver aim body/arm architecture plan — aim target resolver, body presenter, arm IK presenter, muzzle LOS resolver, reticle convergence profiles documented; **no implementation**; gameplay unchanged |
 | **v0.7.10f** | Reticle reveal animation event — `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle`; v0.7.10e smoothing retained; draw normalized reveal no longer primary; barrel LOS deferred; no gameplay changes |
@@ -163,6 +164,7 @@ All module integrity checks run via Unity `-batchmode -executeMethod`:
 | Single revolver aim layer | `CCS.Modules.CharacterController.Editor.CCS_SingleRevolverAimLayerBatchEntry.RunFromBatchMode` |
 | Reticle reveal animation event (v0.7.10f) | `CCS.Modules.CharacterController.Editor.CCS_ReticleRevealAnimationEventBatchEntry.RunFromBatchMode` |
 | Aim target resolver (v0.7.12) | `CCS.Modules.CharacterController.Editor.CCS_RevolverAimTargetResolverBatchEntry.RunFromBatchMode` |
+| Reticle aim target resolver binding (v0.7.12a) | `CCS.Modules.CharacterController.Editor.CCS_ReticleAimTargetResolverBindingBatchEntry.RunFromBatchMode` |
 
 See `Documentation/CCS_MouseDriven_RevolverAim_BodyArm_Architecture.md` and `Documentation/CCS_MouseDriven_RevolverAim_ValidationPlan.md` for the v0.7.11 mouse-driven aim plan (planning + interface contracts only).
 

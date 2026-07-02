@@ -1,5 +1,6 @@
 using System.IO;
 using CCS.Modules.CharacterController.Local;
+using CCS.Modules.Weapons;
 using UnityEditor;
 using UnityEngine;
 
@@ -124,6 +125,8 @@ namespace CCS.Modules.CharacterController.Editor
                     serializedResolver.ApplyModifiedPropertiesWithoutUndo();
                 }
 
+                changed |= WireReticleAimTargetSource(instance.transform, resolver);
+
                 if (changed)
                 {
                     PrefabUtility.SaveAsPrefabAsset(instance, CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
@@ -196,6 +199,37 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             property.objectReferenceValue = value;
+            return true;
+        }
+
+        private static bool WireReticleAimTargetSource(Transform playerRoot, CCS_RevolverAimTargetResolver resolver)
+        {
+            if (resolver == null)
+            {
+                return false;
+            }
+
+            CCS_MuzzleDrivenReticleController reticleController =
+                playerRoot.GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
+            if (reticleController == null)
+            {
+                return false;
+            }
+
+            SerializedObject serializedReticle = new SerializedObject(reticleController);
+            SerializedProperty sourceProperty = serializedReticle.FindProperty("aimTargetSourceComponent");
+            if (sourceProperty == null)
+            {
+                return false;
+            }
+
+            if (sourceProperty.objectReferenceValue == resolver)
+            {
+                return false;
+            }
+
+            sourceProperty.objectReferenceValue = resolver;
+            serializedReticle.ApplyModifiedPropertiesWithoutUndo();
             return true;
         }
     }

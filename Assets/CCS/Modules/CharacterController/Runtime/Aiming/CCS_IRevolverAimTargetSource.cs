@@ -23,5 +23,9 @@ namespace CCS.Modules.CharacterController
         float AimDistance { get; }
 
         bool IsObstructed { get; }
+
+        bool UsedFallbackTarget { get; }
+
+        bool UsedLastValidTarget { get; }
     }
 }

@@ -1,6 +1,6 @@
 # CCS Survival — Versioning Policy
 
-**Current version:** `0.7.12`
+**Current version:** `0.7.12a`
 
 ## Purpose
 
@@ -44,6 +44,7 @@ After the controlled hard reset, `ccs-survival` uses a fresh **0.x.x rebuild sch
 | **`0.6.16`** | **Simplified third-person revolver aim cleanup** |
 | **`0.7.0`** | **Network AI bandit combat foundation** |
 | **`0.7.1b`** | **Character Controller cleanup plan (Phase 1, documentation only)** |
+| **`0.7.12a`** | **Reticle uses aim target resolver:** reticle consumes `CCS_RevolverAimTargetResolver`; horizon pitch snap mitigated; reveal still Animation Event driven; no body/arm IK, muzzle LOS, or gameplay changes. |
 | **`0.7.12`** | **Revolver aim target resolver prototype:** `CCS_RevolverAimTargetResolver` + `CCS_RevolverAimTargetProfile`; stable world-space aim target from camera/mouse; diagnostics/future-system only; no body/arm IK, muzzle LOS, reticle convergence, or gameplay fire/damage changes. |
 | **`0.7.11`** | **Mouse-driven revolver aim architecture (planning):** `CCS_MouseDriven_RevolverAim_BodyArm_Architecture.md`; planned aim target resolver, body/arm presenters, muzzle LOS resolver, convergence profiles; no implementation; gameplay unchanged. |
 | **`0.7.10f`** | **Reticle reveal animation event:** `CCS_OnRevolverAimHoldStarted` on `Fulldraw_Idle` unlocks reticle visibility; v0.7.10e smoothing/pitch stability retained; normalized draw reveal no longer primary; barrel line-of-sight still deferred. No gameplay changes. |

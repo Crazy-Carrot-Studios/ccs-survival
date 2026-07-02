@@ -1,6 +1,6 @@
 # CCS Survival
 
-**Version 0.7.12** · Crazy Carrot Studios
+**Version 0.7.12a** · Crazy Carrot Studios
 
 Modular Unity 6 survival framework project — URP, Input System, Netcode for GameObjects, Cinemachine 3.
 
@@ -17,6 +17,8 @@ Modular Unity 6 survival framework project — URP, Input System, Netcode for Ga
 | **AI** | Network AI bandit combat foundation + v0.7.1 polish (v0.7.1) |
 
 ## Current milestone
+
+**0.7.12a** — **Reticle uses aim target resolver:** `CCS_MuzzleDrivenReticleController` projects `CCS_RevolverAimTargetResolver.AimWorldPoint` to screen; fixes horizon pitch snap via shared stable world target; reveal still Fulldraw_Idle Animation Event; no body/arm IK, muzzle LOS, or gameplay changes.
 
 **0.7.12** — **Revolver aim target resolver prototype:** `CCS_RevolverAimTargetResolver` turns mouse/camera look into one stable world-space aim target via profile-driven raycast/fallback/smoothing; diagnostics/future-system only; no body/arm IK, muzzle LOS, reticle convergence, or gameplay fire/damage changes.
 

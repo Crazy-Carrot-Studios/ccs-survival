@@ -1,9 +1,9 @@
 # CCS Mouse-Driven Revolver Aim — Validation Plan
 
-**Version:** 0.7.12 — v0.7.12 aim target resolver validation enforced  
+**Version:** 0.7.12a — reticle binding validation enforced  
 **Author:** James Schilz  
 **Created:** 2026-06-25  
-**Status:** `CCS_RevolverAimTargetResolverValidationUtility` enforced in v0.7.12; body/arm/muzzle/convergence validations remain future
+**Status:** `CCS_ReticleAimTargetResolverBindingValidationUtility` enforced in v0.7.12a
 
 ## Purpose
 
@@ -55,11 +55,14 @@ Continue running until implementation milestones add new utilities:
 
 | Utility | Milestone | Status |
 |---------|-----------|--------|
+| `CCS_ReticleAimTargetResolverBindingValidationUtility` | v0.7.12a | **Implemented** |
 | `CCS_RevolverAimTargetResolverValidationUtility` | v0.7.12 | **Implemented** |
 | `CCS_RevolverBodyAimPresenterValidationUtility` | v0.7.13 | Planned |
 | `CCS_RevolverArmAimIKValidationUtility` | v0.7.14 | Planned |
 | `CCS_RevolverMuzzleLineOfSightValidationUtility` | v0.7.15 | Planned |
 | `CCS_RevolverReticleConvergenceValidationUtility` | v0.7.15 | Planned |
+
+Batch entry: `CCS.Modules.CharacterController.Editor.CCS_ReticleAimTargetResolverBindingBatchEntry.RunFromBatchMode`
 
 Batch entry: `CCS.Modules.CharacterController.Editor.CCS_RevolverAimTargetResolverBatchEntry.RunFromBatchMode`
 

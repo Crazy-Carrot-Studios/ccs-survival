@@ -2128,6 +2128,7 @@ MonoBehaviour:
   equipmentVisualController: {fileID: 5730116116939274085}
   hudPresenter: {fileID: 9158304918560071027}
   aimPresentationReadinessSourceComponent: {fileID: 3033120692709944028}
+  aimTargetSourceComponent: {fileID: 7406545946613908010}
   reticlePresentationProfile: {fileID: 11400000, guid: cc2bd9b8372d7ae479b6c1ff6777ca7a, type: 2}
   screenSmoothing: 18
   debugRays: 0
@@ -3465,7 +3466,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

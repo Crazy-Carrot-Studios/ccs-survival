@@ -10,7 +10,7 @@ using UnityEngine;
 // PLACEMENT: PF_CCS_CharacterController_Player_Networked / Model / Aiming.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
-// NOTES: Diagnostics and future-system only in v0.7.12. Does not drive IK, reticle, or fire.
+// NOTES: v0.7.12a reticle consumes stable aim target. Does not drive IK or gameplay fire.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController

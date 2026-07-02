@@ -334,6 +334,12 @@ namespace CCS.Modules.CharacterController
         public const string AimTargetResolverRuntimeSnapshotReportPath =
             AimingReportDirectory + "/CCS_AimTargetResolver_RuntimeSnapshot.md";
 
+        public const string ReticleAimTargetResolverBindingAuditReportPath =
+            ReticleReportDirectory + "/CCS_ReticleAimTargetResolverBinding_Audit_v0.7.12a.md";
+
+        public const string ReticleAimTargetResolverBindingReportPath =
+            ReticleReportDirectory + "/CCS_ReticleAimTargetResolverBinding_v0.7.12a.md";
+
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
 

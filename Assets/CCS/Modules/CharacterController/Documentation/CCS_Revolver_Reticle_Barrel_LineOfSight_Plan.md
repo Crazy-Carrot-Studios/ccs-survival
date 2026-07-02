@@ -1,11 +1,11 @@
 # CCS Revolver Reticle — Barrel Line-of-Sight Plan
 
-**Version:** planning document — barrel LOS still deferred after v0.7.12  
+**Version:** planning document — barrel LOS still deferred after v0.7.12a  
 **Author:** James Schilz  
 **Created:** 2026-06-30  
 **Status:** Plan only — not implemented
 
-v0.7.12 adds `CCS_RevolverAimTargetResolver` (camera/mouse world target, diagnostics only). Muzzle/barrel line-of-sight and reticle convergence remain deferred.
+v0.7.12a binds reticle screen position to `CCS_RevolverAimTargetResolver.AimWorldPoint`. Muzzle/barrel line-of-sight and reticle convergence remain deferred.
 
 ## Purpose
 

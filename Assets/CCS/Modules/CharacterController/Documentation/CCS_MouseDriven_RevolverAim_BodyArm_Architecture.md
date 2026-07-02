@@ -1,9 +1,9 @@
 # CCS Mouse-Driven Revolver Aim — Body/Arm Architecture
 
-**Version:** 0.7.12 — architecture + v0.7.12 aim target resolver prototype  
+**Version:** 0.7.12a — v0.7.12a reticle consumes aim target resolver  
 **Author:** James Schilz  
 **Created:** 2026-06-25  
-**Status:** v0.7.12 implements aim target resolver prototype; body/arm/muzzle/reticle convergence remain planned
+**Status:** v0.7.12a binds reticle to resolver; body/arm/muzzle/convergence remain planned
 
 ## Purpose
 
@@ -71,6 +71,13 @@ Mouse look input drives `CCS_CharacterCameraController`. The active camera defin
 **Path:** `Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetResolver.cs`  
 **Contract:** `CCS_IRevolverAimTargetSource`  
 **Placement:** `PF_CCS_CharacterController_Player_Networked` → `Model` → `Aiming` (non-root)
+
+### v0.7.12a scope
+
+- `CCS_MuzzleDrivenReticleController` consumes `CCS_IRevolverAimTargetSource.AimWorldPoint` as primary screen target.
+- Reticle no longer performs independent hit/no-hit camera raycast when resolver is wired.
+- Horizon pitch snap mitigated by shared resolver smoothing/clamp/hold-last-valid.
+- Reticle reveal timing unchanged (Fulldraw_Idle Animation Event).
 
 ### v0.7.12 scope
 

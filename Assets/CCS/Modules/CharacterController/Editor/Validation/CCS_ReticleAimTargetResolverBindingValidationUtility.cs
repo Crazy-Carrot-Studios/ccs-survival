@@ -8,9 +8,9 @@ using UnityEditor;
 using UnityEngine;
 
 // =============================================================================
-// SCRIPT: CCS_RevolverAimTargetResolverValidationUtility
+// SCRIPT: CCS_ReticleAimTargetResolverBindingValidationUtility
 // CATEGORY: Modules / CharacterController / Editor / Validation
-// PURPOSE: Validates v0.7.12 revolver aim target resolver prototype.
+// PURPOSE: Validates v0.7.12a reticle aim target resolver binding.
 // PLACEMENT: Editor validation utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-25
@@ -18,22 +18,19 @@ using UnityEngine;
 
 namespace CCS.Modules.CharacterController.Editor
 {
-    public static class CCS_RevolverAimTargetResolverValidationUtility
+    public static class CCS_ReticleAimTargetResolverBindingValidationUtility
     {
-        private const string ResolverSourcePath =
-            "Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetResolver.cs";
-
-        private const string ProfileClassPath =
-            "Assets/CCS/Modules/CharacterController/Runtime/Aiming/CCS_RevolverAimTargetProfile.cs";
-
         private const string MuzzleReticleSourcePath =
             "Assets/CCS/Modules/Weapons/Runtime/Aiming/CCS_MuzzleDrivenReticleController.cs";
 
-        private const string ArmIkSourcePath =
-            "Assets/CCS/Modules/Weapons/Runtime/Aiming/CCS_RevolverArmReticleIK.cs";
+        private const string AimAnimatorSourcePath =
+            "Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_SingleRevolverAimAnimator.cs";
 
         private const string BodyAimSourcePath =
             "Assets/CCS/Modules/Weapons/Runtime/Aiming/CCS_RevolverBodyAimFollowController.cs";
+
+        private const string ArmIkSourcePath =
+            "Assets/CCS/Modules/Weapons/Runtime/Aiming/CCS_RevolverArmReticleIK.cs";
 
         private const string EquipmentFitStudioWindowPath =
             "Assets/CCS/Modules/CharacterController/Editor/EquipmentFitStudio/CCS_EquipmentFitStudioWindow.cs";
@@ -46,17 +43,15 @@ namespace CCS.Modules.CharacterController.Editor
 
         private const int ExpectedRootMonoBehaviourCount = 24;
 
-        public static CCS_SurvivalValidationResult ValidateRevolverAimTargetResolver()
+        public static CCS_SurvivalValidationResult ValidateReticleAimTargetResolverBinding()
         {
             List<string> failures = new List<string>();
             List<string> warnings = new List<string>();
 
-            ValidateRequiredAssets(failures);
-            ValidateProfile(failures);
-            ValidateResolverSource(failures);
-            ValidatePlayerPrefabWiring(failures);
+            ValidateReticleControllerSource(failures);
+            ValidatePlayerPrefabBinding(failures);
             ValidateRootMonoBehaviourCount(failures);
-            ValidateNoGameplayWiring(failures);
+            ValidateNoDeferredImplementation(failures);
             ValidateMissingScripts(failures);
             ValidateTestsFolderRemoved(failures);
             ValidateAnimationFitStudioNotPresent(failures);
@@ -68,7 +63,7 @@ namespace CCS.Modules.CharacterController.Editor
                 return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
             }
 
-            string message = "Revolver aim target resolver prototype validated.";
+            string message = "Reticle aim target resolver binding validated.";
             if (warnings.Count > 0)
             {
                 message += " Warnings: " + string.Join(" ", warnings);
@@ -77,62 +72,55 @@ namespace CCS.Modules.CharacterController.Editor
             return CCS_SurvivalValidationResult.Pass(message);
         }
 
-        private static void ValidateRequiredAssets(List<string> failures)
+        private static void ValidateReticleControllerSource(List<string> failures)
         {
-            AppendIfMissing(failures, File.Exists(ProfileClassPath), "Missing CCS_RevolverAimTargetProfile class.");
-            AppendIfMissing(failures, File.Exists(ResolverSourcePath), "Missing CCS_RevolverAimTargetResolver.");
+            AppendIfMissing(failures, File.Exists(MuzzleReticleSourcePath), "Missing CCS_MuzzleDrivenReticleController.");
+
+            if (!File.Exists(MuzzleReticleSourcePath))
+            {
+                return;
+            }
+
+            string source = File.ReadAllText(MuzzleReticleSourcePath);
             AppendIfMissing(
                 failures,
-                File.Exists(CCS_CharacterControllerConstants.RevolverAimTargetProfilePath),
-                "Missing CCS_RevolverAimTargetProfile asset.");
-        }
-
-        private static void ValidateProfile(List<string> failures)
-        {
-            CCS_RevolverAimTargetProfile profile = AssetDatabase.LoadAssetAtPath<CCS_RevolverAimTargetProfile>(
-                CCS_CharacterControllerConstants.RevolverAimTargetProfilePath);
-            AppendIfMissing(failures, profile != null, "Could not load aim target profile.");
-
-            if (profile == null)
-            {
-                return;
-            }
-
-            AppendIfMissing(failures, profile.CameraRayDistance > 0f, "cameraRayDistance must be > 0.");
-            AppendIfMissing(failures, profile.FallbackDistance > 0f, "fallbackDistance must be > 0.");
-            AppendIfMissing(failures, profile.TargetSmoothingTime >= 0f, "targetSmoothingTime must be >= 0.");
-            AppendIfMissing(failures, profile.MaxTargetSnapDistance > 0f, "maxTargetSnapDistance must be > 0.");
-            AppendIfMissing(failures, profile.LastValidTargetHoldSeconds >= 0f, "lastValidTargetHoldSeconds must be >= 0.");
-            AppendIfMissing(failures, profile.MinimumValidDistance > 0f, "minimumValidDistance must be > 0.");
-        }
-
-        private static void ValidateResolverSource(List<string> failures)
-        {
-            if (!File.Exists(ResolverSourcePath))
-            {
-                return;
-            }
-
-            string source = File.ReadAllText(ResolverSourcePath);
+                source.Contains("aimTargetSourceComponent"),
+                "Reticle controller must serialize aimTargetSourceComponent.");
             AppendIfMissing(
                 failures,
                 source.Contains("CCS_IRevolverAimTargetSource"),
-                "Resolver must implement CCS_IRevolverAimTargetSource.");
+                "Reticle controller must consume CCS_IRevolverAimTargetSource.");
             AppendIfMissing(
                 failures,
-                source.Contains("IsLocalPresentationOwner"),
-                "Resolver must gate on local owner presentation context.");
+                source.Contains("ResolveScreenFromAimTargetSource"),
+                "Reticle controller must resolve screen position from aim target source.");
             AppendIfMissing(
                 failures,
-                !source.Contains("CCS_RevolverController"),
-                "Resolver must not reference gameplay revolver controller.");
+                source.Contains("HasActiveAimTargetSource"),
+                "Reticle controller must gate primary target path on aim target source.");
             AppendIfMissing(
                 failures,
-                !source.Contains("ApplyDamage") && !source.Contains("Fire"),
-                "Resolver must not drive gameplay fire/damage.");
+                source.Contains("IsAimPresentationReadyForReticle"),
+                "Reticle controller must gate on animation event readiness.");
+            AppendIfMissing(
+                failures,
+                source.Contains("EnsureReticleHiddenAtStartup"),
+                "Reticle controller must hide reticle at startup.");
+            AppendIfMissing(
+                failures,
+                source.Contains("IsHandSocketPreviewActive"),
+                "Reticle controller must block hand socket preview.");
+            AppendIfMissing(
+                failures,
+                source.Contains("HandleAimEnded"),
+                "Reticle controller must hide reticle on holster start.");
+            AppendIfMissing(
+                failures,
+                !source.Contains("ApplyDamage"),
+                "Reticle controller must not drive gameplay damage.");
         }
 
-        private static void ValidatePlayerPrefabWiring(List<string> failures)
+        private static void ValidatePlayerPrefabBinding(List<string> failures)
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
             AppendIfMissing(failures, prefab != null, "Missing networked player prefab.");
@@ -149,7 +137,14 @@ namespace CCS.Modules.CharacterController.Editor
                 resolvers != null && resolvers.Length == 1,
                 "Player prefab must contain exactly one CCS_RevolverAimTargetResolver.");
 
-            if (resolvers == null || resolvers.Length == 0)
+            CCS_MuzzleDrivenReticleController reticleController =
+                prefab.GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
+            AppendIfMissing(
+                failures,
+                reticleController != null,
+                "Player prefab missing CCS_MuzzleDrivenReticleController.");
+
+            if (resolvers == null || resolvers.Length == 0 || reticleController == null)
             {
                 return;
             }
@@ -157,26 +152,19 @@ namespace CCS.Modules.CharacterController.Editor
             CCS_RevolverAimTargetResolver resolver = resolvers[0];
             AppendIfMissing(
                 failures,
-                resolver.gameObject.name == CCS_CharacterControllerConstants.RevolverAimTargetResolverObjectName,
-                "Resolver must live on Model/Aiming branch.");
-            AppendIfMissing(
-                failures,
-                resolver.transform.parent != null
-                    && resolver.transform.parent.name == "Model",
-                "Resolver must be child of Model root.");
-            AppendIfMissing(
-                failures,
                 resolver.gameObject != prefab,
                 "Resolver must not be attached to player root.");
-
-            CCS_RevolverAimTargetProfile profile = AssetDatabase.LoadAssetAtPath<CCS_RevolverAimTargetProfile>(
-                CCS_CharacterControllerConstants.RevolverAimTargetProfilePath);
-            SerializedObject serializedResolver = new SerializedObject(resolver);
-            SerializedProperty profileProperty = serializedResolver.FindProperty("aimTargetProfile");
             AppendIfMissing(
                 failures,
-                profileProperty != null && profileProperty.objectReferenceValue == profile,
-                "Resolver must reference CCS_RevolverAimTargetProfile asset.");
+                reticleController.gameObject.name == "WeaponHudRoot",
+                "Reticle controller must remain on WeaponHudRoot.");
+
+            SerializedObject serializedReticle = new SerializedObject(reticleController);
+            SerializedProperty sourceProperty = serializedReticle.FindProperty("aimTargetSourceComponent");
+            AppendIfMissing(
+                failures,
+                sourceProperty != null && sourceProperty.objectReferenceValue == resolver,
+                "Reticle controller must reference Model/Aiming CCS_RevolverAimTargetResolver.");
         }
 
         private static void ValidateRootMonoBehaviourCount(List<string> failures)
@@ -198,19 +186,15 @@ namespace CCS.Modules.CharacterController.Editor
                 + ").");
         }
 
-        private static void ValidateNoGameplayWiring(List<string> failures)
+        private static void ValidateNoDeferredImplementation(List<string> failures)
         {
-            if (File.Exists(MuzzleReticleSourcePath))
+            if (File.Exists(BodyAimSourcePath))
             {
-                string reticleSource = File.ReadAllText(MuzzleReticleSourcePath);
+                string bodySource = File.ReadAllText(BodyAimSourcePath);
                 AppendIfMissing(
                     failures,
-                    reticleSource.Contains("CCS_IRevolverAimTargetSource"),
-                    "Reticle controller must consume aim target source.");
-                AppendIfMissing(
-                    failures,
-                    reticleSource.Contains("aimTargetSourceComponent"),
-                    "Reticle controller must serialize aim target source reference.");
+                    !bodySource.Contains("CCS_RevolverAimTargetResolver"),
+                    "Body aim must not wire aim target resolver in v0.7.12a.");
             }
 
             if (File.Exists(ArmIkSourcePath))
@@ -219,16 +203,16 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     !armSource.Contains("CCS_RevolverAimTargetResolver"),
-                    "Arm IK must not wire aim target resolver.");
+                    "Arm IK must not wire aim target resolver in v0.7.12a.");
             }
 
-            if (File.Exists(BodyAimSourcePath))
+            if (File.Exists(AimAnimatorSourcePath))
             {
-                string bodySource = File.ReadAllText(BodyAimSourcePath);
+                string aimAnimatorSource = File.ReadAllText(AimAnimatorSourcePath);
                 AppendIfMissing(
                     failures,
-                    !bodySource.Contains("CCS_RevolverAimTargetResolver"),
-                    "Body aim follow must not wire aim target resolver.");
+                    aimAnimatorSource.Contains("NotifyRevolverAimHoldAnimationEvent"),
+                    "Aim animator must retain animation event readiness notification.");
             }
         }
 
@@ -265,16 +249,17 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static void CollectDeferredWarnings(List<string> warnings)
         {
-            CCS_RevolverAimTargetProfile profile = AssetDatabase.LoadAssetAtPath<CCS_RevolverAimTargetProfile>(
-                CCS_CharacterControllerConstants.RevolverAimTargetProfilePath);
-            if (profile != null && !profile.DrawDebugRayWhenDiagnosticsEnabled)
+            if (File.Exists(MuzzleReticleSourcePath))
             {
-                warnings.Add("Resolver debug rays are disabled by profile default.");
+                string source = File.ReadAllText(MuzzleReticleSourcePath);
+                if (source.Contains("TryRaycast("))
+                {
+                    warnings.Add("Legacy camera ray fallback remains as emergency fallback only.");
+                }
             }
 
-            warnings.Add("Remote player aim target replication is not implemented.");
-            warnings.Add("Muzzle/barrel line-of-sight remains deferred.");
-            warnings.Add("Reticle still uses v0.7.10f event timing and current target behavior.");
+            warnings.Add("Muzzle/barrel line-of-sight is still deferred.");
+            warnings.Add("Body/arm aim is still deferred.");
         }
 
         private static void AppendValidationFailures(List<string> failures, CCS_SurvivalValidationResult result)

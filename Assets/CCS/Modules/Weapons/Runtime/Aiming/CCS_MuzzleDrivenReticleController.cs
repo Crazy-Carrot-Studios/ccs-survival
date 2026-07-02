@@ -35,12 +35,16 @@ namespace CCS.Modules.Weapons
         [SerializeField] private CCS_PlayerEquipmentVisualController equipmentVisualController;
         [SerializeField] private CCS_RevolverHudPresenter hudPresenter;
         [SerializeField] private Component aimPresentationReadinessSourceComponent;
+        [SerializeField] private Component aimTargetSourceComponent;
         [SerializeField] private CCS_RevolverReticlePresentationProfile reticlePresentationProfile;
         [SerializeField] private float screenSmoothing = CCS_WeaponsConstants.MasterTestMuzzleReticleScreenSmoothingDefault;
         [SerializeField] private bool debugRays;
 
         private CCS_IRevolverAimPresentationReadinessSource aimPresentationReadinessSource;
+        private CCS_IRevolverAimTargetSource aimTargetSource;
         private bool resolvedAimPresentationReadinessSource;
+        private bool resolvedAimTargetSource;
+        private bool loggedMissingAimTargetSource;
         private NetworkObject cachedNetworkObject;
         private Vector2 smoothedScreenPosition;
         private Vector2 screenSmoothVelocity;
@@ -289,6 +293,66 @@ namespace CCS.Modules.Weapons
             }
 
             ResolveAimPresentationReadinessSource();
+            ResolveAimTargetSource();
+        }
+
+        private void ResolveAimTargetSource()
+        {
+            if (resolvedAimTargetSource)
+            {
+                return;
+            }
+
+            resolvedAimTargetSource = true;
+            if (aimTargetSourceComponent is CCS_IRevolverAimTargetSource fromComponent)
+            {
+                aimTargetSource = fromComponent;
+                return;
+            }
+
+            Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(transform.root);
+            if (modelRoot == null)
+            {
+                LogMissingAimTargetSourceOnce();
+                return;
+            }
+
+            Transform aimingRoot = modelRoot.Find(CCS_CharacterControllerConstants.RevolverAimTargetResolverObjectName);
+            if (aimingRoot == null)
+            {
+                LogMissingAimTargetSourceOnce();
+                return;
+            }
+
+            MonoBehaviour[] behaviours = aimingRoot.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is CCS_IRevolverAimTargetSource targetSource)
+                {
+                    aimTargetSource = targetSource;
+                    return;
+                }
+            }
+
+            LogMissingAimTargetSourceOnce();
+        }
+
+        private void LogMissingAimTargetSourceOnce()
+        {
+            if (loggedMissingAimTargetSource)
+            {
+                return;
+            }
+
+            loggedMissingAimTargetSource = true;
+            Debug.LogWarning(
+                "[Reticle Presentation] Missing CCS_IRevolverAimTargetSource — using legacy camera ray fallback.",
+                this);
+        }
+
+        private bool HasActiveAimTargetSource()
+        {
+            return aimTargetSource != null;
         }
 
         private void ResolveAimPresentationReadinessSource()
@@ -441,6 +505,11 @@ namespace CCS.Modules.Weapons
 
         private Vector2 ResolveTargetScreenPosition(Camera camera, Transform muzzle, Vector2 centerScreen)
         {
+            if (HasActiveAimTargetSource())
+            {
+                return ResolveStableCameraTargetScreen(camera, centerScreen);
+            }
+
             Vector2 stableCameraScreen = ResolveStableCameraTargetScreen(camera, centerScreen);
 
             if (reticleMode == CCS_AimReticleMode.CenterLocked)
@@ -480,6 +549,11 @@ namespace CCS.Modules.Weapons
 
         private Vector2 ResolveStableCameraTargetScreen(Camera camera, Vector2 centerScreen)
         {
+            if (HasActiveAimTargetSource())
+            {
+                return ResolveScreenFromAimTargetSource(camera, centerScreen);
+            }
+
             if (IsCameraPitchNearHorizon(camera)
                 && ResolveHoldLastValidTargetOnNoHit()
                 && TryGetRecentValidScreenTarget(out Vector2 recentValidTarget))
@@ -516,6 +590,41 @@ namespace CCS.Modules.Weapons
             Vector2 screenTarget = new Vector2(screen3.x, screen3.y);
             RememberValidScreenTarget(screenTarget);
             return screenTarget;
+        }
+
+        private Vector2 ResolveScreenFromAimTargetSource(Camera camera, Vector2 centerScreen)
+        {
+            if (aimTargetSource.HasValidAimTarget)
+            {
+                Vector3 screen3 = camera.WorldToScreenPoint(aimTargetSource.AimWorldPoint);
+                if (IsValidScreenProjection(screen3))
+                {
+                    Vector2 screenTarget = new Vector2(screen3.x, screen3.y);
+                    RememberValidScreenTarget(screenTarget);
+                    return screenTarget;
+                }
+            }
+
+            if (ResolveHoldLastValidTargetOnNoHit() && TryGetRecentValidScreenTarget(out Vector2 heldTarget))
+            {
+                LogReticleTransitionOnce(
+                    ref loggedLastValidTargetHold,
+                    "Reticle target invalid — using last valid screen target from aim source path.");
+                return heldTarget;
+            }
+
+            if (aimTargetSource.UsedLastValidTarget || aimTargetSource.UsedFallbackTarget)
+            {
+                Vector3 fallbackScreen3 = camera.WorldToScreenPoint(aimTargetSource.AimWorldPoint);
+                if (IsValidScreenProjection(fallbackScreen3))
+                {
+                    Vector2 fallbackScreen = new Vector2(fallbackScreen3.x, fallbackScreen3.y);
+                    RememberValidScreenTarget(fallbackScreen);
+                    return fallbackScreen;
+                }
+            }
+
+            return centerScreen;
         }
 
         private bool IsCameraPitchNearHorizon(Camera camera)
