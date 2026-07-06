@@ -1,4 +1,3 @@
-using CCS.Modules.CharacterController.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 
@@ -49,14 +48,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         private static bool ShouldDrawLabels()
         {
-            if (!Application.isPlaying)
-            {
-                return true;
-            }
-
-            CCS_CharacterControllerDiagnosticsManager diagnosticsManager =
-                CCS_CharacterControllerDiagnosticsManager.ActiveInstance;
-            return diagnosticsManager != null && diagnosticsManager.EnableVisualDebugHelpers;
+            return !Application.isPlaying;
         }
     }
 }

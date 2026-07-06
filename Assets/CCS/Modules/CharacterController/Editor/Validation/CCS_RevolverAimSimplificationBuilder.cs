@@ -46,7 +46,6 @@ namespace CCS.Modules.CharacterController.Editor
         {
             bool changed = CCS_LocomotionOnlyAnimatorResetBuilder.MaintainLocomotionOnlyController();
             changed |= CCS_SingleRevolverAimLayerBuilder.EnsureSingleRevolverAimLayer();
-            changed |= CCS_SingleRevolverAimLayerBuilder.EnsureSingleRevolverAimAnimatorOnNetworkedPlayerPrefab();
             return changed;
         }
 

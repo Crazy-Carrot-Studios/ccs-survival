@@ -17,5 +17,8 @@ namespace CCS.Modules.CharacterController
 
         public const string RightHandEquippedFitPath =
             CCS_EquipmentConstants.RevolverM1879RightHandEquippedFitPath;
+
+        public const string LeftHandEquippedFitPath =
+            CCS_EquipmentConstants.RevolverM1879LeftHandEquippedFitPath;
     }
 }

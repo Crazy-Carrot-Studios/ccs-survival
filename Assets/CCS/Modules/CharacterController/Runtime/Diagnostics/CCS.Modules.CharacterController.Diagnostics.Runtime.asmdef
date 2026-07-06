@@ -8,6 +8,7 @@
         "CCS.Modules.Attributes.Runtime",
         "CCS.Modules.Attributes.Tests.Runtime",
         "CCS.Modules.Weapons.Runtime",
+        "CCS.Modules.AI.Runtime",
         "CCS.Project.Runtime",
         "Unity.InputSystem",
         "Unity.Netcode.Runtime"

@@ -19,9 +19,6 @@ namespace CCS.Modules.Weapons.Editor
         public static void RunFromBatchMode()
         {
             CCS_WeaponsAssetBuilder.EnsureWeaponsAssets();
-            TryEnsureRevolverAimSimplificationPassViaReflection();
-            CCS_WeaponsTestPlayerPrefabBuilder.EnsureTestPlayerWeaponWiring();
-            CCS_WeaponsMasterTestBuilder.EnsureMasterTestWeaponTarget();
 
             CCS_SurvivalValidationResult result = CCS_WeaponsModuleValidator.ValidateWeaponsModule();
             if (result.IsSuccess)

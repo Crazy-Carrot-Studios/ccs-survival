@@ -63,9 +63,22 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             bool changed = false;
+            changed |= CCS_RevolverUpperBodyRightArmAimMaskUtility.EnsureMaskAsset();
+            changed |= CCS_RevolverUpperBodyLeftArmAimMaskUtility.EnsureMaskAsset();
             changed |= EnsurePresentationParameters(controller);
             changed |= EnsureSingleRevolverUpperBodyLayer(controller, mask, drawClip, holdClip, holsterClip);
-            changed |= CCS_RevolverFulldrawIdleReticleEventBuilder.EnsureFulldrawIdleReticleRevealAnimationEvent(out _);
+
+            AvatarMask leftMask = AssetDatabase.LoadAssetAtPath<AvatarMask>(
+                CCS_CharacterControllerConstants.RevolverAimLeftArmMaskPath);
+            if (leftMask != null)
+            {
+                changed |= EnsureExperimentalLeftRevolverUpperBodyLayer(
+                    controller,
+                    leftMask,
+                    drawClip,
+                    holdClip,
+                    holsterClip);
+            }
 
             if (changed)
             {
@@ -78,135 +91,7 @@ namespace CCS.Modules.CharacterController.Editor
 
         public static bool EnsureSingleRevolverAimAnimatorOnNetworkedPlayerPrefab()
         {
-            GameObject prefabRoot = AssetDatabase.LoadAssetAtPath<GameObject>(
-                CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
-            if (prefabRoot == null)
-            {
-                Debug.LogError("[Single Revolver Aim Layer Builder] Missing networked player prefab.");
-                return false;
-            }
-
-            GameObject instance = PrefabUtility.InstantiatePrefab(prefabRoot) as GameObject;
-            if (instance == null)
-            {
-                return false;
-            }
-
-            bool changed = false;
-            try
-            {
-                Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(instance.transform);
-                if (modelRoot == null)
-                {
-                    Debug.LogError("[Single Revolver Aim Layer Builder] Missing Model root on player prefab.");
-                    return false;
-                }
-
-                CCS_SingleRevolverAimAnimator aimAnimator = modelRoot.GetComponent<CCS_SingleRevolverAimAnimator>();
-                if (aimAnimator == null)
-                {
-                    aimAnimator = modelRoot.gameObject.AddComponent<CCS_SingleRevolverAimAnimator>();
-                    changed = true;
-                }
-
-                changed |= WireSingleRevolverAimAnimator(modelRoot, aimAnimator);
-                changed |= EnsureRevolverReticleAnimationEventReceiver(modelRoot, aimAnimator);
-                if (changed)
-                {
-                    PrefabUtility.SaveAsPrefabAsset(instance, CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);
-                }
-            }
-            finally
-            {
-                Object.DestroyImmediate(instance);
-            }
-
-            return changed;
-        }
-
-        public static bool EnsureRevolverReticleAnimationEventReceiver(
-            Transform modelRoot,
-            CCS_SingleRevolverAimAnimator aimAnimator)
-        {
-            if (modelRoot == null || aimAnimator == null)
-            {
-                return false;
-            }
-
-            Animator resolvedAnimator = modelRoot.GetComponentInChildren<Animator>(true);
-            if (resolvedAnimator == null)
-            {
-                Debug.LogError("[Single Revolver Aim Layer Builder] Missing Animator for reticle event receiver.");
-                return false;
-            }
-
-            GameObject animatorObject = resolvedAnimator.gameObject;
-            CCS_RevolverReticleAnimationEventReceiver receiver =
-                animatorObject.GetComponent<CCS_RevolverReticleAnimationEventReceiver>();
-            bool changed = false;
-            if (receiver == null)
-            {
-                receiver = animatorObject.AddComponent<CCS_RevolverReticleAnimationEventReceiver>();
-                changed = true;
-            }
-
-            SerializedObject serializedReceiver = new SerializedObject(receiver);
-            SerializedProperty aimAnimatorProperty = serializedReceiver.FindProperty("aimAnimator");
-            if (aimAnimatorProperty != null && aimAnimatorProperty.objectReferenceValue != aimAnimator)
-            {
-                aimAnimatorProperty.objectReferenceValue = aimAnimator;
-                serializedReceiver.ApplyModifiedPropertiesWithoutUndo();
-                changed = true;
-            }
-
-            return changed;
-        }
-
-        private static bool WireSingleRevolverAimAnimator(Transform modelRoot, CCS_SingleRevolverAimAnimator aimAnimator)
-        {
-            SerializedObject serializedAnimator = new SerializedObject(aimAnimator);
-            SerializedProperty animatorProperty = serializedAnimator.FindProperty("animator");
-            SerializedProperty revolverStateProperty = serializedAnimator.FindProperty("revolverAnimationStateComponent");
-            SerializedProperty layerNameProperty = serializedAnimator.FindProperty("upperBodyLayerName");
-
-            Animator resolvedAnimator = modelRoot.GetComponentInChildren<Animator>(true);
-            Component revolverState = null;
-            MonoBehaviour[] behaviours = modelRoot.root.GetComponentsInChildren<MonoBehaviour>(true);
-            for (int i = 0; i < behaviours.Length; i++)
-            {
-                if (behaviours[i] is CCS_IRevolverAnimationState)
-                {
-                    revolverState = behaviours[i];
-                    break;
-                }
-            }
-
-            bool changed = false;
-            if (animatorProperty != null && animatorProperty.objectReferenceValue != resolvedAnimator)
-            {
-                animatorProperty.objectReferenceValue = resolvedAnimator;
-                changed = true;
-            }
-
-            if (revolverStateProperty != null && revolverStateProperty.objectReferenceValue != revolverState)
-            {
-                revolverStateProperty.objectReferenceValue = revolverState;
-                changed = true;
-            }
-
-            if (layerNameProperty != null
-                && layerNameProperty.stringValue != CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName)
-            {
-                layerNameProperty.stringValue = CCS_CharacterControllerConstants.SingleRevolverUpperBodyLayerName;
-                changed = true;
-            }
-
-            if (changed)
-            {
-                serializedAnimator.ApplyModifiedPropertiesWithoutUndo();
-            }
-
-            return changed;
+            return false;
         }
 
         private static bool EnsurePresentationParameters(AnimatorController controller)
@@ -223,6 +108,18 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureAnimatorParameter(
                 controller,
                 CCS_CharacterAnimationParameterIds.Active.RevolverHolsterTrigger,
+                AnimatorControllerParameterType.Trigger);
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftIsAiming,
+                AnimatorControllerParameterType.Bool);
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverDrawTrigger,
+                AnimatorControllerParameterType.Trigger);
+            changed |= EnsureAnimatorParameter(
+                controller,
+                CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverHolsterTrigger,
                 AnimatorControllerParameterType.Trigger);
             return changed;
         }
@@ -350,6 +247,125 @@ namespace CCS.Modules.CharacterController.Editor
             return changed;
         }
 
+        private static bool EnsureExperimentalLeftRevolverUpperBodyLayer(
+            AnimatorController controller,
+            AvatarMask mask,
+            AnimationClip drawClip,
+            AnimationClip holdClip,
+            AnimationClip holsterClip)
+        {
+            bool changed = false;
+            int layerIndex = FindLayerIndex(
+                controller,
+                CCS_CharacterControllerConstants.SingleRevolverLeftUpperBodyLayerName);
+            if (layerIndex < 0)
+            {
+                controller.AddLayer(CCS_CharacterControllerConstants.SingleRevolverLeftUpperBodyLayerName);
+                layerIndex = controller.layers.Length - 1;
+                changed = true;
+            }
+
+            AnimatorControllerLayer layer = controller.layers[layerIndex];
+            layer.defaultWeight = 0f;
+            layer.blendingMode = AnimatorLayerBlendingMode.Override;
+            layer.iKPass = false;
+            controller.layers[layerIndex] = layer;
+
+            SerializedObject serializedController = new SerializedObject(controller);
+            SerializedProperty layersProperty = serializedController.FindProperty("m_AnimatorLayers");
+            if (layersProperty != null && layerIndex < layersProperty.arraySize)
+            {
+                SerializedProperty layerProperty = layersProperty.GetArrayElementAtIndex(layerIndex);
+                SerializedProperty maskProperty = layerProperty.FindPropertyRelative("m_Mask");
+                if (maskProperty != null && maskProperty.objectReferenceValue != mask)
+                {
+                    maskProperty.objectReferenceValue = mask;
+                    changed = true;
+                }
+            }
+
+            serializedController.ApplyModifiedPropertiesWithoutUndo();
+            layer = controller.layers[layerIndex];
+
+            AnimatorStateMachine stateMachine = layer.stateMachine;
+            if (stateMachine == null)
+            {
+                return changed;
+            }
+
+            changed |= RebuildExperimentalLeftRevolverStateMachine(stateMachine, drawClip, holdClip, holsterClip);
+            if (changed)
+            {
+                EditorUtility.SetDirty(stateMachine);
+                EditorUtility.SetDirty(controller);
+            }
+
+            return changed;
+        }
+
+        private static bool RebuildExperimentalLeftRevolverStateMachine(
+            AnimatorStateMachine stateMachine,
+            AnimationClip drawClip,
+            AnimationClip holdClip,
+            AnimationClip holsterClip)
+        {
+            ClearStateMachine(stateMachine);
+
+            bool changed = true;
+            AnimatorState emptyState = CreateState(
+                stateMachine,
+                CCS_CharacterControllerConstants.SingleRevolverLeftUpperBodyEmptyStateName,
+                null,
+                new Vector3(250f, 0f, 0f));
+            AnimatorState drawState = CreateState(
+                stateMachine,
+                CCS_CharacterControllerConstants.SingleRevolverLeftDrawStateName,
+                drawClip,
+                new Vector3(250f, 120f, 0f),
+                mirror: true);
+            AnimatorState holdState = CreateState(
+                stateMachine,
+                CCS_CharacterControllerConstants.SingleRevolverLeftAimHoldStateName,
+                holdClip,
+                new Vector3(250f, 240f, 0f),
+                mirror: true);
+            AnimatorState holsterState = CreateState(
+                stateMachine,
+                CCS_CharacterControllerConstants.SingleRevolverLeftHolsterStateName,
+                holsterClip,
+                new Vector3(250f, 360f, 0f),
+                mirror: true);
+
+            drawState.writeDefaultValues = true;
+            holdState.writeDefaultValues = true;
+            holsterState.writeDefaultValues = true;
+
+            stateMachine.defaultState = emptyState;
+
+            string leftIsAiming = CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftIsAiming;
+            string leftDrawTrigger = CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverDrawTrigger;
+            string leftHolsterTrigger = CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverHolsterTrigger;
+
+            AddTriggerTransition(emptyState, drawState, leftDrawTrigger, AimTransitionDuration);
+            AddExitTimeTransition(
+                drawState,
+                holdState,
+                AimTransitionDuration,
+                DrawToHoldExitTime,
+                leftIsAiming,
+                expectedTrue: true);
+            AddBoolTransition(drawState, holsterState, leftIsAiming, expectedTrue: false, AimTransitionDuration);
+            AddBoolOrTriggerTransition(
+                holdState,
+                holsterState,
+                leftIsAiming,
+                leftHolsterTrigger,
+                AimTransitionDuration);
+            AddExitTimeTransition(holsterState, emptyState, AimTransitionDuration, HolsterToEmptyExitTime);
+
+            return changed;
+        }
+
         private static AnimationClip LoadWildWestClip(string assetPath, string clipName)
         {
             if (string.IsNullOrEmpty(assetPath) || !File.Exists(assetPath))
@@ -390,10 +406,12 @@ namespace CCS.Modules.CharacterController.Editor
             AnimatorStateMachine stateMachine,
             string stateName,
             Motion motion,
-            Vector3 position)
+            Vector3 position,
+            bool mirror = false)
         {
             AnimatorState state = stateMachine.AddState(stateName, position);
             state.motion = motion;
+            state.mirror = mirror;
             return state;
         }
 

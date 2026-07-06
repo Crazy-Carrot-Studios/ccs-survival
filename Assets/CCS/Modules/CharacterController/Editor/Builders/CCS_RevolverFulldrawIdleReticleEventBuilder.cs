@@ -86,6 +86,58 @@ namespace CCS.Modules.CharacterController.Editor
             return true;
         }
 
+        public static bool RemoveFulldrawIdleReticleRevealAnimationEvent(out int removedEventCount)
+        {
+            removedEventCount = 0;
+            string assetPath = CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath;
+            ModelImporter importer = AssetImporter.GetAtPath(assetPath) as ModelImporter;
+            if (importer == null)
+            {
+                Debug.LogError("[Fulldraw Idle Reticle Event Builder] Missing ModelImporter for " + assetPath);
+                return false;
+            }
+
+            ModelImporterClipAnimation[] clipAnimations = importer.clipAnimations;
+            if (clipAnimations == null || clipAnimations.Length == 0)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            for (int i = 0; i < clipAnimations.Length; i++)
+            {
+                if (!string.Equals(
+                        clipAnimations[i].name,
+                        CCS_CharacterControllerConstants.WildWestFulldrawIdleClipName,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                AnimationEvent[] existingEvents = clipAnimations[i].events ?? Array.Empty<AnimationEvent>();
+                AnimationEvent[] keptEvents = RemoveMatchingEvents(existingEvents);
+                removedEventCount = existingEvents.Length - keptEvents.Length;
+                if (removedEventCount <= 0)
+                {
+                    return false;
+                }
+
+                clipAnimations[i].events = keptEvents;
+                changed = true;
+                break;
+            }
+
+            if (!changed)
+            {
+                return false;
+            }
+
+            importer.clipAnimations = clipAnimations;
+            importer.SaveAndReimport();
+            AssetDatabase.SaveAssets();
+            return true;
+        }
+
         public static bool TryReadFulldrawIdleReticleEventTime(out float eventTime, out int matchingEventCount)
         {
             eventTime = -1f;

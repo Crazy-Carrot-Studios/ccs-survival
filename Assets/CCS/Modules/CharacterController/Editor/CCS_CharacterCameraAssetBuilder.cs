@@ -439,7 +439,7 @@ namespace CCS.Modules.CharacterController.Editor
 
                 "Tight third-person over-the-shoulder aim camera for v0.6.15 revolver aim.");
 
-            changed |= ForceSetString(serializedProfile, "profileVersion", "0.6.15-aim-over-shoulder-tight");
+            changed |= ForceSetString(serializedProfile, "profileVersion", "0.7.13-aim-over-shoulder-stripped");
 
             changed |= ForceSetEnum(
 
@@ -462,12 +462,18 @@ namespace CCS.Modules.CharacterController.Editor
 
                 new Vector3(
                     CCS_CharacterControllerConstants.AimCameraShoulderOffsetXTuned,
-                    0.15f,
-                    0f));
+                    CCS_CharacterControllerConstants.AimCameraShoulderOffsetYTuned,
+                    CCS_CharacterControllerConstants.AimCameraShoulderOffsetZTuned));
 
-            changed |= ForceSetFloat(serializedProfile, "thirdPersonVerticalArmLength", 0.28f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "thirdPersonVerticalArmLength",
+                CCS_CharacterControllerConstants.AimCameraVerticalArmLengthTuned);
 
-            changed |= ForceSetFloat(serializedProfile, "thirdPersonCameraSide", 1f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "thirdPersonCameraSide",
+                CCS_CharacterControllerConstants.AimCameraSideTuned);
 
             changed |= ForceSetFloat(
                 serializedProfile,
@@ -503,11 +509,20 @@ namespace CCS.Modules.CharacterController.Editor
 
             changed |= ForceSetFloat(serializedProfile, "lookSmoothing", 12f);
 
-            changed |= ForceSetFloat(serializedProfile, "followDampingX", 0.06f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "followDampingX",
+                CCS_CharacterControllerConstants.AimCameraFollowDampingXTuned);
 
-            changed |= ForceSetFloat(serializedProfile, "followDampingY", 0.08f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "followDampingY",
+                CCS_CharacterControllerConstants.AimCameraFollowDampingYTuned);
 
-            changed |= ForceSetFloat(serializedProfile, "followDampingZ", 0.06f);
+            changed |= ForceSetFloat(
+                serializedProfile,
+                "followDampingZ",
+                CCS_CharacterControllerConstants.AimCameraFollowDampingZTuned);
 
             changed |= ForceSetBool(serializedProfile, "obstacleAvoidanceEnabled", true);
 

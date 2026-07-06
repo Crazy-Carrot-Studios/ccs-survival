@@ -5,6 +5,7 @@ using CCS.Modules.CharacterController.Editor.EquipmentFitStudio;
 using CCS.Modules.CharacterController.Diagnostics;
 using CCS.Modules.CharacterController.Local;
 using CCS.Modules.Interaction.Editor;
+using CCS.Modules.Weapons;
 using CCS.Modules.Weapons.Editor;
 using Unity.Cinemachine;
 using UnityEditor;
@@ -151,6 +152,8 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= CCS_InteractionDetectionTestBuilder.EnsureMasterTestInteractionPrerequisites();
             changed |= DestroyAllByName("CCS_TestPickupItemSpawner");
             changed |= DestroyAllByName("PF_CCS_TestInteractable_PickupItem");
+            changed |= DestroyAllByName(CCS_WeaponsConstants.RevolverM1879WorldPickupInstanceName);
+            changed |= DestroyAllByName("PF_CCS_RevolverM1879_WorldPickup");
             changed |= DestroyAllByName("CCS_TestDetectionCube");
             changed |= DestroyAllByName("CCS_TestDetectionCubeSceneBootstrap");
 

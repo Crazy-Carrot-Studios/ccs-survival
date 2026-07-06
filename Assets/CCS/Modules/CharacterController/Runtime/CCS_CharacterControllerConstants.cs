@@ -49,6 +49,9 @@ namespace CCS.Modules.CharacterController
         public const string RevolverAimRightArmMaskPath =
             RevolverAimMasksPath + "/AM_CCS_Revolver_UpperBodyRightArm_Aim.mask";
 
+        public const string RevolverAimLeftArmMaskPath =
+            RevolverAimMasksPath + "/AM_CCS_Revolver_UpperBodyLeftArm_Aim.mask";
+
         public const string RevolverIdleToAimClipPath =
             RevolverAimAnimationsPath + "/CCS_WW_Revolver_IdleToAim.anim";
 
@@ -278,6 +281,152 @@ namespace CCS.Modules.CharacterController
 
         public const string SingleRevolverHolsterStateName = "Revolver_Holster";
 
+        public const string SingleRevolverLeftUpperBodyLayerName = "SingleRevolverLeftUpperBody";
+
+        public const string SingleRevolverLeftUpperBodyEmptyStateName = "UpperBody_Empty";
+
+        public const string SingleRevolverLeftDrawStateName = "LeftRevolver_Draw";
+
+        public const string SingleRevolverLeftAimHoldStateName = "LeftRevolver_Aim_Hold";
+
+        public const string SingleRevolverLeftHolsterStateName = "LeftRevolver_Holster";
+
+        public static readonly string[] SingleRevolverLeftUpperBodyAllowedStateNames =
+        {
+            SingleRevolverLeftUpperBodyEmptyStateName,
+            SingleRevolverLeftDrawStateName,
+            SingleRevolverLeftAimHoldStateName,
+            SingleRevolverLeftHolsterStateName,
+        };
+
+        public static readonly string[] StrippedBaselineAllowedAnimatorLayerNames =
+        {
+            "Base Layer",
+            SingleRevolverUpperBodyLayerName,
+            SingleRevolverLeftUpperBodyLayerName,
+        };
+
+        public static readonly string[] StrippedBaselineAllowedAnimatorParameterNames =
+        {
+            "SpeedNormalized",
+            "IsGrounded",
+            "IsSprinting",
+            "JumpTrigger",
+            CCS_CharacterAnimationParameterIds.Active.IsAiming,
+            CCS_CharacterAnimationParameterIds.Active.RevolverDrawTrigger,
+            CCS_CharacterAnimationParameterIds.Active.RevolverHolsterTrigger,
+            CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftIsAiming,
+            CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverDrawTrigger,
+            CCS_CharacterAnimationParameterIds.ExperimentalLeft.LeftRevolverHolsterTrigger,
+        };
+
+        public static readonly Vector3 StrippedBaselineRightHandEquippedFitPosition =
+            new Vector3(0.091f, 0.179f, 0.005f);
+
+        public static readonly Vector3 StrippedBaselineRightHandEquippedFitEuler =
+            new Vector3(-56.622f, 110.661f, 60f);
+
+        public const float StrippedBaselineFitComparisonTolerance = 0.001f;
+
+        public const string DualRevolverAimConvergenceProfilePath =
+            ModuleRootPath + "/Profiles/Animation/CCS_DualRevolverAimConvergenceProfile.asset";
+
+        public const string DualRevolverArmAimBiasProfilePath =
+            ModuleRootPath + "/Profiles/Animation/CCS_DualRevolverArmAimBiasProfile.asset";
+
+        public const string DualRevolverAimAimingObjectName = "Aiming";
+
+        public const string DualRevolverAimRigRootObjectName = "CCS_DualRevolverAimRig";
+
+        public const string SharedDualAimPointObjectName = "CCS_SharedDualAimPoint";
+
+        public const string SharedDualAimReticleObjectName = "CCS_SharedDualAimReticle";
+
+        public const string DualRevolverAimConvergenceTargetObjectName = SharedDualAimPointObjectName;
+
+        public const string DualRevolverRightAimRigTargetObjectName = "CCS_RightRevolverAimRigTarget";
+
+        public const string DualRevolverLeftAimRigTargetObjectName = "CCS_LeftRevolverAimRigTarget";
+
+        public const string DualRevolverRightElbowHintObjectName = "CCS_RightRevolverElbowHint";
+
+        public const string DualRevolverLeftElbowHintObjectName = "CCS_LeftRevolverElbowHint";
+
+        public const string DualRevolverAimRigLayerObjectName = "CCS_DualRevolverAimRigLayer";
+
+        public const string DualRevolverVisualAimReferenceObjectName = "CCS_DualRevolverVisualAimReference";
+
+        public const string DualRevolverManualAimTargetsRootObjectName = "CCS_DualRevolverManualAimTargets";
+
+        public const string ManualArmRotationBiasRigLayerObjectName = "CCS_ManualArmRotationBiasRigLayer";
+
+        public const string RightUpperArmRotationBiasTestObjectName = "RightUpperArmRotationBias_Test";
+
+        public const string RightClavicleRotationBiasTestObjectName = "RightClavicleRotationBias_Test";
+
+        public const string LeftUpperArmRotationBiasTestObjectName = "LeftUpperArmRotationBias_Test";
+
+        public const string LeftClavicleRotationBiasTestObjectName = "LeftClavicleRotationBias_Test";
+
+        public const string RightUpperArmRotationBiasPoseObjectName = "CCS_RightUpperArmRotationBiasPose";
+
+        public const string RightClavicleRotationBiasPoseObjectName = "CCS_RightClavicleRotationBiasPose";
+
+        public const string LeftUpperArmRotationBiasPoseObjectName = "CCS_LeftUpperArmRotationBiasPose";
+
+        public const string LeftClavicleRotationBiasPoseObjectName = "CCS_LeftClavicleRotationBiasPose";
+
+        public const string ManualDualRevolverArmRotationBiasProfilePath =
+            ModuleRootPath + "/Profiles/Animation/CCS_ManualDualRevolverArmRotationBiasProfile.asset";
+
+        public const string ManualArmAimRigLayerObjectName = "CCS_ManualArmAimRigLayer";
+
+        public const string RightUpperArmAimTestObjectName = "RightUpperArmAim_Test";
+
+        public const string RightClavicleAimTestObjectName = "RightClavicleAim_Test";
+
+        public const string LeftUpperArmAimTestObjectName = "LeftUpperArmAim_Test";
+
+        public const string LeftClavicleAimTestObjectName = "LeftClavicleAim_Test";
+
+        public const string RightUpperArmAimSourceObjectName = "CCS_RightUpperArmAimSource";
+
+        public const string LeftUpperArmAimSourceObjectName = "CCS_LeftUpperArmAimSource";
+
+        public const float SharedDualAimPointDefaultDistance = 35f;
+
+        public const float SharedDualAimPointDefaultSmoothTime = 0.08f;
+
+        public const float ManualArmAimRigDefaultWeight = 0f;
+
+        public const float ManualArmRotationBiasRigTestLayerWeight = 1f;
+
+        public const float ManualUpperArmRotationBiasTestWeight = 0.10f;
+
+        public const float ManualClavicleRotationBiasTestWeight = 0.05f;
+
+        public const float ManualRotationBiasSourceWeight = 1f;
+
+        public const float ManualArmAimRigTestLayerWeight = 1f;
+
+        public const float ManualUpperArmAimTestWeight = 0.10f;
+
+        public const float ManualClavicleAimTestWeight = 0.05f;
+
+        public const float ManualMultiAimSourceWeight = 1f;
+
+        public const float RightUpperArmAimSourceLocalXOffset = -0.10f;
+
+        public const float LeftUpperArmAimSourceLocalXOffset = 0.10f;
+
+        public const float ManualUpperArmAimTestSuggestedWeightMin = 0.10f;
+
+        public const float ManualUpperArmAimTestSuggestedWeightMax = 0.15f;
+
+        public const float ManualClavicleAimTestSuggestedWeightMin = 0.05f;
+
+        public const float ManualClavicleAimTestSuggestedWeightMax = 0.08f;
+
         public const string SingleRevolverAimLayerReportDirectory =
             "Logs/CharacterController/RevolverAimLayer";
 
@@ -339,6 +488,17 @@ namespace CCS.Modules.CharacterController
 
         public const string ReticleAimTargetResolverBindingReportPath =
             ReticleReportDirectory + "/CCS_ReticleAimTargetResolverBinding_v0.7.12a.md";
+
+        public const string StripBaselineReportDirectory =
+            "Logs/CharacterController/StripBaseline";
+
+        public const string StripBaselineRemovalAuditReportPath =
+            StripBaselineReportDirectory + "/CCS_StripBaseline_RemovalAudit_v0.7.13.md";
+
+        public const string StrippedCharacterControllerBaselineReportPath =
+            StripBaselineReportDirectory + "/CCS_StrippedCharacterControllerBaseline_v0.7.13.md";
+
+        public const int StrippedBaselineExpectedRootMonoBehaviourCountMax = 24;
 
         public const string RevolverSocketAndIKAuditReportPath =
             ValidationCleanupReportDirectory + "/CCS_RevolverSocketAndIKAudit_v0.7.10a.md";
@@ -582,23 +742,27 @@ namespace CCS.Modules.CharacterController
 
         public const float ThirdPersonCameraDistanceMaximum = 3.25f;
 
-        public const float AimCameraDistanceTuned = 1.85f;
+        public const float AimCameraDistanceTuned = 1.06f;
 
-        public const float AimCameraDistanceMinimum = 1.65f;
+        public const float AimCameraDistanceMinimum = 0.95f;
 
-        public const float AimCameraDistanceMaximum = 2.05f;
+        public const float AimCameraDistanceMaximum = 1.20f;
 
         public const float AimCameraDistanceLegacyLoose = 2.5f;
 
-        public const float AimCameraShoulderOffsetXTuned = 0.45f;
+        public const float AimCameraShoulderOffsetXTuned = 0.65f;
 
-        public const float AimCameraShoulderOffsetXMinimum = 0.40f;
+        public const float AimCameraShoulderOffsetXMinimum = 0.55f;
 
-        public const float AimCameraShoulderOffsetXMaximum = 0.55f;
+        public const float AimCameraShoulderOffsetXMaximum = 0.75f;
 
-        public const float AimCameraShoulderOffsetYMinimum = 0.10f;
+        public const float AimCameraShoulderOffsetYTuned = 0f;
 
-        public const float AimCameraShoulderOffsetYMaximum = 0.25f;
+        public const float AimCameraShoulderOffsetYMinimum = -0.05f;
+
+        public const float AimCameraShoulderOffsetYMaximum = 0.10f;
+
+        public const float AimCameraShoulderOffsetZTuned = -0.01f;
 
         public const float AimCameraTrackingHeightTuned = 1.48f;
 
@@ -606,7 +770,7 @@ namespace CCS.Modules.CharacterController
 
         public const float AimCameraTrackingHeightMaximum = 1.60f;
 
-        public const float AimCameraFieldOfViewTuned = 58f;
+        public const float AimCameraFieldOfViewTuned = 56f;
 
         public const float AimCameraFieldOfViewMinimum = 56f;
 
@@ -631,6 +795,16 @@ namespace CCS.Modules.CharacterController
         public const float AimVerticalArmLengthMinimum = 0.18f;
 
         public const float AimVerticalArmLengthMaximum = 0.32f;
+
+        public const float AimCameraSideTuned = 1f;
+
+        public const float AimCameraVerticalArmLengthTuned = 0.18f;
+
+        public const float AimCameraFollowDampingXTuned = 0.06f;
+
+        public const float AimCameraFollowDampingYTuned = 0.08f;
+
+        public const float AimCameraFollowDampingZTuned = 0.06f;
 
         public const int ThirdPersonCameraActivePriority = 20;
 

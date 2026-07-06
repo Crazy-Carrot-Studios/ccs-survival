@@ -16,14 +16,14 @@ MonoBehaviour:
   profileId: ccs.survival.profile.character.camera.aimovershoulder
   profileDescription: Tight third-person over-the-shoulder aim camera for v0.6.15
     revolver aim.
-  profileVersion: 0.6.15-aim-over-shoulder-tight
+  profileVersion: 0.7.13-aim-over-shoulder-stripped
   enableDebugLogs: 0
   cameraMode: 3
   trackingTargetLocalHeight: 1.48
-  thirdPersonShoulderOffset: {x: 0.45, y: 0.15, z: 0}
-  thirdPersonVerticalArmLength: 0.28
+  thirdPersonShoulderOffset: {x: 0.65, y: 0, z: -0.01}
+  thirdPersonVerticalArmLength: 0.18
   thirdPersonCameraSide: 1
-  thirdPersonCameraDistance: 1.85
+  thirdPersonCameraDistance: 1.06
   verticalOrbitDefault: 0
   verticalOrbitMin: -35
   verticalOrbitMax: 55
@@ -46,7 +46,7 @@ MonoBehaviour:
   collisionDampingFrom: 0.3
   validationDisableObstacleAvoidanceForBaselinePass: 1
   aimBlendDurationSeconds: 0.45
-  fieldOfView: 58
+  fieldOfView: 56
   aimLookSensitivityMultiplier: 0.85
   firstPersonForwardEyeOffset: 0.22
   firstPersonVerticalEyeOffset: 0.05

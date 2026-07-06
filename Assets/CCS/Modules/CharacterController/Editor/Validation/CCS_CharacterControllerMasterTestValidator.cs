@@ -1555,16 +1555,31 @@ namespace CCS.Modules.CharacterController.Editor
             }
 
             SerializedObject serializedManager = new SerializedObject(testingManager);
-            SerializedProperty ambienceEnabledProperty = serializedManager.FindProperty("enableRecordingAmbience");
-            SerializedProperty playlistReferenceProperty = serializedManager.FindProperty("ambientAudioPlaylist");
+            SerializedProperty enableEnemyProperty = serializedManager.FindProperty("enableEnemy");
+            SerializedProperty enableAimPoseProperty = serializedManager.FindProperty("enableAimPose");
+            SerializedProperty equipWeaponProperty = serializedManager.FindProperty("equipWeapon");
+
             AppendIfMissing(
                 failures,
-                ambienceEnabledProperty != null && !ambienceEnabledProperty.boolValue,
-                "CCS_CharacterControllerDiagnosticsManager.enableRecordingAmbience must default to false in gameplay Master Test.");
+                enableEnemyProperty != null && !enableEnemyProperty.boolValue,
+                "CCS_CharacterControllerDiagnosticsManager.enableEnemy must default to false.");
             AppendIfMissing(
                 failures,
-                playlistReferenceProperty == null || playlistReferenceProperty.objectReferenceValue == null,
-                "CCS_CharacterControllerDiagnosticsManager must not reference a Master Test ambient playlist.");
+                enableAimPoseProperty != null && !enableAimPoseProperty.boolValue,
+                "CCS_CharacterControllerDiagnosticsManager.enableAimPose must default to false.");
+            AppendIfMissing(
+                failures,
+                equipWeaponProperty != null && equipWeaponProperty.boolValue,
+                "CCS_CharacterControllerDiagnosticsManager.equipWeapon must default to true.");
+
+            AppendIfMissing(
+                failures,
+                testingManager.GetComponent<CCS_CharacterCameraDebugReporter>() == null,
+                "CCS_DiagnosticsManager must not contain CCS_CharacterCameraDebugReporter in stripped baseline.");
+            AppendIfMissing(
+                failures,
+                testingManager.GetComponent<CCS_PlayerDiagnosticsInputRouter>() == null,
+                "CCS_DiagnosticsManager must not contain CCS_PlayerDiagnosticsInputRouter in stripped baseline.");
 
             string testingManagerSourcePath =
                 "Assets/CCS/Modules/CharacterController/Runtime/Diagnostics/CCS_CharacterControllerDiagnosticsManager.cs";
@@ -1573,80 +1588,16 @@ namespace CCS.Modules.CharacterController.Editor
                 string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
                 AppendIfMissing(
                     failures,
-                    testingManagerSource.Contains("SetRecordingAmbienceEnabled")
-                        && testingManagerSource.Contains("ApplyTestingSettings")
-                        && testingManagerSource.Contains("WriteOneShotReport"),
-                    "CCS_CharacterControllerDiagnosticsManager must expose ambience toggle methods and WriteOneShotReport.");
-            }
-
-            if (testingManager != null)
-            {
-                SerializedProperty armIkProperty = serializedManager.FindProperty("enableArmToReticleIK");
-                SerializedProperty convergenceProperty = serializedManager.FindProperty("enableVisualAimConvergence");
-                SerializedProperty reticleModeProperty = serializedManager.FindProperty("reticleMode");
-                SerializedProperty reticleClampProperty = serializedManager.FindProperty("enableReticleClamp");
-                SerializedProperty maxDriftProperty = serializedManager.FindProperty("maxReticleDriftPixels");
-                SerializedProperty aimDebugRaysProperty = serializedManager.FindProperty("enableAimDebugRays");
-
+                    testingManagerSource.Contains("enableEnemy")
+                        && testingManagerSource.Contains("enableAimPose")
+                        && testingManagerSource.Contains("equipWeapon"),
+                    "CCS_CharacterControllerDiagnosticsManager must expose stripped baseline controls only.");
                 AppendIfMissing(
                     failures,
-                    armIkProperty == null || !armIkProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.enableArmToReticleIK must default to false.");
-                AppendIfMissing(
-                    failures,
-                    convergenceProperty == null || !convergenceProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.enableVisualAimConvergence must default to false.");
-                AppendIfMissing(
-                    failures,
-                    reticleModeProperty == null
-                        || reticleModeProperty.enumValueIndex == (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift,
-                    "CCS_CharacterControllerDiagnosticsManager.reticleMode must default to HybridCameraCenterWithMuzzleDrift.");
-                AppendIfMissing(
-                    failures,
-                    reticleClampProperty == null || reticleClampProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.enableReticleClamp must default to true.");
-                AppendIfMissing(
-                    failures,
-                    maxDriftProperty == null
-                        || Mathf.Approximately(
-                            maxDriftProperty.floatValue,
-                            CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault),
-                    "CCS_CharacterControllerDiagnosticsManager.maxReticleDriftPixels must default to "
-                    + CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault.ToString("0.##")
-                    + ".");
-                AppendIfMissing(
-                    failures,
-                    aimDebugRaysProperty == null || !aimDebugRaysProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.enableAimDebugRays must default to false.");
-
-                SerializedProperty forceRevolverAimSetupPoseProperty = serializedManager.FindProperty("forceRevolverAimSetupPose");
-                AppendIfMissing(
-                    failures,
-                    forceRevolverAimSetupPoseProperty == null || !forceRevolverAimSetupPoseProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.forceRevolverAimSetupPose must default to false.");
-
-                SerializedProperty forceRevolverHandSocketPreviewProperty =
-                    serializedManager.FindProperty("forceRevolverHandSocketPreview");
-                AppendIfMissing(
-                    failures,
-                    forceRevolverHandSocketPreviewProperty == null || !forceRevolverHandSocketPreviewProperty.boolValue,
-                    "CCS_CharacterControllerDiagnosticsManager.forceRevolverHandSocketPreview must default to false.");
-            }
-
-            if (File.Exists(testingManagerSourcePath))
-            {
-                string testingManagerSource = File.ReadAllText(testingManagerSourcePath);
-                AppendIfMissing(
-                    failures,
-                    testingManagerSource.Contains("enableArmToReticleIK")
-                        && testingManagerSource.Contains("reticleMode")
-                        && testingManagerSource.Contains("ForceRevolverAimSetupPose")
-                        && testingManagerSource.Contains("ForceRevolverHandSocketPreview"),
-                    "CCS_CharacterControllerDiagnosticsManager must expose Master Test aim visual toggles.");
-                AppendIfMissing(
-                    failures,
-                    !testingManagerSource.Contains("ConfigureThirdPersonAimPitchBlend"),
-                    "CCS_CharacterControllerDiagnosticsManager must not configure removed RevolverAimPitch flow.");
+                    !testingManagerSource.Contains("enableRecordingAmbience")
+                        && !testingManagerSource.Contains("enableDualHolsteredRevolvers")
+                        && !testingManagerSource.Contains("ForceRevolverAimSetupPose"),
+                    "CCS_CharacterControllerDiagnosticsManager must not retain removed diagnostics fields.");
             }
         }
 

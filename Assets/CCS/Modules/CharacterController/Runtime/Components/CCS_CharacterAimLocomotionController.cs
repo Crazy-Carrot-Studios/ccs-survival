@@ -114,14 +114,17 @@ namespace CCS.Modules.CharacterController
             }
 
             bool shouldUseCombatLocomotion = weaponAimGate != null && weaponAimGate.CanUseAimMovement;
+            bool shouldUseFirearmAimCamera = weaponAimGate != null && weaponAimGate.CanUseFirearmAimCamera;
 
             if (!inputProvider.InputAccepted)
             {
                 SetCombatLocomotionActive(shouldUseCombatLocomotion);
+                SetFirearmAimCameraActive(shouldUseFirearmAimCamera);
                 return;
             }
 
             SetCombatLocomotionActive(shouldUseCombatLocomotion);
+            SetFirearmAimCameraActive(shouldUseFirearmAimCamera);
         }
 
         #endregion

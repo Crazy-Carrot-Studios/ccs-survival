@@ -23,6 +23,7 @@ namespace CCS.Modules.AI
         [SerializeField] private GameObject aiBanditPrefab;
         [SerializeField] private Transform spawnReference;
         [SerializeField] private Vector3 spawnOffset = default;
+        [SerializeField] private bool autoSpawnOnStart = true;
         [SerializeField] private bool enableSpawnerDebugLogs;
 
         private bool spawned;
@@ -40,6 +41,11 @@ namespace CCS.Modules.AI
 
         private void Start()
         {
+            if (!autoSpawnOnStart)
+            {
+                return;
+            }
+
             TrySpawn();
         }
 

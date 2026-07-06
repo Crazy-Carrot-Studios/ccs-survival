@@ -368,112 +368,54 @@ namespace CCS.Modules.CharacterController.Editor
                 changed = true;
             }
 
-            CCS_AmbientAudioPlaylist ambientPlaylist = includeAmbienceReference
-                ? FindRootObject(
-                    masterTestScene,
-                    CCS_ProjectAudioConstants.MasterTestAmbientAudioObjectName)
-                    ?.GetComponent<CCS_AmbientAudioPlaylist>()
-                : null;
+            changed |= RemoveObsoleteDiagnosticComponents(testingManagerObject);
 
             SerializedObject serializedManager = new SerializedObject(testingManager);
-            SerializedProperty ambienceEnabledProperty = serializedManager.FindProperty("enableRecordingAmbience");
-            SerializedProperty playlistProperty = serializedManager.FindProperty("ambientAudioPlaylist");
-            SerializedProperty applyOnStartProperty = serializedManager.FindProperty("applyOnStart");
-            SerializedProperty applyInEditorProperty = serializedManager.FindProperty("applyInEditorWhenChanged");
-            SerializedProperty debugProperty = serializedManager.FindProperty("debugTestingManager");
-            SerializedProperty armIkProperty = serializedManager.FindProperty("enableArmToReticleIK");
-            SerializedProperty convergenceProperty = serializedManager.FindProperty("enableVisualAimConvergence");
-            SerializedProperty reticleModeProperty = serializedManager.FindProperty("reticleMode");
-            SerializedProperty reticleClampProperty = serializedManager.FindProperty("enableReticleClamp");
-            SerializedProperty maxDriftProperty = serializedManager.FindProperty("maxReticleDriftPixels");
-            SerializedProperty pitchBlendProperty = serializedManager.FindProperty("enableThirdPersonAimPitchBlend");
-            SerializedProperty aimDebugRaysProperty = serializedManager.FindProperty("enableAimDebugRays");
+            SerializedProperty enableEnemyProperty = serializedManager.FindProperty("enableEnemy");
+            SerializedProperty enableAimPoseProperty = serializedManager.FindProperty("enableAimPose");
+            SerializedProperty equipWeaponProperty = serializedManager.FindProperty("equipWeapon");
 
-            if (ambienceEnabledProperty != null && ambienceEnabledProperty.boolValue != includeAmbienceReference)
+            if (enableEnemyProperty != null && enableEnemyProperty.boolValue)
             {
-                ambienceEnabledProperty.boolValue = includeAmbienceReference;
+                enableEnemyProperty.boolValue = false;
                 changed = true;
             }
 
-            if (playlistProperty != null && includeAmbienceReference)
+            if (enableAimPoseProperty != null && enableAimPoseProperty.boolValue)
             {
-                if (ambientPlaylist != null && playlistProperty.objectReferenceValue != ambientPlaylist)
-                {
-                    playlistProperty.objectReferenceValue = ambientPlaylist;
-                    changed = true;
-                }
-            }
-            else if (playlistProperty != null && playlistProperty.objectReferenceValue != null)
-            {
-                playlistProperty.objectReferenceValue = null;
+                enableAimPoseProperty.boolValue = false;
                 changed = true;
             }
 
-            if (applyOnStartProperty != null && !applyOnStartProperty.boolValue)
+            if (equipWeaponProperty != null && !equipWeaponProperty.boolValue)
             {
-                applyOnStartProperty.boolValue = true;
-                changed = true;
-            }
-
-            if (applyInEditorProperty != null && !applyInEditorProperty.boolValue)
-            {
-                applyInEditorProperty.boolValue = true;
-                changed = true;
-            }
-
-            if (debugProperty != null && debugProperty.boolValue)
-            {
-                debugProperty.boolValue = false;
-                changed = true;
-            }
-
-            if (armIkProperty != null && armIkProperty.boolValue)
-            {
-                armIkProperty.boolValue = false;
-                changed = true;
-            }
-
-            if (convergenceProperty != null && convergenceProperty.boolValue)
-            {
-                convergenceProperty.boolValue = false;
-                changed = true;
-            }
-
-            if (reticleModeProperty != null
-                && reticleModeProperty.enumValueIndex != (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift)
-            {
-                reticleModeProperty.enumValueIndex = (int)CCS_AimReticleMode.HybridCameraCenterWithMuzzleDrift;
-                changed = true;
-            }
-
-            if (reticleClampProperty != null && !reticleClampProperty.boolValue)
-            {
-                reticleClampProperty.boolValue = true;
-                changed = true;
-            }
-
-            if (maxDriftProperty != null
-                && !Mathf.Approximately(
-                    maxDriftProperty.floatValue,
-                    CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault))
-            {
-                maxDriftProperty.floatValue = CCS_WeaponsConstants.MasterTestMaxReticleDriftPixelsDefault;
-                changed = true;
-            }
-
-            if (pitchBlendProperty != null && pitchBlendProperty.boolValue)
-            {
-                pitchBlendProperty.boolValue = false;
-                changed = true;
-            }
-
-            if (aimDebugRaysProperty != null && aimDebugRaysProperty.boolValue)
-            {
-                aimDebugRaysProperty.boolValue = false;
+                equipWeaponProperty.boolValue = true;
                 changed = true;
             }
 
             serializedManager.ApplyModifiedPropertiesWithoutUndo();
+            return changed;
+        }
+
+        private static bool RemoveObsoleteDiagnosticComponents(GameObject diagnosticsRoot)
+        {
+            bool changed = false;
+            CCS_CharacterCameraDebugReporter cameraReporter =
+                diagnosticsRoot.GetComponent<CCS_CharacterCameraDebugReporter>();
+            if (cameraReporter != null)
+            {
+                Object.DestroyImmediate(cameraReporter, true);
+                changed = true;
+            }
+
+            CCS_PlayerDiagnosticsInputRouter inputRouter =
+                diagnosticsRoot.GetComponent<CCS_PlayerDiagnosticsInputRouter>();
+            if (inputRouter != null)
+            {
+                Object.DestroyImmediate(inputRouter, true);
+                changed = true;
+            }
+
             return changed;
         }
 

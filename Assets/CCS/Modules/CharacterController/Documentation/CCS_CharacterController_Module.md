@@ -320,4 +320,4 @@ Do **not** alter without an explicit, batch-validated milestone:
 
 ## Revolver animation summary
 
-Wild West one-handed revolver aim uses CCS-owned clips under `Content/Animations/Revolver/WildWest/` on the `RevolverUpperBody` layer. Held aim loop uses `Revolver_AimPitch_Blend` driven by `RevolverAimPitch` with Down/Center/Up `_FitTest` clips. `RevolverAimHeld` follows RMB; `RevolverIsMoving` follows locomotion speed. Legacy Invector-derived aim/fire clips under `Content/Animations/Combat/Revolver/` must not be assigned to active Animator states.
+Wild West one-handed revolver aim uses CCS-owned clips under `Content/Animations/Revolver/WildWest/` on the `RevolverUpperBody` layer. Held aim loop uses `Revolver_AimPitch_Blend` driven by `RevolverAimPitch` with Down/Center/Up `_FitTest` clips. `RevolverAimHeld` follows RMB; `RevolverIsMoving` follows locomotion speed. Legacy third-party pistol aim/fire clips under `Content/Animations/Combat/Revolver/` must not be assigned to active Animator states.

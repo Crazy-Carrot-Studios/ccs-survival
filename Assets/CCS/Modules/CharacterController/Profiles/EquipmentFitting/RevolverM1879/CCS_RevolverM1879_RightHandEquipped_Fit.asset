@@ -16,8 +16,8 @@ MonoBehaviour:
   weaponId: ccs.weapon.revolver.m1879
   characterRigId: ccs.character.testplayer.cc3_base_plus
   socketId: CCS_HandSocket_Right
-  socketLocalPosition: {x: 0.099, y: 0.176, z: 0.014}
-  socketLocalEulerAngles: {x: -48.275, y: 103.374, z: 64.828}
+  socketLocalPosition: {x: 0.091, y: 0.179, z: 0.005}
+  socketLocalEulerAngles: {x: -56.622, y: 110.661, z: 60}
   socketLocalScale: {x: 1, y: 1, z: 1}
-  notes: Right hand equipped preview fit. v0.7.10c manual alignment on CCS_RightHandRevolverAttachmentOffset.
+  notes: Right hand equipped preview fit. v0.7.13 tuned alignment on CCS_RightHandRevolverAttachmentOffset.
     Grip in palm, barrel forward, trigger guard near index finger.

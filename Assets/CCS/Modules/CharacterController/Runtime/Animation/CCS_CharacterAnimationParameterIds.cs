@@ -53,6 +53,24 @@ namespace CCS.Modules.CharacterController
         }
 
         /// <summary>
+        /// Experimental left-arm aim presentation parameters for v0.7.13 dual preview pass.
+        /// </summary>
+        public static class ExperimentalLeft
+        {
+            public const string LeftIsAiming = "LeftIsAiming";
+
+            public const string LeftRevolverDrawTrigger = "LeftRevolverDrawTrigger";
+
+            public const string LeftRevolverHolsterTrigger = "LeftRevolverHolsterTrigger";
+
+            public static readonly int LeftIsAimingHash = Animator.StringToHash(LeftIsAiming);
+
+            public static readonly int LeftRevolverDrawTriggerHash = Animator.StringToHash(LeftRevolverDrawTrigger);
+
+            public static readonly int LeftRevolverHolsterTriggerHash = Animator.StringToHash(LeftRevolverHolsterTrigger);
+        }
+
+        /// <summary>
         /// Planned parameter names for future weapon, interaction, and additive layers.
         /// Not registered on the Animator Controller and not written at runtime in v0.7.4.
         /// </summary>

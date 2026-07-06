@@ -36,7 +36,7 @@ namespace CCS.Modules.Weapons.Editor
 
             changed |= EnsureDamageTargetInScene();
             changed |= RemoveLooseRevolverSceneObjects();
-            changed |= EnsureRevolverWorldPickupInScene();
+            changed |= RemoveRevolverWorldPickupFromScene();
 
             if (changed)
             {
@@ -164,6 +164,42 @@ namespace CCS.Modules.Weapons.Editor
 
             return PrefabUtility.GetCorrespondingObjectFromSource(sceneObject) != null
                 && PrefabUtility.GetCorrespondingObjectFromSource(sceneObject).name == "ReichsrevolverM1879";
+        }
+
+        private static bool RemoveRevolverWorldPickupFromScene()
+        {
+            bool changed = false;
+            changed |= DestroySceneObjectByName(CCS_WeaponsConstants.RevolverM1879WorldPickupInstanceName);
+            changed |= DestroySceneObjectByName("PF_CCS_RevolverM1879_WorldPickup");
+
+            CCS_WeaponPickupInteractable[] pickups = Object.FindObjectsByType<CCS_WeaponPickupInteractable>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            for (int i = 0; i < pickups.Length; i++)
+            {
+                CCS_WeaponPickupInteractable pickup = pickups[i];
+                if (pickup == null)
+                {
+                    continue;
+                }
+
+                Object.DestroyImmediate(pickup.gameObject);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool DestroySceneObjectByName(string objectName)
+        {
+            GameObject existing = GameObject.Find(objectName);
+            if (existing == null)
+            {
+                return false;
+            }
+
+            Object.DestroyImmediate(existing);
+            return true;
         }
 
         private static bool EnsureRevolverWorldPickupInScene()

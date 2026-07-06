@@ -207,15 +207,21 @@ namespace CCS.Modules.CharacterController.Editor
             Transform modelRoot = CCS_PlayerModelRootUtility.FindModelRoot(prefab.transform);
             AppendIfMissing(failures, modelRoot != null, "Player prefab missing Model root.");
 
-            CCS_SingleRevolverAimAnimator aimAnimator = prefab.GetComponentInChildren<CCS_SingleRevolverAimAnimator>(true);
+            CCS_RevolverAimLayerAnimator aimAnimator = prefab.GetComponentInChildren<CCS_RevolverAimLayerAnimator>(true);
             AppendIfMissing(
                 failures,
                 aimAnimator != null,
-                "Player prefab missing CCS_SingleRevolverAimAnimator.");
+                "Player prefab missing CCS_RevolverAimLayerAnimator.");
             AppendIfMissing(
                 failures,
                 aimAnimator == null || aimAnimator.transform == modelRoot,
-                "CCS_SingleRevolverAimAnimator must be on Model root, not player root.");
+                "CCS_RevolverAimLayerAnimator must be on Model root, not player root.");
+
+            CCS_RevolverAimPresentationGate aimGate = prefab.GetComponent<CCS_RevolverAimPresentationGate>();
+            AppendIfMissing(
+                failures,
+                aimGate != null,
+                "Player root must contain CCS_RevolverAimPresentationGate.");
 
             Animator animator = prefab.GetComponentInChildren<Animator>(true);
             AppendIfMissing(failures, animator != null, "Player prefab missing Kevin Animator.");

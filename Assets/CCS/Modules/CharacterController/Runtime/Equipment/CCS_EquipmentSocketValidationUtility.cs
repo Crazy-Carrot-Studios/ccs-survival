@@ -179,6 +179,69 @@ namespace CCS.Modules.CharacterController
                 : CCS_SurvivalValidationResult.Pass("Player equipment socket foundation is valid.");
         }
 
+        public static CCS_SurvivalValidationResult ValidateStrippedBaselinePlayerEquipmentSocketFoundation(GameObject prefabRoot)
+        {
+            List<string> failures = new List<string>();
+            AppendIfMissing(failures, prefabRoot != null, "Player prefab is missing.");
+            if (prefabRoot == null)
+            {
+                return CCS_SurvivalValidationResult.Fail(string.Join(" ", failures));
+            }
+
+            CCS_EquipmentSocketRegistry registry = prefabRoot.GetComponent<CCS_EquipmentSocketRegistry>();
+            AppendIfMissing(
+                failures,
+                registry != null,
+                "Player prefab must contain CCS_EquipmentSocketRegistry.");
+
+            CCS_EquipmentSocketAnchor[] anchors = prefabRoot.GetComponentsInChildren<CCS_EquipmentSocketAnchor>(true);
+            AppendIfMissing(
+                failures,
+                anchors.Length == CCS_EquipmentConstants.RequiredSocketIds.Length,
+                "Player prefab must contain exactly six CCS_EquipmentSocketAnchor components.");
+
+            HashSet<string> uniqueIds = new HashSet<string>();
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                CCS_EquipmentSocketAnchor anchor = anchors[i];
+                if (anchor == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(anchor.SocketId))
+                {
+                    failures.Add("Player equipment socket anchor is missing socketId.");
+                    continue;
+                }
+
+                if (!uniqueIds.Add(anchor.SocketId))
+                {
+                    failures.Add("Duplicate player equipment socket ID: " + anchor.SocketId + ".");
+                }
+
+                if (anchor.transform.childCount > 0)
+                {
+                    failures.Add("Equipment socket " + anchor.SocketId + " must not have attached equipment children yet.");
+                }
+            }
+
+            for (int i = 0; i < CCS_EquipmentConstants.RequiredSocketIds.Length; i++)
+            {
+                AppendIfMissing(
+                    failures,
+                    uniqueIds.Contains(CCS_EquipmentConstants.RequiredSocketIds[i]),
+                    "Missing required player socket: " + CCS_EquipmentConstants.RequiredSocketIds[i] + ".");
+            }
+
+            ValidateNoLegacyRevolverSockets(failures, prefabRoot);
+            ValidateSocketParenting(failures, prefabRoot, anchors);
+
+            return failures.Count > 0
+                ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
+                : CCS_SurvivalValidationResult.Pass("Stripped baseline player equipment socket foundation is valid.");
+        }
+
         public static CCS_SurvivalValidationResult ValidatePlayerWeaponIkFoundation(GameObject prefabRoot)
         {
             List<string> failures = new List<string>();

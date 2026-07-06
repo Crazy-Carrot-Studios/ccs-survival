@@ -124,10 +124,27 @@ namespace CCS.Modules.AI.Editor
                 }
             }
 
-            changed |= DestroyIfPresent<CCS.Modules.Weapons.CCS_RevolverArmReticleIK>(modelRoot.gameObject);
-            changed |= DestroyIfPresent<CCS.Modules.Weapons.CCS_RevolverBodyAimFollowController>(modelRoot.gameObject);
+            changed |= DestroyComponentByTypeName(modelRoot.gameObject, "CCS_RevolverArmReticleIK");
+            changed |= DestroyComponentByTypeName(modelRoot.gameObject, "CCS_RevolverBodyAimFollowController");
             changed |= DestroyIfPresent<CCS_PlayerLocomotionAnimator>(modelRoot.gameObject);
             changed |= DestroyIfPresent<CCS_PlayerInteractionAnimator>(modelRoot.gameObject);
+            return changed;
+        }
+
+        private static bool DestroyComponentByTypeName(GameObject target, string typeName)
+        {
+            Component[] components = target.GetComponents<Component>();
+            bool changed = false;
+            for (int i = 0; i < components.Length; i++)
+            {
+                Component component = components[i];
+                if (component != null && component.GetType().Name == typeName)
+                {
+                    Object.DestroyImmediate(component, true);
+                    changed = true;
+                }
+            }
+
             return changed;
         }
 

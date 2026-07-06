@@ -40,7 +40,7 @@ namespace CCS.Modules.CharacterController.Editor
             builder.AppendLine("- Draw clip: `" + CCS_CharacterControllerConstants.WildWestIdleFulldrawRevolverClipPath + "`");
             builder.AppendLine("- Hold clip: `" + CCS_CharacterControllerConstants.WildWestFulldrawIdleClipPath + "`");
             builder.AppendLine("- Holster clip: `" + CCS_CharacterControllerConstants.WildWestIdleFullHolsterRevolverClipPath + "`");
-            builder.AppendLine("- Script: `Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_SingleRevolverAimAnimator.cs`");
+            builder.AppendLine("- Script: `Assets/CCS/Modules/CharacterController/Runtime/Animation/CCS_RevolverAimLayerAnimator.cs`");
             builder.AppendLine("- Prefab attachment: `" + CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath + "` / Model");
             builder.AppendLine();
 

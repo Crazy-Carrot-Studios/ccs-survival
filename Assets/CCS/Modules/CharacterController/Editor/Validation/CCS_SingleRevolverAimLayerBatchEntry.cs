@@ -26,7 +26,6 @@ namespace CCS.Modules.CharacterController.Editor
                 return;
             }
 
-            CCS_SingleRevolverAimLayerBuilder.EnsureSingleRevolverAimAnimatorOnNetworkedPlayerPrefab();
             CCS_PlayerVisualKevinSwapBuilder.EnsureKevinModelOnNetworkedPlayerPrefab();
 
             CCS_SurvivalValidationResult validationResult =

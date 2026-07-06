@@ -749,11 +749,11 @@ namespace CCS.Modules.CharacterController.Editor
                 !PrefabContainsComponentTypeName(prefabRoot, "CCS_RevolverUpperBodyAnimator"),
                 "Player prefab must not contain CCS_RevolverUpperBodyAnimator after Phase 3B locomotion-only reset.");
 
-            CCS_SingleRevolverAimAnimator aimAnimator = prefabRoot.GetComponentInChildren<CCS_SingleRevolverAimAnimator>(true);
+            CCS_RevolverAimLayerAnimator aimAnimator = prefabRoot.GetComponentInChildren<CCS_RevolverAimLayerAnimator>(true);
             AppendIfMissing(
                 failures,
                 aimAnimator != null,
-                "Player prefab must contain CCS_SingleRevolverAimAnimator on the Model presentation branch.");
+                "Player prefab must contain CCS_RevolverAimLayerAnimator on the Model presentation branch.");
 
             if (aimAnimator != null)
             {
@@ -761,8 +761,13 @@ namespace CCS.Modules.CharacterController.Editor
                 AppendIfMissing(
                     failures,
                     modelRoot != null && aimAnimator.transform == modelRoot,
-                    "CCS_SingleRevolverAimAnimator must be attached to the Model root, not the player root.");
+                    "CCS_RevolverAimLayerAnimator must be attached to the Model root, not the player root.");
             }
+
+            AppendIfMissing(
+                failures,
+                prefabRoot.GetComponent<CCS_RevolverAimPresentationGate>() != null,
+                "Player prefab must contain CCS_RevolverAimPresentationGate on the player root.");
 
             AppendValidationFailures(failures, ValidatePlayerAnimatorUsesExpectedController(prefabRoot));
 

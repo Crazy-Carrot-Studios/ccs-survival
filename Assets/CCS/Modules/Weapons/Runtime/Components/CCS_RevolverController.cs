@@ -205,7 +205,7 @@ namespace CCS.Modules.Weapons
         public void ConfigureAimVisualTestSettings(
             bool armToReticleIkEnabled,
             bool visualAimConvergenceEnabled,
-            CCS_AimReticleMode reticleMode,
+            int reticleMode,
             bool reticleClampEnabled,
             float maxReticleDriftPixels,
             bool muzzleAuthoritativeShotsEnabled,
@@ -215,17 +215,6 @@ namespace CCS.Modules.Weapons
             enableMuzzleAuthoritativeShots = muzzleAuthoritativeShotsEnabled;
             enableAimRayDebug = aimDebugRaysEnabled;
             enableMuzzleDebug = aimDebugRaysEnabled;
-
-            CCS_RevolverArmReticleIK armReticleIk = GetComponentInChildren<CCS_RevolverArmReticleIK>(true);
-            armReticleIk?.SetArmToReticleIkEnabled(armToReticleIkEnabled);
-
-            CCS_MuzzleDrivenReticleController muzzleReticle =
-                GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
-            muzzleReticle?.ConfigureReticle(
-                reticleMode,
-                reticleClampEnabled,
-                maxReticleDriftPixels,
-                aimDebugRaysEnabled);
         }
 
         public bool EnableMuzzleAuthoritativeShots => enableMuzzleAuthoritativeShots;
@@ -482,13 +471,6 @@ namespace CCS.Modules.Weapons
                 || debugVisualConvergence || debugAimCameraAlignment;
             bool drawMuzzleDebug = enableRuntimeWeaponDebug || enableMuzzleDebug || debugAimAlignment
                 || debugVisualConvergence || debugAimCameraAlignment;
-
-            CCS_MuzzleDrivenReticleController muzzleReticle =
-                GetComponentInChildren<CCS_MuzzleDrivenReticleController>(true);
-            if (muzzleReticle != null && muzzleReticle.ReticleMode != CCS_AimReticleMode.CenterLocked)
-            {
-                viewportPoint = muzzleReticle.GetMuzzleReticleViewportPoint(resolvedCamera);
-            }
 
             CCS_WeaponShotAimMode aimMode = enableMuzzleAuthoritativeShots
                 ? CCS_WeaponShotAimMode.DebugMuzzleForwardOnly

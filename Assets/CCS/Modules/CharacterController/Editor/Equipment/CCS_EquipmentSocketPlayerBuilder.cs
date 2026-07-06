@@ -62,7 +62,6 @@ namespace CCS.Modules.CharacterController.Editor
             changed |= EnsureSocketRegistry(prefabRoot, profile);
             changed |= EnsureWeaponIkTargets(visualRoot);
             changed |= EnsureWeaponIkRig(visualRoot, animator, hasHumanoidRig);
-            changed |= CCS_RevolverArmReticleIKBuilder.EnsureRevolverArmReticleIk(prefabRoot, visualRoot, animator);
             changed |= RemoveFirstPersonRevolverArmPresentationArtifacts(prefabRoot, visualRoot);
 
             if (hasHumanoidRig)

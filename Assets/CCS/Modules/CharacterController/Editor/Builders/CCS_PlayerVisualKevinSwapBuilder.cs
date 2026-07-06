@@ -271,10 +271,9 @@ namespace CCS.Modules.CharacterController.Editor
         {
             bool changed = false;
             changed |= EnsureComponent<CCS_PlayerLocomotionAnimator>(modelRoot.gameObject);
-            changed |= EnsureComponent<CCS_PlayerInteractionAnimator>(modelRoot.gameObject);
-            changed |= EnsureComponent<CCS_SingleRevolverAimAnimator>(modelRoot.gameObject);
-            changed |= EnsureComponent<CCS_RevolverArmReticleIK>(modelRoot.gameObject);
-            changed |= EnsureComponent<CCS_RevolverBodyAimFollowController>(modelRoot.gameObject);
+            changed |= EnsureComponent<CCS_RevolverAimLayerAnimator>(modelRoot.gameObject);
+            changed |= EnsureComponent<CCS_PlayerHolsteredRevolverVisualPresenter>(modelRoot.gameObject);
+            changed |= EnsureComponent<CCS_PlayerEquippedRevolverAimVisualPresenter>(modelRoot.gameObject);
             return changed;
         }
 

@@ -127,6 +127,10 @@ namespace CCS.Modules.CharacterController
 
         public const string RightHandRevolverAttachmentOffsetObjectName = "CCS_RightHandRevolverAttachmentOffset";
 
+        public const string LeftHandRevolverAttachmentOffsetObjectName = "CCS_LeftHandRevolverAttachmentOffset";
+
+        public const string LeftHandEquippedVisualObjectName = "CCS_RUNTIME_Revolver_LeftHandEquippedVisual";
+
         public const string LegacyRuntimeEquippedAttachmentRootObjectName = "CCS_RUNTIME_Revolver_EquippedAttachmentRoot";
 
         public const string RuntimeEquippedAttachmentRootObjectName = RightHandRevolverAttachmentOffsetObjectName;
@@ -150,6 +154,8 @@ namespace CCS.Modules.CharacterController
             RuntimeHolsterAttachmentRootObjectName,
             RuntimeHolsteredVisualObjectName,
             RightHandRevolverAttachmentOffsetObjectName,
+            LeftHandRevolverAttachmentOffsetObjectName,
+            LeftHandEquippedVisualObjectName,
             LegacyRuntimeEquippedAttachmentRootObjectName,
             RuntimeEquippedAimConvergenceRootObjectName,
             RuntimeEquippedVisualObjectName,
@@ -182,6 +188,12 @@ namespace CCS.Modules.CharacterController
 
         public const string RevolverM1879RightHandEquippedFitPath =
             RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_RightHandEquipped_Fit.asset";
+
+        public const string RevolverM1879LeftHandEquippedFitPath =
+            RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_LeftHandEquipped_Fit.asset";
+
+        public const string RevolverM1879VisualOnlyPrefabPath =
+            "Assets/CCS/Modules/Weapons/Content/RevolverM1879/Prefabs/PF_CCS_RevolverM1879_VisualOnly.prefab";
 
         public const string RevolverM1879AimIkPosePath =
             RevolverM1879FitProfileFolderPath + "/CCS_RevolverM1879_AimIKPose.asset";
