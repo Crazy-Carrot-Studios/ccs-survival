@@ -176,7 +176,7 @@ namespace CCS.Modules.CharacterController.Editor
 
             AppendValidationResult(
                 failures,
-                CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences());
+                CCS_CharacterControllerAnimationValidationUtility.ValidateNoLegacyExternalShooterPackageInProject());
 
             GameObject networkedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 CCS_PlayerPrefabConstants.NetworkedPlayerPrefabPath);

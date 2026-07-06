@@ -12,7 +12,7 @@ using UnityEngine;
 // PLACEMENT: Editor utility invoked from animation isolation menu and master test setup.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.4 — isolates Invector revolver upper-body clips and wires RevolverUpperBody layer.
+// NOTES: v0.6.4 — isolates legacy revolver upper-body clips and wires RevolverUpperBody layer.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -160,12 +160,6 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerConstants.WildWestRevolverFireFanningClipPath,
                 CCS_CharacterControllerConstants.AnimatorRevolverFireStateName,
                 loopTimeOverride: false),
-            new ClipIsolationEntry(
-                CCS_CharacterControllerConstants.InvectorShotReloadFbxPath,
-                "Reload_Pistol",
-                CCS_CharacterControllerConstants.RevolverReloadClipPath,
-                CCS_CharacterControllerConstants.AnimatorRevolverReloadStateName,
-                loopTimeOverride: false),
         };
 
         private static readonly ClipIsolationEntry[] WildWestRevolverArchiveIsolationPlan =
@@ -214,8 +208,7 @@ namespace CCS.Modules.CharacterController.Editor
         public static bool EnsurePlayerAnimationIsolation()
         {
             EnsureAnimationFolders();
-            bool changed = EnsureVendorSourceInvectorAnimations();
-            changed |= CleanupLegacyInvectorContent();
+            bool changed = CleanupLegacyImportedShooterPackageFolder();
             Dictionary<string, AnimationClip> clipsByStateName = new Dictionary<string, AnimationClip>();
 
             for (int i = 0; i < IsolationPlan.Length; i++)
@@ -471,49 +464,9 @@ namespace CCS.Modules.CharacterController.Editor
             EnsureFolder(CCS_CharacterControllerConstants.RevolverAimAnimationsPath);
             EnsureFolder(CCS_CharacterControllerConstants.RevolverAimMasksPath);
             EnsureFolder(CCS_CharacterControllerConstants.CombatRevolverAnimationsPath);
-            EnsureFolder(CCS_CharacterControllerConstants.VendorSourceInvectorAnimationsPath);
         }
 
-        private static bool EnsureVendorSourceInvectorAnimations()
-        {
-            bool changed = false;
-            changed |= MoveAssetIfExists(
-                CCS_CharacterControllerConstants.LegacyInvectorAnimationsRootPath + "/Shooter_UpperBodyPoses.fbx",
-                CCS_CharacterControllerConstants.InvectorUpperBodyPosesFbxPath);
-            changed |= MoveAssetIfExists(
-                CCS_CharacterControllerConstants.LegacyInvectorAnimationsRootPath + "/Shooter_Shot&Reload.fbx",
-                CCS_CharacterControllerConstants.InvectorShotReloadFbxPath);
-            return changed;
-        }
-
-        private static bool MoveAssetIfExists(string sourcePath, string destinationPath)
-        {
-            sourcePath = sourcePath.Replace('\\', '/');
-            destinationPath = destinationPath.Replace('\\', '/');
-
-            if (!File.Exists(sourcePath))
-            {
-                return false;
-            }
-
-            if (File.Exists(destinationPath))
-            {
-                AssetDatabase.DeleteAsset(sourcePath);
-                return true;
-            }
-
-            EnsureFolder(Path.GetDirectoryName(destinationPath)?.Replace('\\', '/'));
-            string moveResult = AssetDatabase.MoveAsset(sourcePath, destinationPath);
-            if (!string.IsNullOrEmpty(moveResult))
-            {
-                Debug.LogError("[Animation Isolation] Failed to move " + sourcePath + " -> " + destinationPath + ": " + moveResult);
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool CleanupLegacyInvectorContent()
+        private static bool CleanupLegacyImportedShooterPackageFolder()
         {
             const string legacyRoot = "Assets/Invector-3rdPersonController";
             bool changed = false;

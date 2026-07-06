@@ -9,7 +9,7 @@ using UnityEngine;
 // PLACEMENT: Editor batch utility. Not attached to GameObjects.
 // AUTHOR: James Schilz
 // CREATED: 2026-06-07
-// NOTES: v0.6.4 — validates revolver upper-body isolation and no Invector runtime references.
+// NOTES: v0.6.4 — validates revolver upper-body isolation and no legacy external package runtime references.
 // =============================================================================
 
 namespace CCS.Modules.CharacterController.Editor
@@ -27,7 +27,7 @@ namespace CCS.Modules.CharacterController.Editor
                 CCS_CharacterControllerAnimationValidationUtility.ValidateAimStrafeAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverUpperBodyAnimationIsolation(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateRevolverWildWestHardReplaceAimRuntime(),
-                CCS_CharacterControllerAnimationValidationUtility.ValidateNoInvectorRuntimeReferences(),
+                CCS_CharacterControllerAnimationValidationUtility.ValidateNoLegacyExternalShooterPackageInProject(),
                 CCS_CharacterControllerAnimationValidationUtility.ValidateFullDrawClipPreservedAfterBuilder()
             };
 

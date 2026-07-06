@@ -79,16 +79,11 @@ namespace CCS.Modules.CharacterController
 
         public const string MapAdditionalsFbxPath = "Assets/MovementAnimsetPro/Animations/MovementAnimsetPro_Additionals.fbx";
 
-        public const string VendorSourceInvectorAnimationsPath = "Assets/VendorSource/Invector/Shooter/Animations";
+        public const string PistolTwoHandedAimHoldClipPath =
+            ContentAnimationsRootPath + "/Pistol/TwoHanded/CCS_Pistol_TwoHand_AimHold.anim";
 
-        public const string InvectorUpperBodyPosesFbxPath =
-            VendorSourceInvectorAnimationsPath + "/Shooter_UpperBodyPoses.fbx";
-
-        public const string InvectorShotReloadFbxPath =
-            VendorSourceInvectorAnimationsPath + "/Shooter_Shot&Reload.fbx";
-
-        public const string LegacyInvectorAnimationsRootPath =
-            "Assets/Invector-3rdPersonController/Shooter/3DModels/Animations";
+        public const string PistolAimTestControllerPath =
+            ContentAnimationsRootPath + "/Pistol/AC_CCS_PistolAim_Test.controller";
 
         public const string RevolverUpperBodyMaskPath =
             CombatRevolverAnimationsPath + "/CCS_Revolver_UpperBody.mask";

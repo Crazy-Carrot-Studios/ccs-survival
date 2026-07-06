@@ -698,14 +698,14 @@ namespace CCS.Modules.CharacterController.Editor
             return ValidateSimplifiedRevolverAimController();
         }
 
-        public static CCS_SurvivalValidationResult ValidateNoInvectorRuntimeReferences()
+        public static CCS_SurvivalValidationResult ValidateNoLegacyExternalShooterPackageInProject()
         {
             List<string> failures = new List<string>();
 
             AppendIfMissing(
                 failures,
                 !Directory.Exists("Assets/Invector-3rdPersonController"),
-                "Legacy Invector import folder must be removed from Assets/Invector-3rdPersonController.");
+                "Legacy external shooter package import folder must be removed from Assets root.");
 
             string[] runtimeAssetGuids = AssetDatabase.FindAssets(
                 "t:AnimatorController t:Prefab t:Scene",
@@ -726,13 +726,13 @@ namespace CCS.Modules.CharacterController.Editor
                 string assetText = File.ReadAllText(assetPath);
                 if (assetText.Contains("Invector-3rdPersonController"))
                 {
-                    failures.Add("Runtime CCS asset references legacy Invector path: " + assetPath);
+                    failures.Add("Runtime CCS asset references legacy external package path: " + assetPath);
                 }
             }
 
             return failures.Count > 0
                 ? CCS_SurvivalValidationResult.Fail(string.Join(" ", failures))
-                : CCS_SurvivalValidationResult.Pass("No runtime references to legacy Invector assets.");
+                : CCS_SurvivalValidationResult.Pass("No runtime references to legacy external shooter package assets.");
         }
 
         public static CCS_SurvivalValidationResult ValidatePlayerRevolverUpperBodyAnimator(GameObject prefabRoot)

@@ -4,12 +4,12 @@ CCS-owned runtime animation clips for the canonical test player Animator Control
 
 ## Policy
 
-- Third-party animation packs (Starter Assets, Movement Animset Pro, Invector, etc.) are **source libraries only**.
+- Third-party animation packs (Starter Assets, Movement Animset Pro, external shooter reference, etc.) are **source libraries only**.
 - Production Animator Controllers must reference **CCS-owned `.anim` copies** under this folder.
 - Do **not** edit vendor clips directly.
 - Do **not** reference vendor FBX sub-assets directly from production Animator Controllers.
-- Vendor assets live under `Assets/VendorSource/` and must not appear in runtime prefabs, scenes, or Animator Controllers.
-- Invector scripts, prefabs, controllers, UI, inventory, and weapon systems are **not** part of CCS runtime.
+- External reference assets live in the separate **CCS_Assets** project and must not appear in `ccs-survival` runtime prefabs, scenes, or Animator Controllers.
+- External vendor scripts, prefabs, controllers, UI, inventory, and weapon systems are **not** part of CCS runtime.
 
 ## Folder layout
 
@@ -18,7 +18,9 @@ CCS-owned runtime animation clips for the canonical test player Animator Control
 | `Locomotion/` | Idle, walk, run/sprint, jump, in-air clips |
 | `Interaction/` | Pickup, door, and other interact animation clips |
 | `Combat/AimStrafe/` | MAP-isolated aim strafe/backpedal locomotion clips |
-| `Combat/Revolver/` | Invector-isolated revolver upper-body aim/fire/reload clips and mask |
+| `Combat/Revolver/` | Archive legacy two-handed revolver upper-body clips |
+| `Pistol/` | v0.7.14+ CCS-owned pistol aim clips and test controllers |
+| `Pistol/TwoHanded/` | Two-handed pistol aim hold and related clips |
 
 ## Aim Strafe Animation Policy
 
@@ -28,26 +30,15 @@ CCS-owned runtime animation clips for the canonical test player Animator Control
 
 ## Revolver Upper-Body Animation Policy
 
-- Revolver upper-body clips are isolated from Invector source FBXs into CCS-owned `.anim` files under `Combat/Revolver/`.
-- Runtime Animator Controllers must reference only CCS-owned `.anim` clips and CCS-owned masks.
-- `RevolverUpperBody` is an override layer masked to upper body; locomotion remains on the base layer.
-- Layer weight and animator parameters are driven by `CCS_RevolverUpperBodyAnimator` (CharacterController), not by Weapons gameplay code.
+- Legacy revolver upper-body clips under `Combat/Revolver/` are archive-only.
+- Active Wild West one-handed aim uses `Revolver/WildWest/`.
+- New two-handed pistol aim reference work uses `Pistol/TwoHanded/`.
 
 ## Adding new clips
 
 1. Identify the vendor source clip (FBX sub-asset or standalone `.anim`).
 2. Duplicate/extract into the correct folder using naming:
    - `CCS_Locomotion_<OriginalClipName>.anim`
-   - `CCS_Interaction_<OriginalClipName>.anim`
-   - `CCS_Revolver_<Purpose>_UpperBody.anim` (revolver upper-body)
-3. Rewire `AC_CCS_Player_Locomotion_StarterAssets.controller` to the CCS copy.
-4. Run **CCS → Character Controller → Animations → Validate Player Animation Isolation**.
-
-## Tooling
-
-| Menu | Action |
-|------|--------|
-| **CCS → Character Controller → Animations → Isolate Player Animation Clips** | Duplicate vendor clips and rewire player AC |
-| **CCS → Character Controller → Animations → Validate Player Animation Isolation** | Fail if any AC motion is outside this folder |
-
-Batch entry: `CCS.Modules.CharacterController.Editor.CCS_CharacterControllerAnimationIsolationBatchEntry.RunFromBatchMode`
+   - `CCS_Pistol_<Purpose>.anim`
+3. Confirm license allows duplication into CCS-owned paths.
+4. Wire only CCS-owned `.anim` files into production Animator Controllers.
